@@ -8,7 +8,11 @@
 # this is just the formal definition of the graphical elements !
 
 import pyqtgraph as pg
-import math 
+import math
+try:
+    import hidra
+except ImportError:
+    print("without hidra installed this does not make sense")
 
 from PyQt4 import QtCore, QtGui
 import sys
@@ -16,7 +20,7 @@ import sys
 
 class gui_definition(QtGui.QDialog):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, signal_host=None, target=None):
         super(gui_definition, self).__init__(parent)
 
         # make a grid layout
@@ -56,9 +60,10 @@ class hidra_widget(QtGui.QWidget):
     Connect and disconnect hidra service.
     """    
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, signal_host=None, target=None):
         super(hidra_widget, self).__init__(parent)
-        
+        self.signal_host=signal_host
+        self.target=target
         self.connected = False
         # grid/table layout: 
         # | label:         | server name/details |
@@ -82,7 +87,7 @@ class hidra_widget(QtGui.QWidget):
     def toggleServerConnection(self):
         if(not self.connected):
             try:
-                magic_hidra_connect_command
+                establish_hidra_connection(self.signal_host, self.target)
             except:
                 print("Big big connect error")
                 return 
@@ -252,14 +257,24 @@ class image_widget(QtGui.QWidget):
             self.img_widget.addItem(self.vLine, ignoreBounds=True)
             self.img_widget.addItem(self.hLine, ignoreBounds=True)
         else:
-            self.imageItem.setImage(data)
+            self.imageItem.setImage(self.nparray)
             
+
+def establish_hidra_connection(signal_host=None, target=None):
+    try:
+        query = hidra.Transfer("QUERY_NEXT", signal_host)
+        query.initiate(target)
+        query.start()
+    except:
+        query.stop()	# remove list entry established by query.initiate()
+        sys.exit(255)	# exit - should be replaced by retrying query with other port
+
 
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     
-    dialog = gui_definition()
+    dialog = gui_definition(signal_host = "haspp03pilatus.desy.de", target = [["haspp03.desy.de", "50111", 0, [".cbf"]]])
     #dialog = image_widget()
     
     # to take out: generate random image
