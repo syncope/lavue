@@ -1,3 +1,9 @@
+# A.R., FSEC
+#
+# history:
+#
+# version 0, Feb 22, 2017, A.R.
+
 
 def decompress_cbf_c(stream, vals):
 	xdim=long(487)
