@@ -20,23 +20,22 @@ class gui_definition(QtGui.QDialog):
         super(gui_definition, self).__init__(parent)
 
         vlayout = QtGui.QVBoxLayout()
-        hw = hidra_widget()
-        self.isw = intensityscaling_widget()
-        self.lsw = limits_widget()
-        self.stats = statistics_widget()
+        self.hw = hidra_widget(parent = self)
+        self.isw = intensityscaling_widget(parent = self)
+        self.lsw = limits_widget(parent = self)
+        self.stats = statistics_widget(parent = self)
+        self.img_w = image_widget(parent = self)
 
         globallayout = QtGui.QHBoxLayout()
         
-        self.img_w = image_widget()
-
         self.raw_image = None
         self.image_name = None
 
         # define grid elements
-        vlayout.addWidget(hw)
+        vlayout.addWidget(self.hw)
         vlayout.addWidget(self.isw)
-        vlayout.addWidget(self.lsw)
         vlayout.addWidget(self.stats)
+        vlayout.addWidget(self.lsw)
 
         globallayout.addLayout(vlayout)
         globallayout.addWidget(self.img_w)
@@ -47,21 +46,22 @@ class gui_definition(QtGui.QDialog):
 
         self.isw.changeScaling.connect(self.replot)
         self.lsw.limitsChanged.connect(self.img_w.setLimits)
-        self.lsw.limitsChanged.connect(self.replotagain)
+        self.img_w.limitsHaveChanged.connect(self.replot)
 
     def plot(self, nparr, name):
         self.image_name = name
         self.raw_image = nparr
         self.img_w.plot(nparr, self.isw.getCurrentScaling(), name)
-        self.stats.setMaxMeanVar(str("%.4f" % np.amax(nparr)),
-                                 str("%.4f" % np.mean(nparr)),
-                                 str("%.4f" % np.var(nparr)))
+        self.stats.setMaxMeanVar(np.amax(nparr), np.mean(nparr), np.var(nparr))
 
-    def replot(self, style):
-        self.img_w.plot(self.raw_image, style)
+    def replot(self, style=None):
+        if style is None:
+            self.img_w.plot(self.raw_image, self.isw.getCurrentScaling())
+        else:
+            self.stats.setMaxMeanVar(np.amax(self.raw_image), np.mean(self.raw_image), np.var(self.raw_image))
+            self.stats.changeScaling(style)
+            self.img_w.plot(self.raw_image, style)
 
-    def replotagain(self, lowlim, uplim):
-        self.img_w.plot(self.raw_image, self.isw.getCurrentScaling(), self.image_name)
 
 
 class hidra_widget(QtGui.QGroupBox):
@@ -213,7 +213,6 @@ class limits_widget(QtGui.QGroupBox):
 
     def broadcast_limits(self):
         self.limitsChanged.emit(self.minVal.value(), self.maxVal.value())
-        print("values are: " + repr(self.minVal.value()) + " " + repr(self.maxVal.value()))
 
 class statistics_widget(QtGui.QGroupBox):
 
@@ -227,6 +226,11 @@ class statistics_widget(QtGui.QGroupBox):
         self.setTitle("Image statistics")
         layout = QtGui.QGridLayout()
         
+        self.scaling = "sqrt"
+        
+        scalingLabel = QtGui.QLabel("Scaling:")
+        self.scaleLabel = QtGui.QLabel(self.scaling)
+        
         maxlabel = QtGui.QLabel("maximum: ")
         meanlabel = QtGui.QLabel("mean: ")
         variancelabel = QtGui.QLabel("variance: ")
@@ -234,20 +238,38 @@ class statistics_widget(QtGui.QGroupBox):
         self.maxVal = QtGui.QLineEdit("Not set")
         self.meanVal = QtGui.QLineEdit("Not set")
         self.varVal = QtGui.QLineEdit("Not set")
-
-        layout.addWidget(maxlabel,0,0  )
-        layout.addWidget(self.maxVal,0,1 )
-        layout.addWidget(meanlabel,1,0  )
-        layout.addWidget(self.meanVal,1,1  )
-        layout.addWidget(variancelabel,2,0  )
-        layout.addWidget( self.varVal,2,1 )
+        layout.addWidget(scalingLabel, 0, 0)
+        layout.addWidget(self.scaleLabel, 0,1)
+        
+        layout.addWidget(maxlabel,1,0  )
+        layout.addWidget(self.maxVal,1,1 )
+        layout.addWidget(meanlabel,2,0  )
+        layout.addWidget(self.meanVal,2,1  )
+        layout.addWidget(variancelabel,3,0  )
+        layout.addWidget( self.varVal,3,1 )
         
         self.setLayout(layout)
 
     def setMaxMeanVar(self, mx, mean, var):
-        self.maxVal.setText(mx)
-        self.meanVal.setText(mean)
-        self.varVal.setText(var)
+        if self.scaling == "lin":
+            self.maxVal.setText(str("%.4f" % mx))
+            self.meanVal.setText(str("%.4f" % mean))
+            self.varVal.setText(str("%.4f" % var))
+        elif self.scaling == "sqrt":
+            self.maxVal.setText(str("%.4f" % math.sqrt(mx)))
+            self.meanVal.setText(str("%.4f" % math.sqrt(mean)))
+            self.varVal.setText(str("%.4f" % math.sqrt(var)))
+        elif self.scaling == "log":
+            self.maxVal.setText(str("%.4f" % math.log(mx)))
+            self.meanVal.setText(str("%.4f" % math.log(mean)))
+            self.varVal.setText(str("%.4f" % math.log(var)))
+        self.show()
+
+    def changeScaling(self, scaling):
+        if self.scaling != scaling:
+            self.scaling = scaling
+            self.scaleLabel.setText(self.scaling)
+
 
 class imagetransformations_widget(QtGui.QWidget):
 
@@ -332,9 +354,11 @@ class image_widget(QtGui.QWidget):
         xdata = mousePoint.x()
         ydata = mousePoint.y()
 
+        # if double click: fix mouse crosshair
+        # another double click releases the crosshair again
         #~ if event.double():
             #~ self.crosshair_locked = not self.crosshair_locked
-#~ 
+            #~ 
             #~ if not self.crosshair_locked:
                 #~ self.vLine.setPos(xdata)
                 #~ self.hLine.setPos(ydata)
@@ -370,9 +394,8 @@ class image_widget(QtGui.QWidget):
             self.imageItem.setImage(drawarray, levels=self.levels)
 
     def setLimits(self,lowlim, uplim):
-        self.limitsSet = True
         if self.levels[0] != lowlim or self.levels[1] != uplim:
-            print(" actually updating...?")
+            self.levelsSet = True
             self.levels = [lowlim, uplim]
             self.limitsHaveChanged.emit()
             
@@ -382,13 +405,12 @@ if __name__ == "__main__":
 
     dialog = gui_definition(signal_host="haspp03pilatus.desy.de",
                             target=[["haspp03.desy.de", "50111", 0, [".cbf"]]])
-    # dialog = image_widget()
+    from PyQt4 import QtTest
 
-    # to take out: generate random image
-    import numpy as np
-    rand_arr = np.random.rand(550, 550)
-
-    dialog.plot(rand_arr,"random number test")
-    #~ dialog = hidra_widget()
+    i=1
     dialog.show()
-    i = input()
+    while True:
+        rand_arr = 10*np.random.rand(100, 100)
+        dialog.plot(rand_arr,"random number test nr. " + str(i))
+        i += 1
+        QtTest.QTest.qWait(2000)
