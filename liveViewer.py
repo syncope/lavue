@@ -8,6 +8,7 @@
 
 import pyqtgraph as pg
 import math
+import numpy as np
 
 from PyQt4 import QtCore, QtGui
 import sys
@@ -21,9 +22,10 @@ class gui_definition(QtGui.QDialog):
         vlayout = QtGui.QVBoxLayout()
         hw = hidra_widget()
         self.isw = intensityscaling_widget()
+        self.stats = statistics_widget()
 
         globallayout = QtGui.QHBoxLayout()
-
+        
         self.img_w = image_widget()
 
         self.raw_image = None
@@ -31,6 +33,7 @@ class gui_definition(QtGui.QDialog):
         # define grid elements
         vlayout.addWidget(hw)
         vlayout.addWidget(self.isw)
+        vlayout.addWidget(self.stats)
 
         globallayout.addLayout(vlayout)
         globallayout.addWidget(self.img_w)
@@ -41,9 +44,12 @@ class gui_definition(QtGui.QDialog):
 
         self.isw.changeScaling.connect(self.replot)
 
-    def plot(self, nparr):
+    def plot(self, nparr, name):
         self.raw_image = nparr
-        self.img_w.plot(nparr, self.isw.getCurrentScaling())
+        self.img_w.plot(nparr, name, self.isw.getCurrentScaling())
+        self.stats.setMaxMeanVar(str(np.amax(nparr)),  
+                                    str(np.mean(nparr)), 
+                                    str(np.var(nparr)))
 
     def replot(self, style):
         self.img_w.plot(self.raw_image, style)
@@ -74,7 +80,7 @@ class hidra_widget(QtGui.QGroupBox):
         #~ self.widget20 = QtGui.QLineEdit("Not connected")
         self.widget21 = QtGui.QPushButton("Connect")
 
-        self.widget21   .clicked.connect(self.toggleServerConnection)
+        self.widget21.clicked.connect(self.toggleServerConnection)
 
         gridlayout.addWidget(self.widget00, 0, 0)
         gridlayout.addWidget(self.widget10, 1, 0)
@@ -164,6 +170,39 @@ class intensityscaling_widget(QtGui.QGroupBox):
         else:
             self.changeScaling.emit("sqrt")
 
+class statistics_widget(QtGui.QGroupBox):
+
+    """
+    Display some general image statistics.
+    """
+
+    def __init__(self, parent=None):
+        super(statistics_widget, self).__init__(parent)
+        
+        self.setTitle("Image statistics")
+        layout = QtGui.QGridLayout()
+        
+        maxlabel = QtGui.QLabel("maximum: ")
+        meanlabel = QtGui.QLabel("mean: ")
+        variancelabel = QtGui.QLabel("variance: ")
+        
+        self.maxVal = QtGui.QLineEdit("Not set")
+        self.meanVal = QtGui.QLineEdit("Not set")
+        self.varVal = QtGui.QLineEdit("Not set")
+
+        layout.addWidget(maxlabel,0,0  )
+        layout.addWidget(self.maxVal,0,1 )
+        layout.addWidget(meanlabel,1,0  )
+        layout.addWidget(self.meanVal,1,1  )
+        layout.addWidget(variancelabel,2,0  )
+        layout.addWidget( self.varVal,2,1 )
+        
+        self.setLayout(layout)
+
+    def setMaxMeanVar(self, mx, mean, var):
+        self.maxVal.setText(repr(mx))
+        self.meanVal.setText(repr(mean))
+        self.varVal.setText(repr(var))
 
 class imagetransformations_widget(QtGui.QWidget):
 
@@ -251,7 +290,8 @@ class image_widget(QtGui.QWidget):
                 self.vLine.setPos(xdata)
                 self.hLine.setPos(ydata)
 
-    def plot(self, nparr, style):
+    def plot(self, nparr, name, style):
+        self.filenamedisplay.setText(name)
         self.nparray = nparr
         if style == "lin":
             drawarray = nparr
@@ -283,7 +323,7 @@ if __name__ == "__main__":
     import numpy as np
     rand_arr = np.random.rand(550, 550)
 
-    dialog.plot(rand_arr)
+    dialog.plot(rand_arr,"random number test")
     #~ dialog = hidra_widget()
     dialog.show()
     i = input()
