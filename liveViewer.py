@@ -6,25 +6,32 @@
 # base it on a qt dialog
 # this is just the formal definition of the graphical elements !
 
-import pyqtgraph as pg
+import sys
 import math
+import socket
+import pyqtgraph as pg
 import numpy as np
 
 from PyQt4 import QtCore, QtGui
-import sys
 
+import hidra_cbf_source as hcs
+import mystery
 
 class gui_definition(QtGui.QDialog):
 
     def __init__(self, parent=None, signal_host=None, target=None):
         super(gui_definition, self).__init__(parent)
 
+        self.data_source = hcs.HiDRA_cbf_source(socket.getfqdn(),mystery.value)
+        
         vlayout = QtGui.QVBoxLayout()
         self.hw = hidra_widget(parent = self)
         self.isw = intensityscaling_widget(parent = self)
         self.lsw = limits_widget(parent = self)
         self.stats = statistics_widget(parent = self)
         self.img_w = image_widget(parent = self)
+
+        self.hw.setNames(str(self.data_source.getNames()[0]), str(self.data_source.getNames()[1]))
 
         globallayout = QtGui.QHBoxLayout()
         
@@ -47,6 +54,11 @@ class gui_definition(QtGui.QDialog):
         self.isw.changeScaling.connect(self.replot)
         self.lsw.limitsChanged.connect(self.img_w.setLimits)
         self.img_w.limitsHaveChanged.connect(self.replot)
+        self.hw.hidra_connect.connect(self.connect_hidra)
+        self.hw.hidra_connect.connect(self.startPlotting)
+        self.hw.hidra_disconnect.connect(self.stopPlotting)
+        self.hw.hidra_connect.connect(self.disconnect_hidra)
+        self.timer = QtCore.QTimer()
 
     def plot(self, nparr, name):
         self.image_name = name
@@ -62,13 +74,34 @@ class gui_definition(QtGui.QDialog):
             self.stats.changeScaling(style)
             self.img_w.plot(self.raw_image, style)
 
+    def startPlotting(self):
+        # only start plotting if the connection is really established
+        if not self.hw.isConnected():
+            return
 
+        while True:
+            self.timer.timeout.connect(lambda: self.plot(self.data_source.getData()))
+            self.timer.start(2000)
+       
+    def stopPlotting(self):
+        self.timer.stop()
+        
+    def connect_hidra(self):
+        if not self.data_source.connect():
+            print("<WARNING> The HiDRA connection could not be established. Check the settings.")
+    
+    def disconnect_hidra(self):
+        self.data_source.disconnect()
+        
 
 class hidra_widget(QtGui.QGroupBox):
 
     """
     Connect and disconnect hidra service.
     """
+    hidra_disconnect = QtCore.pyqtSignal()
+    hidra_connect = QtCore.pyqtSignal()
+
 
     def __init__(self, parent=None, signal_host=None, target=None):
         super(hidra_widget, self).__init__(parent)
@@ -82,41 +115,46 @@ class hidra_widget(QtGui.QGroupBox):
         # | connect button |  status display     |
         gridlayout = QtGui.QGridLayout()
 
-        self.widget00 = QtGui.QLabel(u"HiDRA server")
+        self.serverLabel = QtGui.QLabel(u"HiDRA server: ")
         self.serverName = QtGui.QLabel(u"SomeName")
-        self.widget10 = QtGui.QLabel("Status")
-        self.widget11 = QtGui.QLineEdit("Not connected")
+        self.hostlabel = QtGui.QLabel("Current host: ")
+        self.currenthost = QtGui.QLabel("None")
+        self.cStatusLabel = QtGui.QLabel("Status: ")
+        self.cStatus = QtGui.QLineEdit("Not connected")
         #~ self.widget20 = QtGui.QLineEdit("Not connected")
-        self.widget21 = QtGui.QPushButton("Connect")
+        self.button = QtGui.QPushButton("Connect")
 
-        self.widget21.clicked.connect(self.toggleServerConnection)
+        self.button.clicked.connect(self.toggleServerConnection)
 
-        gridlayout.addWidget(self.widget00, 0, 0)
+        gridlayout.addWidget(self.serverLabel, 0, 0)
         gridlayout.addWidget(self.serverName, 0, 1)
-        gridlayout.addWidget(self.widget10, 1, 0)
-        gridlayout.addWidget(self.widget11, 1, 1)
-        gridlayout.addWidget(self.widget21, 2, 1)
+        gridlayout.addWidget(self.hostlabel, 1, 0)
+        gridlayout.addWidget(self.currenthost, 1, 1)
+        gridlayout.addWidget(self.cStatusLabel, 2, 0)
+        gridlayout.addWidget(self.cStatus, 2, 1)
+        gridlayout.addWidget(self.button, 3, 1)
 
         self.setLayout(gridlayout)
     
-    def setServerName(self, name):
-        self.serverName.setText(name)
+    def setNames(self, hostname, servername):
+        self.currenthost.setText(hostname)
+        self.serverName.setText(servername)
+
+    def isConnected(self):
+        return self.connected
 
     def toggleServerConnection(self):
-        if(not self.connected):
-            try:
-                establish_hidra_connection(self.signal_host, self.target)
-            except:
-                print("Big big connect error")
-                return
+        if(not self.connected):            
+            self.hidra_connect.emit()
+        else:
+            self.hidra_disconnect.emit()
 
         self.connected = not self.connected
 
         if(self.connected):
-            self.widget11.setText("Connected")
+            self.cStatus.setText("Connected")
         else:
-            self.widget11.setText("Not connected")
-
+            self.cStatus.setText("Not connected")
 
 class imagesettings_widget(QtGui.QWidget):
 
@@ -214,6 +252,7 @@ class limits_widget(QtGui.QGroupBox):
 
     def broadcast_limits(self):
         self.limitsChanged.emit(self.minVal.value(), self.maxVal.value())
+
 
 class statistics_widget(QtGui.QGroupBox):
 
@@ -404,8 +443,7 @@ class image_widget(QtGui.QWidget):
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
 
-    dialog = gui_definition(signal_host="haspp03pilatus.desy.de",
-                            target=[["haspp03.desy.de", "50111", 0, [".cbf"]]])
+    dialog = gui_definition()
     from PyQt4 import QtTest
 
     i=1
