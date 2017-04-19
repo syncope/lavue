@@ -22,6 +22,7 @@ class gui_definition(QtGui.QDialog):
         vlayout = QtGui.QVBoxLayout()
         hw = hidra_widget()
         self.isw = intensityscaling_widget()
+        self.lsw = limits_widget()
         self.stats = statistics_widget()
 
         globallayout = QtGui.QHBoxLayout()
@@ -29,10 +30,12 @@ class gui_definition(QtGui.QDialog):
         self.img_w = image_widget()
 
         self.raw_image = None
+        self.image_name = None
 
         # define grid elements
         vlayout.addWidget(hw)
         vlayout.addWidget(self.isw)
+        vlayout.addWidget(self.lsw)
         vlayout.addWidget(self.stats)
 
         globallayout.addLayout(vlayout)
@@ -43,16 +46,22 @@ class gui_definition(QtGui.QDialog):
         self.setWindowTitle("Live Image Viewer")
 
         self.isw.changeScaling.connect(self.replot)
+        self.lsw.limitsChanged.connect(self.img_w.setLimits)
+        self.lsw.limitsChanged.connect(self.replotagain)
 
     def plot(self, nparr, name):
+        self.image_name = name
         self.raw_image = nparr
-        self.img_w.plot(nparr, name, self.isw.getCurrentScaling())
-        self.stats.setMaxMeanVar(str(np.amax(nparr)),  
-                                    str(np.mean(nparr)), 
-                                    str(np.var(nparr)))
+        self.img_w.plot(nparr, self.isw.getCurrentScaling(), name)
+        self.stats.setMaxMeanVar(str("%.4f" % np.amax(nparr)),
+                                 str("%.4f" % np.mean(nparr)),
+                                 str("%.4f" % np.var(nparr)))
 
     def replot(self, style):
         self.img_w.plot(self.raw_image, style)
+
+    def replotagain(self, lowlim, uplim):
+        self.img_w.plot(self.raw_image, self.isw.getCurrentScaling(), self.image_name)
 
 
 class hidra_widget(QtGui.QGroupBox):
@@ -119,15 +128,15 @@ class imagesettings_widget(QtGui.QWidget):
 
         # two columns layout:
         # | radiobuttons       | checkboxes |
-        # columnlayout = QtGui.QHBoxLayout()
+        columnlayout = QtGui.QHBoxLayout()
 
-        #~ leftw = imagetransformations_widget()
-        rightw = intensityscaling_widget()
+        leftw = intensityscaling_widget()
+        rightw = limitsetting_widget()
 
-        #~ columnlayout.addWidget(leftw)
-        #~ columnlayout.addWidget(rightw)
+        columnlayout.addWidget(leftw)
+        columnlayout.addWidget(rightw)
 
-        #~ self.setLayout(columnlayout)
+        self.setLayout(columnlayout)
 
 
 class intensityscaling_widget(QtGui.QGroupBox):
@@ -170,6 +179,42 @@ class intensityscaling_widget(QtGui.QGroupBox):
         else:
             self.changeScaling.emit("sqrt")
 
+
+class limits_widget(QtGui.QGroupBox):
+
+    """
+    Set minimum and maximum displayed values.
+    """
+    
+    limitsChanged = QtCore.pyqtSignal(float, float)
+
+    def __init__(self, parent=None):
+        super(limits_widget, self).__init__(parent)
+        
+        self.setTitle("Set display limits")
+        layout = QtGui.QGridLayout()
+        
+        minLabel = QtGui.QLabel("minimum value: ")
+        maxLabel = QtGui.QLabel("maximum value: ")
+        
+        self.minVal = QtGui.QDoubleSpinBox()
+        self.maxVal = QtGui.QDoubleSpinBox()
+
+        self.applyButton = QtGui.QPushButton("Apply limits")
+
+        layout.addWidget(minLabel,0,0  )
+        layout.addWidget(self.minVal,0,1 )
+        layout.addWidget(maxLabel,1,0  )
+        layout.addWidget(self.maxVal,1,1 )
+        layout.addWidget(self.applyButton,2,1 )
+        
+        self.setLayout(layout)
+        self.applyButton.clicked.connect(self.broadcast_limits)
+
+    def broadcast_limits(self):
+        self.limitsChanged.emit(self.minVal.value(), self.maxVal.value())
+        print("values are: " + repr(self.minVal.value()) + " " + repr(self.maxVal.value()))
+
 class statistics_widget(QtGui.QGroupBox):
 
     """
@@ -200,9 +245,9 @@ class statistics_widget(QtGui.QGroupBox):
         self.setLayout(layout)
 
     def setMaxMeanVar(self, mx, mean, var):
-        self.maxVal.setText(repr(mx))
-        self.meanVal.setText(repr(mean))
-        self.varVal.setText(repr(var))
+        self.maxVal.setText(mx)
+        self.meanVal.setText(mean)
+        self.varVal.setText(var)
 
 class imagetransformations_widget(QtGui.QWidget):
 
@@ -231,6 +276,8 @@ class image_widget(QtGui.QWidget):
     """
     The part of the GUI that incorporates the image view.
     """
+    
+    limitsHaveChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         super(image_widget, self).__init__(parent)
@@ -238,6 +285,8 @@ class image_widget(QtGui.QWidget):
         self.nparray = None
         self.crosshair_locked = False
         self.imageItem = None
+        self.levels = [None, None] # the limits of drawing
+        self.levelsSet = False
 
         # the actual image is an item of the PlotWidget
         self.img_widget = pg.PlotWidget()
@@ -271,7 +320,7 @@ class image_widget(QtGui.QWidget):
                 self.hLine.setPos(ydata)
 
             intensity = self.nparray[math.floor(xdata), math.floor(ydata)]
-            self.infodisplay.setText("x=%.2f, y=%.2f, intensity=%.2f"
+            self.infodisplay.setText("x=%.2f, y=%.2f, intensity=%.4f"
                                      % (xdata, ydata, intensity))
         except:
             self.infodisplay.setText("error")
@@ -283,34 +332,50 @@ class image_widget(QtGui.QWidget):
         xdata = mousePoint.x()
         ydata = mousePoint.y()
 
-        if event.double():
-            self.crosshair_locked = not self.crosshair_locked
+        #~ if event.double():
+            #~ self.crosshair_locked = not self.crosshair_locked
+#~ 
+            #~ if not self.crosshair_locked:
+                #~ self.vLine.setPos(xdata)
+                #~ self.hLine.setPos(ydata)
 
-            if not self.crosshair_locked:
-                self.vLine.setPos(xdata)
-                self.hLine.setPos(ydata)
-
-    def plot(self, nparr, name, style):
-        self.filenamedisplay.setText(name)
+    def plot(self, nparr, style, name=None):
+        if name is not None:
+            self.filenamedisplay.setText(name)
         self.nparray = nparr
+        if not self.levelsSet:
+            self.levels[0] = np.amin(nparr)
+            self.levels[1] = np.amax(nparr)
         if style == "lin":
             drawarray = nparr
+            self.levels = [ math.floor(self.levels[0]), math.ceil(self.levels[1])]
         elif style == "log":
             drawarray = np.log10(nparr)
+            if self.levels[0] <= 0:
+                self.levels[0] = 10e-6
+            self.levels = [ math.log10(self.levels[0]), math.log10(self.levels[1])]
         elif style == "sqrt":
             drawarray = np.sqrt(nparr)
+            self.levels = [ math.sqrt(self.levels[0]), math.sqrt(self.levels[1])]
         else:
             print("Chosen display style '" + style + "' is not valid.")
             return
 
         if self.imageItem is None:
-            self.imageItem = pg.ImageItem(drawarray)
+            self.imageItem = pg.ImageItem(drawarray, levels=self.levels)
             self.img_widget.addItem(self.imageItem)
             self.img_widget.addItem(self.vLine, ignoreBounds=True)
             self.img_widget.addItem(self.hLine, ignoreBounds=True)
         else:
-            self.imageItem.setImage(drawarray, autoLevels=True)
+            self.imageItem.setImage(drawarray, levels=self.levels)
 
+    def setLimits(self,lowlim, uplim):
+        self.limitsSet = True
+        if self.levels[0] != lowlim or self.levels[1] != uplim:
+            print(" actually updating...?")
+            self.levels = [lowlim, uplim]
+            self.limitsHaveChanged.emit()
+            
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
