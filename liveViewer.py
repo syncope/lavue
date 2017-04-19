@@ -83,7 +83,7 @@ class hidra_widget(QtGui.QGroupBox):
         gridlayout = QtGui.QGridLayout()
 
         self.widget00 = QtGui.QLabel(u"HiDRA server")
-        self.widget01 = QtGui.QLabel(u"SomeName")
+        self.serverName = QtGui.QLabel(u"SomeName")
         self.widget10 = QtGui.QLabel("Status")
         self.widget11 = QtGui.QLineEdit("Not connected")
         #~ self.widget20 = QtGui.QLineEdit("Not connected")
@@ -92,14 +92,15 @@ class hidra_widget(QtGui.QGroupBox):
         self.widget21.clicked.connect(self.toggleServerConnection)
 
         gridlayout.addWidget(self.widget00, 0, 0)
+        gridlayout.addWidget(self.serverName, 0, 1)
         gridlayout.addWidget(self.widget10, 1, 0)
-        gridlayout.addWidget(self.widget01, 0, 1)
         gridlayout.addWidget(self.widget11, 1, 1)
-        #~ gridlayout.addWidget(self.widget20, 0, 1)
         gridlayout.addWidget(self.widget21, 2, 1)
 
         self.setLayout(gridlayout)
-        
+    
+    def setServerName(self, name):
+        self.serverName.setText(name)
 
     def toggleServerConnection(self):
         if(not self.connected):
