@@ -1,11 +1,61 @@
-# A.R., FSEC
 #
-# history:
-#
-# version 0, Feb 22, 2017, A.R.
+# author: Ch. Rosemann, DESY
+# email: christoph.rosemann@desy.de
+
+try:
+    import hidra
+except ImportError:
+    print("without hidra installed this does not make sense")
 
 
-def decompress_cbf_c(stream, vals):
+class HiDRA_cbf_source():
+    def __init__(self, signal_host=None, target=None):
+        self.signal_host = signal_host
+        self.target = target
+        self.query = None
+
+    def getNames(self):
+        return self.signal_host, self.target
+
+    def connect(self):
+        try:
+            self.query = hidra.Transfer("QUERY_NEXT", signal_host)
+            self.query.initiate(self.target)
+            self.query.start()
+            return True
+        except:
+            self.query.stop()
+            return False
+
+    def disconnect(self):
+        try:
+            self.query.stop()
+        except:
+            pass
+
+    def getArray(self):
+        try:
+            [metadata, data] = query.get(2000)
+        except:
+
+        if metadata is not None and data is not None:
+            print ("metadata", metadata["filename"])
+            print ("data", str(data)[:10])
+
+            if (data[:10] == "###CBF: VE"):
+                img = eval_pildata(np.fromstring(data[:], dtype=np.uint8))
+                if (len(img.shape) == 2):
+                    txtv.setText( "live mode "+metadata["filename"])
+                    # derive square root for display
+                    imv.setImage(np.sqrt(np.float32(img > 0)))
+            else:
+                txtv.setText("Something went wrong")
+        else:
+            print ("metadata", metadata)
+            print ("data", data)
+
+
+    def decompress_cbf_c(self, stream, vals):
 	xdim=long(487)
 	ydim=619
 	padding=long(4095)
@@ -82,7 +132,7 @@ def decompress_cbf_c(stream, vals):
 
 	return res[0:n_out].reshape(xdim,ydim)
 
-def eval_pildata(tmp):
+    def eval_pildata(self, tmp):
 	image=np.array([0])
 	inpoint=np.array([26, 4,213],dtype='uint8')
 	outpoint=np.array([45, 45, 67, 73, 70, 45, 66, 73, 78, 65, 82, 89, 45, 70, 79, 82, 77, 65, 84, 45, 83, 69, 67, 84, 73, 79, 78, 45, 45, 45],dtype='uint8')
