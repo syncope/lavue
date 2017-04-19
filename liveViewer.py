@@ -22,7 +22,7 @@ class gui_definition(QtGui.QDialog):
     def __init__(self, parent=None, signal_host=None, target=None):
         super(gui_definition, self).__init__(parent)
 
-        self.data_source = hcs.HiDRA_cbf_source(socket.getfqdn(),mystery.value)
+        self.data_source = hcs.HiDRA_cbf_source(mystery.value, socket.getfqdn())
         
         vlayout = QtGui.QVBoxLayout()
         self.hw = hidra_widget(parent = self)
@@ -136,7 +136,7 @@ class hidra_widget(QtGui.QGroupBox):
 
         self.setLayout(gridlayout)
     
-    def setNames(self, hostname, servername):
+    def setNames(self, servername, hostname):
         self.currenthost.setText(hostname)
         self.serverName.setText(servername)
 
@@ -406,20 +406,27 @@ class image_widget(QtGui.QWidget):
     def plot(self, nparr, style, name=None):
         if name is not None:
             self.filenamedisplay.setText(name)
-        self.nparray = nparr
+        self.nparray = np.float32(nparr)
+        
         if not self.levelsSet:
-            self.levels[0] = np.amin(nparr)
-            self.levels[1] = np.amax(nparr)
+            self.levels[0] = np.amin(self.nparray)
+            self.levels[1] = np.amax(self.nparray)
+        
         if style == "lin":
-            drawarray = nparr
+            drawarray = self.nparray
             self.levels = [ math.floor(self.levels[0]), math.ceil(self.levels[1])]
         elif style == "log":
-            drawarray = np.log10(nparr)
+            drawarray = np.log10(self.nparray)
             if self.levels[0] <= 0:
                 self.levels[0] = 10e-6
+            if self.levels[1] <= 0:
+                self.levels[1] = 10e-3
+                
             self.levels = [ math.log10(self.levels[0]), math.log10(self.levels[1])]
         elif style == "sqrt":
-            drawarray = np.sqrt(nparr)
+            if self.levels[0] < 0.:
+                self.levels[0] = 0.
+            drawarray = np.sqrt(self.nparray)
             self.levels = [ math.sqrt(self.levels[0]), math.sqrt(self.levels[1])]
         else:
             print("Chosen display style '" + style + "' is not valid.")
