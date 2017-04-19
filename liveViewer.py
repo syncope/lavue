@@ -49,7 +49,7 @@ class gui_definition(QtGui.QDialog):
         self.img_w.plot(self.raw_image, style)
 
 
-class hidra_widget(QtGui.QWidget):
+class hidra_widget(QtGui.QGroupBox):
 
     """
     Connect and disconnect hidra service.
@@ -57,6 +57,8 @@ class hidra_widget(QtGui.QWidget):
 
     def __init__(self, parent=None, signal_host=None, target=None):
         super(hidra_widget, self).__init__(parent)
+        self.setTitle("HiDRA connection")
+        
         self.signal_host = signal_host
         self.target = target
         self.connected = False
@@ -67,17 +69,22 @@ class hidra_widget(QtGui.QWidget):
 
         self.widget00 = QtGui.QLabel(u"HiDRA server")
         self.widget01 = QtGui.QLabel(u"SomeName")
-        self.widget10 = QtGui.QPushButton("Connect")
+        self.widget10 = QtGui.QLabel("Status")
         self.widget11 = QtGui.QLineEdit("Not connected")
+        #~ self.widget20 = QtGui.QLineEdit("Not connected")
+        self.widget21 = QtGui.QPushButton("Connect")
 
-        self.widget10.clicked.connect(self.toggleServerConnection)
+        self.widget21   .clicked.connect(self.toggleServerConnection)
 
         gridlayout.addWidget(self.widget00, 0, 0)
         gridlayout.addWidget(self.widget10, 1, 0)
         gridlayout.addWidget(self.widget01, 0, 1)
         gridlayout.addWidget(self.widget11, 1, 1)
+        #~ gridlayout.addWidget(self.widget20, 0, 1)
+        gridlayout.addWidget(self.widget21, 2, 1)
 
         self.setLayout(gridlayout)
+        
 
     def toggleServerConnection(self):
         if(not self.connected):
@@ -117,7 +124,7 @@ class imagesettings_widget(QtGui.QWidget):
         #~ self.setLayout(columnlayout)
 
 
-class intensityscaling_widget(QtGui.QWidget):
+class intensityscaling_widget(QtGui.QGroupBox):
 
     """
     Select how the image intensity is supposed to be scaled.
@@ -126,7 +133,8 @@ class intensityscaling_widget(QtGui.QWidget):
 
     def __init__(self, parent=None):
         super(intensityscaling_widget, self).__init__(parent)
-
+        
+        self.setTitle("Intensity display")
         self.current = "sqrt"
         verticallayout = QtGui.QVBoxLayout()
 
