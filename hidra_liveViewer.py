@@ -21,6 +21,8 @@ class gui_definition(QtGui.QDialog):
 
     def __init__(self, parent=None, signal_host=None, target=None):
         super(gui_definition, self).__init__(parent)
+        
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         # instantiate the data source
         # here: hardcoded the hidra cbf source
