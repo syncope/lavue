@@ -1,0 +1,12 @@
+#!/usr/bin/python3
+
+from hidra_liveViewer import gui_definition
+from PyQt4 import Qt, QtGui
+import sys
+
+app = QtGui.QApplication(sys.argv)
+
+dialog = gui_definition()
+dialog.show()
+
+app.exec_()
