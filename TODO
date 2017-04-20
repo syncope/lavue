@@ -1,0 +1,9 @@
+Issues:
+    !! image downsampling when array size larger than monitor display size
+
+    !! log scale expensive for large detector images
+        ---> possible solution: lut
+
+show unscaled image!
+
+try: colorbar/schemes: white/black, b/w , rainbow
