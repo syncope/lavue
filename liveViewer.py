@@ -261,6 +261,7 @@ class limits_widget(QtGui.QGroupBox):
         self.setTitle("Set display limits")
         layout = QtGui.QGridLayout()
         
+        informLabel = QtGui.QLabel("Note: Linear scale!")
         minLabel = QtGui.QLabel("minimum value: ")
         maxLabel = QtGui.QLabel("maximum value: ")
         
@@ -269,11 +270,12 @@ class limits_widget(QtGui.QGroupBox):
 
         self.applyButton = QtGui.QPushButton("Apply limits")
 
-        layout.addWidget(minLabel,0,0  )
-        layout.addWidget(self.minVal,0,1 )
-        layout.addWidget(maxLabel,1,0  )
-        layout.addWidget(self.maxVal,1,1 )
-        layout.addWidget(self.applyButton,2,1 )
+        layout.addWidget(informLabel, 0,0)
+        layout.addWidget(minLabel,1,0  )
+        layout.addWidget(self.minVal,1,1 )
+        layout.addWidget(maxLabel,2,0  )
+        layout.addWidget(self.maxVal,2,1 )
+        layout.addWidget(self.applyButton,3,1 )
         
         self.setLayout(layout)
         self.applyButton.clicked.connect(self.broadcast_limits)
@@ -410,7 +412,7 @@ class image_widget(QtGui.QWidget):
                 self.hLine.setPos(ydata)
 
             intensity = self.nparray[math.floor(xdata), math.floor(ydata)]
-            self.infodisplay.setText("x=%.2f, y=%.2f, intensity=%.4f"
+            self.infodisplay.setText("x=%.2f, y=%.2f, linear (!) intensity=%.4f"
                                      % (xdata, ydata, intensity))
         except:
             self.infodisplay.setText("error")
