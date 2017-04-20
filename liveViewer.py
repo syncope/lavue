@@ -38,7 +38,7 @@ class gui_definition(QtGui.QDialog):
         
         # instantiate the widgets and declare the parent
         self.isw = intensityscaling_widget(parent = self)
-        self.lsw = limits_widget(parent = self)
+        self.lsw = levels_widget(parent = self)
         self.stats = statistics_widget(parent = self)
         self.img_w = image_widget(parent = self)
         self.hw = hidra_widget(parent = self)
@@ -64,11 +64,11 @@ class gui_definition(QtGui.QDialog):
 
         # connect signals::
         # signal from intensity scaling widget:
-        self.isw.changeScaling.connect(self.replot)
+        self.isw.changeScaling.connect(self.plot)
         # signal from limit setting widget
-        self.lsw.limitsChanged.connect(self.img_w.setLimits)
+        self.lsw.levelsChanged.connect(self.img_w.setLevels)
         # signal from image widget
-        self.img_w.limitsHaveChanged.connect(self.replot)
+        self.img_w.levelsHaveChanged.connect(self.plot)
         
         # connecting signals from hidra widget: 
         self.hw.hidra_connect.connect(self.connect_hidra)
@@ -78,24 +78,16 @@ class gui_definition(QtGui.QDialog):
 
         self.timer = QtCore.QTimer()
 
-    def plot(self, nparr, name):
+    def plot(self, img=None, name=None):
         """ The main command of the live viewer class: draw a numpy array with the given name."""
-        self.image_name = name
-        self.raw_image = nparr
+        if img is not None and name is not None:
+            self.image_name = name
+            self.raw_image = img
         
         # calls internally the plot function of the plot widget
-        self.img_w.plot(nparr, self.isw.getCurrentScaling(), name)
-        # ??? good idea??? call the statistics settings manually?
-        self.stats.setMaxMeanVar(np.amax(nparr), np.mean(nparr), np.var(nparr))
-
-        # another question: why another plot call?
-    def replot(self, style=None):
-        if style is None:
-            self.img_w.plot(self.raw_image, self.isw.getCurrentScaling())
-        else:
-            self.stats.setMaxMeanVar(np.amax(self.raw_image), np.mean(self.raw_image), np.var(self.raw_image))
-            self.stats.changeScaling(style)
-            self.img_w.plot(self.raw_image, style)
+        self.img_w.plot(self.raw_image, self.isw.getCurrentScaling(), self.image_name)
+        self.stats.update_stats(self.raw_image, self.isw.getCurrentScaling())
+        #~ print(" current scaling: " + str(self.isw.getCurrentScaling()))
 
         # mode changer: start plotting mode
     def startPlotting(self):
@@ -104,10 +96,15 @@ class gui_definition(QtGui.QDialog):
             return
 
         while True:
-            # when the timer has counted, call the update function 
-            self.timer.timeout.connect(lambda: self.plot(self.data_source.getData()))
-            self.timer.start(self.waittime)
+            # when the timer has counted, call the update function
             
+            self.timer.timeout.connect(lambda: self._assignNewData(self.data_source.getData()) )
+            self.timer.timeout.connect(lambda: self.plot())
+            self.timer.start(self.waittime)
+    
+    def _assignNewData(self, nameDataTuple):
+        self.raw_image, self.image_name = nameDataTuple
+    
         # mode changer: stop plotting mode
     def stopPlotting(self):
         self.timer.stop()
@@ -120,8 +117,8 @@ class gui_definition(QtGui.QDialog):
         # call the disconnect function of the hidra interface
     def disconnect_hidra(self):
         self.data_source.disconnect()
-        
 
+        
 class hidra_widget(QtGui.QGroupBox):
 
     """
@@ -184,6 +181,7 @@ class hidra_widget(QtGui.QGroupBox):
         else:
             self.cStatus.setText("Not connected")
 
+
 class imagesettings_widget(QtGui.QWidget):
 
     """
@@ -211,7 +209,7 @@ class intensityscaling_widget(QtGui.QGroupBox):
     """
     Select how the image intensity is supposed to be scaled.
     """
-    changeScaling = QtCore.pyqtSignal(str)
+    changeScaling = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         super(intensityscaling_widget, self).__init__(parent)
@@ -240,25 +238,26 @@ class intensityscaling_widget(QtGui.QGroupBox):
 
     def setCurrentScaling(self, scaling):
         if self.linbutton.isChecked():
-            self.changeScaling.emit("lin")
+            self.current = "lin"
         elif self.logbutton.isChecked():
-            self.changeScaling.emit("log")
+            self.current = "log"
         else:
-            self.changeScaling.emit("sqrt")
+            self.current = "sqrt"
+        self.changeScaling.emit()
 
 
-class limits_widget(QtGui.QGroupBox):
+class levels_widget(QtGui.QGroupBox):
 
     """
     Set minimum and maximum displayed values.
     """
     
-    limitsChanged = QtCore.pyqtSignal(float, float)
+    levelsChanged = QtCore.pyqtSignal(float, float)
 
     def __init__(self, parent=None):
-        super(limits_widget, self).__init__(parent)
+        super(levels_widget, self).__init__(parent)
         
-        self.setTitle("Set display limits")
+        self.setTitle("Set display levels")
         layout = QtGui.QGridLayout()
         
         informLabel = QtGui.QLabel("Note: Linear scale!")
@@ -268,7 +267,7 @@ class limits_widget(QtGui.QGroupBox):
         self.minVal = QtGui.QDoubleSpinBox()
         self.maxVal = QtGui.QDoubleSpinBox()
 
-        self.applyButton = QtGui.QPushButton("Apply limits")
+        self.applyButton = QtGui.QPushButton("Apply levels")
 
         layout.addWidget(informLabel, 0,0)
         layout.addWidget(minLabel,1,0  )
@@ -278,10 +277,8 @@ class limits_widget(QtGui.QGroupBox):
         layout.addWidget(self.applyButton,3,1 )
         
         self.setLayout(layout)
-        self.applyButton.clicked.connect(self.broadcast_limits)
-
-    def broadcast_limits(self):
-        self.limitsChanged.emit(self.minVal.value(), self.maxVal.value())
+        self.applyButton.clicked.connect(
+         lambda: self.levelsChanged.emit(self.minVal.value(), self.maxVal.value()))
 
 
 class statistics_widget(QtGui.QGroupBox):
@@ -296,6 +293,7 @@ class statistics_widget(QtGui.QGroupBox):
         self.setTitle("Image statistics")
         layout = QtGui.QGridLayout()
         
+        self.array = None
         self.scaling = "sqrt"
         
         scalingLabel = QtGui.QLabel("Scaling:")
@@ -320,25 +318,21 @@ class statistics_widget(QtGui.QGroupBox):
         
         self.setLayout(layout)
 
-    def setMaxMeanVar(self, mx, mean, var):
-        if self.scaling == "lin":
-            self.maxVal.setText(str("%.4f" % mx))
-            self.meanVal.setText(str("%.4f" % mean))
-            self.varVal.setText(str("%.4f" % var))
-        elif self.scaling == "sqrt":
-            self.maxVal.setText(str("%.4f" % math.sqrt(mx)))
-            self.meanVal.setText(str("%.4f" % math.sqrt(mean)))
-            self.varVal.setText(str("%.4f" % math.sqrt(var)))
-        elif self.scaling == "log":
-            self.maxVal.setText(str("%.4f" % math.log(mx)))
-            self.meanVal.setText(str("%.4f" % math.log(mean)))
-            self.varVal.setText(str("%.4f" % math.log(var)))
-        self.show()
-
-    def changeScaling(self, scaling):
-        if self.scaling != scaling:
+    def update_stats(self, array, scaling):
+        self.array = array
+        if self.scaling is not scaling:
             self.scaling = scaling
-            self.scaleLabel.setText(self.scaling)
+        
+        if self.scaling == "sqrt":
+            self.array = np.sqrt(self.array)
+        elif self.scaling == "log":
+            self.array = np.log10(self.array)
+
+        self.maxVal.setText(str("%.4f" % np.amax(self.array)))
+        self.meanVal.setText(str("%.4f" % np.mean(self.array)))
+        self.varVal.setText(str("%.4f" % np.var(self.array)))
+
+        self.show()
 
 
 class imagetransformations_widget(QtGui.QWidget):
@@ -369,7 +363,7 @@ class image_widget(QtGui.QWidget):
     The part of the GUI that incorporates the image view.
     """
     
-    limitsHaveChanged = QtCore.pyqtSignal()
+    levelsHaveChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         super(image_widget, self).__init__(parent)
@@ -463,18 +457,17 @@ class image_widget(QtGui.QWidget):
             return
 
         if self.imageItem is None:
-            self.imageItem = pg.ImageItem(drawarray, levels=self.levels)
+            self.imageItem = pg.ImageItem()
             self.img_widget.addItem(self.imageItem)
             self.img_widget.addItem(self.vLine, ignoreBounds=True)
             self.img_widget.addItem(self.hLine, ignoreBounds=True)
-        else:
-            self.imageItem.setImage(drawarray, levels=self.levels)
+        self.imageItem.setImage(drawarray, autolevels=False, levels=self.levels)
 
-    def setLimits(self,lowlim, uplim):
+    def setLevels(self,lowlim, uplim):
         if self.levels[0] != lowlim or self.levels[1] != uplim:
             self.levelsSet = True
             self.levels = [lowlim, uplim]
-            self.limitsHaveChanged.emit()
+            self.levelsHaveChanged.emit()
             
 
 if __name__ == "__main__":
@@ -486,7 +479,7 @@ if __name__ == "__main__":
     i=1
     dialog.show()
     while True:
-        rand_arr = 10*np.random.rand(100, 100)
+        rand_arr = 10*np.random.rand(100, 100) + 1 
         dialog.plot(rand_arr,"random number test nr. " + str(i))
         i += 1
         QtTest.QTest.qWait(2000)
