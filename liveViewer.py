@@ -22,50 +22,73 @@ class gui_definition(QtGui.QDialog):
     def __init__(self, parent=None, signal_host=None, target=None):
         super(gui_definition, self).__init__(parent)
 
+        # instantiate the data source
+        # here: hardcoded the hidra cbf source
+        # note: host and target are defined here and in another place
         self.data_source = hcs.HiDRA_cbf_source(mystery.value, socket.getfqdn())
+        # time in [ms] between calls to hidra
+        self.waittime = 500
+
+        # keep a reference to the "raw" image and the current filename
+        self.raw_image = None
+        self.image_name = None
         
+        # define left hand side layout: vertical
         vlayout = QtGui.QVBoxLayout()
-        self.hw = hidra_widget(parent = self)
+        
+        # instantiate the widgets and declare the parent
         self.isw = intensityscaling_widget(parent = self)
         self.lsw = limits_widget(parent = self)
         self.stats = statistics_widget(parent = self)
         self.img_w = image_widget(parent = self)
-
+        self.hw = hidra_widget(parent = self)
+        # set the right names for the hidra display at initialization 
         self.hw.setNames(str(self.data_source.getNames()[0]), str(self.data_source.getNames()[1]))
 
+        # the dialog layout is side by side
         globallayout = QtGui.QHBoxLayout()
-        
-        self.raw_image = None
-        self.image_name = None
 
-        # define grid elements
+        # place widgets on the layouts
+        # first the vertical layout on the left side
         vlayout.addWidget(self.hw)
         vlayout.addWidget(self.isw)
         vlayout.addWidget(self.stats)
         vlayout.addWidget(self.lsw)
 
+        # then the vertical layout on the --global-- horizontal one
         globallayout.addLayout(vlayout)
         globallayout.addWidget(self.img_w)
 
         self.setLayout(globallayout)
-
         self.setWindowTitle("Live Image Viewer")
 
+        # connect signals::
+        # signal from intensity scaling widget:
         self.isw.changeScaling.connect(self.replot)
+        # signal from limit setting widget
         self.lsw.limitsChanged.connect(self.img_w.setLimits)
+        # signal from image widget
         self.img_w.limitsHaveChanged.connect(self.replot)
+        
+        # connecting signals from hidra widget: 
         self.hw.hidra_connect.connect(self.connect_hidra)
         self.hw.hidra_connect.connect(self.startPlotting)
         self.hw.hidra_disconnect.connect(self.stopPlotting)
         self.hw.hidra_connect.connect(self.disconnect_hidra)
+
         self.timer = QtCore.QTimer()
 
     def plot(self, nparr, name):
+        """ The main command of the live viewer class: draw a numpy array with the given name."""
         self.image_name = name
         self.raw_image = nparr
+        
+        # calls internally the plot function of the plot widget
         self.img_w.plot(nparr, self.isw.getCurrentScaling(), name)
+        # ??? good idea??? call the statistics settings manually?
         self.stats.setMaxMeanVar(np.amax(nparr), np.mean(nparr), np.var(nparr))
 
+        # another question: why another plot call?
     def replot(self, style=None):
         if style is None:
             self.img_w.plot(self.raw_image, self.isw.getCurrentScaling())
@@ -74,22 +97,27 @@ class gui_definition(QtGui.QDialog):
             self.stats.changeScaling(style)
             self.img_w.plot(self.raw_image, style)
 
+        # mode changer: start plotting mode
     def startPlotting(self):
         # only start plotting if the connection is really established
         if not self.hw.isConnected():
             return
 
         while True:
+            # when the timer has counted, call the update function 
             self.timer.timeout.connect(lambda: self.plot(self.data_source.getData()))
-            self.timer.start(2000)
-       
+            self.timer.start(self.waittime)
+            
+        # mode changer: stop plotting mode
     def stopPlotting(self):
         self.timer.stop()
-        
+
+        # call the connect function of the hidra interface
     def connect_hidra(self):
         if not self.data_source.connect():
             print("<WARNING> The HiDRA connection could not be established. Check the settings.")
-    
+        
+        # call the disconnect function of the hidra interface
     def disconnect_hidra(self):
         self.data_source.disconnect()
         
@@ -351,7 +379,7 @@ class image_widget(QtGui.QWidget):
         self.levelsSet = False
 
         # the actual image is an item of the PlotWidget
-        self.img_widget = pg.PlotWidget()
+        self.img_widget = pg.PlotWidget() 
         self.img_widget.scene().sigMouseMoved.connect(self.mouse_position)
         self.img_widget.scene().sigMouseClicked.connect(self.mouse_click)
 
@@ -389,7 +417,7 @@ class image_widget(QtGui.QWidget):
 
     def mouse_click(self, event):
 
-        mousePoint = self.imageItem.mapFromScene(event.scenePos())
+        mousePoint = self.img_widget.mapFromScene(event.scenePos())
 
         xdata = mousePoint.x()
         ydata = mousePoint.y()
