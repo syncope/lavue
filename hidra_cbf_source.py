@@ -15,8 +15,8 @@ class HiDRA_cbf_source():
         self.target = target
         self.query = None
 
-    def getNames(self):
-        return self.signal_host[0], self.target
+    def getTargetSignalHost(self):
+        return self.target[0], self.signal_host
 
     def connect(self):
         try:

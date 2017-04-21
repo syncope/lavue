@@ -6,6 +6,9 @@
 # base it on a qt dialog
 # this is just the formal definition of the graphical elements !
 
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import sys
 import math
 import socket
@@ -27,7 +30,7 @@ class gui_definition(QtGui.QDialog):
         # instantiate the data source
         # here: hardcoded the hidra cbf source
         # note: host and target are defined here and in another place
-        self.data_source = hcs.HiDRA_cbf_source(mystery.value, socket.getfqdn())
+        self.data_source = hcs.HiDRA_cbf_source(mystery.signal_host, mystery.target)
         # time in [ms] between calls to hidra
         self.waittime = 500
 
@@ -45,7 +48,7 @@ class gui_definition(QtGui.QDialog):
         self.img_w = image_widget(parent = self)
         self.hw = hidra_widget(parent = self)
         # set the right names for the hidra display at initialization 
-        self.hw.setNames(str(self.data_source.getNames()[0]), str(self.data_source.getNames()[1]))
+        self.hw.setNames(self.data_source.getTargetSignalHost())
 
         # the dialog layout is side by side
         globallayout = QtGui.QHBoxLayout()
@@ -168,9 +171,9 @@ class hidra_widget(QtGui.QGroupBox):
 
         self.setLayout(gridlayout)
     
-    def setNames(self, servername, hostname):
-        self.currenthost.setText(hostname)
-        self.serverName.setText(servername)
+    def setNames(self, names):
+        self.currenthost.setText(str(names[0]))
+        self.serverName.setText(str(names[1]))
 
     def isConnected(self):
         return self.connected
