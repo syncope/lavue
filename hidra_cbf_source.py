@@ -35,10 +35,12 @@ class HiDRA_cbf_source():
             pass
 
     def getData(self):
+        metadata = None
+        data = None
         try:
-            [metadata, data] = query.get(2000)
+            [metadata, data] = self.query.get(2000)
         except:
-            pass
+            pass # this needs a bit more care
 
         if metadata is not None and data is not None:
             print ("metadata", metadata["filename"])

@@ -79,10 +79,14 @@ class gui_definition(QtGui.QDialog):
         # connecting signals from hidra widget: 
         self.hw.hidra_connect.connect(self.connect_hidra)
         self.hw.hidra_connect.connect(self.startPlotting)
+
         self.hw.hidra_disconnect.connect(self.stopPlotting)
-        self.hw.hidra_connect.connect(self.disconnect_hidra)
+        self.hw.hidra_disconnect.connect(self.disconnect_hidra)
 
         self.timer = QtCore.QTimer()
+        self.timer.setInterval(self.waittime)
+        self.timer.timeout.connect(lambda: self._assignNewData(self.data_source.getData()) )
+        self.timer.timeout.connect(lambda: self.plot())
 
     def _setInitialLevels(self, lowlim, uplim):
         self.lsw._setLevels(lowlim, uplim)
@@ -97,7 +101,6 @@ class gui_definition(QtGui.QDialog):
         # calls internally the plot function of the plot widget
         self.img_w.plot(self.raw_image, self.isw.getCurrentScaling(), self.image_name)
         self.stats.update_stats(self.raw_image, self.isw.getCurrentScaling())
-        #~ print(" current scaling: " + str(self.isw.getCurrentScaling()))
 
         # mode changer: start plotting mode
     def startPlotting(self):
@@ -105,13 +108,8 @@ class gui_definition(QtGui.QDialog):
         if not self.hw.isConnected():
             return
 
-        while True:
-            # when the timer has counted, call the update function
-            
-            self.timer.timeout.connect(lambda: self._assignNewData(self.data_source.getData()) )
-            self.timer.timeout.connect(lambda: self.plot())
-            self.timer.start(self.waittime)
-    
+        self.timer.start()
+ 
     def _assignNewData(self, nameDataTuple):
         self.raw_image, self.image_name = nameDataTuple
     
@@ -131,7 +129,7 @@ class gui_definition(QtGui.QDialog):
     def disconnect_hidra(self):
         self.data_source.disconnect()
 
-        
+
 class hidra_widget(QtGui.QGroupBox):
 
     """
