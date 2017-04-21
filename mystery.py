@@ -4,4 +4,4 @@
 import socket
 
 target = [socket.getfqdn(), "50101", 19, [".cbf"]]
-signal_host = "haspilatus300k.desy.de"
+signal_host = "haspp10pilatus.desy.de"

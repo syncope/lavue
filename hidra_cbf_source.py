@@ -13,14 +13,13 @@ class HiDRA_cbf_source():
     def __init__(self, signal_host=None, target=None):
         self.signal_host = signal_host
         self.target = target
-        self.query = None
-
+        self.query = hidra.Transfer("QUERY_NEXT", signal_host)
+        
     def getTargetSignalHost(self):
         return self.target[0], self.signal_host
 
     def connect(self):
         try:
-            self.query = hidra.Transfer("QUERY_NEXT", signal_host)
             self.query.initiate(self.target)
             self.query.start()
             return True
@@ -196,3 +195,10 @@ class HiDRA_cbf_source():
             else:
                 image = np.array([0])
         return image
+
+
+if __name__ == "__main__":
+    target = [socket.getfqdn(), "50101", 19, [".cbf"]]
+    signal_host = "haspp10pilatus.desy.de"
+
+    source = HiDRA_cbf_source(mystery.signal_host, mystery.target)
