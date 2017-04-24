@@ -7,6 +7,7 @@ try:
 except ImportError:
     print("without hidra installed this does not make sense")
 
+import numpy as np
 
 class HiDRA_cbf_source():
 
