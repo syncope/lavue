@@ -39,12 +39,14 @@ class gui_definition(QtGui.QDialog):
         # keep a reference to the "raw" image and the current filename
         self.raw_image = None
         self.image_name = None
+        self.display_image = None
 
         # define left hand side layout: vertical
         vlayout = QtGui.QVBoxLayout()
 
         # instantiate the widgets and declare the parent
         self.isw = intensityscaling_widget(parent=self)
+        self.itw = imagetransformations_widget(parent=self)
         self.lsw = levels_widget(parent=self)
         self.stats = statistics_widget(parent=self)
         self.img_w = image_widget(parent=self)
@@ -58,6 +60,7 @@ class gui_definition(QtGui.QDialog):
         # place widgets on the layouts
         # first the vertical layout on the left side
         vlayout.addWidget(self.hw)
+        vlayout.addWidget(self.itw)
         vlayout.addWidget(self.isw)
         vlayout.addWidget(self.stats)
         vlayout.addWidget(self.lsw)
@@ -96,14 +99,17 @@ class gui_definition(QtGui.QDialog):
 
     def plot(self, img=None, name=None):
         """ The main command of the live viewer class: draw a numpy array with the given name."""
+        if img is None:
+            return
+
         if img is not None and name is not None:
             self.image_name = name
-            self.raw_image = img
+            self.display_image = self.itw.transform(img)
 
         # calls internally the plot function of the plot widget
         self.img_w.plot(
-            self.raw_image, self.isw.getCurrentScaling(), self.image_name)
-        self.stats.update_stats(self.raw_image, self.isw.getCurrentScaling())
+            self.display_image, self.isw.getCurrentScaling(), self.image_name)
+        self.stats.update_stats(self.display_image, self.isw.getCurrentScaling())
 
         # mode changer: start plotting mode
     def startPlotting(self):
@@ -114,7 +120,10 @@ class gui_definition(QtGui.QDialog):
         self.timer.start()
 
     def _assignNewData(self, nameDataTuple):
+        # get the data from the source and keep it internally
         self.raw_image, self.image_name = nameDataTuple
+        # the internal data object is copied to allow for internal conversions
+        self.display_image = self.raw_image
 
         # mode changer: stop plotting mode
     def stopPlotting(self):
@@ -238,22 +247,22 @@ class intensityscaling_widget(QtGui.QGroupBox):
 
         self.setTitle("Intensity display scaling")
         self.current = "sqrt"
-        verticallayout = QtGui.QVBoxLayout()
+        horizontallayout = QtGui.QHBoxLayout()
 
+        self.sqrtbutton = QtGui.QRadioButton(u"sqrt")
         self.linbutton = QtGui.QRadioButton(u"linear")
         self.logbutton = QtGui.QRadioButton(u"log")
-        self.sqrtbutton = QtGui.QRadioButton(u"sqrt")
 
         self.linbutton.toggled.connect(self.setCurrentScaling)
         self.logbutton.toggled.connect(self.setCurrentScaling)
         self.sqrtbutton.toggled.connect(self.setCurrentScaling)
         self.sqrtbutton.setChecked(True)
 
-        verticallayout.addWidget(self.linbutton)
-        verticallayout.addWidget(self.logbutton)
-        verticallayout.addWidget(self.sqrtbutton)
+        horizontallayout.addWidget(self.sqrtbutton)
+        horizontallayout.addWidget(self.linbutton)
+        horizontallayout.addWidget(self.logbutton)
 
-        self.setLayout(verticallayout)
+        self.setLayout(horizontallayout)
 
     def getCurrentScaling(self):
         return self.current
@@ -363,7 +372,7 @@ class statistics_widget(QtGui.QGroupBox):
         self.show()
 
 
-class imagetransformations_widget(QtGui.QWidget):
+class imagetransformations_widget(QtGui.QGroupBox):
 
     """
     Select how an image should be transformed.
@@ -372,18 +381,31 @@ class imagetransformations_widget(QtGui.QWidget):
     def __init__(self, parent=None):
         super(imagetransformations_widget, self).__init__(parent)
 
-        verticallayout = QtGui.QVBoxLayout()
+        self.setTitle("Image transformations")
 
-        flip = QtGui.QCheckBox(u"flip")
-        mirror = QtGui.QCheckBox(u"mirror")
-        rotate90 = QtGui.QCheckBox(u"rotate90")
+        horizontallayout = QtGui.QHBoxLayout()
 
-        verticallayout.addWidget(flip)
-        verticallayout.addWidget(mirror)
-        verticallayout.addWidget(rotate90)
+        self.flip = QtGui.QCheckBox(u"flip")
+        self.mirror = QtGui.QCheckBox(u"mirror")
+        self.rotate90 = QtGui.QCheckBox(u"rot90")
 
-        self.setLayout(verticallayout)
+        horizontallayout.addWidget(self.flip)
+        horizontallayout.addWidget(self.mirror)
+        horizontallayout.addWidget(self.rotate90)
 
+        self.setLayout(horizontallayout)
+
+    def transform(self, display_img):
+        '''Do the image transformation on the given numpy array.'''
+        if display_img is None:
+            return
+        if self.flip.isChecked():
+            display_img = np.flipud(display_img)
+        if self.mirror.isChecked():
+            display_img = np.fliplr(display_img)
+        if self.rotate90.isChecked():
+            display_img = np.transpose(display_img)
+        return display_img
 
 class image_widget(QtGui.QWidget):
 
@@ -530,7 +552,7 @@ if __name__ == "__main__":
     i = 1
     dialog.show()
     while True:
-        rand_arr = 10 * np.random.rand(100, 100) + 1
+        rand_arr = 10 * np.random.rand(100, 200) + 1
         dialog.plot(rand_arr, "random number test nr. " + str(i))
         i += 1
         QtTest.QTest.qWait(2000)
