@@ -167,6 +167,8 @@ class hidra_widget(QtGui.QGroupBox):
         self.currenthost = QtGui.QLabel("None")
         self.cStatusLabel = QtGui.QLabel("Status: ")
         self.cStatus = QtGui.QLineEdit("Not connected")
+        self.cStatus.setStyleSheet("color: blue;"
+                                   "background-color: yellow;")
         self.button = QtGui.QPushButton("Connect")
 
         self.button.clicked.connect(self.toggleServerConnection)
@@ -192,6 +194,8 @@ class hidra_widget(QtGui.QGroupBox):
         # if it is connected then it's easy:
         if self.connected:
             self.hidra_disconnect.emit()
+            self.cStatus.setStyleSheet("color: yellow;"
+                                   "background-color: red;")
             self.cStatus.setText("Disconnected")
             self.button.setText("Re-Connect")
             self.connected = False
@@ -203,6 +207,8 @@ class hidra_widget(QtGui.QGroupBox):
     def connectSuccess(self):
         """ Function doc """
         self.connected = True
+        self.cStatus.setStyleSheet("color: white;"
+                                   "background-color: green;")
         self.cStatus.setText("Connected")
         self.button.setText("Disconnect")
 
@@ -406,6 +412,7 @@ class imagetransformations_widget(QtGui.QGroupBox):
         if self.rotate90.isChecked():
             display_img = np.transpose(display_img)
         return display_img
+
 
 class image_widget(QtGui.QWidget):
 
