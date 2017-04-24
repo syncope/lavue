@@ -9,6 +9,7 @@ except ImportError:
 
 import numpy as np
 
+
 class HiDRA_cbf_source():
 
     def __init__(self, signal_host=None, target=None):
@@ -128,8 +129,9 @@ class HiDRA_cbf_source():
 
         if ((res.size - padding) != n_out):
             return np.array([0])
-
-        return res[0:n_out].reshape(xdim, ydim)
+        # by A.R., Apr 24, 2017
+        # return res[0:n_out].reshape(xdim, ydim)
+        return res[0:n_out].reshape(xdim, ydim, order='F')
 
     def eval_pildata(self, tmp):
         image = np.array([0])
@@ -189,6 +191,15 @@ class HiDRA_cbf_source():
                     dset_sec_dim.tostring()) // tmp.itemsize
                 spos[3] = tmp.tostring().index(
                     dset_pad.tostring()) // tmp.itemsize
+# by A.R., Apr 24, 2017
+                vals[0] = int(
+                    tmp[spos[0] + dset_num_ele.size:spos[1] - 2].tostring())
+                vals[1] = int(
+                    tmp[spos[1] + dset_fast_dim.size:spos[2] - 2].tostring())
+                vals[2] = int(
+                    tmp[spos[2] + dset_sec_dim.size:spos[3] - 2].tostring())
+                vals[3] = int(
+                    tmp[spos[3] + dset_pad.size:spos[4] - 8].tostring())
             except:
                 flag = 1
 
