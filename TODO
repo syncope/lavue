@@ -4,8 +4,8 @@ Issues:
     !! log scale expensive for large detector images
         ---> possible solution: lut
 
-- transpose images? Use detector info or not?
-
 - show unscaled image!
 
 - try: colorbar/schemes: white/black, b/w , rainbow
+
+- update happens only at next image (signalling takes longer than update...?)
