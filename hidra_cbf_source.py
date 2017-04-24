@@ -14,7 +14,7 @@ class HiDRA_cbf_source():
         self.signal_host = signal_host
         self.target = target
         self.query = hidra.Transfer("QUERY_NEXT", signal_host)
-        
+
     def getTargetSignalHost(self):
         return self.target[0], self.signal_host
 
@@ -25,7 +25,7 @@ class HiDRA_cbf_source():
             return True
         except:
             if self.query is not None:
-                self.query.stop()   
+                self.query.stop()
             return False
 
     def disconnect(self):
@@ -40,7 +40,7 @@ class HiDRA_cbf_source():
         try:
             [metadata, data] = self.query.get(2000)
         except:
-            pass # this needs a bit more care
+            pass  # this needs a bit more care
 
         if metadata is not None and data is not None:
             print ("metadata", metadata["filename"])
@@ -129,7 +129,6 @@ class HiDRA_cbf_source():
             return np.array([0])
 
         return res[0:n_out].reshape(xdim, ydim)
-
 
     def eval_pildata(self, tmp):
         image = np.array([0])
