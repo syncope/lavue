@@ -300,8 +300,10 @@ class levels_widget(QtGui.QGroupBox):
         maxLabel = QtGui.QLabel("maximum value: ")
 
         self.minVal = QtGui.QDoubleSpinBox()
+        self.minVal.setMinimum(0.)
         self.maxVal = QtGui.QDoubleSpinBox()
-
+        self.maxVal.setMinimum(1.)
+        self.maxVal.setMaximum(10e20)
         self.applyButton = QtGui.QPushButton("Apply levels")
 
         layout.addWidget(informLabel, 0, 0)
@@ -312,8 +314,22 @@ class levels_widget(QtGui.QGroupBox):
         layout.addWidget(self.applyButton, 3, 1)
 
         self.setLayout(layout)
-        self.applyButton.clicked.connect(
-            lambda: self.levelsChanged.emit(self.minVal.value(), self.maxVal.value()))
+        self.applyButton.clicked.connect(self.check_and_emit)
+
+    def check_and_emit(self):
+        # check if the minimum value is actually smaller than the maximum
+        minval = self.minVal.value()
+        maxval = self.maxVal.value()
+        if (maxval - minval) <= 0:
+            if(minval >= 1.):
+                minval = maxval - 1.
+            else:
+                maxval = minval + 1
+            
+        self.minVal.setValue(minval)
+        self.maxVal.setValue(maxval)
+        self.levelsChanged.emit(self.minVal.value(), self.maxVal.value())
+
 
     def _setLevels(self, lowlim, uplim):
         self.minVal.setValue(lowlim)
@@ -369,11 +385,10 @@ class statistics_widget(QtGui.QGroupBox):
         elif self.scaling == "log":
             self.array = np.log10(self.array)
 
+        self.scaleLabel.setText(self.scaling)
         self.maxVal.setText(str("%.4f" % np.amax(self.array)))
         self.meanVal.setText(str("%.4f" % np.mean(self.array)))
         self.varVal.setText(str("%.4f" % np.var(self.array)))
-
-        self.show()
 
 
 class imagetransformations_widget(QtGui.QGroupBox):
