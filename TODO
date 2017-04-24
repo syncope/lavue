@@ -9,3 +9,7 @@ Issues:
 - try: colorbar/schemes: white/black, b/w , rainbow
 
 - update happens only at next image (signalling takes longer than update...?)
+
+- fix wrong upper limit of double spinbox
+
+- fix wrong label in image statistics
