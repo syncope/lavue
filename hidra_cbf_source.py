@@ -49,7 +49,8 @@ class HiDRA_cbf_source():
             if (data[:10] == "###CBF: VE"):
                 img = self.eval_pildata(np.fromstring(data[:], dtype=np.uint8))
                 return img, metadata["filename"]
-
+        else:
+            return None, None
 
     def decompress_cbf_c(self, stream, vals):
         xdim = long(487)

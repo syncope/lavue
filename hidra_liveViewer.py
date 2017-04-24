@@ -345,6 +345,8 @@ class statistics_widget(QtGui.QGroupBox):
 
     def update_stats(self, array, scaling):
         self.array = array
+        if array is None:
+            return
         if self.scaling is not scaling:
             self.scaling = scaling
         
@@ -464,6 +466,8 @@ class image_widget(QtGui.QWidget):
                 #~ self.hLine.setPos(ydata)
 
     def plot(self, nparr, style, name=None):
+        if nparr is None:
+            return
         if name is not None:
             self.filenamedisplay.setText(name)
         plotlevels = [None, None]
