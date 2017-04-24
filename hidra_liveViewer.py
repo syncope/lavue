@@ -99,12 +99,10 @@ class gui_definition(QtGui.QDialog):
 
     def plot(self, img=None, name=None):
         """ The main command of the live viewer class: draw a numpy array with the given name."""
-        if img is None:
-            return
 
         if img is not None and name is not None:
             self.image_name = name
-            self.display_image = self.itw.transform(img)
+        self.display_image = self.itw.transform(self.raw_image)
 
         # calls internally the plot function of the plot widget
         self.img_w.plot(
