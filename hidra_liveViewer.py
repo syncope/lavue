@@ -405,12 +405,12 @@ class imagetransformations_widget(QtGui.QGroupBox):
         '''Do the image transformation on the given numpy array.'''
         if display_img is None:
             return
+        if self.rotate90.isChecked():
+            display_img = np.transpose(display_img)
         if self.flip.isChecked():
             display_img = np.flipud(display_img)
         if self.mirror.isChecked():
             display_img = np.fliplr(display_img)
-        if self.rotate90.isChecked():
-            display_img = np.transpose(display_img)
         return display_img
 
 

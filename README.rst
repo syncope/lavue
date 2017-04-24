@@ -52,5 +52,4 @@ In the future a 100% view (or 1:1) is planned, where one detector pixel equals o
 The shown intensities currently are ranging between black (lowest) and white (highest).
 It is foreseen to show the actual gradient and to choose between different gradient schemes.
 
-Maybe an extension for the used detector will be used; this way the image would always be displayed in the correct orientation.
-Maybe a "transpose" or "flip/mirror/rotate" option box will be created.
+A decision needs to be made regarding the ordering of mirroring and every other transformation.
