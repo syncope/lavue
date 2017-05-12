@@ -36,8 +36,7 @@ Please note that the image statistics display is directly affected by the choice
 Square root scaling of the intensity is the default.
 The displayed image color code is scaled according to the chosen scale.
 
-
-In contrast to this to settings are and displays are linear!
+In contrast to this the limit settings and the mouse cursor values are in linear scale!
 
 The cursor position display (move the mouse over the image display area), indicated by the red crosshair, is used to show the the intensity of the chosen pixel.
 The value is displayed in the line below the image, using linear intensities.
