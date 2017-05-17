@@ -213,6 +213,6 @@ class HiDRA_cbf_source():
 
 if __name__ == "__main__":
     target = [socket.getfqdn(), "50101", 19, [".cbf"]]
-    signal_host = "haspp10pilatus.desy.de"
+    signal_host = "CHANGE_THIS!"
 
     source = HiDRA_cbf_source(mystery.signal_host, mystery.target)

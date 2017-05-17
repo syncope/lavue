@@ -461,17 +461,27 @@ class image_widget(QtGui.QWidget):
 
         verticallayout = QtGui.QVBoxLayout()
 
-        self.filenamedisplay = QtGui.QLineEdit()
-        verticallayout.addWidget(self.filenamedisplay)
+        filenamelayout = QtGui.QHBoxLayout()
 
+        filelabel = QtGui.QLabel("Image/File name: ")
+        filenamelayout.addWidget(filelabel)
+        self.filenamedisplay = QtGui.QLineEdit()
+        filenamelayout.addWidget(self.filenamedisplay)
+
+        verticallayout.addLayout(filenamelayout)
         verticallayout.addWidget(self.img_widget)
         #~ horizontallayout = QtGui.QHBoxLayout()
         #~ horizontallayout.addWidget(self.img_widget)
         #~ horizontallayout.addWidget(self.gradient)
         #~ verticallayout.addLayout(horizontallayout)
 
+        pixelvaluelayout = QtGui.QHBoxLayout()
+        pixellabel = QtGui.QLabel("Pixel position and intensity: ")
+        pixelvaluelayout.addWidget(pixellabel)
+
         self.infodisplay = QtGui.QLineEdit()
-        verticallayout.addWidget(self.infodisplay)
+        pixelvaluelayout.addWidget(self.infodisplay)
+        verticallayout.addLayout(pixelvaluelayout)
 
         self.setLayout(verticallayout)
 
