@@ -51,6 +51,7 @@ class gui_definition(QtGui.QDialog):
         self.stats = statistics_widget(parent=self)
         self.img_w = image_widget(parent=self)
         self.hw = hidra_widget(parent=self)
+        
         # set the right names for the hidra display at initialization
         self.hw.setNames(self.data_source.getTargetSignalHost())
 
@@ -90,8 +91,10 @@ class gui_definition(QtGui.QDialog):
 
         self.timer = QtCore.QTimer()
         self.timer.setInterval(self.waittime)
+        
         self.timer.timeout.connect(
             lambda: self._assignNewData(self.data_source.getData()))
+
         self.timer.timeout.connect(lambda: self.plot())
 
     def _setInitialLevels(self, lowlim, uplim):
@@ -114,7 +117,6 @@ class gui_definition(QtGui.QDialog):
         # only start plotting if the connection is really established
         if not self.hw.isConnected():
             return
-
         self.timer.start()
 
     def _assignNewData(self, nameDataTuple):

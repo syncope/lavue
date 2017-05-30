@@ -9,7 +9,6 @@ except ImportError:
 
 import numpy as np
 
-
 class HiDRA_cbf_source():
 
     def __init__(self, signal_host=None, target=None):
@@ -40,7 +39,7 @@ class HiDRA_cbf_source():
         metadata = None
         data = None
         try:
-            [metadata, data] = self.query.get(2000)
+            [metadata, data] = self.query.get(20)
         except:
             pass  # this needs a bit more care
 
