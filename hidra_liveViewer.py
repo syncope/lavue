@@ -105,6 +105,7 @@ class gui_definition(QtGui.QDialog):
 
         if img is not None and name is not None:
             self.image_name = name
+            self.raw_image = img
         self.display_image = self.itw.transform(self.raw_image)
 
         # calls internally the plot function of the plot widget
@@ -457,7 +458,7 @@ class image_widget(QtGui.QWidget):
         self.vLine = pg.InfiniteLine(angle=90, movable=False, pen=(255, 0, 0))
         self.hLine = pg.InfiniteLine(angle=0, movable=False, pen=(255, 0, 0))
 
-        # self.gradient = pg.GradientWidget(orientation='right', allowAdd=False)
+        #~ self.gradient = pg.GradientWidget(orientation='right', allowAdd=False)
         #~ for t in self.gradient.listTicks():
             #~ removeTick(t)
 
@@ -472,6 +473,7 @@ class image_widget(QtGui.QWidget):
 
         verticallayout.addLayout(filenamelayout)
         verticallayout.addWidget(self.img_widget)
+
         #~ horizontallayout = QtGui.QHBoxLayout()
         #~ horizontallayout.addWidget(self.img_widget)
         #~ horizontallayout.addWidget(self.gradient)
@@ -562,7 +564,6 @@ class image_widget(QtGui.QWidget):
             self.img_widget.addItem(self.imageItem)
             self.img_widget.addItem(self.vLine, ignoreBounds=True)
             self.img_widget.addItem(self.hLine, ignoreBounds=True)
-
         self.imageItem.setImage(drawarray, autolevels=False, levels=plotlevels)
         #~ self.img_widget.setLimits(xMin=0, xMax=drawarray.shape[0], yMin=0, yMax=drawarray.shape[1])
         self.img_widget.setRange(xRange=[0, drawarray.shape[0]], yRange=[
@@ -585,6 +586,6 @@ if __name__ == "__main__":
     dialog.show()
     while True:
         rand_arr = 10 * np.random.rand(100, 200) + 1
-        dialog.plot(rand_arr, "random number test nr. " + str(i))
+        dialog.plot(img=rand_arr, name=("random number test nr. " + str(i)))
         i += 1
         QtTest.QTest.qWait(2000)
