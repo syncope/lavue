@@ -6,6 +6,7 @@ try:
     import hidra
 except ImportError:
     print("without hidra installed this does not make sense")
+    raise ImportError
 
 import numpy as np
 

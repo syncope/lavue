@@ -17,7 +17,13 @@ import numpy as np
 
 from PyQt4 import QtCore, QtGui
 
-import hidra_cbf_source as hcs
+try:
+    import hidra_cbf_source as hcs
+except ImportError:
+    print("no hidra will be available!")
+    hcs = None
+
+import GradientItemWidget as giw
 import mystery
 
 
@@ -31,8 +37,9 @@ class gui_definition(QtGui.QDialog):
         # instantiate the data source
         # here: hardcoded the hidra cbf source
         # note: host and target are defined here and in another place
-        self.data_source = hcs.HiDRA_cbf_source(
-            mystery.signal_host, mystery.target)
+        if hcs is not None:
+            self.data_source = hcs.HiDRA_cbf_source(
+                mystery.signal_host, mystery.target)
         # time in [ms] between calls to hidra
         self.waittime = 500
 
@@ -450,7 +457,7 @@ class image_widget(QtGui.QWidget):
         self._doOnlyOnce = True
 
         # the actual image is an item of the PlotWidget
-        self.img_widget = pg.PlotWidget()
+        self.img_widget = giw.GradientItemWidget()
         self.img_widget.setAspectLocked(True)
         self.img_widget.scene().sigMouseMoved.connect(self.mouse_position)
         self.img_widget.scene().sigMouseClicked.connect(self.mouse_click)
@@ -561,13 +568,13 @@ class image_widget(QtGui.QWidget):
 
         if self.imageItem is None:
             self.imageItem = pg.ImageItem()
-            self.img_widget.addItem(self.imageItem)
-            self.img_widget.addItem(self.vLine, ignoreBounds=True)
-            self.img_widget.addItem(self.hLine, ignoreBounds=True)
+            self.img_widget.setImageItem(self.imageItem)
+            #~ self.img_widget.addItem(self.vLine, ignoreBounds=True)
+            #~ self.img_widget.addItem(self.hLine, ignoreBounds=True)
         self.imageItem.setImage(drawarray, autolevels=False, levels=plotlevels)
         #~ self.img_widget.setLimits(xMin=0, xMax=drawarray.shape[0], yMin=0, yMax=drawarray.shape[1])
-        self.img_widget.setRange(xRange=[0, drawarray.shape[0]], yRange=[
-                                 0, drawarray.shape[1]], padding=0, disableAutoRange=True)
+        #~ self.img_widget.setRange(xRange=[0, drawarray.shape[0]], yRange=[
+                                 #~ 0, drawarray.shape[1]], padding=0, disableAutoRange=True)
 
     def setLevels(self, lowlim, uplim):
         if self.levels[0] != lowlim or self.levels[1] != uplim:
