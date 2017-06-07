@@ -29,7 +29,7 @@ How to use
 The basic usage is to start the executable *laVueDirecte*, from which the pre-configured HiDRA server can be connected with the current host.
 
 To view the basic functionality, a test can be run by invoking the hidra_liveViewer.py module directly from python:
-    python3 hidra_liveViewer.py
+    python hidra_liveViewer.py
 
 The controls should be more or less self-explanatory.
 Please note that the image statistics display is directly affected by the choice of intensity scaling.
@@ -44,6 +44,9 @@ The values in the "levels selection" box are also linear.
 
 Known issues and Things to fix
 ------------------------------
+
+For now the script only works with Python2 because of HiDRA, that is required to use Python2.
+Technically, it also runs with Python3, but then no HiDRA will be available.
 
 Right now the image is displayed in a scaled way regarding its dimensions.
 In the future a 100% view (or 1:1) is planned, where one detector pixel equals one pixel on the screen display.
