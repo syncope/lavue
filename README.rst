@@ -26,7 +26,7 @@ The data is a tuple of a numpy array and a filename.
 How to use
 ----------
 
-The basic usage is to start the executable *laVueDirecte*, from which the pre-configured HiDRA server can be connected with the current host.
+The basic usage is to start the executable *laVue*, from which the pre-configured HiDRA server can be connected with the current host.
 
 To view the basic functionality, a test can be run by invoking the hidra_liveViewer.py module directly from python:
     python hidra_liveViewer.py

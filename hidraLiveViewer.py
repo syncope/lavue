@@ -21,7 +21,7 @@ import hidra_cbf_source as hcs
 import mystery
 
 
-class gui_definition(QtGui.QDialog):
+class HidraLiveViewer(QtGui.QDialog):
 
     def __init__(self, parent=None, signal_host=None, target=None):
         super(gui_definition, self).__init__(parent)
@@ -579,7 +579,7 @@ class image_widget(QtGui.QWidget):
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
 
-    dialog = gui_definition()
+    dialog = HidraLiveViewer()
     from PyQt4 import QtTest
 
     i = 1
