@@ -24,7 +24,7 @@ import mystery
 class HidraLiveViewer(QtGui.QDialog):
 
     def __init__(self, parent=None, signal_host=None, target=None):
-        super(gui_definition, self).__init__(parent)
+        super(HidraLiveViewer, self).__init__(parent)
 
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
@@ -219,27 +219,6 @@ class hidra_widget(QtGui.QGroupBox):
         self.cStatus.setText("Trouble connecting")
         self.button.setText("Retry connect")
 
-
-class imagesettings_widget(QtGui.QWidget):
-
-    """
-    Control the image settings.
-    """
-
-    def __init__(self, parent=None):
-        super(imagesettings_widget, self).__init__(parent)
-
-        # two columns layout:
-        # | radiobuttons       | checkboxes |
-        columnlayout = QtGui.QHBoxLayout()
-
-        leftw = intensityscaling_widget()
-        rightw = limitsetting_widget()
-
-        columnlayout.addWidget(leftw)
-        columnlayout.addWidget(rightw)
-
-        self.setLayout(columnlayout)
 
 
 class intensityscaling_widget(QtGui.QGroupBox):
