@@ -90,7 +90,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.trafoW.changeRotate.connect(print)
         
         # signal from intensity scaling widget:
-        self.scalingW.changeScaling.connect(self.plot)
+        #~ self.scalingW.changedScaling.connect(print)
 
         # signal from limit setting widget
         self.levelsW.levelsChanged.connect(self.imageW.setLevels)
@@ -127,7 +127,7 @@ class HidraLiveViewer(QtGui.QDialog):
         # calls internally the plot function of the plot widget
         self.imageW.plot(
             self.display_image, self.scalingW.getCurrentScaling(), self.image_name)
-        self.statsW.update_stats(self.display_image, self.scalingW.getCurrentScaling())
+        # self.statsW.update_stats(self.display_image, self.scalingW.getCurrentScaling())
 
         # mode changer: start plotting mode
     def startPlotting(self):
@@ -172,6 +172,22 @@ class HidraLiveViewer(QtGui.QDialog):
             #~ display_img = np.fliplr(display_img)
         return display_img
 
+    def calcStats(self, array, scaling):
+        self.array = array
+        if array is None:
+            return
+        if self.scaling is not scaling:
+            self.scaling = scaling
+
+        if self.scaling == "sqrt":
+            self.array = np.sqrt(self.array)
+        elif self.scaling == "log":
+            self.array = np.log10(self.array)
+
+        #~ self.scaleLabel.setText(self.scaling)
+        #~ self.maxVal.setText(str("%.4f" % np.amax(self.array)))
+        #~ self.meanVal.setText(str("%.4f" % np.mean(self.array)))
+        #~ self.varVal.setText(str("%.4f" % np.var(self.array)))
 
 class displayData():
     def __init__(self):
@@ -183,7 +199,6 @@ class displayData():
             return
         self.raw = data
         self.current = current
-
 
 
 class hidra_widget(QtGui.QGroupBox):
@@ -267,7 +282,7 @@ class intensityscaling_widget(QtGui.QGroupBox):
     """
     Select how the image intensity is supposed to be scaled.
     """
-    changeScaling = QtCore.pyqtSignal()
+    changedScaling = QtCore.pyqtSignal(QtCore.QString)
 
     def __init__(self, parent=None):
         super(intensityscaling_widget, self).__init__(parent)
@@ -301,7 +316,7 @@ class intensityscaling_widget(QtGui.QGroupBox):
             self.current = "log"
         else:
             self.current = "sqrt"
-        self.changeScaling.emit()
+        self.changedScaling.emit(self.current)
 
 
 class levels_widget(QtGui.QGroupBox):
@@ -371,7 +386,6 @@ class statistics_widget(QtGui.QGroupBox):
         self.setTitle("Image statistics")
         layout = QtGui.QGridLayout()
 
-        self.array = None
         self.scaling = "sqrt"
 
         scalingLabel = QtGui.QLabel("Scaling:")
@@ -396,22 +410,13 @@ class statistics_widget(QtGui.QGroupBox):
 
         self.setLayout(layout)
 
-    def update_stats(self, array, scaling):
-        self.array = array
-        if array is None:
-            return
+    def update_stats(self, meanVal, maxVal, varVal, scaling):
         if self.scaling is not scaling:
             self.scaling = scaling
-
-        if self.scaling == "sqrt":
-            self.array = np.sqrt(self.array)
-        elif self.scaling == "log":
-            self.array = np.log10(self.array)
-
         self.scaleLabel.setText(self.scaling)
-        self.maxVal.setText(str("%.4f" % np.amax(self.array)))
-        self.meanVal.setText(str("%.4f" % np.mean(self.array)))
-        self.varVal.setText(str("%.4f" % np.var(self.array)))
+        self.maxVal.setText(str("%.4f" % maxVal))
+        self.meanVal.setText(str("%.4f" % meanVal))
+        self.varVal.setText(str("%.4f" % varVal))
 
 
 class imagetransformations_widget(QtGui.QGroupBox):
