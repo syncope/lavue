@@ -17,7 +17,8 @@ import numpy as np
 
 from PyQt4 import QtCore, QtGui
 
-import hidra_cbf_source as hcs
+#import hidra_cbf_source as hcs
+hcs = None
 import mystery
 
 
@@ -34,8 +35,9 @@ class HidraLiveViewer(QtGui.QDialog):
         # future possibility: use abstract interface and factory for concrete instantiation
 
         # note: host and target are defined here and in another place
-        self.data_source = hcs.HiDRA_cbf_source(
-            mystery.signal_host, mystery.target)
+        self.data_source = None
+        #~ hcs.HiDRA_cbf_source(
+            #~ mystery.signal_host, mystery.target)
         # time in [ms] between calls to hidra
         self.waittime = 500
 
@@ -49,7 +51,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.hidraW = hidra_widget(parent=self)
 
         # set the right names for the hidra display at initialization
-        self.hidraW.setNames(self.data_source.getTargetSignalHost())
+        #~ self.hidraW.setNames(self.data_source.getTargetSignalHost())
 
 
         # WHY ???
@@ -83,30 +85,30 @@ class HidraLiveViewer(QtGui.QDialog):
         # SIGNAL LOGIC::
         
         # signal from intensity scaling widget:
-        self.isw.changeScaling.connect(self.plot)
+        self.scalingW.changeScaling.connect(self.plot)
 
         # signal from limit setting widget
-        self.lsw.levelsChanged.connect(self.img_w.setLevels)
+        self.levelsW.levelsChanged.connect(self.imageW.setLevels)
         # signal from image widget
-        self.img_w.initialLevels.connect(self._setInitialLevels)
+        self.imageW.initialLevels.connect(self._setInitialLevels)
 
         # connecting signals from hidra widget:
-        self.hw.hidra_connect.connect(self.connect_hidra)
-        self.hw.hidra_connect.connect(self.startPlotting)
+        self.hidraW.hidra_connect.connect(self.connect_hidra)
+        self.hidraW.hidra_connect.connect(self.startPlotting)
 
-        self.hw.hidra_disconnect.connect(self.stopPlotting)
-        self.hw.hidra_disconnect.connect(self.disconnect_hidra)
+        self.hidraW.hidra_disconnect.connect(self.stopPlotting)
+        self.hidraW.hidra_disconnect.connect(self.disconnect_hidra)
 
         self.timer = QtCore.QTimer()
         self.timer.setInterval(self.waittime)
         
-        self.timer.timeout.connect(
-            lambda: self._assignNewData(self.data_source.getData()))
+        #~ self.timer.timeout.connect(
+            #~ lambda: self._assignNewData(self.data_source.getData()))
 
         self.timer.timeout.connect(lambda: self.plot())
 
     def _setInitialLevels(self, lowlim, uplim):
-        self.lsw._setLevels(lowlim, uplim)
+        self.levelsW._setLevels(lowlim, uplim)
 
     def plot(self, img=None, name=None):
         """ The main command of the live viewer class: draw a numpy array with the given name."""
@@ -114,17 +116,17 @@ class HidraLiveViewer(QtGui.QDialog):
         if img is not None and name is not None:
             self.image_name = name
             self.raw_image = img
-        self.display_image = self.itw.transform(self.raw_image)
+        self.display_image = self.trafoW.transform(self.raw_image)
 
         # calls internally the plot function of the plot widget
-        self.img_w.plot(
-            self.display_image, self.isw.getCurrentScaling(), self.image_name)
-        self.stats.update_stats(self.display_image, self.isw.getCurrentScaling())
+        self.imageW.plot(
+            self.display_image, self.scalingW.getCurrentScaling(), self.image_name)
+        self.statsW.update_stats(self.display_image, self.scalingW.getCurrentScaling())
 
         # mode changer: start plotting mode
     def startPlotting(self):
         # only start plotting if the connection is really established
-        if not self.hw.isConnected():
+        if not self.hidraW.isConnected():
             return
         self.timer.start()
 
@@ -140,16 +142,31 @@ class HidraLiveViewer(QtGui.QDialog):
 
     # call the connect function of the hidra interface
     def connect_hidra(self):
-        if not self.data_source.connect():
-            self.hidraW.connectFailure()
-            print(
-                "<WARNING> The HiDRA connection could not be established. Check the settings.")
-        else:
-            self.hw.connectSuccess()
+        pass
+        #~ if not self.data_source.connect():
+            #~ self.hidraW.connectFailure()
+            #~ print(
+                #~ "<WARNING> The HiDRA connection could not be established. Check the settings.")
+        #~ else:
+            #~ self.hw.connectSuccess()
 
     # call the disconnect function of the hidra interface
     def disconnect_hidra(self):
-        self.data_source.disconnect()
+        pass #self.data_source.disconnect()
+
+
+
+class displayData():
+    def __init__(self):
+        self.raw = None
+        self.current = None
+
+    def newData(self, data, current):
+        if current == self.current:
+            return
+        self.raw = data
+        self.current = current
+
 
 
 class hidra_widget(QtGui.QGroupBox):
