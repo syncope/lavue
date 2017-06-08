@@ -22,58 +22,66 @@ import mystery
 
 
 class HidraLiveViewer(QtGui.QDialog):
-
+    '''The master class for the dialog, contains all other widget and handles communication.'''
+    
     def __init__(self, parent=None, signal_host=None, target=None):
         super(gui_definition, self).__init__(parent)
 
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         # instantiate the data source
-        # here: hardcoded the hidra cbf source
+        # here: hardcoded the hidra cbf source!
+        # future possibility: use abstract interface and factory for concrete instantiation
+
         # note: host and target are defined here and in another place
         self.data_source = hcs.HiDRA_cbf_source(
             mystery.signal_host, mystery.target)
         # time in [ms] between calls to hidra
         self.waittime = 500
 
+        # WIDGET DEFINITIONS
+        # instantiate the widgets and declare the parent
+        self.scalingW = intensityscaling_widget(parent=self)
+        self.trafoW = imagetransformations_widget(parent=self)
+        self.levelsW = levels_widget(parent=self)
+        self.statsW = statistics_widget(parent=self)
+        self.imageW = image_widget(parent=self)
+        self.hidraW = hidra_widget(parent=self)
+
+        # set the right names for the hidra display at initialization
+        self.hidraW.setNames(self.data_source.getTargetSignalHost())
+
+
+        # WHY ???
         # keep a reference to the "raw" image and the current filename
         self.raw_image = None
         self.image_name = None
         self.display_image = None
 
-        # define left hand side layout: vertical
-        vlayout = QtGui.QVBoxLayout()
-
-        # instantiate the widgets and declare the parent
-        self.isw = intensityscaling_widget(parent=self)
-        self.itw = imagetransformations_widget(parent=self)
-        self.lsw = levels_widget(parent=self)
-        self.stats = statistics_widget(parent=self)
-        self.img_w = image_widget(parent=self)
-        self.hw = hidra_widget(parent=self)
-        
-        # set the right names for the hidra display at initialization
-        self.hw.setNames(self.data_source.getTargetSignalHost())
-
+        # LAYOUT DEFINITIONS
         # the dialog layout is side by side
         globallayout = QtGui.QHBoxLayout()
 
+        # define left hand side layout: vertical
+        vlayout = QtGui.QVBoxLayout()
+
         # place widgets on the layouts
         # first the vertical layout on the left side
-        vlayout.addWidget(self.hw)
-        vlayout.addWidget(self.itw)
-        vlayout.addWidget(self.isw)
-        vlayout.addWidget(self.stats)
-        vlayout.addWidget(self.lsw)
+        vlayout.addWidget(self.hidraW)
+        vlayout.addWidget(self.trafoW)
+        vlayout.addWidget(self.scalingW)
+        vlayout.addWidget(self.statsW)
+        vlayout.addWidget(self.levelsW)
 
         # then the vertical layout on the --global-- horizontal one
         globallayout.addLayout(vlayout)
-        globallayout.addWidget(self.img_w)
+        globallayout.addWidget(self.imageW)
 
         self.setLayout(globallayout)
-        self.setWindowTitle("Live Image Viewer")
+        self.setWindowTitle("laVue: Live Image Viewer")
 
-        # connect signals::
+        # SIGNAL LOGIC::
+        
         # signal from intensity scaling widget:
         self.isw.changeScaling.connect(self.plot)
 
@@ -126,20 +134,20 @@ class HidraLiveViewer(QtGui.QDialog):
         # the internal data object is copied to allow for internal conversions
         self.display_image = self.raw_image
 
-        # mode changer: stop plotting mode
+    # mode changer: stop plotting mode
     def stopPlotting(self):
         self.timer.stop()
 
-        # call the connect function of the hidra interface
+    # call the connect function of the hidra interface
     def connect_hidra(self):
         if not self.data_source.connect():
-            self.hw.connectFailure()
+            self.hidraW.connectFailure()
             print(
                 "<WARNING> The HiDRA connection could not be established. Check the settings.")
         else:
             self.hw.connectSuccess()
 
-        # call the disconnect function of the hidra interface
+    # call the disconnect function of the hidra interface
     def disconnect_hidra(self):
         self.data_source.disconnect()
 
@@ -220,27 +228,6 @@ class hidra_widget(QtGui.QGroupBox):
         self.button.setText("Retry connect")
 
 
-class imagesettings_widget(QtGui.QWidget):
-
-    """
-    Control the image settings.
-    """
-
-    def __init__(self, parent=None):
-        super(imagesettings_widget, self).__init__(parent)
-
-        # two columns layout:
-        # | radiobuttons       | checkboxes |
-        columnlayout = QtGui.QHBoxLayout()
-
-        leftw = intensityscaling_widget()
-        rightw = limitsetting_widget()
-
-        columnlayout.addWidget(leftw)
-        columnlayout.addWidget(rightw)
-
-        self.setLayout(columnlayout)
-
 
 class intensityscaling_widget(QtGui.QGroupBox):
 
@@ -282,6 +269,7 @@ class intensityscaling_widget(QtGui.QGroupBox):
         else:
             self.current = "sqrt"
         self.changeScaling.emit()
+
 
 
 class levels_widget(QtGui.QGroupBox):
