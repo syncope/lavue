@@ -83,12 +83,18 @@ class HidraLiveViewer(QtGui.QDialog):
         self.setWindowTitle("laVue: Live Image Viewer")
 
         # SIGNAL LOGIC::
+                
+        # signals from transformation widget
+        self.trafoW.changeFlip.connect(print)
+        self.trafoW.changeMirror.connect(print)
+        self.trafoW.changeRotate.connect(print)
         
         # signal from intensity scaling widget:
         self.scalingW.changeScaling.connect(self.plot)
 
         # signal from limit setting widget
         self.levelsW.levelsChanged.connect(self.imageW.setLevels)
+        
         # signal from image widget
         self.imageW.initialLevels.connect(self._setInitialLevels)
 
@@ -116,7 +122,7 @@ class HidraLiveViewer(QtGui.QDialog):
         if img is not None and name is not None:
             self.image_name = name
             self.raw_image = img
-        self.display_image = self.trafoW.transform(self.raw_image)
+        self.display_image = self.transform(self.raw_image)
 
         # calls internally the plot function of the plot widget
         self.imageW.plot(
@@ -154,6 +160,17 @@ class HidraLiveViewer(QtGui.QDialog):
     def disconnect_hidra(self):
         pass #self.data_source.disconnect()
 
+    def transform(self, display_img):
+        '''Do the image transformation on the given numpy array.'''
+        if display_img is None:
+            return
+        #~ if self.rotate90.isChecked():
+            #~ display_img = np.transpose(display_img)
+        #~ if self.flip.isChecked():
+            #~ display_img = np.flipud(display_img)
+        #~ if self.mirror.isChecked():
+            #~ display_img = np.fliplr(display_img)
+        return display_img
 
 
 class displayData():
@@ -245,7 +262,6 @@ class hidra_widget(QtGui.QGroupBox):
         self.button.setText("Retry connect")
 
 
-
 class intensityscaling_widget(QtGui.QGroupBox):
 
     """
@@ -286,7 +302,6 @@ class intensityscaling_widget(QtGui.QGroupBox):
         else:
             self.current = "sqrt"
         self.changeScaling.emit()
-
 
 
 class levels_widget(QtGui.QGroupBox):
@@ -404,6 +419,10 @@ class imagetransformations_widget(QtGui.QGroupBox):
     """
     Select how an image should be transformed.
     """
+    changeFlip = QtCore.pyqtSignal(int)
+    changeMirror = QtCore.pyqtSignal(int)
+    changeRotate = QtCore.pyqtSignal(int)
+
 
     def __init__(self, parent=None):
         super(imagetransformations_widget, self).__init__(parent)
@@ -421,18 +440,11 @@ class imagetransformations_widget(QtGui.QGroupBox):
         horizontallayout.addWidget(self.rotate90)
 
         self.setLayout(horizontallayout)
-
-    def transform(self, display_img):
-        '''Do the image transformation on the given numpy array.'''
-        if display_img is None:
-            return
-        if self.rotate90.isChecked():
-            display_img = np.transpose(display_img)
-        if self.flip.isChecked():
-            display_img = np.flipud(display_img)
-        if self.mirror.isChecked():
-            display_img = np.fliplr(display_img)
-        return display_img
+        
+        # signals:
+        self.flip.stateChanged.connect(self.changeFlip.emit)
+        self.mirror.stateChanged.connect(self.changeMirror.emit)
+        self.rotate90.stateChanged.connect(self.changeRotate.emit)
 
 
 class image_widget(QtGui.QWidget):
