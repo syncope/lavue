@@ -25,7 +25,7 @@ class HidraLiveViewer(QtGui.QDialog):
     '''The master class for the dialog, contains all other widget and handles communication.'''
     
     def __init__(self, parent=None, signal_host=None, target=None):
-        super(gui_definition, self).__init__(parent)
+        super(HidraLiveViewer, self).__init__(parent)
 
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
