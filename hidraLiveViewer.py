@@ -154,7 +154,7 @@ class HidraLiveViewer(QtGui.QDialog):
             #~ print(
                 #~ "<WARNING> The HiDRA connection could not be established. Check the settings.")
         #~ else:
-            #~ self.hw.connectSuccess()
+            #~ self.hidraW.connectSuccess()
 
     # call the disconnect function of the hidra interface
     def disconnect_hidra(self):
