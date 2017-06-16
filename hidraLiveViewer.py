@@ -82,9 +82,9 @@ class HidraLiveViewer(QtGui.QDialog):
         # SIGNAL LOGIC::
                 
         # signals from transformation widget
-        self.trafoW.changeFlip.connect(print)
-        self.trafoW.changeMirror.connect(print)
-        self.trafoW.changeRotate.connect(print)
+        #~ self.trafoW.changeFlip.connect(print)
+        #~ self.trafoW.changeMirror.connect(print)
+        #~ self.trafoW.changeRotate.connect(print)
         
         # signal from intensity scaling widget:
         #~ self.scalingW.changedScaling.connect(print)
