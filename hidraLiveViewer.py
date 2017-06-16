@@ -18,6 +18,7 @@ import numpy as np
 from PyQt4 import QtCore, QtGui
 
 import hidra_cbf_source as hcs
+import GradientItem as GI
 import mystery
 
 
@@ -467,18 +468,13 @@ class image_widget(QtGui.QWidget):
         self.levelsSet = False
         self._doOnlyOnce = True
 
-        # the actual image is an item of the PlotWidget
-        self.img_widget = pg.PlotWidget()
-        self.img_widget.setAspectLocked(True)
-        self.img_widget.scene().sigMouseMoved.connect(self.mouse_position)
-        self.img_widget.scene().sigMouseClicked.connect(self.mouse_click)
-
-        self.vLine = pg.InfiniteLine(angle=90, movable=False, pen=(255, 0, 0))
-        self.hLine = pg.InfiniteLine(angle=0, movable=False, pen=(255, 0, 0))
-
-        #~ self.gradient = pg.GradientWidget(orientation='right', allowAdd=False)
-        #~ for t in self.gradient.listTicks():
-            #~ removeTick(t)
+        self.img_widget = ImageDisplay()
+        #~ self.img_widget.setAspectLocked(True)
+        #~ self.img_widget.scene().sigMouseMoved.connect(self.mouse_position)
+        #~ self.img_widget.scene().sigMouseClicked.connect(self.mouse_click)
+        #~ 
+        #~ self.vLine = pg.InfiniteLine(angle=90, movable=False, pen=(255, 0, 0))
+        #~ self.hLine = pg.InfiniteLine(angle=0, movable=False, pen=(255, 0, 0))
 
         verticallayout = QtGui.QVBoxLayout()
 
@@ -492,11 +488,6 @@ class image_widget(QtGui.QWidget):
         verticallayout.addLayout(filenamelayout)
         verticallayout.addWidget(self.img_widget)
 
-        #~ horizontallayout = QtGui.QHBoxLayout()
-        #~ horizontallayout.addWidget(self.img_widget)
-        #~ horizontallayout.addWidget(self.gradient)
-        #~ verticallayout.addLayout(horizontallayout)
-
         pixelvaluelayout = QtGui.QHBoxLayout()
         pixellabel = QtGui.QLabel("Pixel position and intensity: ")
         pixelvaluelayout.addWidget(pixellabel)
@@ -507,32 +498,32 @@ class image_widget(QtGui.QWidget):
 
         self.setLayout(verticallayout)
 
-    def mouse_position(self, event):
-
-        try:
-            mousePoint = self.imageItem.mapFromScene(event)
-            xdata = math.floor(mousePoint.x())
-            ydata = math.floor(mousePoint.y())
-
-            if not self.crosshair_locked:
-                self.vLine.setPos(xdata)
-                self.hLine.setPos(ydata)
-
-            intensity = self.nparray[math.floor(xdata), math.floor(ydata)]
-            self.infodisplay.setText("x=%.2f, y=%.2f, linear (!) intensity=%.4f"
-                                     % (xdata, ydata, intensity))
-        except:
-            self.infodisplay.setText("error")
-
-    def mouse_click(self, event):
-
-        mousePoint = self.img_widget.mapFromScene(event.scenePos())
-
-        xdata = mousePoint.x()
-        ydata = mousePoint.y()
-
-        # if double click: fix mouse crosshair
-        # another double click releases the crosshair again
+    #~ def mouse_position(self, event):
+#~ 
+        #~ try:
+            #~ mousePoint = self.imageItem.mapFromScene(event)
+            #~ xdata = math.floor(mousePoint.x())
+            #~ ydata = math.floor(mousePoint.y())
+#~ 
+            #~ if not self.crosshair_locked:
+                #~ self.vLine.setPos(xdata)
+                #~ self.hLine.setPos(ydata)
+#~ 
+            #~ intensity = self.nparray[math.floor(xdata), math.floor(ydata)]
+            #~ self.infodisplay.setText("x=%.2f, y=%.2f, linear (!) intensity=%.4f"
+                                     #~ % (xdata, ydata, intensity))
+        #~ except:
+            #~ self.infodisplay.setText("error")
+#~ 
+    #~ def mouse_click(self, event):
+#~ 
+        #~ mousePoint = self.img_widget.mapFromScene(event.scenePos())
+#~ 
+        #~ xdata = mousePoint.x()
+        #~ ydata = mousePoint.y()
+#~ 
+        #~ # if double click: fix mouse crosshair
+        #~ # another double click releases the crosshair again
         #~ if event.double():
             #~ self.crosshair_locked = not self.crosshair_locked
             #~
@@ -577,15 +568,17 @@ class image_widget(QtGui.QWidget):
             print("Chosen display style '" + style + "' is not valid.")
             return
 
-        if self.imageItem is None:
-            self.imageItem = pg.ImageItem()
-            self.img_widget.addItem(self.imageItem)
-            self.img_widget.addItem(self.vLine, ignoreBounds=True)
-            self.img_widget.addItem(self.hLine, ignoreBounds=True)
-        self.imageItem.setImage(drawarray, autolevels=False, levels=plotlevels)
+        #~ if self.imageItem is None:
+            #~ self.imageItem = pg.ImageItem()
+            #~ self.img_widget.addItem(self.imageItem)
+            #~ self.img_widget.addItem(self.vLine, ignoreBounds=True)
+            #~ self.img_widget.addItem(self.hLine, ignoreBounds=True)
+        
+        #~ self.imageItem.setImage(drawarray, autolevels=False, levels=plotlevels)
+        self.img_widget.updateImage(drawarray)
         #~ self.img_widget.setLimits(xMin=0, xMax=drawarray.shape[0], yMin=0, yMax=drawarray.shape[1])
-        self.img_widget.setRange(xRange=[0, drawarray.shape[0]], yRange=[
-                                 0, drawarray.shape[1]], padding=0, disableAutoRange=True)
+        #~ self.img_widget.setRange(xRange=[0, drawarray.shape[0]], yRange=[
+                                 #~ 0, drawarray.shape[1]], padding=0, disableAutoRange=True)
 
     def setLevels(self, lowlim, uplim):
         if self.levels[0] != lowlim or self.levels[1] != uplim:
@@ -594,6 +587,37 @@ class image_widget(QtGui.QWidget):
             self.levelsHaveChanged.emit()
 
 
+
+class ImageDisplay(pg.GraphicsLayoutWidget):
+    def __init__(self, parent = None):
+        super(ImageDisplay, self).__init__(parent)
+        self.layout = self.ci
+
+        self.viewbox = self.layout.addViewBox(row=0, col=1)
+
+        self.image = pg.ImageItem()
+        self.viewbox.addItem(self.image)
+        # PLOT CALL: self.image..setImage(data)
+        
+        leftAxis = pg.AxisItem('left')
+        leftAxis.linkToView(self.viewbox)
+        self.layout.addItem(leftAxis, row=0, col=0)
+        
+        bottomAxis = pg.AxisItem('bottom')
+        bottomAxis.linkToView(self.viewbox)
+        self.layout.addItem(bottomAxis, row=1, col =1)
+        
+        self.graditem = GI.GradientItem()
+        self.graditem.setImageItem(self.image)
+        
+        self.layout.addItem(self.graditem, row = 0, col=2)
+
+    def updateImage(self, img=None):
+        self.image.setImage(img)
+    
+    def updateGradient(self, name):
+        geditem.setGradientByName(name)
+    
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
 
