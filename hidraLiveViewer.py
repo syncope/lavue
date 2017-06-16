@@ -222,13 +222,27 @@ class HidraLiveViewer(QtGui.QDialog):
 class displayData():
     def __init__(self):
         self.raw = None
-        self.current = None
-
-    def newData(self, data, current):
-        if current == self.current:
+        self.transform = ""
+        self.scaling = "sqrt"
+        
+    def updateData(self, data):
+        if data == self.raw:
             return
         self.raw = data
-        self.current = current
+        
+
+    def scaleIntensity(self):
+        pass
+    
+    def getStats(self):
+        self.maxVal.setText(str("%.4f" % np.amax(self.array)))
+        self.meanVal.setText(str("%.4f" % np.mean(self.array)))
+        self.varVal.setText(str("%.4f" % np.var(self.array)))
+
+    
+    
+    
+    
 
 
 class hidra_widget(QtGui.QGroupBox):
@@ -500,8 +514,7 @@ class image_widget(QtGui.QWidget):
         self.levelsSet = False
         self._doOnlyOnce = True
 
-        self.img_widget = ImageDisplay()
-        #~ self.img_widget.setAspectLocked(True)
+        self.img_widget = ImageDisplay(parent=self)
 
         verticallayout = QtGui.QVBoxLayout()
 
@@ -516,15 +529,15 @@ class image_widget(QtGui.QWidget):
         verticallayout.addWidget(self.img_widget)
 
         pixelvaluelayout = QtGui.QHBoxLayout()
-        pixellabel = QtGui.QLabel("Pixel position and intensity: ")
+        pixellabel = QtGui.QLabel("Pixel position and linear intensity: ")
         pixelvaluelayout.addWidget(pixellabel)
 
         self.infodisplay = QtGui.QLineEdit()
         pixelvaluelayout.addWidget(self.infodisplay)
         verticallayout.addLayout(pixelvaluelayout)
-
+        
         self.setLayout(verticallayout)
-
+        self.img_widget.currentMousePosition.connect(self.infodisplay.setText)
 
     def plot(self, array, name=None):
         if array is None:
@@ -543,10 +556,15 @@ class image_widget(QtGui.QWidget):
 
 
 class ImageDisplay(pg.GraphicsLayoutWidget):
+    
+    currentMousePosition = QtCore.pyqtSignal(str)
+
+    
     def __init__(self, parent = None):
         super(ImageDisplay, self).__init__(parent)
         self.layout = self.ci
         self.crosshair_locked = False
+        self.data = None
 
         self.viewbox = self.layout.addViewBox(row=0, col=1)
 
@@ -579,12 +597,12 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
 
     def updateImage(self, img=None):
         self.image.setImage(img)
+        self.data = img
     
     def updateGradient(self, name):
         geditem.setGradientByName(name)
     
     def mouse_position(self, event):
-
         try:
             mousePoint = self.image.mapFromScene(event)
             xdata = math.floor(mousePoint.x())
@@ -594,12 +612,11 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
                 self.vLine.setPos(xdata)
                 self.hLine.setPos(ydata)
 
-            #~ intensity = self.nparray[math.floor(xdata), math.floor(ydata)]
-            #~ self.infodisplay.setText("x=%.2f, y=%.2f, linear (!) intensity=%.4f"
-                                     #~ % (xdata, ydata, intensity))
+            intensity = self.data[math.floor(xdata), math.floor(ydata)]
+            self.currentMousePosition.emit("x=%.2f, y=%.2f, intensity=%.4f" % (xdata, ydata, intensity))
+        
         except:
             pass
-            #~ self.infodisplay.setText("error")
 
     def mouse_click(self, event):
 
@@ -610,12 +627,11 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
 
         # if double click: fix mouse crosshair
         # another double click releases the crosshair again
-        if event.double():
-            self.crosshair_locked = not self.crosshair_locked
-
-            if not self.crosshair_locked:
-                self.vLine.setPos(xdata)
-                self.hLine.setPos(ydata)
+        #~ if event.double():
+            #~ self.crosshair_locked = not self.crosshair_locked
+            #~ if not self.crosshair_locked:
+                #~ self.vLine.setPos(xdata)
+                #~ self.hLine.setPos(ydata)
     
     
 if __name__ == "__main__":
