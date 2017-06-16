@@ -56,7 +56,9 @@ class HidraLiveViewer(QtGui.QDialog):
         self.raw_image = None
         self.image_name = None
         self.display_image = None
-
+        self.plotLevels = [0.,1.]
+        self.initialPlotLevelsSet = False
+        
         # LAYOUT DEFINITIONS
         # the dialog layout is side by side
         globallayout = QtGui.QHBoxLayout()
@@ -90,7 +92,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.scalingW.changedScaling.connect(self.scale)
 
         # signal from limit setting widget
-        self.levelsW.levelsChanged.connect(self.imageW.setLevels)
+        self.levelsW.levelsChanged.connect(self.setLevels)
         
         # signal from image widget
         self.imageW.initialLevels.connect(self._setInitialLevels)
@@ -122,7 +124,7 @@ class HidraLiveViewer(QtGui.QDialog):
 
         self.scale(self.scalingW.getCurrentScaling())
         #~ self.transform()
-        self.applyLevels(self.scalingW.getCurrentScaling())
+        #~ self.setLevels()
         maxVal, meanVal, varVal =  self.calcStats()
 
         # calls internally the plot function of the plot widget
@@ -170,32 +172,30 @@ class HidraLiveViewer(QtGui.QDialog):
             np.clip(self.display_image, 10e-3, np.inf)
             self.display_image = np.log10(self.display_image)
 
-    def applyLevels(self, scalingType):
-        pass
+    def setLevels(self, lowLim, upLim):
+        scalingType = self.scalingW.getCurrentScaling()
+            
+        if not self.initialPlotLevelsSet:
+            self.initialPlotLevelsSet = True
+            lowLimit, upLimit = self.getInitialLevels()
+            self.setLevels(lowLimit, upLimit)
         
-        #~ if scalingType == "sqrt":
-            #~ self.drawlevels =  [math.sqrt(plotlevels[0]), math.sqrt(plotlevels[1])]
-        #~ elif scalingType == "log":
-            #~ if (plotlevels[0] < 10e-3):
-                #~ plotlevels[0] = 10e-3
-            #~ if (plotlevels[1] < 0.1):
-                #~ plotlevels[1] = 1.
-            #~ plotlevels = [math.log10(plotlevels[0]), math.log10(plotlevels[1])]
-
-        #~ self.drawlevels
-            #~ plotlevels = [None, None]
-        #~ self.nparray = np.float32(nparr)
-        #~ drawarray = self.nparray
-        #~ 
-        #~ # check if drawing levels are set
-        #~ if not self.levelsSet:
-            #~ plotlevels[0] = np.amin(drawarray)
-            #~ plotlevels[1] = np.amax(drawarray)
-            #~ if self._doOnlyOnce:
-                #~ self.initialLevels.emit(plotlevels[0], plotlevels[1])
-                #~ self._doOnlyOnce = False
-        #~ else:
-            #~ plotlevels = self.levels
+        # check if drawing levels are set
+        if scalingType == "lin":
+            self.plotLevels = [lowLim, upLim]
+        elif scalingType == "sqrt":
+            self.plotLevels =  [math.sqrt(lowLim), math.sqrt(upLim)]
+            
+            np.amin(drawarray)
+            self.plotLevels[1] = np.amax(drawarray)
+            self.initialLevels.emit(self.plotLevels[0], self.plotLevels[1])
+            self.initialPlotLevelsSet = True
+        elif scalingType == "log":
+            if (lowLim < 1.):
+                lowLim = 1.
+            if (upLim < 2.):
+                upLim = 2.
+            self.plotLevels = [math.log10(lowLim), math.log10(upLim)]
 
     def transform(self, trafoshort):
         '''Do the image transformation on the given numpy array.'''
@@ -212,6 +212,9 @@ class HidraLiveViewer(QtGui.QDialog):
                  str("%.4f" % np.mean(self.display_image)),
                  str("%.4f" % np.var(self.display_image)))
 
+    def getInitialLevels(self):
+        if(self.raw_image != None):
+            return  np.amin(self.raw_image), np.amax(self.raw_image)
 
 class displayData():
     def __init__(self):
@@ -371,7 +374,7 @@ class levels_widget(QtGui.QGroupBox):
         self.setTitle("Set display levels")
         layout = QtGui.QGridLayout()
 
-        informLabel = QtGui.QLabel("Note: Linear scale!")
+        informLabel = QtGui.QLabel("Note: Linear scale, only applies to display!!")
         minLabel = QtGui.QLabel("minimum value: ")
         maxLabel = QtGui.QLabel("maximum value: ")
 
