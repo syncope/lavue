@@ -123,8 +123,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.display_image = self.transform(self.raw_image)
 
         # calls internally the plot function of the plot widget
-        self.imageW.plot(
-            self.display_image, self.scalingW.getCurrentScaling(), self.image_name)
+        self.imageW.plot(self.display_image, self.image_name)
         # self.statsW.update_stats(self.display_image, self.scalingW.getCurrentScaling())
 
         # mode changer: start plotting mode
@@ -185,6 +184,40 @@ class HidraLiveViewer(QtGui.QDialog):
         #~ self.maxVal.setText(str("%.4f" % np.amax(self.array)))
         #~ self.meanVal.setText(str("%.4f" % np.mean(self.array)))
         #~ self.varVal.setText(str("%.4f" % np.var(self.array)))
+
+            #~ plotlevels = [None, None]
+        #~ self.nparray = np.float32(nparr)
+        #~ drawarray = self.nparray
+#~ 
+        #~ # check if drawing levels are set
+        #~ if not self.levelsSet:
+            #~ plotlevels[0] = np.amin(drawarray)
+            #~ plotlevels[1] = np.amax(drawarray)
+            #~ if self._doOnlyOnce:
+                #~ self.initialLevels.emit(plotlevels[0], plotlevels[1])
+                #~ self._doOnlyOnce = False
+        #~ else:
+            #~ plotlevels = self.levels
+#~ 
+        #~ if style == "sqrt":
+            #~ np.clip(drawarray, 0, np.inf)
+            #~ drawarray = np.sqrt(self.nparray)
+            #~ plotlevels = [math.sqrt(plotlevels[0]), math.sqrt(plotlevels[1])]
+        #~ elif style == "log":
+            #~ np.clip(drawarray, 10e-3, np.inf)
+            #~ drawarray = np.log10(self.nparray)
+            #~ if (plotlevels[0] < 10e-3):
+                #~ plotlevels[0] = 10e-3
+            #~ if (plotlevels[1] < 0.1):
+                #~ plotlevels[1] = 1.
+            #~ plotlevels = [math.log10(plotlevels[0]), math.log10(plotlevels[1])]
+        #~ elif style == "lin":
+            #~ plotlevels = [math.floor(plotlevels[0]), math.ceil(plotlevels[1])]
+        #~ else:
+            #~ print("Chosen display style '" + style + "' is not valid.")
+            #~ return
+
+
 
 class displayData():
     def __init__(self):
@@ -462,7 +495,6 @@ class image_widget(QtGui.QWidget):
         super(image_widget, self).__init__(parent)
 
         self.nparray = None
-        self.crosshair_locked = False
         self.imageItem = None
         self.levels = [None, None]  # the min/max draw values in linear space
         self.levelsSet = False
@@ -470,11 +502,6 @@ class image_widget(QtGui.QWidget):
 
         self.img_widget = ImageDisplay()
         #~ self.img_widget.setAspectLocked(True)
-        #~ self.img_widget.scene().sigMouseMoved.connect(self.mouse_position)
-        #~ self.img_widget.scene().sigMouseClicked.connect(self.mouse_click)
-        #~ 
-        #~ self.vLine = pg.InfiniteLine(angle=90, movable=False, pen=(255, 0, 0))
-        #~ self.hLine = pg.InfiniteLine(angle=0, movable=False, pen=(255, 0, 0))
 
         verticallayout = QtGui.QVBoxLayout()
 
@@ -498,87 +525,14 @@ class image_widget(QtGui.QWidget):
 
         self.setLayout(verticallayout)
 
-    #~ def mouse_position(self, event):
-#~ 
-        #~ try:
-            #~ mousePoint = self.imageItem.mapFromScene(event)
-            #~ xdata = math.floor(mousePoint.x())
-            #~ ydata = math.floor(mousePoint.y())
-#~ 
-            #~ if not self.crosshair_locked:
-                #~ self.vLine.setPos(xdata)
-                #~ self.hLine.setPos(ydata)
-#~ 
-            #~ intensity = self.nparray[math.floor(xdata), math.floor(ydata)]
-            #~ self.infodisplay.setText("x=%.2f, y=%.2f, linear (!) intensity=%.4f"
-                                     #~ % (xdata, ydata, intensity))
-        #~ except:
-            #~ self.infodisplay.setText("error")
-#~ 
-    #~ def mouse_click(self, event):
-#~ 
-        #~ mousePoint = self.img_widget.mapFromScene(event.scenePos())
-#~ 
-        #~ xdata = mousePoint.x()
-        #~ ydata = mousePoint.y()
-#~ 
-        #~ # if double click: fix mouse crosshair
-        #~ # another double click releases the crosshair again
-        #~ if event.double():
-            #~ self.crosshair_locked = not self.crosshair_locked
-            #~
-            #~ if not self.crosshair_locked:
-                #~ self.vLine.setPos(xdata)
-                #~ self.hLine.setPos(ydata)
 
-    def plot(self, nparr, style, name=None):
-        if nparr is None:
+    def plot(self, array, name=None):
+        if array is None:
             return
         if name is not None:
             self.filenamedisplay.setText(name)
-        plotlevels = [None, None]
-        self.nparray = np.float32(nparr)
-        drawarray = self.nparray
 
-        # check if drawing levels are set
-        if not self.levelsSet:
-            plotlevels[0] = np.amin(drawarray)
-            plotlevels[1] = np.amax(drawarray)
-            if self._doOnlyOnce:
-                self.initialLevels.emit(plotlevels[0], plotlevels[1])
-                self._doOnlyOnce = False
-        else:
-            plotlevels = self.levels
-
-        if style == "sqrt":
-            np.clip(drawarray, 0, np.inf)
-            drawarray = np.sqrt(self.nparray)
-            plotlevels = [math.sqrt(plotlevels[0]), math.sqrt(plotlevels[1])]
-        elif style == "log":
-            np.clip(drawarray, 10e-3, np.inf)
-            drawarray = np.log10(self.nparray)
-            if (plotlevels[0] < 10e-3):
-                plotlevels[0] = 10e-3
-            if (plotlevels[1] < 0.1):
-                plotlevels[1] = 1.
-            plotlevels = [math.log10(plotlevels[0]), math.log10(plotlevels[1])]
-        elif style == "lin":
-            plotlevels = [math.floor(plotlevels[0]), math.ceil(plotlevels[1])]
-        else:
-            print("Chosen display style '" + style + "' is not valid.")
-            return
-
-        #~ if self.imageItem is None:
-            #~ self.imageItem = pg.ImageItem()
-            #~ self.img_widget.addItem(self.imageItem)
-            #~ self.img_widget.addItem(self.vLine, ignoreBounds=True)
-            #~ self.img_widget.addItem(self.hLine, ignoreBounds=True)
-        
-        #~ self.imageItem.setImage(drawarray, autolevels=False, levels=plotlevels)
-        self.img_widget.updateImage(drawarray)
-        #~ self.img_widget.setLimits(xMin=0, xMax=drawarray.shape[0], yMin=0, yMax=drawarray.shape[1])
-        #~ self.img_widget.setRange(xRange=[0, drawarray.shape[0]], yRange=[
-                                 #~ 0, drawarray.shape[1]], padding=0, disableAutoRange=True)
+        self.img_widget.updateImage(array)
 
     def setLevels(self, lowlim, uplim):
         if self.levels[0] != lowlim or self.levels[1] != uplim:
@@ -592,12 +546,12 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
     def __init__(self, parent = None):
         super(ImageDisplay, self).__init__(parent)
         self.layout = self.ci
+        self.crosshair_locked = False
 
         self.viewbox = self.layout.addViewBox(row=0, col=1)
 
         self.image = pg.ImageItem()
         self.viewbox.addItem(self.image)
-        # PLOT CALL: self.image..setImage(data)
         
         leftAxis = pg.AxisItem('left')
         leftAxis.linkToView(self.viewbox)
@@ -611,12 +565,58 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         self.graditem.setImageItem(self.image)
         
         self.layout.addItem(self.graditem, row = 0, col=2)
+        
+        self.layout.scene().sigMouseMoved.connect(self.mouse_position)
+        self.layout.scene().sigMouseClicked.connect(self.mouse_click)
+        
+        self.vLine = pg.InfiniteLine(angle=90, movable=False, pen=(255, 0, 0))
+        self.hLine = pg.InfiniteLine(angle=0, movable=False, pen=(255, 0, 0))
+        self.viewbox.addItem(self.vLine, ignoreBounds=True)
+        self.viewbox.addItem(self.hLine, ignoreBounds=True)
+
+    def addItem(self, item):
+        self.image.additem(item)
 
     def updateImage(self, img=None):
         self.image.setImage(img)
     
     def updateGradient(self, name):
         geditem.setGradientByName(name)
+    
+    def mouse_position(self, event):
+
+        try:
+            mousePoint = self.image.mapFromScene(event)
+            xdata = math.floor(mousePoint.x())
+            ydata = math.floor(mousePoint.y())
+
+            if not self.crosshair_locked:
+                self.vLine.setPos(xdata)
+                self.hLine.setPos(ydata)
+
+            #~ intensity = self.nparray[math.floor(xdata), math.floor(ydata)]
+            #~ self.infodisplay.setText("x=%.2f, y=%.2f, linear (!) intensity=%.4f"
+                                     #~ % (xdata, ydata, intensity))
+        except:
+            pass
+            #~ self.infodisplay.setText("error")
+
+    def mouse_click(self, event):
+
+        mousePoint = self.image.mapFromScene(event.scenePos())
+
+        xdata = mousePoint.x()
+        ydata = mousePoint.y()
+
+        # if double click: fix mouse crosshair
+        # another double click releases the crosshair again
+        if event.double():
+            self.crosshair_locked = not self.crosshair_locked
+
+            if not self.crosshair_locked:
+                self.vLine.setPos(xdata)
+                self.hLine.setPos(ydata)
+    
     
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
