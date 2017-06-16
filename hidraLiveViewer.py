@@ -17,8 +17,7 @@ import numpy as np
 
 from PyQt4 import QtCore, QtGui
 
-#import hidra_cbf_source as hcs
-hcs = None
+import hidra_cbf_source as hcs
 import mystery
 
 
@@ -35,9 +34,8 @@ class HidraLiveViewer(QtGui.QDialog):
         # future possibility: use abstract interface and factory for concrete instantiation
 
         # note: host and target are defined here and in another place
-        self.data_source = None
-        #~ hcs.HiDRA_cbf_source(
-            #~ mystery.signal_host, mystery.target)
+        self.data_source = hcs.HiDRA_cbf_source(
+                                mystery.signal_host, mystery.target)
         # time in [ms] between calls to hidra
         self.waittime = 500
 
@@ -51,8 +49,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.hidraW = hidra_widget(parent=self)
 
         # set the right names for the hidra display at initialization
-        #~ self.hidraW.setNames(self.data_source.getTargetSignalHost())
-
+        self.hidraW.setNames(self.data_source.getTargetSignalHost())
 
         # WHY ???
         # keep a reference to the "raw" image and the current filename
@@ -148,17 +145,16 @@ class HidraLiveViewer(QtGui.QDialog):
 
     # call the connect function of the hidra interface
     def connect_hidra(self):
-        pass
-        #~ if not self.data_source.connect():
-            #~ self.hidraW.connectFailure()
-            #~ print(
-                #~ "<WARNING> The HiDRA connection could not be established. Check the settings.")
-        #~ else:
-            #~ self.hidraW.connectSuccess()
+        if not self.data_source.connect():
+            self.hidraW.connectFailure()
+            print(
+                "<WARNING> The HiDRA connection could not be established. Check the settings.")
+        else:
+            self.hidraW.connectSuccess()
 
     # call the disconnect function of the hidra interface
     def disconnect_hidra(self):
-        pass #self.data_source.disconnect()
+        self.data_source.disconnect()
 
     def transform(self, display_img):
         '''Do the image transformation on the given numpy array.'''
