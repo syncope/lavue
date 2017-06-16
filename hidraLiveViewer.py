@@ -52,7 +52,6 @@ class HidraLiveViewer(QtGui.QDialog):
         # set the right names for the hidra display at initialization
         self.hidraW.setNames(self.data_source.getTargetSignalHost())
 
-        # WHY ???
         # keep a reference to the "raw" image and the current filename
         self.raw_image = None
         self.image_name = None
@@ -88,7 +87,7 @@ class HidraLiveViewer(QtGui.QDialog):
         #~ self.trafoW.changeRotate.connect(print)
         
         # signal from intensity scaling widget:
-        #~ self.scalingW.changedScaling.connect(print)
+        self.scalingW.changedScaling.connect(self.scale)
 
         # signal from limit setting widget
         self.levelsW.levelsChanged.connect(self.imageW.setLevels)
@@ -120,11 +119,16 @@ class HidraLiveViewer(QtGui.QDialog):
         if img is not None and name is not None:
             self.image_name = name
             self.raw_image = img
-        self.display_image = self.transform(self.raw_image)
+
+        self.scale(self.scalingW.getCurrentScaling())
+        #~ self.transform()
+        self.applyLevels(self.scalingW.getCurrentScaling())
+        maxVal, meanVal, varVal =  self.calcStats()
 
         # calls internally the plot function of the plot widget
         self.imageW.plot(self.display_image, self.image_name)
-        # self.statsW.update_stats(self.display_image, self.scalingW.getCurrentScaling())
+
+        self.statsW.update_stats(maxVal, meanVal, varVal, self.scalingW.getCurrentScaling())
 
         # mode changer: start plotting mode
     def startPlotting(self):
@@ -156,39 +160,33 @@ class HidraLiveViewer(QtGui.QDialog):
     def disconnect_hidra(self):
         self.data_source.disconnect()
 
-    def transform(self, display_img):
-        '''Do the image transformation on the given numpy array.'''
-        if display_img is None:
-            return
-        #~ if self.rotate90.isChecked():
-            #~ display_img = np.transpose(display_img)
-        #~ if self.flip.isChecked():
-            #~ display_img = np.flipud(display_img)
-        #~ if self.mirror.isChecked():
-            #~ display_img = np.fliplr(display_img)
-        return display_img
+    def scale(self, scalingType):
+        self.display_image = self.raw_image
 
-    def calcStats(self, array, scaling):
-        self.array = array
-        if array is None:
-            return
-        if self.scaling is not scaling:
-            self.scaling = scaling
+        if scalingType == "sqrt":
+            np.clip(self.display_image, 0, np.inf)
+            drawarray = np.sqrt(self.display_image)
+        elif scalingType == "log":
+            np.clip(self.display_image, 10e-3, np.inf)
+            self.display_image = np.log10(self.display_image)
 
-        if self.scaling == "sqrt":
-            self.array = np.sqrt(self.array)
-        elif self.scaling == "log":
-            self.array = np.log10(self.array)
+    def applyLevels(self, scalingType):
+        pass
+        
+        #~ if scalingType == "sqrt":
+            #~ self.drawlevels =  [math.sqrt(plotlevels[0]), math.sqrt(plotlevels[1])]
+        #~ elif scalingType == "log":
+            #~ if (plotlevels[0] < 10e-3):
+                #~ plotlevels[0] = 10e-3
+            #~ if (plotlevels[1] < 0.1):
+                #~ plotlevels[1] = 1.
+            #~ plotlevels = [math.log10(plotlevels[0]), math.log10(plotlevels[1])]
 
-        #~ self.scaleLabel.setText(self.scaling)
-        #~ self.maxVal.setText(str("%.4f" % np.amax(self.array)))
-        #~ self.meanVal.setText(str("%.4f" % np.mean(self.array)))
-        #~ self.varVal.setText(str("%.4f" % np.var(self.array)))
-
+        #~ self.drawlevels
             #~ plotlevels = [None, None]
         #~ self.nparray = np.float32(nparr)
         #~ drawarray = self.nparray
-#~ 
+        #~ 
         #~ # check if drawing levels are set
         #~ if not self.levelsSet:
             #~ plotlevels[0] = np.amin(drawarray)
@@ -198,25 +196,21 @@ class HidraLiveViewer(QtGui.QDialog):
                 #~ self._doOnlyOnce = False
         #~ else:
             #~ plotlevels = self.levels
-#~ 
-        #~ if style == "sqrt":
-            #~ np.clip(drawarray, 0, np.inf)
-            #~ drawarray = np.sqrt(self.nparray)
-            #~ plotlevels = [math.sqrt(plotlevels[0]), math.sqrt(plotlevels[1])]
-        #~ elif style == "log":
-            #~ np.clip(drawarray, 10e-3, np.inf)
-            #~ drawarray = np.log10(self.nparray)
-            #~ if (plotlevels[0] < 10e-3):
-                #~ plotlevels[0] = 10e-3
-            #~ if (plotlevels[1] < 0.1):
-                #~ plotlevels[1] = 1.
-            #~ plotlevels = [math.log10(plotlevels[0]), math.log10(plotlevels[1])]
-        #~ elif style == "lin":
-            #~ plotlevels = [math.floor(plotlevels[0]), math.ceil(plotlevels[1])]
-        #~ else:
-            #~ print("Chosen display style '" + style + "' is not valid.")
-            #~ return
 
+    def transform(self, trafoshort):
+        '''Do the image transformation on the given numpy array.'''
+        return
+        #~ if self.rotate90.isChecked():
+            #~ display_img = np.transpose(display_img)
+        #~ if self.flip.isChecked():
+            #~ display_img = np.flipud(display_img)
+        #~ if self.mirror.isChecked():
+            #~ display_img = np.fliplr(display_img)
+
+    def calcStats(self):
+        return ( str("%.4f" % np.amax(self.display_image)),
+                 str("%.4f" % np.mean(self.display_image)),
+                 str("%.4f" % np.var(self.display_image)))
 
 
 class displayData():
@@ -458,9 +452,9 @@ class statistics_widget(QtGui.QGroupBox):
         if self.scaling is not scaling:
             self.scaling = scaling
         self.scaleLabel.setText(self.scaling)
-        self.maxVal.setText(str("%.4f" % maxVal))
-        self.meanVal.setText(str("%.4f" % meanVal))
-        self.varVal.setText(str("%.4f" % varVal))
+        self.maxVal.setText(maxVal)
+        self.meanVal.setText(meanVal)
+        self.varVal.setText(varVal)
 
 
 class imagetransformations_widget(QtGui.QGroupBox):
@@ -529,7 +523,7 @@ class image_widget(QtGui.QWidget):
         verticallayout.addWidget(self.img_widget)
 
         pixelvaluelayout = QtGui.QHBoxLayout()
-        pixellabel = QtGui.QLabel("Pixel position and linear intensity: ")
+        pixellabel = QtGui.QLabel("Pixel position and intensity: ")
         pixelvaluelayout.addWidget(pixellabel)
 
         self.infodisplay = QtGui.QLineEdit()
