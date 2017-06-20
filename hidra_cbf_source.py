@@ -15,13 +15,16 @@ class HiDRA_cbf_source():
         self.signal_host = signal_host
         self.target = target
         self.query = hidra.Transfer("QUERY_NEXT", signal_host)
+        self._initiated = False
 
     def getTargetSignalHost(self):
         return self.target[0], self.signal_host
 
     def connect(self):
         try:
-            self.query.initiate(self.target)
+            if(not self._initiated):
+                self.query.initiate(self.target)
+                self._initited = True
             self.query.start()
             return True
         except:
