@@ -54,7 +54,7 @@ class GradientItem(GraphicsWidget):
         self.gradient = GradientEditorItem()
         self.gradient.tickSize = 0 # CR: this is  sooooo bad, but there is no function !?
         self.gradient.setOrientation('right')
-        self.gradient.loadPreset('highContrast')
+        self.gradient.loadPreset('inverted')
         
         self.layout.addItem(self.gradient, 0, 0)
         
@@ -83,7 +83,6 @@ class GradientItem(GraphicsWidget):
                 self.imageItem.setLookupTable(self.getLookupTable)  ## send function pointer, not the result
             
         self.lut = None
-        self.sigLookupTableChanged.emit(self)
 
     def getLookupTable(self, img=None, n=None, alpha=None):
         if n is None:
@@ -95,7 +94,8 @@ class GradientItem(GraphicsWidget):
             self.lut = self.gradient.getLookupTable(n, alpha=alpha)
         return self.lut
 
-
-    def setGradientByName(self, name="highContrast"):
-        if name in pg.graphicsItems.GradientEditorItem.Gradients:
-            self.gradient.loadPreset(name)
+    def setGradientByName(self, name):
+        try:
+            self.gradient.loadPreset(str(name))
+        except:
+            self.gradient.loadPreset("highContrast")

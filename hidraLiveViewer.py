@@ -47,6 +47,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.scalingW = intensityscaling_widget(parent=self)
         self.statsW = statistics_widget(parent=self)
         self.levelsW = levels_widget(parent=self)
+        self.gradientW = gradientChooser_widget(parent=self)
         self.imageW = image_widget(parent=self)
 
         # set the right names for the hidra display at initialization
@@ -73,6 +74,7 @@ class HidraLiveViewer(QtGui.QDialog):
         vlayout.addWidget(self.scalingW)
         vlayout.addWidget(self.statsW)
         vlayout.addWidget(self.levelsW)
+        vlayout.addWidget(self.gradientW)
 
         # then the vertical layout on the --global-- horizontal one
         globallayout.addLayout(vlayout, 1)
@@ -104,6 +106,9 @@ class HidraLiveViewer(QtGui.QDialog):
 
         self.hidraW.hidra_disconnect.connect(self.stopPlotting)
         self.hidraW.hidra_disconnect.connect(self.disconnect_hidra)
+
+        # gradient selector
+        self.gradientW.chosenGradient.connect(self.imageW.changeGradient)
 
         # timer logic for hidra
         self.timer = QtCore.QTimer()
@@ -221,9 +226,9 @@ class hidra_widget(QtGui.QGroupBox):
 
         gridlayout = QtGui.QGridLayout()
 
-        self.serverLabel = QtGui.QLabel(u"HiDRA server: ")
+        self.serverLabel = QtGui.QLabel(u"Server")
         self.serverName = QtGui.QLabel(u"SomeName")
-        self.hostlabel = QtGui.QLabel("Current host: ")
+        self.hostlabel = QtGui.QLabel("Client")
         self.currenthost = QtGui.QLabel("None")
         self.cStatusLabel = QtGui.QLabel("Status: ")
         self.cStatus = QtGui.QLineEdit("Not connected")
@@ -342,8 +347,7 @@ class levels_widget(QtGui.QGroupBox):
         
         self.autoLevelBox = QtGui.QCheckBox(u"Automatic levels")
         self.autoLevelBox.setChecked(True)
-        currentLabel = QtGui.QLabel("Current levels:")
-        
+       
         #~ informLabel = QtGui.QLabel("Linear scale, affects only display!")
         minLabel = QtGui.QLabel("minimum value: ")
         maxLabel = QtGui.QLabel("maximum value: ")
@@ -361,12 +365,11 @@ class levels_widget(QtGui.QGroupBox):
         layout = QtGui.QGridLayout()
         #~ layout.addWidget(informLabel, 0, 0)
         layout.addWidget(self.autoLevelBox, 0,1)
-        layout.addWidget(currentLabel, 1, 0)
-        layout.addWidget(minLabel, 2, 0)
-        layout.addWidget(self.minValSB, 2, 1)
-        layout.addWidget(maxLabel, 3, 0)
-        layout.addWidget(self.maxValSB, 3, 1)
-        layout.addWidget(self.applyButton, 4, 1)
+        layout.addWidget(minLabel, 1, 0)
+        layout.addWidget(self.minValSB, 1, 1)
+        layout.addWidget(maxLabel, 2, 0)
+        layout.addWidget(self.maxValSB, 2, 1)
+        layout.addWidget(self.applyButton, 3, 1)
 
         self.setLayout(layout)
         self.applyButton.clicked.connect(self.check_and_emit)
@@ -475,7 +478,7 @@ class imagetransformations_widget(QtGui.QGroupBox):
         self.cb.addItem("flip")
         self.cb.addItem("mirror")
         self.cb.addItem("rotate")
-        layout.addStretch(1)
+        #~ layout.addStretch(1)
         layout.addWidget(self.cb)
         self.setLayout(layout)
         
@@ -490,6 +493,37 @@ class imagetransformations_widget(QtGui.QGroupBox):
         #~ self.mirror.stateChanged.connect(self.changeMirror.emit)
         #~ self.rotate90.stateChanged.connect(self.changeRotate.emit)
 #~ 
+
+class gradientChooser_widget(QtGui.QGroupBox):
+    # still pending implemntation -> needs scipy, probably
+    """
+    Select how an image should be transformed.
+    """
+    
+    chosenGradient = QtCore.pyqtSignal(QtCore.QString)
+
+    def __init__(self, parent=None):
+        super(gradientChooser_widget, self).__init__(parent)
+
+        self.setTitle("Gradient choice")
+        
+        layout = QtGui.QHBoxLayout()
+        self.cb = QtGui.QComboBox()        
+        self.cb.addItem("inverted")
+        self.cb.addItem("highContrast")
+        self.cb.addItem("thermal")
+        self.cb.addItem("flame")
+        self.cb.addItem("bipolar")
+        self.cb.addItem("spectrum")
+        self.cb.addItem("greyclip")
+        self.cb.addItem("grey")
+        layout.addWidget(self.cb)
+        self.setLayout(layout)
+        self.cb.activated.connect(self.emitText)
+        
+    def emitText(self, index):
+        self.chosenGradient.emit(self.cb.itemText(index))
+
 
 class image_widget(QtGui.QWidget):
 
@@ -548,10 +582,12 @@ class image_widget(QtGui.QWidget):
     def setMaxLevel(self, level = None):
         self.img_widget.setDisplayMaxLevel(level)
 
+    def changeGradient(self, name):
+        self.img_widget.updateGradient(name)
 
 class ImageDisplay(pg.GraphicsLayoutWidget):
     
-    currentMousePosition = QtCore.pyqtSignal(str)
+    currentMousePosition = QtCore.pyqtSignal(QtCore.QString)
 
     def __init__(self, parent = None):
         super(ImageDisplay, self).__init__(parent)
@@ -598,7 +634,7 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         self.data = img
     
     def updateGradient(self, name):
-        geditem.setGradientByName(name)
+        self.graditem.setGradientByName(name)
     
     def mouse_position(self, event):
         try:
