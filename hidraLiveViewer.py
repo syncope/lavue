@@ -56,7 +56,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.raw_image = None
         self.image_name = None
         self.display_image = None
-        self.plotLevels = [0.,1.]
+        self.plotLevels = [.1,1.]
         self.initialPlotLevelsSet = False
         
         # LAYOUT DEFINITIONS
@@ -73,9 +73,7 @@ class HidraLiveViewer(QtGui.QDialog):
         vlayout.addWidget(self.scalingW)
         vlayout.addWidget(self.statsW)
         vlayout.addWidget(self.levelsW)
-        
-        
-        
+
         # then the vertical layout on the --global-- horizontal one
         globallayout.addLayout(vlayout, 1)
         globallayout.addWidget(self.imageW, 10)
@@ -94,10 +92,9 @@ class HidraLiveViewer(QtGui.QDialog):
         self.scalingW.changedScaling.connect(self.scale)
 
         # signal from limit setting widget
-        self.levelsW.levelsChanged.connect(self.setLevels)
-        
-        # signal from image widget
-        self.imageW.initialLevels.connect(self._setInitialLevels)
+        self.levelsW.changeMinLevel.connect(self.imageW.setMinLevel)
+        self.levelsW.changeMaxLevel.connect(self.imageW.setMaxLevel)
+        self.levelsW.autoLevels.connect(self.imageW.setAutoLevels)
 
         # connecting signals from hidra widget:
         self.hidraW.hidra_connect.connect(self.connect_hidra)
@@ -114,25 +111,31 @@ class HidraLiveViewer(QtGui.QDialog):
 
         self.timer.timeout.connect(lambda: self.plot())
 
-    def _setInitialLevels(self, lowlim, uplim):
-        self.levelsW._setLevels(lowlim, uplim)
 
     def plot(self, img=None, name=None):
         """ The main command of the live viewer class: draw a numpy array with the given name."""
 
+        # store the raw image internally
         if img is not None and name is not None:
             self.image_name = name
             self.raw_image = img
 
+        # use the internal raw image to create a display image with chosen scaling
         self.scale(self.scalingW.getCurrentScaling())
-        #~ self.transform()
-        #~ self.setLevels()
-        maxVal, meanVal, varVal =  self.calcStats()
+
+        # calculate the stats for this
+        maxVal, meanVal, varVal, minVal =  self.calcStats()
+
+        # update the statistics display
+        self.statsW.update_stats(maxVal, meanVal, varVal, self.scalingW.getCurrentScaling())
+
+        # if needed, update the levels display
+        if(self.levelsW.isAutoLevel()):
+            self.levelsW.updateLevels(float(minVal), float(maxVal))
 
         # calls internally the plot function of the plot widget
         self.imageW.plot(self.display_image, self.image_name)
 
-        self.statsW.update_stats(maxVal, meanVal, varVal, self.scalingW.getCurrentScaling())
 
         # mode changer: start plotting mode
     def startPlotting(self):
@@ -177,30 +180,8 @@ class HidraLiveViewer(QtGui.QDialog):
             np.clip(self.display_image, 10e-3, np.inf)
             self.display_image = np.log10(self.display_image)
 
-    def setLevels(self, lowLim, upLim):
-        scalingType = self.scalingW.getCurrentScaling()
-            
-        if not self.initialPlotLevelsSet:
-            self.initialPlotLevelsSet = True
-            lowLimit, upLimit = self.getInitialLevels()
-            self.setLevels(lowLimit, upLimit)
+    #~ def setLevels(self, lowLim, upLim):
         
-        # check if drawing levels are set
-        if scalingType == "lin":
-            self.plotLevels = [lowLim, upLim]
-        elif scalingType == "sqrt":
-            self.plotLevels =  [math.sqrt(lowLim), math.sqrt(upLim)]
-            
-            np.amin(drawarray)
-            self.plotLevels[1] = np.amax(drawarray)
-            self.initialLevels.emit(self.plotLevels[0], self.plotLevels[1])
-            self.initialPlotLevelsSet = True
-        elif scalingType == "log":
-            if (lowLim < 1.):
-                lowLim = 1.
-            if (upLim < 2.):
-                upLim = 2.
-            self.plotLevels = [math.log10(lowLim), math.log10(upLim)]
 
     def transform(self, trafoshort):
         '''Do the image transformation on the given numpy array.'''
@@ -215,32 +196,12 @@ class HidraLiveViewer(QtGui.QDialog):
     def calcStats(self):
         return ( str("%.4f" % np.amax(self.display_image)),
                  str("%.4f" % np.mean(self.display_image)),
-                 str("%.4f" % np.var(self.display_image)))
+                 str("%.4f" % np.var(self.display_image)) ,
+                 str("%.3f" % np.amin(self.display_image)))
 
     def getInitialLevels(self):
         if(self.raw_image != None):
             return  np.amin(self.raw_image), np.amax(self.raw_image)
-
-class displayData():
-    def __init__(self):
-        self.raw = None
-        self.transform = ""
-        self.scaling = "sqrt"
-        
-    def updateData(self, data):
-        if data == self.raw:
-            return
-        self.raw = data
-        
-
-    def scaleIntensity(self):
-        pass
-    
-    def getStats(self):
-        self.maxVal.setText(str("%.4f" % np.amax(self.array)))
-        self.meanVal.setText(str("%.4f" % np.mean(self.array)))
-        self.varVal.setText(str("%.4f" % np.var(self.array)))
-
 
 
 class hidra_widget(QtGui.QGroupBox):
@@ -367,56 +328,83 @@ class levels_widget(QtGui.QGroupBox):
     Set minimum and maximum displayed values.
     """
 
-    levelsChanged = QtCore.pyqtSignal(float, float)
+    changeMinLevel = QtCore.pyqtSignal(float)
+    changeMaxLevel = QtCore.pyqtSignal(float)
+    autoLevels = QtCore.pyqtSignal(int) # bool does not work...
 
     def __init__(self, parent=None):
         super(levels_widget, self).__init__(parent)
 
         self.setTitle("Set display levels")
+
+        # keep internal var for auto levelling toggle
+        self.auto = True
         
-        autoLabel = QtGui.QLabel("Automatic levels")
+        self.autoLevelBox = QtGui.QCheckBox(u"Automatic levels")
+        self.autoLevelBox.setChecked(True)
         currentLabel = QtGui.QLabel("Current levels:")
         
-        informLabel = QtGui.QLabel("Note: Linear scale,only applies to display!!")
+        #~ informLabel = QtGui.QLabel("Linear scale, affects only display!")
         minLabel = QtGui.QLabel("minimum value: ")
         maxLabel = QtGui.QLabel("maximum value: ")
 
-        self.minVal = QtGui.QDoubleSpinBox()
-        self.minVal.setMinimum(0.)
-        self.maxVal = QtGui.QDoubleSpinBox()
-        self.maxVal.setMinimum(1.)
-        self.maxVal.setMaximum(10e20)
+        self.minVal = 0.
+        self.maxVal = 1.
+
+        self.minValSB = QtGui.QDoubleSpinBox()
+        self.minValSB.setMinimum(0.)
+        self.maxValSB = QtGui.QDoubleSpinBox()
+        self.maxValSB.setMinimum(1.)
+        self.maxValSB.setMaximum(10e20)
         self.applyButton = QtGui.QPushButton("Apply levels")
 
         layout = QtGui.QGridLayout()
-        layout.addWidget(informLabel, 0, 0)
-        layout.addWidget(minLabel, 1, 0)
-        layout.addWidget(self.minVal, 1, 1)
-        layout.addWidget(maxLabel, 2, 0)
-        layout.addWidget(self.maxVal, 2, 1)
-        layout.addWidget(self.applyButton, 3, 1)
+        #~ layout.addWidget(informLabel, 0, 0)
+        layout.addWidget(self.autoLevelBox, 0,1)
+        layout.addWidget(currentLabel, 1, 0)
+        layout.addWidget(minLabel, 2, 0)
+        layout.addWidget(self.minValSB, 2, 1)
+        layout.addWidget(maxLabel, 3, 0)
+        layout.addWidget(self.maxValSB, 3, 1)
+        layout.addWidget(self.applyButton, 4, 1)
 
         self.setLayout(layout)
         self.applyButton.clicked.connect(self.check_and_emit)
+        self.autoLevelBox.stateChanged.connect(self.autoLevels)
+
+        self.updateLevels(self.minVal, self.maxVal)
+
+    def isAutoLevel(self):
+        return self.auto
+
+    def autoLevelChange(self, value):
+        if( value is 2):
+            self.auto = True
+            self.autoLevels.emit(1)
+        else:
+            self.auto = False
+            self.autoLevels.emit(0)
+            self.check_and_emit()
 
     def check_and_emit(self):
         # check if the minimum value is actually smaller than the maximum
-        minval = self.minVal.value()
-        maxval = self.maxVal.value()
-        if (maxval - minval) <= 0:
-            if(minval >= 1.):
-                minval = maxval - 1.
+        self.minVal = self.minValSB.value()
+        self.maxVal = self.maxValSB.value()
+        if (self.maxVal - self.minVal) <= 0:
+            if(self.minVal >= 1.):
+                self.minVal = self.maxVal - 1.
             else:
-                maxval = minval + 1
+                self.maxVal = self.minVal + 1
             
-        self.minVal.setValue(minval)
-        self.maxVal.setValue(maxval)
-        self.levelsChanged.emit(self.minVal.value(), self.maxVal.value())
+        self.minValSB.setValue(self.minVal)
+        self.maxValSB.setValue(self.maxVal)
+        
+        self.changeMinLevel.emit(self.minVal)
+        self.changeMaxLevel.emit(self.maxVal)
 
-
-    def _setLevels(self, lowlim, uplim):
-        self.minVal.setValue(lowlim)
-        self.maxVal.setValue(uplim)
+    def updateLevels(self, lowlim, uplim):
+        self.minValSB.setValue(lowlim)
+        self.maxValSB.setValue(uplim)
 
 
 class statistics_widget(QtGui.QGroupBox):
@@ -465,7 +453,7 @@ class statistics_widget(QtGui.QGroupBox):
 
 
 class imagetransformations_widget(QtGui.QGroupBox):
-
+    # still pending implemntation -> needs scipy, probably
     """
     Select how an image should be transformed.
     """
@@ -478,24 +466,28 @@ class imagetransformations_widget(QtGui.QGroupBox):
         super(imagetransformations_widget, self).__init__(parent)
 
         self.setTitle("Image transformations")
-
-        horizontallayout = QtGui.QHBoxLayout()
-
-        self.flip = QtGui.QCheckBox(u"flip")
-        self.mirror = QtGui.QCheckBox(u"mirror")
-        self.rotate90 = QtGui.QCheckBox(u"rot90")
-
-        horizontallayout.addWidget(self.flip)
-        horizontallayout.addWidget(self.mirror)
-        horizontallayout.addWidget(self.rotate90)
-
-        self.setLayout(horizontallayout)
         
-        # signals:
-        self.flip.stateChanged.connect(self.changeFlip.emit)
-        self.mirror.stateChanged.connect(self.changeMirror.emit)
-        self.rotate90.stateChanged.connect(self.changeRotate.emit)
-
+        layout = QtGui.QHBoxLayout()
+        self.cb = QtGui.QComboBox()        
+        self.cb.addItem("None")
+        self.cb.addItem("flip")
+        self.cb.addItem("mirror")
+        self.cb.addItem("rotate")
+        layout.addStretch(1)
+        layout.addWidget(self.cb)
+        self.setLayout(layout)
+        
+        #~ horizontallayout.addWidget(self.flip)
+        #~ horizontallayout.addWidget(self.mirror)
+        #~ horizontallayout.addWidget(self.rotate90)
+        #~ 
+        #~ self.setLayout(horizontallayout)
+        #~ 
+        #~ # signals:
+        #~ self.flip.stateChanged.connect(self.changeFlip.emit)
+        #~ self.mirror.stateChanged.connect(self.changeMirror.emit)
+        #~ self.rotate90.stateChanged.connect(self.changeRotate.emit)
+#~ 
 
 class image_widget(QtGui.QWidget):
 
@@ -503,17 +495,14 @@ class image_widget(QtGui.QWidget):
     The part of the GUI that incorporates the image view.
     """
 
-    levelsHaveChanged = QtCore.pyqtSignal()
-    initialLevels = QtCore.pyqtSignal(float, float)
+     #~ = QtCore.pyqtSignal(bool)
+    #~ initialLevels = QtCore.pyqtSignal(float, float)
 
     def __init__(self, parent=None):
         super(image_widget, self).__init__(parent)
 
         self.nparray = None
         self.imageItem = None
-        self.levels = [None, None]  # the min/max draw values in linear space
-        self.levelsSet = False
-        self._doOnlyOnce = True
 
         self.img_widget = ImageDisplay(parent=self)
 
@@ -548,24 +537,27 @@ class image_widget(QtGui.QWidget):
 
         self.img_widget.updateImage(array)
 
-    def setLevels(self, lowlim, uplim):
-        if self.levels[0] != lowlim or self.levels[1] != uplim:
-            self.levelsSet = True
-            self.levels = [lowlim, uplim]
-            self.levelsHaveChanged.emit()
+    def setAutoLevels(self, autoLvls):
+        self.img_widget.setAutoLevels(autoLvls)
 
+    def setMinLevel(self, level = None):
+        self.img_widget.setDisplayMinLevel(level)
+
+    def setMaxLevel(self, level = None):
+        self.img_widget.setDisplayMaxLevel(level)
 
 
 class ImageDisplay(pg.GraphicsLayoutWidget):
     
     currentMousePosition = QtCore.pyqtSignal(str)
 
-    
     def __init__(self, parent = None):
         super(ImageDisplay, self).__init__(parent)
         self.layout = self.ci
         self.crosshair_locked = False
         self.data = None
+        self.autoDisplayLevels = True
+        self.displayLevels = [None, None]
 
         self.viewbox = self.layout.addViewBox(row=0, col=1)
 
@@ -597,7 +589,10 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         self.image.additem(item)
 
     def updateImage(self, img=None):
-        self.image.setImage(img)
+        if(self.autoDisplayLevels):
+            self.image.setImage(img, autoLevels = True)
+        else:
+            self.image.setImage(img, autoLevels = False, levels=self.displayLevels)
         self.data = img
     
     def updateGradient(self, name):
@@ -634,6 +629,19 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
                 #~ self.vLine.setPos(xdata)
                 #~ self.hLine.setPos(ydata)
     
+    def setAutoLevels(self, autoLvls):
+        if(autoLvls):
+            self.autoDisplayLevels = True
+        else:
+            self.autoDisplayLevels = False
+
+    def setDisplayMinLevel(self, level = None ):
+        if ( level is not None):
+            self.displayLevels[0] = level
+    
+    def setDisplayMaxLevel(self, level = None ):
+        if ( level is not None):
+            self.displayLevels[1] = level
     
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
