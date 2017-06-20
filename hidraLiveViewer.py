@@ -194,7 +194,7 @@ class HidraLiveViewer(QtGui.QDialog):
             #~ display_img = np.fliplr(display_img)
 
     def calcStats(self):
-        if self.diplay_image is not None:
+        if self.display_image is not None:
             return (str("%.4f" % np.amax(self.display_image)),
                     str("%.4f" % np.mean(self.display_image)),
                     str("%.4f" % np.var(self.display_image)) ,
