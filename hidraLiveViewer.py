@@ -194,10 +194,13 @@ class HidraLiveViewer(QtGui.QDialog):
             #~ display_img = np.fliplr(display_img)
 
     def calcStats(self):
-        return ( str("%.4f" % np.amax(self.display_image)),
-                 str("%.4f" % np.mean(self.display_image)),
-                 str("%.4f" % np.var(self.display_image)) ,
-                 str("%.3f" % np.amin(self.display_image)))
+        if self.diplay_image is not None:
+            return (str("%.4f" % np.amax(self.display_image)),
+                    str("%.4f" % np.mean(self.display_image)),
+                    str("%.4f" % np.var(self.display_image)) ,
+                    str("%.3f" % np.amin(self.display_image)))
+        else:
+            return  "0.",  "0.",  "0.",  "0." 
 
     def getInitialLevels(self):
         if(self.raw_image != None):
