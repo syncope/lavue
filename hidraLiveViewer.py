@@ -42,12 +42,12 @@ class HidraLiveViewer(QtGui.QDialog):
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
-        self.scalingW = intensityscaling_widget(parent=self)
-        self.trafoW = imagetransformations_widget(parent=self)
-        self.levelsW = levels_widget(parent=self)
-        self.statsW = statistics_widget(parent=self)
-        self.imageW = image_widget(parent=self)
         self.hidraW = hidra_widget(parent=self)
+        self.trafoW = imagetransformations_widget(parent=self)
+        self.scalingW = intensityscaling_widget(parent=self)
+        self.statsW = statistics_widget(parent=self)
+        self.levelsW = levels_widget(parent=self)
+        self.imageW = image_widget(parent=self)
 
         # set the right names for the hidra display at initialization
         self.hidraW.setNames(self.data_source.getTargetSignalHost())
@@ -73,10 +73,12 @@ class HidraLiveViewer(QtGui.QDialog):
         vlayout.addWidget(self.scalingW)
         vlayout.addWidget(self.statsW)
         vlayout.addWidget(self.levelsW)
-
+        
+        
+        
         # then the vertical layout on the --global-- horizontal one
-        globallayout.addLayout(vlayout)
-        globallayout.addWidget(self.imageW)
+        globallayout.addLayout(vlayout, 1)
+        globallayout.addWidget(self.imageW, 10)
 
         self.setLayout(globallayout)
         self.setWindowTitle("laVue: Live Image Viewer")
@@ -163,11 +165,14 @@ class HidraLiveViewer(QtGui.QDialog):
         self.data_source.disconnect()
 
     def scale(self, scalingType):
+        if( self.raw_image is None):
+            print("No image is loaded, continuing.")
+            return
         self.display_image = self.raw_image
 
         if scalingType == "sqrt":
             np.clip(self.display_image, 0, np.inf)
-            drawarray = np.sqrt(self.display_image)
+            self.display_image = np.sqrt(self.display_image)
         elif scalingType == "log":
             np.clip(self.display_image, 10e-3, np.inf)
             self.display_image = np.log10(self.display_image)
@@ -236,10 +241,6 @@ class displayData():
         self.meanVal.setText(str("%.4f" % np.mean(self.array)))
         self.varVal.setText(str("%.4f" % np.var(self.array)))
 
-    
-    
-    
-    
 
 
 class hidra_widget(QtGui.QGroupBox):
