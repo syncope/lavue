@@ -373,9 +373,11 @@ class levels_widget(QtGui.QGroupBox):
         super(levels_widget, self).__init__(parent)
 
         self.setTitle("Set display levels")
-        layout = QtGui.QGridLayout()
-
-        informLabel = QtGui.QLabel("Note: Linear scale, only applies to display!!")
+        
+        autoLabel = QtGui.QLabel("Automatic levels")
+        currentLabel = QtGui.QLabel("Current levels:")
+        
+        informLabel = QtGui.QLabel("Note: Linear scale,only applies to display!!")
         minLabel = QtGui.QLabel("minimum value: ")
         maxLabel = QtGui.QLabel("maximum value: ")
 
@@ -386,6 +388,7 @@ class levels_widget(QtGui.QGroupBox):
         self.maxVal.setMaximum(10e20)
         self.applyButton = QtGui.QPushButton("Apply levels")
 
+        layout = QtGui.QGridLayout()
         layout.addWidget(informLabel, 0, 0)
         layout.addWidget(minLabel, 1, 0)
         layout.addWidget(self.minVal, 1, 1)
