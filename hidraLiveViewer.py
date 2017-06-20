@@ -56,8 +56,8 @@ class HidraLiveViewer(QtGui.QDialog):
         self.raw_image = None
         self.image_name = None
         self.display_image = None
-        self.plotLevels = [.1,1.]
-        self.initialPlotLevelsSet = False
+        #~ self.plotLevels = [.1,1.]
+        #~ self.initialPlotLevelsSet = False
         
         # LAYOUT DEFINITIONS
         # the dialog layout is side by side
@@ -90,12 +90,14 @@ class HidraLiveViewer(QtGui.QDialog):
         
         # signal from intensity scaling widget:
         self.scalingW.changedScaling.connect(self.scale)
+        self.scalingW.changedScaling.connect(self.plot)
 
         # signal from limit setting widget
         self.levelsW.changeMinLevel.connect(self.imageW.setMinLevel)
         self.levelsW.changeMaxLevel.connect(self.imageW.setMaxLevel)
         self.levelsW.autoLevels.connect(self.imageW.setAutoLevels)
-
+        self.levelsW.levelsChanged.connect(self.plot)
+        
         # connecting signals from hidra widget:
         self.hidraW.hidra_connect.connect(self.connect_hidra)
         self.hidraW.hidra_connect.connect(self.startPlotting)
@@ -103,23 +105,16 @@ class HidraLiveViewer(QtGui.QDialog):
         self.hidraW.hidra_disconnect.connect(self.stopPlotting)
         self.hidraW.hidra_disconnect.connect(self.disconnect_hidra)
 
+        # timer logic for hidra
         self.timer = QtCore.QTimer()
         self.timer.setInterval(self.waittime)
         
-        #~ self.timer.timeout.connect(
-            #~ lambda: self._assignNewData(self.data_source.getData()))
-
-        self.timer.timeout.connect(lambda: self.plot())
+        self.timer.timeout.connect(self.getNewData)
+        self.timer.timeout.connect(self.plot)
 
 
-    def plot(self, img=None, name=None):
+    def plot(self):
         """ The main command of the live viewer class: draw a numpy array with the given name."""
-
-        # store the raw image internally
-        if img is not None and name is not None:
-            self.image_name = name
-            self.raw_image = img
-
         # use the internal raw image to create a display image with chosen scaling
         self.scale(self.scalingW.getCurrentScaling())
 
@@ -136,19 +131,18 @@ class HidraLiveViewer(QtGui.QDialog):
         # calls internally the plot function of the plot widget
         self.imageW.plot(self.display_image, self.image_name)
 
+    def plot2(self, img, name):
+        """Convenience function for testing, uses given image and name for display."""
+        self.image_name = name
+        self.raw_image = img
+        self.plot()
 
-        # mode changer: start plotting mode
+    # mode changer: start plotting mode
     def startPlotting(self):
         # only start plotting if the connection is really established
         if not self.hidraW.isConnected():
             return
         self.timer.start()
-
-    def _assignNewData(self, nameDataTuple):
-        # get the data from the source and keep it internally
-        self.raw_image, self.image_name = nameDataTuple
-        # the internal data object is copied to allow for internal conversions
-        self.display_image = self.raw_image
 
     # mode changer: stop plotting mode
     def stopPlotting(self):
@@ -167,6 +161,11 @@ class HidraLiveViewer(QtGui.QDialog):
     def disconnect_hidra(self):
         self.data_source.disconnect()
 
+    def getNewData(self):
+        self.raw_image, self.image_name = self.data_source.getData()
+        # the internal data object is copied to allow for internal conversions
+        self.display_image = self.raw_image
+
     def scale(self, scalingType):
         if( self.raw_image is None):
             print("No image is loaded, continuing.")
@@ -179,9 +178,6 @@ class HidraLiveViewer(QtGui.QDialog):
         elif scalingType == "log":
             np.clip(self.display_image, 10e-3, np.inf)
             self.display_image = np.log10(self.display_image)
-
-    #~ def setLevels(self, lowLim, upLim):
-        
 
     def transform(self, trafoshort):
         '''Do the image transformation on the given numpy array.'''
@@ -334,6 +330,7 @@ class levels_widget(QtGui.QGroupBox):
     changeMinLevel = QtCore.pyqtSignal(float)
     changeMaxLevel = QtCore.pyqtSignal(float)
     autoLevels = QtCore.pyqtSignal(int) # bool does not work...
+    levelsChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         super(levels_widget, self).__init__(parent)
@@ -351,7 +348,7 @@ class levels_widget(QtGui.QGroupBox):
         minLabel = QtGui.QLabel("minimum value: ")
         maxLabel = QtGui.QLabel("maximum value: ")
 
-        self.minVal = 0.
+        self.minVal = 0.1
         self.maxVal = 1.
 
         self.minValSB = QtGui.QDoubleSpinBox()
@@ -373,7 +370,7 @@ class levels_widget(QtGui.QGroupBox):
 
         self.setLayout(layout)
         self.applyButton.clicked.connect(self.check_and_emit)
-        self.autoLevelBox.stateChanged.connect(self.autoLevels)
+        self.autoLevelBox.stateChanged.connect(self.autoLevelChange)
 
         self.updateLevels(self.minVal, self.maxVal)
 
@@ -388,6 +385,7 @@ class levels_widget(QtGui.QGroupBox):
             self.auto = False
             self.autoLevels.emit(0)
             self.check_and_emit()
+        self.levelsChanged.emit()
 
     def check_and_emit(self):
         # check if the minimum value is actually smaller than the maximum
@@ -404,6 +402,7 @@ class levels_widget(QtGui.QGroupBox):
         
         self.changeMinLevel.emit(self.minVal)
         self.changeMaxLevel.emit(self.maxVal)
+        self.levelsChanged.emit()
 
     def updateLevels(self, lowlim, uplim):
         self.minValSB.setValue(lowlim)
@@ -656,6 +655,6 @@ if __name__ == "__main__":
     dialog.show()
     while True:
         rand_arr = 10 * np.random.rand(100, 200) + 1
-        dialog.plot(img=rand_arr, name=("random number test nr. " + str(i)))
+        dialog.plot2(img=rand_arr, name=("random number test nr. " + str(i)))
         i += 1
         QtTest.QTest.qWait(2000)
