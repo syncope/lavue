@@ -18,7 +18,7 @@ import pyqtgraph.functions as fn
 import numpy as np
 
 
-pg.graphicsItems.GradientEditorItem.Gradients['inverted'] = {'ticks': [(0.0, (255, 255, 255, 255)), (1.0, (0, 0, 0, 255)),], 'mode': 'rgb'}
+pg.graphicsItems.GradientEditorItem.Gradients['reverseGrayscale'] = {'ticks': [(0.0, (255, 255, 255, 255)), (1.0, (0, 0, 0, 255)),], 'mode': 'rgb'}
 pg.graphicsItems.GradientEditorItem.Gradients['highContrast'] = {'ticks': [(0.0, (0, 0, 0, 255)), (1.0, (255, 255, 0, 255)),], 'mode': 'rgb'}
 
 class GradientItem(GraphicsWidget):
@@ -54,7 +54,7 @@ class GradientItem(GraphicsWidget):
         self.gradient = GradientEditorItem()
         self.gradient.tickSize = 0 # CR: this is  sooooo bad, but there is no function !?
         self.gradient.setOrientation('right')
-        self.gradient.loadPreset('inverted')
+        self.gradient.loadPreset('reverseGrayscale')
         
         self.layout.addItem(self.gradient, 0, 0)
         

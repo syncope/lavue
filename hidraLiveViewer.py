@@ -127,7 +127,7 @@ class HidraLiveViewer(QtGui.QDialog):
         maxVal, meanVal, varVal, minVal =  self.calcStats()
 
         # update the statistics display
-        self.statsW.update_stats(maxVal, meanVal, varVal, self.scalingW.getCurrentScaling())
+        self.statsW.update_stats(meanVal, maxVal, varVal, self.scalingW.getCurrentScaling())
 
         # if needed, update the levels display
         if(self.levelsW.isAutoLevel()):
@@ -509,7 +509,7 @@ class gradientChooser_widget(QtGui.QGroupBox):
         
         layout = QtGui.QHBoxLayout()
         self.cb = QtGui.QComboBox()        
-        self.cb.addItem("inverted")
+        self.cb.addItem("reverseGrayscale")
         self.cb.addItem("highContrast")
         self.cb.addItem("thermal")
         self.cb.addItem("flame")

@@ -39,7 +39,7 @@ class HiDRA_cbf_source():
         metadata = None
         data = None
         try:
-            [metadata, data] = self.query.get(20)
+            [metadata, data] = self.query.get(400)
         except:
             pass  # this needs a bit more care
 
