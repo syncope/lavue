@@ -196,9 +196,16 @@ class HidraLiveViewer(QtGui.QDialog):
 
     def calcStats(self):
         if self.display_image is not None:
-            return (str("%.4f" % np.amax(self.display_image)),
-                    str("%.4f" % np.mean(self.display_image)),
-                    str("%.4f" % np.var(self.display_image)) ,
+            maxval = np.amax(self.display_image)
+            meanval = np.mean(self.display_image)
+            varval = np.var(self.display_image)
+            # automatic maximum clipping to hardcoded value 
+            checkval = meanval + 10* np.sqrt(varval)
+            if ( maxval > checkval):
+                maxval = checkval
+            return (str("%.4f" % maxval),
+                    str("%.4f" % meanval),
+                    str("%.4f" % varval) ,
                     str("%.3f" % np.amin(self.display_image)))
         else:
             return  "0.",  "0.",  "0.",  "0." 
