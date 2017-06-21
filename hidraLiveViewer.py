@@ -178,10 +178,10 @@ class HidraLiveViewer(QtGui.QDialog):
         self.display_image = self.raw_image
 
         if scalingType == "sqrt":
-            np.clip(self.display_image, 0, np.inf)
+            self.display_image = np.clip(self.raw_image, 0, np.inf)
             self.display_image = np.sqrt(self.display_image)
         elif scalingType == "log":
-            np.clip(self.display_image, 10e-3, np.inf)
+            self.display_image = np.clip(self.raw_image, 10e-3, np.inf)
             self.display_image = np.log10(self.display_image)
 
     def transform(self, trafoshort):
@@ -452,8 +452,8 @@ class statistics_widget(QtGui.QGroupBox):
         if self.scaling is not scaling:
             self.scaling = scaling
         self.scaleLabel.setText(self.scaling)
-        self.maxVal.setText(maxVal)
         self.meanVal.setText(meanVal)
+        self.maxVal.setText(maxVal)
         self.varVal.setText(varVal)
 
 
