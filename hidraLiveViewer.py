@@ -37,6 +37,7 @@ class HidraLiveViewer(QtGui.QDialog):
         # note: host and target are defined here and in another place
         self.data_source = hcs.HiDRA_cbf_source(
                                 mystery.signal_host, mystery.target)
+        
         # time in [ms] between calls to hidra
         self.waittime = 500
 
@@ -155,6 +156,8 @@ class HidraLiveViewer(QtGui.QDialog):
 
     # call the connect function of the hidra interface
     def connect_hidra(self):
+        if self.data_source is None:
+            self.data_source = hcs.HiDRA_cbf_source(mystery.signal_host, mystery.target)
         if not self.data_source.connect():
             self.hidraW.connectFailure()
             print(
@@ -165,6 +168,7 @@ class HidraLiveViewer(QtGui.QDialog):
     # call the disconnect function of the hidra interface
     def disconnect_hidra(self):
         self.data_source.disconnect()
+        self.data_source = None
 
     def getNewData(self):
         self.raw_image, self.image_name = self.data_source.getData()
