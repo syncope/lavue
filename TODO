@@ -1,11 +1,17 @@
+User requests:
+     - image masking
+     - bkg subtraction
+=> promote QDialog to QWindow
+
+- make source abstract to allow for other inputs
+- make abstract image display part
+-> dockable source widget??
+
+
 Issues:
     !! image downsampling when array size larger than monitor display size
 
     !! log scale expensive for large detector images
         ---> possible solution: lut
 
-- show unscaled image!
-
-- try: colorbar/schemes: white/black, b/w , rainbow
-
-- update happens only at next image (signalling takes longer than update...?)
+- show unscaled image!?
