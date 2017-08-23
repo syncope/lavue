@@ -225,10 +225,3 @@ class HiDRA_cbf_source():
             else:
                 image = np.array([0])
         return image
-
-
-if __name__ == "__main__":
-    target = [socket.getfqdn(), "50101", 19, [".cbf"]]
-    signal_host = "CHANGE_THIS!"
-
-    source = HiDRA_cbf_source(mystery.signal_host, mystery.target)
