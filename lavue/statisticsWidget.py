@@ -1,0 +1,66 @@
+# Copyright (C) 2017  Christoph Rosemann, DESY, Notkestr. 85, D-22607 Hamburg
+# email contact: christoph.rosemann@desy.de
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation in  version 2
+# of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301, USA.
+
+
+from PyQt4 import QtCore, QtGui
+
+
+class StatisticsWidget(QtGui.QGroupBox):
+
+    """
+    Display some general image statistics.
+    """
+
+    def __init__(self, parent=None):
+        super(statistics_widget, self).__init__(parent)
+
+        self.setTitle("Image statistics")
+        layout = QtGui.QGridLayout()
+
+        self.scaling = "sqrt"
+
+        scalingLabel = QtGui.QLabel("Scaling:")
+        self.scaleLabel = QtGui.QLabel(self.scaling)
+
+        maxlabel = QtGui.QLabel("maximum: ")
+        meanlabel = QtGui.QLabel("mean: ")
+        variancelabel = QtGui.QLabel("variance: ")
+
+        self.maxVal = QtGui.QLineEdit("Not set")
+        self.meanVal = QtGui.QLineEdit("Not set")
+        self.varVal = QtGui.QLineEdit("Not set")
+        layout.addWidget(scalingLabel, 0, 0)
+        layout.addWidget(self.scaleLabel, 0, 1)
+
+        layout.addWidget(maxlabel, 1, 0)
+        layout.addWidget(self.maxVal, 1, 1)
+        layout.addWidget(meanlabel, 2, 0)
+        layout.addWidget(self.meanVal, 2, 1)
+        layout.addWidget(variancelabel, 3, 0)
+        layout.addWidget(self.varVal, 3, 1)
+
+        self.setLayout(layout)
+
+    def update_stats(self, meanVal, maxVal, varVal, scaling):
+        if self.scaling is not scaling:
+            self.scaling = scaling
+        self.scaleLabel.setText(self.scaling)
+        self.meanVal.setText(meanVal)
+        self.maxVal.setText(maxVal)
+        self.varVal.setText(varVal)
+
