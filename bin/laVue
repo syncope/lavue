@@ -1,12 +1,13 @@
 #!/usr/bin/python
 
-from hidraLiveViewer import HidraLiveViewer
+import lavue
+
 from PyQt4 import Qt, QtGui
 import sys
 
 app = QtGui.QApplication(sys.argv)
 
-dialog = HidraLiveViewer()
+dialog = lavue.HidraLiveViewer()
 dialog.show()
 
 app.exec_()
