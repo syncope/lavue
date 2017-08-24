@@ -30,7 +30,7 @@ class StatisticsWidget(QtGui.QGroupBox):
     """
 
     def __init__(self, parent=None):
-        super(statistics_widget, self).__init__(parent)
+        super(StatisticsWidget, self).__init__(parent)
 
         self.setTitle("Image statistics")
         layout = QtGui.QGridLayout()

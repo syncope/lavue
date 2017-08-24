@@ -23,13 +23,14 @@ import pyqtgraph as pg
 
 from PyQt4 import QtCore, QtGui
 
+from . import GradientItem as GI
 
-class ImageDisplay(pg.GraphicsLayoutWidget):
+class ImageDisplayWidget(pg.GraphicsLayoutWidget):
     
     currentMousePosition = QtCore.pyqtSignal(QtCore.QString)
 
     def __init__(self, parent = None):
-        super(ImageDisplay, self).__init__(parent)
+        super(ImageDisplayWidget, self).__init__(parent)
         self.layout = self.ci
         self.crosshair_locked = False
         self.data = None

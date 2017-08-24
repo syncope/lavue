@@ -22,8 +22,9 @@
 
 from PyQt4 import QtCore, QtGui
 
+from . import imageDisplayWidget
 
-class image_widget(QtGui.QWidget):
+class ImageWidget(QtGui.QWidget):
 
     """
     The part of the GUI that incorporates the image view.
@@ -33,12 +34,12 @@ class image_widget(QtGui.QWidget):
     #~ initialLevels = QtCore.pyqtSignal(float, float)
 
     def __init__(self, parent=None):
-        super(image_widget, self).__init__(parent)
+        super(ImageWidget, self).__init__(parent)
 
         self.nparray = None
         self.imageItem = None
 
-        self.img_widget = ImageDisplay(parent=self)
+        self.img_widget = imageDisplayWidget.ImageDisplayWidget(parent=self)
 
         verticallayout = QtGui.QVBoxLayout()
 

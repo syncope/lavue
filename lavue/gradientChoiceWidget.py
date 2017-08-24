@@ -31,7 +31,7 @@ class GradientChoiceWidget(QtGui.QGroupBox):
     chosenGradient = QtCore.pyqtSignal(QtCore.QString)
 
     def __init__(self, parent=None):
-        super(gradientChooser_widget, self).__init__(parent)
+        super(GradientChoiceWidget, self).__init__(parent)
 
         self.setTitle("Gradient choice")
         

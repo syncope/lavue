@@ -23,7 +23,7 @@
 from PyQt4 import QtCore, QtGui
 
 
-class hidra_widget(QtGui.QGroupBox):
+class HidraWidget(QtGui.QGroupBox):
 
     """
     Connect and disconnect hidra service.
@@ -32,7 +32,7 @@ class hidra_widget(QtGui.QGroupBox):
     hidra_connect = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, signal_host=None, target=None):
-        super(hidra_widget, self).__init__(parent)
+        super(HidraWidget, self).__init__(parent)
         self.setTitle("HiDRA connection")
 
         self.signal_host = signal_host

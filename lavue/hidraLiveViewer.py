@@ -34,9 +34,21 @@ import numpy as np
 
 from PyQt4 import QtCore, QtGui
 
-import hidra_cbf_source as hcs
-import GradientItem as GI
+from . import hidra_cbf_source as hcs
+from . import GradientItem as GI
+
+from . import gradientChoiceWidget
+from . import hidraWidget
+from . import imageDisplayWidget
+from . import imageWidget
+from . import intensityScalingWidget
+from . import levelsWidget
+from . import statisticsWidget
+from . import transformationsWidget
+
+
 import mystery
+
 
 
 class HidraLiveViewer(QtGui.QDialog):
@@ -60,13 +72,13 @@ class HidraLiveViewer(QtGui.QDialog):
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
-        self.hidraW = hidra_widget(parent=self)
-        self.trafoW = imagetransformations_widget(parent=self)
-        self.scalingW = intensityscaling_widget(parent=self)
-        self.statsW = statistics_widget(parent=self)
-        self.levelsW = levels_widget(parent=self)
-        self.gradientW = gradientChooser_widget(parent=self)
-        self.imageW = image_widget(parent=self)
+        self.hidraW = hidraWidget.HidraWidget(parent=self)
+        self.trafoW = transformationsWidget.TransformationsWidget(parent=self)
+        self.scalingW = intensityScalingWidget.IntensityScalingWidget(parent=self)
+        self.statsW = statisticsWidget.StatisticsWidget(parent=self)
+        self.levelsW = levelsWidget.LevelsWidget(parent=self)
+        self.gradientW = gradientChoiceWidget.GradientChoiceWidget(parent=self)
+        self.imageW = imageWidget.ImageWidget(parent=self)
 
         # set the right names for the hidra display at initialization
         self.hidraW.setNames(self.data_source.getTargetSignalHost())

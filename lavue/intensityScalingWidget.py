@@ -31,7 +31,7 @@ class IntensityScalingWidget(QtGui.QGroupBox):
     changedScaling = QtCore.pyqtSignal(QtCore.QString)
 
     def __init__(self, parent=None):
-        super(intensityscaling_widget, self).__init__(parent)
+        super(IntensityScalingWidget, self).__init__(parent)
 
         self.setTitle("Intensity display scaling")
         self.current = "sqrt"

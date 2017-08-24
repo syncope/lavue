@@ -35,7 +35,7 @@ class LevelsWidget(QtGui.QGroupBox):
     levelsChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
-        super(levels_widget, self).__init__(parent)
+        super(LevelsWidget, self).__init__(parent)
 
         self.setTitle("Set display levels")
 

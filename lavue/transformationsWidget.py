@@ -34,7 +34,7 @@ class TransformationsWidget(QtGui.QGroupBox):
 
 
     def __init__(self, parent=None):
-        super(imagetransformations_widget, self).__init__(parent)
+        super(TransformationsWidget, self).__init__(parent)
 
         self.setTitle("Image transformations")
         
