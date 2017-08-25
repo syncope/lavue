@@ -45,6 +45,8 @@ from . import intensityScalingWidget
 from . import levelsWidget
 from . import statisticsWidget
 from . import transformationsWidget
+from . import maskWidget
+from . import bkgSubtractionWidget
 
 
 import mystery
@@ -73,6 +75,8 @@ class HidraLiveViewer(QtGui.QDialog):
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
         self.hidraW = hidraWidget.HidraWidget(parent=self)
+        self.maskW = maskWidget.MaskWidget(parent=self)
+        self.bkgSubW = bkgSubtractionWidget.BkgSubtractionkWidget(parent=self)
         self.trafoW = transformationsWidget.TransformationsWidget(parent=self)
         self.scalingW = intensityScalingWidget.IntensityScalingWidget(parent=self)
         self.statsW = statisticsWidget.StatisticsWidget(parent=self)
@@ -99,7 +103,14 @@ class HidraLiveViewer(QtGui.QDialog):
 
         # place widgets on the layouts
         # first the vertical layout on the left side
+        
+        # first element is supposed to be tabbed:
         vlayout.addWidget(self.hidraW)
+        tabwidget = QtGui.QTabWidget()
+        tabwidget.addTab(self.maskW, "Masking")
+        tabwidget.addTab(self.bkgSubW, "Bkg Subtraction")
+        
+        vlayout.addWidget(tabwidget)
         vlayout.addWidget(self.trafoW)
         vlayout.addWidget(self.scalingW)
         vlayout.addWidget(self.statsW)
