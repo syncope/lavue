@@ -15,6 +15,7 @@ Run Requirements
 ----------------
 
 For the visuals pyqt4, pyqtgraph and numpy are needed.
+In order to load (and apply) either mask files or background images for subtraction, fabio must be installed.
 An existing hidra installation is needed for the actual transfer of data.
 
 Internals
@@ -28,15 +29,10 @@ How to use
 
 The basic usage is to start the executable *laVue*, from which the pre-configured HiDRA server can be connected with the current host.
 
-To view the basic functionality, a test can be run by invoking the hidraLiveViewer.py module directly from python:
-    python hidraLiveViewer.py
-
 The controls should be more or less self-explanatory.
 Please note that the image statistics display is directly affected by the choice of intensity scaling.
 Square root scaling of the intensity is the default.
 The displayed image color code is scaled according to the chosen scale.
-
-In contrast to this the limit settings and the mouse cursor values are in linear scale!
 
 The cursor position display (move the mouse over the image display area), indicated by the red crosshair, is used to show the the intensity of the chosen pixel.
 The value is displayed in the line below the image, using linear intensities.
