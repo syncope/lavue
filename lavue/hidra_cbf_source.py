@@ -28,11 +28,12 @@ import numpy as np
 
 class HiDRA_cbf_source():
 
-    def __init__(self, signal_host=None, target=None):
+    def __init__(self, signal_host=None, target=None, timeout=None):
         self.signal_host = signal_host
         self.target = target
         self.query = hidra.Transfer("QUERY_NEXT", signal_host)
         self._initiated = False
+        self._timeout = timeout
 
     def getTargetSignalHost(self):
         return self.target[0], self.signal_host
@@ -59,7 +60,7 @@ class HiDRA_cbf_source():
         metadata = None
         data = None
         try:
-            [metadata, data] = self.query.get(400)
+            [metadata, data] = self.query.get(self._timeout)
         except:
             pass  # this needs a bit more care
 

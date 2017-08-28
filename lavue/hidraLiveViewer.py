@@ -61,17 +61,22 @@ class HidraLiveViewer(QtGui.QDialog):
 
     # subclass for threading
     class dataFetchThread(QtCore.QThread):
-        newData = QtCore.pyqtSignal(int)
+        newData = QtCore.pyqtSignal(str)
 
-        def __init__(self):
+        def __init__(self, datasource, image, name):
             QtCore.QThread.__init__(self)
-
+            self.data_source = datasource
+            self.img = image
+            self.name = name
+            
         def run(self):
-            tester = True
             while(True):
-                tester = not tester
                 time.sleep(GLBREFRESHRATE)
-                # self.newData.emit(tester)
+                self.img, self.name = self.data_source.getData()
+                print(str(self.data_source))
+                print(self.name)
+                if self.name is not None:
+                    self.newData.emit(self.name)
 
     def __init__(self, parent=None, signal_host=None, target=None):
         super(HidraLiveViewer, self).__init__(parent)
@@ -84,10 +89,9 @@ class HidraLiveViewer(QtGui.QDialog):
 
         # note: host and target are defined here and in another place
         self.data_source = hcs.HiDRA_cbf_source(
-                                mystery.signal_host, mystery.target)
-
-        # time in [ms] between calls to hidra
-        self.waittime = 500
+                                                mystery.signal_host,
+                                                mystery.target,
+                                                GLBREFRESHRATE*.9)
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
@@ -167,9 +171,8 @@ class HidraLiveViewer(QtGui.QDialog):
         self.gradientW.chosenGradient.connect(self.imageW.changeGradient)
 
         # timer logic for hidra
-        self.dataFetcher = self.dataFetchThread()
-        self.dataFetcher.start()
-        #~ self.dataFetcher.newData.connect(print)
+        self.dataFetcher = self.dataFetchThread(self.data_source, self.raw_image, self.image_name)
+        self.dataFetcher.newData.connect(print)
         
         #~ self.timer.timeout.connect(self.getNewData)
         #~ self.timer.timeout.connect(self.plot)
@@ -195,22 +198,16 @@ class HidraLiveViewer(QtGui.QDialog):
         # calls internally the plot function of the plot widget
         self.imageW.plot(self.display_image, self.image_name)
 
-    def plot2(self, img, name):
-        """Convenience function for testing, uses given image and name for display."""
-        self.image_name = name
-        self.raw_image = img
-        self.plot()
-
     # mode changer: start plotting mode
     def startPlotting(self):
         # only start plotting if the connection is really established
         if not self.hidraW.isConnected():
             return
-        self.timer.start()
+        self.dataFetcher.start()
 
     # mode changer: stop plotting mode
     def stopPlotting(self):
-        self.timer.stop()
+        self.dataFetcher.quit()
 
     # call the connect function of the hidra interface
     def connect_hidra(self):
@@ -235,7 +232,6 @@ class HidraLiveViewer(QtGui.QDialog):
 
     def scale(self, scalingType):
         if(self.raw_image is None):
-            print("No image is loaded, continuing.")
             return
         self.display_image = self.raw_image
 
@@ -248,6 +244,8 @@ class HidraLiveViewer(QtGui.QDialog):
 
     def transform(self, trafoshort):
         '''Do the image transformation on the given numpy array.'''
+        if(self.raw_image is None):
+            return
         return
         #~ if self.rotate90.isChecked():
         #~ display_img = np.transpose(display_img)
