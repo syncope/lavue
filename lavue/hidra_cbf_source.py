@@ -42,7 +42,7 @@ class HiDRA_cbf_source():
         try:
             if(not self._initiated):
                 self.query.initiate(self.target)
-                self._initited = True
+                self._initiated = True
             self.query.start()
             return True
         except:
