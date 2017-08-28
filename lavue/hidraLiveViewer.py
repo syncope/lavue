@@ -29,6 +29,7 @@ from __future__ import unicode_literals
 
 import sys
 import math
+import time
 import socket
 import numpy as np
 
@@ -51,11 +52,27 @@ from . import bkgSubtractionWidget
 
 import mystery
 
+# magic numbers:
+GLBREFRESHRATE = .1  # refresh rate if the data source is running in seconds
 
 
 class HidraLiveViewer(QtGui.QDialog):
     '''The master class for the dialog, contains all other widget and handles communication.'''
-    
+
+    # subclass for threading
+    class dataFetchThread(QtCore.QThread):
+        newData = QtCore.pyqtSignal(int)
+
+        def __init__(self):
+            QtCore.QThread.__init__(self)
+
+        def run(self):
+            tester = True
+            while(True):
+                tester = not tester
+                time.sleep(GLBREFRESHRATE)
+                # self.newData.emit(tester)
+
     def __init__(self, parent=None, signal_host=None, target=None):
         super(HidraLiveViewer, self).__init__(parent)
 
@@ -68,7 +85,7 @@ class HidraLiveViewer(QtGui.QDialog):
         # note: host and target are defined here and in another place
         self.data_source = hcs.HiDRA_cbf_source(
                                 mystery.signal_host, mystery.target)
-        
+
         # time in [ms] between calls to hidra
         self.waittime = 500
 
@@ -91,8 +108,6 @@ class HidraLiveViewer(QtGui.QDialog):
         self.raw_image = None
         self.image_name = None
         self.display_image = None
-        #~ self.plotLevels = [.1,1.]
-        #~ self.initialPlotLevelsSet = False
         
         # LAYOUT DEFINITIONS
         # the dialog layout is side by side
@@ -130,7 +145,7 @@ class HidraLiveViewer(QtGui.QDialog):
         #~ self.trafoW.changeFlip.connect(print)
         #~ self.trafoW.changeMirror.connect(print)
         #~ self.trafoW.changeRotate.connect(print)
-        
+
         # signal from intensity scaling widget:
         self.scalingW.changedScaling.connect(self.scale)
         self.scalingW.changedScaling.connect(self.plot)
@@ -140,7 +155,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.levelsW.changeMaxLevel.connect(self.imageW.setMaxLevel)
         self.levelsW.autoLevels.connect(self.imageW.setAutoLevels)
         self.levelsW.levelsChanged.connect(self.plot)
-        
+
         # connecting signals from hidra widget:
         self.hidraW.hidra_connect.connect(self.connect_hidra)
         self.hidraW.hidra_connect.connect(self.startPlotting)
@@ -152,12 +167,15 @@ class HidraLiveViewer(QtGui.QDialog):
         self.gradientW.chosenGradient.connect(self.imageW.changeGradient)
 
         # timer logic for hidra
-        self.timer = QtCore.QTimer()
-        self.timer.setInterval(self.waittime)
+        self.dataFetcher = self.dataFetchThread()
+        self.dataFetcher.start()
+        #~ self.dataFetcher.newData.connect(print)
         
-        self.timer.timeout.connect(self.getNewData)
-        self.timer.timeout.connect(self.plot)
+        #~ self.timer.timeout.connect(self.getNewData)
+        #~ self.timer.timeout.connect(self.plot)
 
+        self.bkgSubW.bkgFileSelection.connect(print)
+        self.maskW.maskFileSelection.connect(print)
 
     def plot(self):
         """ The main command of the live viewer class: draw a numpy array with the given name."""
@@ -165,7 +183,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.scale(self.scalingW.getCurrentScaling())
 
         # calculate the stats for this
-        maxVal, meanVal, varVal, minVal =  self.calcStats()
+        maxVal, meanVal, varVal, minVal = self.calcStats()
 
         # update the statistics display
         self.statsW.update_stats(meanVal, maxVal, varVal, self.scalingW.getCurrentScaling())
@@ -216,7 +234,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.display_image = self.raw_image
 
     def scale(self, scalingType):
-        if( self.raw_image is None):
+        if(self.raw_image is None):
             print("No image is loaded, continuing.")
             return
         self.display_image = self.raw_image
@@ -232,43 +250,28 @@ class HidraLiveViewer(QtGui.QDialog):
         '''Do the image transformation on the given numpy array.'''
         return
         #~ if self.rotate90.isChecked():
-            #~ display_img = np.transpose(display_img)
+        #~ display_img = np.transpose(display_img)
         #~ if self.flip.isChecked():
-            #~ display_img = np.flipud(display_img)
+        #~ display_img = np.flipud(display_img)
         #~ if self.mirror.isChecked():
-            #~ display_img = np.fliplr(display_img)
+        #~ display_img = np.fliplr(display_img)
 
     def calcStats(self):
         if self.display_image is not None:
             maxval = np.amax(self.display_image)
             meanval = np.mean(self.display_image)
             varval = np.var(self.display_image)
-            # automatic maximum clipping to hardcoded value 
-            checkval = meanval + 10* np.sqrt(varval)
-            if ( maxval > checkval):
+            # automatic maximum clipping to hardcoded value
+            checkval = meanval + 10*np.sqrt(varval)
+            if (maxval > checkval):
                 maxval = checkval
             return (str("%.4f" % maxval),
                     str("%.4f" % meanval),
-                    str("%.4f" % varval) ,
+                    str("%.4f" % varval),
                     str("%.3f" % np.amin(self.display_image)))
         else:
-            return  "0.",  "0.",  "0.",  "0." 
+            return "0.", "0.", "0.", "0."
 
     def getInitialLevels(self):
-        if(self.raw_image != None):
-            return  np.amin(self.raw_image), np.amax(self.raw_image)
-
-
-if __name__ == "__main__":
-    app = QtGui.QApplication(sys.argv)
-
-    dialog = HidraLiveViewer()
-    from PyQt4 import QtTest
-
-    i = 1
-    dialog.show()
-    while True:
-        rand_arr = 10 * np.random.rand(100, 200) + 1
-        dialog.plot2(img=rand_arr, name=("random number test nr. " + str(i)))
-        i += 1
-        QtTest.QTest.qWait(2000)
+        if(self.raw_image is not None):
+            return np.amin(self.raw_image), np.amax(self.raw_image)
