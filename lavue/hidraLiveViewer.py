@@ -61,7 +61,8 @@ class HidraLiveViewer(QtGui.QDialog):
 
     # subclass for threading
     class dataFetchThread(QtCore.QThread):
-        newData = QtCore.pyqtSignal(str)
+        newDataName = QtCore.pyqtSignal(str)
+        newData = QtCore.pyqtSignal()
 
         def __init__(self, datasource, image, name):
             QtCore.QThread.__init__(self)
@@ -73,10 +74,11 @@ class HidraLiveViewer(QtGui.QDialog):
             while(True):
                 time.sleep(GLBREFRESHRATE)
                 self.img, self.name = self.data_source.getData()
-                print(str(self.data_source))
-                print(self.name)
                 if self.name is not None:
-                    self.newData.emit(self.name)
+                    self.newDataName.emit(self.name)
+                    self.newData.emit()
+                    print(str(self.img))
+                    print(self.name)
 
     def __init__(self, parent=None, signal_host=None, target=None):
         super(HidraLiveViewer, self).__init__(parent)
@@ -91,7 +93,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.data_source = hcs.HiDRA_cbf_source(
                                                 mystery.signal_host,
                                                 mystery.target,
-                                                GLBREFRESHRATE*.9)
+                                                GLBREFRESHRATE*900)
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
@@ -172,7 +174,9 @@ class HidraLiveViewer(QtGui.QDialog):
 
         # timer logic for hidra
         self.dataFetcher = self.dataFetchThread(self.data_source, self.raw_image, self.image_name)
-        self.dataFetcher.newData.connect(print)
+        # self.dataFetcher = None
+        self.dataFetcher.newDataName.connect(print)
+        self.dataFetcher.newData.connect(self.plot)
         
         #~ self.timer.timeout.connect(self.getNewData)
         #~ self.timer.timeout.connect(self.plot)
@@ -183,6 +187,7 @@ class HidraLiveViewer(QtGui.QDialog):
     def plot(self):
         """ The main command of the live viewer class: draw a numpy array with the given name."""
         # use the internal raw image to create a display image with chosen scaling
+        print("plot is called, the current image name is: " + str(self.image_name))
         self.scale(self.scalingW.getCurrentScaling())
 
         # calculate the stats for this
@@ -207,7 +212,9 @@ class HidraLiveViewer(QtGui.QDialog):
 
     # mode changer: stop plotting mode
     def stopPlotting(self):
-        self.dataFetcher.quit()
+        if self.dataFetcher is not None:
+            self.dataFetcher.quit()
+            #~ self.dataFetcher.wait()
 
     # call the connect function of the hidra interface
     def connect_hidra(self):
