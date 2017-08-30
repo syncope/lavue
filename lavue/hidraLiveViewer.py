@@ -64,12 +64,14 @@ class HidraLiveViewer(QtGui.QDialog):
         def __init__(self,*args):
             list.__init__(self, *args)
             self.mute = False
+            self.append(None)
+            self.append(None)
 
         def addData(self, name, data):
             if self.mute is False:
                 self.mute = True
-                self.append(name)
-                self.append(data)
+                self[0] = name
+                self[1] = data
                 self.mute = False
             else:
                 pass # print(" MUTED ACCESS IS NOT POSSIBLE")
@@ -77,10 +79,11 @@ class HidraLiveViewer(QtGui.QDialog):
         def readData(self):
             if self.mute is False:
                 self.mute = True
-                return self[0], self[1]
+                a, b = self[0], self[1]
                 self.mute = False
+                return a, b
             else:
-                pass # print(" MUTED ACCESS IS NOT POSSIBLE")
+               print(" MUTED ACCESS IS NOT POSSIBLE")
 
     # subclass for threading
     class dataFetchThread(QtCore.QThread):
@@ -257,10 +260,13 @@ class HidraLiveViewer(QtGui.QDialog):
         # check if data is there at all
         if name is None:
             return
-        # check if data is really new
-        if self.image_name is not name:
+        # first time: 
+        if self.image_name is None:
             self.image_name, self.raw_image = self.exchangelist.readData()
-            self.plot()
+        # check if data is really new
+        elif str(self.image_name) is not str(name):
+            self.image_name, self.raw_image = self.exchangelist.readData()
+        self.plot()
 
     def scale(self, scalingType):
         if(self.raw_image is None):
