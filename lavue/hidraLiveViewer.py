@@ -53,32 +53,51 @@ from . import bkgSubtractionWidget
 import mystery
 
 # magic numbers:
-GLBREFRESHRATE = .1  # refresh rate if the data source is running in seconds
+GLOBALREFRESHRATE = .1  # refresh rate if the data source is running in seconds
 
 
 class HidraLiveViewer(QtGui.QDialog):
     '''The master class for the dialog, contains all other widget and handles communication.'''
 
+    # subclass for data caching
+    class exchangeList(list):
+        def __init__(self,*args):
+            list.__init__(self, *args)
+            self.mute = False
+
+        def addData(self, name, data):
+            if self.mute is False:
+                self.mute = True
+                self.append(name)
+                self.append(data)
+                self.mute = False
+            else:
+                pass # print(" MUTED ACCESS IS NOT POSSIBLE")
+
+        def readData(self):
+            if self.mute is False:
+                self.mute = True
+                return self[0], self[1]
+                self.mute = False
+            else:
+                pass # print(" MUTED ACCESS IS NOT POSSIBLE")
+
     # subclass for threading
     class dataFetchThread(QtCore.QThread):
         newDataName = QtCore.pyqtSignal(str)
-        newData = QtCore.pyqtSignal()
 
-        def __init__(self, datasource, image, name):
+        def __init__(self, datasource, alist):
             QtCore.QThread.__init__(self)
             self.data_source = datasource
-            self.img = image
-            self.name = name
+            self._list = alist
             
         def run(self):
             while(True):
-                time.sleep(GLBREFRESHRATE)
-                self.img, self.name = self.data_source.getData()
-                if self.name is not None:
-                    self.newDataName.emit(self.name)
-                    self.newData.emit()
-                    print(str(self.img))
-                    print(self.name)
+                time.sleep(GLOBALREFRESHRATE)
+                img, name = self.data_source.getData()
+                if name is not None:
+                    self._list.addData(name, img)
+                    self.newDataName.emit(name)
 
     def __init__(self, parent=None, signal_host=None, target=None):
         super(HidraLiveViewer, self).__init__(parent)
@@ -93,7 +112,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.data_source = hcs.HiDRA_cbf_source(
                                                 mystery.signal_host,
                                                 mystery.target,
-                                                GLBREFRESHRATE*900)
+                                                GLOBALREFRESHRATE*900)
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
@@ -164,30 +183,30 @@ class HidraLiveViewer(QtGui.QDialog):
 
         # connecting signals from hidra widget:
         self.hidraW.hidra_connect.connect(self.connect_hidra)
+       # self.hidraW.hidra_connect.connect(self.dataFetcher.connect_hidra)
         self.hidraW.hidra_connect.connect(self.startPlotting)
 
         self.hidraW.hidra_disconnect.connect(self.stopPlotting)
         self.hidraW.hidra_disconnect.connect(self.disconnect_hidra)
+        #self.hidraW.hidra_disconnect.connect(self.dataFetcher.disconnect_hidra)
 
         # gradient selector
         self.gradientW.chosenGradient.connect(self.imageW.changeGradient)
 
-        # timer logic for hidra
-        self.dataFetcher = self.dataFetchThread(self.data_source, self.raw_image, self.image_name)
-        # self.dataFetcher = None
-        self.dataFetcher.newDataName.connect(print)
-        self.dataFetcher.newData.connect(self.plot)
+        # simple mutable caching object for data exchange with thread
+        # [blocked state | image name | image data]
+        # during read+write access state is set to blocked to avoid conflict
+        self.exchangelist = self.exchangeList()
         
-        #~ self.timer.timeout.connect(self.getNewData)
-        #~ self.timer.timeout.connect(self.plot)
-
-        self.bkgSubW.bkgFileSelection.connect(print)
-        self.maskW.maskFileSelection.connect(print)
+        self.dataFetcher = self.dataFetchThread(self.data_source, self.exchangelist)
+        self.dataFetcher.newDataName.connect(self.getNewData)
+        
+        #~ self.bkgSubW.bkgFileSelection.connect(print)
+        #~ self.maskW.maskFileSelection.connect(print)
 
     def plot(self):
         """ The main command of the live viewer class: draw a numpy array with the given name."""
         # use the internal raw image to create a display image with chosen scaling
-        print("plot is called, the current image name is: " + str(self.image_name))
         self.scale(self.scalingW.getCurrentScaling())
 
         # calculate the stats for this
@@ -213,13 +232,15 @@ class HidraLiveViewer(QtGui.QDialog):
     # mode changer: stop plotting mode
     def stopPlotting(self):
         if self.dataFetcher is not None:
-            self.dataFetcher.quit()
+            pass
+            #self.dataFetcher.quit()
             #~ self.dataFetcher.wait()
 
     # call the connect function of the hidra interface
     def connect_hidra(self):
         if self.data_source is None:
-            self.data_source = hcs.HiDRA_cbf_source(mystery.signal_host, mystery.target)
+            print ("No data source is defined, this will result in trouble.")
+            #self.data_source = hcs.HiDRA_cbf_source(mystery.signal_host, mystery.target)
         if not self.data_source.connect():
             self.hidraW.connectFailure()
             print(
@@ -230,12 +251,16 @@ class HidraLiveViewer(QtGui.QDialog):
     # call the disconnect function of the hidra interface
     def disconnect_hidra(self):
         self.data_source.disconnect()
-        self.data_source = None
+        #self.data_source = None
 
-    def getNewData(self):
-        self.raw_image, self.image_name = self.data_source.getData()
-        # the internal data object is copied to allow for internal conversions
-        self.display_image = self.raw_image
+    def getNewData(self, name):
+        # check if data is there at all
+        if name is None:
+            return
+        # check if data is really new
+        if self.image_name is not name:
+            self.image_name, self.raw_image = self.exchangelist.readData()
+            self.plot()
 
     def scale(self, scalingType):
         if(self.raw_image is None):
