@@ -65,12 +65,12 @@ class HiDRA_cbf_source():
             pass  # this needs a bit more care
 
         if metadata is not None and data is not None:
-            print ("metadata", metadata["filename"])
-            print ("data", str(data)[:10])
+            print ("[cbf source module]::metadata", metadata["filename"])
+            #~ print ("data", str(data)[:10])
 
             if (data[:10] == "###CBF: VE"):
                 img = self.eval_pildata(np.fromstring(data[:], dtype=np.uint8))
-                return img, metadata["filename"]
+                return np.transpose(img), metadata["filename"]
         else:
             return None, None
 

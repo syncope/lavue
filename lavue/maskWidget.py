@@ -68,6 +68,9 @@ class MaskWidget(QtGui.QGroupBox):
     def setFileName(self, fname):
         self.fileNameDisplay.setText(str(fname))
 
+    def noImage(self):
+        self.setFileName("NO IMAGE SELECTED")
+
 if __name__ == "__main__":
     import sys
 

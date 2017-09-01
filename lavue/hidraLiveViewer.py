@@ -40,7 +40,6 @@ from . import GradientItem as GI
 
 from . import gradientChoiceWidget
 from . import hidraWidget
-from . import imageDisplayWidget
 from . import imageWidget
 from . import intensityScalingWidget
 from . import levelsWidget
@@ -48,7 +47,7 @@ from . import statisticsWidget
 from . import transformationsWidget
 from . import maskWidget
 from . import bkgSubtractionWidget
-
+from . import imageFileHandler
 
 import mystery
 
@@ -114,8 +113,8 @@ class HidraLiveViewer(QtGui.QDialog):
         # note: host and target are defined here and in another place
         self.data_source = hcs.HiDRA_cbf_source(
                                                 mystery.signal_host,
-                                                mystery.target,
-                                                GLOBALREFRESHRATE*900)
+                                                mystery.target) #,
+                                                #~ GLOBALREFRESHRATE*1000)
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
@@ -136,6 +135,11 @@ class HidraLiveViewer(QtGui.QDialog):
         self.raw_image = None
         self.image_name = None
         self.display_image = None
+        self.background_image = None
+        self.mask_image = None
+        
+        self.doBkgSubtraction = False
+        self.applyImageMask = False
         
         # LAYOUT DEFINITIONS
         # the dialog layout is side by side
@@ -204,11 +208,16 @@ class HidraLiveViewer(QtGui.QDialog):
         self.dataFetcher = self.dataFetchThread(self.data_source, self.exchangelist)
         self.dataFetcher.newDataName.connect(self.getNewData)
         
-        #~ self.bkgSubW.bkgFileSelection.connect(print)
-        #~ self.maskW.maskFileSelection.connect(print)
+        self.bkgSubW.bkgFileSelection.connect(self.prepareBKGSubtraction)
+        self.bkgSubW.applyBkgSubtractBox.stateChanged.connect(self.checkBKGSubtraction)
+        self.maskW.maskFileSelection.connect(self.prepareMasking)
+        self.maskW.applyMaskBox.stateChanged.connect(self.checkMasking)
 
     def plot(self):
         """ The main command of the live viewer class: draw a numpy array with the given name."""
+        # prepare or preprocess the raw image if present:
+        self.prepareImage()
+        
         # use the internal raw image to create a display image with chosen scaling
         self.scale(self.scalingW.getCurrentScaling())
 
@@ -236,8 +245,6 @@ class HidraLiveViewer(QtGui.QDialog):
     def stopPlotting(self):
         if self.dataFetcher is not None:
             pass
-            #self.dataFetcher.quit()
-            #~ self.dataFetcher.wait()
 
     # call the connect function of the hidra interface
     def connect_hidra(self):
@@ -268,21 +275,30 @@ class HidraLiveViewer(QtGui.QDialog):
             self.image_name, self.raw_image = self.exchangelist.readData()
         self.plot()
 
-    def scale(self, scalingType):
+    def prepareImage(self):
         if(self.raw_image is None):
             return
         self.display_image = self.raw_image
+        
+        if self.doBkgSubtraction:
+            self.display_image = self.raw_image - self.background_image
+        if(self.applyMask):
+            #~ numpy.logical_or(self._mask, self._custom_mask).astype("int8")
+            pass
 
+    def scale(self, scalingType):
+        if(self.display_image is None):
+            return
         if scalingType == "sqrt":
-            self.display_image = np.clip(self.raw_image, 0, np.inf)
+            self.display_image = np.clip(self.display_image, 0, np.inf)
             self.display_image = np.sqrt(self.display_image)
         elif scalingType == "log":
-            self.display_image = np.clip(self.raw_image, 10e-3, np.inf)
+            self.display_image = np.clip(self.display_image, 10e-3, np.inf)
             self.display_image = np.log10(self.display_image)
 
     def transform(self, trafoshort):
         '''Do the image transformation on the given numpy array.'''
-        if(self.raw_image is None):
+        if(self.display_image is None):
             return
         return
         #~ if self.rotate90.isChecked():
@@ -309,5 +325,21 @@ class HidraLiveViewer(QtGui.QDialog):
             return "0.", "0.", "0.", "0."
 
     def getInitialLevels(self):
-        if(self.raw_image is not None):
-            return np.amin(self.raw_image), np.amax(self.raw_image)
+        if(self.display_image is not None):
+            return np.amin(self.display_image), np.amax(self.display_image)
+
+    def checkMasking(self, state):
+        self.applyMask = state
+        if self.applyMask and self.mask_image is None:
+            self.maskW.noImage()
+
+    def prepareMasking(self, imagename):
+        self.mask_image = imageFileHandler.ImageFileHandler(str(imagename)).getImage()
+
+    def checkBKGSubtraction(self, state):
+        self.doBkgSubtraction = state
+        if self.doBkgSubtraction and self.background_image is None:
+            self.bkgSubW.noImage()
+
+    def prepareBKGSubtraction(self, imagename):
+        self.background_image = imageFileHandler.ImageFileHandler(str(imagename)).getImage()
