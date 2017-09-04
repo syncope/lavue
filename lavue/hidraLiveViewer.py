@@ -92,14 +92,19 @@ class HidraLiveViewer(QtGui.QDialog):
             QtCore.QThread.__init__(self)
             self.data_source = datasource
             self._list = alist
+            self._isConnected = False
             
         def run(self):
-            while(True):
+            while(self._isConnected):
                 time.sleep(GLOBALREFRESHRATE)
                 img, name = self.data_source.getData()
                 if name is not None:
                     self._list.addData(name, img)
                     self.newDataName.emit(name)
+
+        def changeStatus(self, status):
+            self._isConnected = status
+
 
     def __init__(self, parent=None, signal_host=None, target=None):
         super(HidraLiveViewer, self).__init__(parent)
@@ -190,12 +195,11 @@ class HidraLiveViewer(QtGui.QDialog):
 
         # connecting signals from hidra widget:
         self.hidraW.hidra_connect.connect(self.connect_hidra)
-       # self.hidraW.hidra_connect.connect(self.dataFetcher.connect_hidra)
         self.hidraW.hidra_connect.connect(self.startPlotting)
 
         self.hidraW.hidra_disconnect.connect(self.stopPlotting)
         self.hidraW.hidra_disconnect.connect(self.disconnect_hidra)
-        #self.hidraW.hidra_disconnect.connect(self.dataFetcher.disconnect_hidra)
+
 
         # gradient selector
         self.gradientW.chosenGradient.connect(self.imageW.changeGradient)
@@ -207,6 +211,8 @@ class HidraLiveViewer(QtGui.QDialog):
         
         self.dataFetcher = self.dataFetchThread(self.data_source, self.exchangelist)
         self.dataFetcher.newDataName.connect(self.getNewData)
+        # ugly !!! sent current state to the data fetcher...
+        self.hidraW.hidra_state.connect(self.dataFetcher.changeStatus)
         
         self.bkgSubW.bkgFileSelection.connect(self.prepareBKGSubtraction)
         self.bkgSubW.applyBkgSubtractBox.stateChanged.connect(self.checkBKGSubtraction)

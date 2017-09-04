@@ -30,6 +30,7 @@ class HidraWidget(QtGui.QGroupBox):
     """
     hidra_disconnect = QtCore.pyqtSignal()
     hidra_connect = QtCore.pyqtSignal()
+    hidra_state = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None, signal_host=None, target=None):
         super(HidraWidget, self).__init__(parent)
@@ -79,9 +80,11 @@ class HidraWidget(QtGui.QGroupBox):
             self.cStatus.setText("Disconnected")
             self.button.setText("Re-Connect")
             self.connected = False
+            self.hidra_state.emit(0)
             return
 
         if not self.connected:
+            self.hidra_state.emit(1)
             self.hidra_connect.emit()
 
     def connectSuccess(self):
