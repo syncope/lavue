@@ -95,12 +95,15 @@ class HidraLiveViewer(QtGui.QDialog):
             self._isConnected = False
             
         def run(self):
-            while(self._isConnected):
+            while(True):    
                 time.sleep(GLOBALREFRESHRATE)
-                img, name = self.data_source.getData()
-                if name is not None:
-                    self._list.addData(name, img)
-                    self.newDataName.emit(name)
+                if(self._isConnected):
+                     img, name = self.data_source.getData()
+                     if name is not None:
+                        self._list.addData(name, img)
+                        self.newDataName.emit(name)
+                else:
+                    pass
 
         def changeStatus(self, status):
             self._isConnected = status
@@ -288,7 +291,7 @@ class HidraLiveViewer(QtGui.QDialog):
         
         if self.doBkgSubtraction:
             self.display_image = self.raw_image - self.background_image
-        if(self.applyMask):
+        if(self.applyImageMask):
             #~ numpy.logical_or(self._mask, self._custom_mask).astype("int8")
             pass
 

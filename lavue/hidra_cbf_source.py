@@ -43,7 +43,7 @@ class HiDRA_cbf_source():
             if(not self._initiated):
                 self.query.initiate(self.target)
                 self._initiated = True
-            self.query.start()
+                self.query.start()
             return True
         except:
             if self.query is not None:
@@ -52,7 +52,7 @@ class HiDRA_cbf_source():
 
     def disconnect(self):
         try:
-            self.query.stop()
+            pass #self.query.stop()
         except:
             pass
 
