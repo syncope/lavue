@@ -28,7 +28,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import sys
-import math
 import time
 import socket
 import numpy as np

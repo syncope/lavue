@@ -20,6 +20,7 @@
 # Boston, MA  02110-1301, USA.
 
 import pyqtgraph as pg
+import math
 
 from PyQt4 import QtCore, QtGui
 
@@ -88,7 +89,6 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
 
             intensity = self.data[math.floor(xdata), math.floor(ydata)]
             self.currentMousePosition.emit("x=%.2f, y=%.2f, intensity=%.4f" % (xdata, ydata, intensity))
-        
         except:
             pass
 
