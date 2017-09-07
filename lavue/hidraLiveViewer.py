@@ -145,7 +145,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.display_image = None
         self.background_image = None
         self.mask_image = None
-        
+        self.maskIndices = None
         self.doBkgSubtraction = False
         self.applyImageMask = False
         
@@ -290,11 +290,12 @@ class HidraLiveViewer(QtGui.QDialog):
         self.display_image = self.raw_image
         
         if self.doBkgSubtraction:
+            # simple subtraction
             self.display_image = self.raw_image - self.background_image
-        if(self.applyImageMask):
-            #~ numpy.logical_or(self._mask, self._custom_mask).astype("int8")
-            pass
-
+        if self.applyImageMask:
+            # set all masked (non-zero values) to zero by index
+            self.display_image[self.maskIndices] = 0
+            
     def scale(self, scalingType):
         if(self.display_image is None):
             return
@@ -338,12 +339,14 @@ class HidraLiveViewer(QtGui.QDialog):
             return np.amin(self.display_image), np.amax(self.display_image)
 
     def checkMasking(self, state):
-        self.applyMask = state
-        if self.applyMask and self.mask_image is None:
+        self.applyImageMask = state
+        if self.applyImageMask and self.mask_image is None:
             self.maskW.noImage()
 
     def prepareMasking(self, imagename):
+        '''Get the mask image, select non-zero elements and store the indices.'''
         self.mask_image = imageFileHandler.ImageFileHandler(str(imagename)).getImage()
+        self.maskIndices = np.nonzero(self.mask_image !=0)
 
     def checkBKGSubtraction(self, state):
         self.doBkgSubtraction = state
