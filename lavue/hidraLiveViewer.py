@@ -148,6 +148,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.maskIndices = None
         self.doBkgSubtraction = False
         self.applyImageMask = False
+        self.trafoName = "None"
         
         # LAYOUT DEFINITIONS
         # the dialog layout is side by side
@@ -203,7 +204,6 @@ class HidraLiveViewer(QtGui.QDialog):
         self.hidraW.hidra_disconnect.connect(self.stopPlotting)
         self.hidraW.hidra_disconnect.connect(self.disconnect_hidra)
 
-
         # gradient selector
         self.gradientW.chosenGradient.connect(self.imageW.changeGradient)
 
@@ -222,10 +222,15 @@ class HidraLiveViewer(QtGui.QDialog):
         self.maskW.maskFileSelection.connect(self.prepareMasking)
         self.maskW.applyMaskBox.stateChanged.connect(self.checkMasking)
 
+        self.trafoW.activatedTransformation.connect(self.assessTransformation)
+
     def plot(self):
         """ The main command of the live viewer class: draw a numpy array with the given name."""
         # prepare or preprocess the raw image if present:
         self.prepareImage()
+        
+        # perform transformation 
+        self.transform()
         
         # use the internal raw image to create a display image with chosen scaling
         self.scale(self.scalingW.getCurrentScaling())
@@ -306,17 +311,16 @@ class HidraLiveViewer(QtGui.QDialog):
             self.display_image = np.clip(self.display_image, 10e-3, np.inf)
             self.display_image = np.log10(self.display_image)
 
-    def transform(self, trafoshort):
+    def transform(self):
         '''Do the image transformation on the given numpy array.'''
-        if(self.display_image is None):
+        if self.display_image is None or self.trafoName is "None":
             return
-        return
-        #~ if self.rotate90.isChecked():
-        #~ display_img = np.transpose(display_img)
-        #~ if self.flip.isChecked():
-        #~ display_img = np.flipud(display_img)
-        #~ if self.mirror.isChecked():
-        #~ display_img = np.fliplr(display_img)
+        elif self.trafoName == "flip":
+            self.display_image = np.flipud(self.display_image)
+        elif self.trafoName is "rotate":
+            self.display_image = np.rot90(self.display_image)
+        elif self.trafoName is "mirror":
+            self.display_image = np.fliplr(self.display_image)
 
     def calcStats(self):
         if self.display_image is not None:
@@ -355,3 +359,6 @@ class HidraLiveViewer(QtGui.QDialog):
 
     def prepareBKGSubtraction(self, imagename):
         self.background_image = imageFileHandler.ImageFileHandler(str(imagename)).getImage()
+
+    def assessTransformation(self, trafoName):
+        self.trafoName = trafoName

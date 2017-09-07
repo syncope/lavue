@@ -28,10 +28,7 @@ class TransformationsWidget(QtGui.QGroupBox):
     """
     Select how an image should be transformed.
     """
-    changeFlip = QtCore.pyqtSignal(int)
-    changeMirror = QtCore.pyqtSignal(int)
-    changeRotate = QtCore.pyqtSignal(int)
-
+    activatedTransformation = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         super(TransformationsWidget, self).__init__(parent)
@@ -47,15 +44,10 @@ class TransformationsWidget(QtGui.QGroupBox):
         #~ layout.addStretch(1)
         layout.addWidget(self.cb)
         self.setLayout(layout)
+        self.cb.currentIndexChanged.connect(self.broadcastTransformation)
         
-        #~ horizontallayout.addWidget(self.flip)
-        #~ horizontallayout.addWidget(self.mirror)
-        #~ horizontallayout.addWidget(self.rotate90)
-        #~ 
-        #~ self.setLayout(horizontallayout)
-        #~ 
-        #~ # signals:
+    def broadcastTransformation(self, index):
+        self.activatedTransformation.emit(self.cb.itemText(index))
         #~ self.flip.stateChanged.connect(self.changeFlip.emit)
         #~ self.mirror.stateChanged.connect(self.changeMirror.emit)
         #~ self.rotate90.stateChanged.connect(self.changeRotate.emit)
-#~ 
