@@ -315,13 +315,17 @@ class HidraLiveViewer(QtGui.QDialog):
         '''Do the image transformation on the given numpy array.'''
         if self.display_image is None or self.trafoName is "None":
             return
-        elif self.trafoName == "flip":
-            self.display_image = np.flipud(self.display_image)
-        elif self.trafoName is "rotate":
-            self.display_image = np.rot90(self.display_image)
-        elif self.trafoName is "mirror":
+        # !!! there is a place, where indices go to die...
+        # somewhere, the ordering of the indices gets messed up
+        # to rectify the situation and not mislead users, 
+        # make the transformation, so that at least the name fits
+        elif self.trafoName == "flipud":
             self.display_image = np.fliplr(self.display_image)
-
+        elif self.trafoName == "rotate90":
+            self.display_image = np.rot90(self.display_image)
+        elif self.trafoName == "mirror":
+            self.display_image = np.flipud(self.display_image)
+    
     def calcStats(self):
         if self.display_image is not None:
             maxval = np.amax(self.display_image)
