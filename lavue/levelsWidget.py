@@ -53,9 +53,9 @@ class LevelsWidget(QtGui.QGroupBox):
         self.maxVal = 1.
 
         self.minValSB = QtGui.QDoubleSpinBox()
-        self.minValSB.setMinimum(0.)
+        self.minValSB.setMinimum(-2.)
         self.maxValSB = QtGui.QDoubleSpinBox()
-        self.maxValSB.setMinimum(1.)
+        self.maxValSB.setMinimum(0.)
         self.maxValSB.setMaximum(10e20)
         self.applyButton = QtGui.QPushButton("Apply levels")
 
