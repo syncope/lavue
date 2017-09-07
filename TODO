@@ -1,17 +1,17 @@
-User requests:
-     - image masking
-     - bkg subtraction
-=> promote QDialog to QWindow
+feature requests:
+ - take/store (and apply) dark image
+ - limit setting with displayed histogram
 
+maintenance:
+ - edit gradient "spectrum" from red:low / violet:high to the other way around
+ - make settings display easier
+
+code maintainability:
 - make source abstract to allow for other inputs
-- make abstract image display part
 -> dockable source widget??
 
 
 Issues:
-    !! image downsampling when array size larger than monitor display size
-
-    !! log scale expensive for large detector images
-        ---> possible solution: lut
-
-- show unscaled image!?
+ - getting data from hidra is not optimal
+ - image scaling is present due to non-existing mapping to screen resolution
+ - image is rotated by 90 degrees, but unclear where => is pyqtgraph the culprit?
