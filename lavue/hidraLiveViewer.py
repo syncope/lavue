@@ -180,11 +180,6 @@ class HidraLiveViewer(QtGui.QDialog):
         self.setWindowTitle("laVue: Live Image Viewer")
 
         # SIGNAL LOGIC::
-                
-        # signals from transformation widget
-        #~ self.trafoW.changeFlip.connect(print)
-        #~ self.trafoW.changeMirror.connect(print)
-        #~ self.trafoW.changeRotate.connect(print)
 
         # signal from intensity scaling widget:
         self.scalingW.changedScaling.connect(self.scale)
@@ -221,6 +216,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.maskW.maskFileSelection.connect(self.prepareMasking)
         self.maskW.applyMaskBox.stateChanged.connect(self.checkMasking)
 
+        # signals from transformation widget
         self.trafoW.activatedTransformation.connect(self.assessTransformation)
 
     def plot(self):
@@ -293,10 +289,10 @@ class HidraLiveViewer(QtGui.QDialog):
             return
         self.display_image = self.raw_image
         
-        if self.doBkgSubtraction:
+        if self.doBkgSubtraction and self.background_image is not None:
             # simple subtraction
             self.display_image = self.raw_image - self.background_image
-        if self.applyImageMask:
+        if self.applyImageMask and self.maskIndices is not None:
             # set all masked (non-zero values) to zero by index
             self.display_image[self.maskIndices] = 0
             
