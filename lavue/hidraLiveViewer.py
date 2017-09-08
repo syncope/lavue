@@ -47,8 +47,11 @@ from . import transformationsWidget
 from . import maskWidget
 from . import bkgSubtractionWidget
 from . import imageFileHandler
-
-import mystery
+try:
+    from hidraServerList import HidraServerList
+except:
+    print("Cannot read the list of HiDRA servers.")
+    print("Alternate method not yet implemented.")
 
 # magic numbers:
 GLOBALREFRESHRATE = .1  # refresh rate if the data source is running in seconds
@@ -117,15 +120,12 @@ class HidraLiveViewer(QtGui.QDialog):
         # here: hardcoded the hidra cbf source!
         # future possibility: use abstract interface and factory for concrete instantiation
 
-        # note: host and target are defined here and in another place
-        self.data_source = hcs.HiDRA_cbf_source(
-                                                mystery.signal_host,
-                                                mystery.target) #,
-                                                #~ GLOBALREFRESHRATE*1000)
+        # note: host and target are defined in another place
+        self.data_source = hcs.HiDRA_cbf_source()
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
-        self.hidraW = hidraWidget.HidraWidget(parent=self)
+        self.hidraW = hidraWidget.HidraWidget(parent=self, serverlist=HidraServerList)
         self.maskW = maskWidget.MaskWidget(parent=self)
         self.bkgSubW = bkgSubtractionWidget.BkgSubtractionkWidget(parent=self)
         self.trafoW = transformationsWidget.TransformationsWidget(parent=self)
@@ -134,9 +134,6 @@ class HidraLiveViewer(QtGui.QDialog):
         self.levelsW = levelsWidget.LevelsWidget(parent=self)
         self.gradientW = gradientChoiceWidget.GradientChoiceWidget(parent=self)
         self.imageW = imageWidget.ImageWidget(parent=self)
-
-        # set the right names for the hidra display at initialization
-        self.hidraW.setNames(self.data_source.getTargetSignalHost())
 
         # keep a reference to the "raw" image and the current filename
         self.raw_image = None
@@ -218,6 +215,11 @@ class HidraLiveViewer(QtGui.QDialog):
 
         # signals from transformation widget
         self.trafoW.activatedTransformation.connect(self.assessTransformation)
+
+        # set the right target name for the hidra display at initialization
+        self.hidraW.setTargetName(self.data_source.getTarget())
+        self.hidraW.hidra_servername.connect(self.data_source.setSignalHost)
+
 
     def plot(self):
         """ The main command of the live viewer class: draw a numpy array with the given name."""

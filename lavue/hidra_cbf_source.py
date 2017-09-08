@@ -24,19 +24,35 @@ try:
 except ImportError:
     print("without hidra installed this does not make sense")
 
+import socket
 import numpy as np
 
 class HiDRA_cbf_source():
 
-    def __init__(self, signal_host=None, target=None, timeout=None):
-        self.signal_host = signal_host
-        self.target = target
-        self.query = hidra.Transfer("QUERY_NEXT", signal_host)
+    def __init__(self, timeout=None):
+        self.signal_host = None
+        self.portnumber = "50001"
+        self.target = [socket.getfqdn(), self.portnumber, 19, [".cbf"]]
+        self.query = None
         self._initiated = False
         self._timeout = timeout
 
     def getTargetSignalHost(self):
-        return self.target[0], self.signal_host
+        return self.target[0]+":"+self.portnumber, self.signal_host
+
+    def getTarget(self):
+        return self.target[0]+":"+self.portnumber
+
+    def setTargetSignalHost(self, target, signalhost, portnumber="50001"):
+        self.setSignalHost(signalhost)
+        self.setTargetPort(signalhost, portnumber)
+        
+    def setSignalHost(self, signalhost):
+        self.signal_host = signalhost
+        self.query = hidra.Transfer("QUERY_NEXT", self.signal_host)
+
+    def setTargetPort(self, portnumber):
+        self.portnumber = portnumber
 
     def connect(self):
         try:

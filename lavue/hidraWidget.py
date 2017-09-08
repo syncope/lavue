@@ -31,21 +31,26 @@ class HidraWidget(QtGui.QGroupBox):
     hidra_disconnect = QtCore.pyqtSignal()
     hidra_connect = QtCore.pyqtSignal()
     hidra_state = QtCore.pyqtSignal(int)
+    hidra_servername = QtCore.pyqtSignal(QtCore.QString)
 
-    def __init__(self, parent=None, signal_host=None, target=None):
+    def __init__(self, parent=None, serverlist=None):
         super(HidraWidget, self).__init__(parent)
         self.setTitle("HiDRA connection")
 
-        self.signal_host = signal_host
-        self.target = target
+        self.signal_host = None
+        self.target = None
         self.connected = False
+        self.serverlist = serverlist
 
         gridlayout = QtGui.QGridLayout()
 
         self.serverLabel = QtGui.QLabel(u"Server")
-        self.serverName = QtGui.QLabel(u"SomeName")
+        self.serverlistBox = QtGui.QComboBox()
+        self.serverlistBox.addItem("Pick a server")
+        self.serverlistBox.addItems(self.serverlist)       
         self.hostlabel = QtGui.QLabel("Client")
-        self.currenthost = QtGui.QLabel("None")
+        self.currenthost = QtGui.QLabel(u"SomeName")
+        
         self.cStatusLabel = QtGui.QLabel("Status: ")
         self.cStatus = QtGui.QLineEdit("Not connected")
         self.cStatus.setStyleSheet("color: blue;"
@@ -55,7 +60,7 @@ class HidraWidget(QtGui.QGroupBox):
         self.button.clicked.connect(self.toggleServerConnection)
 
         gridlayout.addWidget(self.serverLabel, 0, 0)
-        gridlayout.addWidget(self.serverName, 0, 1)
+        gridlayout.addWidget(self.serverlistBox, 0, 1)
         gridlayout.addWidget(self.hostlabel, 1, 0)
         gridlayout.addWidget(self.currenthost, 1, 1)
         gridlayout.addWidget(self.cStatusLabel, 2, 0)
@@ -64,9 +69,13 @@ class HidraWidget(QtGui.QGroupBox):
 
         self.setLayout(gridlayout)
 
-    def setNames(self, names):
-        self.currenthost.setText(str(names[0]))
-        self.serverName.setText(str(names[1]))
+        self.serverlistBox.activated.connect(self.emitHostname)
+        
+    def emitHostname(self, index):
+        self.hidra_servername.emit(self.serverlistBox.itemText(index))
+
+    def setTargetName(self, name):
+        self.currenthost.setText(str(name))
 
     def isConnected(self):
         return self.connected

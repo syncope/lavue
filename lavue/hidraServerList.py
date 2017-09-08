@@ -19,7 +19,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA  02110-1301, USA.
 
-import socket
+'''A list of possible hidra servers. Take your pick.'''
 
-target = [socket.getfqdn(), "50101", 19, [".cbf"]]
-signal_host = "some_signal_host" # needs to be changed!
+HidraServerList = [ 
+                    "haspilatus300k",
+                    "hasp10pilatus",
+                   ]
