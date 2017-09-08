@@ -84,8 +84,8 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             ydata = math.floor(mousePoint.y())
 
             if not self.crosshair_locked:
-                self.vLine.setPos(xdata)
-                self.hLine.setPos(ydata)
+                self.vLine.setPos(xdata+.5)
+                self.hLine.setPos(ydata+.5)
 
             intensity = self.data[math.floor(xdata), math.floor(ydata)]
             self.currentMousePosition.emit("x=%.2f, y=%.2f, intensity=%.4f" % (xdata, ydata, intensity))
@@ -101,12 +101,12 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
 
         # if double click: fix mouse crosshair
         # another double click releases the crosshair again
-        #~ if event.double():
-            #~ self.crosshair_locked = not self.crosshair_locked
-            #~ if not self.crosshair_locked:
-                #~ self.vLine.setPos(xdata)
-                #~ self.hLine.setPos(ydata)
-    
+        if event.double():
+            self.crosshair_locked = not self.crosshair_locked
+            if not self.crosshair_locked:
+                self.vLine.setPos(xdata+.5)
+                self.hLine.setPos(ydata+.5)
+
     def setAutoLevels(self, autoLvls):
         if(autoLvls):
             self.autoDisplayLevels = True
