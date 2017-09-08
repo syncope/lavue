@@ -29,8 +29,13 @@ class ImageFileHandler():
        Reads image from file and returns the numpy array.'''
 
     def __init__(self, fname):
-        self._image = fabio.open(fname)
-        self._data = self._image.data
+        self._image = None
+        self._data = None
+        try:
+            self._image = fabio.open(fname)
+            self._data = self._image.data
+        except:
+            pass
 
     def getImage(self):
         return self._data
