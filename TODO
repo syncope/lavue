@@ -3,7 +3,6 @@ feature requests:
  - limit setting with displayed histogram
 
 maintenance:
- - edit gradient "spectrum" from red:low / violet:high to the other way around
  - make settings display easier
 
 code maintainability:

@@ -41,6 +41,7 @@ import numpy as np
 
 pg.graphicsItems.GradientEditorItem.Gradients['reverseGrayscale'] = {'ticks': [(0.0, (255, 255, 255, 255)), (1.0, (0, 0, 0, 255)),], 'mode': 'rgb'}
 pg.graphicsItems.GradientEditorItem.Gradients['highContrast'] = {'ticks': [(0.0, (0, 0, 0, 255)), (1.0, (255, 255, 0, 255)),], 'mode': 'rgb'}
+pg.graphicsItems.GradientEditorItem.Gradients['stdspectrum'] = {'ticks': [(0.0, (255, 0, 255, 255)), (1.0, (255, 0, 0, 255))], 'mode': 'hsv'}
 
 class GradientItem(GraphicsWidget):
     """
