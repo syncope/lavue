@@ -44,6 +44,7 @@ class GradientChoiceWidget(QtGui.QGroupBox):
         self.cb.addItem("bipolar")
         self.cb.addItem("spectrum")
         self.cb.addItem("stdspectrum")
+        self.cb.addItem("stdspectrumclip")
         self.cb.addItem("greyclip")
         self.cb.addItem("grey")
         layout.addWidget(self.cb)
