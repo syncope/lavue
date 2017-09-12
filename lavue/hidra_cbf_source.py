@@ -48,8 +48,10 @@ class HiDRA_cbf_source():
         self.setTargetPort(signalhost, portnumber)
         
     def setSignalHost(self, signalhost):
-        self.signal_host = signalhost
-        self.query = hidra.Transfer("QUERY_NEXT", self.signal_host)
+        if self.signal_host != signalhost:
+            self.signal_host = signalhost
+            self.query = hidra.Transfer("QUERY_NEXT", self.signal_host)
+            self._initiated = False
 
     def setTargetPort(self, portnumber):
         self.portnumber = portnumber

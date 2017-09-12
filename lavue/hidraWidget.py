@@ -121,6 +121,8 @@ class HidraWidget(QtGui.QGroupBox):
     def connectFailure(self):
         """ Function doc """
         self.connected = False
+        self.hidra_state.emit(0)
+        self.serverlistBox.setEnabled(True)
         self.cStatus.setText("Trouble connecting")
         self.button.setText("Retry connect")
 
