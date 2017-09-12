@@ -56,6 +56,7 @@ class HidraWidget(QtGui.QGroupBox):
         self.cStatus.setStyleSheet("color: blue;"
                                    "background-color: yellow;")
         self.button = QtGui.QPushButton("Connect")
+        self.button.setEnabled(False)
 
         self.button.clicked.connect(self.toggleServerConnection)
 
@@ -72,6 +73,11 @@ class HidraWidget(QtGui.QGroupBox):
         self.serverlistBox.activated.connect(self.emitHostname)
         
     def emitHostname(self, index):
+        if self.serverlistBox.currentText() == "Pick a server":
+            self.button.setEnabled(False)
+        else:
+            self.button.setEnabled(True)
+
         if self.connected:
             pass
         else:
