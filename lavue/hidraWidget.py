@@ -72,7 +72,10 @@ class HidraWidget(QtGui.QGroupBox):
         self.serverlistBox.activated.connect(self.emitHostname)
         
     def emitHostname(self, index):
-        self.hidra_servername.emit(self.serverlistBox.itemText(index))
+        if self.connected:
+            pass
+        else:
+            self.hidra_servername.emit(self.serverlistBox.itemText(index))
 
     def setTargetName(self, name):
         self.currenthost.setText(str(name))
@@ -90,9 +93,11 @@ class HidraWidget(QtGui.QGroupBox):
             self.button.setText("Re-Connect")
             self.connected = False
             self.hidra_state.emit(0)
+            self.serverlistBox.setEnabled(True)
             return
 
         if not self.connected:
+            self.serverlistBox.setEnabled(False)
             self.hidra_state.emit(1)
             self.hidra_connect.emit()
 
