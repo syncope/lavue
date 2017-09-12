@@ -21,7 +21,10 @@
 
 '''A list of possible hidra servers. Take your pick.'''
 
-HidraServerList = [ 
-                    "haspilatus300k",
-                    "hasp10pilatus",
-                   ]
+HidraServerList = { "p03" : ['haspp03pilatus.desy.de'],
+                    "p08" : ['haspp08pil100.desy.de'], 
+                    "p09" : ['haspp09pilatus.desy.de'],
+                    "p10" : ['hasp10pilatus'],
+                    "p11" : ['haspp11pilatus.desy.de'],
+                    "pool" : ['haspilatus300k.desy.de', 'haspilatus1m.desy.de', 'haso233det.desy.de']
+                   }

@@ -33,21 +33,22 @@ class HidraWidget(QtGui.QGroupBox):
     hidra_state = QtCore.pyqtSignal(int)
     hidra_servername = QtCore.pyqtSignal(QtCore.QString)
 
-    def __init__(self, parent=None, serverlist=None):
+    def __init__(self, parent=None, serverdict=None):
         super(HidraWidget, self).__init__(parent)
         self.setTitle("HiDRA connection")
 
         self.signal_host = None
         self.target = None
         self.connected = False
-        self.serverlist = serverlist
+        self.serverdict = serverdict
+        self.sortedserverlist = []
 
         gridlayout = QtGui.QGridLayout()
 
         self.serverLabel = QtGui.QLabel(u"Server")
         self.serverlistBox = QtGui.QComboBox()
         self.serverlistBox.addItem("Pick a server")
-        self.serverlistBox.addItems(self.serverlist)       
+
         self.hostlabel = QtGui.QLabel("Client")
         self.currenthost = QtGui.QLabel(u"SomeName")
         
@@ -85,6 +86,8 @@ class HidraWidget(QtGui.QGroupBox):
 
     def setTargetName(self, name):
         self.currenthost.setText(str(name))
+        self.sortServerList(name)
+        self.serverlistBox.addItems(self.sortedserverlist)
 
     def isConnected(self):
         return self.connected
@@ -120,3 +123,14 @@ class HidraWidget(QtGui.QGroupBox):
         self.connected = False
         self.cStatus.setText("Trouble connecting")
         self.button.setText("Retry connect")
+
+    def sortServerList(self, name):
+        # small function to sort out the server list details
+        # stupid programming, but effective: search the hostname for a
+        # string and return only the elements in the list that fit
+        beamlines = [ 'p03', 'p08', 'p09', 'p10', 'p11']
+
+        for bl in beamlines:
+            if bl in name:
+                self.sortedserverlist + self.serverdict[bl]
+        self.sortedserverlist.extend(self.serverdict["pool"])

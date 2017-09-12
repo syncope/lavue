@@ -125,7 +125,7 @@ class HidraLiveViewer(QtGui.QDialog):
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
-        self.hidraW = hidraWidget.HidraWidget(parent=self, serverlist=HidraServerList)
+        self.hidraW = hidraWidget.HidraWidget(parent=self, serverdict=HidraServerList)
         self.maskW = maskWidget.MaskWidget(parent=self)
         self.bkgSubW = bkgSubtractionWidget.BkgSubtractionkWidget(parent=self)
         self.trafoW = transformationsWidget.TransformationsWidget(parent=self)
