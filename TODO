@@ -12,5 +12,6 @@ code maintainability:
 
 Issues:
  - getting data from hidra is not optimal
+ - status of hidra objects is not accessible: query initiated? transfer object valid?
  - image scaling is present due to non-existing mapping to screen resolution
  - image is rotated by 90 degrees, but unclear where => is pyqtgraph the culprit?
