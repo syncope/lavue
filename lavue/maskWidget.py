@@ -23,7 +23,7 @@
 from PyQt4 import QtCore, QtGui
 
 
-class MaskWidget(QtGui.QGroupBox):
+class MaskWidget(QtGui.QWidget):
 
     """
     Define and apply masking of the displayed image.
@@ -34,7 +34,6 @@ class MaskWidget(QtGui.QGroupBox):
     def __init__(self, parent=None):
         super(MaskWidget, self).__init__(parent)
 
-        self.setTitle("Image Masking")
         self.fileName = ""
         
         # one checkbox to choose whether the mask is applied
@@ -43,7 +42,7 @@ class MaskWidget(QtGui.QGroupBox):
         
         # the dialog to select the mask file 
         self.fileNameLabel = QtGui.QLabel("Mask file:")
-        self.fileNameDisplay = QtGui.QLabel(str(self.fileName))
+        #~ self.fileNameDisplay = QtGui.QLabel(str(self.fileName))
         self.fileSelectButton = QtGui.QPushButton("Select mask file")
         self.fileSelectButton.clicked.connect(self.showFileDialog)
         
@@ -51,25 +50,34 @@ class MaskWidget(QtGui.QGroupBox):
         layout = QtGui.QGridLayout()
         layout.addWidget(self.applyMaskBox, 0,0)
         layout.addWidget(self.fileSelectButton, 0, 1)
-        layout.addWidget(self.fileNameLabel, 1, 0)
+        #~ layout.addWidget(self.fileNameLabel, 1, 0)
 
         masterlayout.addItem(layout)
-        masterlayout.addWidget(self.fileNameDisplay)
+        #~ masterlayout.addWidget(self.fileNameDisplay)
         
         self.setLayout(masterlayout)
 
     def showFileDialog(self):
         self.fileDialog = QtGui.QFileDialog()
-
-        self.fileName = str(self.fileDialog.getOpenFileName(self, 'Open file', '.'))
-        self.setFileName(self.fileName)
+        self.fileName = str(self.fileDialog.getOpenFileName(self, 'Open mask file', '/ramdisk/'))
         self.maskFileSelection.emit(self.fileName)
 
     def setFileName(self, fname):
-        self.fileNameDisplay.setText(str(fname))
+        print("setting filename called, name has length: " + str(len(fname)) + " and is: " + fname)
+        if len(fname) > 4 and fname != "NO IMAGE":
+            self.fileSelectButton.setText("Mask selected")
+        else:
+            self.noImage()
 
     def noImage(self):
-        self.setFileName("NO IMAGE SELECTED")
+        self.fileName = "NO IMAGE"
+        self.applyMaskBox.setChecked(False)
+
+    def showMinimum(self):
+        self.fileSelectButton.hide()
+
+    def showAll(self):
+        self.fileSelectButton.show()
 
 if __name__ == "__main__":
     import sys

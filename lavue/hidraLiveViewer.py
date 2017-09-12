@@ -43,9 +43,7 @@ from . import imageWidget
 from . import intensityScalingWidget
 from . import levelsWidget
 from . import statisticsWidget
-from . import transformationsWidget
-from . import maskWidget
-from . import bkgSubtractionWidget
+from . import preparationBoxWidget
 from . import imageFileHandler
 try:
     from hidraServerList import HidraServerList
@@ -126,14 +124,17 @@ class HidraLiveViewer(QtGui.QDialog):
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
         self.hidraW = hidraWidget.HidraWidget(parent=self, serverdict=HidraServerList)
-        self.maskW = maskWidget.MaskWidget(parent=self)
-        self.bkgSubW = bkgSubtractionWidget.BkgSubtractionkWidget(parent=self)
-        self.trafoW = transformationsWidget.TransformationsWidget(parent=self)
         self.scalingW = intensityScalingWidget.IntensityScalingWidget(parent=self)
         self.statsW = statisticsWidget.StatisticsWidget(parent=self)
         self.levelsW = levelsWidget.LevelsWidget(parent=self)
         self.gradientW = gradientChoiceWidget.GradientChoiceWidget(parent=self)
         self.imageW = imageWidget.ImageWidget(parent=self)
+
+        self.prepBoxW = preparationBoxWidget.PreparationBoxWidget(parent=self)
+        
+        self.maskW = self.prepBoxW.maskW
+        self.bkgSubW = self.prepBoxW.bkgSubW
+        self.trafoW = self.prepBoxW.trafoW
 
         # keep a reference to the "raw" image and the current filename
         self.raw_image = None
@@ -158,16 +159,11 @@ class HidraLiveViewer(QtGui.QDialog):
         
         # first element is supposed to be tabbed:
         vlayout.addWidget(self.hidraW)
-        tabwidget = QtGui.QTabWidget()
-        tabwidget.addTab(self.maskW, "Masking")
-        tabwidget.addTab(self.bkgSubW, "Bkg Subtraction")
-        
-        vlayout.addWidget(tabwidget)
-        vlayout.addWidget(self.trafoW)
+        vlayout.addWidget(self.prepBoxW)
         vlayout.addWidget(self.scalingW)
-        vlayout.addWidget(self.statsW)
         vlayout.addWidget(self.levelsW)
         vlayout.addWidget(self.gradientW)
+        vlayout.addWidget(self.statsW)
 
         # then the vertical layout on the --global-- horizontal one
         globallayout.addLayout(vlayout, 1)
@@ -220,6 +216,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.hidraW.setTargetName(self.data_source.getTarget())
         self.hidraW.hidra_servername.connect(self.data_source.setSignalHost)
 
+        #~ self.maskW.showMinimum()
 
     def plot(self):
         """ The main command of the live viewer class: draw a numpy array with the given name."""

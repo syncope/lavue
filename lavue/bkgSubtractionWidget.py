@@ -23,7 +23,7 @@
 from PyQt4 import QtCore, QtGui
 
 
-class BkgSubtractionkWidget(QtGui.QGroupBox):
+class BkgSubtractionkWidget(QtGui.QWidget):
 
     """
     Define bkg image and subtract from displayed image.
@@ -34,29 +34,24 @@ class BkgSubtractionkWidget(QtGui.QGroupBox):
     def __init__(self, parent=None):
         super(BkgSubtractionkWidget, self).__init__(parent)
 
-        self.setTitle("Bkg subtraction")
         self.fileName = ""
         
         # one checkbox to choose whether the mask is applied
-        self.applyBkgSubtractBox = QtGui.QCheckBox(u"Subtract")
+        self.applyBkgSubtractBox = QtGui.QCheckBox(u"Subtract Bkg")
         self.applyBkgSubtractBox.setChecked(False)
         
         # the dialog to select the mask file 
-        self.fileNameLabel = QtGui.QLabel("Bkg file:")
-        self.fileNameDisplay = QtGui.QLabel(str(self.fileName))
-        self.fileSelectButton = QtGui.QPushButton("Select bkg file")
+        self.fileSelectButton = QtGui.QPushButton("Select file")
         self.fileSelectButton.clicked.connect(self.showFileDialog)
+            
+        self.selectCurrent = QtGui.QPushButton("Use current")
         
-        masterlayout = QtGui.QVBoxLayout()
-        layout = QtGui.QGridLayout()
-        layout.addWidget(self.applyBkgSubtractBox, 0,0)
-        layout.addWidget(self.fileSelectButton, 0, 1)
-        layout.addWidget(self.fileNameLabel, 1, 0)
-
-        masterlayout.addItem(layout)
-        masterlayout.addWidget(self.fileNameDisplay)
+        layout = QtGui.QHBoxLayout()
+        layout.addWidget(self.applyBkgSubtractBox)
+        layout.addWidget(self.fileSelectButton)
+        layout.addWidget(self.selectCurrent)
         
-        self.setLayout(masterlayout)
+        self.setLayout(layout)
 
     def showFileDialog(self):
         self.fileDialog = QtGui.QFileDialog()

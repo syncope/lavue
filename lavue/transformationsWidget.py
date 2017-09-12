@@ -23,7 +23,7 @@
 from PyQt4 import QtCore, QtGui
 
 
-class TransformationsWidget(QtGui.QGroupBox):
+class TransformationsWidget(QtGui.QWidget):
     # still pending implemntation -> needs scipy, probably
     """
     Select how an image should be transformed.
@@ -32,15 +32,15 @@ class TransformationsWidget(QtGui.QGroupBox):
 
     def __init__(self, parent=None):
         super(TransformationsWidget, self).__init__(parent)
-
-        self.setTitle("Image transformations")
         
-        layout = QtGui.QHBoxLayout()
         self.cb = QtGui.QComboBox()        
         self.cb.addItem("None")
         self.cb.addItem("flipud")
         self.cb.addItem("mirror")
         self.cb.addItem("rotate90")
+        layout = QtGui.QHBoxLayout()
+        self.label = QtGui.QLabel("Transformation:")
+        layout.addWidget(self.label)
         layout.addWidget(self.cb)
         self.setLayout(layout)
         self.cb.currentIndexChanged.connect(self.broadcastTransformation)
