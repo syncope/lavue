@@ -134,5 +134,5 @@ class HidraWidget(QtGui.QGroupBox):
 
         for bl in beamlines:
             if bl in name:
-                self.sortedserverlist + self.serverdict[bl]
+                self.sortedserverlist.extend(self.serverdict[bl])
         self.sortedserverlist.extend(self.serverdict["pool"])
