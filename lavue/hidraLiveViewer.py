@@ -180,6 +180,7 @@ class HidraLiveViewer(QtGui.QDialog):
         # signal from intensity scaling widget:
         self.scalingW.changedScaling.connect(self.scale)
         self.scalingW.changedScaling.connect(self.plot)
+        self.scalingW.changedScaling.connect(self.levelsW.setScalingLabel)
 
         # signal from limit setting widget
         self.levelsW.changeMinLevel.connect(self.imageW.setMinLevel)

@@ -49,6 +49,7 @@ class LevelsWidget(QtGui.QGroupBox):
         self.minLabel = QtGui.QLabel("minimum value: ")
         self.maxLabel = QtGui.QLabel("maximum value: ")
 
+        self.scalingLabel = QtGui.QLabel("sqrt scale!")
         self.minVal = 0.1
         self.maxVal = 1.
 
@@ -66,6 +67,7 @@ class LevelsWidget(QtGui.QGroupBox):
         layout.addWidget(self.minValSB, 1, 1)
         layout.addWidget(self.maxLabel, 2, 0)
         layout.addWidget(self.maxValSB, 2, 1)
+        layout.addWidget(self.scalingLabel, 3, 0)
         layout.addWidget(self.applyButton, 3, 1)
 
         self.hideControls()
@@ -74,20 +76,6 @@ class LevelsWidget(QtGui.QGroupBox):
         self.autoLevelBox.stateChanged.connect(self.autoLevelChange)
 
         self.updateLevels(self.minVal, self.maxVal)
-
-    def hideControls(self):
-        self.minValSB.hide()
-        self.maxValSB.hide()
-        self.minLabel.hide()
-        self.maxLabel.hide()
-        self.applyButton.hide()
-
-    def showControls(self):
-        self.minValSB.show()
-        self.maxValSB.show()
-        self.minLabel.show()
-        self.maxLabel.show()
-        self.applyButton.show()
 
     def isAutoLevel(self):
         return self.auto
@@ -124,4 +112,22 @@ class LevelsWidget(QtGui.QGroupBox):
     def updateLevels(self, lowlim, uplim):
         self.minValSB.setValue(lowlim)
         self.maxValSB.setValue(uplim)
+
+    def hideControls(self):
+        self.minValSB.setEnabled(False)
+        self.maxValSB.setEnabled(False)
+        self.applyButton.setEnabled(False)
+
+    def showControls(self):
+        self.minValSB.setEnabled(True)
+        self.maxValSB.setEnabled(True)
+        self.applyButton.setEnabled(True)
+
+    def setScalingLabel(self, scalingType):
+        if scalingType == "log":
+            self.scalingLabel.setText("log scale!")
+        elif  scalingType == "lin":
+            self.scalingLabel.setText("lin scale!")
+        elif  scalingType == "sqrt":
+            self.scalingLabel.setText("sqrt scale!")
 
