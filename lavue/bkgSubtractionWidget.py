@@ -30,6 +30,7 @@ class BkgSubtractionkWidget(QtGui.QWidget):
     """
 
     bkgFileSelection = QtCore.pyqtSignal(str)
+    useCurrentImageAsBKG = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         super(BkgSubtractionkWidget, self).__init__(parent)
@@ -39,17 +40,33 @@ class BkgSubtractionkWidget(QtGui.QWidget):
         # one checkbox to choose whether the mask is applied
         self.applyBkgSubtractBox = QtGui.QCheckBox(u"Subtract Bkg")
         self.applyBkgSubtractBox.setChecked(False)
+        self.applyBkgSubtractBox.setEnabled(False)
+        
+        label = QtGui.QLabel("Current image:")
+        self.fileLabel = QtGui.QLabel("No image selected")
         
         # the dialog to select the mask file 
-        self.fileSelectButton = QtGui.QPushButton("Select file")
-        self.fileSelectButton.clicked.connect(self.showFileDialog)
+        self.selectButton = QtGui.QPushButton("Select")
+        self.selectButton.clicked.connect(self.showImageSelection)
             
-        self.selectCurrent = QtGui.QPushButton("Use current")
+        self.selectCurrentButton = QtGui.QPushButton("Use current")
+        self.selectCurrentButton.hide()
+        self.selectCurrentButton.clicked.connect(self.useCurrent)
         
-        layout = QtGui.QHBoxLayout()
-        layout.addWidget(self.applyBkgSubtractBox)
-        layout.addWidget(self.fileSelectButton)
-        layout.addWidget(self.selectCurrent)
+        self.selectFileButton = QtGui.QPushButton("Choose file")
+        self.selectFileButton.hide()
+        self.selectFileButton.clicked.connect(self.showFileDialog)
+        
+        selectlayout = QtGui.QHBoxLayout()
+        selectlayout.addWidget(self.selectButton)
+        selectlayout.addWidget(self.selectCurrentButton)
+        selectlayout.addWidget(self.selectFileButton)
+        
+        layout = QtGui.QGridLayout()
+        layout.addWidget(self.applyBkgSubtractBox, 0 ,0)
+        layout.addLayout(selectlayout, 0, 1)
+        layout.addWidget(label, 1, 0)
+        layout.addWidget(self.fileLabel, 1, 1)
         
         self.setLayout(layout)
 
@@ -57,14 +74,32 @@ class BkgSubtractionkWidget(QtGui.QWidget):
         self.fileDialog = QtGui.QFileDialog()
 
         self.fileName = str(self.fileDialog.getOpenFileName(self, 'Open file', '.'))
-        self.setFileName(self.fileName)
+        self.setDisplayedName(self.fileName)
         self.bkgFileSelection.emit(self.fileName)
+        self.hideImageSelection()
 
-    def setFileName(self, fname):
-        self.fileNameDisplay.setText(str(fname))
+    def useCurrent(self):
+        self.useCurrentImageAsBKG.emit()
+        self.hideImageSelection()
 
-    def noImage(self):
-        self.setFileName("NO IMAGE SELECTED")
+    def setDisplayedName(self, name):
+        if name == "":
+            self.fileLabel.setText("No Image selected")
+            self.applyBkgSubtractBox.setEnabled(False)
+        else:
+            self.fileLabel.setText("..." + str(name)[-24:])
+            self.applyBkgSubtractBox.setEnabled(True)
+
+    def showImageSelection(self):
+        self.selectCurrentButton.show()
+        self.selectFileButton.show()
+        self.selectButton.hide()
+
+    def hideImageSelection(self):
+        self.selectCurrentButton.hide()
+        self.selectFileButton.hide()
+        self.selectButton.show()
+
 
 if __name__ == "__main__":
     import sys

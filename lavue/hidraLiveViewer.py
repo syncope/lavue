@@ -82,7 +82,7 @@ class HidraLiveViewer(QtGui.QDialog):
                 self.mute = False
                 return a, b
             else:
-               print(" MUTED ACCESS IS NOT POSSIBLE")
+               print("MUTED ACCESS IS NOT POSSIBLE")
 
     # subclass for threading
     class dataFetchThread(QtCore.QThread):
@@ -132,7 +132,7 @@ class HidraLiveViewer(QtGui.QDialog):
 
         self.prepBoxW = preparationBoxWidget.PreparationBoxWidget(parent=self)
         
-        self.maskW = self.prepBoxW.maskW
+        #~ self.maskW = self.prepBoxW.maskW
         self.bkgSubW = self.prepBoxW.bkgSubW
         self.trafoW = self.prepBoxW.trafoW
 
@@ -140,11 +140,14 @@ class HidraLiveViewer(QtGui.QDialog):
         self.raw_image = None
         self.image_name = None
         self.display_image = None
+
         self.background_image = None
+        self.doBkgSubtraction = False
+        
         self.mask_image = None
         self.maskIndices = None
-        self.doBkgSubtraction = False
         self.applyImageMask = False
+
         self.trafoName = "None"
         
         # LAYOUT DEFINITIONS
@@ -205,9 +208,10 @@ class HidraLiveViewer(QtGui.QDialog):
         self.hidraW.hidra_state.connect(self.dataFetcher.changeStatus)
         
         self.bkgSubW.bkgFileSelection.connect(self.prepareBKGSubtraction)
+        self.bkgSubW.useCurrentImageAsBKG.connect(self.setCurrentImageAsBKG)
         self.bkgSubW.applyBkgSubtractBox.stateChanged.connect(self.checkBKGSubtraction)
-        self.maskW.maskFileSelection.connect(self.prepareMasking)
-        self.maskW.applyMaskBox.stateChanged.connect(self.checkMasking)
+        #~ self.maskW.maskFileSelection.connect(self.prepareMasking)
+        #~ self.maskW.applyMaskBox.stateChanged.connect(self.checkMasking)
 
         # signals from transformation widget
         self.trafoW.activatedTransformation.connect(self.assessTransformation)
@@ -215,8 +219,6 @@ class HidraLiveViewer(QtGui.QDialog):
         # set the right target name for the hidra display at initialization
         self.hidraW.setTargetName(self.data_source.getTarget())
         self.hidraW.hidra_servername.connect(self.data_source.setSignalHost)
-
-        #~ self.maskW.showMinimum()
 
     def plot(self):
         """ The main command of the live viewer class: draw a numpy array with the given name."""
@@ -291,9 +293,9 @@ class HidraLiveViewer(QtGui.QDialog):
         if self.doBkgSubtraction and self.background_image is not None:
             # simple subtraction
             self.display_image = self.raw_image - self.background_image
-        if self.applyImageMask and self.maskIndices is not None:
-            # set all masked (non-zero values) to zero by index
-            self.display_image[self.maskIndices] = 0
+        #~ if self.applyImageMask and self.maskIndices is not None:
+            #~ # set all masked (non-zero values) to zero by index
+            #~ self.display_image[self.maskIndices] = 0
             
     def scale(self, scalingType):
         if(self.display_image is None):
@@ -345,18 +347,25 @@ class HidraLiveViewer(QtGui.QDialog):
         if self.applyImageMask and self.mask_image is None:
             self.maskW.noImage()
 
-    def prepareMasking(self, imagename):
-        '''Get the mask image, select non-zero elements and store the indices.'''
-        self.mask_image = imageFileHandler.ImageFileHandler(str(imagename)).getImage()
-        self.maskIndices = np.nonzero(self.mask_image !=0)
+    #~ def prepareMasking(self, imagename):
+        #~ '''Get the mask image, select non-zero elements and store the indices.'''
+        #~ self.mask_image = imageFileHandler.ImageFileHandler(str(imagename)).getImage()
+        #~ self.maskIndices = np.nonzero(self.mask_image !=0)
 
     def checkBKGSubtraction(self, state):
         self.doBkgSubtraction = state
         if self.doBkgSubtraction and self.background_image is None:
-            self.bkgSubW.noImage()
+            self.bkgSubW.setDisplayedName("")
 
     def prepareBKGSubtraction(self, imagename):
         self.background_image = imageFileHandler.ImageFileHandler(str(imagename)).getImage()
+
+    def setCurrentImageAsBKG(self):
+        if self.raw_image is not None:
+            self.background_image = self.raw_image
+            self.bkgSubW.setDisplayedName(str(self.image_name))
+        else:
+            self.bkgSubW.setDisplayedName("")
 
     def assessTransformation(self, trafoName):
         self.trafoName = trafoName
