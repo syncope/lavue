@@ -14,7 +14,7 @@ release='0.1.0'
 
 setup(
     name='lavue',
-    version='0.1.0.dev',
+    version='0.1.0',
 
     description='Live image viewer application for photon science detectors.', 
     long_description=long_description,
@@ -27,7 +27,7 @@ setup(
     license='GPLv2',
     
     classifiers = [
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Physics',
         'Topic :: Software Development :: Libraries :: Python Modules',
