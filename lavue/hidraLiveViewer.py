@@ -124,13 +124,13 @@ class HidraLiveViewer(QtGui.QDialog):
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
         self.hidraW = hidraWidget.HidraWidget(parent=self, serverdict=HidraServerList)
+        self.prepBoxW = preparationBoxWidget.PreparationBoxWidget(parent=self)
         self.scalingW = intensityScalingWidget.IntensityScalingWidget(parent=self)
-        self.statsW = statisticsWidget.StatisticsWidget(parent=self)
         self.levelsW = levelsWidget.LevelsWidget(parent=self)
         self.gradientW = gradientChoiceWidget.GradientChoiceWidget(parent=self)
+        self.statsW = statisticsWidget.StatisticsWidget(parent=self)
         self.imageW = imageWidget.ImageWidget(parent=self)
 
-        self.prepBoxW = preparationBoxWidget.PreparationBoxWidget(parent=self)
         
         #~ self.maskW = self.prepBoxW.maskW
         self.bkgSubW = self.prepBoxW.bkgSubW
