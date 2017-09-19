@@ -10,11 +10,11 @@ from sphinx.setup_command import BuildDoc
 
 name='lavue'
 version='0'
-release='0.1.0'
+release='0.5.0'
 
 setup(
     name='lavue',
-    version='0.1.0',
+    version='0.5.0',
 
     description='Live image viewer application for photon science detectors.', 
     long_description=long_description,
