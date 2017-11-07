@@ -46,7 +46,7 @@ setup(
     
     include_package_data=True,
     
-    scripts=['bin/laVue',],
+    scripts=['laVue',],
     
     #~ cmdclass={'build_sphinx': BuildDoc,},
     #~ command_options={

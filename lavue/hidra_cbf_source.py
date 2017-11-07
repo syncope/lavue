@@ -21,12 +21,107 @@
 
 try:
     import hidra
+    HIDRA = True
 except ImportError:
+    HIDRA = False
     print("without hidra installed this does not make sense")
+
+try:
+    import PyTango
+    PYTANGO = True
+except ImportError:
+    PYTANGO = False
+    print("without PyTango installed this does not make sense")
 
 import socket
 import numpy as np
+import random
 
+class GeneralSource():
+    
+    def __init__(self, timeout=None):
+        self.signal_host = None
+        self.portnumber = "50001"
+        self.target = [socket.getfqdn(), self.portnumber, 19, [".cbf"]]
+        self.query = None
+        self._initiated = False
+        self._timeout = timeout
+        self._counter = 0
+        print "INIT"
+        
+    def getTarget(self):
+        return self.target[0]+":"+self.portnumber
+
+    def setSignalHost(self, signalhost):
+        self._initiated = False
+
+
+    def getData(self):
+        self._counter += 1
+        return (np.transpose([[random.randint(0, 1000)
+                           for i in range(512)] for i in range(256)]),
+                'random%s' % self._counter)
+        
+    def connect(self):
+        self._initiated = True
+        self._counter = 0
+        return True
+
+    def disconnect(self):
+        try:
+            pass
+        except:
+            pass
+        
+class TangoAttrSource():
+    
+    def __init__(self, timeout=None):
+        self.signal_host = None
+        self.portnumber = "50001"
+        self.target = [socket.getfqdn(), self.portnumber, 19, [".cbf"]]
+        self.query = None
+        self._initiated = False
+        self._timeout = timeout
+        self.aproxy = None
+        print "AINIT"
+        
+    def getTarget(self):
+        return self.target[0]+":"+self.portnumber
+
+    def setSignalHost(self, signalhost):
+        if self.signal_host != signalhost:
+            self.signal_host = signalhost
+            self._initiated = False
+        print ("TSH %s" % signalhost)
+        
+
+    def getData(self):
+        
+        try:
+            attr = self.aproxy.read()
+            return (np.transpose(attr.value),
+                    '%s %s' % (self.signal_host, str(attr.time)))
+        except Exception as e:
+            print (str(e))
+            pass  # this needs a bit more care
+        return None, None
+        
+    def connect(self):
+        try:
+            if(not self._initiated):
+                print("aproxy")
+                self.aproxy = PyTango.AttributeProxy(str(self.signal_host))
+            return True
+        except Exception as e:
+            print (str(e))
+            return False
+
+    def disconnect(self):
+        try:
+            pass
+        except:
+            pass
+        
 class HiDRA_cbf_source():
 
     def __init__(self, timeout=None):

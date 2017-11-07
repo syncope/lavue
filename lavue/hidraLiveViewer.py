@@ -57,6 +57,7 @@ GLOBALREFRESHRATE = .1  # refresh rate if the data source is running in seconds
 
 class HidraLiveViewer(QtGui.QDialog):
     '''The master class for the dialog, contains all other widget and handles communication.'''
+    update_state = QtCore.pyqtSignal(int)
 
     # subclass for data caching
     class exchangeList(list):
@@ -114,16 +115,37 @@ class HidraLiveViewer(QtGui.QDialog):
 
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
+        self.sourcetypes = [
+            {"name": "Hidra",
+             "datasource":"HiDRA_cbf_source",
+             "slot": "updateHidraButton",
+             "hidden": ["attrLabel", "attrLineEdit"]},
+            {"name": "Tango",
+             "datasource":"TangoAttrSource",
+             "slot": "updateAttrButton",
+             "hidden": ["hostlabel", "currenthost",
+                        "serverLabel", "serverlistBox"]},
+            {"name": "Test",
+             "datasource":"GeneralSource",
+             "slot": "updateButton",
+             "hidden": ["hostlabel", "currenthost",
+                        "serverLabel", "serverlistBox",
+                        "attrLabel", "attrLineEdit"]},
+        ]    
+    
+
         # instantiate the data source
         # here: hardcoded the hidra cbf source!
         # future possibility: use abstract interface and factory for concrete instantiation
 
         # note: host and target are defined in another place
-        self.data_source = hcs.HiDRA_cbf_source()
+        # self.data_source = hcs.HiDRA_cbf_source()
+        self.data_source = hcs.GeneralSource()
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
-        self.hidraW = hidraWidget.HidraWidget(parent=self, serverdict=HidraServerList)
+        self.hidraW = hidraWidget.HidraWidget(
+            parent=self, serverdict=HidraServerList)
         self.prepBoxW = preparationBoxWidget.PreparationBoxWidget(parent=self)
         self.scalingW = intensityScalingWidget.IntensityScalingWidget(parent=self)
         self.levelsW = levelsWidget.LevelsWidget(parent=self)
@@ -147,6 +169,8 @@ class HidraLiveViewer(QtGui.QDialog):
         self.mask_image = None
         self.maskIndices = None
         self.applyImageMask = False
+
+        self._signalhost = None
 
         self.trafoName = "None"
         
@@ -206,7 +230,8 @@ class HidraLiveViewer(QtGui.QDialog):
         self.dataFetcher = self.dataFetchThread(self.data_source, self.exchangelist)
         self.dataFetcher.newDataName.connect(self.getNewData)
         # ugly !!! sent current state to the data fetcher...
-        self.hidraW.hidra_state.connect(self.dataFetcher.changeStatus)
+        self.update_state.connect(self.dataFetcher.changeStatus)
+        self.hidraW.hidra_state.connect(self.updateSource)
         
         self.bkgSubW.bkgFileSelection.connect(self.prepareBKGSubtraction)
         self.bkgSubW.useCurrentImageAsBKG.connect(self.setCurrentImageAsBKG)
@@ -219,8 +244,23 @@ class HidraLiveViewer(QtGui.QDialog):
 
         # set the right target name for the hidra display at initialization
         self.hidraW.setTargetName(self.data_source.getTarget())
-        self.hidraW.hidra_servername.connect(self.data_source.setSignalHost)
+        # self.hidraW.hidra_servername.connect(self.data_source.setSignalHost)
+        self.hidraW.hidra_servername.connect(self.setSignalHost)
 
+    def setSignalHost(self, signalhost):
+        self._signalhost = signalhost
+        
+    def updateSource(self, status):
+        print("STATUS %s" % status)
+        if status:
+            self.data_source = getattr(hcs,self.sourcetypes[status - 1]["datasource"])()
+            self.dataFetcher.data_source = self.data_source
+            if self._signalhost:
+                self.data_source.setSignalHost(self._signalhost)
+                print ("SH %s" % self._signalhost)
+        self.update_state.emit(status)    
+        
+        
     def plot(self):
         """ The main command of the live viewer class: draw a numpy array with the given name."""
         # prepare or preprocess the raw image if present:
