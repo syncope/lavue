@@ -24,14 +24,13 @@ try:
     HIDRA = True
 except ImportError:
     HIDRA = False
-    print("without hidra installed this does not make sense")
+    #    HIDRA = True
 
 try:
     import PyTango
     PYTANGO = True
 except ImportError:
     PYTANGO = False
-    print("without PyTango installed this does not make sense")
 
 import socket
 import numpy as np
@@ -47,7 +46,6 @@ class GeneralSource():
         self._initiated = False
         self._timeout = timeout
         self._counter = 0
-        print "INIT"
         
     def getTarget(self):
         return self.target[0]+":"+self.portnumber
@@ -60,7 +58,7 @@ class GeneralSource():
         self._counter += 1
         return (np.transpose([[random.randint(0, 1000)
                            for i in range(512)] for i in range(256)]),
-                'random%s' % self._counter)
+                'random %s' % self._counter)
         
     def connect(self):
         self._initiated = True
@@ -83,7 +81,6 @@ class TangoAttrSource():
         self._initiated = False
         self._timeout = timeout
         self.aproxy = None
-        print "AINIT"
         
     def getTarget(self):
         return self.target[0]+":"+self.portnumber
@@ -92,7 +89,6 @@ class TangoAttrSource():
         if self.signal_host != signalhost:
             self.signal_host = signalhost
             self._initiated = False
-        print ("TSH %s" % signalhost)
         
 
     def getData(self):
@@ -109,7 +105,6 @@ class TangoAttrSource():
     def connect(self):
         try:
             if(not self._initiated):
-                print("aproxy")
                 self.aproxy = PyTango.AttributeProxy(str(self.signal_host))
             return True
         except Exception as e:

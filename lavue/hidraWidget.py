@@ -92,6 +92,7 @@ class HidraWidget(QtGui.QGroupBox):
         self.serverlistBox.activated.connect(self.emitHostname)
         self.sourceTypeComboBox.currentIndexChanged.connect(self.onSourceChanged)
         self.attrLineEdit.textEdited.connect(self.updateAttrButton)
+        self.onSourceChanged()
 
     def onSourceChanged(self):
         index = self.sourceTypeComboBox.currentIndex()

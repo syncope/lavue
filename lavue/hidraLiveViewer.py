@@ -30,6 +30,7 @@ from __future__ import unicode_literals
 import sys
 import time
 import socket
+import json
 import numpy as np
 
 from PyQt4 import QtCore, QtGui
@@ -45,6 +46,9 @@ from . import levelsWidget
 from . import statisticsWidget
 from . import preparationBoxWidget
 from . import imageFileHandler
+from . import configWidget
+from . import sardanaUtils
+
 try:
     from hidraServerList import HidraServerList
 except:
@@ -115,24 +119,33 @@ class HidraLiveViewer(QtGui.QDialog):
 
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-        self.sourcetypes = [
-            {"name": "Hidra",
-             "datasource":"HiDRA_cbf_source",
-             "slot": "updateHidraButton",
-             "hidden": ["attrLabel", "attrLineEdit"]},
+        self.sourcetypes = []
+        if hcs.HIDRA:
+            self.sourcetypes.append(
+                {"name": "Hidra",
+                 "datasource":"HiDRA_cbf_source",
+                 "slot": "updateHidraButton",
+                 "hidden": ["attrLabel", "attrLineEdit"]}
+            )
+        if hcs.PYTANGO:
+            self.sourcetypes.append(
             {"name": "Tango",
              "datasource":"TangoAttrSource",
              "slot": "updateAttrButton",
              "hidden": ["hostlabel", "currenthost",
-                        "serverLabel", "serverlistBox"]},
+                        "serverLabel", "serverlistBox"]})
+            
+        self.sourcetypes.append(
             {"name": "Test",
              "datasource":"GeneralSource",
              "slot": "updateButton",
              "hidden": ["hostlabel", "currenthost",
                         "serverLabel", "serverlistBox",
                         "attrLabel", "attrLineEdit"]},
-        ]    
-    
+        )
+
+        self.doorname = ""
+        self.addrois = True
 
         # instantiate the data source
         # here: hardcoded the hidra cbf source!
@@ -212,6 +225,11 @@ class HidraLiveViewer(QtGui.QDialog):
         self.levelsW.autoLevels.connect(self.imageW.setAutoLevels)
         self.levelsW.levelsChanged.connect(self.plot)
 
+
+        self.imageW.cnfButton.clicked.connect(self.configuration)
+        self.imageW.addROIButton.clicked.connect(self.onaddrois)
+        self.imageW.clearAllButton.clicked.connect(self.onclearrois)
+        
         # connecting signals from hidra widget:
         self.hidraW.hidra_connect.connect(self.connect_hidra)
         self.hidraW.hidra_connect.connect(self.startPlotting)
@@ -247,17 +265,72 @@ class HidraLiveViewer(QtGui.QDialog):
         # self.hidraW.hidra_servername.connect(self.data_source.setSignalHost)
         self.hidraW.hidra_servername.connect(self.setSignalHost)
 
+        self.sardana = sardanaUtils.SardanaUtils()
+        
+    def onaddrois(self):
+        if hcs.PYTANGO:
+            roicoords = self.imageW.img_widget.roicoords
+            if not self.doorname:
+                self.doorname = self.sardana.getDeviceName("Door")
+            print("add rois %s " % roicoords)
+            print(self.sardana.getScanEnv(str(self.doorname)))
+            rois = json.loads(self.sardana.getScanEnv(str(self.doorname)))
+            rlabel = str(self.imageW.labelROILineEdit.text())
+            if rlabel:
+                if "Rois" not in rois or not isinstance(rois["Rois"], dict):
+                    rois["Rois"] = {}
+                if rlabel not in rois["Rois"] or \
+                   not isinstance(rois["Rois"][rlabel], list):
+                    rois["Rois"][rlabel] = []
+                rois["Rois"][rlabel].append(roicoords)    
+                print("rois %s " % rois)
+                self.sardana.setScanEnv(str(self.doorname), json.dumps(rois))
+                    
+        else:
+            print("Connection error")
+
+    def onclearrois(self):
+        if hcs.PYTANGO:
+            if not self.doorname:
+                self.doorname = self.sardana.getDeviceName("Door")
+            print(self.sardana.getScanEnv(str(self.doorname)))
+            rois = json.loads(self.sardana.getScanEnv(str(self.doorname)))
+            rlabel = str(self.imageW.labelROILineEdit.text())
+            if rlabel:
+                if "Rois" not in rois or not isinstance(rois["Rois"], dict):
+                    rois["Rois"] = {}
+                if rlabel in rois["Rois"]:
+                    rois["Rois"].pop(rlabel)
+                print("rois %s " % rois)
+                self.sardana.setScanEnv(str(self.doorname), json.dumps(rois))
+                    
+        else:
+            print("Connection error")
+        
+    def configuration(self):
+        cnfdlg = configWidget.ConfigWidget(self)
+        if not self.doorname:
+            self.doorname = self.sardana.getDeviceName("Door")
+        cnfdlg.door = self.doorname
+        cnfdlg.addrois = self.addrois
+        cnfdlg.createGUI()
+        if cnfdlg.exec_():
+            self.__updateConfig(cnfdlg)
+
+    def __updateConfig(self, dialog):
+        print("Accept %s %s" % (dialog.door, dialog.addrois))
+        self.doorname = dialog.door
+        self.addrois = dialog.addrois
+            
     def setSignalHost(self, signalhost):
         self._signalhost = signalhost
         
     def updateSource(self, status):
-        print("STATUS %s" % status)
         if status:
             self.data_source = getattr(hcs,self.sourcetypes[status - 1]["datasource"])()
             self.dataFetcher.data_source = self.data_source
             if self._signalhost:
                 self.data_source.setSignalHost(self._signalhost)
-                print ("SH %s" % self._signalhost)
         self.update_state.emit(status)    
         
         

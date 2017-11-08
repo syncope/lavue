@@ -20,6 +20,8 @@
 # Boston, MA  02110-1301, USA.
 
 import pyqtgraph as pg
+import numpy as np
+import math
 
 from PyQt4 import QtCore, QtGui
 
@@ -48,20 +50,92 @@ class ImageWidget(QtGui.QWidget):
         filenamelayout.addWidget(filelabel)
         self.filenamedisplay = QtGui.QLineEdit()
         filenamelayout.addWidget(self.filenamedisplay)
+        self.cnfButton = QtGui.QPushButton("Configuration")
+        filenamelayout.addWidget(self.cnfButton)
 
         verticallayout.addLayout(filenamelayout)
         verticallayout.addWidget(self.img_widget)
 
+        self.pixelComboBox = QtGui.QComboBox()
+        self.pixelComboBox.addItem("Intensity")
+        self.pixelComboBox.addItem("ROI")
+
         pixelvaluelayout = QtGui.QHBoxLayout()
-        pixellabel = QtGui.QLabel("Pixel position and intensity: ")
-        pixelvaluelayout.addWidget(pixellabel)
+        self.pixellabel = QtGui.QLabel("Pixel position and intensity: ")
 
         self.infodisplay = QtGui.QLineEdit()
+        self.infodisplay.setReadOnly(True)
+
+        self.roiLabel= QtGui.QLabel("ROIs label: ")
+        self.labelROILineEdit = QtGui.QLineEdit("")
+        self.addROIButton = QtGui.QPushButton("Add ROI")
+        self.clearAllButton = QtGui.QPushButton("Clear All")
+
+        pixelvaluelayout.addWidget(self.roiLabel)
+        pixelvaluelayout.addWidget(self.labelROILineEdit)
+        pixelvaluelayout.addWidget(self.pixellabel)
         pixelvaluelayout.addWidget(self.infodisplay)
+        pixelvaluelayout.addWidget(self.addROIButton)
+        pixelvaluelayout.addWidget(self.clearAllButton)
+        pixelvaluelayout.addWidget(self.pixelComboBox)
         verticallayout.addLayout(pixelvaluelayout)
-        
+
         self.setLayout(verticallayout)
         self.img_widget.currentMousePosition.connect(self.infodisplay.setText)
+
+        self.pixelComboBox.currentIndexChanged.connect(self.onPixelChanged)
+        self.img_widget.roi.sigRegionChanged.connect(self.roiChanged)
+        self.labelROILineEdit.textEdited.connect(self.updateROIButton)
+        self.onPixelChanged()
+        self.updateROIButton()
+
+    def updateROIButton(self):
+        if not str(self.labelROILineEdit.text()).strip():
+            self.addROIButton.setEnabled(False)
+            self.clearAllButton.setEnabled(False)
+        else:
+            self.addROIButton.setEnabled(True)
+            self.clearAllButton.setEnabled(True)
+            
+    def onPixelChanged(self):
+        #        index = self.pixelComboBox.currentIndex()
+        text = self.pixelComboBox.currentText()
+        if text == "ROI":
+            self.img_widget.vLine.hide()
+            self.img_widget.hLine.hide()
+            self.addROIButton.show()
+            self.clearAllButton.show()
+            self.labelROILineEdit.show()
+            self.pixellabel.setText("[x1, y1, x2, y2]: ")
+            self.roiLabel.show()
+            self.img_widget.roi.show()
+            self.img_widget.roienable = True
+            self.img_widget.roi.show()
+            self.infodisplay.setText("")
+            self.roiChanged()
+        else:
+            self.pixellabel.setText("Pixel position and intensity: ")
+            self.img_widget.roi.hide()
+            self.addROIButton.hide()
+            self.labelROILineEdit.hide()
+            self.clearAllButton.hide()
+            self.roiLabel.hide()
+            self.img_widget.roienable = False
+            self.img_widget.vLine.show()
+            self.img_widget.hLine.show()
+            self.infodisplay.setText("")
+
+    def roiChanged(self):
+        try:
+            state = self.img_widget.roi.state
+            ptx = int(math.floor(state['pos'].x()))
+            pty = int(math.floor(state['pos'].y()))
+            szx = int(math.floor(state['size'].x()))
+            szy = int(math.floor(state['size'].y()))
+            sz = state['size']
+            self.img_widget.roicoords = [ptx, pty, ptx + szx, pty + szy]
+        except Exception as e:
+            print "Warning: ", str(e)
 
     def plot(self, array, name=None):
         if array is None:

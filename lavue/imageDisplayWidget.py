@@ -21,6 +21,8 @@
 
 import pyqtgraph as pg
 import math
+from pyqtgraph.graphicsItems.ROI import ROI
+
 
 from PyQt4 import QtCore, QtGui
 
@@ -34,6 +36,8 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         super(ImageDisplayWidget, self).__init__(parent)
         self.layout = self.ci
         self.crosshair_locked = False
+        self.roienable = False
+        self.roicoords = [0, 0, 0, 0]
         self.data = None
         self.autoDisplayLevels = True
         self.displayLevels = [None, None]
@@ -42,7 +46,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
 
         self.image = pg.ImageItem()
         self.viewbox.addItem(self.image)
-        
+
         leftAxis = pg.AxisItem('left')
         leftAxis.linkToView(self.viewbox)
         self.layout.addItem(leftAxis, row=0, col=0)
@@ -64,6 +68,13 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.viewbox.addItem(self.vLine, ignoreBounds=True)
         self.viewbox.addItem(self.hLine, ignoreBounds=True)
 
+        self.roi = ROI(0, pg.Point(50,50))
+        self.roi.addScaleHandle([1, 1], [0, 0])
+        self.roi.addScaleHandle([0, 0], [1, 1])
+        self.viewbox.addItem(self.roi)
+        self.roi.hide()
+
+        
     def addItem(self, item):
         self.image.additem(item)
 
@@ -82,14 +93,25 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             mousePoint = self.image.mapFromScene(event)
             xdata = math.floor(mousePoint.x())
             ydata = math.floor(mousePoint.y())
-
             if not self.crosshair_locked:
                 self.vLine.setPos(xdata+.5)
                 self.hLine.setPos(ydata+.5)
 
-            intensity = self.data[math.floor(xdata), math.floor(ydata)]
-            self.currentMousePosition.emit("x=%.2f, y=%.2f, intensity=%.4f" % (xdata, ydata, intensity))
-        except:
+            if self.data is not None:
+                try:
+                    intensity = self.data[math.floor(xdata), math.floor(ydata)]
+                except Exception as e:
+                    intensity = 0.
+            else:
+                intensity = 0.
+                
+            if not self.roienable:
+                self.currentMousePosition.emit("x=%i, y=%i, intensity=%.2f" % (xdata, ydata, intensity))
+            else:
+                
+                self.currentMousePosition.emit("%s" % self.roicoords)
+        except Exception as e:
+            print "Warning: ", str(e)
             pass
 
     def mouse_click(self, event):
@@ -102,10 +124,11 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         # if double click: fix mouse crosshair
         # another double click releases the crosshair again
         if event.double():
-            self.crosshair_locked = not self.crosshair_locked
-            if not self.crosshair_locked:
-                self.vLine.setPos(xdata+.5)
-                self.hLine.setPos(ydata+.5)
+            if not self.roienable:
+                self.crosshair_locked = not self.crosshair_locked
+                if not self.crosshair_locked:
+                    self.vLine.setPos(xdata+.5)
+                    self.hLine.setPos(ydata+.5)
 
     def setAutoLevels(self, autoLvls):
         if(autoLvls):
