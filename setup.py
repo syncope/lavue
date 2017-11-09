@@ -23,7 +23,8 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
-from setuptools import setup
+from distutils.core import setup
+# from setuptools import setup
 # from setuptools import find_packages
 
 from codecs import open
@@ -36,11 +37,11 @@ with open(path.join('.', 'README.rst'), encoding='utf-8') as f:
 
 name = 'lavue'
 version = '0'
-release = '0.5.0'
+release = '0.6.0'
 
 setup(
     name='lavue',
-    version='0.5.0',
+    version='0.6.0',
 
     description='Live image viewer application for photon science detectors.',
     long_description=long_description,
@@ -74,7 +75,7 @@ setup(
 
     include_package_data=True,
 
-    scripts=['laVue', ],
+    scripts=['laVue'],
 
     # cmdclass={'build_sphinx': BuildDoc,},
     # command_options={
