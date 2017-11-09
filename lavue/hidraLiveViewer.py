@@ -467,7 +467,7 @@ class HidraLiveViewer(QtGui.QDialog):
             if self.imageW.img_widget.roienable:
                 image = self.display_image
                 roicoords = self.imageW.img_widget.roicoords
-                rcrds = list(roicoords)
+                rcrds = list(roicoords[0])
                 for i in [0, 2]:
                     if rcrds[i] > image.shape[0]:
                         rcrds[i] = image.shape[0]
