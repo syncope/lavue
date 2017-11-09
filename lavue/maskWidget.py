@@ -39,35 +39,37 @@ class MaskWidget(QtGui.QWidget):
         super(MaskWidget, self).__init__(parent)
 
         self.fileName = ""
-        
+
         # one checkbox to choose whether the mask is applied
         self.applyMaskBox = QtGui.QCheckBox(u"Apply mask")
         self.applyMaskBox.setChecked(False)
-        
-        # the dialog to select the mask file 
+
+        # the dialog to select the mask file
         self.fileNameLabel = QtGui.QLabel("Mask file:")
         #~ self.fileNameDisplay = QtGui.QLabel(str(self.fileName))
         self.fileSelectButton = QtGui.QPushButton("Select mask file")
         self.fileSelectButton.clicked.connect(self.showFileDialog)
-        
+
         masterlayout = QtGui.QVBoxLayout()
         layout = QtGui.QGridLayout()
-        layout.addWidget(self.applyMaskBox, 0,0)
+        layout.addWidget(self.applyMaskBox, 0, 0)
         layout.addWidget(self.fileSelectButton, 0, 1)
         #~ layout.addWidget(self.fileNameLabel, 1, 0)
 
         masterlayout.addItem(layout)
         #~ masterlayout.addWidget(self.fileNameDisplay)
-        
+
         self.setLayout(masterlayout)
 
     def showFileDialog(self):
         self.fileDialog = QtGui.QFileDialog()
-        self.fileName = str(self.fileDialog.getOpenFileName(self, 'Open mask file', '/ramdisk/'))
+        self.fileName = str(
+            self.fileDialog.getOpenFileName(self, 'Open mask file', '/ramdisk/'))
         self.maskFileSelection.emit(self.fileName)
 
     def setFileName(self, fname):
-        print("setting filename called, name has length: " + str(len(fname)) + " and is: " + fname)
+        print("setting filename called, name has length: " +
+              str(len(fname)) + " and is: " + fname)
         if len(fname) > 4 and fname != "NO IMAGE":
             self.fileSelectButton.setText("Mask selected")
         else:
@@ -90,4 +92,3 @@ if __name__ == "__main__":
     myapp = MaskWidget()
     myapp.show()
     sys.exit(app.exec_())
-

@@ -67,4 +67,3 @@ class IntensityScalingWidget(QtGui.QGroupBox):
         else:
             self.current = "sqrt"
         self.changedScaling.emit(self.current)
-

@@ -41,8 +41,9 @@ import socket
 import numpy as np
 import random
 
+
 class GeneralSource():
-    
+
     def __init__(self, timeout=None):
         self.signal_host = None
         self.portnumber = "50001"
@@ -51,20 +52,19 @@ class GeneralSource():
         self._initiated = False
         self._timeout = timeout
         self._counter = 0
-        
+
     def getTarget(self):
-        return self.target[0]+":"+self.portnumber
+        return self.target[0] + ":" + self.portnumber
 
     def setSignalHost(self, signalhost):
         self._initiated = False
 
-
     def getData(self):
         self._counter += 1
         return (np.transpose([[random.randint(0, 1000)
-                           for i in range(512)] for i in range(256)]),
+                               for i in range(512)] for i in range(256)]),
                 '__random_%s__' % self._counter)
-        
+
     def connect(self):
         self._initiated = True
         self._counter = 0
@@ -75,9 +75,10 @@ class GeneralSource():
             pass
         except:
             pass
-        
+
+
 class TangoAttrSource():
-    
+
     def __init__(self, timeout=None):
         self.signal_host = None
         self.portnumber = "50001"
@@ -86,18 +87,17 @@ class TangoAttrSource():
         self._initiated = False
         self._timeout = timeout
         self.aproxy = None
-        
+
     def getTarget(self):
-        return self.target[0]+":"+self.portnumber
+        return self.target[0] + ":" + self.portnumber
 
     def setSignalHost(self, signalhost):
         if self.signal_host != signalhost:
             self.signal_host = signalhost
             self._initiated = False
-        
 
     def getData(self):
-        
+
         try:
             attr = self.aproxy.read()
             return (np.transpose(attr.value),
@@ -106,7 +106,7 @@ class TangoAttrSource():
             print (str(e))
             pass  # this needs a bit more care
         return None, None
-        
+
     def connect(self):
         try:
             if(not self._initiated):
@@ -121,7 +121,8 @@ class TangoAttrSource():
             pass
         except:
             pass
-        
+
+
 class HiDRA_cbf_source():
 
     def __init__(self, timeout=None):
@@ -133,15 +134,15 @@ class HiDRA_cbf_source():
         self._timeout = timeout
 
     def getTargetSignalHost(self):
-        return self.target[0]+":"+self.portnumber, self.signal_host
+        return self.target[0] + ":" + self.portnumber, self.signal_host
 
     def getTarget(self):
-        return self.target[0]+":"+self.portnumber
+        return self.target[0] + ":" + self.portnumber
 
     def setTargetSignalHost(self, target, signalhost, portnumber="50001"):
         self.setSignalHost(signalhost)
         self.setTargetPort(signalhost, portnumber)
-        
+
     def setSignalHost(self, signalhost):
         if self.signal_host != signalhost:
             self.signal_host = signalhost
@@ -165,7 +166,7 @@ class HiDRA_cbf_source():
 
     def disconnect(self):
         try:
-            pass #self.query.stop()
+            pass  # self.query.stop()
         except:
             pass
 

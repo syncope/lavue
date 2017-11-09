@@ -30,8 +30,9 @@ from . import transformationsWidget
 #~ from . import maskWidget
 from . import bkgSubtractionWidget
 
-    
+
 class QHLine(QtGui.QFrame):
+
     def __init__(self):
         super(QHLine, self).__init__()
         self.setFrameShape(QtGui.QFrame.HLine)
@@ -39,7 +40,7 @@ class QHLine(QtGui.QFrame):
 
 
 class PreparationBoxWidget(QtGui.QGroupBox):
-    
+
     def __init__(self, parent=None):
         super(PreparationBoxWidget, self).__init__(parent)
         self.setTitle("Image preparation")

@@ -32,11 +32,12 @@ from PyQt4 import QtCore, QtGui
 
 from . import GradientItem as GI
 
+
 class ImageDisplayWidget(pg.GraphicsLayoutWidget):
-    
+
     currentMousePosition = QtCore.pyqtSignal(QtCore.QString)
 
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super(ImageDisplayWidget, self).__init__(parent)
         self.layout = self.ci
         self.crosshair_locked = False
@@ -45,7 +46,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.data = None
         self.autoDisplayLevels = True
         self.displayLevels = [None, None]
-        
+
         self.viewbox = self.layout.addViewBox(row=0, col=1)
 
         self.image = pg.ImageItem()
@@ -54,52 +55,52 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         leftAxis = pg.AxisItem('left')
         leftAxis.linkToView(self.viewbox)
         self.layout.addItem(leftAxis, row=0, col=0)
-        
+
         bottomAxis = pg.AxisItem('bottom')
         bottomAxis.linkToView(self.viewbox)
-        self.layout.addItem(bottomAxis, row=1, col =1)
-        
+        self.layout.addItem(bottomAxis, row=1, col=1)
+
         self.graditem = GI.GradientItem()
         self.graditem.setImageItem(self.image)
-        
-        self.layout.addItem(self.graditem, row = 0, col=2)
-        
+
+        self.layout.addItem(self.graditem, row=0, col=2)
+
         self.layout.scene().sigMouseMoved.connect(self.mouse_position)
         self.layout.scene().sigMouseClicked.connect(self.mouse_click)
-        
+
         self.vLine = pg.InfiniteLine(angle=90, movable=False, pen=(255, 0, 0))
         self.hLine = pg.InfiniteLine(angle=0, movable=False, pen=(255, 0, 0))
         self.viewbox.addItem(self.vLine, ignoreBounds=True)
         self.viewbox.addItem(self.hLine, ignoreBounds=True)
 
-        self.roi = ROI(0, pg.Point(50,50))
+        self.roi = ROI(0, pg.Point(50, 50))
         self.roi.addScaleHandle([1, 1], [0, 0])
         self.roi.addScaleHandle([0, 0], [1, 1])
         self.viewbox.addItem(self.roi)
         self.roi.hide()
 
-        
     def addItem(self, item):
         self.image.additem(item)
 
     def updateImage(self, img=None):
         if(self.autoDisplayLevels):
-            self.image.setImage(img, autoLevels = True)
+            self.image.setImage(img, autoLevels=True)
         else:
-            self.image.setImage(img, autoLevels = False, levels=self.displayLevels)
+            self.image.setImage(
+                img, autoLevels=False, levels=self.displayLevels)
         self.data = img
-    
+
     def updateGradient(self, name):
         self.graditem.setGradientByName(name)
-    
+
     def mouse_position(self, event):
         try:
             mousePoint = self.image.mapFromScene(event)
             xdata = math.floor(mousePoint.x())
             ydata = math.floor(mousePoint.y())
             if not self.crosshair_locked:
-                self.vLine.setPos(xdata+.5)
-                self.hLine.setPos(ydata+.5)
+                self.vLine.setPos(xdata + .5)
+                self.hLine.setPos(ydata + .5)
 
             if self.data is not None:
                 try:
@@ -108,11 +109,12 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                     intensity = 0.
             else:
                 intensity = 0.
-                
+
             if not self.roienable:
-                self.currentMousePosition.emit("x=%i, y=%i, intensity=%.2f" % (xdata, ydata, intensity))
+                self.currentMousePosition.emit(
+                    "x=%i, y=%i, intensity=%.2f" % (xdata, ydata, intensity))
             else:
-                
+
                 self.currentMousePosition.emit("%s" % self.roicoords)
         except Exception as e:
             print "Warning: ", str(e)
@@ -131,8 +133,8 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             if not self.roienable:
                 self.crosshair_locked = not self.crosshair_locked
                 if not self.crosshair_locked:
-                    self.vLine.setPos(xdata+.5)
-                    self.hLine.setPos(ydata+.5)
+                    self.vLine.setPos(xdata + .5)
+                    self.hLine.setPos(ydata + .5)
 
     def setAutoLevels(self, autoLvls):
         if(autoLvls):
@@ -140,11 +142,10 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         else:
             self.autoDisplayLevels = False
 
-    def setDisplayMinLevel(self, level = None ):
-        if ( level is not None):
+    def setDisplayMinLevel(self, level=None):
+        if (level is not None):
             self.displayLevels[0] = level
-    
-    def setDisplayMaxLevel(self, level = None ):
-        if ( level is not None):
+
+    def setDisplayMaxLevel(self, level=None):
+        if (level is not None):
             self.displayLevels[1] = level
-    

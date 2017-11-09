@@ -76,4 +76,3 @@ class StatisticsWidget(QtGui.QGroupBox):
         self.varVal.setText(varVal)
         if roiVal is not None:
             self.roiVal.setText(roiVal)
-

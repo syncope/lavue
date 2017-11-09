@@ -98,7 +98,7 @@ class GradientItem(GraphicsWidget):
     def setImageItem(self, img):
         self.imageItem = img
         img.setLookupTable(self.getLookupTable)
-                           ## send function pointer, not the result
+                           # send function pointer, not the result
 
     def gradientChanged(self):
         if self.imageItem is not None:

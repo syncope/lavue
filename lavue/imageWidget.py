@@ -33,12 +33,13 @@ from PyQt4 import QtCore, QtGui
 from . import imageDisplayWidget
 from . import GradientItem as GI
 
+
 class ImageWidget(QtGui.QWidget):
 
     """
     The part of the GUI that incorporates the image view.
     """
-    
+
     roiCoordsChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
@@ -73,7 +74,7 @@ class ImageWidget(QtGui.QWidget):
         self.infodisplay = QtGui.QLineEdit()
         self.infodisplay.setReadOnly(True)
 
-        self.roiLabel= QtGui.QLabel("ROIs label: ")
+        self.roiLabel = QtGui.QLabel("ROIs label: ")
         self.labelROILineEdit = QtGui.QLineEdit("")
         self.addROIButton = QtGui.QPushButton("Add ROI")
         self.clearAllButton = QtGui.QPushButton("Clear All")
@@ -103,7 +104,7 @@ class ImageWidget(QtGui.QWidget):
         else:
             self.addROIButton.setEnabled(True)
             self.clearAllButton.setEnabled(True)
-            
+
     def onPixelChanged(self):
         #        index = self.pixelComboBox.currentIndex()
         text = self.pixelComboBox.currentText()
@@ -157,10 +158,10 @@ class ImageWidget(QtGui.QWidget):
     def setAutoLevels(self, autoLvls):
         self.img_widget.setAutoLevels(autoLvls)
 
-    def setMinLevel(self, level = None):
+    def setMinLevel(self, level=None):
         self.img_widget.setDisplayMinLevel(level)
 
-    def setMaxLevel(self, level = None):
+    def setMaxLevel(self, level=None):
         self.img_widget.setDisplayMaxLevel(level)
 
     def changeGradient(self, name):

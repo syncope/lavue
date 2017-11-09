@@ -50,7 +50,7 @@ class HidraWidget(QtGui.QGroupBox):
 
         self._types = parent.sourcetypes
         self._defaultsource = "Hidra"
-        
+
         gridlayout = QtGui.QGridLayout()
 
         self.sourceTypeLabel = QtGui.QLabel(u"Source:")
@@ -67,8 +67,7 @@ class HidraWidget(QtGui.QGroupBox):
 
         self.attrLabel = QtGui.QLabel(u"Attribute:")
         self.attrLineEdit = QtGui.QLineEdit(u"")
-        
-        
+
         self.cStatusLabel = QtGui.QLabel("Status: ")
         self.cStatus = QtGui.QLineEdit("Not connected")
         self.cStatus.setStyleSheet("color: blue;"
@@ -78,7 +77,7 @@ class HidraWidget(QtGui.QGroupBox):
 
         self.button.clicked.connect(self.toggleServerConnection)
 
-        self.setSource(self._defaultsource)        
+        self.setSource(self._defaultsource)
         gridlayout.addWidget(self.sourceTypeLabel, 0, 0)
         gridlayout.addWidget(self.sourceTypeComboBox, 0, 1)
         gridlayout.addWidget(self.serverLabel, 1, 0)
@@ -94,7 +93,8 @@ class HidraWidget(QtGui.QGroupBox):
         self.setLayout(gridlayout)
 
         self.serverlistBox.activated.connect(self.emitHostname)
-        self.sourceTypeComboBox.currentIndexChanged.connect(self.onSourceChanged)
+        self.sourceTypeComboBox.currentIndexChanged.connect(
+            self.onSourceChanged)
         self.attrLineEdit.textEdited.connect(self.updateAttrButton)
         self.onSourceChanged()
 
@@ -102,7 +102,7 @@ class HidraWidget(QtGui.QGroupBox):
         index = self.sourceTypeComboBox.currentIndex()
         self.setSource(self.sourceTypeComboBox.currentText())
         self.hidra_sourcetype.emit(self.sourceTypeComboBox.currentText())
-        
+
     def setSource(self, name=None):
         allhidden = set()
         mst = None
@@ -117,7 +117,7 @@ class HidraWidget(QtGui.QGroupBox):
                     wg.hide()
                 else:
                     wg.show()
-                    
+
             getattr(self, mst["slot"])()
 
     def updateHidraButton(self):
@@ -125,7 +125,7 @@ class HidraWidget(QtGui.QGroupBox):
             self.button.setEnabled(False)
         else:
             self.button.setEnabled(True)
-        
+
     def updateAttrButton(self):
         if not str(self.attrLineEdit.text()).strip():
             self.button.setEnabled(False)
@@ -136,13 +136,13 @@ class HidraWidget(QtGui.QGroupBox):
             pass
         else:
             self.hidra_servername.emit(str(self.attrLineEdit.text()).strip())
-        
+
     def updateButton(self):
         self.button.setEnabled(True)
-        
+
     def emitHostname(self, index):
         self.updateHidraButton()
-        
+
         if self.connected:
             pass
         else:
@@ -161,9 +161,9 @@ class HidraWidget(QtGui.QGroupBox):
         if self.connected:
             self.hidra_disconnect.emit()
             self.cStatus.setStyleSheet("color: yellow;"
-                                   "background-color: red;")
+                                       "background-color: red;")
             self.cStatus.setText("Disconnected")
-            #self.button.setText("Re-Start")
+            # self.button.setText("Re-Start")
             self.button.setText("Start")
             self.connected = False
             self.hidra_state.emit(0)
@@ -198,13 +198,12 @@ class HidraWidget(QtGui.QGroupBox):
     def setSourceType(self):
         """ set source type"""
         self.connected = False
-        
 
     def sortServerList(self, name):
         # small function to sort out the server list details
         # stupid programming, but effective: search the hostname for a
         # string and return only the elements in the list that fit
-        beamlines = [ 'p03', 'p08', 'p09', 'p10', 'p11']
+        beamlines = ['p03', 'p08', 'p09', 'p10', 'p11']
 
         for bl in beamlines:
             if bl in name:

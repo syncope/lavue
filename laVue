@@ -28,13 +28,13 @@
 
 import lavue
 
-from PyQt4 import Qt, QtGui
+from PyQt4 import QtGui
 import sys
 
 app = QtGui.QApplication(sys.argv)
 
 dialog = lavue.HidraLiveViewer()
-dialog.resize(1200,800)
+dialog.resize(1200, 800)
 dialog.show()
 
 app.exec_()

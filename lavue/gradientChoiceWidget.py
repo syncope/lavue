@@ -28,19 +28,20 @@ from PyQt4 import QtCore, QtGui
 
 
 class GradientChoiceWidget(QtGui.QGroupBox):
+
     """
     Select how an image should be transformed.
     """
-    
+
     chosenGradient = QtCore.pyqtSignal(QtCore.QString)
 
     def __init__(self, parent=None):
         super(GradientChoiceWidget, self).__init__(parent)
 
         self.setTitle("Gradient choice")
-        
+
         layout = QtGui.QHBoxLayout()
-        self.cb = QtGui.QComboBox()        
+        self.cb = QtGui.QComboBox()
         self.cb.addItem("reverseGrayscale")
         self.cb.addItem("highContrast")
         self.cb.addItem("thermal")
@@ -53,6 +54,6 @@ class GradientChoiceWidget(QtGui.QGroupBox):
         layout.addWidget(self.cb)
         self.setLayout(layout)
         self.cb.activated.connect(self.emitText)
-        
+
     def emitText(self, index):
         self.chosenGradient.emit(self.cb.itemText(index))

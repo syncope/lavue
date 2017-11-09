@@ -35,7 +35,7 @@ class LevelsWidget(QtGui.QGroupBox):
 
     changeMinLevel = QtCore.pyqtSignal(float)
     changeMaxLevel = QtCore.pyqtSignal(float)
-    autoLevels = QtCore.pyqtSignal(int) # bool does not work...
+    autoLevels = QtCore.pyqtSignal(int)  # bool does not work...
     levelsChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
@@ -45,10 +45,10 @@ class LevelsWidget(QtGui.QGroupBox):
 
         # keep internal var for auto levelling toggle
         self.auto = True
-        
+
         self.autoLevelBox = QtGui.QCheckBox(u"Automatic levels")
         self.autoLevelBox.setChecked(True)
-       
+
         #~ informLabel = QtGui.QLabel("Linear scale, affects only display!")
         self.minLabel = QtGui.QLabel("minimum value: ")
         self.maxLabel = QtGui.QLabel("maximum value: ")
@@ -66,7 +66,7 @@ class LevelsWidget(QtGui.QGroupBox):
 
         layout = QtGui.QGridLayout()
         #~ layout.addWidget(informLabel, 0, 0)
-        layout.addWidget(self.autoLevelBox, 0,1)
+        layout.addWidget(self.autoLevelBox, 0, 1)
         layout.addWidget(self.minLabel, 1, 0)
         layout.addWidget(self.minValSB, 1, 1)
         layout.addWidget(self.maxLabel, 2, 0)
@@ -85,7 +85,7 @@ class LevelsWidget(QtGui.QGroupBox):
         return self.auto
 
     def autoLevelChange(self, value):
-        if( value is 2):
+        if(value is 2):
             self.auto = True
             self.hideControls()
             self.autoLevels.emit(1)
@@ -105,10 +105,10 @@ class LevelsWidget(QtGui.QGroupBox):
                 self.minVal = self.maxVal - 1.
             else:
                 self.maxVal = self.minVal + 1
-            
+
         self.minValSB.setValue(self.minVal)
         self.maxValSB.setValue(self.maxVal)
-        
+
         self.changeMinLevel.emit(self.minVal)
         self.changeMaxLevel.emit(self.maxVal)
         self.levelsChanged.emit()
@@ -130,8 +130,7 @@ class LevelsWidget(QtGui.QGroupBox):
     def setScalingLabel(self, scalingType):
         if scalingType == "log":
             self.scalingLabel.setText("log scale!")
-        elif  scalingType == "lin":
+        elif scalingType == "lin":
             self.scalingLabel.setText("lin scale!")
-        elif  scalingType == "sqrt":
+        elif scalingType == "sqrt":
             self.scalingLabel.setText("sqrt scale!")
-

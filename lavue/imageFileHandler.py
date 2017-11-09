@@ -28,7 +28,9 @@
 
 import fabio
 
+
 class ImageFileHandler():
+
     '''Simple file handler class.
        Reads image from file and returns the numpy array.'''
 

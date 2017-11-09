@@ -29,6 +29,7 @@ from PyQt4 import QtCore, QtGui
 
 class TransformationsWidget(QtGui.QWidget):
     # still pending implemntation -> needs scipy, probably
+
     """
     Select how an image should be transformed.
     """
@@ -36,8 +37,8 @@ class TransformationsWidget(QtGui.QWidget):
 
     def __init__(self, parent=None):
         super(TransformationsWidget, self).__init__(parent)
-        
-        self.cb = QtGui.QComboBox()        
+
+        self.cb = QtGui.QComboBox()
         self.cb.addItem("None")
         self.cb.addItem("flipud")
         self.cb.addItem("mirror")
@@ -48,6 +49,6 @@ class TransformationsWidget(QtGui.QWidget):
         layout.addWidget(self.cb)
         self.setLayout(layout)
         self.cb.currentIndexChanged.connect(self.broadcastTransformation)
-        
+
     def broadcastTransformation(self, index):
         self.activatedTransformation.emit(self.cb.itemText(index))
