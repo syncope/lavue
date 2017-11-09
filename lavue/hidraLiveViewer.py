@@ -1,5 +1,4 @@
-# Copyright (C) 2017  Christoph Rosemann, DESY, Notkestr. 85, D-22607 Hamburg
-# email contact: christoph.rosemann@desy.de
+# Copyright (C) 2017  DESY, Christoph Rosemann, Notkestr. 85, D-22607 Hamburg
 #
 # lavue is an image viewing program for photon science imaging detectors.
 # Its usual application is as a live viewer using hidra as data source.
@@ -18,7 +17,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA  02110-1301, USA.
-
+#
+# Authors:
+#     Christoph Rosemann <christoph.rosemann@desy.de>
+#     Jan Kotanski <jan.kotanski@desy.de>
+#
 
 # first try for a live viewer image display
 # base it on a qt dialog
@@ -229,6 +232,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.imageW.cnfButton.clicked.connect(self.configuration)
         self.imageW.addROIButton.clicked.connect(self.onaddrois)
         self.imageW.clearAllButton.clicked.connect(self.onclearrois)
+        self.imageW.roiCoordsChanged.connect(self.calc_update_stats)
         
         # connecting signals from hidra widget:
         self.hidraW.hidra_connect.connect(self.connect_hidra)
@@ -273,19 +277,22 @@ class HidraLiveViewer(QtGui.QDialog):
             if not self.doorname:
                 self.doorname = self.sardana.getDeviceName("Door")
             print("add rois %s " % roicoords)
-            print(self.sardana.getScanEnv(str(self.doorname)))
-            rois = json.loads(self.sardana.getScanEnv(str(self.doorname)))
+            print(self.sardana.getScanEnv(str(self.doorname), ["DetectorROIs"]))
+            rois = json.loads(self.sardana.getScanEnv(
+                str(self.doorname), ["DetectorROIs"]))
             rlabel = str(self.imageW.labelROILineEdit.text())
             if rlabel:
-                if "Rois" not in rois or not isinstance(rois["Rois"], dict):
-                    rois["Rois"] = {}
-                if rlabel not in rois["Rois"] or \
-                   not isinstance(rois["Rois"][rlabel], list):
-                    rois["Rois"][rlabel] = []
-                rois["Rois"][rlabel].append(roicoords)    
+                if "DetectorROIs" not in rois or not isinstance(
+                        rois["DetectorROIs"], dict):
+                    rois["DetectorROIs"] = {}
+                if rlabel not in rois["DetectorROIs"] or \
+                   not isinstance(rois["DetectorROIs"][rlabel], list):
+                    rois["DetectorROIs"][rlabel] = []
+                rois["DetectorROIs"][rlabel].append(roicoords)    
                 print("rois %s " % rois)
                 self.sardana.setScanEnv(str(self.doorname), json.dumps(rois))
-                    
+            if self.addrois:
+               self.sardana.runMacro(str(self.doorname), ["nxsadd", "%s" % rlabel]) 
         else:
             print("Connection error")
 
@@ -293,16 +300,20 @@ class HidraLiveViewer(QtGui.QDialog):
         if hcs.PYTANGO:
             if not self.doorname:
                 self.doorname = self.sardana.getDeviceName("Door")
-            print(self.sardana.getScanEnv(str(self.doorname)))
-            rois = json.loads(self.sardana.getScanEnv(str(self.doorname)))
+            print(self.sardana.getScanEnv(str(self.doorname)), ["DetectorROIs"])
+            rois = json.loads(self.sardana.getScanEnv(
+                str(self.doorname), ["DetectorROIs"]))
             rlabel = str(self.imageW.labelROILineEdit.text())
             if rlabel:
-                if "Rois" not in rois or not isinstance(rois["Rois"], dict):
-                    rois["Rois"] = {}
-                if rlabel in rois["Rois"]:
-                    rois["Rois"].pop(rlabel)
+                if "DetectorROIs" not in rois or not isinstance(
+                        rois["DetectorROIs"], dict):
+                    rois["DetectorROIs"] = {}
+                if rlabel in rois["DetectorROIs"]:
+                    rois["DetectorROIs"].pop(rlabel)
                 print("rois %s " % rois)
                 self.sardana.setScanEnv(str(self.doorname), json.dumps(rois))
+            if self.addrois:
+               self.sardana.runMacro(str(self.doorname), ["nxsrm", "%s" % rlabel]) 
                     
         else:
             print("Connection error")
@@ -345,19 +356,27 @@ class HidraLiveViewer(QtGui.QDialog):
         # use the internal raw image to create a display image with chosen scaling
         self.scale(self.scalingW.getCurrentScaling())
 
+        # calculate and update the stats for this
+        self.calc_update_stats()
+        
+
+    
+        # calls internally the plot function of the plot widget
+        self.imageW.plot(self.display_image, self.image_name)
+
+    def calc_update_stats(self):
         # calculate the stats for this
         maxVal, meanVal, varVal, minVal = self.calcStats()
-
+        currentscaling = self.scalingW.getCurrentScaling()
         # update the statistics display
-        self.statsW.update_stats(meanVal, maxVal, varVal, self.scalingW.getCurrentScaling())
+        roiVal = self.calcROIsum()    
+        self.statsW.update_stats(meanVal, maxVal, varVal,currentscaling, roiVal)
 
         # if needed, update the levels display
         if(self.levelsW.isAutoLevel()):
             self.levelsW.updateLevels(float(minVal), float(maxVal))
-
-        # calls internally the plot function of the plot widget
-        self.imageW.plot(self.display_image, self.image_name)
-
+        
+        
     # mode changer: start plotting mode
     def startPlotting(self):
         # only start plotting if the connection is really established
@@ -436,6 +455,32 @@ class HidraLiveViewer(QtGui.QDialog):
         elif self.trafoName == "mirror":
             self.display_image = np.flipud(self.display_image)
     
+    def calcROIsum(self):
+        if self.display_image is not None:
+            if self.imageW.img_widget.roienable:
+                image = self.display_image
+                roicoords = self.imageW.img_widget.roicoords
+                rcrds = list(roicoords)
+                for i in [0, 2]:
+                    if rcrds[i] > image.shape[0]:
+                        rcrds[i] = image.shape[0]
+                    elif rcrds[i] < -i / 2:
+                        rcrds[i] = -i / 2
+                for i in [1, 3]:
+                    if rcrds[i] > image.shape[1]:
+                        rcrds[i] = image.shape[1]
+                    elif rcrds[i] < - (i - 1) / 2:
+                        rcrds[i] = - (i - 1) / 2
+                roival = np.sum(image[
+                    int(rcrds[0]):(int(rcrds[2])+1),
+                    int(rcrds[1]):(int(rcrds[3])+1)
+                ])
+            else:
+                roival = 0.
+            return str("%.4f" % roival)
+        else:
+            return "0."
+
     def calcStats(self):
         if self.display_image is not None:
             maxval = np.amax(self.display_image)
@@ -451,7 +496,7 @@ class HidraLiveViewer(QtGui.QDialog):
                     str("%.3f" % np.amin(self.display_image)))
         else:
             return "0.", "0.", "0.", "0."
-
+        
     def getInitialLevels(self):
         if(self.display_image is not None):
             return np.amin(self.display_image), np.amax(self.display_image)

@@ -1,9 +1,8 @@
-# Copyright (C) 2017  Christoph Rosemann, DESY, Notkestr. 85, D-22607 Hamburg
-# email contact: christoph.rosemann@desy.de
+# Copyright (C) 2017  DESY, Christoph Rosemann, Notkestr. 85, D-22607 Hamburg
 #
 # lavue is an image viewing program for photon science imaging detectors.
 # Its usual application is as a live viewer using hidra as data source.
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation in  version 2
@@ -18,6 +17,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA  02110-1301, USA.
+#
+# Authors:
+#     Christoph Rosemann <christoph.rosemann@desy.de>
+#     Jan Kotanski <jan.kotanski@desy.de>
+#
 
 
 from PyQt4 import QtCore, QtGui

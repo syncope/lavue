@@ -1,5 +1,4 @@
-# Copyright (C) 2017  Christoph Rosemann, DESY, Notkestr. 85, D-22607 Hamburg
-# email contact: christoph.rosemann@desy.de
+# Copyright (C) 2017  DESY, Christoph Rosemann, Notkestr. 85, D-22607 Hamburg
 #
 # lavue is an image viewing program for photon science imaging detectors.
 # Its usual application is as a live viewer using hidra as data source.
@@ -18,13 +17,19 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA  02110-1301, USA.
+#
+# Authors:
+#     Christoph Rosemann <christoph.rosemann@desy.de>
+#     Jan Kotanski <jan.kotanski@desy.de>
+#     Andre Rothkirch <andre.rothkirch@desy.de>
+#
 
 try:
     import hidra
     HIDRA = True
 except ImportError:
     HIDRA = False
-    #    HIDRA = True
+#    HIDRA = True
 
 try:
     import PyTango
@@ -58,7 +63,7 @@ class GeneralSource():
         self._counter += 1
         return (np.transpose([[random.randint(0, 1000)
                            for i in range(512)] for i in range(256)]),
-                'random %s' % self._counter)
+                '__random_%s__' % self._counter)
         
     def connect(self):
         self._initiated = True
@@ -96,7 +101,7 @@ class TangoAttrSource():
         try:
             attr = self.aproxy.read()
             return (np.transpose(attr.value),
-                    '%s %s' % (self.signal_host, str(attr.time)))
+                    '%s  (%s)' % (self.signal_host, str(attr.time)))
         except Exception as e:
             print (str(e))
             pass  # this needs a bit more care

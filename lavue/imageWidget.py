@@ -1,5 +1,4 @@
-# Copyright (C) 2017  Christoph Rosemann, DESY, Notkestr. 85, D-22607 Hamburg
-# email contact: christoph.rosemann@desy.de
+# Copyright (C) 2017  DESY, Christoph Rosemann, Notkestr. 85, D-22607 Hamburg
 #
 # lavue is an image viewing program for photon science imaging detectors.
 # Its usual application is as a live viewer using hidra as data source.
@@ -18,6 +17,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA  02110-1301, USA.
+#
+# Authors:
+#     Christoph Rosemann <christoph.rosemann@desy.de>
+#     Jan Kotanski <jan.kotanski@desy.de>
+#
+
 
 import pyqtgraph as pg
 import numpy as np
@@ -33,6 +38,8 @@ class ImageWidget(QtGui.QWidget):
     """
     The part of the GUI that incorporates the image view.
     """
+    
+    roiCoordsChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         super(ImageWidget, self).__init__(parent)
@@ -71,10 +78,10 @@ class ImageWidget(QtGui.QWidget):
         self.addROIButton = QtGui.QPushButton("Add ROI")
         self.clearAllButton = QtGui.QPushButton("Clear All")
 
-        pixelvaluelayout.addWidget(self.roiLabel)
-        pixelvaluelayout.addWidget(self.labelROILineEdit)
         pixelvaluelayout.addWidget(self.pixellabel)
         pixelvaluelayout.addWidget(self.infodisplay)
+        pixelvaluelayout.addWidget(self.roiLabel)
+        pixelvaluelayout.addWidget(self.labelROILineEdit)
         pixelvaluelayout.addWidget(self.addROIButton)
         pixelvaluelayout.addWidget(self.clearAllButton)
         pixelvaluelayout.addWidget(self.pixelComboBox)
@@ -124,6 +131,7 @@ class ImageWidget(QtGui.QWidget):
             self.img_widget.vLine.show()
             self.img_widget.hLine.show()
             self.infodisplay.setText("")
+            self.roiCoordsChanged.emit()
 
     def roiChanged(self):
         try:
@@ -134,6 +142,7 @@ class ImageWidget(QtGui.QWidget):
             szy = int(math.floor(state['size'].y()))
             sz = state['size']
             self.img_widget.roicoords = [ptx, pty, ptx + szx, pty + szy]
+            self.roiCoordsChanged.emit()
         except Exception as e:
             print "Warning: ", str(e)
 
