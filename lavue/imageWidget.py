@@ -24,14 +24,11 @@
 #
 
 
-import pyqtgraph as pg
-import numpy as np
 import math
 
 from PyQt4 import QtCore, QtGui
 
 from . import imageDisplayWidget
-from . import GradientItem as GI
 
 
 class ImageWidget(QtGui.QWidget):
@@ -141,7 +138,6 @@ class ImageWidget(QtGui.QWidget):
             pty = int(math.floor(state['pos'].y()))
             szx = int(math.floor(state['size'].x()))
             szy = int(math.floor(state['size'].y()))
-            sz = state['size']
             self.img_widget.roicoords = [ptx, pty, ptx + szx, pty + szy]
             self.roiCoordsChanged.emit()
         except Exception as e:

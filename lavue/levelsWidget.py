@@ -49,7 +49,7 @@ class LevelsWidget(QtGui.QGroupBox):
         self.autoLevelBox = QtGui.QCheckBox(u"Automatic levels")
         self.autoLevelBox.setChecked(True)
 
-        #~ informLabel = QtGui.QLabel("Linear scale, affects only display!")
+        # informLabel = QtGui.QLabel("Linear scale, affects only display!")
         self.minLabel = QtGui.QLabel("minimum value: ")
         self.maxLabel = QtGui.QLabel("maximum value: ")
 
@@ -65,7 +65,7 @@ class LevelsWidget(QtGui.QGroupBox):
         self.applyButton = QtGui.QPushButton("Apply levels")
 
         layout = QtGui.QGridLayout()
-        #~ layout.addWidget(informLabel, 0, 0)
+        # layout.addWidget(informLabel, 0, 0)
         layout.addWidget(self.autoLevelBox, 0, 1)
         layout.addWidget(self.minLabel, 1, 0)
         layout.addWidget(self.minValSB, 1, 1)

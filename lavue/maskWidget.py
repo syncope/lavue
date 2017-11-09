@@ -46,7 +46,7 @@ class MaskWidget(QtGui.QWidget):
 
         # the dialog to select the mask file
         self.fileNameLabel = QtGui.QLabel("Mask file:")
-        #~ self.fileNameDisplay = QtGui.QLabel(str(self.fileName))
+        # self.fileNameDisplay = QtGui.QLabel(str(self.fileName))
         self.fileSelectButton = QtGui.QPushButton("Select mask file")
         self.fileSelectButton.clicked.connect(self.showFileDialog)
 
@@ -54,17 +54,18 @@ class MaskWidget(QtGui.QWidget):
         layout = QtGui.QGridLayout()
         layout.addWidget(self.applyMaskBox, 0, 0)
         layout.addWidget(self.fileSelectButton, 0, 1)
-        #~ layout.addWidget(self.fileNameLabel, 1, 0)
+        # layout.addWidget(self.fileNameLabel, 1, 0)
 
         masterlayout.addItem(layout)
-        #~ masterlayout.addWidget(self.fileNameDisplay)
+        # masterlayout.addWidget(self.fileNameDisplay)
 
         self.setLayout(masterlayout)
 
     def showFileDialog(self):
         self.fileDialog = QtGui.QFileDialog()
         self.fileName = str(
-            self.fileDialog.getOpenFileName(self, 'Open mask file', '/ramdisk/'))
+            self.fileDialog.getOpenFileName(
+                self, 'Open mask file', '/ramdisk/'))
         self.maskFileSelection.emit(self.fileName)
 
     def setFileName(self, fname):

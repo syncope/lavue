@@ -30,16 +30,13 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import sys
 import time
-import socket
 import json
 import numpy as np
 
 from PyQt4 import QtCore, QtGui
 
 from . import hidra_cbf_source as hcs
-from . import GradientItem as GI
 
 from . import gradientChoiceWidget
 from . import hidraWidget
@@ -64,7 +61,8 @@ GLOBALREFRESHRATE = .1  # refresh rate if the data source is running in seconds
 
 class HidraLiveViewer(QtGui.QDialog):
 
-    '''The master class for the dialog, contains all other widget and handles communication.'''
+    '''The master class for the dialog, contains all other
+    widget and handles communication.'''
     update_state = QtCore.pyqtSignal(int)
 
     # subclass for data caching
@@ -172,7 +170,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.statsW = statisticsWidget.StatisticsWidget(parent=self)
         self.imageW = imageWidget.ImageWidget(parent=self)
 
-        #~ self.maskW = self.prepBoxW.maskW
+        # self.maskW = self.prepBoxW.maskW
         self.bkgSubW = self.prepBoxW.bkgSubW
         self.trafoW = self.prepBoxW.trafoW
 
@@ -261,8 +259,8 @@ class HidraLiveViewer(QtGui.QDialog):
         self.bkgSubW.useCurrentImageAsBKG.connect(self.setCurrentImageAsBKG)
         self.bkgSubW.applyBkgSubtractBox.stateChanged.connect(
             self.checkBKGSubtraction)
-        #~ self.maskW.maskFileSelection.connect(self.prepareMasking)
-        #~ self.maskW.applyMaskBox.stateChanged.connect(self.checkMasking)
+        # self.maskW.maskFileSelection.connect(self.prepareMasking)
+        # self.maskW.applyMaskBox.stateChanged.connect(self.checkMasking)
 
         # signals from transformation widget
         self.trafoW.activatedTransformation.connect(self.assessTransformation)
@@ -353,7 +351,8 @@ class HidraLiveViewer(QtGui.QDialog):
         self.update_state.emit(status)
 
     def plot(self):
-        """ The main command of the live viewer class: draw a numpy array with the given name."""
+        """ The main command of the live viewer class:
+        draw a numpy array with the given name."""
         # prepare or preprocess the raw image if present:
         self.prepareImage()
 
@@ -404,7 +403,8 @@ class HidraLiveViewer(QtGui.QDialog):
         if not self.data_source.connect():
             self.hidraW.connectFailure()
             print(
-                "<WARNING> The HiDRA connection could not be established. Check the settings.")
+                "<WARNING> The HiDRA connection could not be established. "
+                "Check the settings.")
         else:
             self.hidraW.connectSuccess()
 
@@ -433,9 +433,9 @@ class HidraLiveViewer(QtGui.QDialog):
         if self.doBkgSubtraction and self.background_image is not None:
             # simple subtraction
             self.display_image = self.raw_image - self.background_image
-        #~ if self.applyImageMask and self.maskIndices is not None:
-            # ~ # set all masked (non-zero values) to zero by index
-            #~ self.display_image[self.maskIndices] = 0
+        # if self.applyImageMask and self.maskIndices is not None:
+        #     # set all masked (non-zero values) to zero by index
+        #     self.display_image[self.maskIndices] = 0
 
     def scale(self, scalingType):
         if(self.display_image is None):
@@ -513,10 +513,12 @@ class HidraLiveViewer(QtGui.QDialog):
         if self.applyImageMask and self.mask_image is None:
             self.maskW.noImage()
 
-    #~ def prepareMasking(self, imagename):
-        #~ '''Get the mask image, select non-zero elements and store the indices.'''
-        #~ self.mask_image = imageFileHandler.ImageFileHandler(str(imagename)).getImage()
-        #~ self.maskIndices = np.nonzero(self.mask_image !=0)
+    # def prepareMasking(self, imagename):
+    #     '''Get the mask image, select non-zero elements
+    #        and store the indices.'''
+    #     self.mask_image = imageFileHandler.ImageFileHandler(
+    #         str(imagename)).getImage()
+    #     self.maskIndices = np.nonzero(self.mask_image !=0)
 
     def checkBKGSubtraction(self, state):
         self.doBkgSubtraction = state

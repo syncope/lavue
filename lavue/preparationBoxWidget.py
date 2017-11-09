@@ -24,10 +24,10 @@
 #
 
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtGui
 
 from . import transformationsWidget
-#~ from . import maskWidget
+# from . import maskWidget
 from . import bkgSubtractionWidget
 
 
@@ -45,7 +45,7 @@ class PreparationBoxWidget(QtGui.QGroupBox):
         super(PreparationBoxWidget, self).__init__(parent)
         self.setTitle("Image preparation")
 
-        #~ self.maskW = maskWidget.MaskWidget(parent=self)
+        # self.maskW = maskWidget.MaskWidget(parent=self)
         self.bkgSubW = bkgSubtractionWidget.BkgSubtractionkWidget(parent=self)
 
         hline = QHLine()
@@ -53,7 +53,7 @@ class PreparationBoxWidget(QtGui.QGroupBox):
         self.trafoW = transformationsWidget.TransformationsWidget(parent=self)
 
         vlayout = QtGui.QVBoxLayout()
-        #~ vlayout.addWidget(self.maskW)
+        # vlayout.addWidget(self.maskW)
         vlayout.addWidget(self.bkgSubW)
         vlayout.addWidget(hline)
         vlayout.addWidget(self.trafoW)

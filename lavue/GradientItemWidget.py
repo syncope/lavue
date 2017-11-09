@@ -27,18 +27,20 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
 from pyqtgraph import GraphicsView
 from pyqtgraph import GraphicsWidget
-from pyqtgraph.graphicsItems.ViewBox import *
-from pyqtgraph.graphicsItems.GradientEditorItem import *
-from pyqtgraph.graphicsItems.AxisItem import *
-from pyqtgraph.graphicsItems.GridItem import *
+from pyqtgraph.graphicsItems.ViewBox import ViewBox
+from pyqtgraph.graphicsItems.GradientEditorItem import GradientEditorItem
+from pyqtgraph.graphicsItems.AxisItem import AxisItem
+# from pyqtgraph.graphicsItems.GridItem import *
 
 import numpy as np
 
 # define two new gradients of choice
 pg.graphicsItems.GradientEditorItem.Gradients['inverted'] = {
-    'ticks': [(0.0, (255, 255, 255, 255)), (1.0, (0, 0, 0, 255)), ], 'mode': 'rgb'}
+    'ticks': [(0.0, (255, 255, 255, 255)),
+              (1.0, (0, 0, 0, 255)), ], 'mode': 'rgb'}
 pg.graphicsItems.GradientEditorItem.Gradients['highContrast'] = {
-    'ticks': [(0.0, (0, 0, 0, 255)), (1.0, (255, 255, 0, 255)), ], 'mode': 'rgb'}
+    'ticks': [(0.0, (0, 0, 0, 255)),
+              (1.0, (255, 255, 0, 255)), ], 'mode': 'rgb'}
 
 
 class GradientItem(GraphicsWidget):
@@ -55,8 +57,11 @@ class GradientItem(GraphicsWidget):
 
     def __init__(self, image=None, fillHistogram=True):
         """
-        If *image* (ImageItem) is provided, then the control will be automatically linked to the image and changes to the control will be immediately reflected in the image's appearance.
-        By default, the histogram is rendered with a fill. For performance, set *fillHistogram* = False.
+        If *image* (ImageItem) is provided, then the control will be
+        automatically linked to the image and changes to the control
+        will be immediately reflected in the image's appearance.
+        By default, the histogram is rendered with a fill. For performance,
+        set *fillHistogram* = False.
         """
         GraphicsWidget.__init__(self)
         self.lut = None
@@ -73,7 +78,8 @@ class GradientItem(GraphicsWidget):
         self.vb.setMouseEnabled(x=False, y=False)
 
         self.gradient = GradientEditorItem()
-        self.gradient.tickSize = 0  # CR: this is  sooooo bad, but there is no function !?
+        # CR: this is  sooooo bad, but there is no function !?
+        self.gradient.tickSize = 0
         self.gradient.setOrientation('right')
         self.gradient.loadPreset('highContrast')
 
@@ -97,16 +103,17 @@ class GradientItem(GraphicsWidget):
 
     def setImageItem(self, img):
         self.imageItem = img
+        # send function pointer, not the result
         img.setLookupTable(self.getLookupTable)
-                           # send function pointer, not the result
 
     def gradientChanged(self):
         if self.imageItem is not None:
             if self.gradient.isLookupTrivial():
                 self.imageItem.setLookupTable(None)
             else:
+                # send function pointer, not the result
                 self.imageItem.setLookupTable(
-                    self.getLookupTable)  # send function pointer, not the result
+                    self.getLookupTable)
 
         self.lut = None
         self.sigLookupTableChanged.emit(self)

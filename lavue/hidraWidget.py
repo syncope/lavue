@@ -99,7 +99,6 @@ class HidraWidget(QtGui.QGroupBox):
         self.onSourceChanged()
 
     def onSourceChanged(self):
-        index = self.sourceTypeComboBox.currentIndex()
         self.setSource(self.sourceTypeComboBox.currentText())
         self.hidra_sourcetype.emit(self.sourceTypeComboBox.currentText())
 

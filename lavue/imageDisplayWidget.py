@@ -28,7 +28,7 @@ import math
 from pyqtgraph.graphicsItems.ROI import ROI
 
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore
 
 from . import GradientItem as GI
 

@@ -24,3 +24,6 @@
 #
 
 from .hidraLiveViewer import HidraLiveViewer
+
+
+__all__ = ['HidraLiveViewer']

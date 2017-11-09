@@ -30,5 +30,8 @@ HidraServerList = {"p03": ['haspp03pilatus.desy.de'],
                    "p09": ['haspp09pilatus.desy.de'],
                    "p10": ['haspp10pilatus.desy.de'],
                    "p11": ['haspp11pilatus.desy.de'],
-                   "pool": ['haspilatus300k.desy.de', 'haspilatus1m.desy.de', 'haso233det.desy.de']
+                   "pool": [
+                       'haspilatus300k.desy.de',
+                       'haspilatus1m.desy.de',
+                       'haso233det.desy.de']
                    }
