@@ -89,7 +89,7 @@ class ImageWidget(QtGui.QWidget):
         self.img_widget.currentMousePosition.connect(self.infodisplay.setText)
 
         self.pixelComboBox.currentIndexChanged.connect(self.onPixelChanged)
-        self.img_widget.roi.sigRegionChanged.connect(self.roiChanged)
+        self.img_widget.roi[0].sigRegionChanged.connect(self.roiChanged)
         self.labelROILineEdit.textEdited.connect(self.updateROIButton)
         self.onPixelChanged()
         self.updateROIButton()
@@ -113,14 +113,14 @@ class ImageWidget(QtGui.QWidget):
             self.labelROILineEdit.show()
             self.pixellabel.setText("[x1, y1, x2, y2]: ")
             self.roiLabel.show()
-            self.img_widget.roi.show()
+            self.img_widget.roi[0].show()
             self.img_widget.roienable = True
-            self.img_widget.roi.show()
+            self.img_widget.roi[0].show()
             self.infodisplay.setText("")
             self.roiChanged()
         else:
             self.pixellabel.setText("Pixel position and intensity: ")
-            self.img_widget.roi.hide()
+            self.img_widget.roi[0].hide()
             self.addROIButton.hide()
             self.labelROILineEdit.hide()
             self.clearAllButton.hide()
@@ -133,12 +133,12 @@ class ImageWidget(QtGui.QWidget):
 
     def roiChanged(self):
         try:
-            state = self.img_widget.roi.state
+            state = self.img_widget.roi[0].state
             ptx = int(math.floor(state['pos'].x()))
             pty = int(math.floor(state['pos'].y()))
             szx = int(math.floor(state['size'].x()))
             szy = int(math.floor(state['size'].y()))
-            self.img_widget.roicoords = [ptx, pty, ptx + szx, pty + szy]
+            self.img_widget.roicoords[0] = [ptx, pty, ptx + szx, pty + szy]
             self.roiCoordsChanged.emit()
         except Exception as e:
             print "Warning: ", str(e)

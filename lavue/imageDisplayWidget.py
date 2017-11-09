@@ -42,7 +42,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.layout = self.ci
         self.crosshair_locked = False
         self.roienable = False
-        self.roicoords = [0, 0, 0, 0]
+        self.roicoords = [[0, 0, 0, 0]]
         self.data = None
         self.autoDisplayLevels = True
         self.displayLevels = [None, None]
@@ -73,11 +73,13 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.viewbox.addItem(self.vLine, ignoreBounds=True)
         self.viewbox.addItem(self.hLine, ignoreBounds=True)
 
-        self.roi = ROI(0, pg.Point(50, 50))
-        self.roi.addScaleHandle([1, 1], [0, 0])
-        self.roi.addScaleHandle([0, 0], [1, 1])
-        self.viewbox.addItem(self.roi)
-        self.roi.hide()
+        self.roi = []
+        self.roi.append(ROI(0, pg.Point(50, 50)))
+        self.roi[0].addScaleHandle([1, 1], [0, 0])
+        self.roi[0].addScaleHandle([0, 0], [1, 1])
+
+        self.viewbox.addItem(self.roi[0])
+        self.roi[0].hide()
 
     def addItem(self, item):
         self.image.additem(item)
@@ -115,7 +117,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                     "x=%i, y=%i, intensity=%.2f" % (xdata, ydata, intensity))
             else:
 
-                self.currentMousePosition.emit("%s" % self.roicoords)
+                self.currentMousePosition.emit("%s" % self.roicoords[0])
         except Exception as e:
             print "Warning: ", str(e)
             pass
