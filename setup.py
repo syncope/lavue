@@ -73,7 +73,7 @@ setup(
 
     package_dir={'lauve': 'lavue', },
 
-    include_package_data=True,
+    #    include_package_data=True,
 
     scripts=['laVue'],
 
