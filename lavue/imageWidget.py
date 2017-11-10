@@ -187,6 +187,7 @@ class ImageWidget(QtGui.QWidget):
             self.roiregionmapper.removeMappings(self.img_widget.roi[-1])
             self.img_widget.removeROI()
         self.roiCoordsChanged.emit()
+        self.roiSpinBox.setValue(rid)
 
     def roiChanged(self):
         try:
