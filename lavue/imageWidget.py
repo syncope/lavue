@@ -38,14 +38,17 @@ class ImageWidget(QtGui.QWidget):
     """
 
     roiCoordsChanged = QtCore.pyqtSignal()
+    roiNrChanged = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None):
         super(ImageWidget, self).__init__(parent)
 
         self.nparray = None
         self.imageItem = None
-
+        
         self.img_widget = imageDisplayWidget.ImageDisplayWidget(parent=self)
+        self.currentroimapper = QtCore.QSignalMapper(self)
+        self.roiregionmapper = QtCore.QSignalMapper(self)
 
         verticallayout = QtGui.QVBoxLayout()
 
@@ -71,17 +74,21 @@ class ImageWidget(QtGui.QWidget):
         self.infodisplay = QtGui.QLineEdit()
         self.infodisplay.setReadOnly(True)
 
-        self.roiLabel = QtGui.QLabel("ROIs label: ")
+        self.roiLabel = QtGui.QLabel("ROI alias(es): ")
         self.labelROILineEdit = QtGui.QLineEdit("")
-        self.addROIButton = QtGui.QPushButton("Add ROI")
-        self.clearAllButton = QtGui.QPushButton("Clear All")
+        self.roiSpinBox = QtGui.QSpinBox()
+        self.roiSpinBox.setMinimum(0)
+        self.roiSpinBox.setValue(1)
+        self.fetchROIButton = QtGui.QPushButton("Fetch")
+        self.applyROIButton = QtGui.QPushButton("Apply")
 
         pixelvaluelayout.addWidget(self.pixellabel)
         pixelvaluelayout.addWidget(self.infodisplay)
         pixelvaluelayout.addWidget(self.roiLabel)
         pixelvaluelayout.addWidget(self.labelROILineEdit)
-        pixelvaluelayout.addWidget(self.addROIButton)
-        pixelvaluelayout.addWidget(self.clearAllButton)
+        pixelvaluelayout.addWidget(self.roiSpinBox)
+        pixelvaluelayout.addWidget(self.applyROIButton)
+        pixelvaluelayout.addWidget(self.fetchROIButton)
         pixelvaluelayout.addWidget(self.pixelComboBox)
         verticallayout.addLayout(pixelvaluelayout)
 
@@ -89,41 +96,58 @@ class ImageWidget(QtGui.QWidget):
         self.img_widget.currentMousePosition.connect(self.infodisplay.setText)
 
         self.pixelComboBox.currentIndexChanged.connect(self.onPixelChanged)
-        self.img_widget.roi[0].sigRegionChanged.connect(self.roiChanged)
+        self.roiregionmapper.mapped.connect(self.roiRegionChanged)
+        self.currentroimapper.mapped.connect(self.currentROIChanged)
+        self.img_widget.roi[0].sigHoverEvent.connect(self.currentroimapper.map)
+        self.img_widget.roi[0].sigRegionChanged.connect(self.roiregionmapper.map)
+        self.currentroimapper.setMapping(self.img_widget.roi[0], 0)
+        self.roiregionmapper.setMapping(self.img_widget.roi[0], 0)
+        
+        self.roiSpinBox.valueChanged.connect(self.roiNrChanged)
         self.labelROILineEdit.textEdited.connect(self.updateROIButton)
         self.onPixelChanged()
         self.updateROIButton()
 
+    def roiRegionChanged(self, rid):
+        self.roiChanged()
+
+    def currentROIChanged(self, rid):
+        oldrid = self.img_widget.currentroi
+        if rid != oldrid:
+            self.img_widget.currentroi = rid
+            self.roiCoordsChanged.emit()
+        
     def updateROIButton(self):
         if not str(self.labelROILineEdit.text()).strip():
-            self.addROIButton.setEnabled(False)
-            self.clearAllButton.setEnabled(False)
+            self.applyROIButton.setEnabled(False)
         else:
-            self.addROIButton.setEnabled(True)
-            self.clearAllButton.setEnabled(True)
+            self.applyROIButton.setEnabled(True)
 
     def onPixelChanged(self):
-        #        index = self.pixelComboBox.currentIndex()
         text = self.pixelComboBox.currentText()
         if text == "ROI":
             self.img_widget.vLine.hide()
             self.img_widget.hLine.hide()
-            self.addROIButton.show()
-            self.clearAllButton.show()
+            self.fetchROIButton.show()
+            self.applyROIButton.show()
+            self.roiSpinBox.show()
             self.labelROILineEdit.show()
             self.pixellabel.setText("[x1, y1, x2, y2]: ")
             self.roiLabel.show()
-            self.img_widget.roi[0].show()
+            for roi in self.img_widget.roi:
+                roi.show()
             self.img_widget.roienable = True
             self.img_widget.roi[0].show()
             self.infodisplay.setText("")
             self.roiChanged()
         else:
             self.pixellabel.setText("Pixel position and intensity: ")
-            self.img_widget.roi[0].hide()
-            self.addROIButton.hide()
+            for roi in self.img_widget.roi:
+                roi.hide()
+            self.fetchROIButton.hide()
             self.labelROILineEdit.hide()
-            self.clearAllButton.hide()
+            self.applyROIButton.hide()
+            self.roiSpinBox.hide()
             self.roiLabel.hide()
             self.img_widget.roienable = False
             self.img_widget.vLine.show()
@@ -131,14 +155,48 @@ class ImageWidget(QtGui.QWidget):
             self.infodisplay.setText("")
             self.roiCoordsChanged.emit()
 
+    def roiNrChanged(self, rid, coords=None):
+        print "cords", coords, rid
+        if coords:
+            for i, crd in enumerate(self.img_widget.roi):
+                print i , crd
+                if i < len(coords):
+                    self.img_widget.roicoords[i] = coords[i]
+        while rid > len(self.img_widget.roi):
+            print("LEN %s" % len(self.img_widget.roi))
+            if coords and len(coords) >= len(self.img_widget.roi):
+                self.img_widget.addROI(coords[len(self.img_widget.roi)])
+            else:
+                self.img_widget.addROI()
+            self.img_widget.roi[-1].sigHoverEvent.connect(
+                self.currentroimapper.map)
+            self.img_widget.roi[-1].sigRegionChanged.connect(
+                self.roiregionmapper.map)
+            self.currentroimapper.setMapping(
+                self.img_widget.roi[-1],
+                len(self.img_widget.roi) - 1)
+            self.roiregionmapper.setMapping(
+                self.img_widget.roi[-1],
+                len(self.img_widget.roi) - 1)
+        if rid == 0:
+            self.img_widget.currentroi = -1
+        elif self.img_widget.currentroi >= rid:
+            self.img_widget.currentroi = 0 
+        while rid < len(self.img_widget.roi):
+            self.currentroimapper.removeMappings(self.img_widget.roi[-1])
+            self.roiregionmapper.removeMappings(self.img_widget.roi[-1])
+            self.img_widget.removeROI()
+        self.roiCoordsChanged.emit()
+
     def roiChanged(self):
         try:
-            state = self.img_widget.roi[0].state
+            rid = self.img_widget.currentroi
+            state = self.img_widget.roi[rid].state
             ptx = int(math.floor(state['pos'].x()))
             pty = int(math.floor(state['pos'].y()))
             szx = int(math.floor(state['size'].x()))
             szy = int(math.floor(state['size'].y()))
-            self.img_widget.roicoords[0] = [ptx, pty, ptx + szx, pty + szy]
+            self.img_widget.roicoords[rid] = [ptx, pty, ptx + szx, pty + szy]
             self.roiCoordsChanged.emit()
         except Exception as e:
             print "Warning: ", str(e)
