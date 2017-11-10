@@ -34,15 +34,6 @@ from pyqtgraph.graphicsItems.AxisItem import AxisItem
 
 import numpy as np
 
-# define two new gradients of choice
-pg.graphicsItems.GradientEditorItem.Gradients['inverted'] = {
-    'ticks': [(0.0, (255, 255, 255, 255)),
-              (1.0, (0, 0, 0, 255)), ], 'mode': 'rgb'}
-pg.graphicsItems.GradientEditorItem.Gradients['highContrast'] = {
-    'ticks': [(0.0, (0, 0, 0, 255)),
-              (1.0, (255, 255, 0, 255)), ], 'mode': 'rgb'}
-
-
 class GradientItem(GraphicsWidget):
 
     """
