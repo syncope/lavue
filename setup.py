@@ -68,13 +68,13 @@ setup(
 
     keywords='live viewer photon science detector',
 
-    packages=['lavue', ],
+    packages=['lavue'],
 
-    package_dir={'lauve': 'lavue', },
+    package_dir={'lauve': 'lavue'},
 
     include_package_data=True,
 
-    scripts=['laVue', ],
+    scripts=['bin/laVue'],
 
     # cmdclass={'build_sphinx': BuildDoc,},
     # command_options={
