@@ -235,6 +235,8 @@ class HidraLiveViewer(QtGui.QDialog):
 #        self.imageW.addROIButton.clicked.connect(self.onaddrois)
 #        self.imageW.clearAllButton.clicked.connect(self.onclearrois)
         self.imageW.roiCoordsChanged.connect(self.calc_update_stats)
+        self.imageW.pixelComboBox.currentIndexChanged.connect(
+            self.onPixelChanged)
 
         # connecting signals from hidra widget:
         self.hidraW.hidra_connect.connect(self.connect_hidra)
@@ -272,8 +274,46 @@ class HidraLiveViewer(QtGui.QDialog):
         self.hidraW.setTargetName(self.data_source.getTarget())
         # self.hidraW.hidra_servername.connect(self.data_source.setSignalHost)
         self.hidraW.hidra_servername.connect(self.setSignalHost)
+        self.onPixelChanged()
 
         self.sardana = sardanaUtils.SardanaUtils()
+
+    def onPixelChanged(self):
+        imagew = self.imageW
+        text = imagew.pixelComboBox.currentText()
+        if text == "ROI":
+            imagew.img_widget.vLine.hide()
+            imagew.img_widget.hLine.hide()
+            imagew.fetchROIButton.show()
+            imagew.applyROIButton.show()
+            imagew.roiSpinBox.show()
+            imagew.labelROILineEdit.show()
+            imagew.pixellabel.setText("[x1, y1, x2, y2]: ")
+            imagew.roiLabel.show()
+            for roi in imagew.img_widget.roi:
+                roi.show()
+            imagew.img_widget.roienable = True
+            imagew.img_widget.roi[0].show()
+            imagew.infodisplay.setText("")
+            self.trafoName = "None"
+            self.trafoW.cb.setCurrentIndex(0)
+            self.trafoW.cb.setEnabled(False)
+            imagew.roiChanged()
+        else:
+            imagew.pixellabel.setText("Pixel position and intensity: ")
+            for roi in imagew.img_widget.roi:
+                roi.hide()
+            imagew.fetchROIButton.hide()
+            imagew.labelROILineEdit.hide()
+            imagew.applyROIButton.hide()
+            imagew.roiSpinBox.hide()
+            imagew.roiLabel.hide()
+            imagew.img_widget.roienable = False
+            imagew.img_widget.vLine.show()
+            imagew.img_widget.hLine.show()
+            imagew.infodisplay.setText("")
+            self.trafoW.cb.setEnabled(True)
+            imagew.roiCoordsChanged.emit()
 
     def onaddrois(self):
         if hcs.PYTANGO:

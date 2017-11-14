@@ -95,7 +95,6 @@ class ImageWidget(QtGui.QWidget):
         self.setLayout(verticallayout)
         self.img_widget.currentMousePosition.connect(self.infodisplay.setText)
 
-        self.pixelComboBox.currentIndexChanged.connect(self.onPixelChanged)
         self.roiregionmapper.mapped.connect(self.roiRegionChanged)
         self.currentroimapper.mapped.connect(self.currentROIChanged)
         self.img_widget.roi[0].sigHoverEvent.connect(self.currentroimapper.map)
@@ -105,7 +104,6 @@ class ImageWidget(QtGui.QWidget):
         
         self.roiSpinBox.valueChanged.connect(self.roiNrChanged)
         self.labelROILineEdit.textEdited.connect(self.updateROIButton)
-        self.onPixelChanged()
         self.updateROIButton()
 
     def roiRegionChanged(self, rid):
@@ -122,38 +120,6 @@ class ImageWidget(QtGui.QWidget):
             self.applyROIButton.setEnabled(False)
         else:
             self.applyROIButton.setEnabled(True)
-
-    def onPixelChanged(self):
-        text = self.pixelComboBox.currentText()
-        if text == "ROI":
-            self.img_widget.vLine.hide()
-            self.img_widget.hLine.hide()
-            self.fetchROIButton.show()
-            self.applyROIButton.show()
-            self.roiSpinBox.show()
-            self.labelROILineEdit.show()
-            self.pixellabel.setText("[x1, y1, x2, y2]: ")
-            self.roiLabel.show()
-            for roi in self.img_widget.roi:
-                roi.show()
-            self.img_widget.roienable = True
-            self.img_widget.roi[0].show()
-            self.infodisplay.setText("")
-            self.roiChanged()
-        else:
-            self.pixellabel.setText("Pixel position and intensity: ")
-            for roi in self.img_widget.roi:
-                roi.hide()
-            self.fetchROIButton.hide()
-            self.labelROILineEdit.hide()
-            self.applyROIButton.hide()
-            self.roiSpinBox.hide()
-            self.roiLabel.hide()
-            self.img_widget.roienable = False
-            self.img_widget.vLine.show()
-            self.img_widget.hLine.show()
-            self.infodisplay.setText("")
-            self.roiCoordsChanged.emit()
 
     def roiNrChanged(self, rid, coords=None):
         if coords:
