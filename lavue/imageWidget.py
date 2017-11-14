@@ -156,17 +156,15 @@ class ImageWidget(QtGui.QWidget):
             self.roiCoordsChanged.emit()
 
     def roiNrChanged(self, rid, coords=None):
-        print "cords", coords, rid
         if coords:
             for i, crd in enumerate(self.img_widget.roi):
-                print i , crd
                 if i < len(coords):
                     self.img_widget.roicoords[i] = coords[i]
-                    self.img_widget.roi[i].setPos(coords[i][0], coords[i][1])
+                    self.img_widget.roi[i].setPos([coords[i][0], coords[i][1]])
                     self.img_widget.roi[i].setSize(
                         [coords[i][2] - coords[i][0], coords[i][3] - coords[i][1]])
         while rid > len(self.img_widget.roi):
-            print("LEN %s" % len(self.img_widget.roi))
+            # print("LEN %s" % len(self.img_widget.roi))
             if coords and len(coords) >= len(self.img_widget.roi):
                 self.img_widget.addROI(coords[len(self.img_widget.roi)])
             else:

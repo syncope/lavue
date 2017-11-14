@@ -67,17 +67,14 @@ class StatisticsWidget(QtGui.QGroupBox):
 
         self.setLayout(layout)
 
-    def update_stats(self, meanVal, maxVal, varVal, scaling, roiVal=None, rid=-1):
+    def update_stats(self, meanVal, maxVal, varVal, scaling, roiVal=None, lrid=""):
         if self.scaling is not scaling:
             self.scaling = scaling
         self.scaleLabel.setText(self.scaling)
         self.meanVal.setText(meanVal)
         self.maxVal.setText(maxVal)
         self.varVal.setText(varVal)
-        lrid = rid + 1
-        if lrid: 
-            self.roilabel.setText("roi_%s sum: " % (rid + 1))
-        else:    
-            self.roilabel.setText("roi  sum: ")
+        lrid = lrid or "roi  sum: "
+        self.roilabel.setText("%s" % lrid)
         if roiVal is not None:
             self.roiVal.setText(roiVal)

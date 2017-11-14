@@ -280,9 +280,9 @@ class HidraLiveViewer(QtGui.QDialog):
             roicoords = self.imageW.img_widget.roicoords
             if not self.doorname:
                 self.doorname = self.sardana.getDeviceName("Door")
-            print("add rois %s " % roicoords)
-            print(self.sardana.getScanEnv(
-                str(self.doorname), ["DetectorROIs"]))
+            # print("add rois %s " % roicoords)
+            # print(self.sardana.getScanEnv(
+            #    str(self.doorname), ["DetectorROIs"]))
             rois = json.loads(self.sardana.getScanEnv(
                 str(self.doorname), ["DetectorROIs"]))
             rlabel = str(self.imageW.labelROILineEdit.text())
@@ -294,7 +294,7 @@ class HidraLiveViewer(QtGui.QDialog):
                    not isinstance(rois["DetectorROIs"][rlabel], list):
                     rois["DetectorROIs"][rlabel] = []
                 rois["DetectorROIs"][rlabel].append(roicoords)
-                print("rois %s " % rois)
+                # print("rois %s " % rois)
                 self.sardana.setScanEnv(str(self.doorname), json.dumps(rois))
             if self.addrois:
                 self.sardana.runMacro(
@@ -361,7 +361,7 @@ class HidraLiveViewer(QtGui.QDialog):
                 self.doorname = self.sardana.getDeviceName("Door")
             rois = json.loads(self.sardana.getScanEnv(
                 str(self.doorname), ["DetectorROIs"]))
-            print("rois %s" % rois)
+            # print("rois %s" % rois)
             rlabel = str(self.imageW.labelROILineEdit.text())
             slabel = re.split(';|,| |\n', rlabel)
             slabel = [lb for lb in set(slabel) if lb]
@@ -371,14 +371,25 @@ class HidraLiveViewer(QtGui.QDialog):
                 detrois = rois["DetectorROIs"] 
                 if slabel:
                     detrois = dict((k, v) for k, v in detrois.items() if k in slabel)
-            print("detrois %s " % detrois)
+            # print("detrois %s " % detrois)
             coords = []
+            aliases = []
             for k, v in detrois.items():
                 if isinstance(v, list):
                     for cr in v:
                         if isinstance(cr, list):
                             coords.append(cr)
-            self.imageW.roiNrChanged(len(coords), coords )        
+                            aliases.append(k)
+            slabel = []               
+            for i, al in enumerate(aliases):
+                if len(set(aliases[i:])) == 1:
+                    slabel.append(aliases[i])
+                    break
+                else:
+                    slabel.append(aliases[i])
+            self.imageW.labelROILineEdit.setText(" ".join(slabel))
+            self.imageW.updateROIButton()
+            self.imageW.roiNrChanged(len(coords), coords)        
         else:
             print("Connection error")
 
@@ -386,8 +397,8 @@ class HidraLiveViewer(QtGui.QDialog):
         if hcs.PYTANGO:
             if not self.doorname:
                 self.doorname = self.sardana.getDeviceName("Door")
-            print(self.sardana.getScanEnv(
-                str(self.doorname)), ["DetectorROIs"])
+            # print(self.sardana.getScanEnv(
+            #     str(self.doorname)), ["DetectorROIs"])
             rois = json.loads(self.sardana.getScanEnv(
                 str(self.doorname), ["DetectorROIs"]))
             rlabel = str(self.imageW.labelROILineEdit.text())
@@ -397,7 +408,7 @@ class HidraLiveViewer(QtGui.QDialog):
                     rois["DetectorROIs"] = {}
                 if rlabel in rois["DetectorROIs"]:
                     rois["DetectorROIs"].pop(rlabel)
-                print("rois %s " % rois)
+                # print("rois %s " % rois)
                 self.sardana.setScanEnv(str(self.doorname), json.dumps(rois))
             if self.addrois:
                 self.sardana.runMacro(
@@ -458,8 +469,21 @@ class HidraLiveViewer(QtGui.QDialog):
         currentscaling = self.scalingW.getCurrentScaling()
         # update the statistics display
         roiVal, currentroi = self.calcROIsum()
+        roilabel = ""
+        if currentroi >= 0:
+            roilabel = "roi_%s sum: " % (currentroi + 1)
+            slabel = []
+            rlabel = str(self.imageW.labelROILineEdit.text())
+            if rlabel:
+                slabel = re.split(';|,| |\n', rlabel)
+                slabel = [lb for lb in slabel if lb]
+            if slabel:
+                roilabel = "%s\n[%s]" % (
+                    roilabel,
+                    slabel[currentroi]
+                    if currentroi < len(slabel) else slabel[-1])
         self.statsW.update_stats(
-            meanVal, maxVal, varVal, currentscaling, roiVal, currentroi)
+            meanVal, maxVal, varVal, currentscaling, roiVal, roilabel)
 
         # if needed, update the levels display
         if(self.levelsW.isAutoLevel()):
@@ -546,10 +570,9 @@ class HidraLiveViewer(QtGui.QDialog):
             self.display_image = np.flipud(self.display_image)
 
     def calcROIsum(self):
-        rid = -1
+        rid = self.imageW.img_widget.currentroi
         if self.display_image is not None:
             if self.imageW.img_widget.roienable:
-                rid = self.imageW.img_widget.currentroi
                 if rid >= 0:
                     image = self.display_image
                     roicoords = self.imageW.img_widget.roicoords
