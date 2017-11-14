@@ -32,6 +32,7 @@ from __future__ import unicode_literals
 
 import time
 import json
+import re
 import numpy as np
 
 from PyQt4 import QtCore, QtGui
@@ -229,9 +230,13 @@ class HidraLiveViewer(QtGui.QDialog):
         self.levelsW.levelsChanged.connect(self.plot)
 
         self.imageW.cnfButton.clicked.connect(self.configuration)
-        self.imageW.addROIButton.clicked.connect(self.onaddrois)
-        self.imageW.clearAllButton.clicked.connect(self.onclearrois)
+        self.imageW.applyROIButton.clicked.connect(self.onapplyrois)
+        self.imageW.fetchROIButton.clicked.connect(self.onfetchrois)
+#        self.imageW.addROIButton.clicked.connect(self.onaddrois)
+#        self.imageW.clearAllButton.clicked.connect(self.onclearrois)
         self.imageW.roiCoordsChanged.connect(self.calc_update_stats)
+        self.imageW.pixelComboBox.currentIndexChanged.connect(
+            self.onPixelChanged)
 
         # connecting signals from hidra widget:
         self.hidraW.hidra_connect.connect(self.connect_hidra)
@@ -269,17 +274,55 @@ class HidraLiveViewer(QtGui.QDialog):
         self.hidraW.setTargetName(self.data_source.getTarget())
         # self.hidraW.hidra_servername.connect(self.data_source.setSignalHost)
         self.hidraW.hidra_servername.connect(self.setSignalHost)
+        self.onPixelChanged()
 
         self.sardana = sardanaUtils.SardanaUtils()
+
+    def onPixelChanged(self):
+        imagew = self.imageW
+        text = imagew.pixelComboBox.currentText()
+        if text == "ROI":
+            imagew.img_widget.vLine.hide()
+            imagew.img_widget.hLine.hide()
+            imagew.fetchROIButton.show()
+            imagew.applyROIButton.show()
+            imagew.roiSpinBox.show()
+            imagew.labelROILineEdit.show()
+            imagew.pixellabel.setText("[x1, y1, x2, y2]: ")
+            imagew.roiLabel.show()
+            for roi in imagew.img_widget.roi:
+                roi.show()
+            imagew.img_widget.roienable = True
+            imagew.img_widget.roi[0].show()
+            imagew.infodisplay.setText("")
+            self.trafoName = "None"
+            self.trafoW.cb.setCurrentIndex(0)
+            self.trafoW.cb.setEnabled(False)
+            imagew.roiChanged()
+        else:
+            imagew.pixellabel.setText("Pixel position and intensity: ")
+            for roi in imagew.img_widget.roi:
+                roi.hide()
+            imagew.fetchROIButton.hide()
+            imagew.labelROILineEdit.hide()
+            imagew.applyROIButton.hide()
+            imagew.roiSpinBox.hide()
+            imagew.roiLabel.hide()
+            imagew.img_widget.roienable = False
+            imagew.img_widget.vLine.show()
+            imagew.img_widget.hLine.show()
+            imagew.infodisplay.setText("")
+            self.trafoW.cb.setEnabled(True)
+            imagew.roiCoordsChanged.emit()
 
     def onaddrois(self):
         if hcs.PYTANGO:
             roicoords = self.imageW.img_widget.roicoords
             if not self.doorname:
                 self.doorname = self.sardana.getDeviceName("Door")
-            print("add rois %s " % roicoords)
-            print(self.sardana.getScanEnv(
-                str(self.doorname), ["DetectorROIs"]))
+            # print("add rois %s " % roicoords)
+            # print(self.sardana.getScanEnv(
+            #    str(self.doorname), ["DetectorROIs"]))
             rois = json.loads(self.sardana.getScanEnv(
                 str(self.doorname), ["DetectorROIs"]))
             rlabel = str(self.imageW.labelROILineEdit.text())
@@ -291,11 +334,102 @@ class HidraLiveViewer(QtGui.QDialog):
                    not isinstance(rois["DetectorROIs"][rlabel], list):
                     rois["DetectorROIs"][rlabel] = []
                 rois["DetectorROIs"][rlabel].append(roicoords)
-                print("rois %s " % rois)
+                # print("rois %s " % rois)
                 self.sardana.setScanEnv(str(self.doorname), json.dumps(rois))
             if self.addrois:
                 self.sardana.runMacro(
                     str(self.doorname), ["nxsadd", "%s" % rlabel])
+        else:
+            print("Connection error")
+            
+    def onapplyrois(self):
+        if hcs.PYTANGO:
+            roicoords = self.imageW.img_widget.roicoords
+            if not self.doorname:
+                self.doorname = self.sardana.getDeviceName("Door")
+
+            # print("add rois %s " % roicoords)
+            # print(self.sardana.getScanEnv(
+            # str(self.doorname), ["DetectorROIs"]))
+            rois = json.loads(self.sardana.getScanEnv(
+                str(self.doorname), ["DetectorROIs"]))
+            rlabel = str(self.imageW.labelROILineEdit.text())
+            slabel = re.split(';|,| |\n', rlabel)
+            slabel = [lb for lb in slabel if lb]
+            rid = 0
+            lascrdlist = None
+            toremove = []
+            toadd = []
+            if "DetectorROIs" not in rois or not isinstance(
+                    rois["DetectorROIs"], dict):
+                rois["DetectorROIs"] = {}
+            for alias in slabel:
+                if alias not in toadd:
+                    rois["DetectorROIs"][alias] = []
+                lastcrdlist = rois["DetectorROIs"][alias]
+                if rid < len(roicoords):
+                    lastcrdlist.append(roicoords[rid])
+                    rid += 1
+                    if alias not in toadd:
+                        toadd.append(alias)
+                if not lastcrdlist:
+                    rois["DetectorROIs"].pop(alias)
+                    toremove.append(alias)
+            if rid > 0:
+                while rid < len(roicoords):
+                    lastcrdlist.append(roicoords[rid])
+                    rid += 1
+                if not lastcrdlist:
+                    rois["DetectorROIs"].pop(alias)
+                    toremove.append(alias)
+                
+            # print("rois %s " % rois)
+            # print("to remove %s" % toremove)
+            # print("to add %s" % toadd)
+            self.sardana.setScanEnv(str(self.doorname), json.dumps(rois))
+            if self.addrois:
+                for alias in toadd:
+                    self.sardana.runMacro(str(self.doorname), ["nxsadd", alias])
+                for alias in toremove:
+                    self.sardana.runMacro(str(self.doorname), ["nxsrm", alias])
+        else:
+            print("Connection error")
+
+    def onfetchrois(self):
+        if hcs.PYTANGO:
+            if not self.doorname:
+                self.doorname = self.sardana.getDeviceName("Door")
+            rois = json.loads(self.sardana.getScanEnv(
+                str(self.doorname), ["DetectorROIs"]))
+            # print("rois %s" % rois)
+            rlabel = str(self.imageW.labelROILineEdit.text())
+            slabel = re.split(';|,| |\n', rlabel)
+            slabel = [lb for lb in set(slabel) if lb]
+            detrois = {}
+            if "DetectorROIs" in rois and isinstance(
+                    rois["DetectorROIs"], dict):
+                detrois = rois["DetectorROIs"] 
+                if slabel:
+                    detrois = dict((k, v) for k, v in detrois.items() if k in slabel)
+            # print("detrois %s " % detrois)
+            coords = []
+            aliases = []
+            for k, v in detrois.items():
+                if isinstance(v, list):
+                    for cr in v:
+                        if isinstance(cr, list):
+                            coords.append(cr)
+                            aliases.append(k)
+            slabel = []               
+            for i, al in enumerate(aliases):
+                if len(set(aliases[i:])) == 1:
+                    slabel.append(aliases[i])
+                    break
+                else:
+                    slabel.append(aliases[i])
+            self.imageW.labelROILineEdit.setText(" ".join(slabel))
+            self.imageW.updateROIButton()
+            self.imageW.roiNrChanged(len(coords), coords)        
         else:
             print("Connection error")
 
@@ -303,8 +437,8 @@ class HidraLiveViewer(QtGui.QDialog):
         if hcs.PYTANGO:
             if not self.doorname:
                 self.doorname = self.sardana.getDeviceName("Door")
-            print(self.sardana.getScanEnv(
-                str(self.doorname)), ["DetectorROIs"])
+            # print(self.sardana.getScanEnv(
+            #     str(self.doorname)), ["DetectorROIs"])
             rois = json.loads(self.sardana.getScanEnv(
                 str(self.doorname), ["DetectorROIs"]))
             rlabel = str(self.imageW.labelROILineEdit.text())
@@ -314,7 +448,7 @@ class HidraLiveViewer(QtGui.QDialog):
                     rois["DetectorROIs"] = {}
                 if rlabel in rois["DetectorROIs"]:
                     rois["DetectorROIs"].pop(rlabel)
-                print("rois %s " % rois)
+                # print("rois %s " % rois)
                 self.sardana.setScanEnv(str(self.doorname), json.dumps(rois))
             if self.addrois:
                 self.sardana.runMacro(
@@ -374,9 +508,22 @@ class HidraLiveViewer(QtGui.QDialog):
         maxVal, meanVal, varVal, minVal = self.calcStats()
         currentscaling = self.scalingW.getCurrentScaling()
         # update the statistics display
-        roiVal = self.calcROIsum()
+        roiVal, currentroi = self.calcROIsum()
+        roilabel = ""
+        if currentroi >= 0:
+            roilabel = "roi_%s sum: " % (currentroi + 1)
+            slabel = []
+            rlabel = str(self.imageW.labelROILineEdit.text())
+            if rlabel:
+                slabel = re.split(';|,| |\n', rlabel)
+                slabel = [lb for lb in slabel if lb]
+            if slabel:
+                roilabel = "%s\n[%s]" % (
+                    roilabel,
+                    slabel[currentroi]
+                    if currentroi < len(slabel) else slabel[-1])
         self.statsW.update_stats(
-            meanVal, maxVal, varVal, currentscaling, roiVal)
+            meanVal, maxVal, varVal, currentscaling, roiVal, roilabel)
 
         # if needed, update the levels display
         if(self.levelsW.isAutoLevel()):
@@ -463,30 +610,34 @@ class HidraLiveViewer(QtGui.QDialog):
             self.display_image = np.flipud(self.display_image)
 
     def calcROIsum(self):
+        rid = self.imageW.img_widget.currentroi
         if self.display_image is not None:
             if self.imageW.img_widget.roienable:
-                image = self.display_image
-                roicoords = self.imageW.img_widget.roicoords
-                rcrds = list(roicoords[0])
-                for i in [0, 2]:
-                    if rcrds[i] > image.shape[0]:
-                        rcrds[i] = image.shape[0]
-                    elif rcrds[i] < -i / 2:
-                        rcrds[i] = -i / 2
-                for i in [1, 3]:
-                    if rcrds[i] > image.shape[1]:
-                        rcrds[i] = image.shape[1]
-                    elif rcrds[i] < - (i - 1) / 2:
-                        rcrds[i] = - (i - 1) / 2
-                roival = np.sum(image[
-                    int(rcrds[0]):(int(rcrds[2]) + 1),
-                    int(rcrds[1]):(int(rcrds[3]) + 1)
-                ])
+                if rid >= 0:
+                    image = self.display_image
+                    roicoords = self.imageW.img_widget.roicoords
+                    rcrds = list(roicoords[rid])
+                    for i in [0, 2]:
+                        if rcrds[i] > image.shape[0]:
+                            rcrds[i] = image.shape[0]
+                        elif rcrds[i] < -i / 2:
+                            rcrds[i] = -i / 2
+                    for i in [1, 3]:
+                        if rcrds[i] > image.shape[1]:
+                            rcrds[i] = image.shape[1]
+                        elif rcrds[i] < - (i - 1) / 2:
+                            rcrds[i] = - (i - 1) / 2
+                    roival = np.sum(image[
+                        int(rcrds[0]):(int(rcrds[2]) + 1),
+                        int(rcrds[1]):(int(rcrds[3]) + 1)
+                    ])
+                else:
+                    roival = 0.
             else:
                 roival = 0.
-            return str("%.4f" % roival)
+            return str("%.4f" % roival), rid
         else:
-            return "0."
+            return "0.", rid
 
     def calcStats(self):
         if self.display_image is not None:
