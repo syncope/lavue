@@ -77,10 +77,10 @@ class ImageWidget(QtGui.QWidget):
         self.roiLabel = QtGui.QLabel("ROI alias(es): ")
         self.labelROILineEdit = QtGui.QLineEdit("")
         self.roiSpinBox = QtGui.QSpinBox()
-        self.roiSpinBox.setMinimum(0)
+        self.roiSpinBox.setMinimum(-1)
         self.roiSpinBox.setValue(1)
         self.fetchROIButton = QtGui.QPushButton("Fetch")
-        self.applyROIButton = QtGui.QPushButton("Apply")
+        self.applyROIButton = QtGui.QPushButton("Add")
 
         pixelvaluelayout.addWidget(self.pixellabel)
         pixelvaluelayout.addWidget(self.infodisplay)
@@ -123,6 +123,10 @@ class ImageWidget(QtGui.QWidget):
             self.applyROIButton.setEnabled(True)
 
     def roiNrChanged(self, rid, coords=None):
+        if rid < 0:
+            self.applyROIButton.setText("Remove")
+        else:
+            self.applyROIButton.setText("Add")
         if coords:
             for i, crd in enumerate(self.img_widget.roi):
                 if i < len(coords):
@@ -147,11 +151,11 @@ class ImageWidget(QtGui.QWidget):
             self.roiregionmapper.setMapping(
                 self.img_widget.roi[-1],
                 len(self.img_widget.roi) - 1)
-        if rid == 0:
+        if rid <= 0:
             self.img_widget.currentroi = -1
         elif self.img_widget.currentroi >= rid:
             self.img_widget.currentroi = 0
-        while rid < len(self.img_widget.roi):
+        while max(rid, 0) < len(self.img_widget.roi):
             self.currentroimapper.removeMappings(self.img_widget.roi[-1])
             self.roiregionmapper.removeMappings(self.img_widget.roi[-1])
             self.img_widget.removeROI()
