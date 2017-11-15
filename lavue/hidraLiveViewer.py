@@ -389,9 +389,15 @@ class HidraLiveViewer(QtGui.QDialog):
             self.sardana.setScanEnv(str(self.doorname), json.dumps(rois))
             if self.addrois:
                 for alias in toadd:
-                    self.sardana.runMacro(str(self.doorname), ["nxsadd", alias])
+                    res, warn = self.sardana.runMacro(
+                        str(self.doorname), ["nxsadd", alias])
+                    if warn:
+                        print("Warning: %s" %warn)
                 for alias in toremove:
-                    self.sardana.runMacro(str(self.doorname), ["nxsrm", alias])
+                    res, warn = self.sardana.runMacro(
+                        str(self.doorname), ["nxsrm", alias])
+                    if warn:
+                        print("Warning: %s" %warn)
         else:
             print("Connection error")
 

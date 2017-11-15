@@ -107,7 +107,7 @@ class SardanaUtils():
         self.__pools = []
         if not door:
             raise Exception("Door '%s' cannot be found" % door)
-        macroserver = self.getMacroServerName(self.__db, door)
+        macroserver = self.getMacroServerName(door, self.__db)
         msp = self.openProxy(macroserver)
         pnames = msp.get_property("PoolNames")["PoolNames"]
         if not pnames:
@@ -118,7 +118,7 @@ class SardanaUtils():
         self.__macroserver = macroserver
 
     @classmethod
-    def getMacroServerName(cls, db, door):
+    def getMacroServerName(cls, door, db=None):
         """ provides macro server of given door
 
         :param db: tango database
@@ -128,6 +128,8 @@ class SardanaUtils():
         :returns: first MacroServer of the given door
         :rtype: :obj:`str`
         """
+        if db is None:
+            db = self.__db
         servers = db.get_device_exported_for_class(
             "MacroServer").value_string
         ms = ""
@@ -216,22 +218,67 @@ class SardanaUtils():
                 pk = pickle.dumps(dc)
                 msp.Environment = ['pickle', pk]
 
-    def runMacro(self, door, command, tries=4):
+    def wait(self, name=None, proxy=None, maxcount=100):
+        """ stores Scan Environment Data
+
+        :param name: device name
+        :type name: :obj:`str`
+        :param proxy: door device proxy
+        :type proxy: :obj:`str`
+        :param maxcount: number of 0.01s to wait
+        :type maxcount:  :obj:`int`
+        """
+        if proxy is None:
+            proxy = self.openProxy(name)
+        for _ in range(maxcount):
+            if proxy.state() == PyTango.DevState.ON:
+                break
+            time.sleep(0.01)
+
+    def getMacroList(self, door):
+        """ fetches Scan Environment Data
+
+        :param door: door device
+        :type door: :obj:`str`
+        :returns: attribute name
+        :rtype: :obj:`str`
+        """
+        msp = PyTango.DeviceProxy(self.getMacroServer(door))
+        return 
+        
+    
+    def runMacro(self, door, command, wait=True):
         """ stores Scan Environment Data
 
         :param door: door device
         :type door: :obj:`str`
         :param jdata: JSON String with important variables
         :type jdata: :obj:`list` <:obj:`str`>
+        :param wait: wait till macro is finished
+        :type wait: :obj:`bool`
         """
         doorproxy = self.openProxy(door)
-        done = False
-        while not done:
-            try:
+        msp = PyTango.DeviceProxy(self.getMacroServer(door))
+        ml =  msp.MacroList
+        if len(command) == 0 or not command[0] or command[0] not in ml:
+            raise Exception("Macro %s not found" % str(command))
+        try:
+            doorproxy.RunMacro(command)
+        except PyTango.DevFailed as e:
+            if e.args[0].reason == 'API_CommandNotAllowed':
+                self.wait(proxy=doorproxy)
                 doorproxy.RunMacro(command)
-                done = True
-            except PyTango.DevFailed:
-                time.sleep(0.01)
+            else:
+                raise
+        if wait:
+            self.wait(proxy=doorproxy)
+            warn = doorproxy.warning
+            res = doorproxy.result
+            return res, warn
+        else:
+            None, None
+
+                     
 
     @classmethod
     def toString(cls, obj):
