@@ -348,6 +348,7 @@ class HidraLiveViewer(QtGui.QDialog):
     def onapplyrois(self):
         if hcs.PYTANGO:
             roicoords = self.imageW.img_widget.roicoords
+            roispin = self.imageW.roiSpinBox.value()
             if not self.doorname:
                 self.doorname = self.sardana.getDeviceName("Door")
 
@@ -377,14 +378,20 @@ class HidraLiveViewer(QtGui.QDialog):
                         toadd.append(alias)
                 if not lastcrdlist:
                     rois["DetectorROIs"].pop(alias)
-                    toremove.append(alias)
+                    if roispin >= 0:
+                        toadd.append(alias)
+                    else:
+                        toremove.append(alias)
             if rid > 0:
                 while rid < len(roicoords):
                     lastcrdlist.append(roicoords[rid])
                     rid += 1
                 if not lastcrdlist:
                     rois["DetectorROIs"].pop(alias)
-                    toremove.append(alias)
+                    if roispin >= 0:
+                        toadd.append(alias)
+                    else:
+                        toremove.append(alias)
 
             # print("rois %s " % rois)
             # print("to remove %s" % toremove)
@@ -497,7 +504,6 @@ class HidraLiveViewer(QtGui.QDialog):
             self.__updateConfig(cnfdlg)
 
     def __updateConfig(self, dialog):
-        print("Accept %s %s" % (dialog.door, dialog.addrois))
         self.doorname = dialog.door
         self.addrois = dialog.addrois
 
