@@ -247,8 +247,12 @@ class SardanaUtils():
         doorproxy = self.openProxy(door)
         msp = PyTango.DeviceProxy(self.getMacroServer(door))
         ml = msp.MacroList
-        if len(command) == 0 or not command[0] or command[0] not in ml:
+        if len(command) == 0:
             raise Exception("Macro %s not found" % str(command))
+        elif not command[0]:
+            raise Exception("Macro %s not found" % str(command))
+        elif command[0] not in ml:
+            raise Exception("Macro '%s' not found" % str(command[0]))
         try:
             doorproxy.RunMacro(command)
         except PyTango.DevFailed as e:

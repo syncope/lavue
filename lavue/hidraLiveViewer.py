@@ -38,6 +38,7 @@ import numpy as np
 from PyQt4 import QtCore, QtGui
 
 from . import hidra_cbf_source as hcs
+from . import messageBox
 
 from . import gradientChoiceWidget
 from . import hidraWidget
@@ -389,17 +390,36 @@ class HidraLiveViewer(QtGui.QDialog):
             # print("to remove %s" % toremove)
             # print("to add %s" % toadd)
             self.sardana.setScanEnv(str(self.doorname), json.dumps(rois))
+            warns = []
             if self.addrois:
-                for alias in toadd:
-                    res, warn = self.sardana.runMacro(
-                        str(self.doorname), ["nxsadd", alias])
-                    if warn:
-                        print("Warning: %s" % warn)
-                for alias in toremove:
-                    res, warn = self.sardana.runMacro(
-                        str(self.doorname), ["nxsrm", alias])
-                    if warn:
-                        print("Warning: %s" % warn)
+                try:
+                    for alias in toadd:
+                        res, warn = self.sardana.runMacro(
+                            str(self.doorname), ["nxsadd", alias])
+                        if warn:
+                            warns.extend(list(warn))
+                            print("Warning: %s" % warn)
+                    for alias in toremove:
+                        res, warn = self.sardana.runMacro(
+                            str(self.doorname), ["nxsrm", alias])
+                        if warn:
+                            warns.extend(list(warn))
+                            print("Warning: %s" % warn)
+                    if warns:
+                        msg = "\n".join(set(warns))
+                        messageBox.MessageBox.warning(
+                            self, "lavue: Errors in setting Measurement group",
+                            msg, str(warns))
+
+                except Exception:
+                    import traceback
+                    value = traceback.format_exc()
+                    text = messageBox.MessageBox.getText(
+                        "Problems in setting Measurement group")
+                    messageBox.MessageBox.warning(
+                        self, "lavue: Error in Setting Measurement group",
+                        text, str(value))
+
         else:
             print("Connection error")
 

@@ -1,5 +1,6 @@
 2017-11-XX Jan Kotanski <jan.kotanski@desy.de>
 	* add ROIs and sync with MG
+	* add add messagebox
 	* add Tango source
 	* add Test source
 	* add Configuration
