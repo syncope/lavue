@@ -383,8 +383,9 @@ class HidraLiveViewer(QtGui.QDialog):
                     lastcrdlist.append(roicoords[rid])
                     rid += 1
                 if not lastcrdlist:
-                    rois["DetectorROIs"].pop(alias)
-                    toremove.append(alias)
+                    if alias in rois["DetectorROIs"].keys():
+                        rois["DetectorROIs"].pop(alias)
+                        toremove.append(alias)
 
             # print("rois %s " % rois)
             # print("to remove %s" % toremove)
