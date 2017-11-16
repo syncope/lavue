@@ -377,7 +377,8 @@ class HidraLiveViewer(QtGui.QDialog):
                     if alias not in toadd:
                         toadd.append(alias)
                 if not lastcrdlist:
-                    rois["DetectorROIs"].pop(alias)
+                    if alias in rois["DetectorROIs"].keys():
+                        rois["DetectorROIs"].pop(alias)
                     if roispin >= 0:
                         toadd.append(alias)
                     else:
@@ -387,7 +388,8 @@ class HidraLiveViewer(QtGui.QDialog):
                     lastcrdlist.append(roicoords[rid])
                     rid += 1
                 if not lastcrdlist:
-                    rois["DetectorROIs"].pop(alias)
+                    if alias in rois["DetectorROIs"].keys():
+                        rois["DetectorROIs"].pop(alias)
                     if roispin >= 0:
                         toadd.append(alias)
                     else:
