@@ -80,5 +80,5 @@ class ConfigWidget(QtGui.QDialog):
         self.door = str(self.doorLineEdit.text()).strip()
         self.addrois = self.addroisCheckBox.isChecked()
         self.secport = str(self.secportLineEdit.text()).strip()
-        self.secstream = self.addroisCheckBox.isChecked()
+        self.secstream = self.secstreamCheckBox.isChecked()
         QtGui.QDialog.accept(self)

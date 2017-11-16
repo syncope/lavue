@@ -77,8 +77,8 @@ def alive(pid, calctime, maxval, minval, scaling,  meanval, **args):
 def checktime(calctime):
     ltime = time.time()
     if calctime + maxtimedelta < ltime:
-        print "STOP !!!", calctime, "Time GAP = ",
-        print (ltime - calctime + maxtimedelta)
+        print "STOP !!!", calctime, "Time GAP = %s > %s" % (
+            ltime - calctime + maxtimedelta, maxtimedelta)
         stophardware()
 
 
