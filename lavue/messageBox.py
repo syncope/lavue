@@ -37,6 +37,7 @@ from PyQt4 import QtCore, QtGui
 
 
 class MessageBox(QtCore.QObject):
+
     """ error message box """
 
     def __init__(self, parent):

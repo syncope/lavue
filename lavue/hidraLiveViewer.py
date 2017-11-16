@@ -34,6 +34,8 @@ import time
 import json
 import re
 import numpy as np
+import os
+import zmq
 
 from PyQt4 import QtCore, QtGui
 
@@ -150,6 +152,12 @@ class HidraLiveViewer(QtGui.QDialog):
 
         self.doorname = ""
         self.addrois = True
+        self.secstream = False
+        self.secport = "5657"
+
+        self.seccontext = zmq.Context()
+        self.secsocket = self.seccontext.socket(zmq.PUB)
+        self.apppid = os.getpid()
 
         # instantiate the data source
         # here: hardcoded the hidra cbf source!
@@ -501,6 +509,8 @@ class HidraLiveViewer(QtGui.QDialog):
             self.doorname = self.sardana.getDeviceName("Door")
         cnfdlg.door = self.doorname
         cnfdlg.addrois = self.addrois
+        cnfdlg.secport = self.secport
+        cnfdlg.secstream = self.secstream
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
@@ -508,6 +518,13 @@ class HidraLiveViewer(QtGui.QDialog):
     def __updateConfig(self, dialog):
         self.doorname = dialog.door
         self.addrois = dialog.addrois
+        if self.secstream != dialog.secstream:
+            if self.secstream:
+                self.secsocket.unbind("tcp://*:%s" % self.secport)
+            if dialog.secstream:
+                self.secsocket.bind("tcp://*:%s" % dialog.secport)
+        self.secport = dialog.secport
+        self.secstream = dialog.secstream
 
     def setSignalHost(self, signalhost):
         self._signalhost = signalhost
@@ -543,6 +560,7 @@ class HidraLiveViewer(QtGui.QDialog):
     def calc_update_stats(self):
         # calculate the stats for this
         maxVal, meanVal, varVal, minVal = self.calcStats()
+        calctime = time.time()
         currentscaling = self.scalingW.getCurrentScaling()
         # update the statistics display
         roiVal, currentroi = self.calcROIsum()
@@ -559,6 +577,16 @@ class HidraLiveViewer(QtGui.QDialog):
                     roilabel,
                     slabel[currentroi]
                     if currentroi < len(slabel) else slabel[-1])
+        if self.secstream and self.display_image is not None:
+            messagedata = {
+                'command': 'alive', 'calctime': calctime, 'maxval': maxVal,
+                'minval': minVal, 'meanval': meanVal, 'pid': self.apppid,
+                'scaling': currentscaling}
+            topic = 10001
+            # print(str(messagedata))
+            self.secsocket.send_string("%d %s" % (
+                topic, str(json.dumps(messagedata)).encode("ascii")))
+
         self.statsW.update_stats(
             meanVal, maxVal, varVal, currentscaling, roiVal, roilabel)
 
@@ -591,10 +619,26 @@ class HidraLiveViewer(QtGui.QDialog):
                 "Check the settings.")
         else:
             self.hidraW.connectSuccess()
+        if self.secstream:
+            calctime = time.time()
+            messagedata = {
+                'command': 'start', 'calctime': calctime, 'pid': self.apppid}
+            topic = 10001
+            # print(str(messagedata))
+            self.secsocket.send_string("%d %s" % (
+                topic, str(json.dumps(messagedata)).encode("ascii")))
 
     # call the disconnect function of the hidra interface
     def disconnect_hidra(self):
         self.data_source.disconnect()
+        if self.secstream:
+            calctime = time.time()
+            messagedata = {
+                'command': 'stop', 'calctime': calctime, 'pid': self.apppid}
+            # print(str(messagedata))
+            topic = 10001
+            self.secsocket.send_string("%d %s" % (
+                topic, str(json.dumps(messagedata)).encode("ascii")))
         # self.data_source = None
 
     def getNewData(self, name):

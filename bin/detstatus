@@ -1,0 +1,182 @@
+#!/usr/bin/python
+
+# Copyright (C) 2017  DESY, Notkestr. 85, D-22607 Hamburg
+#
+# lavue is an image viewing program for photon science imaging detectors.
+# Its usual application is as a live viewer using hidra as data source.
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation in  version 2
+# of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301, USA.
+#
+# Authors:
+#     Jan Kotanski <jan.kotanski@desy.de>
+#     Christoph Rosemann <christoph.rosemann@desy.de>
+#
+# Socket to talk to server
+
+import sys
+import zmq
+import time
+import json
+import math
+import argparse
+
+
+maxtimedelta = 1.
+maximumval = 1000.
+port = "5657"
+topicfilter = "10001"
+debug = False
+
+lasttime = time.time()
+
+
+def stophardware():
+    print "==========================================================="
+
+
+def stop(pid, calctime, **args):
+    stophardware()
+    print "STOP !!!", calctime, "LiveView stopped"
+
+
+def start(pid, calctime, **args):
+    if debug:
+        print "  START:", calctime
+
+
+def alive(pid, calctime, maxval, minval, scaling,  meanval, **args):
+    global lasttime
+    val = float(maxval)
+    if scaling == "sqrt":
+        val = val * val
+    elif scaling == "log":
+        val = math.pow(10, val)
+    elif scaling != "lin":
+        raise Exception("Unknown scaling: %s" % scaling)
+    if debug:
+        print "  ELIVE !!!", calctime, scaling, maxval, val
+    if val > maximumval:
+        print "STOP !!!", calctime, "maxval = %s > %s" % (val, maximumval)
+        stophardware()
+    lasttime = float(calctime)
+
+
+def checktime(calctime):
+    ltime = time.time()
+    if calctime + maxtimedelta < ltime:
+        print "STOP !!!", calctime, "Time GAP = ",
+        print (ltime - calctime + maxtimedelta)
+        stophardware()
+
+
+def main():
+    global lasttime
+
+    context = zmq.Context()
+    socket = context.socket(zmq.SUB)
+
+    socket.connect("tcp://localhost:%s" % port)
+
+    socket.setsockopt(zmq.SUBSCRIBE, topicfilter)
+
+    receiveloop = True
+    while receiveloop:
+        try:
+            while True:
+                # check for a message, this will not block
+                string = socket.recv(flags=zmq.NOBLOCK)
+                topic, message = string.split(" ", 1)
+                md = json.loads(message)
+                cmd = md["command"].lower()
+                if cmd == 'stop':
+                    stop(**md)
+                elif cmd == 'alive':
+                    alive(**md)
+                elif cmd == 'start':
+                    start(**md)
+                else:
+                    raise Exception("Wrong command")
+
+                checktime(float(md["calctime"]))
+                time.sleep(0.001)
+
+        except zmq.Again as e:
+            pass
+        except Exception as e:
+            print("STOP !!! Error: %s" % str(e))
+            stophardware()
+
+        checktime(float(lasttime))
+
+        time.sleep(0.1)
+
+if __name__ == "__main__":
+    options = None
+    parser = argparse.ArgumentParser(
+        description='ZMQ Client for laVue status')
+    parser.add_argument(
+        "-p", "--port",
+        help="zmq port (default: 5657)",
+        dest="port", default="5657")
+    parser.add_argument(
+        "-t", "--topic",
+        help="zmq topic (default: 10001)",
+        dest="topic", default="10001")
+    parser.add_argument(
+        "-m", "--maxval",
+        help="maximal pixel value (default: 1000.)",
+        dest="maxval", default="1000.")
+    parser.add_argument(
+        "-d", "--delta",
+        help="maximal time delta (default: 1.)",
+        dest="delta", default="1.")
+    parser.add_argument("--debug", action="store_true",
+                        default=False, dest="debug",
+                        help="debug mode")
+
+    options = parser.parse_args()
+
+    try:
+        port = int(options.port)
+    except:
+        print >> sys.stderr, \
+            "detstatus: Invalid --port parameter\n"
+        parser.print_help()
+        sys.exit(255)
+    try:
+        maximumval = float(options.maxval)
+    except:
+        print >> sys.stderr, \
+            "detstatus: Invalid --maxval parameter\n"
+        parser.print_help()
+        sys.exit(255)
+    try:
+        topicfilter = str(options.topic)
+    except:
+        print >> sys.stderr, \
+            "detstatus: Invalid --topic parameter\n"
+        parser.print_help()
+        sys.exit(255)
+    try:
+        maxtimedelta = float(options.delta)
+    except:
+        print >> sys.stderr, \
+            "detstatus: Invalid --delta parameter\n"
+        parser.print_help()
+        sys.exit(255)
+    debug = options.debug
+
+    main()

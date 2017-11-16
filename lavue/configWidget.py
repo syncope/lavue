@@ -33,6 +33,8 @@ class ConfigWidget(QtGui.QDialog):
 
         self.door = ""
         self.addrois = True
+        self.secstream = False
+        self.secport = "5657"
 
     def createGUI(self):
 
@@ -46,10 +48,20 @@ class ConfigWidget(QtGui.QDialog):
         self.addroisLabel = QtGui.QLabel(u"Add ROIs to Active MG:")
         self.addroisCheckBox = QtGui.QCheckBox()
         self.addroisCheckBox.setChecked(self.addrois)
+        self.secstreamLabel = QtGui.QLabel(u"ZMQ secure stream:")
+        self.secstreamCheckBox = QtGui.QCheckBox()
+        self.secstreamCheckBox.setChecked(self.secstream)
+        self.secportLabel = QtGui.QLabel(u"ZMQ secure port:")
+        self.secportLineEdit = QtGui.QLineEdit(self.secport)
+
         gridlayout.addWidget(self.doorLabel, 0, 0)
         gridlayout.addWidget(self.doorLineEdit, 0, 1)
         gridlayout.addWidget(self.addroisLabel, 1, 0)
         gridlayout.addWidget(self.addroisCheckBox, 1, 1)
+        gridlayout.addWidget(self.secstreamLabel, 2, 0)
+        gridlayout.addWidget(self.secstreamCheckBox, 2, 1)
+        gridlayout.addWidget(self.secportLabel, 3, 0)
+        gridlayout.addWidget(self.secportLineEdit, 3, 1)
         self.buttonBox = QtGui.QDialogButtonBox(
             QtGui.QDialogButtonBox.Ok
             | QtGui.QDialogButtonBox.Cancel)
@@ -67,4 +79,6 @@ class ConfigWidget(QtGui.QDialog):
 
         self.door = str(self.doorLineEdit.text()).strip()
         self.addrois = self.addroisCheckBox.isChecked()
+        self.secport = str(self.secportLineEdit.text()).strip()
+        self.secstream = self.addroisCheckBox.isChecked()
         QtGui.QDialog.accept(self)
