@@ -63,15 +63,9 @@ def start(pid, calctime, **args):
         print "  START:", calctime
 
 
-def alive(pid, calctime, maxval, minval, scaling,  meanval, **args):
+def alive(pid, calctime, maxrawval, maxval, minval, scaling,  meanval, **args):
     global lasttime
-    val = float(maxval)
-    if scaling == "sqrt":
-        val = val * val
-    elif scaling == "log":
-        val = math.pow(10, val)
-    elif scaling != "lin":
-        raise Exception("Unknown scaling: %s" % scaling)
+    val = float(maxrawval)
     if debug:
         print "  ELIVE !!!", calctime, scaling, maxval, val
     if val > maximumval:

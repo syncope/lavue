@@ -35,25 +35,21 @@ with open(path.join('.', 'README.rst'), encoding='utf-8') as f:
 # from sphinx.setup_command import BuildDoc
 
 name = 'lavue'
-version = '0'
-release = '0.5.0'
+lavuepackage = __import__(name)
+release = lavuepackage.__version__
+version = ".".join(release.split(".")[:2])
 
 setup(
     name='lavue',
     version='0.5.0',
-
     description='Live image viewer application for photon science detectors.',
     long_description=long_description,
-
     url='https://github.com/syncope/lavue',
-
     author='Ch.Rosemann, J.Kotanski, A.Rothkirch',
     author_email='christoph.rosemann@desy.de, '
     'jan.kotanski@desy.de, '
     'andre.rothkirch@desy.de ',
-
     license='GPLv2',
-
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
@@ -65,17 +61,12 @@ setup(
         # 'Programming Language :: Python :: 3.4',
         # 'Programming Language :: Python :: 3.5',
     ],
-
     keywords='live viewer photon science detector',
-
     packages=['lavue'],
-
     package_dir={'lauve': 'lavue'},
-
     include_package_data=True,
-
     scripts=['bin/lavue', 'bin/lavuemonitor'],
-
+    zip_safe=False,
     # cmdclass={'build_sphinx': BuildDoc,},
     # command_options={
     #     'build_sphinx': {

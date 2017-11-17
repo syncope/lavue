@@ -120,9 +120,8 @@ class HidraLiveViewer(QtGui.QDialog):
         def changeStatus(self, status):
             self._isConnected = status
 
-    def __init__(self, parent=None, signal_host=None, target=None):
+    def __init__(self, parent=None, umode=None, signal_host=None, target=None):
         super(HidraLiveViewer, self).__init__(parent)
-
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.sourcetypes = []
@@ -154,7 +153,8 @@ class HidraLiveViewer(QtGui.QDialog):
         self.addrois = True
         self.secstream = False
         self.secport = "5657"
-
+        self.umode = umode or "user"
+        
         self.seccontext = zmq.Context()
         self.secsocket = self.seccontext.socket(zmq.PUB)
         self.apppid = os.getpid()
@@ -179,7 +179,6 @@ class HidraLiveViewer(QtGui.QDialog):
         self.gradientW = gradientChoiceWidget.GradientChoiceWidget(parent=self)
         self.statsW = statisticsWidget.StatisticsWidget(parent=self)
         self.imageW = imageWidget.ImageWidget(parent=self)
-
         # self.maskW = self.prepBoxW.maskW
         self.bkgSubW = self.prepBoxW.bkgSubW
         self.trafoW = self.prepBoxW.trafoW
@@ -563,7 +562,7 @@ class HidraLiveViewer(QtGui.QDialog):
 
     def calc_update_stats(self):
         # calculate the stats for this
-        maxVal, meanVal, varVal, minVal = self.calcStats()
+        maxVal, meanVal, varVal, minVal, maxRawVal = self.calcStats()
         calctime = time.time()
         currentscaling = self.scalingW.getCurrentScaling()
         # update the statistics display
@@ -584,6 +583,7 @@ class HidraLiveViewer(QtGui.QDialog):
         if self.secstream and self.display_image is not None:
             messagedata = {
                 'command': 'alive', 'calctime': calctime, 'maxval': maxVal,
+                'maxrawval': maxRawVal,
                 'minval': minVal, 'meanval': meanVal, 'pid': self.apppid,
                 'scaling': currentscaling}
             topic = 10001
@@ -727,6 +727,7 @@ class HidraLiveViewer(QtGui.QDialog):
     def calcStats(self):
         if self.display_image is not None:
             maxval = np.amax(self.display_image)
+            maxrawval = np.amax(self.raw_image)
             meanval = np.mean(self.display_image)
             varval = np.var(self.display_image)
             # automatic maximum clipping to hardcoded value
@@ -736,9 +737,11 @@ class HidraLiveViewer(QtGui.QDialog):
             return (str("%.4f" % maxval),
                     str("%.4f" % meanval),
                     str("%.4f" % varval),
-                    str("%.3f" % np.amin(self.display_image)))
+                    str("%.3f" % np.amin(self.display_image)),
+                    str("%.4f" % maxrawval),
+            )
         else:
-            return "0.", "0.", "0.", "0."
+            return "0.", "0.", "0.", "0.", "0."
 
     def getInitialLevels(self):
         if(self.display_image is not None):

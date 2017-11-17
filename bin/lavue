@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright (C) 2017  DESY, Christoph Rosemann, Notkestr. 85, D-22607 Hamburg
+# Copyright (C) 2017  DESY, Notkestr. 85, D-22607 Hamburg
 #
 # lavue is an image viewing program for photon science imaging detectors.
 # Its usual application is as a live viewer using hidra as data source.
@@ -27,14 +27,89 @@
 
 
 import lavue
-
-from PyQt4 import QtGui
 import sys
+import os
+import argparse
 
-app = QtGui.QApplication(sys.argv)
 
-dialog = lavue.HidraLiveViewer()
-dialog.resize(1200, 800)
-dialog.show()
+# def main():
+if __name__ == "__main__":
+    """ the main function
+    """
+    
+    if "GNOME_DESKTOP_SESSION_ID" not in os.environ:
+        os.environ["GNOME_DESKTOP_SESSION_ID"] = "qtconfig"
+    if os.path.isdir("/usr/lib/kde4/plugins/") and \
+       "QT_PLUGIN_PATH" not in os.environ:
+        os.environ["QT_PLUGIN_PATH"] = "/usr/lib/kde4/plugins/"
 
-app.exec_()
+    from PyQt4 import QtGui, QtCore
+
+        
+    # QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
+    #Qt.QResource.registerResource(
+    #    os.path.join(qrc.__path__[0], "resources.rcc"))
+
+    parser = argparse.ArgumentParser(description='2d detector live image viewer')
+    parser.add_argument(
+        "-v", "--version",
+        action="store_true",
+        default=False,
+        dest="version",
+        help="program version")
+    parser.add_argument(
+        "-m", "--mode", dest="mode",
+        help="interface mode, i.e. user, expert")
+    parser.add_argument(
+        "--set-as-default-mode",
+        action="store_true",
+        default=False,
+        dest="setdefault",
+        help="set the current mode as default")
+    parser.add_argument(
+        "-t", "--style", dest="style",
+        help="Qt style")
+    parser.add_argument(
+        "-y", "--stylesheet", dest="stylesheet",
+        help="Qt stylesheet")
+    #    parser.add_argument(
+    #        "-l", "--log", dest="log",
+    #        help="logging level, i.e. debug, info, warning, error, critical")
+
+    options = parser.parse_args()
+
+    if options.version:
+        print(lavue.__version__)
+        sys.exit(0)
+    if options.mode:
+        umode = options.mode
+    else:
+        umode = None
+        
+    # level = LogActions.levels.get(options.log, logging.INFO)
+    # handler = LogHandler()
+    # handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+    # logger = logging.getLogger("nxsdesigner")
+    # logger.addHandler(handler)
+    # logger.setLevel(level)
+    
+    app = QtGui.QApplication([])
+    if options.style:
+        app.setStyle(options.style)
+    if options.stylesheet:
+        app.setStyle(options.stylesheet)
+    # app.setWindowIcon(QIcon(":/icon.png"))
+    app.setOrganizationName("DESY")
+    app.setOrganizationDomain("desy.de")
+    app.setApplicationName("LaVue")
+    
+    dialog = lavue.HidraLiveViewer(umode=umode)
+    dialog.resize(1200, 800)
+    dialog.show()
+    
+    status = app.exec_()
+    # qrc_resources.qCleanupResources()
+    sys.exit(status)
+
+#if __name__ == "__main__":
+#    main()
