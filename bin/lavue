@@ -104,7 +104,7 @@ if __name__ == "__main__":
     app.setApplicationName("LaVue")
     
     dialog = lavue.HidraLiveViewer(umode=umode)
-    dialog.resize(1200, 800)
+    # dialog.resize(1200, 800)
     dialog.show()
     
     status = app.exec_()

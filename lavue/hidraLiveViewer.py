@@ -154,7 +154,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.secstream = False
         self.secport = "5657"
         self.umode = umode or "user"
-        
+
         self.seccontext = zmq.Context()
         self.secsocket = self.seccontext.socket(zmq.PUB)
         self.apppid = os.getpid()
@@ -287,6 +287,19 @@ class HidraLiveViewer(QtGui.QDialog):
         self.onPixelChanged()
 
         self.sardana = sardanaUtils.SardanaUtils()
+        settings = QtCore.QSettings()
+        self.restoreGeometry(
+            settings.value("HidraLiveView/Geometry").toByteArray())
+        qstval = str(settings.value("HidraLiveView/AddROIs").toString())
+        if qstval.lower() == "false":
+            self.addrois = False
+        qstval = str(settings.value("HidraLiveView/SecStream").toString())
+        if qstval.lower() == "true":
+            self.secstream = True
+            self.secsocket.bind("tcp://*:%s" % self.secport)
+
+
+        
 
     def onPixelChanged(self):
         imagew = self.imageW
@@ -438,7 +451,46 @@ class HidraLiveViewer(QtGui.QDialog):
 
         else:
             print("Connection error")
+            
+    def __storeSettings(self):
+        """ Stores settings in QSettings object
+        """
+        settings = QtCore.QSettings()
+        settings.setValue(
+            "HidraLiveView/Geometry",
+            QtCore.QVariant(self.saveGeometry()))
+        settings.setValue(
+            "HidraLiveView/AddROIs",
+            QtCore.QVariant( self.addrois))
+        settings.setValue(
+            "HidraLiveView/SecPort",
+            QtCore.QVariant(self.secport))
+        settings.setValue(
+            "HidraLiveView/SecStream",
+            QtCore.QVariant(self.secstream))
+        settings.setValue(
+            "HidraLiveView/Door",
+            QtCore.QVariant(self.doorname))
+        # if self.configServer:
+        #     settings.setValue("ConfigServer/device",
+        #                       QVariant(self.configServer.device))
+        #     settings.setValue("ConfigServer/host",
+        #                       QVariant(self.configServer.host))
+        #     settings.setValue("ConfigServer/port",
+        #                       QVariant(self.configServer.port))
+        #     settings.setValue("ConfigServer/port",
+        #                       QVariant(self.configServer.port))
+        #     settings.setValue("Online/filename",
+        #                       QVariant(self.onlineFile))
+        #     self.configServer.close()
 
+
+    def closeEvent(self, event):
+        """ stores the setting before finishing the application
+        """
+        self.__storeSettings()
+        self.disconnect_hidra()
+        
     def onfetchrois(self):
         if hcs.PYTANGO:
             if not self.doorname:
