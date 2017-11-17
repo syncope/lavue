@@ -47,7 +47,6 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.data = None
         self.autoDisplayLevels = True
         self.displayLevels = [None, None]
-
         self.viewbox = self.layout.addViewBox(row=0, col=1)
 
         self.image = pg.ImageItem()

@@ -45,7 +45,6 @@ class ImageWidget(QtGui.QWidget):
 
         self.nparray = None
         self.imageItem = None
-
         self.img_widget = imageDisplayWidget.ImageDisplayWidget(parent=self)
         self.currentroimapper = QtCore.QSignalMapper(self)
         self.roiregionmapper = QtCore.QSignalMapper(self)
