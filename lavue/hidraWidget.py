@@ -176,12 +176,17 @@ class HidraWidget(QtGui.QGroupBox):
             self.hidra_state.emit(self.sourceTypeComboBox.currentIndex() + 1)
             self.hidra_connect.emit()
 
-    def connectSuccess(self):
+    def connectSuccess(self, secure=False):
         """ Function doc """
         self.connected = True
-        self.cStatus.setStyleSheet("color: white;"
-                                   "background-color: green;")
-        self.cStatus.setText("Connected")
+        if secure:
+            self.cStatus.setStyleSheet("color: white;"
+                                       "background-color: blue;")
+            self.cStatus.setText("Connected (emitting)")
+        else:    
+            self.cStatus.setStyleSheet("color: white;"
+                                       "background-color: green;")
+            self.cStatus.setText("Connected")
         self.sourceTypeComboBox.setEnabled(False)
         self.button.setText("Stop")
 

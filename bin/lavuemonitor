@@ -32,19 +32,25 @@ import time
 import json
 import math
 import argparse
+import os
 
 
-maxtimedelta = 1.
+maxtimegap = 1.
 maximumval = 1000.
 port = "5657"
 topicfilter = "10001"
 debug = False
+command = ""
 
 lasttime = time.time()
 
 
 def stophardware():
-    print "==========================================================="
+    if command:
+        print("-----------------------------------------------------------")
+        print("execute: '%s'" %  str(command))
+        os.system(command)
+    print("===========================================================")
 
 
 def stop(pid, calctime, **args):
@@ -76,9 +82,11 @@ def alive(pid, calctime, maxval, minval, scaling,  meanval, **args):
 
 def checktime(calctime):
     ltime = time.time()
-    if calctime + maxtimedelta < ltime:
+    # if debug:
+    #    print "GAP", ltime - calctime, maxtimegap
+    if calctime + maxtimegap < ltime:
         print "STOP !!!", calctime, "Time GAP = %s > %s" % (
-            ltime - calctime + maxtimedelta, maxtimedelta)
+            ltime - calctime, maxtimegap)
         stophardware()
 
 
@@ -111,7 +119,7 @@ def main():
                     raise Exception("Wrong command")
 
                 checktime(float(md["calctime"]))
-                time.sleep(0.001)
+                time.sleep(maxtimegap*0.001)
 
         except zmq.Again as e:
             pass
@@ -121,12 +129,24 @@ def main():
 
         checktime(float(lasttime))
 
-        time.sleep(0.1)
+        time.sleep(maxtimegap*0.1)
 
 if __name__ == "__main__":
     options = None
     parser = argparse.ArgumentParser(
         description='ZMQ Client for laVue status')
+    parser.add_argument(
+        "-i", "--max-intensity",
+        help="maximal pixel value (default: 1000.)",
+        dest="maxval", default="1000.")
+    parser.add_argument(
+        "-g", "--time-gap",
+        help="maximal time gap (default: 1.)",
+        dest="timegap", default="1.")
+    parser.add_argument(
+        "-c", "--stop-command",
+        help="stop command",
+        dest="command", default="")
     parser.add_argument(
         "-p", "--port",
         help="zmq port (default: 5657)",
@@ -135,18 +155,9 @@ if __name__ == "__main__":
         "-t", "--topic",
         help="zmq topic (default: 10001)",
         dest="topic", default="10001")
-    parser.add_argument(
-        "-m", "--maxval",
-        help="maximal pixel value (default: 1000.)",
-        dest="maxval", default="1000.")
-    parser.add_argument(
-        "-d", "--delta",
-        help="maximal time delta (default: 1.)",
-        dest="delta", default="1.")
     parser.add_argument("--debug", action="store_true",
                         default=False, dest="debug",
                         help="debug mode")
-
     options = parser.parse_args()
 
     try:
@@ -171,10 +182,17 @@ if __name__ == "__main__":
         parser.print_help()
         sys.exit(255)
     try:
-        maxtimedelta = float(options.delta)
+        command = str(options.command)
     except:
         print >> sys.stderr, \
-            "detstatus: Invalid --delta parameter\n"
+            "detstatus: Invalid --stop-command parameter\n"
+        parser.print_help()
+        sys.exit(255)
+    try:
+        maxtimegap = float(options.timegap)
+    except:
+        print >> sys.stderr, \
+            "detstatus: Invalid --time-gap parameter\n"
         parser.print_help()
         sys.exit(255)
     debug = options.debug

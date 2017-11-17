@@ -521,8 +521,12 @@ class HidraLiveViewer(QtGui.QDialog):
         if self.secstream != dialog.secstream:
             if self.secstream:
                 self.secsocket.unbind("tcp://*:%s" % self.secport)
+                if self.hidraW.connected:
+                    self.hidraW.connectSuccess(dialog.secstream)
             if dialog.secstream:
                 self.secsocket.bind("tcp://*:%s" % dialog.secport)
+                if self.hidraW.connected:
+                    self.hidraW.connectSuccess(dialog.secstream)
         self.secport = dialog.secport
         self.secstream = dialog.secstream
 
@@ -618,7 +622,7 @@ class HidraLiveViewer(QtGui.QDialog):
                 "<WARNING> The HiDRA connection could not be established. "
                 "Check the settings.")
         else:
-            self.hidraW.connectSuccess()
+            self.hidraW.connectSuccess(self.secstream)
         if self.secstream:
             calctime = time.time()
             messagedata = {
