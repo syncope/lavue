@@ -32,10 +32,11 @@ import os
 import argparse
 
 
-def main():
+# def main():
+if __name__ == "__main__":
     """ the main function
     """
-
+    
     if "GNOME_DESKTOP_SESSION_ID" not in os.environ:
         os.environ["GNOME_DESKTOP_SESSION_ID"] = "qtconfig"
     if os.path.isdir("/usr/lib/kde4/plugins/") and \
@@ -45,7 +46,7 @@ def main():
     from PyQt4 import QtGui, QtCore
 
         
-    # QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
+    QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
     #Qt.QResource.registerResource(
     #    os.path.join(qrc.__path__[0], "resources.rcc"))
 
@@ -103,13 +104,12 @@ def main():
     app.setApplicationName("LaVue")
     
     dialog = lavue.HidraLiveViewer(umode=umode)
-    #dialog.resize(1200, 800)
-    #dialog.show()
+    dialog.resize(1200, 800)
+    dialog.show()
     
-    #status = app.exec_()
+    status = app.exec_()
     # qrc_resources.qCleanupResources()
-    #sys.exit(status)
+    sys.exit(status)
 
-
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()
