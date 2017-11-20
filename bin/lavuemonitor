@@ -30,7 +30,7 @@ import sys
 import zmq
 import time
 import json
-import math
+# import math
 import argparse
 import os
 
@@ -48,7 +48,7 @@ lasttime = time.time()
 def stophardware():
     if command:
         print("-----------------------------------------------------------")
-        print("execute: '%s'" %  str(command))
+        print("execute: '%s'" % str(command))
         os.system(command)
     print("===========================================================")
 
@@ -113,7 +113,7 @@ def main():
                     raise Exception("Wrong command")
 
                 checktime(float(md["calctime"]))
-                time.sleep(maxtimegap*0.001)
+                time.sleep(maxtimegap * 0.001)
 
         except zmq.Again as e:
             pass
@@ -122,8 +122,8 @@ def main():
             stophardware()
 
         checktime(float(lasttime))
+        time.sleep(maxtimegap * 0.1)
 
-        time.sleep(maxtimegap*0.1)
 
 if __name__ == "__main__":
     options = None
