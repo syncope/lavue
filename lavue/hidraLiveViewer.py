@@ -298,9 +298,6 @@ class HidraLiveViewer(QtGui.QDialog):
             self.secstream = True
             self.secsocket.bind("tcp://*:%s" % self.secport)
 
-
-        
-
     def onPixelChanged(self):
         imagew = self.imageW
         text = imagew.pixelComboBox.currentText()
@@ -451,7 +448,7 @@ class HidraLiveViewer(QtGui.QDialog):
 
         else:
             print("Connection error")
-            
+
     def __storeSettings(self):
         """ Stores settings in QSettings object
         """
@@ -461,7 +458,7 @@ class HidraLiveViewer(QtGui.QDialog):
             QtCore.QVariant(self.saveGeometry()))
         settings.setValue(
             "HidraLiveView/AddROIs",
-            QtCore.QVariant( self.addrois))
+            QtCore.QVariant(self.addrois))
         settings.setValue(
             "HidraLiveView/SecPort",
             QtCore.QVariant(self.secport))
@@ -484,13 +481,12 @@ class HidraLiveViewer(QtGui.QDialog):
         #                       QVariant(self.onlineFile))
         #     self.configServer.close()
 
-
     def closeEvent(self, event):
         """ stores the setting before finishing the application
         """
         self.__storeSettings()
         self.disconnect_hidra()
-        
+
     def onfetchrois(self):
         if hcs.PYTANGO:
             if not self.doorname:
@@ -790,8 +786,7 @@ class HidraLiveViewer(QtGui.QDialog):
                     str("%.4f" % meanval),
                     str("%.4f" % varval),
                     str("%.3f" % np.amin(self.display_image)),
-                    str("%.4f" % maxrawval),
-            )
+                    str("%.4f" % maxrawval))
         else:
             return "0.", "0.", "0.", "0.", "0."
 

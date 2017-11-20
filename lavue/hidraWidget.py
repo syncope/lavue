@@ -183,7 +183,7 @@ class HidraWidget(QtGui.QGroupBox):
             self.cStatus.setStyleSheet("color: white;"
                                        "background-color: blue;")
             self.cStatus.setText("Connected (emitting)")
-        else:    
+        else:
             self.cStatus.setStyleSheet("color: white;"
                                        "background-color: green;")
             self.cStatus.setText("Connected")
