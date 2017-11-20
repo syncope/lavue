@@ -121,6 +121,7 @@ class HidraLiveViewer(QtGui.QDialog):
             self._isConnected = status
 
     def __init__(self, parent=None, umode=None, signal_host=None, target=None):
+        global GLOBALREFRESHRATE
         super(HidraLiveViewer, self).__init__(parent)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
@@ -297,6 +298,11 @@ class HidraLiveViewer(QtGui.QDialog):
         if qstval.lower() == "true":
             self.secstream = True
             self.secsocket.bind("tcp://*:%s" % self.secport)
+        try:
+            GLOBALREFRESHRATE = float(
+                settings.value("HidraLiveView/RefreshRate").toString())
+        except:
+            pass
 
     def onPixelChanged(self):
         imagew = self.imageW
@@ -460,6 +466,9 @@ class HidraLiveViewer(QtGui.QDialog):
             "HidraLiveView/AddROIs",
             QtCore.QVariant(self.addrois))
         settings.setValue(
+            "HidraLiveView/RefreshRate",
+            QtCore.QVariant(GLOBALREFRESHRATE))
+        settings.setValue(
             "HidraLiveView/SecPort",
             QtCore.QVariant(self.secport))
         settings.setValue(
@@ -558,13 +567,16 @@ class HidraLiveViewer(QtGui.QDialog):
         cnfdlg.addrois = self.addrois
         cnfdlg.secport = self.secport
         cnfdlg.secstream = self.secstream
+        cnfdlg.refreshrate = GLOBALREFRESHRATE
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
 
     def __updateConfig(self, dialog):
+        global GLOBALREFRESHRATE
         self.doorname = dialog.door
         self.addrois = dialog.addrois
+        GLOBALREFRESHRATE = dialog.refreshrate
         if self.secstream != dialog.secstream:
             if self.secstream:
                 self.secsocket.unbind("tcp://*:%s" % self.secport)

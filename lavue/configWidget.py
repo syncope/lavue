@@ -35,6 +35,7 @@ class ConfigWidget(QtGui.QDialog):
         self.addrois = True
         self.secstream = False
         self.secport = "5657"
+        self.refreshrate = 0.1
 
     def createGUI(self):
 
@@ -43,6 +44,10 @@ class ConfigWidget(QtGui.QDialog):
         gridlayout = QtGui.QGridLayout()
         vlayout = QtGui.QVBoxLayout()
 
+        self.rateLabel = QtGui.QLabel(u"Refresh rate:")
+        self.rateDoubleSpinBox = QtGui.QDoubleSpinBox()
+        self.rateDoubleSpinBox.setValue(self.refreshrate)
+        self.rateDoubleSpinBox.setSingleStep(0.01)
         self.doorLabel = QtGui.QLabel(u"Sardana Door:")
         self.doorLineEdit = QtGui.QLineEdit(self.door)
         self.addroisLabel = QtGui.QLabel(u"Add ROIs to Active MG:")
@@ -54,14 +59,16 @@ class ConfigWidget(QtGui.QDialog):
         self.secportLabel = QtGui.QLabel(u"ZMQ secure port:")
         self.secportLineEdit = QtGui.QLineEdit(self.secport)
 
-        gridlayout.addWidget(self.doorLabel, 0, 0)
-        gridlayout.addWidget(self.doorLineEdit, 0, 1)
-        gridlayout.addWidget(self.addroisLabel, 1, 0)
-        gridlayout.addWidget(self.addroisCheckBox, 1, 1)
-        gridlayout.addWidget(self.secstreamLabel, 2, 0)
-        gridlayout.addWidget(self.secstreamCheckBox, 2, 1)
-        gridlayout.addWidget(self.secportLabel, 3, 0)
-        gridlayout.addWidget(self.secportLineEdit, 3, 1)
+        gridlayout.addWidget(self.rateLabel, 0, 0)
+        gridlayout.addWidget(self.rateDoubleSpinBox, 0, 1)
+        gridlayout.addWidget(self.doorLabel, 1, 0)
+        gridlayout.addWidget(self.doorLineEdit, 1, 1)
+        gridlayout.addWidget(self.addroisLabel, 2, 0)
+        gridlayout.addWidget(self.addroisCheckBox, 2, 1)
+        gridlayout.addWidget(self.secstreamLabel, 3, 0)
+        gridlayout.addWidget(self.secstreamCheckBox, 3, 1)
+        gridlayout.addWidget(self.secportLabel, 4, 0)
+        gridlayout.addWidget(self.secportLineEdit, 4, 1)
         self.buttonBox = QtGui.QDialogButtonBox(
             QtGui.QDialogButtonBox.Ok
             | QtGui.QDialogButtonBox.Cancel)
@@ -81,4 +88,5 @@ class ConfigWidget(QtGui.QDialog):
         self.addrois = self.addroisCheckBox.isChecked()
         self.secport = str(self.secportLineEdit.text()).strip()
         self.secstream = self.secstreamCheckBox.isChecked()
+        self.refreshrate = float(self.rateDoubleSpinBox.value())
         QtGui.QDialog.accept(self)
