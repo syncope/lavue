@@ -30,7 +30,7 @@ import sys
 import zmq
 import time
 import json
-# import math
+import math
 import argparse
 import os
 
@@ -41,7 +41,7 @@ port = "5657"
 topicfilter = "10001"
 debug = False
 command = ""
-
+rawimage = False
 lasttime = time.time()
 
 
@@ -65,9 +65,18 @@ def start(pid, calctime, **args):
 
 def alive(pid, calctime, maxrawval, maxval, minval, scaling,  meanval, **args):
     global lasttime
-    val = float(maxrawval)
+    if rawimage:
+        val = float(maxrawval)
+    else:
+        val = float(maxval)
+        if scaling == "sqrt":
+            val = val * val
+        elif scaling == "log":
+            val = math.pow(10, val)
+        elif scaling != "lin":
+            raise Exception("Unknown scaling: %s" % scaling)
     if debug:
-        print "  ELIVE !!!", calctime, scaling, maxval, val
+        print "  ELIVE !!!", calctime, scaling, maxval, maxrawval, val
     if val > maximumval:
         print "STOP !!!", calctime, "maxval = %s > %s" % (val, maximumval)
         stophardware()
@@ -142,6 +151,10 @@ if __name__ == "__main__":
         help="stop command",
         dest="command", default="")
     parser.add_argument(
+        "-r", "--raw", action="store_true",
+        default=False, dest="raw",
+        help="check raw image")
+    parser.add_argument(
         "-p", "--port",
         help="zmq port (default: 5657)",
         dest="port", default="5657")
@@ -149,9 +162,10 @@ if __name__ == "__main__":
         "-t", "--topic",
         help="zmq topic (default: 10001)",
         dest="topic", default="10001")
-    parser.add_argument("--debug", action="store_true",
-                        default=False, dest="debug",
-                        help="debug mode")
+    parser.add_argument(
+        "--debug", action="store_true",
+        default=False, dest="debug",
+        help="debug mode")
     options = parser.parse_args()
 
     try:
@@ -190,5 +204,6 @@ if __name__ == "__main__":
         parser.print_help()
         sys.exit(255)
     debug = options.debug
+    rawimage = options.raw
 
     main()
