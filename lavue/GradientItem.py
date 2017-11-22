@@ -46,10 +46,10 @@ pg.graphicsItems.GradientEditorItem.Gradients['reverseGrayscale'] = {
 pg.graphicsItems.GradientEditorItem.Gradients['highContrast'] = {
     'ticks': [(0.0, (0, 0, 0, 255)),
               (1.0, (255, 255, 0, 255)), ], 'mode': 'rgb'}
-# pg.graphicsItems.GradientEditorItem.Gradients['Spectrum'] = {
-#    'ticks': [(0.0, (255, 0, 255, 255)),
-#              (1.0, (255, 0, 0, 255))], 'mode': 'hsv'}
 pg.graphicsItems.GradientEditorItem.Gradients['spectrum'] = {
+    'ticks': [(0.0, (255, 0, 255, 255)),
+              (1.0, (255, 0, 0, 255))], 'mode': 'hsv'}
+pg.graphicsItems.GradientEditorItem.Gradients['spectrumclip'] = {
     'ticks': [(0.0, (255, 0, 255, 255)),
               (.99, (255, 0, 0, 255)),
               (1.0, (255, 255, 255, 255))], 'mode': 'hsv'}
