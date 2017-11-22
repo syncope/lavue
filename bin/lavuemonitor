@@ -37,12 +37,13 @@ import os
 
 maxtimegap = 1.
 maximumval = 1000.
-port = "5657"
+port = None
 topicfilter = "10001"
 debug = False
 command = ""
 rawimage = False
 lasttime = time.time()
+hostname = "localhost"
 
 
 def stophardware():
@@ -98,8 +99,9 @@ def main():
 
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
-
-    socket.connect("tcp://localhost:%s" % port)
+    conn = "tcp://%s:%s" % (hostname, port)
+    print("Connecting to: %s" % conn)
+    socket.connect(conn)
 
     socket.setsockopt(zmq.SUBSCRIBE, topicfilter)
 
@@ -156,8 +158,12 @@ if __name__ == "__main__":
         help="check raw image")
     parser.add_argument(
         "-p", "--port",
-        help="zmq port (default: 5657)",
-        dest="port", default="5657")
+        help="zmq port (default: automatic)",
+        dest="port", default=None)
+    parser.add_argument(
+        "-z", "--host",
+        help="zmq host (default: localhost)",
+        dest="host", default="localhost")
     parser.add_argument(
         "-t", "--topic",
         help="zmq topic (default: 10001)",
@@ -171,39 +177,68 @@ if __name__ == "__main__":
     try:
         port = int(options.port)
     except:
-        print >> sys.stderr, \
-            "detstatus: Invalid --port parameter\n"
-        parser.print_help()
-        sys.exit(255)
+        try:
+            import psutil
+            pids = [process.pid for process in psutil.process_iter()
+                    if process.name() == 'lavue']
+            ports = []
+            if len(pids) > 0:
+                for pd in pids:
+                    proc = psutil.Process(pd)
+                    cnns = proc.connections()
+                    for cn in cnns:
+                        if cn.status == 'LISTEN':
+                            hostname, lport = cn.laddr
+                            ports.append(str(lport))
+                if len(ports) == 1:
+                    port = ports[0]
+                elif len(ports) > 1:
+
+                    print >> sys.stderr, \
+                        "lavuemonitor: Select one of the ports: ", ", ".join(
+                            ports)
+                    parser.print_help()
+                    sys.exit(255)
+                else:
+                    raise Exception("Cannot find the lavue port")
+            else:
+                raise Exception("Cannot find the lavue port")
+        except Exception as e:
+            # print str(e)
+            print >> sys.stderr, \
+                "lavuemonitor: Invalid --port parameter\n"
+            parser.print_help()
+            sys.exit(255)
     try:
         maximumval = float(options.maxval)
     except:
         print >> sys.stderr, \
-            "detstatus: Invalid --maxval parameter\n"
+            "lavuemonitor: Invalid --maxval parameter\n"
         parser.print_help()
         sys.exit(255)
     try:
         topicfilter = str(options.topic)
     except:
         print >> sys.stderr, \
-            "detstatus: Invalid --topic parameter\n"
+            "lavuemonitor: Invalid --topic parameter\n"
         parser.print_help()
         sys.exit(255)
     try:
         command = str(options.command)
     except:
         print >> sys.stderr, \
-            "detstatus: Invalid --stop-command parameter\n"
+            "lavuemonitor: Invalid --stop-command parameter\n"
         parser.print_help()
         sys.exit(255)
     try:
         maxtimegap = float(options.timegap)
     except:
         print >> sys.stderr, \
-            "detstatus: Invalid --time-gap parameter\n"
+            "lavuemonitor: Invalid --time-gap parameter\n"
         parser.print_help()
         sys.exit(255)
     debug = options.debug
     rawimage = options.raw
+    hostname = options.host
 
     main()

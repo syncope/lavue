@@ -35,6 +35,7 @@ class ConfigWidget(QtGui.QDialog):
         self.addrois = True
         self.secstream = False
         self.secport = "5657"
+        self.secautoport = True
         self.refreshrate = 0.1
 
     def createGUI(self):
@@ -56,8 +57,13 @@ class ConfigWidget(QtGui.QDialog):
         self.secstreamLabel = QtGui.QLabel(u"ZMQ secure stream:")
         self.secstreamCheckBox = QtGui.QCheckBox()
         self.secstreamCheckBox.setChecked(self.secstream)
+        self.secautoportLabel = QtGui.QLabel(u"ZMQ secure automatic port:")
+        self.secautoportCheckBox = QtGui.QCheckBox()
+        self.secautoportCheckBox.setChecked(self.secautoport)
         self.secportLabel = QtGui.QLabel(u"ZMQ secure port:")
         self.secportLineEdit = QtGui.QLineEdit(self.secport)
+        self.autoportChanged(self.secautoport)
+        self.secautoportCheckBox.stateChanged.connect(self.autoportChanged)
 
         gridlayout.addWidget(self.rateLabel, 0, 0)
         gridlayout.addWidget(self.rateDoubleSpinBox, 0, 1)
@@ -67,8 +73,10 @@ class ConfigWidget(QtGui.QDialog):
         gridlayout.addWidget(self.addroisCheckBox, 2, 1)
         gridlayout.addWidget(self.secstreamLabel, 3, 0)
         gridlayout.addWidget(self.secstreamCheckBox, 3, 1)
-        gridlayout.addWidget(self.secportLabel, 4, 0)
-        gridlayout.addWidget(self.secportLineEdit, 4, 1)
+        gridlayout.addWidget(self.secautoportLabel, 4, 0)
+        gridlayout.addWidget(self.secautoportCheckBox, 4, 1)
+        gridlayout.addWidget(self.secportLabel, 5, 0)
+        gridlayout.addWidget(self.secportLineEdit, 5, 1)
         self.buttonBox = QtGui.QDialogButtonBox(
             QtGui.QDialogButtonBox.Ok
             | QtGui.QDialogButtonBox.Cancel)
@@ -80,6 +88,12 @@ class ConfigWidget(QtGui.QDialog):
         self.buttonBox.button(
             QtGui.QDialogButtonBox.Ok).clicked.connect(self.accept)
 
+    def autoportChanged(self, value):
+        if value:
+            self.secportLineEdit.setEnabled(False)
+        else:
+            self.secportLineEdit.setEnabled(True)
+
     def accept(self):
         """ updates class variables with the form content
         """
@@ -88,5 +102,6 @@ class ConfigWidget(QtGui.QDialog):
         self.addrois = self.addroisCheckBox.isChecked()
         self.secport = str(self.secportLineEdit.text()).strip()
         self.secstream = self.secstreamCheckBox.isChecked()
+        self.secautoport = self.secautoportCheckBox.isChecked()
         self.refreshrate = float(self.rateDoubleSpinBox.value())
         QtGui.QDialog.accept(self)

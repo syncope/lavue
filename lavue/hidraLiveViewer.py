@@ -153,6 +153,8 @@ class HidraLiveViewer(QtGui.QDialog):
         self.doorname = ""
         self.addrois = True
         self.secstream = False
+        self.secautoport = True
+        self.secsockopt = ""
         self.secport = "5657"
         self.umode = umode or "user"
 
@@ -294,10 +296,38 @@ class HidraLiveViewer(QtGui.QDialog):
         qstval = str(settings.value("HidraLiveView/AddROIs").toString())
         if qstval.lower() == "false":
             self.addrois = False
+        qstval = str(settings.value("HidraLiveView/SecAutoPort").toString())
+        if qstval.lower() == "false":
+            self.secautoport = False
+
+        qstval = str(settings.value("HidraLiveView/SecPort").toString())
+        try:
+            int(qstval)
+            self.secport = str(qstval)
+        except:
+            pass
         qstval = str(settings.value("HidraLiveView/SecStream").toString())
         if qstval.lower() == "true":
-            self.secstream = True
-            self.secsocket.bind("tcp://*:%s" % self.secport)
+            try:
+                if self.secautoport:
+                    self.secsockopt = "tcp://*:*"
+                    self.secsocket.bind(self.secsockopt)
+                    self.secport = self.secsocket.getsockopt(
+                        zmq.LAST_ENDPOINT).split(":")[-1]
+                else:
+                    self.secsockopt = "tcp://*:%s" % self.secport
+                    self.secsocket.bind(self.secsockopt)
+                self.secstream = True
+            except:
+                self.secstream = False
+                import traceback
+                value = traceback.format_exc()
+                text = messageBox.MessageBox.getText(
+                    "lavue: Cannot connect to: %s" % self.secsockopt)
+                messageBox.MessageBox.warning(
+                    self, "lavue: Cannot connect to: %s" % self.secsockopt,
+                    text, str(value))
+
         try:
             GLOBALREFRESHRATE = float(
                 settings.value("HidraLiveView/RefreshRate").toString())
@@ -472,23 +502,14 @@ class HidraLiveViewer(QtGui.QDialog):
             "HidraLiveView/SecPort",
             QtCore.QVariant(self.secport))
         settings.setValue(
+            "HidraLiveView/SecAutoPort",
+            QtCore.QVariant(self.secautoport))
+        settings.setValue(
             "HidraLiveView/SecStream",
             QtCore.QVariant(self.secstream))
-        settings.setValue(
-            "HidraLiveView/Door",
-            QtCore.QVariant(self.doorname))
-        # if self.configServer:
-        #     settings.setValue("ConfigServer/device",
-        #                       QVariant(self.configServer.device))
-        #     settings.setValue("ConfigServer/host",
-        #                       QVariant(self.configServer.host))
-        #     settings.setValue("ConfigServer/port",
-        #                       QVariant(self.configServer.port))
-        #     settings.setValue("ConfigServer/port",
-        #                       QVariant(self.configServer.port))
-        #     settings.setValue("Online/filename",
-        #                       QVariant(self.onlineFile))
-        #     self.configServer.close()
+        # settings.setValue(
+        #    "HidraLiveView/Door",
+        #    QtCore.QVariant(self.doorname))
 
     def closeEvent(self, event):
         """ stores the setting before finishing the application
@@ -565,6 +586,7 @@ class HidraLiveViewer(QtGui.QDialog):
             self.doorname = self.sardana.getDeviceName("Door")
         cnfdlg.door = self.doorname
         cnfdlg.addrois = self.addrois
+        cnfdlg.secautoport = self.secautoport
         cnfdlg.secport = self.secport
         cnfdlg.secstream = self.secstream
         cnfdlg.refreshrate = GLOBALREFRESHRATE
@@ -577,15 +599,24 @@ class HidraLiveViewer(QtGui.QDialog):
         self.doorname = dialog.door
         self.addrois = dialog.addrois
         GLOBALREFRESHRATE = dialog.refreshrate
-        if self.secstream != dialog.secstream:
+        if self.secstream != dialog.secstream or (
+                self.secautoport != dialog.secautoport and dialog.secautoport):
             if self.secstream:
-                self.secsocket.unbind("tcp://*:%s" % self.secport)
+                self.secsocket.unbind(self.secsockopt)
                 if self.hidraW.connected:
-                    self.hidraW.connectSuccess(dialog.secstream)
+                    self.hidraW.connectSuccess(None)
             if dialog.secstream:
-                self.secsocket.bind("tcp://*:%s" % dialog.secport)
+                if dialog.secautoport:
+                    self.secsockopt = "tcp://*:*"
+                    self.secsocket.bind(self.secsockopt)
+                    dialog.secport = self.secsocket.getsockopt(
+                        zmq.LAST_ENDPOINT).split(":")[-1]
+                else:
+                    self.secsockopt = "tcp://*:%s" % dialog.secport
+                    self.secsocket.bind(self.secsockopt)
                 if self.hidraW.connected:
-                    self.hidraW.connectSuccess(dialog.secstream)
+                    self.hidraW.connectSuccess(dialog.secport)
+        self.secautoport = dialog.secautoport
         self.secport = dialog.secport
         self.secstream = dialog.secstream
 
@@ -682,7 +713,8 @@ class HidraLiveViewer(QtGui.QDialog):
                 "<WARNING> The HiDRA connection could not be established. "
                 "Check the settings.")
         else:
-            self.hidraW.connectSuccess(self.secstream)
+            self.hidraW.connectSuccess(
+                self.secport if self.secstream else None)
         if self.secstream:
             calctime = time.time()
             messagedata = {
