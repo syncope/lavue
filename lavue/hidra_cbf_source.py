@@ -420,7 +420,7 @@ class HiDRA_tif_source():
             # print ("data", str(data)[:10])
 
             if data[:2] in ["II\x2A\x00" "MM\x00\x2A"]:
-                img = numpy.array(Image.open(BytesIO(data)))
+                img = numpy.array(Image.open(BytesIO(str(data))))
                 return np.transpose(img), metadata["filename"]
         else:
             return None, None
