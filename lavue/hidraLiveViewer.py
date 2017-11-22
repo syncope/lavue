@@ -756,7 +756,19 @@ class HidraLiveViewer(QtGui.QDialog):
 
         if self.doBkgSubtraction and self.background_image is not None:
             # simple subtraction
-            self.display_image = self.raw_image - self.background_image
+            try:
+                self.display_image = self.raw_image - self.background_image
+            except:
+                self.checkBKGSubtraction(False)
+                self.background_image = None
+                import traceback
+                value = traceback.format_exc()
+                text = messageBox.MessageBox.getText(
+                    "lavue: Background image does not match to the current image")
+                messageBox.MessageBox.warning(
+                    self, "lavue: Background image does not match to the current image",
+                    text, str(value))
+                
         # if self.applyImageMask and self.maskIndices is not None:
         # set all masked (non-zero values) to zero by index
         #     self.display_image[self.maskIndices] = 0
@@ -854,6 +866,10 @@ class HidraLiveViewer(QtGui.QDialog):
         self.doBkgSubtraction = state
         if self.doBkgSubtraction and self.background_image is None:
             self.bkgSubW.setDisplayedName("")
+        elif not state and self.bkgSubW.applyBkgSubtractBox.isChecked():
+             self.bkgSubW.applyBkgSubtractBox.setChecked(False)
+             self.bkgSubW.setDisplayedName("")
+            
 
     def prepareBKGSubtraction(self, imagename):
         self.background_image = imageFileHandler.ImageFileHandler(
