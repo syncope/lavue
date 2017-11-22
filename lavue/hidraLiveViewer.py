@@ -182,6 +182,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.gradientW = gradientChoiceWidget.GradientChoiceWidget(parent=self)
         self.statsW = statisticsWidget.StatisticsWidget(parent=self)
         self.imageW = imageWidget.ImageWidget(parent=self)
+        self.levelsW.histogram.setImageItem(self.imageW.img_widget.image)
         # self.maskW = self.prepBoxW.maskW
         self.bkgSubW = self.prepBoxW.bkgSubW
         self.trafoW = self.prepBoxW.trafoW

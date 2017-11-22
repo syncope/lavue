@@ -25,7 +25,7 @@
 
 
 from PyQt4 import QtCore, QtGui
-
+from pyqtgraph import HistogramLUTWidget, LinearRegionItem
 
 class LevelsWidget(QtGui.QGroupBox):
 
@@ -63,8 +63,15 @@ class LevelsWidget(QtGui.QGroupBox):
         self.maxValSB.setMinimum(-1.)
         self.maxValSB.setMaximum(10e20)
         self.applyButton = QtGui.QPushButton("Apply levels")
+        
+        self.histogram = HistogramLUTWidget()
 
+        transform = QtGui.QTransform()
+        transform.rotate(-90)
+
+        self.histogram.item.setTransform(transform)
         layout = QtGui.QGridLayout()
+        vlayout = QtGui.QVBoxLayout()
         # layout.addWidget(informLabel, 0, 0)
         layout.addWidget(self.autoLevelBox, 0, 1)
         layout.addWidget(self.minLabel, 1, 0)
@@ -73,9 +80,11 @@ class LevelsWidget(QtGui.QGroupBox):
         layout.addWidget(self.maxValSB, 2, 1)
         layout.addWidget(self.scalingLabel, 3, 0)
         layout.addWidget(self.applyButton, 3, 1)
+        vlayout.addLayout(layout)
+        vlayout.addWidget(self.histogram)
 
         self.hideControls()
-        self.setLayout(layout)
+        self.setLayout(vlayout)
         self.applyButton.clicked.connect(self.check_and_emit)
         self.autoLevelBox.stateChanged.connect(self.autoLevelChange)
 
