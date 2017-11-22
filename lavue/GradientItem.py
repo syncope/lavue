@@ -113,7 +113,7 @@ class GradientItem(GraphicsWidget):
 
         self.gradient = GradientEditorItemWS()
         # CR: this is  sooooo bad, but there is no function !?
-        self.gradient.tickSize = 0
+        #        self.gradient.tickSize = 0
         self.gradient.setOrientation('right')
         self.gradient.loadPreset('reverseGrayscale')
 
