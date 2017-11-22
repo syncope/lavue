@@ -40,10 +40,10 @@ from pyqtgraph.graphicsItems.GradientEditorItem import GradientEditorItem
 import numpy as np
 
 
-pg.graphicsItems.GradientEditorItem.Gradients['reverseGrayscale'] = {
+pg.graphicsItems.GradientEditorItem.Gradients['reversegrey'] = {
     'ticks': [(0.0, (255, 255, 255, 255)),
               (1.0, (0, 0, 0, 255)), ], 'mode': 'rgb'}
-pg.graphicsItems.GradientEditorItem.Gradients['highContrast'] = {
+pg.graphicsItems.GradientEditorItem.Gradients['highcontrast'] = {
     'ticks': [(0.0, (0, 0, 0, 255)),
               (1.0, (255, 255, 0, 255)), ], 'mode': 'rgb'}
 pg.graphicsItems.GradientEditorItem.Gradients['spectrum'] = {
@@ -57,9 +57,9 @@ pg.graphicsItems.GradientEditorItem.Gradients['spectrumclip'] = {
 pg.graphicsItems.GradientEditorItem.Gradients['inverted'] = {
     'ticks': [(0.0, (255, 255, 255, 255)),
               (1.0, (0, 0, 0, 255)), ], 'mode': 'rgb'}
-pg.graphicsItems.GradientEditorItem.Gradients['highContrast'] = {
-    'ticks': [(0.0, (0, 0, 0, 255)),
-              (1.0, (255, 255, 0, 255)), ], 'mode': 'rgb'}
+#pg.graphicsItems.GradientEditorItem.Gradients['highcontrast'] = {
+#    'ticks': [(0.0, (0, 0, 0, 255)),
+#              (1.0, (255, 255, 0, 255)), ], 'mode': 'rgb'}
 
 
 class GradientEditorItemWS(GradientEditorItem):
@@ -115,7 +115,7 @@ class GradientItem(GraphicsWidget):
         # CR: this is  sooooo bad, but there is no function !?
         #        self.gradient.tickSize = 0
         self.gradient.setOrientation('right')
-        self.gradient.loadPreset('reverseGrayscale')
+        self.gradient.loadPreset('reversegrey')
 
         self.layout.addItem(self.gradient, 0, 0)
 

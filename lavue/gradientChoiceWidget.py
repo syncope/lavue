@@ -42,8 +42,8 @@ class GradientChoiceWidget(QtGui.QGroupBox):
 
         layout = QtGui.QHBoxLayout()
         self.cb = QtGui.QComboBox()
-        self.cb.addItem("reverseGrayscale")
-        self.cb.addItem("highContrast")
+        self.cb.addItem("reversegrey")
+        self.cb.addItem("highcontrast")
         self.cb.addItem("thermal")
         self.cb.addItem("flame")
         self.cb.addItem("bipolar")
