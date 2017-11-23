@@ -83,26 +83,34 @@ class LevelsWidget(QtGui.QGroupBox):
         self.setLayout(vlayout)
         self.applyButton.clicked.connect(self.check_and_emit)
         self.autoLevelBox.stateChanged.connect(self.autoLevelChange)
-
+        self.histogram.item.sigLevelsChanged.connect(self.levelChange)
         self.updateLevels(self.minVal, self.maxVal)
 
     def changeview(self, showhistogram=False):
         if showhistogram:
             self.histogram.show()
-            for i in range(self.glayout.count()):
-                self.glayout.itemAt(i).widget().hide()
+            self.autoLevelBox.hide()
+            self.applyButton.hide()
+            self.scalingLabel.hide()
+            self.maxValSB.setReadOnly(True)
+            self.minValSB.setReadOnly(True)
             self.histogram.fillHistogram(True)
+            self.autoLevelBox.setChecked(False)
+            self.autoLevelChange(0)
         else:
+            self.autoLevelBox.show()
+            self.applyButton.show()
+            self.scalingLabel.show()
             self.histogram.hide()
-            for i in range(self.glayout.count()):
-                self.glayout.itemAt(i).widget().show()
+            self.maxValSB.setReadOnly(False)
+            self.minValSB.setReadOnly(False)
             self.histogram.fillHistogram(False)
 
     def isAutoLevel(self):
         return self.auto
 
     def autoLevelChange(self, value):
-        if(value is 2):
+        if value == 2:
             self.auto = True
             self.hideControls()
             self.autoLevels.emit(1)
@@ -112,6 +120,12 @@ class LevelsWidget(QtGui.QGroupBox):
             self.autoLevels.emit(0)
             self.check_and_emit()
         self.levelsChanged.emit()
+
+    def levelChange(self, histo):
+        levels = histo.region.getRegion()
+        self.minValSB.setValue(levels[0])
+        self.maxValSB.setValue(levels[1])
+        self.check_and_emit()
 
     def check_and_emit(self):
         # check if the minimum value is actually smaller than the maximum

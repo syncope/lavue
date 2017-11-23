@@ -117,7 +117,7 @@ class HistogramHLUTItem(HistogramLUTItem):
         self.gradient.setOrientation('bottom')
         self.gradient.loadPreset('grey')
 
-        self.region = LinearRegionItem([0, 20], LinearRegionItem.Vertical)
+        self.region = LinearRegionItem([0, 1], LinearRegionItem.Vertical)
         self.region.setZValue(1000)
         self.vb.addItem(self.region)
 

@@ -158,6 +158,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.secport = "5657"
         self.umode = umode or "user"
         self.showhisto = True
+        self.updatehisto = False
 
         self.seccontext = zmq.Context()
         self.secsocket = self.seccontext.socket(zmq.PUB)
@@ -184,8 +185,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.statsW = statisticsWidget.StatisticsWidget(parent=self)
         self.imageW = imageWidget.ImageWidget(parent=self)
         self.levelsW.histogram.setImageItem(self.imageW.img_widget.image)
-        self.levelsW.histogram.item.imageChanged(
-            autoLevel=True, autoRange=True)
+        self.levelsW.histogram.item.imageChanged(autoLevel=True)
 
         # self.maskW = self.prepBoxW.maskW
         self.bkgSubW = self.prepBoxW.bkgSubW
