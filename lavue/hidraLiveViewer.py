@@ -302,24 +302,24 @@ class HidraLiveViewer(QtGui.QDialog):
         self.sardana = sardanaUtils.SardanaUtils()
         settings = QtCore.QSettings()
         self.restoreGeometry(
-            settings.value("HidraLiveView/Geometry").toByteArray())
-        qstval = str(settings.value("HidraLiveView/AddROIs").toString())
+            settings.value("Layout/Geometry").toByteArray())
+        qstval = str(settings.value("Configuration/AddROIs").toString())
         if qstval.lower() == "false":
             self.addrois = False
-        qstval = str(settings.value("HidraLiveView/SecAutoPort").toString())
+        qstval = str(settings.value("Configuration/SecAutoPort").toString())
         if qstval.lower() == "false":
             self.secautoport = False
 
-        qstval = str(settings.value("HidraLiveView/ShowHistogram").toString())
+        qstval = str(settings.value("Configuration/ShowHistogram").toString())
         if qstval.lower() == "false":
             self.showhisto = False
-        qstval = str(settings.value("HidraLiveView/SecPort").toString())
+        qstval = str(settings.value("Configuration/SecPort").toString())
         try:
             int(qstval)
             self.secport = str(qstval)
         except:
             pass
-        qstval = str(settings.value("HidraLiveView/SecStream").toString())
+        qstval = str(settings.value("Configuration/SecStream").toString())
         if qstval.lower() == "true":
             try:
                 if self.secautoport:
@@ -343,7 +343,7 @@ class HidraLiveViewer(QtGui.QDialog):
 
         try:
             GLOBALREFRESHRATE = float(
-                settings.value("HidraLiveView/RefreshRate").toString())
+                settings.value("Configuration/RefreshRate").toString())
         except:
             pass
         self.levelsW.changeview(self.showhisto)
@@ -504,29 +504,29 @@ class HidraLiveViewer(QtGui.QDialog):
         """
         settings = QtCore.QSettings()
         settings.setValue(
-            "HidraLiveView/Geometry",
-            QtCore.QVariant(self.saveGeometry()))
-        settings.setValue(
-            "HidraLiveView/AddROIs",
+            "Configuration/AddROIs",
             QtCore.QVariant(self.addrois))
         settings.setValue(
-            "HidraLiveView/ShowHistogram",
+            "Configuration/ShowHistogram",
             QtCore.QVariant(self.showhisto))
         settings.setValue(
-            "HidraLiveView/RefreshRate",
+            "Configuration/RefreshRate",
             QtCore.QVariant(GLOBALREFRESHRATE))
         settings.setValue(
-            "HidraLiveView/SecPort",
+            "Configuration/SecPort",
             QtCore.QVariant(self.secport))
         settings.setValue(
-            "HidraLiveView/SecAutoPort",
+            "Configuration/SecAutoPort",
             QtCore.QVariant(self.secautoport))
         settings.setValue(
-            "HidraLiveView/SecStream",
+            "Configuration/SecStream",
             QtCore.QVariant(self.secstream))
         # settings.setValue(
-        #    "HidraLiveView/Door",
+        #    "Configuration/Door",
         #    QtCore.QVariant(self.doorname))
+        settings.setValue(
+            "Layout/Geometry",
+            QtCore.QVariant(self.saveGeometry()))
 
     def closeEvent(self, event):
         """ stores the setting before finishing the application
