@@ -130,7 +130,8 @@ class HiDRA_cbf_source():
     def __init__(self, timeout=None):
         self.signal_host = None
         self.portnumber = "50001"
-        self.target = [socket.getfqdn(), self.portnumber, 19, [".cbf"]]
+        self.target = [socket.getfqdn(), self.portnumber, 19,
+                       [".cbf", ".tif", ".tiff"]]
         self.query = None
         self._initiated = False
         self._timeout = timeout
@@ -181,12 +182,18 @@ class HiDRA_cbf_source():
             pass  # this needs a bit more care
 
         if metadata is not None and data is not None:
-            print ("[cbf source module]::metadata", metadata["filename"])
             # print ("data", str(data)[:10])
 
             if data[:10] == "###CBF: VE":
+                print ("[cbf source module]::metadata", metadata["filename"])
                 img = self.eval_pildata(np.fromstring(data[:], dtype=np.uint8))
                 return np.transpose(img), metadata["filename"]
+            elif data[:2] in ["II\x2A\x00", "MM\x00\x2A"]:
+                print ("[tif source module]::metadata", metadata["filename"])
+                img = numpy.array(Image.open(BytesIO(str(data))))
+                return np.transpose(img), metadata["filename"]
+            else:
+                print ("[unknown source module]::metadata", metadata["filename"])
         else:
             return None, None
 
@@ -359,69 +366,4 @@ class HiDRA_cbf_source():
             else:
                 image = np.array([0])
         return image
-
-class HiDRA_tif_source():
-
-    def __init__(self, timeout=None):
-        self.signal_host = None
-        self.portnumber = "50001"
-        self.target = [socket.getfqdn(), self.portnumber, 19, [".tif"]]
-        self.query = None
-        self._initiated = False
-        self._timeout = timeout
-
-    def getTargetSignalHost(self):
-        return self.target[0] + ":" + self.portnumber, self.signal_host
-
-    def getTarget(self):
-        return self.target[0] + ":" + self.portnumber
-
-    def setTargetSignalHost(self, target, signalhost, portnumber="50001"):
-        self.setSignalHost(signalhost)
-        self.setTargetPort(signalhost, portnumber)
-
-    def setSignalHost(self, signalhost):
-        if self.signal_host != signalhost:
-            self.signal_host = signalhost
-            self.query = hidra.Transfer("QUERY_NEXT", self.signal_host)
-            self._initiated = False
-
-    def setTargetPort(self, portnumber):
-        self.portnumber = portnumber
-
-    def connect(self):
-        try:
-            if(not self._initiated):
-                self.query.initiate(self.target)
-                self._initiated = True
-                self.query.start()
-            return True
-        except:
-            if self.query is not None:
-                self.query.stop()
-            return False
-
-    def disconnect(self):
-        try:
-            pass  # self.query.stop()
-        except:
-            pass
-
-    def getData(self):
-        metadata = None
-        data = None
-        try:
-            [metadata, data] = self.query.get(self._timeout)
-        except:
-            pass  # this needs a bit more care
-
-        if metadata is not None and data is not None:
-            print ("[tif source module]::metadata", metadata["filename"])
-            # print ("data", str(data)[:10])
-
-            if data[:2] in ["II\x2A\x00" "MM\x00\x2A"]:
-                img = numpy.array(Image.open(BytesIO(str(data))))
-                return np.transpose(img), metadata["filename"]
-        else:
-            return None, None
 
