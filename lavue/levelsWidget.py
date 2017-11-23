@@ -25,7 +25,7 @@
 
 
 from PyQt4 import QtCore, QtGui
-from pyqtgraph import HistogramLUTWidget, LinearRegionItem
+from .histogramWidget import HistogramHLUTWidget
 
 class LevelsWidget(QtGui.QGroupBox):
 
@@ -64,23 +64,18 @@ class LevelsWidget(QtGui.QGroupBox):
         self.maxValSB.setMaximum(10e20)
         self.applyButton = QtGui.QPushButton("Apply levels")
         
-        self.histogram = HistogramLUTWidget()
+        self.histogram = HistogramHLUTWidget()
 
-        transform = QtGui.QTransform()
-        transform.rotate(-90)
-
-        self.histogram.item.setTransform(transform)
-        layout = QtGui.QGridLayout()
+        self.glayout = QtGui.QGridLayout()
         vlayout = QtGui.QVBoxLayout()
-        # layout.addWidget(informLabel, 0, 0)
-        layout.addWidget(self.autoLevelBox, 0, 1)
-        layout.addWidget(self.minLabel, 1, 0)
-        layout.addWidget(self.minValSB, 1, 1)
-        layout.addWidget(self.maxLabel, 2, 0)
-        layout.addWidget(self.maxValSB, 2, 1)
-        layout.addWidget(self.scalingLabel, 3, 0)
-        layout.addWidget(self.applyButton, 3, 1)
-        vlayout.addLayout(layout)
+        self.glayout.addWidget(self.autoLevelBox, 0, 1)
+        self.glayout.addWidget(self.minLabel, 1, 0)
+        self.glayout.addWidget(self.minValSB, 1, 1)
+        self.glayout.addWidget(self.maxLabel, 2, 0)
+        self.glayout.addWidget(self.maxValSB, 2, 1)
+        self.glayout.addWidget(self.scalingLabel, 3, 0)
+        self.glayout.addWidget(self.applyButton, 3, 1)
+        vlayout.addLayout(self.glayout)
         vlayout.addWidget(self.histogram)
 
         self.hideControls()
@@ -90,6 +85,19 @@ class LevelsWidget(QtGui.QGroupBox):
 
         self.updateLevels(self.minVal, self.maxVal)
 
+    def changeview(self, showhistogram=False):
+        if showhistogram:
+            self.histogram.show()
+            for i in range(self.glayout.count()):
+                self.glayout.itemAt(i).widget().hide()
+            self.histogram.fillHistogram(True)
+        else:
+            self.histogram.hide()
+            for i in range(self.glayout.count()):
+                self.glayout.itemAt(i).widget().show()
+            self.histogram.fillHistogram(False)
+
+        
     def isAutoLevel(self):
         return self.auto
 

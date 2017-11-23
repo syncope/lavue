@@ -37,6 +37,7 @@ class ConfigWidget(QtGui.QDialog):
         self.secport = "5657"
         self.secautoport = True
         self.refreshrate = 0.1
+        self.showhisto = True
 
     def createGUI(self):
 
@@ -64,6 +65,9 @@ class ConfigWidget(QtGui.QDialog):
         self.secportLineEdit = QtGui.QLineEdit(self.secport)
         self.autoportChanged(self.secautoport)
         self.secautoportCheckBox.stateChanged.connect(self.autoportChanged)
+        self.showhistoLabel = QtGui.QLabel(u"Show histogram:")
+        self.showhistoCheckBox = QtGui.QCheckBox()
+        self.showhistoCheckBox.setChecked(self.showhisto)
 
         gridlayout.addWidget(self.rateLabel, 0, 0)
         gridlayout.addWidget(self.rateDoubleSpinBox, 0, 1)
@@ -77,6 +81,8 @@ class ConfigWidget(QtGui.QDialog):
         gridlayout.addWidget(self.secautoportCheckBox, 4, 1)
         gridlayout.addWidget(self.secportLabel, 5, 0)
         gridlayout.addWidget(self.secportLineEdit, 5, 1)
+        gridlayout.addWidget(self.showhistoLabel, 6, 0)
+        gridlayout.addWidget(self.showhistoCheckBox, 6, 1)
         self.buttonBox = QtGui.QDialogButtonBox(
             QtGui.QDialogButtonBox.Ok
             | QtGui.QDialogButtonBox.Cancel)
@@ -104,4 +110,5 @@ class ConfigWidget(QtGui.QDialog):
         self.secstream = self.secstreamCheckBox.isChecked()
         self.secautoport = self.secautoportCheckBox.isChecked()
         self.refreshrate = float(self.rateDoubleSpinBox.value())
+        self.showhisto = self.showhistoCheckBox.isChecked()
         QtGui.QDialog.accept(self)

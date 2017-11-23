@@ -157,7 +157,8 @@ class HidraLiveViewer(QtGui.QDialog):
         self.secsockopt = ""
         self.secport = "5657"
         self.umode = umode or "user"
-
+        self.showhisto = True
+        
         self.seccontext = zmq.Context()
         self.secsocket = self.seccontext.socket(zmq.PUB)
         self.apppid = os.getpid()
@@ -183,6 +184,8 @@ class HidraLiveViewer(QtGui.QDialog):
         self.statsW = statisticsWidget.StatisticsWidget(parent=self)
         self.imageW = imageWidget.ImageWidget(parent=self)
         self.levelsW.histogram.setImageItem(self.imageW.img_widget.image)
+        self.levelsW.histogram.item.imageChanged(autoLevel=True, autoRange=True)
+        
         # self.maskW = self.prepBoxW.maskW
         self.bkgSubW = self.prepBoxW.bkgSubW
         self.trafoW = self.prepBoxW.trafoW
@@ -240,6 +243,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.levelsW.changeMaxLevel.connect(self.imageW.setMaxLevel)
         self.levelsW.autoLevels.connect(self.imageW.setAutoLevels)
         self.levelsW.levelsChanged.connect(self.plot)
+        self.levelsW.changeview(self.showhisto)
 
         self.imageW.cnfButton.clicked.connect(self.configuration)
         self.imageW.applyROIButton.clicked.connect(self.onapplyrois)
@@ -258,8 +262,12 @@ class HidraLiveViewer(QtGui.QDialog):
         self.hidraW.hidra_disconnect.connect(self.disconnect_hidra)
 
         # gradient selector
-        self.gradientW.chosenGradient.connect(self.imageW.changeGradient)
-        self.imageW.img_widget.graditem.gradient.sigNameChanged.connect(
+        self.gradientW.chosenGradient.connect(
+            self.levelsW.histogram.setGradientByName)
+        # self.gradientW.chosenGradient.connect(self.imageW.changeGradient)
+        #self.imageW.img_widget.graditem.gradient.sigNameChanged.connect(
+        #    self.gradientW.changeGradient)
+        self.levelsW.histogram.gradient.sigNameChanged.connect(
             self.gradientW.changeGradient)
 
         # simple mutable caching object for data exchange with thread
@@ -587,6 +595,7 @@ class HidraLiveViewer(QtGui.QDialog):
             self.doorname = self.sardana.getDeviceName("Door")
         cnfdlg.door = self.doorname
         cnfdlg.addrois = self.addrois
+        cnfdlg.showhisto = self.showhisto
         cnfdlg.secautoport = self.secautoport
         cnfdlg.secport = self.secport
         cnfdlg.secstream = self.secstream
@@ -599,6 +608,10 @@ class HidraLiveViewer(QtGui.QDialog):
         global GLOBALREFRESHRATE
         self.doorname = dialog.door
         self.addrois = dialog.addrois
+
+        if self.showhisto != dialog.showhisto:
+            self.levelsW.changeview(dialog.showhisto)
+            self.showhisto = dialog.showhisto
         GLOBALREFRESHRATE = dialog.refreshrate
         if self.secstream != dialog.secstream or (
                 self.secautoport != dialog.secautoport and dialog.secautoport):
@@ -651,6 +664,9 @@ class HidraLiveViewer(QtGui.QDialog):
 
         # calls internally the plot function of the plot widget
         self.imageW.plot(self.display_image, self.image_name)
+        if self.updatehisto:
+            self.levelsW.histogram.imageChanged(autoLevel=True)
+            self.updatehisto = False
 
     def calc_update_stats(self):
         # calculate the stats for this
@@ -724,6 +740,7 @@ class HidraLiveViewer(QtGui.QDialog):
             # print(str(messagedata))
             self.secsocket.send_string("%d %s" % (
                 topic, str(json.dumps(messagedata)).encode("ascii")))
+        self.updatehisto = True
 
     # call the disconnect function of the hidra interface
     def disconnect_hidra(self):
@@ -870,6 +887,7 @@ class HidraLiveViewer(QtGui.QDialog):
         elif not state and self.bkgSubW.applyBkgSubtractBox.isChecked():
              self.bkgSubW.applyBkgSubtractBox.setChecked(False)
              self.bkgSubW.setDisplayedName("")
+        # self.updatehisto = True
             
 
     def prepareBKGSubtraction(self, imagename):
@@ -882,6 +900,7 @@ class HidraLiveViewer(QtGui.QDialog):
             self.bkgSubW.setDisplayedName(str(self.image_name))
         else:
             self.bkgSubW.setDisplayedName("")
+        #  self.updatehisto = True
 
     def assessTransformation(self, trafoName):
         self.trafoName = trafoName
