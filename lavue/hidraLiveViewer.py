@@ -158,7 +158,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.secport = "5657"
         self.umode = umode or "user"
         self.showhisto = True
-        
+
         self.seccontext = zmq.Context()
         self.secsocket = self.seccontext.socket(zmq.PUB)
         self.apppid = os.getpid()
@@ -184,8 +184,9 @@ class HidraLiveViewer(QtGui.QDialog):
         self.statsW = statisticsWidget.StatisticsWidget(parent=self)
         self.imageW = imageWidget.ImageWidget(parent=self)
         self.levelsW.histogram.setImageItem(self.imageW.img_widget.image)
-        self.levelsW.histogram.item.imageChanged(autoLevel=True, autoRange=True)
-        
+        self.levelsW.histogram.item.imageChanged(
+            autoLevel=True, autoRange=True)
+
         # self.maskW = self.prepBoxW.maskW
         self.bkgSubW = self.prepBoxW.bkgSubW
         self.trafoW = self.prepBoxW.trafoW
@@ -265,7 +266,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.gradientW.chosenGradient.connect(
             self.levelsW.histogram.setGradientByName)
         # self.gradientW.chosenGradient.connect(self.imageW.changeGradient)
-        #self.imageW.img_widget.graditem.gradient.sigNameChanged.connect(
+        # self.imageW.img_widget.graditem.gradient.sigNameChanged.connect(
         #    self.gradientW.changeGradient)
         self.levelsW.histogram.gradient.sigNameChanged.connect(
             self.gradientW.changeGradient)
@@ -782,11 +783,13 @@ class HidraLiveViewer(QtGui.QDialog):
                 import traceback
                 value = traceback.format_exc()
                 text = messageBox.MessageBox.getText(
-                    "lavue: Background image does not match to the current image")
+                    "lavue: Background image does not match "
+                    "to the current image")
                 messageBox.MessageBox.warning(
-                    self, "lavue: Background image does not match to the current image",
+                    self, "lavue: Background image does not match "
+                    "to the current image",
                     text, str(value))
-                
+
         # if self.applyImageMask and self.maskIndices is not None:
         # set all masked (non-zero values) to zero by index
         #     self.display_image[self.maskIndices] = 0
@@ -885,10 +888,9 @@ class HidraLiveViewer(QtGui.QDialog):
         if self.doBkgSubtraction and self.background_image is None:
             self.bkgSubW.setDisplayedName("")
         elif not state and self.bkgSubW.applyBkgSubtractBox.isChecked():
-             self.bkgSubW.applyBkgSubtractBox.setChecked(False)
-             self.bkgSubW.setDisplayedName("")
+            self.bkgSubW.applyBkgSubtractBox.setChecked(False)
+            self.bkgSubW.setDisplayedName("")
         # self.updatehisto = True
-            
 
     def prepareBKGSubtraction(self, imagename):
         self.background_image = imageFileHandler.ImageFileHandler(

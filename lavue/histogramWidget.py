@@ -28,16 +28,14 @@ from pyqtgraph.Qt import QtGui, QtCore
 from pyqtgraph.widgets.GraphicsView import GraphicsView
 from pyqtgraph import HistogramLUTItem
 from pyqtgraph.graphicsItems.GraphicsWidget import GraphicsWidget
-from pyqtgraph.graphicsItems.ViewBox import *
-from pyqtgraph.graphicsItems.GradientEditorItem import *
-from pyqtgraph.graphicsItems.LinearRegionItem import *
-from pyqtgraph.graphicsItems.PlotDataItem import *
-from pyqtgraph.graphicsItems.AxisItem import *
-from pyqtgraph.graphicsItems.GridItem import *
+from pyqtgraph.graphicsItems.ViewBox import ViewBox
+from pyqtgraph.graphicsItems.GradientEditorItem import GradientEditorItem
+from pyqtgraph.graphicsItems.LinearRegionItem import LinearRegionItem
+from pyqtgraph.graphicsItems.PlotDataItem import PlotDataItem
+from pyqtgraph.graphicsItems.AxisItem import AxisItem
 from pyqtgraph.Point import Point
 import pyqtgraph.functions as fn
 import numpy as np
-import pyqtgraph.debug as debug
 
 pg.graphicsItems.GradientEditorItem.Gradients['reversegrey'] = {
     'ticks': [(0.0, (255, 255, 255, 255)),
@@ -56,13 +54,13 @@ pg.graphicsItems.GradientEditorItem.Gradients['spectrumclip'] = {
 pg.graphicsItems.GradientEditorItem.Gradients['inverted'] = {
     'ticks': [(0.0, (255, 255, 255, 255)),
               (1.0, (0, 0, 0, 255)), ], 'mode': 'rgb'}
-#pg.graphicsItems.GradientEditorItem.Gradients['highcontrast'] = {
+# pg.graphicsItems.GradientEditorItem.Gradients['highcontrast'] = {
 #    'ticks': [(0.0, (0, 0, 0, 255)),
 #              (1.0, (255, 255, 0, 255)), ], 'mode': 'rgb'}
 
 __all__ = ['HistogramHLUTWidget']
 
-        
+
 class HistogramHLUTWidget(GraphicsView):
 
     def __init__(self, parent=None,  *args, **kargs):
@@ -82,7 +80,6 @@ class HistogramHLUTWidget(GraphicsView):
         return getattr(self.item, attr)
 
 
-                   
 class GradientEditorItemWS(GradientEditorItem):
 
     sigNameChanged = QtCore.Signal(str)
@@ -98,22 +95,23 @@ class GradientEditorItemWS(GradientEditorItem):
 
 
 class HistogramHLUTItem(HistogramLUTItem):
-    
+
     def __init__(self, image=None, fillHistogram=True):
         GraphicsWidget.__init__(self)
 
         self.lut = None
         self.imageItem = None
-        
+
         self.layout = QtGui.QGraphicsGridLayout()
         self.setLayout(self.layout)
-        self.layout.setContentsMargins(1,1,1,1)
+        self.layout.setContentsMargins(1, 1, 1, 1)
         self.layout.setSpacing(0)
 
         self.vb = ViewBox()
         # self.vb.setMaximumHeight(152)
         self.vb.setMinimumHeight(45)
         self.vb.setMouseEnabled(x=True, y=False)
+        # self.vb.setMouseEnabled(x=False, y=True)
 
         self.gradient = GradientEditorItemWS()
         self.gradient.setOrientation('bottom')
@@ -133,7 +131,7 @@ class HistogramHLUTItem(HistogramLUTItem):
 
         self.gradient.setFlag(self.gradient.ItemStacksBehindParent)
         self.vb.setFlag(self.gradient.ItemStacksBehindParent)
-        
+
         self.gradient.sigGradientChanged.connect(self.gradientChanged)
         self.region.sigRegionChanged.connect(self.regionChanging)
         self.region.sigRegionChangeFinished.connect(self.regionChanged)
@@ -143,20 +141,20 @@ class HistogramHLUTItem(HistogramLUTItem):
         # self.plot.dataBounds(0, 0.9)
 
         self.fillHistogram(fillHistogram)
-            
+
         self.vb.addItem(self.plot)
         self.autoHistogramRange()
-        
+
         if image is not None:
             self.setImageItem(image)
         self.background = None
-            
+
     def setGradientByName(self, name):
         try:
             self.gradient.loadPreset(str(name))
         except:
             self.gradient.loadPreset("highContrast")
-        
+
     def paint(self, p, *args):
         pen = self.region.lines[0].pen
         rgn = self.getLevels()
@@ -172,13 +170,12 @@ class HistogramHLUTItem(HistogramLUTItem):
             p.drawLine(p2, gradRect.topRight())
             p.drawLine(gradRect.topLeft(), gradRect.bottomLeft())
             p.drawLine(gradRect.topRight(), gradRect.bottomRight())
-        
 
     def setHistogramRange(self, mn, mx, padding=0.1):
-        """Set the Y range on the histogram plot. This disables auto-scaling."""
+        """Set the Y range on the histogram plot.
+        This disables auto-scaling."""
         self.vb.enableAutoRange(self.vb.XAxis, False)
         self.vb.setYRange(mn, mx, padding)
-
 
     def imageChanged(self, autoLevel=False, autoRange=False):
         h = self.imageItem.getHistogram()
@@ -195,7 +192,3 @@ class HistogramHLUTItem(HistogramLUTItem):
             mn = h[0][0]
             mx = h[0][-1]
             self.region.setRegion([mn, mx])
-        
-
-        
-

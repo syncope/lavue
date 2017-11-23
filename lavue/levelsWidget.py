@@ -27,6 +27,7 @@
 from PyQt4 import QtCore, QtGui
 from .histogramWidget import HistogramHLUTWidget
 
+
 class LevelsWidget(QtGui.QGroupBox):
 
     """
@@ -63,7 +64,7 @@ class LevelsWidget(QtGui.QGroupBox):
         self.maxValSB.setMinimum(-1.)
         self.maxValSB.setMaximum(10e20)
         self.applyButton = QtGui.QPushButton("Apply levels")
-        
+
         self.histogram = HistogramHLUTWidget()
 
         self.glayout = QtGui.QGridLayout()
@@ -97,7 +98,6 @@ class LevelsWidget(QtGui.QGroupBox):
                 self.glayout.itemAt(i).widget().show()
             self.histogram.fillHistogram(False)
 
-        
     def isAutoLevel(self):
         return self.auto
 
