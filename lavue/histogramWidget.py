@@ -24,6 +24,7 @@
 #
 
 import pyqtgraph as pg
+import weakref
 from pyqtgraph.Qt import QtGui, QtCore
 from pyqtgraph.widgets.GraphicsView import GraphicsView
 from pyqtgraph import HistogramLUTItem
@@ -36,6 +37,8 @@ from pyqtgraph.graphicsItems.AxisItem import AxisItem
 from pyqtgraph.Point import Point
 import pyqtgraph.functions as fn
 import numpy as np
+
+VMAJOR, VMINOR, VPATCH = pg.__version__.split(".")
 
 pg.graphicsItems.GradientEditorItem.Gradients['reversegrey'] = {
     'ticks': [(0.0, (255, 255, 255, 255)),
@@ -100,7 +103,10 @@ class HistogramHLUTItem(HistogramLUTItem):
         GraphicsWidget.__init__(self)
 
         self.lut = None
-        self.imageItem = None
+        if VMAJOR == '0' and int(VMINOR) < 10:
+            self.imageItem = None
+        else:
+            self.imageItem = lambda: None
 
         self.layout = QtGui.QGraphicsGridLayout()
         self.setLayout(self.layout)
@@ -178,7 +184,10 @@ class HistogramHLUTItem(HistogramLUTItem):
         self.vb.setYRange(mn, mx, padding)
 
     def imageChanged(self, autoLevel=False, autoRange=False):
-        h = self.imageItem.getHistogram()
+        if isinstance(self.imageItem, weakref.ref):
+            h = self.imageItem().getHistogram()
+        else:
+            h = self.imageItem.getHistogram()
         if h[0] is not None and self.background is not None:
             mn = min([abs(x - self.background) for x in h[0]])
             nid = np.where(h[0] == mn)
