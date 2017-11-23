@@ -310,6 +310,9 @@ class HidraLiveViewer(QtGui.QDialog):
         if qstval.lower() == "false":
             self.secautoport = False
 
+        qstval = str(settings.value("HidraLiveView/ShowHistogram").toString())
+        if qstval.lower() == "false":
+            self.showhisto = False
         qstval = str(settings.value("HidraLiveView/SecPort").toString())
         try:
             int(qstval)
@@ -343,6 +346,7 @@ class HidraLiveViewer(QtGui.QDialog):
                 settings.value("HidraLiveView/RefreshRate").toString())
         except:
             pass
+        self.levelsW.changeview(self.showhisto)
 
     def onPixelChanged(self):
         imagew = self.imageW
@@ -505,6 +509,9 @@ class HidraLiveViewer(QtGui.QDialog):
         settings.setValue(
             "HidraLiveView/AddROIs",
             QtCore.QVariant(self.addrois))
+        settings.setValue(
+            "HidraLiveView/ShowHistogram",
+            QtCore.QVariant(self.showhisto))
         settings.setValue(
             "HidraLiveView/RefreshRate",
             QtCore.QVariant(GLOBALREFRESHRATE))
