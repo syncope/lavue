@@ -128,7 +128,8 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
 
             if self.data is not None:
                 try:
-                    intensity = self.data[math.floor(xdata), math.floor(ydata)]
+                    intensity = self.data[
+                        int(math.floor(xdata)), int(math.floor(ydata))]
                 except Exception as e:
                     intensity = 0.
             else:
