@@ -38,7 +38,8 @@ from pyqtgraph.Point import Point
 import pyqtgraph.functions as fn
 import numpy as np
 
-VMAJOR, VMINOR, VPATCH = pg.__version__.split(".")
+VMAJOR, VMINOR, VPATCH = pg.__version__.split(".") \
+                         if pg.__version__ else ("0", "9", "0")
 
 pg.graphicsItems.GradientEditorItem.Gradients['reversegrey'] = {
     'ticks': [(0.0, (255, 255, 255, 255)),
