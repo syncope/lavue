@@ -26,7 +26,7 @@
 
 from PyQt4 import QtCore, QtGui
 from .histogramWidget import HistogramHLUTWidget
-
+import math
 
 class LevelsWidget(QtGui.QGroupBox):
 
@@ -47,6 +47,7 @@ class LevelsWidget(QtGui.QGroupBox):
         # keep internal var for auto levelling toggle
         self.auto = True
         self.histo = True
+        self.scaling = ""
 
         self.autoLevelBox = QtGui.QCheckBox(u"Automatic levels")
         self.autoLevelBox.setChecked(True)
@@ -56,7 +57,9 @@ class LevelsWidget(QtGui.QGroupBox):
         self.maxLabel = QtGui.QLabel("maximum value: ")
 
         self.scalingLabel = QtGui.QLabel("sqrt scale!")
+        self.scalingLabel.setStyleSheet("color: red;")
         self.scaling2Label = QtGui.QLabel("sqrt scale!")
+        self.scaling2Label.setStyleSheet("color: red;")
         self.minVal = 0.1
         self.maxVal = 1.
 
@@ -101,7 +104,6 @@ class LevelsWidget(QtGui.QGroupBox):
             self.maxValSB.setReadOnly(True)
             self.minValSB.setReadOnly(True)
             self.histogram.fillHistogram(True)
-            self.autoLevelBox.setChecked(False)
         else:
             self.histo = False
             # self.autoLevelBox.show()
@@ -174,12 +176,46 @@ class LevelsWidget(QtGui.QGroupBox):
         self.applyButton.setEnabled(True)
 
     def setScalingLabel(self, scalingType):
+        lowlim = float(self.minValSB.value())
+        uplim = float(self.maxValSB.value())
         if scalingType == "log":
-            self.scalingLabel.setText("log scale!")
-            self.scaling2Label.setText("log scale!")
+            if scalingType != self.scaling:
+                self.scalingLabel.setText("log scale!")
+                self.scaling2Label.setText("log scale!")
+                if not self.auto:
+                    if self.scaling == "lin":
+                        lowlim =  math.log10(lowlim or 10e-3) if lowlim > 0 else -2
+                        uplim =  math.log10(uplim or 10e-3 ) if uplim > 0 else -2
+                    elif self.scaling == "sqrt":
+                        lowlim =  math.log10(lowlim * lowlim or 10e-3) if lowlim > 0 else -2
+                        uplim =  math.log10(uplim * uplim or 10e-3) if uplim > 0 else -2
         elif scalingType == "lin":
-            self.scalingLabel.setText("lin scale!")
-            self.scaling2Label.setText("lin scale!")
+            if scalingType != self.scaling:
+                self.scalingLabel.setText("lin scale!")
+                self.scaling2Label.setText("lin scale!")
+                if not self.auto:
+                    if self.scaling == "log":
+                        lowlim =  math.pow(10, lowlim)
+                        uplim =  math.pow(10, uplim)
+                    elif self.scaling == "sqrt":
+                        lowlim = lowlim * lowlim
+                        uplim = uplim * uplim
         elif scalingType == "sqrt":
-            self.scalingLabel.setText("sqrt scale!")
-            self.scaling2Label.setText("sqrt scale!")
+            if scalingType != self.scaling:
+                self.scalingLabel.setText("sqrt scale!")
+                self.scaling2Label.setText("sqrt scale!")
+                if not self.auto:
+                    if self.scaling == "lin":
+                        lowlim =  math.sqrt(max(lowlim, 0))
+                        uplim =  math.sqrt(max(uplim, 0))
+                    elif self.scaling == "log":
+                        lowlim =  math.sqrt(max(math.pow(10, lowlim), 0))
+                        uplim =  math.sqrt(max(math.pow(10, uplim), 0))
+        if scalingType != self.scaling:
+            self.scaling = scalingType
+        if not self.auto:
+           if self.histo:
+                self.histogram.region.setRegion([lowlim, uplim])
+           else:
+               self.minValSB.setValue(lowlim)
+               self.maxValSB.setValue(uplim)
