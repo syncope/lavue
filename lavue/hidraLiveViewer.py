@@ -803,6 +803,7 @@ class HidraLiveViewer(QtGui.QDialog):
         #     self.display_image[self.maskIndices] = 0
 
     def scale(self, scalingType):
+        self.imageW.img_widget.scaling = scalingType
         if(self.display_image is None):
             return
         if scalingType == "sqrt":

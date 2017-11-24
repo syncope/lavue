@@ -49,8 +49,11 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.displayLevels = [None, None]
         self.viewbox = self.layout.addViewBox(row=0, col=1)
         self.doBkgSubtraction = False
+        self.scaling = "sqrt"
         self.image = pg.ImageItem()
         self.viewbox.addItem(self.image)
+        self.xdata = 0
+        self.ydata = 0
 
         leftAxis = pg.AxisItem('left')
         leftAxis.linkToView(self.viewbox)
@@ -113,23 +116,26 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             self.image.setImage(
                 img, autoLevels=False, levels=self.displayLevels)
         self.data = img
+        self.mouse_position()
 
     # def updateGradient(self, name):
     #     self.graditem.setGradientByName(name)
 
-    def mouse_position(self, event):
+    def mouse_position(self, event=None):
         try:
-            mousePoint = self.image.mapFromScene(event)
-            xdata = math.floor(mousePoint.x())
-            ydata = math.floor(mousePoint.y())
+            if event is not None:
+                mousePoint = self.image.mapFromScene(event)
+                self.xdata = math.floor(mousePoint.x())
+                self.ydata = math.floor(mousePoint.y())
             if not self.crosshair_locked:
-                self.vLine.setPos(xdata + .5)
-                self.hLine.setPos(ydata + .5)
+                self.vLine.setPos(self.xdata + .5)
+                self.hLine.setPos(self.ydata + .5)
 
             if self.data is not None:
                 try:
                     intensity = self.data[
-                        int(math.floor(xdata)), int(math.floor(ydata))]
+                        int(math.floor(self.xdata)),
+                        int(math.floor(self.ydata))]
                 except Exception as e:
                     intensity = 0.
             else:
@@ -138,15 +144,24 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             if not self.roienable:
                 if self.doBkgSubtraction:
                     self.currentMousePosition.emit(
-                        "x=%i, y=%i, (intensity-background)=%.2f" % (
-                            xdata, ydata, intensity))
+                        "x=%i, y=%i, %s(intensity-background)=%.2f" % (
+                            self.xdata, self.ydata,
+                            self.scaling if self.scaling != "lin" else "",
+                            intensity))
                 else:
-                    self.currentMousePosition.emit(
-                        "x=%i, y=%i, intensity=%.2f" % (
-                            xdata, ydata, intensity))
+                    if self.scaling == "lin":
+                        self.currentMousePosition.emit(
+                            "x=%i, y=%i, intensity=%.2f" % (
+                                self.xdata, self.ydata, intensity))
+                    else:
+                        self.currentMousePosition.emit(
+                            "x=%i, y=%i, %s(intensity)=%.2f" % (
+                                self.xdata, self.ydata,
+                                self.scaling, intensity))
             elif self.currentroi > -1:
-                self.currentMousePosition.emit(
-                    "%s" % self.roicoords[self.currentroi])
+                if event:
+                    self.currentMousePosition.emit(
+                        "%s" % self.roicoords[self.currentroi])
             else:
                 self.currentMousePosition.emit("")
 
