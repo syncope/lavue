@@ -48,7 +48,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.autoDisplayLevels = True
         self.displayLevels = [None, None]
         self.viewbox = self.layout.addViewBox(row=0, col=1)
-
+        self.doBkgSubtraction = False
         self.image = pg.ImageItem()
         self.viewbox.addItem(self.image)
 
@@ -136,8 +136,14 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                 intensity = 0.
 
             if not self.roienable:
-                self.currentMousePosition.emit(
-                    "x=%i, y=%i, intensity=%.2f" % (xdata, ydata, intensity))
+                if self.doBkgSubtraction:
+                    self.currentMousePosition.emit(
+                        "x=%i, y=%i, (intensity-background)=%.2f" % (
+                            xdata, ydata, intensity))
+                else:
+                    self.currentMousePosition.emit(
+                        "x=%i, y=%i, intensity=%.2f" % (
+                            xdata, ydata, intensity))
             elif self.currentroi > -1:
                 self.currentMousePosition.emit(
                     "%s" % self.roicoords[self.currentroi])

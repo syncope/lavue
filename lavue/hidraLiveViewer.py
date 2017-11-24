@@ -787,6 +787,7 @@ class HidraLiveViewer(QtGui.QDialog):
             except:
                 self.checkBKGSubtraction(False)
                 self.background_image = None
+                self.doBkgSubtraction = False
                 import traceback
                 value = traceback.format_exc()
                 text = messageBox.MessageBox.getText(
@@ -897,7 +898,7 @@ class HidraLiveViewer(QtGui.QDialog):
         elif not state and self.bkgSubW.applyBkgSubtractBox.isChecked():
             self.bkgSubW.applyBkgSubtractBox.setChecked(False)
             self.bkgSubW.setDisplayedName("")
-        # self.updatehisto = True
+        self.imageW.img_widget.doBkgSubtraction = state
 
     def prepareBKGSubtraction(self, imagename):
         self.background_image = imageFileHandler.ImageFileHandler(
