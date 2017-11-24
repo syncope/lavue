@@ -44,6 +44,7 @@ from PIL import Image
 from io import BytesIO
 # import tifffile as tiff
 
+
 class GeneralSource():
 
     def __init__(self, timeout=None):
@@ -190,10 +191,11 @@ class HiDRA_cbf_source():
                 return np.transpose(img), metadata["filename"]
             elif data[:2] in ["II\x2A\x00", "MM\x00\x2A"]:
                 print ("[tif source module]::metadata", metadata["filename"])
-                img = numpy.array(Image.open(BytesIO(str(data))))
+                img = np.array(Image.open(BytesIO(str(data))))
                 return np.transpose(img), metadata["filename"]
             else:
-                print ("[unknown source module]::metadata", metadata["filename"])
+                print (
+                    "[unknown source module]::metadata", metadata["filename"])
         else:
             return None, None
 
@@ -366,4 +368,3 @@ class HiDRA_cbf_source():
             else:
                 image = np.array([0])
         return image
-

@@ -30,7 +30,7 @@ from pyqtgraph.graphicsItems.ROI import ROI
 
 from PyQt4 import QtCore
 
-from . import GradientItem as GI
+# from . import GradientItem as GI
 
 
 class ImageDisplayWidget(pg.GraphicsLayoutWidget):
@@ -48,7 +48,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.autoDisplayLevels = True
         self.displayLevels = [None, None]
         self.viewbox = self.layout.addViewBox(row=0, col=1)
-
+        self.doBkgSubtraction = False
         self.image = pg.ImageItem()
         self.viewbox.addItem(self.image)
 
@@ -60,10 +60,10 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         bottomAxis.linkToView(self.viewbox)
         self.layout.addItem(bottomAxis, row=1, col=1)
 
-        self.graditem = GI.GradientItem()
-        self.graditem.setImageItem(self.image)
+        # self.graditem = GI.GradientItem()
+        # self.graditem.setImageItem(self.image)
 
-        self.layout.addItem(self.graditem, row=0, col=2)
+        # self.layout.addItem(self.graditem, row=0, col=2)
 
         self.layout.scene().sigMouseMoved.connect(self.mouse_position)
         self.layout.scene().sigMouseClicked.connect(self.mouse_click)
@@ -114,8 +114,8 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                 img, autoLevels=False, levels=self.displayLevels)
         self.data = img
 
-    def updateGradient(self, name):
-        self.graditem.setGradientByName(name)
+    # def updateGradient(self, name):
+    #     self.graditem.setGradientByName(name)
 
     def mouse_position(self, event):
         try:
@@ -136,8 +136,14 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                 intensity = 0.
 
             if not self.roienable:
-                self.currentMousePosition.emit(
-                    "x=%i, y=%i, intensity=%.2f" % (xdata, ydata, intensity))
+                if self.doBkgSubtraction:
+                    self.currentMousePosition.emit(
+                        "x=%i, y=%i, (intensity-background)=%.2f" % (
+                            xdata, ydata, intensity))
+                else:
+                    self.currentMousePosition.emit(
+                        "x=%i, y=%i, intensity=%.2f" % (
+                            xdata, ydata, intensity))
             elif self.currentroi > -1:
                 self.currentMousePosition.emit(
                     "%s" % self.roicoords[self.currentroi])

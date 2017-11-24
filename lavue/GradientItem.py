@@ -57,7 +57,7 @@ pg.graphicsItems.GradientEditorItem.Gradients['spectrumclip'] = {
 pg.graphicsItems.GradientEditorItem.Gradients['inverted'] = {
     'ticks': [(0.0, (255, 255, 255, 255)),
               (1.0, (0, 0, 0, 255)), ], 'mode': 'rgb'}
-#pg.graphicsItems.GradientEditorItem.Gradients['highcontrast'] = {
+# pg.graphicsItems.GradientEditorItem.Gradients['highcontrast'] = {
 #    'ticks': [(0.0, (0, 0, 0, 255)),
 #              (1.0, (255, 255, 0, 255)), ], 'mode': 'rgb'}
 
