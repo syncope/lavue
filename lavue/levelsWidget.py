@@ -94,7 +94,6 @@ class LevelsWidget(QtGui.QGroupBox):
         if showhistogram:
             self.histo = True
             self.histogram.show()
-            #self.autoLevelBox.setChecked(False)
             # self.autoLevelBox.hide()
             self.applyButton.hide()
             self.scalingLabel.hide()
@@ -103,7 +102,6 @@ class LevelsWidget(QtGui.QGroupBox):
             self.minValSB.setReadOnly(True)
             self.histogram.fillHistogram(True)
             self.autoLevelBox.setChecked(False)
-            self.autoLevelChange(0)
         else:
             self.histo = False
             # self.autoLevelBox.show()
