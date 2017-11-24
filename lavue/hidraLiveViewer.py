@@ -712,6 +712,7 @@ class HidraLiveViewer(QtGui.QDialog):
 
         # if needed, update the levels display
         if(self.levelsW.isAutoLevel()):
+            # print("UUD %s %s %s %s" % (minVal, float(minVal), maxVal, float(maxVal)))
             self.levelsW.updateLevels(float(minVal), float(maxVal))
 
     # mode changer: start plotting mode

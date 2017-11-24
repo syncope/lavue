@@ -184,7 +184,7 @@ class HistogramHLUTItem(HistogramLUTItem):
         self.vb.enableAutoRange(self.vb.XAxis, False)
         self.vb.setYRange(mn, mx, padding)
 
-    def imageChanged(self, autoLevel=False, autoRange=False):
+    def oldimageChanged(self, autoLevel=False, autoRange=False):
         if isinstance(self.imageItem, weakref.ref):
             h = self.imageItem().getHistogram()
         else:

@@ -46,6 +46,7 @@ class LevelsWidget(QtGui.QGroupBox):
 
         # keep internal var for auto levelling toggle
         self.auto = True
+        self.histo = True
 
         self.autoLevelBox = QtGui.QCheckBox(u"Automatic levels")
         self.autoLevelBox.setChecked(True)
@@ -55,6 +56,7 @@ class LevelsWidget(QtGui.QGroupBox):
         self.maxLabel = QtGui.QLabel("maximum value: ")
 
         self.scalingLabel = QtGui.QLabel("sqrt scale!")
+        self.scaling2Label = QtGui.QLabel("sqrt scale!")
         self.minVal = 0.1
         self.maxVal = 1.
 
@@ -70,6 +72,7 @@ class LevelsWidget(QtGui.QGroupBox):
 
         self.glayout = QtGui.QGridLayout()
         vlayout = QtGui.QVBoxLayout()
+        self.glayout.addWidget(self.scaling2Label, 0, 0)
         self.glayout.addWidget(self.autoLevelBox, 0, 1)
         self.glayout.addWidget(self.minLabel, 1, 0)
         self.glayout.addWidget(self.minValSB, 1, 1)
@@ -89,19 +92,24 @@ class LevelsWidget(QtGui.QGroupBox):
 
     def changeview(self, showhistogram=False):
         if showhistogram:
+            self.histo = True
             self.histogram.show()
-            self.autoLevelBox.hide()
+            #self.autoLevelBox.setChecked(False)
+            # self.autoLevelBox.hide()
             self.applyButton.hide()
             self.scalingLabel.hide()
+            self.scaling2Label.show()
             self.maxValSB.setReadOnly(True)
             self.minValSB.setReadOnly(True)
             self.histogram.fillHistogram(True)
             self.autoLevelBox.setChecked(False)
             self.autoLevelChange(0)
         else:
-            self.autoLevelBox.show()
+            self.histo = False
+            # self.autoLevelBox.show()
             self.applyButton.show()
             self.scalingLabel.show()
+            self.scaling2Label.hide()
             self.histogram.hide()
             self.maxValSB.setReadOnly(False)
             self.minValSB.setReadOnly(False)
@@ -124,9 +132,13 @@ class LevelsWidget(QtGui.QGroupBox):
 
     def levelChange(self, histo):
         levels = histo.region.getRegion()
-        self.minValSB.setValue(levels[0])
-        self.maxValSB.setValue(levels[1])
-        self.check_and_emit()
+        lowlim = self.minValSB.value()
+        uplim = self.maxValSB.value()
+        if levels[0] != lowlim or levels[1] != uplim:
+            self.minValSB.setValue(levels[0])
+            self.maxValSB.setValue(levels[1])
+            if not self.auto:
+                self.check_and_emit()
 
     def check_and_emit(self):
         # check if the minimum value is actually smaller than the maximum
@@ -148,6 +160,10 @@ class LevelsWidget(QtGui.QGroupBox):
     def updateLevels(self, lowlim, uplim):
         self.minValSB.setValue(lowlim)
         self.maxValSB.setValue(uplim)
+        if self.histo and self.auto:
+            levels = self.histogram.region.getRegion()
+            if levels[0] != lowlim or levels[1] != uplim:
+                self.histogram.region.setRegion([lowlim, uplim])
 
     def hideControls(self):
         self.minValSB.setEnabled(False)
@@ -162,7 +178,10 @@ class LevelsWidget(QtGui.QGroupBox):
     def setScalingLabel(self, scalingType):
         if scalingType == "log":
             self.scalingLabel.setText("log scale!")
+            self.scaling2Label.setText("log scale!")
         elif scalingType == "lin":
             self.scalingLabel.setText("lin scale!")
+            self.scaling2Label.setText("lin scale!")
         elif scalingType == "sqrt":
             self.scalingLabel.setText("sqrt scale!")
+            self.scaling2Label.setText("sqrt scale!")
