@@ -52,15 +52,13 @@ from . import preparationBoxWidget
 from . import imageFileHandler
 from . import configWidget
 from . import sardanaUtils
+from . import dataFetchThread
 
 try:
     from hidraServerList import HidraServerList
 except:
     print("Cannot read the list of HiDRA servers.")
     print("Alternate method not yet implemented.")
-
-# magic numbers:
-GLOBALREFRESHRATE = .1  # refresh rate if the data source is running in seconds
 
 
 class HidraLiveViewer(QtGui.QDialog):
@@ -69,59 +67,7 @@ class HidraLiveViewer(QtGui.QDialog):
     widget and handles communication.'''
     update_state = QtCore.pyqtSignal(int)
 
-    # subclass for data caching
-    class exchangeList(list):
-
-        def __init__(self, *args):
-            list.__init__(self, *args)
-            self.mute = False
-            self.append(None)
-            self.append(None)
-
-        def addData(self, name, data):
-            if self.mute is False:
-                self.mute = True
-                self[0] = name
-                self[1] = data
-                self.mute = False
-            else:
-                pass  # print(" MUTED ACCESS IS NOT POSSIBLE")
-
-        def readData(self):
-            if self.mute is False:
-                self.mute = True
-                a, b = self[0], self[1]
-                self.mute = False
-                return a, b
-            else:
-                print("MUTED ACCESS IS NOT POSSIBLE")
-
-    # subclass for threading
-    class dataFetchThread(QtCore.QThread):
-        newDataName = QtCore.pyqtSignal(str)
-
-        def __init__(self, datasource, alist):
-            QtCore.QThread.__init__(self)
-            self.data_source = datasource
-            self._list = alist
-            self._isConnected = False
-
-        def run(self):
-            while(True):
-                time.sleep(GLOBALREFRESHRATE)
-                if(self._isConnected):
-                    img, name = self.data_source.getData()
-                    if name is not None:
-                        self._list.addData(name, img)
-                        self.newDataName.emit(name)
-                else:
-                    pass
-
-        def changeStatus(self, status):
-            self._isConnected = status
-
     def __init__(self, parent=None, umode=None, signal_host=None, target=None):
-        global GLOBALREFRESHRATE
         super(HidraLiveViewer, self).__init__(parent)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
@@ -156,7 +102,10 @@ class HidraLiveViewer(QtGui.QDialog):
         self.secautoport = True
         self.secsockopt = ""
         self.secport = "5657"
-        self.umode = umode or "user"
+        if umode and umode.lower() in ["expert"]:
+            self.umode = "expert"
+        else:
+            self.umode = "user"
         self.showhisto = True
         self.updatehisto = False
 
@@ -247,6 +196,8 @@ class HidraLiveViewer(QtGui.QDialog):
         self.levelsW.changeview(self.showhisto)
 
         self.imageW.cnfButton.clicked.connect(self.configuration)
+        if self.umode in ["user"]:
+            self.imageW.cnfButton.hide()
         self.imageW.applyROIButton.clicked.connect(self.onapplyrois)
         self.imageW.fetchROIButton.clicked.connect(self.onfetchrois)
 #        self.imageW.addROIButton.clicked.connect(self.onaddrois)
@@ -274,9 +225,9 @@ class HidraLiveViewer(QtGui.QDialog):
         # simple mutable caching object for data exchange with thread
         # [blocked state | image name | image data]
         # during read+write access state is set to blocked to avoid conflict
-        self.exchangelist = self.exchangeList()
+        self.exchangelist = dataFetchThread.ExchangeList()
 
-        self.dataFetcher = self.dataFetchThread(
+        self.dataFetcher = dataFetchThread.DataFetchThread(
             self.data_source, self.exchangelist)
         self.dataFetcher.newDataName.connect(self.getNewData)
         # ugly !!! sent current state to the data fetcher...
@@ -342,7 +293,7 @@ class HidraLiveViewer(QtGui.QDialog):
                     text, str(value))
 
         try:
-            GLOBALREFRESHRATE = float(
+            dataFetchThread.GLOBALREFRESHRATE = float(
                 settings.value("Configuration/RefreshRate").toString())
         except:
             pass
@@ -511,7 +462,7 @@ class HidraLiveViewer(QtGui.QDialog):
             QtCore.QVariant(self.showhisto))
         settings.setValue(
             "Configuration/RefreshRate",
-            QtCore.QVariant(GLOBALREFRESHRATE))
+            QtCore.QVariant(dataFetchThread.GLOBALREFRESHRATE))
         settings.setValue(
             "Configuration/SecPort",
             QtCore.QVariant(self.secport))
@@ -531,8 +482,18 @@ class HidraLiveViewer(QtGui.QDialog):
     def closeEvent(self, event):
         """ stores the setting before finishing the application
         """
+        self.dataFetcher.newDataName.disconnect(self.getNewData)
+        if self.hidraW.connected:
+            self.hidraW.toggleServerConnection()
+            time.sleep(dataFetchThread.GLOBALREFRESHRATE * 5)
         self.__storeSettings()
         self.disconnect_hidra()
+        self.dataFetcher.stop()
+        try:
+            self.seccontext.destroy()
+            # print("disconnect")
+        except:
+            pass
 
     def onfetchrois(self):
         if hcs.PYTANGO:
@@ -607,20 +568,19 @@ class HidraLiveViewer(QtGui.QDialog):
         cnfdlg.secautoport = self.secautoport
         cnfdlg.secport = self.secport
         cnfdlg.secstream = self.secstream
-        cnfdlg.refreshrate = GLOBALREFRESHRATE
+        cnfdlg.refreshrate = dataFetchThread.GLOBALREFRESHRATE
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
 
     def __updateConfig(self, dialog):
-        global GLOBALREFRESHRATE
         self.doorname = dialog.door
         self.addrois = dialog.addrois
 
         if self.showhisto != dialog.showhisto:
             self.levelsW.changeview(dialog.showhisto)
             self.showhisto = dialog.showhisto
-        GLOBALREFRESHRATE = dialog.refreshrate
+        dataFetchThread.GLOBALREFRESHRATE = dialog.refreshrate
         if self.secstream != dialog.secstream or (
                 self.secautoport != dialog.secautoport and dialog.secautoport):
             if self.secstream:

@@ -33,7 +33,7 @@ import json
 import math
 import argparse
 import os
-
+import signal
 
 maxtimegap = 1.
 maximumval = 1000.
@@ -44,6 +44,23 @@ command = ""
 rawimage = False
 lasttime = time.time()
 hostname = "localhost"
+
+context = None
+
+original_sigint = signal.getsignal(signal.SIGINT)
+
+
+def _onexit(signum, frame):
+    global context
+    if context:
+        try:
+            context.destroy()
+            context = None
+            print("disconnect")
+        except:
+            pass
+    signal.signal(signal.SIGINT, original_sigint)
+    sys.exit(1)
 
 
 def stophardware():
@@ -96,7 +113,8 @@ def checktime(calctime):
 
 def main():
     global lasttime
-
+    global context
+    signal.signal(signal.SIGINT, _onexit)
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
     conn = "tcp://%s:%s" % (hostname, port)
