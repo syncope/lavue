@@ -494,11 +494,14 @@ class HidraLiveViewer(QtGui.QDialog):
     def closeEvent(self, event):
         """ stores the setting before finishing the application
         """
-        self.dataFetcher.newDataName.disconnect(self.getNewData)
+        self.__storeSettings()
+        try:
+            self.dataFetcher.newDataName.disconnect(self.getNewData)
+        except Exception as e:
+            print(str(e))
         if self.hidraW.connected:
             self.hidraW.toggleServerConnection()
             time.sleep(dataFetchThread.GLOBALREFRESHRATE * 5)
-        self.__storeSettings()
         self.disconnect_hidra()
         self.dataFetcher.stop()
         try:
@@ -703,7 +706,7 @@ class HidraLiveViewer(QtGui.QDialog):
     # call the connect function of the hidra interface
     def connect_hidra(self):
         if self.data_source is None:
-            print ("No data source is defined, this will result in trouble.")
+            print("No data source is defined, this will result in trouble.")
             # self.data_source = hcs.HiDRA_cbf_source(mystery.signal_host,
             # mystery.target)
         if not self.data_source.connect():
@@ -806,10 +809,23 @@ class HidraLiveViewer(QtGui.QDialog):
         # make the transformation, so that at least the name fits
         elif self.trafoName == "flipud":
             self.display_image = np.fliplr(self.display_image)
-        elif self.trafoName == "rotate90":
-            self.display_image = np.rot90(self.display_image)
-        elif self.trafoName == "mirror":
+        elif self.trafoName == "fliplr":
             self.display_image = np.flipud(self.display_image)
+        elif self.trafoName == "transpose":
+            self.display_image = np.transpose(self.display_image)
+        elif self.trafoName == "rotate90":
+            #self.display_image = np.rot90(self.display_image)
+            self.display_image = np.transpose(
+                np.fliplr(self.display_image))
+        elif self.trafoName == "rotate180":
+            self.display_image = np.flipud(
+                np.fliplr(self.display_image))
+        elif self.trafoName == "rotate270":
+            self.display_image = np.transpose(
+                np.flipud(self.display_image))
+        elif self.trafoName == "twist":
+            self.display_image = np.transpose(
+                np.fliplr(np.flipud(self.display_image)))
 
     def calcROIsum(self):
         rid = self.imageW.img_widget.currentroi

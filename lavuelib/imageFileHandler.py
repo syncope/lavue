@@ -26,7 +26,18 @@
 # this a simple file handler that loads image files
 # and delivers just the actual array
 
-import fabio
+import numpy as np
+
+try:
+    import fabio
+    FABIO = True
+except:
+    FABIO = False
+try:
+    import PIL
+    PILLOW = True
+except:
+    PILLOW = False
 
 
 class ImageFileHandler():
@@ -38,10 +49,19 @@ class ImageFileHandler():
         self._image = None
         self._data = None
         try:
-            self._image = fabio.open(fname)
-            self._data = self._image.data
+            if FABIO:
+                self._image = fabio.open(fname)
+                self._data = self._image.data
+            elif PILLOW:
+                self._image = PIL.Image.open(fname)
+                self._data = np.array(self._image)
         except:
-            pass
+            try:
+                if FABIO and PILLOW:
+                    self._image = PIL.Image.open(fname)
+                    self._data = np.array(self._image)
+            except:
+                pass
 
     def getImage(self):
         return self._data
