@@ -41,7 +41,7 @@ version = ".".join(release.split(".")[:2])
 
 setup(
     name='lavue',
-    version=version,
+    version=release,
     description='Live image viewer application for photon science detectors.',
     long_description=long_description,
     url='https://github.com/syncope/lavue',
