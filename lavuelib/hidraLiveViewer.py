@@ -809,10 +809,23 @@ class HidraLiveViewer(QtGui.QDialog):
         # make the transformation, so that at least the name fits
         elif self.trafoName == "flipud":
             self.display_image = np.fliplr(self.display_image)
-        elif self.trafoName == "rotate90":
-            self.display_image = np.rot90(self.display_image)
-        elif self.trafoName == "mirror":
+        elif self.trafoName == "fliplr":
             self.display_image = np.flipud(self.display_image)
+        elif self.trafoName == "transpose":
+            self.display_image = np.transpose(self.display_image)
+        elif self.trafoName == "rotate90":
+            #self.display_image = np.rot90(self.display_image)
+            self.display_image = np.transpose(
+                np.fliplr(self.display_image))
+        elif self.trafoName == "rotate180":
+            self.display_image = np.flipud(
+                np.fliplr(self.display_image))
+        elif self.trafoName == "rotate270":
+            self.display_image = np.transpose(
+                np.flipud(self.display_image))
+        elif self.trafoName == "twist":
+            self.display_image = np.transpose(
+                np.fliplr(np.flipud(self.display_image)))
 
     def calcROIsum(self):
         rid = self.imageW.img_widget.currentroi
