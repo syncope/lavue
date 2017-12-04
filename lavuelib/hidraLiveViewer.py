@@ -494,11 +494,14 @@ class HidraLiveViewer(QtGui.QDialog):
     def closeEvent(self, event):
         """ stores the setting before finishing the application
         """
-        self.dataFetcher.newDataName.disconnect(self.getNewData)
+        self.__storeSettings()
+        try:
+            self.dataFetcher.newDataName.disconnect(self.getNewData)
+        except Exception as e:
+            print(str(e))
         if self.hidraW.connected:
             self.hidraW.toggleServerConnection()
             time.sleep(dataFetchThread.GLOBALREFRESHRATE * 5)
-        self.__storeSettings()
         self.disconnect_hidra()
         self.dataFetcher.stop()
         try:
@@ -703,7 +706,7 @@ class HidraLiveViewer(QtGui.QDialog):
     # call the connect function of the hidra interface
     def connect_hidra(self):
         if self.data_source is None:
-            print ("No data source is defined, this will result in trouble.")
+            print("No data source is defined, this will result in trouble.")
             # self.data_source = hcs.HiDRA_cbf_source(mystery.signal_host,
             # mystery.target)
         if not self.data_source.connect():

@@ -172,7 +172,7 @@ class ImageWidget(QtGui.QWidget):
             self.img_widget.roicoords[rid] = [ptx, pty, ptx + szx, pty + szy]
             self.roiCoordsChanged.emit()
         except Exception as e:
-            print "Warning: ", str(e)
+            print("Warning: %s" % str(e))
 
     def plot(self, array, name=None):
         if array is None:

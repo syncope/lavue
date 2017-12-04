@@ -30,8 +30,6 @@ from pyqtgraph.graphicsItems.ROI import ROI
 
 from PyQt4 import QtCore
 
-# from . import GradientItem as GI
-
 
 class ImageDisplayWidget(pg.GraphicsLayoutWidget):
 
@@ -62,11 +60,6 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         bottomAxis = pg.AxisItem('bottom')
         bottomAxis.linkToView(self.viewbox)
         self.layout.addItem(bottomAxis, row=1, col=1)
-
-        # self.graditem = GI.GradientItem()
-        # self.graditem.setImageItem(self.image)
-
-        # self.layout.addItem(self.graditem, row=0, col=2)
 
         self.layout.scene().sigMouseMoved.connect(self.mouse_position)
         self.layout.scene().sigMouseClicked.connect(self.mouse_click)
@@ -166,8 +159,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                 self.currentMousePosition.emit("")
 
         except Exception as e:
-            print "Warning: ", str(e)
-            pass
+            print("Warning: %s" % str(e))
 
     def mouse_click(self, event):
 
