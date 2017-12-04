@@ -108,6 +108,7 @@ class HidraLiveViewer(QtGui.QDialog):
             self.umode = "user"
         self.showhisto = True
         self.updatehisto = False
+        self.interruptonerror = True
 
         self.seccontext = zmq.Context()
         self.secsocket = self.seccontext.socket(zmq.PUB)
@@ -202,7 +203,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.imageW.fetchROIButton.clicked.connect(self.onfetchrois)
 #        self.imageW.addROIButton.clicked.connect(self.onaddrois)
 #        self.imageW.clearAllButton.clicked.connect(self.onclearrois)
-        self.imageW.roiCoordsChanged.connect(self.calc_update_stats)
+        self.imageW.roiCoordsChanged.connect(self.calc_update_stats_sec)
         self.imageW.pixelComboBox.currentIndexChanged.connect(
             self.onPixelChanged)
 
@@ -297,6 +298,13 @@ class HidraLiveViewer(QtGui.QDialog):
                 settings.value("Configuration/RefreshRate").toString())
         except:
             pass
+
+        qstval = str(settings.value("Configuration/InterruptOnError").toString())
+        if qstval.lower() == "false":
+            self.interruptonerror = False
+        elif qstval.lower() == "true":
+            self.interruptonerror = True
+
         self.levelsW.changeview(self.showhisto)
 
     def onPixelChanged(self):
@@ -478,6 +486,9 @@ class HidraLiveViewer(QtGui.QDialog):
         settings.setValue(
             "Layout/Geometry",
             QtCore.QVariant(self.saveGeometry()))
+        settings.setValue(
+            "Configuration/InterruptOnError",
+            QtCore.QVariant(self.interruptonerror))
 
     def closeEvent(self, event):
         """ stores the setting before finishing the application
@@ -636,7 +647,10 @@ class HidraLiveViewer(QtGui.QDialog):
             self.levelsW.histogram.imageChanged(autoLevel=True)
             self.updatehisto = False
 
-    def calc_update_stats(self):
+    def calc_update_stats_sec(self):
+        self.calc_update_stats(secstream=False)
+
+    def calc_update_stats(self, secstream=True):
         # calculate the stats for this
         maxVal, meanVal, varVal, minVal, maxRawVal = self.calcStats()
         calctime = time.time()
@@ -656,14 +670,13 @@ class HidraLiveViewer(QtGui.QDialog):
                     roilabel,
                     slabel[currentroi]
                     if currentroi < len(slabel) else slabel[-1])
-        if self.secstream and self.display_image is not None:
+        if secstream and self.secstream and self.display_image is not None:
             messagedata = {
                 'command': 'alive', 'calctime': calctime, 'maxval': maxVal,
                 'maxrawval': maxRawVal,
                 'minval': minVal, 'meanval': meanVal, 'pid': self.apppid,
                 'scaling': currentscaling}
             topic = 10001
-            # print(str(messagedata))
             self.secsocket.send_string("%d %s" % (
                 topic, str(json.dumps(messagedata)).encode("ascii")))
 
@@ -725,6 +738,15 @@ class HidraLiveViewer(QtGui.QDialog):
 
     def getNewData(self, name):
         # check if data is there at all
+        if name  == "__ERROR__":
+            if self.interruptonerror:
+                if self.hidraW.connected:
+                    self.hidraW.toggleServerConnection()
+                imgame, errortext = self.exchangelist.readData()
+                messageBox.MessageBox.warning(
+                    self, "lavue: Error in reading data",
+                     "Viewing will be interrupted", str(errortext))
+            return
         if name is None:
             return
         # first time:

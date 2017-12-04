@@ -70,6 +70,7 @@ class HidraWidget(QtGui.QGroupBox):
 
         self.cStatusLabel = QtGui.QLabel("Status: ")
         self.cStatus = QtGui.QLineEdit("Not connected")
+        self.cStatus.setReadOnly(True)
         self.cStatus.setStyleSheet("color: blue;"
                                    "background-color: yellow;")
         self.button = QtGui.QPushButton("Start")
@@ -168,9 +169,12 @@ class HidraWidget(QtGui.QGroupBox):
             self.hidra_state.emit(0)
             self.serverlistBox.setEnabled(True)
             self.sourceTypeComboBox.setEnabled(True)
+            if ":" in self.attrLineEdit.text():
+                self.attrLineEdit.setText(u'')
+                self.updateAttrButton()
             return
 
-        if not self.connected:
+        else:
             self.serverlistBox.setEnabled(False)
             self.sourceTypeComboBox.setEnabled(False)
             self.hidra_state.emit(self.sourceTypeComboBox.currentIndex() + 1)

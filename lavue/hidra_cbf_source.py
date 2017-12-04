@@ -107,6 +107,7 @@ class TangoAttrSource():
                     '%s  (%s)' % (self.signal_host, str(attr.time)))
         except Exception as e:
             print (str(e))
+            return str(e), "__ERROR__"
             pass  # this needs a bit more care
         return None, None
 

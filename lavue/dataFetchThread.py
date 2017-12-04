@@ -67,12 +67,16 @@ class DataFetchThread(QtCore.QThread):
         self.__list = alist
         self.__isConnected = False
         self.__loop = True
-
+        
     def run(self):
         while self.__loop:
             time.sleep(GLOBALREFRESHRATE)
             if self.__isConnected:
-                img, name = self.data_source.getData()
+                try:
+                    img, name = self.data_source.getData()
+                except Exception as e:
+                    name = "__ERROR__"
+                    img = str(e)
                 if name is not None:
                     self.__list.addData(name, img)
                     self.newDataName.emit(name)
