@@ -37,10 +37,16 @@ try:
 except ImportError:
     PYTANGO = False
 
+try:
+    import PIL
+    PILLOW = True
+except:
+    PILLOW = False
+
 import socket
 import numpy as np
 import random
-from PIL import Image
+
 from io import BytesIO
 # import tifffile as tiff
 
@@ -190,9 +196,9 @@ class HiDRA_cbf_source():
                 print ("[cbf source module]::metadata", metadata["filename"])
                 img = self.eval_pildata(np.fromstring(data[:], dtype=np.uint8))
                 return np.transpose(img), metadata["filename"]
-            elif data[:2] in ["II\x2A\x00", "MM\x00\x2A"]:
+            elif data[:2] in ["II\x2A\x00", "MM\x00\x2A"] and PILLOW:
                 print ("[tif source module]::metadata", metadata["filename"])
-                img = np.array(Image.open(BytesIO(str(data))))
+                img = np.array(PIL.Image.open(BytesIO(str(data))))
                 return np.transpose(img), metadata["filename"]
             else:
                 print (
