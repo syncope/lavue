@@ -1,3 +1,8 @@
+2017-12-XX Jan Kotanski <jan.kotanski@desy.de>
+	* add four missing transformations
+	* move import from __init__.py out
+	* tagged as 0.6.1
+
 2017-12-04 Jan Kotanski <jan.kotanski@desy.de>
 	* add ROIs and sync with MG
 	* add ZMQ security stream
