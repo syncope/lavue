@@ -47,7 +47,7 @@ class TransformationsWidget(QtGui.QWidget):
         self.cb.addItem("rotate180")
         self.cb.addItem("rotate270")
         self.cb.addItem("twist")
-        
+
         layout = QtGui.QHBoxLayout()
         self.label = QtGui.QLabel("Transformation:")
         layout.addWidget(self.label)
