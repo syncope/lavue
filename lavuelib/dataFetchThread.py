@@ -67,7 +67,7 @@ class DataFetchThread(QtCore.QThread):
         self.__list = alist
         self.__isConnected = False
         self.__loop = True
-        
+
     def run(self):
         while self.__loop:
             if time:

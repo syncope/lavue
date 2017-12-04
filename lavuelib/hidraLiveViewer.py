@@ -299,7 +299,8 @@ class HidraLiveViewer(QtGui.QDialog):
         except:
             pass
 
-        qstval = str(settings.value("Configuration/InterruptOnError").toString())
+        qstval = str(
+            settings.value("Configuration/InterruptOnError").toString())
         if qstval.lower() == "false":
             self.interruptonerror = False
         elif qstval.lower() == "true":
@@ -738,14 +739,14 @@ class HidraLiveViewer(QtGui.QDialog):
 
     def getNewData(self, name):
         # check if data is there at all
-        if name  == "__ERROR__":
+        if name == "__ERROR__":
             if self.interruptonerror:
                 if self.hidraW.connected:
                     self.hidraW.toggleServerConnection()
                 imgame, errortext = self.exchangelist.readData()
                 messageBox.MessageBox.warning(
                     self, "lavue: Error in reading data",
-                     "Viewing will be interrupted", str(errortext))
+                    "Viewing will be interrupted", str(errortext))
             return
         if name is None:
             return
