@@ -28,4 +28,4 @@ from .hidraLiveViewer import HidraLiveViewer
 
 __all__ = ['HidraLiveViewer']
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"

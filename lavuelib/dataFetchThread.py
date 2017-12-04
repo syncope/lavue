@@ -70,7 +70,8 @@ class DataFetchThread(QtCore.QThread):
         
     def run(self):
         while self.__loop:
-            time.sleep(GLOBALREFRESHRATE)
+            if time:
+                time.sleep(GLOBALREFRESHRATE)
             if self.__isConnected:
                 try:
                     img, name = self.data_source.getData()

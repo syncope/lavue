@@ -26,7 +26,7 @@
 #
 
 
-import lavue
+import lavuelib
 import sys
 import os
 import argparse
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     options = parser.parse_args()
 
     if options.version:
-        print(lavue.__version__)
+        print(lavuelib.__version__)
         sys.exit(0)
     if options.mode:
         umode = options.mode
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     app.setOrganizationDomain("desy.de")
     app.setApplicationName("LaVue")
 
-    dialog = lavue.HidraLiveViewer(umode=umode)
+    dialog = lavuelib.HidraLiveViewer(umode=umode)
     # dialog.resize(1200, 800)
     dialog.show()
 
