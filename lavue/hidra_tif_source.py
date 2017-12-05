@@ -1,11 +1,26 @@
-#!/usr/bin/env python
-##
-## A. Rothkirch, FSEC, Aug 02, 2017.
-##
-## history:
-##
-## version 0: a first draft, A.R.
-##
+## Copyright (C) 2017  DESY, Notkestr. 85, D-22607 Hamburg
+#
+# lavue is an image viewing program for photon science imaging detectors.
+# Its usual application is as a live viewer using hidra as data source.
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation in  version 2
+# of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301, USA.
+#
+# Authors:
+#     Andre Rothkirch <andre.rothkirch@desy.de>
+#
 
 import struct
 import numpy as np
@@ -115,16 +130,17 @@ def eval_tif_blob(blob, debug=0):
 		if debug == 1: print 'Something went wrong, e.g. recommended tags missingor nsupported sample format or ...'
 		return image
 
+if __name__ == "__main__":
 
-#### sample data sets for testing
-## lost_... is a Pilatus 300k tif file
-## mar165_... is an image taken with MAR165 detector and x2 binning applied
-#filename = '/afs/desy.de/user/r/rothkirc/public/P03/lost_00001_00001.tif'  # input file name
-filename = '/afs/desy.de/user/r/rothkirc/public/20131129_eugen/mar165_agbeh_00001.tif'  # input file name
+    #### sample data sets for testing
+    ## lost_... is a Pilatus 300k tif file
+    ## mar165_... is an image taken with MAR165 detector and x2 binning applied
+    #filename = '/afs/desy.de/user/r/rothkirc/public/P03/lost_00001_00001.tif'  # input file name
+    filename = '/afs/desy.de/user/r/rothkirc/public/20131129_eugen/mar165_agbeh_00001.tif'  # input file name
 
-tmp = np.fromfile(filename, dtype='uint8')    # read all content as unit 8
+    tmp = np.fromfile(filename, dtype='uint8')    # read all content as unit 8
 
-res=eval_tif_blob(tmp)
-print "Return value shape and dtype"
-print res.shape, res.dtype
+    res=eval_tif_blob(tmp)
+    print "Return value shape and dtype"
+    print res.shape, res.dtype
 
