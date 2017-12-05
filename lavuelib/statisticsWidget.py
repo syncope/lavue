@@ -50,9 +50,13 @@ class StatisticsWidget(QtGui.QGroupBox):
         self.roilabel = QtGui.QLabel("roi   sum: ")
 
         self.maxVal = QtGui.QLineEdit("Not set")
+        self.maxVal.setReadOnly(True)
         self.meanVal = QtGui.QLineEdit("Not set")
+        self.meanVal.setReadOnly(True)
         self.varVal = QtGui.QLineEdit("Not set")
+        self.varVal.setReadOnly(True)
         self.roiVal = QtGui.QLineEdit("Not set")
+        self.roiVal.setReadOnly(True)
         layout.addWidget(scalingLabel, 0, 0)
         layout.addWidget(self.scaleLabel, 0, 1)
 

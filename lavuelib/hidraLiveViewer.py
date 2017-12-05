@@ -501,7 +501,7 @@ class HidraLiveViewer(QtGui.QDialog):
             print(str(e))
         if self.hidraW.connected:
             self.hidraW.toggleServerConnection()
-            time.sleep(dataFetchThread.GLOBALREFRESHRATE * 5)
+        time.sleep(min(dataFetchThread.GLOBALREFRESHRATE * 5, 2))
         self.disconnect_hidra()
         self.dataFetcher.stop()
         try:
@@ -807,23 +807,24 @@ class HidraLiveViewer(QtGui.QDialog):
         # somewhere, the ordering of the indices gets messed up
         # to rectify the situation and not mislead users,
         # make the transformation, so that at least the name fits
-        elif self.trafoName == "flipud":
+        elif self.trafoName == "flip (ud)":
             self.display_image = np.fliplr(self.display_image)
-        elif self.trafoName == "fliplr":
+        elif self.trafoName == "flip (lr)":
             self.display_image = np.flipud(self.display_image)
         elif self.trafoName == "transpose":
             self.display_image = np.transpose(self.display_image)
-        elif self.trafoName == "rotate90":
-            #self.display_image = np.rot90(self.display_image)
-            self.display_image = np.transpose(
-                np.fliplr(self.display_image))
-        elif self.trafoName == "rotate180":
-            self.display_image = np.flipud(
-                np.fliplr(self.display_image))
-        elif self.trafoName == "rotate270":
+        elif self.trafoName == "rot90 (cw)":
+            #self.display_image = np.rot90(self.display_image,3)
             self.display_image = np.transpose(
                 np.flipud(self.display_image))
-        elif self.trafoName == "twist":
+        elif self.trafoName == "rot180":
+            self.display_image = np.flipud(
+                np.fliplr(self.display_image))
+        elif self.trafoName == "rot270 (cw)":
+            #self.display_image = np.rot90(self.display_image,1)
+            self.display_image = np.transpose(
+                np.fliplr(self.display_image))
+        elif self.trafoName == "rot180+transpose":
             self.display_image = np.transpose(
                 np.fliplr(np.flipud(self.display_image)))
 
@@ -914,3 +915,4 @@ class HidraLiveViewer(QtGui.QDialog):
 
     def assessTransformation(self, trafoName):
         self.trafoName = trafoName
+        self.plot()

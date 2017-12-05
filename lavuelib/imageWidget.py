@@ -56,6 +56,7 @@ class ImageWidget(QtGui.QWidget):
         filelabel = QtGui.QLabel("Image/File name: ")
         filenamelayout.addWidget(filelabel)
         self.filenamedisplay = QtGui.QLineEdit()
+        self.filenamedisplay.setReadOnly(True)
         filenamelayout.addWidget(self.filenamedisplay)
         self.cnfButton = QtGui.QPushButton("Configuration")
         filenamelayout.addWidget(self.cnfButton)
