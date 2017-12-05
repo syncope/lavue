@@ -104,7 +104,7 @@ class HistogramHLUTItem(HistogramLUTItem):
         GraphicsWidget.__init__(self)
 
         self.lut = None
-        if VMAJOR == '0' and int(VMINOR) < 10:
+        if VMAJOR == '0' and int(VMINOR) < 10 and int(VPATCH) < 9:
             self.imageItem = None
         else:
             self.imageItem = lambda: None

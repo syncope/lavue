@@ -1,4 +1,8 @@
 2017-12-05 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for pyqtgraph v0.9.10 and histogram
+	* tagged as 0.6.3
+
+2017-12-05 Jan Kotanski <jan.kotanski@desy.de>
 	* add man pages
 	* tagged as 0.6.2
 
