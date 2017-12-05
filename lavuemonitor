@@ -164,7 +164,7 @@ if __name__ == "__main__":
         dest="maxval", default="1000.")
     parser.add_argument(
         "-g", "--time-gap",
-        help="maximal time gap (default: 1.)",
+        help="maximal time gap in seconds (default: 1.)",
         dest="timegap", default="1.")
     parser.add_argument(
         "-c", "--stop-command",
