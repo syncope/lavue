@@ -1,4 +1,4 @@
-2017-12-XX Jan Kotanski <jan.kotanski@desy.de>
+2017-12-05 Jan Kotanski <jan.kotanski@desy.de>
 	* add four missing transformations
 	* move import from __init__.py out
 	* tagged as 0.6.1

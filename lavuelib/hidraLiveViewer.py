@@ -814,14 +814,14 @@ class HidraLiveViewer(QtGui.QDialog):
         elif self.trafoName == "transpose":
             self.display_image = np.transpose(self.display_image)
         elif self.trafoName == "rot90 (cw)":
-            #self.display_image = np.rot90(self.display_image,3)
+            # self.display_image = np.rot90(self.display_image, 3)
             self.display_image = np.transpose(
                 np.flipud(self.display_image))
         elif self.trafoName == "rot180":
             self.display_image = np.flipud(
                 np.fliplr(self.display_image))
         elif self.trafoName == "rot270 (cw)":
-            #self.display_image = np.rot90(self.display_image,1)
+            # self.display_image = np.rot90(self.display_image, 1)
             self.display_image = np.transpose(
                 np.fliplr(self.display_image))
         elif self.trafoName == "rot180+transpose":
