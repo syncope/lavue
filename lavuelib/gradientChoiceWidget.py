@@ -34,7 +34,7 @@ class GradientChoiceWidget(QtGui.QGroupBox):
     Select how an image should be transformed.
     """
 
-    chosenGradient = QtCore.pyqtSignal(QtCore.QString)
+    chosenGradient = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         QtGui.QGroupBox.__init__(self, parent)
@@ -59,9 +59,11 @@ class GradientChoiceWidget(QtGui.QGroupBox):
         self.setLayout(layout)
         self.cb.activated.connect(self.emitText)
 
+    @QtCore.pyqtSlot(int)
     def emitText(self, index):
         self.chosenGradient.emit(self.cb.itemText(index))
 
+    @QtCore.pyqtSlot(str)
     def changeGradient(self, name):
         text = self.cb.currentText()
         if text != name:

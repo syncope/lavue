@@ -36,8 +36,8 @@ class HidraWidget(QtGui.QGroupBox):
     hidra_disconnect = QtCore.pyqtSignal()
     hidra_connect = QtCore.pyqtSignal()
     hidra_state = QtCore.pyqtSignal(int)
-    hidra_servername = QtCore.pyqtSignal(QtCore.QString)
-    hidra_sourcetype = QtCore.pyqtSignal(QtCore.QString)
+    hidra_servername = QtCore.pyqtSignal(str)
+    hidra_sourcetype = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None, serverdict=None):
         QtGui.QGroupBox.__init__(self, parent)
@@ -94,12 +94,13 @@ class HidraWidget(QtGui.QGroupBox):
 
         self.setLayout(gridlayout)
 
-        self.serverlistBox.activated.connect(self.emitHostname)
+        self.serverlistBox.currentIndexChanged.connect(self.emitHostname)
         self.sourceTypeComboBox.currentIndexChanged.connect(
             self.onSourceChanged)
         self.attrLineEdit.textEdited.connect(self.updateAttrButton)
         self.onSourceChanged()
 
+    @QtCore.pyqtSlot()
     def onSourceChanged(self):
         self.setSource(self.sourceTypeComboBox.currentText())
         self.hidra_sourcetype.emit(self.sourceTypeComboBox.currentText())
@@ -127,6 +128,7 @@ class HidraWidget(QtGui.QGroupBox):
         else:
             self.button.setEnabled(True)
 
+    @QtCore.pyqtSlot()
     def updateAttrButton(self):
         if not str(self.attrLineEdit.text()).strip():
             self.button.setEnabled(False)
@@ -141,13 +143,12 @@ class HidraWidget(QtGui.QGroupBox):
     def updateButton(self):
         self.button.setEnabled(True)
 
+    @QtCore.pyqtSlot()
     def emitHostname(self, index):
         self.updateHidraButton()
 
-        if self.connected:
-            pass
-        else:
-            self.hidra_servername.emit(self.serverlistBox.itemText(index))
+        if not self.connected:
+            self.hidra_servername.emit(self.serverlistBox.currentText())
 
     def setTargetName(self, name):
         self.currenthost.setText(str(name))
@@ -157,6 +158,7 @@ class HidraWidget(QtGui.QGroupBox):
     def isConnected(self):
         return self.connected
 
+    @QtCore.pyqtSlot()
     def toggleServerConnection(self):
         # if it is connected then it's easy:
         if self.connected:

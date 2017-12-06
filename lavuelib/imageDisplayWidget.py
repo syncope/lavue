@@ -29,7 +29,6 @@ import pyqtgraph as pg
 import math
 from pyqtgraph.graphicsItems.ROI import ROI
 
-
 from PyQt4 import QtCore
 
 
@@ -116,6 +115,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
     # def updateGradient(self, name):
     #     self.graditem.setGradientByName(name)
 
+    @QtCore.pyqtSlot(object)
     def mouse_position(self, event=None):
         try:
             if event is not None:
@@ -164,6 +164,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             # print("Warning: %s" % str(e))
             pass
 
+    @QtCore.pyqtSlot(object)
     def mouse_click(self, event):
 
         mousePoint = self.image.mapFromScene(event.scenePos())

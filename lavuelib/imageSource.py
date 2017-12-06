@@ -26,6 +26,8 @@
 
 """ set of image sources """
 
+from PyQt4 import QtCore
+
 try:
     import hidra
     HIDRA = True
@@ -66,6 +68,7 @@ class GeneralSource(object):
     def getTarget(self):
         return self.target[0] + ":" + self.portnumber
 
+    @QtCore.pyqtSlot(str)
     def setSignalHost(self, _):
         self._initiated = False
 
@@ -101,6 +104,7 @@ class TangoAttrSource(object):
     def getTarget(self):
         return self.target[0] + ":" + self.portnumber
 
+    @QtCore.pyqtSlot(str)
     def setSignalHost(self, signalhost):
         if self.signal_host != signalhost:
             self.signal_host = signalhost
@@ -151,6 +155,7 @@ class HiDRASource(object):
     def getTarget(self):
         return self.target[0] + ":" + self.portnumber
 
+    @QtCore.pyqtSlot(str)
     def setSignalHost(self, signalhost):
         if self.signal_host != signalhost:
             self.signal_host = signalhost

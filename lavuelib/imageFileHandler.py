@@ -374,7 +374,7 @@ class TIFLoader(object):
                         ifd_off + 15 + (num_of_ifd + 1) * 12:ifd_off + 19
                         + (num_of_ifd + 1) * 12])[0])
             if next_idf != 0:
-                print 'another ifd exists ... NOT read'
+                print('another ifd exists ... NOT read')
 
         if width * length * bit_per_sample / 8 != strip_byte_counts:
             return image
@@ -426,6 +426,7 @@ class TIFLoader(object):
         except:
             return image
 
+
 if __name__ == "__main__":
 
     # filename =
@@ -437,5 +438,5 @@ if __name__ == "__main__":
 
     tmp = np.fromfile(filename, dtype='uint8')  # read all content as unit 8
     resu = TIFLoader().load(tmp)
-    print "Return value shape and dtype"
-    print resu.shape, resu.dtype
+    print("Return value shape and dtype")
+    print("%s %s" % (resu.shape, resu.dtype))

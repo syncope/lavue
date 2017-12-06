@@ -25,7 +25,7 @@
 
 """ configuration widget """
 
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 
 
 class ConfigWidget(QtGui.QDialog):
@@ -105,12 +105,14 @@ class ConfigWidget(QtGui.QDialog):
         self.buttonBox.button(
             QtGui.QDialogButtonBox.Ok).clicked.connect(self.accept)
 
+    @QtCore.pyqtSlot(int)
     def autoportChanged(self, value):
         if value:
             self.secportLineEdit.setEnabled(False)
         else:
             self.secportLineEdit.setEnabled(True)
 
+    @QtCore.pyqtSlot()
     def accept(self):
         """ updates class variables with the form content
         """

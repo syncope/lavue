@@ -57,5 +57,6 @@ class TransformationsWidget(QtGui.QWidget):
         self.setLayout(layout)
         self.cb.currentIndexChanged.connect(self.broadcastTransformation)
 
+    @QtCore.pyqtSlot(int)
     def broadcastTransformation(self, index):
         self.activatedTransformation.emit(self.cb.itemText(index))

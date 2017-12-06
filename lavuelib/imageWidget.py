@@ -108,21 +108,25 @@ class ImageWidget(QtGui.QWidget):
         self.labelROILineEdit.textEdited.connect(self.updateROIButton)
         self.updateROIButton()
 
+    @QtCore.pyqtSlot(int)
     def roiRegionChanged(self, _):
         self.roiChanged()
 
+    @QtCore.pyqtSlot(int)
     def currentROIChanged(self, rid):
         oldrid = self.img_widget.currentroi
         if rid != oldrid:
             self.img_widget.currentroi = rid
             self.roiCoordsChanged.emit()
 
+    @QtCore.pyqtSlot()
     def updateROIButton(self):
         if not str(self.labelROILineEdit.text()).strip():
             self.applyROIButton.setEnabled(False)
         else:
             self.applyROIButton.setEnabled(True)
 
+    @QtCore.pyqtSlot(int)
     def roiNrChanged(self, rid, coords=None):
         if rid < 0:
             self.applyROIButton.setText("Remove")
@@ -184,14 +188,18 @@ class ImageWidget(QtGui.QWidget):
 
         self.img_widget.updateImage(array)
 
+    @QtCore.pyqtSlot(int)
     def setAutoLevels(self, autoLvls):
         self.img_widget.setAutoLevels(autoLvls)
 
+    @QtCore.pyqtSlot(float)
     def setMinLevel(self, level=None):
         self.img_widget.setDisplayMinLevel(level)
 
+    @QtCore.pyqtSlot(float)
     def setMaxLevel(self, level=None):
         self.img_widget.setDisplayMaxLevel(level)
 
+    @QtCore.pyqtSlot(str)
     def changeGradient(self, name):
         self.img_widget.updateGradient(name)
