@@ -23,6 +23,7 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
+""" gradient choice widget """
 
 from PyQt4 import QtCore, QtGui
 
@@ -36,7 +37,7 @@ class GradientChoiceWidget(QtGui.QGroupBox):
     chosenGradient = QtCore.pyqtSignal(QtCore.QString)
 
     def __init__(self, parent=None):
-        super(GradientChoiceWidget, self).__init__(parent)
+        QtGui.QGroupBox.__init__(self, parent)
 
         self.setTitle("Gradient choice")
 

@@ -1,3 +1,7 @@
+2017-12-XX Jan Kotanski <jan.kotanski@desy.de>
+	* add default TIF reader
+	* tagged as 0.6.4
+
 2017-12-05 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for pyqtgraph v0.9.10 and histogram
 	* tagged as 0.6.3

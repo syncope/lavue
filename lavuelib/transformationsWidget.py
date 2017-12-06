@@ -23,6 +23,8 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
+""" transformation widget """
+
 
 from PyQt4 import QtCore, QtGui
 
@@ -36,7 +38,7 @@ class TransformationsWidget(QtGui.QWidget):
     activatedTransformation = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
-        super(TransformationsWidget, self).__init__(parent)
+        QtGui.QWidget.__init__(self, parent)
 
         self.cb = QtGui.QComboBox()
         self.cb.addItem("None")

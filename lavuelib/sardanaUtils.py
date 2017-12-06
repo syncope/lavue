@@ -23,6 +23,8 @@
 #     Christoph Rosemann <christoph.rosemann@desy.de>
 #
 
+""" sardana utils """
+
 import pickle
 import json
 import time
@@ -30,11 +32,11 @@ import time
 try:
     import PyTango
     PYTANGO = True
-except:
+except ImportError:
     PYTANGO = False
 
 
-class SardanaUtils():
+class SardanaUtils(object):
 
     """ sardanamacro server and pools """
 
@@ -267,7 +269,7 @@ class SardanaUtils():
             res = doorproxy.result
             return res, warn
         else:
-            None, None
+            return None, None
 
     @classmethod
     def toString(cls, obj):

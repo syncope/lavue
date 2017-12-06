@@ -23,6 +23,7 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
+""" levels widget """
 
 from PyQt4 import QtCore, QtGui
 from .histogramWidget import HistogramHLUTWidget
@@ -41,7 +42,7 @@ class LevelsWidget(QtGui.QGroupBox):
     levelsChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
-        super(LevelsWidget, self).__init__(parent)
+        QtGui.QGroupBox.__init__(self, parent)
 
         self.setTitle("Set display levels")
 

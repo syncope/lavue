@@ -24,8 +24,8 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
-# this a simple file handler that loads image files
-# and delivers just the actual array
+""" this a simple file handler that loads image files
+    and delivers just the actual array """
 
 import struct
 import numpy as np
@@ -33,16 +33,16 @@ import numpy as np
 try:
     import fabio
     FABIO = True
-except:
+except ImportError:
     FABIO = False
 try:
     import PIL
     PILLOW = True
-except:
+except ImportError:
     PILLOW = False
 
 
-class ImageFileHandler():
+class ImageFileHandler(object):
 
     '''Simple file handler class.
        Reads image from file and returns the numpy array.'''
@@ -57,26 +57,26 @@ class ImageFileHandler():
             elif PILLOW:
                 self._image = PIL.Image.open(fname)
                 self._data = np.array(self._image)
-        except:
+        except Exception:
             try:
                 if FABIO and PILLOW:
                     self._image = PIL.Image.open(fname)
                     self._data = np.array(self._image)
-            except:
+            except Exception:
                 try:
                     self._image = np.fromfile(filename, dtype='uint8')
                     if fname.endswith(".cbf"):
                         self._data = CBFLoader().load(self._image)
                     else:
                         self._data = TIFLoader().load(self._image)
-                except:
+                except Exception:
                     pass
 
     def getImage(self):
         return self._data
 
 
-class CBFLoader():
+class CBFLoader(object):
 
     @classmethod
     def load(cls, flbuffer):
@@ -97,7 +97,7 @@ class CBFLoader():
         try:
             # iscbf
             flbuffer.tostring().index(boc.tostring()) // flbuffer.itemsize
-        except:
+        except Exception:
             flag = 1
 
         # additional parms for cross check if decompress worked out
@@ -124,14 +124,14 @@ class CBFLoader():
                 idstart = flbuffer.tostring().index(
                     inpoint.tostring()) // flbuffer.itemsize
                 idstart += inpoint.size
-            except:
+            except Exception:
                 flag = 1
 
             try:
                 idstop = flbuffer.tostring().index(
                     outpoint.tostring()) // flbuffer.itemsize
                 idstop -= 3  # cr / extra -1 due to '10B' -- linefeed
-            except:
+            except Exception:
                 flag = 1
 
             vals = np.zeros(4, dtype='int')
@@ -159,7 +159,7 @@ class CBFLoader():
                 vals[3] = int(
                     flbuffer[
                         spos[3] + dset_pad.size:spos[4] - 8].tostring())
-            except:
+            except Exception:
                 flag = 1
 
             if flag == 0:
@@ -233,7 +233,6 @@ class CBFLoader():
             # print flbuffer[0:11]
 
         except:
-            print("error debug1")
             pass
 
         try:
@@ -256,7 +255,7 @@ class CBFLoader():
         return res[0:n_out].reshape(xdim, ydim, order='F')
 
 
-class TIFLoader():
+class TIFLoader(object):
 
     @classmethod
     def load(cls, flbuffer):
@@ -399,8 +398,10 @@ class TIFLoader():
                     flbuffer[strip_offsets:strip_offsets
                              + strip_byte_counts + 1]))
         # if sample_format == 2 and bit_per_sample == 8:
-        #     image=np.int8(struct.unpack_from(flbuffer_endian+str(width*length)+"b",
-        #     flbuffer[strip_offsets:strip_offsets+strip_byte_counts+1]))
+        #     image=np.int8(struct.unpack_from(
+        #           flbuffer_endian+str(width*length)+"b",
+        #     flbuffer[strip_offsets:strip_offsets
+        #              +strip_byte_counts+1]))
         if sample_format == 2 and bit_per_sample == 16:
             image = np.int16(
                 struct.unpack_from(
@@ -428,13 +429,13 @@ class TIFLoader():
 if __name__ == "__main__":
 
     # filename =
-    # '/afs/desy.de/user/r/rothkirc/public/P03/lost_00001_00001.tif'  # input
+    # '/afs/desy.de/user/r/rothkirc/public/P03/lost_00001_00001.tif' # input
     # file name
     # input file name
     filename = '/afs/desy.de/user/r/rothkirc/public/20131129_eugen/' \
                + 'mar165_agbeh_00001.tif'
 
-    tmp = np.fromfile(filename, dtype='uint8')    # read all content as unit 8
-    res = TIFLoader().load(tmp)
+    tmp = np.fromfile(filename, dtype='uint8')  # read all content as unit 8
+    resu = TIFLoader().load(tmp)
     print "Return value shape and dtype"
-    print res.shape, res.dtype
+    print resu.shape, resu.dtype

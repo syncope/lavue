@@ -23,6 +23,7 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
+""" mask widget """
 
 from PyQt4 import QtCore, QtGui
 
@@ -36,10 +37,10 @@ class MaskWidget(QtGui.QWidget):
     maskFileSelection = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
-        super(MaskWidget, self).__init__(parent)
+        QtGui.QWidget.__init__(self, parent)
 
         self.fileName = ""
-
+        self.fileDialog = None
         # one checkbox to choose whether the mask is applied
         self.applyMaskBox = QtGui.QCheckBox(u"Apply mask")
         self.applyMaskBox.setChecked(False)

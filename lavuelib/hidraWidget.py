@@ -23,6 +23,7 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
+""" hidraWidget """
 
 from PyQt4 import QtCore, QtGui
 
@@ -39,7 +40,7 @@ class HidraWidget(QtGui.QGroupBox):
     hidra_sourcetype = QtCore.pyqtSignal(QtCore.QString)
 
     def __init__(self, parent=None, serverdict=None):
-        super(HidraWidget, self).__init__(parent)
+        QtGui.QGroupBox.__init__(self, parent)
         self.setTitle("Image Source")
 
         self.signal_host = None

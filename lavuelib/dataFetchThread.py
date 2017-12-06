@@ -23,9 +23,7 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
-# first try for a live viewer image display
-# base it on a qt dialog
-# this is just the formal definition of the graphical elements !
+""" data fetch thread """
 
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -40,7 +38,7 @@ GLOBALREFRESHRATE = .1  # refresh rate if the data source is running in seconds
 
 
 # subclass for data caching
-class ExchangeList():
+class ExchangeList(object):
 
     def __init__(self):
         self.__elist = [None, None]
@@ -88,5 +86,5 @@ class DataFetchThread(QtCore.QThread):
         self.__isConnected = status
 
     def stop(self):
-        self._loop = False
+        self.__loop = False
         self.__isConnected = False

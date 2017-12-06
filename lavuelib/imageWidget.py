@@ -23,6 +23,8 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
+""" image widget """
+
 
 import math
 
@@ -38,10 +40,9 @@ class ImageWidget(QtGui.QWidget):
     """
 
     roiCoordsChanged = QtCore.pyqtSignal()
-    roiNrChanged = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None):
-        super(ImageWidget, self).__init__(parent)
+        QtGui.QWidget.__init__(self, parent)
 
         self.nparray = None
         self.imageItem = None
@@ -107,7 +108,7 @@ class ImageWidget(QtGui.QWidget):
         self.labelROILineEdit.textEdited.connect(self.updateROIButton)
         self.updateROIButton()
 
-    def roiRegionChanged(self, rid):
+    def roiRegionChanged(self, _):
         self.roiChanged()
 
     def currentROIChanged(self, rid):
@@ -131,8 +132,8 @@ class ImageWidget(QtGui.QWidget):
             for i, crd in enumerate(self.img_widget.roi):
                 if i < len(coords):
                     self.img_widget.roicoords[i] = coords[i]
-                    self.img_widget.roi[i].setPos([coords[i][0], coords[i][1]])
-                    self.img_widget.roi[i].setSize(
+                    crd.setPos([coords[i][0], coords[i][1]])
+                    crd.setSize(
                         [coords[i][2] - coords[i][0],
                          coords[i][3] - coords[i][1]])
         while rid > len(self.img_widget.roi):

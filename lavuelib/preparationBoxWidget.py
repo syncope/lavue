@@ -23,6 +23,7 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
+""" preparationbox widget """
 
 from PyQt4 import QtGui
 
@@ -34,7 +35,7 @@ from . import bkgSubtractionWidget
 class QHLine(QtGui.QFrame):
 
     def __init__(self):
-        super(QHLine, self).__init__()
+        QtGui.QFrame.__init__(self)
         self.setFrameShape(QtGui.QFrame.HLine)
         self.setFrameShadow(QtGui.QFrame.Sunken)
 
@@ -42,7 +43,7 @@ class QHLine(QtGui.QFrame):
 class PreparationBoxWidget(QtGui.QGroupBox):
 
     def __init__(self, parent=None):
-        super(PreparationBoxWidget, self).__init__(parent)
+        QtGui.QGroupBox.__init__(self, parent)
         self.setTitle("Image preparation")
 
         # self.maskW = maskWidget.MaskWidget(parent=self)

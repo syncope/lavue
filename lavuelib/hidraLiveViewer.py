@@ -23,9 +23,8 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
-# first try for a live viewer image display
-# base it on a qt dialog
-# this is just the formal definition of the graphical elements !
+
+""" live viewer image display base it on a qt dialog """
 
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -55,7 +54,7 @@ from . import sardanaUtils
 from . import dataFetchThread
 
 try:
-    from hidraServerList import HidraServerList
+    from .hidraServerList import HidraServerList
 except:
     print("Cannot read the list of HiDRA servers.")
     print("Alternate method not yet implemented.")
@@ -67,8 +66,8 @@ class HidraLiveViewer(QtGui.QDialog):
     widget and handles communication.'''
     update_state = QtCore.pyqtSignal(int)
 
-    def __init__(self, parent=None, umode=None, signal_host=None, target=None):
-        super(HidraLiveViewer, self).__init__(parent)
+    def __init__(self, umode=None, parent=None):
+        QtGui.QDialog.__init__(self, parent)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.sourcetypes = []
@@ -393,6 +392,7 @@ class HidraLiveViewer(QtGui.QDialog):
             if "DetectorROIs" not in rois or not isinstance(
                     rois["DetectorROIs"], dict):
                 rois["DetectorROIs"] = {}
+            lastalias = None
             for alias in slabel:
                 if alias not in toadd:
                     rois["DetectorROIs"][alias] = []
@@ -409,17 +409,18 @@ class HidraLiveViewer(QtGui.QDialog):
                         toadd.append(alias)
                     else:
                         toremove.append(alias)
+                lastalias = alias
             if rid > 0:
                 while rid < len(roicoords):
                     lastcrdlist.append(roicoords[rid])
                     rid += 1
                 if not lastcrdlist:
-                    if alias in rois["DetectorROIs"].keys():
-                        rois["DetectorROIs"].pop(alias)
+                    if lastalias in rois["DetectorROIs"].keys():
+                        rois["DetectorROIs"].pop(lastalias)
                     if roispin >= 0:
-                        toadd.append(alias)
+                        toadd.append(lastalias)
                     else:
-                        toremove.append(alias)
+                        toremove.append(lastalias)
 
             # print("rois %s " % rois)
             # print("to remove %s" % toremove)
@@ -429,13 +430,13 @@ class HidraLiveViewer(QtGui.QDialog):
             if self.addrois:
                 try:
                     for alias in toadd:
-                        res, warn = self.sardana.runMacro(
+                        _, warn = self.sardana.runMacro(
                             str(self.doorname), ["nxsadd", alias])
                         if warn:
                             warns.extend(list(warn))
                             print("Warning: %s" % warn)
                     for alias in toremove:
-                        res, warn = self.sardana.runMacro(
+                        _, warn = self.sardana.runMacro(
                             str(self.doorname), ["nxsrm", alias])
                         if warn:
                             warns.extend(list(warn))
@@ -490,7 +491,7 @@ class HidraLiveViewer(QtGui.QDialog):
             "Configuration/InterruptOnError",
             QtCore.QVariant(self.interruptonerror))
 
-    def closeEvent(self, event):
+    def closeEvent(self, _):
         """ stores the setting before finishing the application
         """
         self.__storeSettings()
@@ -524,8 +525,8 @@ class HidraLiveViewer(QtGui.QDialog):
                     rois["DetectorROIs"], dict):
                 detrois = rois["DetectorROIs"]
                 if slabel:
-                    detrois = dict((k, v)
-                                   for k, v in detrois.items() if k in slabel)
+                    detrois = dict(
+                        (k, v) for k, v in detrois.items() if k in slabel)
             # print("detrois %s " % detrois)
             coords = []
             aliases = []
@@ -538,10 +539,10 @@ class HidraLiveViewer(QtGui.QDialog):
             slabel = []
             for i, al in enumerate(aliases):
                 if len(set(aliases[i:])) == 1:
-                    slabel.append(aliases[i])
+                    slabel.append(al)
                     break
                 else:
-                    slabel.append(aliases[i])
+                    slabel.append(al)
             self.imageW.labelROILineEdit.setText(" ".join(slabel))
             self.imageW.updateROIButton()
             self.imageW.roiNrChanged(len(coords), coords)
@@ -743,7 +744,7 @@ class HidraLiveViewer(QtGui.QDialog):
             if self.interruptonerror:
                 if self.hidraW.connected:
                     self.hidraW.toggleServerConnection()
-                imgame, errortext = self.exchangelist.readData()
+                _, errortext = self.exchangelist.readData()
                 messageBox.MessageBox.warning(
                     self, "lavue: Error in reading data",
                     "Viewing will be interrupted", str(errortext))
@@ -877,10 +878,10 @@ class HidraLiveViewer(QtGui.QDialog):
         if self.display_image is not None:
             return np.amin(self.display_image), np.amax(self.display_image)
 
-    def checkMasking(self, state):
-        self.applyImageMask = state
-        if self.applyImageMask and self.mask_image is None:
-            self.maskW.noImage()
+    # def checkMasking(self, state):
+    #   self.applyImageMask = state
+    #   if self.applyImageMask and self.mask_image is None:
+    #       self.maskW.noImage()
 
     # def prepareMasking(self, imagename):
     #     '''Get the mask image, select non-zero elements

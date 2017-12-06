@@ -24,6 +24,8 @@
 #
 
 
+""" statistics widget """
+
 from PyQt4 import QtGui
 
 
@@ -34,7 +36,7 @@ class StatisticsWidget(QtGui.QGroupBox):
     """
 
     def __init__(self, parent=None):
-        super(StatisticsWidget, self).__init__(parent)
+        QtGui.QGroupBox.__init__(self, parent)
 
         self.setTitle("Image statistics")
         layout = QtGui.QGridLayout()

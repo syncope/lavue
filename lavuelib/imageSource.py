@@ -24,12 +24,13 @@
 #     Andre Rothkirch <andre.rothkirch@desy.de>
 #
 
+""" set of image sources """
+
 try:
     import hidra
     HIDRA = True
 except ImportError:
     HIDRA = False
-#    HIDRA = True
 
 try:
     import PyTango
@@ -40,7 +41,7 @@ except ImportError:
 try:
     import PIL
     PILLOW = True
-except:
+except ImportError:
     PILLOW = False
 
 import socket
@@ -51,7 +52,7 @@ from io import BytesIO
 import imageFileHandler
 
 
-class GeneralSource():
+class GeneralSource(object):
 
     def __init__(self, timeout=None):
         self.signal_host = None
@@ -65,13 +66,13 @@ class GeneralSource():
     def getTarget(self):
         return self.target[0] + ":" + self.portnumber
 
-    def setSignalHost(self, signalhost):
+    def setSignalHost(self, _):
         self._initiated = False
 
     def getData(self):
         self._counter += 1
         return (np.transpose([[random.randint(0, 1000)
-                               for i in range(512)] for i in range(256)]),
+                               for _ in range(512)] for _ in range(256)]),
                 '__random_%s__' % self._counter)
 
     def connect(self):
@@ -86,7 +87,7 @@ class GeneralSource():
             pass
 
 
-class TangoAttrSource():
+class TangoAttrSource(object):
 
     def __init__(self, timeout=None):
         self.signal_host = None
@@ -133,7 +134,7 @@ class TangoAttrSource():
             pass
 
 
-class HiDRASource():
+class HiDRASource(object):
 
     def __init__(self, timeout=None):
         self.signal_host = None
@@ -149,10 +150,6 @@ class HiDRASource():
 
     def getTarget(self):
         return self.target[0] + ":" + self.portnumber
-
-    def setTargetSignalHost(self, target, signalhost, portnumber="50001"):
-        self.setSignalHost(signalhost)
-        self.setTargetPort(signalhost, portnumber)
 
     def setSignalHost(self, signalhost):
         if self.signal_host != signalhost:

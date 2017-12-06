@@ -23,13 +23,15 @@
 #     Christoph Rosemann <christoph.rosemann@desy.de>
 #
 
+""" configuration widget """
+
 from PyQt4 import QtGui
 
 
 class ConfigWidget(QtGui.QDialog):
 
     def __init__(self, parent=None):
-        super(ConfigWidget, self).__init__(parent)
+        QtGui.QDialog.__init__(self, parent)
 
         self.door = ""
         self.addrois = True
@@ -39,6 +41,15 @@ class ConfigWidget(QtGui.QDialog):
         self.refreshrate = 0.1
         self.showhisto = True
 
+        self.doorLineEdit = None
+        self.addroisCheckBox = None
+        self.secportLineEdit = None
+        self.secstreamCheckBox = None
+        self.secautoportCheckBox = None
+        self.rateDoubleSpinBox = None
+        self.showhistoCheckBox = None
+        self.buttonBox = None
+
     def createGUI(self):
 
         self.setWindowTitle("Configuration")
@@ -46,42 +57,42 @@ class ConfigWidget(QtGui.QDialog):
         gridlayout = QtGui.QGridLayout()
         vlayout = QtGui.QVBoxLayout()
 
-        self.rateLabel = QtGui.QLabel(u"Refresh rate:")
+        rateLabel = QtGui.QLabel(u"Refresh rate:")
         self.rateDoubleSpinBox = QtGui.QDoubleSpinBox()
         self.rateDoubleSpinBox.setValue(self.refreshrate)
         self.rateDoubleSpinBox.setSingleStep(0.01)
-        self.doorLabel = QtGui.QLabel(u"Sardana Door:")
+        doorLabel = QtGui.QLabel(u"Sardana Door:")
         self.doorLineEdit = QtGui.QLineEdit(self.door)
-        self.addroisLabel = QtGui.QLabel(u"Add ROIs to Active MG:")
+        addroisLabel = QtGui.QLabel(u"Add ROIs to Active MG:")
         self.addroisCheckBox = QtGui.QCheckBox()
         self.addroisCheckBox.setChecked(self.addrois)
-        self.secstreamLabel = QtGui.QLabel(u"ZMQ secure stream:")
+        secstreamLabel = QtGui.QLabel(u"ZMQ secure stream:")
         self.secstreamCheckBox = QtGui.QCheckBox()
         self.secstreamCheckBox.setChecked(self.secstream)
-        self.secautoportLabel = QtGui.QLabel(u"ZMQ secure automatic port:")
+        secautoportLabel = QtGui.QLabel(u"ZMQ secure automatic port:")
         self.secautoportCheckBox = QtGui.QCheckBox()
         self.secautoportCheckBox.setChecked(self.secautoport)
-        self.secportLabel = QtGui.QLabel(u"ZMQ secure port:")
+        secportLabel = QtGui.QLabel(u"ZMQ secure port:")
         self.secportLineEdit = QtGui.QLineEdit(self.secport)
         self.autoportChanged(self.secautoport)
         self.secautoportCheckBox.stateChanged.connect(self.autoportChanged)
-        self.showhistoLabel = QtGui.QLabel(u"Show histogram:")
+        showhistoLabel = QtGui.QLabel(u"Show histogram:")
         self.showhistoCheckBox = QtGui.QCheckBox()
         self.showhistoCheckBox.setChecked(self.showhisto)
 
-        gridlayout.addWidget(self.rateLabel, 0, 0)
+        gridlayout.addWidget(rateLabel, 0, 0)
         gridlayout.addWidget(self.rateDoubleSpinBox, 0, 1)
-        gridlayout.addWidget(self.doorLabel, 1, 0)
+        gridlayout.addWidget(doorLabel, 1, 0)
         gridlayout.addWidget(self.doorLineEdit, 1, 1)
-        gridlayout.addWidget(self.addroisLabel, 2, 0)
+        gridlayout.addWidget(addroisLabel, 2, 0)
         gridlayout.addWidget(self.addroisCheckBox, 2, 1)
-        gridlayout.addWidget(self.secstreamLabel, 3, 0)
+        gridlayout.addWidget(secstreamLabel, 3, 0)
         gridlayout.addWidget(self.secstreamCheckBox, 3, 1)
-        gridlayout.addWidget(self.secautoportLabel, 4, 0)
+        gridlayout.addWidget(secautoportLabel, 4, 0)
         gridlayout.addWidget(self.secautoportCheckBox, 4, 1)
-        gridlayout.addWidget(self.secportLabel, 5, 0)
+        gridlayout.addWidget(secportLabel, 5, 0)
         gridlayout.addWidget(self.secportLineEdit, 5, 1)
-        gridlayout.addWidget(self.showhistoLabel, 6, 0)
+        gridlayout.addWidget(showhistoLabel, 6, 0)
         gridlayout.addWidget(self.showhistoCheckBox, 6, 1)
         self.buttonBox = QtGui.QDialogButtonBox(
             QtGui.QDialogButtonBox.Ok

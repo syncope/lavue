@@ -23,6 +23,8 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
+""" background subtreaction widget """
+
 
 from PyQt4 import QtCore, QtGui
 
@@ -37,9 +39,10 @@ class BkgSubtractionkWidget(QtGui.QWidget):
     useCurrentImageAsBKG = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
-        super(BkgSubtractionkWidget, self).__init__(parent)
+        QtGui.QWidget.__init__(self, parent)
 
         self.fileName = ""
+        self.fileDialog = None
 
         # one checkbox to choose whether the mask is applied
         self.applyBkgSubtractBox = QtGui.QCheckBox(u"Subtract Bkg")

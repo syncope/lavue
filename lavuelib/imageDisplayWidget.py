@@ -23,6 +23,8 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
+""" image display widget """
+
 import pyqtgraph as pg
 import math
 from pyqtgraph.graphicsItems.ROI import ROI
@@ -36,7 +38,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
     currentMousePosition = QtCore.pyqtSignal(QtCore.QString)
 
     def __init__(self, parent=None):
-        super(ImageDisplayWidget, self).__init__(parent)
+        pg.GraphicsLayoutWidget.__init__(self, parent)
         self.layout = self.ci
         self.crosshair_locked = False
         self.roienable = False
@@ -77,7 +79,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.viewbox.addItem(self.roi[0])
         self.roi[0].hide()
 
-    def addItem(self, item):
+    def addItem(self, item, **args):
         self.image.additem(item)
 
     def addROI(self, coords=None):
@@ -129,7 +131,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                     intensity = self.data[
                         int(math.floor(self.xdata)),
                         int(math.floor(self.ydata))]
-                except Exception as e:
+                except Exception:
                     intensity = 0.
             else:
                 intensity = 0.
@@ -158,8 +160,9 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             else:
                 self.currentMousePosition.emit("")
 
-        except Exception as e:
-            print("Warning: %s" % str(e))
+        except Exception:
+            # print("Warning: %s" % str(e))
+            pass
 
     def mouse_click(self, event):
 

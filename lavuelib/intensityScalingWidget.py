@@ -23,6 +23,7 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
+""" intensityScalingWidget """
 
 from PyQt4 import QtCore, QtGui
 
@@ -35,7 +36,7 @@ class IntensityScalingWidget(QtGui.QGroupBox):
     changedScaling = QtCore.pyqtSignal(QtCore.QString)
 
     def __init__(self, parent=None):
-        super(IntensityScalingWidget, self).__init__(parent)
+        QtGui.QGroupBox.__init__(self, parent)
 
         self.setTitle("Intensity display scaling")
         self.current = "sqrt"
@@ -59,7 +60,7 @@ class IntensityScalingWidget(QtGui.QGroupBox):
     def getCurrentScaling(self):
         return self.current
 
-    def setCurrentScaling(self, scaling):
+    def setCurrentScaling(self, _):
         if self.linbutton.isChecked():
             self.current = "lin"
         elif self.logbutton.isChecked():

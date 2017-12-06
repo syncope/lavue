@@ -23,8 +23,10 @@
 #     Christoph Rosemann <christoph.rosemann@desy.de>
 #
 
+""" Horizontal HistogramWidget """
+
+
 import pyqtgraph as pg
-import weakref
 from pyqtgraph.Qt import QtGui, QtCore
 from pyqtgraph.widgets.GraphicsView import GraphicsView
 from pyqtgraph import HistogramLUTItem
@@ -36,7 +38,6 @@ from pyqtgraph.graphicsItems.PlotDataItem import PlotDataItem
 from pyqtgraph.graphicsItems.AxisItem import AxisItem
 from pyqtgraph.Point import Point
 import pyqtgraph.functions as fn
-import numpy as np
 
 VMAJOR, VMINOR, VPATCH = pg.__version__.split(".") \
     if pg.__version__ else ("0", "9", "0")
@@ -67,7 +68,7 @@ __all__ = ['HistogramHLUTWidget']
 
 class HistogramHLUTWidget(GraphicsView):
 
-    def __init__(self, parent=None,  *args, **kargs):
+    def __init__(self, parent=None, *args, **kargs):
         background = kargs.get('background', 'default')
         GraphicsView.__init__(
             self, parent, useOpenGL=False, background=background)
@@ -183,22 +184,3 @@ class HistogramHLUTItem(HistogramLUTItem):
         This disables auto-scaling."""
         self.vb.enableAutoRange(self.vb.XAxis, False)
         self.vb.setYRange(mn, mx, padding)
-
-    def oldimageChanged(self, autoLevel=False, autoRange=False):
-        if isinstance(self.imageItem, weakref.ref):
-            h = self.imageItem().getHistogram()
-        else:
-            h = self.imageItem.getHistogram()
-        if h[0] is not None and self.background is not None:
-            mn = min([abs(x - self.background) for x in h[0]])
-            nid = np.where(h[0] == mn)
-            if nid and len(nid) and len(nid[0]):
-                h[1][[0][0]] = 0
-        # print(h)
-        if h[0] is None:
-            return
-        self.plot.setData(*h)
-        if autoLevel:
-            mn = h[0][0]
-            mx = h[0][-1]
-            self.region.setRegion([mn, mx])
