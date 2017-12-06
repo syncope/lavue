@@ -510,7 +510,7 @@ class HidraLiveViewer(QtGui.QDialog):
         #    # print("disconnect")
         #except:
         #    pass
-         
+
     @QtCore.pyqtSlot()
     def onfetchrois(self):
         if hcs.PYTANGO:
@@ -603,7 +603,11 @@ class HidraLiveViewer(QtGui.QDialog):
         if self.secstream != dialog.secstream or (
                 self.secautoport != dialog.secautoport and dialog.secautoport):
             if self.secstream:
-                self.secsocket.unbind(self.secsockopt)
+                # workaround for a bug in libzmq
+                try:
+                    self.secsocket.unbind(self.secsockopt)
+                except:
+                    pass
                 if self.hidraW.connected:
                     self.hidraW.connectSuccess(None)
             if dialog.secstream:
