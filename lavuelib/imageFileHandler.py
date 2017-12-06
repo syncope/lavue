@@ -63,7 +63,14 @@ class ImageFileHandler():
                     self._image = PIL.Image.open(fname)
                     self._data = np.array(self._image)
             except:
-                pass
+                try:
+                    self._image = np.fromfile(filename, dtype='uint8')
+                    if fname.endswith(".cbf"):
+                        self._data = CBFLoader().load(self._image)
+                    else:
+                        self._data = TIFLoader().load(self._image)
+                except:
+                    pass
 
     def getImage(self):
         return self._data
@@ -428,7 +435,6 @@ if __name__ == "__main__":
                + 'mar165_agbeh_00001.tif'
 
     tmp = np.fromfile(filename, dtype='uint8')    # read all content as unit 8
-
     res = TIFLoader().load(tmp)
     print "Return value shape and dtype"
     print res.shape, res.dtype
