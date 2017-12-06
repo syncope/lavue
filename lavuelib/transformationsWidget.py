@@ -40,9 +40,14 @@ class TransformationsWidget(QtGui.QWidget):
 
         self.cb = QtGui.QComboBox()
         self.cb.addItem("None")
-        self.cb.addItem("flipud")
-        self.cb.addItem("mirror")
-        self.cb.addItem("rotate90")
+        self.cb.addItem("flip (ud)")
+        self.cb.addItem("flip (lr)")
+        self.cb.addItem("transpose")
+        self.cb.addItem("rot90 (cw)")
+        self.cb.addItem("rot180")
+        self.cb.addItem("rot270 (cw)")
+        self.cb.addItem("rot180 + transpose")
+
         layout = QtGui.QHBoxLayout()
         self.label = QtGui.QLabel("Transformation:")
         layout.addWidget(self.label)

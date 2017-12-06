@@ -86,6 +86,7 @@ class MaskWidget(QtGui.QWidget):
     def showAll(self):
         self.fileSelectButton.show()
 
+
 if __name__ == "__main__":
     import sys
 

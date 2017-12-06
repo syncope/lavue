@@ -1,2 +1,4 @@
 include LICENSE
 include COPYRIGHT
+include man/lavue.1
+include man/lavuemonitor.1

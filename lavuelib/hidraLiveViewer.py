@@ -299,7 +299,8 @@ class HidraLiveViewer(QtGui.QDialog):
         except:
             pass
 
-        qstval = str(settings.value("Configuration/InterruptOnError").toString())
+        qstval = str(
+            settings.value("Configuration/InterruptOnError").toString())
         if qstval.lower() == "false":
             self.interruptonerror = False
         elif qstval.lower() == "true":
@@ -493,11 +494,14 @@ class HidraLiveViewer(QtGui.QDialog):
     def closeEvent(self, event):
         """ stores the setting before finishing the application
         """
-        self.dataFetcher.newDataName.disconnect(self.getNewData)
+        self.__storeSettings()
+        try:
+            self.dataFetcher.newDataName.disconnect(self.getNewData)
+        except Exception as e:
+            print(str(e))
         if self.hidraW.connected:
             self.hidraW.toggleServerConnection()
-            time.sleep(dataFetchThread.GLOBALREFRESHRATE * 5)
-        self.__storeSettings()
+        time.sleep(min(dataFetchThread.GLOBALREFRESHRATE * 5, 2))
         self.disconnect_hidra()
         self.dataFetcher.stop()
         try:
@@ -702,7 +706,7 @@ class HidraLiveViewer(QtGui.QDialog):
     # call the connect function of the hidra interface
     def connect_hidra(self):
         if self.data_source is None:
-            print ("No data source is defined, this will result in trouble.")
+            print("No data source is defined, this will result in trouble.")
             # self.data_source = hcs.HiDRA_cbf_source(mystery.signal_host,
             # mystery.target)
         if not self.data_source.connect():
@@ -738,14 +742,14 @@ class HidraLiveViewer(QtGui.QDialog):
 
     def getNewData(self, name):
         # check if data is there at all
-        if name  == "__ERROR__":
+        if name == "__ERROR__":
             if self.interruptonerror:
                 if self.hidraW.connected:
                     self.hidraW.toggleServerConnection()
                 imgame, errortext = self.exchangelist.readData()
                 messageBox.MessageBox.warning(
                     self, "lavue: Error in reading data",
-                     "Viewing will be interrupted", str(errortext))
+                    "Viewing will be interrupted", str(errortext))
             return
         if name is None:
             return
@@ -803,12 +807,26 @@ class HidraLiveViewer(QtGui.QDialog):
         # somewhere, the ordering of the indices gets messed up
         # to rectify the situation and not mislead users,
         # make the transformation, so that at least the name fits
-        elif self.trafoName == "flipud":
+        elif self.trafoName == "flip (ud)":
             self.display_image = np.fliplr(self.display_image)
-        elif self.trafoName == "rotate90":
-            self.display_image = np.rot90(self.display_image)
-        elif self.trafoName == "mirror":
+        elif self.trafoName == "flip (lr)":
             self.display_image = np.flipud(self.display_image)
+        elif self.trafoName == "transpose":
+            self.display_image = np.transpose(self.display_image)
+        elif self.trafoName == "rot90 (cw)":
+            # self.display_image = np.rot90(self.display_image, 3)
+            self.display_image = np.transpose(
+                np.flipud(self.display_image))
+        elif self.trafoName == "rot180":
+            self.display_image = np.flipud(
+                np.fliplr(self.display_image))
+        elif self.trafoName == "rot270 (cw)":
+            # self.display_image = np.rot90(self.display_image, 1)
+            self.display_image = np.transpose(
+                np.fliplr(self.display_image))
+        elif self.trafoName == "rot180 + transpose":
+            self.display_image = np.transpose(
+                np.fliplr(np.flipud(self.display_image)))
 
     def calcROIsum(self):
         rid = self.imageW.img_widget.currentroi
@@ -897,3 +915,4 @@ class HidraLiveViewer(QtGui.QDialog):
 
     def assessTransformation(self, trafoName):
         self.trafoName = trafoName
+        self.plot()

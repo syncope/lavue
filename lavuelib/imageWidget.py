@@ -56,6 +56,7 @@ class ImageWidget(QtGui.QWidget):
         filelabel = QtGui.QLabel("Image/File name: ")
         filenamelayout.addWidget(filelabel)
         self.filenamedisplay = QtGui.QLineEdit()
+        self.filenamedisplay.setReadOnly(True)
         filenamelayout.addWidget(self.filenamedisplay)
         self.cnfButton = QtGui.QPushButton("Configuration")
         filenamelayout.addWidget(self.cnfButton)
@@ -172,7 +173,7 @@ class ImageWidget(QtGui.QWidget):
             self.img_widget.roicoords[rid] = [ptx, pty, ptx + szx, pty + szy]
             self.roiCoordsChanged.emit()
         except Exception as e:
-            print "Warning: ", str(e)
+            print("Warning: %s" % str(e))
 
     def plot(self, array, name=None):
         if array is None:

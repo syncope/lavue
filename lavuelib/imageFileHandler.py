@@ -23,9 +23,45 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
-from .hidraLiveViewer import HidraLiveViewer
+# this a simple file handler that loads image files
+# and delivers just the actual array
+
+import numpy as np
+
+try:
+    import fabio
+    FABIO = True
+except:
+    FABIO = False
+try:
+    import PIL
+    PILLOW = True
+except:
+    PILLOW = False
 
 
-__all__ = ['HidraLiveViewer']
+class ImageFileHandler():
 
-__version__ = "0.5.0"
+    '''Simple file handler class.
+       Reads image from file and returns the numpy array.'''
+
+    def __init__(self, fname):
+        self._image = None
+        self._data = None
+        try:
+            if FABIO:
+                self._image = fabio.open(fname)
+                self._data = self._image.data
+            elif PILLOW:
+                self._image = PIL.Image.open(fname)
+                self._data = np.array(self._image)
+        except:
+            try:
+                if FABIO and PILLOW:
+                    self._image = PIL.Image.open(fname)
+                    self._data = np.array(self._image)
+            except:
+                pass
+
+    def getImage(self):
+        return self._data

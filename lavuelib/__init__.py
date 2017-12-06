@@ -23,25 +23,5 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
-# this a simple file handler that loads image files
-# and delivers just the actual array
 
-import fabio
-
-
-class ImageFileHandler():
-
-    '''Simple file handler class.
-       Reads image from file and returns the numpy array.'''
-
-    def __init__(self, fname):
-        self._image = None
-        self._data = None
-        try:
-            self._image = fabio.open(fname)
-            self._data = self._image.data
-        except:
-            pass
-
-    def getImage(self):
-        return self._data
+__version__ = "0.6.3"

@@ -37,10 +37,16 @@ try:
 except ImportError:
     PYTANGO = False
 
+try:
+    import PIL
+    PILLOW = True
+except:
+    PILLOW = False
+
 import socket
 import numpy as np
 import random
-from PIL import Image
+
 from io import BytesIO
 # import tifffile as tiff
 
@@ -106,7 +112,7 @@ class TangoAttrSource():
             return (np.transpose(attr.value),
                     '%s  (%s)' % (self.signal_host, str(attr.time)))
         except Exception as e:
-            print (str(e))
+            print(str(e))
             return str(e), "__ERROR__"
             pass  # this needs a bit more care
         return None, None
@@ -117,7 +123,7 @@ class TangoAttrSource():
                 self.aproxy = PyTango.AttributeProxy(str(self.signal_host))
             return True
         except Exception as e:
-            print (str(e))
+            print(str(e))
             return False
 
     def disconnect(self):
@@ -184,18 +190,18 @@ class HiDRA_cbf_source():
             pass  # this needs a bit more care
 
         if metadata is not None and data is not None:
-            # print ("data", str(data)[:10])
+            # print("data", str(data)[:10])
 
             if data[:10] == "###CBF: VE":
-                print ("[cbf source module]::metadata", metadata["filename"])
+                print("[cbf source module]::metadata", metadata["filename"])
                 img = self.eval_pildata(np.fromstring(data[:], dtype=np.uint8))
                 return np.transpose(img), metadata["filename"]
-            elif data[:2] in ["II\x2A\x00", "MM\x00\x2A"]:
-                print ("[tif source module]::metadata", metadata["filename"])
-                img = np.array(Image.open(BytesIO(str(data))))
+            elif data[:2] in ["II\x2A\x00", "MM\x00\x2A"] and PILLOW:
+                print("[tif source module]::metadata", metadata["filename"])
+                img = np.array(PIL.Image.open(BytesIO(str(data))))
                 return np.transpose(img), metadata["filename"]
             else:
-                print (
+                print(
                     "[unknown source module]::metadata", metadata["filename"])
         else:
             return None, None
@@ -262,7 +268,7 @@ class HiDRA_cbf_source():
             # print tmp[0:11]
 
         except:
-            print ("error debug1")
+            print("error debug1")
             pass
 
         try:

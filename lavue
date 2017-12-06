@@ -26,7 +26,8 @@
 #
 
 
-import lavue
+import lavuelib
+from lavuelib  import hidraLiveViewer
 import sys
 import os
 import argparse
@@ -60,12 +61,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "-m", "--mode", dest="mode",
         help="interface mode, i.e. user, expert")
-    parser.add_argument(
-        "--set-as-default-mode",
-        action="store_true",
-        default=False,
-        dest="setdefault",
-        help="set the current mode as default")
+#    parser.add_argument(
+#        "--set-as-default-mode",
+#        action="store_true",
+#        default=False,
+#        dest="setdefault",
+#        help="set the current mode as default")
     parser.add_argument(
         "-t", "--style", dest="style",
         help="Qt style")
@@ -79,7 +80,7 @@ if __name__ == "__main__":
     options = parser.parse_args()
 
     if options.version:
-        print(lavue.__version__)
+        print(lavuelib.__version__)
         sys.exit(0)
     if options.mode:
         umode = options.mode
@@ -103,7 +104,7 @@ if __name__ == "__main__":
     app.setOrganizationDomain("desy.de")
     app.setApplicationName("LaVue")
 
-    dialog = lavue.HidraLiveViewer(umode=umode)
+    dialog = lavuelib.hidraLiveViewer.HidraLiveViewer(umode=umode)
     # dialog.resize(1200, 800)
     dialog.show()
 
