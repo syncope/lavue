@@ -687,7 +687,7 @@ class HidraLiveViewer(QtGui.QDialog):
             meanVal, maxVal, varVal, currentscaling, roiVal, roilabel)
 
         # if needed, update the levels display
-        if(self.levelsW.isAutoLevel()):
+        if self.levelsW.isAutoLevel():
             self.levelsW.updateLevels(float(minVal), float(maxVal))
 
     # mode changer: start plotting mode
@@ -759,7 +759,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.plot()
 
     def prepareImage(self):
-        if(self.raw_image is None):
+        if self.raw_image is None:
             return
         self.display_image = self.raw_image
 
@@ -787,7 +787,7 @@ class HidraLiveViewer(QtGui.QDialog):
 
     def scale(self, scalingType):
         self.imageW.img_widget.scaling = scalingType
-        if(self.display_image is None):
+        if self.display_image is None:
             return
         if scalingType == "sqrt":
             self.display_image = np.clip(self.display_image, 0, np.inf)
@@ -863,7 +863,7 @@ class HidraLiveViewer(QtGui.QDialog):
             varval = np.var(self.display_image)
             # automatic maximum clipping to hardcoded value
             checkval = meanval + 10 * np.sqrt(varval)
-            if (maxval > checkval):
+            if maxval > checkval:
                 maxval = checkval
             return (str("%.4f" % maxval),
                     str("%.4f" % meanval),
@@ -874,7 +874,7 @@ class HidraLiveViewer(QtGui.QDialog):
             return "0.", "0.", "0.", "0.", "0."
 
     def getInitialLevels(self):
-        if(self.display_image is not None):
+        if self.display_image is not None:
             return np.amin(self.display_image), np.amax(self.display_image)
 
     def checkMasking(self, state):

@@ -119,7 +119,7 @@ class TangoAttrSource():
 
     def connect(self):
         try:
-            if(not self._initiated):
+            if not self._initiated:
                 self.aproxy = PyTango.AttributeProxy(str(self.signal_host))
             return True
         except Exception as e:
@@ -165,7 +165,7 @@ class HiDRASource():
 
     def connect(self):
         try:
-            if(not self._initiated):
+            if not self._initiated:
                 self.query.initiate(self.target)
                 self._initiated = True
                 self.query.start()

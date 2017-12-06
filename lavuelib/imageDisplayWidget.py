@@ -103,7 +103,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.roicoords.pop()
 
     def updateImage(self, img=None):
-        if(self.autoDisplayLevels):
+        if self.autoDisplayLevels:
             self.image.setImage(img, autoLevels=True)
         else:
             self.image.setImage(
@@ -178,15 +178,15 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                     self.hLine.setPos(ydata + .5)
 
     def setAutoLevels(self, autoLvls):
-        if(autoLvls):
+        if autoLvls:
             self.autoDisplayLevels = True
         else:
             self.autoDisplayLevels = False
 
     def setDisplayMinLevel(self, level=None):
-        if (level is not None):
+        if level is not None:
             self.displayLevels[0] = level
 
     def setDisplayMaxLevel(self, level=None):
-        if (level is not None):
+        if level is not None:
             self.displayLevels[1] = level

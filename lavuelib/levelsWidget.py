@@ -145,8 +145,8 @@ class LevelsWidget(QtGui.QGroupBox):
         # check if the minimum value is actually smaller than the maximum
         self.minVal = self.minValSB.value()
         self.maxVal = self.maxValSB.value()
-        if (self.maxVal - self.minVal) <= 0:
-            if(self.minVal >= 1.):
+        if self.maxVal - self.minVal <= 0:
+            if self.minVal >= 1.:
                 self.minVal = self.maxVal - 1.
             else:
                 self.maxVal = self.minVal + 1

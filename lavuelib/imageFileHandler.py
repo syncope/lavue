@@ -112,7 +112,7 @@ class CBFLoader():
              97, 100, 100, 105, 110, 103, 58], dtype='uint8')
 
         # search for data stream start
-        if (flag == 0):
+        if flag == 0:
             try:
                 idstart = flbuffer.tostring().index(
                     inpoint.tostring()) // flbuffer.itemsize
@@ -141,17 +141,21 @@ class CBFLoader():
                     dset_pad.tostring()) // flbuffer.itemsize
 # by A.R., Apr 24, 2017
                 vals[0] = int(
-                    flbuffer[spos[0] + dset_num_ele.size:spos[1] - 2].tostring())
+                    flbuffer[
+                        spos[0] + dset_num_ele.size:spos[1] - 2].tostring())
                 vals[1] = int(
-                    flbuffer[spos[1] + dset_fast_dim.size:spos[2] - 2].tostring())
+                    flbuffer[
+                        spos[1] + dset_fast_dim.size:spos[2] - 2].tostring())
                 vals[2] = int(
-                    flbuffer[spos[2] + dset_sec_dim.size:spos[3] - 2].tostring())
+                    flbuffer[
+                        spos[2] + dset_sec_dim.size:spos[3] - 2].tostring())
                 vals[3] = int(
-                    flbuffer[spos[3] + dset_pad.size:spos[4] - 8].tostring())
+                    flbuffer[
+                        spos[3] + dset_pad.size:spos[4] - 8].tostring())
             except:
                 flag = 1
 
-            if (flag == 0):
+            if flag == 0:
                 image = 0
                 image = cls._decompress_cbf_c(
                     flbuffer[idstart:idstop + 1], vals)
@@ -167,7 +171,7 @@ class CBFLoader():
         n_out = xdim * ydim
 
         # simply assume content fits here
-        if (vals.size == 4 and sum(vals) != 0):
+        if vals.size == 4 and sum(vals) != 0:
             xdim = vals[1]
             ydim = vals[2]
             padding = vals[3]
@@ -189,12 +193,12 @@ class CBFLoader():
 
         for dummy, dummy2 in enumerate(id_relevant):
             for j, i in enumerate(dummy2):
-                if (mymap[i] != 0):
-                    if(stream[i + 1] != 0 or stream[i + 2] != 128):
+                if mymap[i] != 0:
+                    if stream[i + 1] != 0 or stream[i + 2] != 128:
                         mymap[i:i + 3] = 0
                         isvalid[i + 1:i + 3] = 0
                         delta = flbuffer[i + 1] + flbuffer[i + 2] * 256
-                        if (delta > 32768):
+                        if delta > 32768:
                             delta -= 65536
                         flbuffer[i] = delta
                     else:
@@ -207,7 +211,7 @@ class CBFLoader():
                                 flbuffer[i + 3:i + 7],
                                 np.array([1, 256, 65536, 16777216],
                                          dtype='int64'))).sum()
-                        if (delta > 2147483648):
+                        if delta > 2147483648:
                             delta -= 4294967296
                         flbuffer[i] = delta
 
@@ -216,7 +220,7 @@ class CBFLoader():
             flbuffer[id8sign] -= 256
             # print ("adjusting 8Bit vals")
             # for i, j in enumerate(stream):
-            #     if ( j > 128 and mymap[i] !=0):
+            #     if j > 128 and mymap[i] !=0:
             #         flbuffer[i]=flbuffer[i]-256
             # print stream[0:11]
             # print flbuffer[0:11]
@@ -226,7 +230,7 @@ class CBFLoader():
             pass
 
         try:
-            # print sum(isvalid)	#should be 305548
+            # print sum(isvalid)    #should be 305548
             id = np.where(isvalid != 0)
             flbuffer = flbuffer[id]
         except:
@@ -238,7 +242,7 @@ class CBFLoader():
         res = np.cumsum(flbuffer, dtype='int32')
         # print max(res)
 
-        if ((res.size - padding) != n_out):
+        if res.size - padding != n_out:
             return np.array([0])
         # by A.R., Apr 24, 2017
         # return res[0:n_out].reshape(xdim, ydim)
@@ -250,19 +254,20 @@ class TIFLoader():
     @classmethod
     def load(cls, flbuffer):
         image = np.float(-1)
-        sample_format = 1  # define unsigned default if undefined - i.e. like MAR165 data
+        # define unsigned default if undefined - i.e. like MAR165 data
+        sample_format = 1
         flbuffer_endian = 'none'
-        if (sum(abs(flbuffer[0:2] - [73, 73])) == 0):
+        if sum(abs(flbuffer[0:2] - [73, 73])) == 0:
             flbuffer_endian = "<"  # little
-        if (sum(abs(flbuffer[0:2] - [77, 77])) == 0):
+        if sum(abs(flbuffer[0:2] - [77, 77])) == 0:
             flbuffer_endian = ">"  # big
 
-        if (flbuffer_endian == "none"):
-            return image	 # or better to raise exception?
+        if flbuffer_endian == "none":
+            return image     # or better to raise exception?
 
         numfortiff = np.uint16(
             struct.unpack_from(flbuffer_endian + "H", flbuffer[2:4])[0])
-        if (numfortiff != 42):
+        if numfortiff != 42:
             return image  # or better to raise exception?
 
         ifd_off = np.uint32(
@@ -270,93 +275,143 @@ class TIFLoader():
         #
         # jump to/eval image file directory (ifd)
         num_of_ifd = np.uint16(
-            struct.unpack_from(flbuffer_endian + "H", flbuffer[ifd_off:ifd_off + 2])[0])
+            struct.unpack_from(
+                flbuffer_endian + "H", flbuffer[ifd_off:ifd_off + 2])[0])
 
         for ifd_entry in range(num_of_ifd):
             field_tag = np.uint16(
-                struct.unpack_from(flbuffer_endian + "H", flbuffer[ifd_off + 2 + ifd_entry * 12:ifd_off + 4 + ifd_entry * 12])[0])
+                struct.unpack_from(
+                    flbuffer_endian + "H",
+                    flbuffer[ifd_off + 2 + ifd_entry * 12:ifd_off
+                             + 4 + ifd_entry * 12])[0])
             field_type = np.uint16(
-                struct.unpack_from(flbuffer_endian + "H", flbuffer[ifd_off + 4 + ifd_entry * 12:ifd_off + 6 + ifd_entry * 12])[0])
-            num_vals = np.uint32(
-                struct.unpack_from(flbuffer_endian + "I", flbuffer[ifd_off + 6 + ifd_entry * 12:ifd_off + 10 + ifd_entry * 12])[0])
+                struct.unpack_from(
+                    flbuffer_endian + "H",
+                    flbuffer[ifd_off + 4 + ifd_entry * 12:ifd_off
+                             + 6 + ifd_entry * 12])[0])
+            # num_vals = np.uint32(
+            #    struct.unpack_from(
+            #        flbuffer_endian + "I",
+            #        flbuffer[ifd_off + 6 + ifd_entry * 12:ifd_off + 10
+            #                 + ifd_entry * 12])[0])
             # given tiff 6.0 there are 12 type entries, currently not all of
             # them are accounted, A.R.
             val_or_off = 0
-            if (field_type == 1):  # check flbuffer addressing!
+            if field_type == 1:  # check flbuffer addressing!
                 val_or_off = np.uint8(
-                    struct.unpack_from(flbuffer_endian + "B", flbuffer[ifd_off + 10 + ifd_entry * 12:ifd_off + 15 + ifd_entry * 12])[0])
-            if (field_type == 3):
+                    struct.unpack_from(
+                        flbuffer_endian + "B",
+                        flbuffer[ifd_off + 10 + ifd_entry * 12:ifd_off + 15
+                                 + ifd_entry * 12])[0])
+            if field_type == 3:
                 val_or_off = np.uint16(
-                    struct.unpack_from(flbuffer_endian + "H", flbuffer[ifd_off + 10 + ifd_entry * 12:ifd_off + 15 + ifd_entry * 12])[0])
-            if (field_type == 4):
+                    struct.unpack_from(
+                        flbuffer_endian + "H",
+                        flbuffer[ifd_off + 10 + ifd_entry * 12:ifd_off + 15
+                                 + ifd_entry * 12])[0])
+            if field_type == 4:
                 val_or_off = np.uint32(
-                    struct.unpack_from(flbuffer_endian + "I", flbuffer[ifd_off + 10 + ifd_entry * 12:ifd_off + 15 + ifd_entry * 12])[0])
-            if (field_type == 8):
+                    struct.unpack_from(
+                        flbuffer_endian + "I",
+                        flbuffer[ifd_off + 10 + ifd_entry * 12:ifd_off + 15
+                                 + ifd_entry * 12])[0])
+            if field_type == 8:
                 val_or_off = np.int16(
-                    struct.unpack_from(flbuffer_endian + "h", flbuffer[ifd_off + 10 + ifd_entry * 12:ifd_off + 15 + ifd_entry * 12])[0])
-            if (field_type == 9):
+                    struct.unpack_from(
+                        flbuffer_endian + "h",
+                        flbuffer[ifd_off + 10 + ifd_entry * 12:ifd_off
+                                 + 15 + ifd_entry * 12])[0])
+            if field_type == 9:
                 val_or_off = np.int32(
-                    struct.unpack_from(flbuffer_endian + "i", flbuffer[ifd_off + 10 + ifd_entry * 12:ifd_off + 15 + ifd_entry * 12])[0])
-            if (field_type == 11):
+                    struct.unpack_from(
+                        flbuffer_endian + "i",
+                        flbuffer[ifd_off + 10 + ifd_entry * 12:ifd_off + 15
+                                 + ifd_entry * 12])[0])
+            if field_type == 11:
                 val_or_off = np.float32(
-                    struct.unpack_from(flbuffer_endian + "f", flbuffer[ifd_off + 10 + ifd_entry * 12:ifd_off + 15 + ifd_entry * 12])[0])
+                    struct.unpack_from(
+                        flbuffer_endian + "f",
+                        flbuffer[ifd_off + 10 + ifd_entry * 12:ifd_off
+                                 + 15 + ifd_entry * 12])[0])
 
             # eval (hopefully) tags needed to allow for getting an image
-            if (field_tag == 256):
+            if field_tag == 256:
                 width = val_or_off
-            if (field_tag == 257):
+            if field_tag == 257:
                 length = val_or_off
-            if (field_tag == 258):
+            if field_tag == 258:
                 bit_per_sample = val_or_off
             # compression scheme - return invalid if NOT none,
             # i.e. only uncompressed data is supported (forever!?)
-            if (field_tag == 259):
-                if (val_or_off != 1):
+            if field_tag == 259:
+                if val_or_off != 1:
                     return image
             # photometric interpretation - 2 denotes RGB which is refused
             # otherwise don't mind/care ...
-            if (field_tag == 262):
-                if (val_or_off == 2):
+            if field_tag == 262:
+                if val_or_off == 2:
                     return image
-            if (field_tag == 273):
+            if field_tag == 273:
                 strip_offsets = val_or_off
             # likely equals image width
-            if (field_tag == 278):
-                rows_per_strip = val_or_off
-            if (field_tag == 279):
+            # if field_tag == 278:
+            #    rows_per_strip = val_or_off
+            if field_tag == 279:
                 strip_byte_counts = val_or_off
-            if (field_tag == 339):
+            if field_tag == 339:
                 sample_format = val_or_off
 
-            next_idf = np.uint32(struct.unpack_from(flbuffer_endian + "I", flbuffer[
-                                 ifd_off + 15 + (num_of_ifd + 1) * 12:ifd_off + 19 + (num_of_ifd + 1) * 12])[0])
-            if (next_idf != 0):
+            next_idf = np.uint32(
+                struct.unpack_from(
+                    flbuffer_endian + "I",
+                    flbuffer[
+                        ifd_off + 15 + (num_of_ifd + 1) * 12:ifd_off + 19
+                        + (num_of_ifd + 1) * 12])[0])
+            if next_idf != 0:
                 print 'another ifd exists ... NOT read'
 
-        if ((width * length * bit_per_sample / 8) != strip_byte_counts):
+        if width * length * bit_per_sample / 8 != strip_byte_counts:
             return image
 
         if sample_format == 1 and bit_per_sample == 8:
             image = np.uint8(
-                struct.unpack_from(flbuffer_endian + str(width * length) + "B", flbuffer[strip_offsets:strip_offsets + strip_byte_counts + 1]))
+                struct.unpack_from(
+                    flbuffer_endian + str(width * length) + "B",
+                    flbuffer[strip_offsets:strip_offsets
+                             + strip_byte_counts + 1]))
         if sample_format == 1 and bit_per_sample == 16:
             image = np.uint16(
-                struct.unpack_from(flbuffer_endian + str(width * length) + "H", flbuffer[strip_offsets:strip_offsets + strip_byte_counts + 1]))
+                struct.unpack_from(
+                    flbuffer_endian + str(width * length) + "H",
+                    flbuffer[strip_offsets:strip_offsets
+                             + strip_byte_counts + 1]))
         if sample_format == 1 and bit_per_sample == 32:
             image = np.uint32(
-                struct.unpack_from(flbuffer_endian + str(width * length) + "I", flbuffer[strip_offsets:strip_offsets + strip_byte_counts + 1]))
-#	if sample_format == 2 and bit_per_sample == 8:
-# image=np.int8(struct.unpack_from(flbuffer_endian+str(width*length)+"b",
-# flbuffer[strip_offsets:strip_offsets+strip_byte_counts+1]))
+                struct.unpack_from(
+                    flbuffer_endian + str(width * length) + "I",
+                    flbuffer[strip_offsets:strip_offsets
+                             + strip_byte_counts + 1]))
+        # if sample_format == 2 and bit_per_sample == 8:
+        #     image=np.int8(struct.unpack_from(flbuffer_endian+str(width*length)+"b",
+        #     flbuffer[strip_offsets:strip_offsets+strip_byte_counts+1]))
         if sample_format == 2 and bit_per_sample == 16:
             image = np.int16(
-                struct.unpack_from(flbuffer_endian + str(width * length) + "h", flbuffer[strip_offsets:strip_offsets + strip_byte_counts + 1]))
+                struct.unpack_from(
+                    flbuffer_endian + str(width * length) + "h",
+                    flbuffer[strip_offsets:strip_offsets
+                             + strip_byte_counts + 1]))
         if sample_format == 2 and bit_per_sample == 32:
             image = np.int32(
-                struct.unpack_from(flbuffer_endian + str(width * length) + "i", flbuffer[strip_offsets:strip_offsets + strip_byte_counts + 1]))
+                struct.unpack_from(
+                    flbuffer_endian + str(width * length) + "i",
+                    flbuffer[strip_offsets:strip_offsets
+                             + strip_byte_counts + 1]))
         if sample_format == 3 and bit_per_sample == 32:
             image = np.float32(
-                struct.unpack_from(flbuffer_endian + str(width * length) + "f", flbuffer[strip_offsets:strip_offsets + strip_byte_counts + 1]))
+                struct.unpack_from(
+                    flbuffer_endian + str(width * length) + "f",
+                    flbuffer[strip_offsets:strip_offsets
+                             + strip_byte_counts + 1]))
 
         try:
             return image.reshape(width, length, order='F')
@@ -368,7 +423,9 @@ if __name__ == "__main__":
     # filename =
     # '/afs/desy.de/user/r/rothkirc/public/P03/lost_00001_00001.tif'  # input
     # file name
-    filename = '/afs/desy.de/user/r/rothkirc/public/20131129_eugen/mar165_agbeh_00001.tif'  # input file name
+    # input file name
+    filename = '/afs/desy.de/user/r/rothkirc/public/20131129_eugen/' \
+               + 'mar165_agbeh_00001.tif'
 
     tmp = np.fromfile(filename, dtype='uint8')    # read all content as unit 8
 
