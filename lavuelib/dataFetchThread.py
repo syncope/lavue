@@ -82,6 +82,7 @@ class DataFetchThread(QtCore.QThread):
             else:
                 pass
 
+    @QtCore.pyqtSlot(int)
     def changeStatus(self, status):
         self.__isConnected = status
 

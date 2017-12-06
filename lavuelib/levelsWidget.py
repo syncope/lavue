@@ -26,7 +26,7 @@
 """ levels widget """
 
 from PyQt4 import QtCore, QtGui
-from .histogramWidget import HistogramHLUTWidget
+from .histogramWidget import HistogramHLUTWidget, HistogramHLUTItem
 import math
 
 
@@ -120,6 +120,7 @@ class LevelsWidget(QtGui.QGroupBox):
     def isAutoLevel(self):
         return self.auto
 
+    @QtCore.pyqtSlot(int)
     def autoLevelChange(self, value):
         if value == 2:
             self.auto = True
@@ -132,6 +133,7 @@ class LevelsWidget(QtGui.QGroupBox):
             self.check_and_emit()
         self.levelsChanged.emit()
 
+    @QtCore.pyqtSlot(HistogramHLUTItem)
     def levelChange(self, histo):
         levels = histo.region.getRegion()
         lowlim = self.minValSB.value()
@@ -142,6 +144,7 @@ class LevelsWidget(QtGui.QGroupBox):
             if not self.auto:
                 self.check_and_emit()
 
+    @QtCore.pyqtSlot()
     def check_and_emit(self):
         # check if the minimum value is actually smaller than the maximum
         self.minVal = self.minValSB.value()
@@ -177,6 +180,7 @@ class LevelsWidget(QtGui.QGroupBox):
         self.maxValSB.setEnabled(True)
         self.applyButton.setEnabled(True)
 
+    @QtCore.pyqtSlot(str)
     def setScalingLabel(self, scalingType):
         lowlim = float(self.minValSB.value())
         uplim = float(self.maxValSB.value())

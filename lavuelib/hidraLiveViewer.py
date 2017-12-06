@@ -68,7 +68,7 @@ class HidraLiveViewer(QtGui.QDialog):
 
     def __init__(self, umode=None, parent=None):
         QtGui.QDialog.__init__(self, parent)
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.sourcetypes = []
         if hcs.HIDRA:
@@ -306,6 +306,7 @@ class HidraLiveViewer(QtGui.QDialog):
 
         self.levelsW.changeview(self.showhisto)
 
+    @QtCore.pyqtSlot(int)
     def onPixelChanged(self):
         imagew = self.imageW
         text = imagew.pixelComboBox.currentText()
@@ -343,6 +344,7 @@ class HidraLiveViewer(QtGui.QDialog):
             self.trafoW.cb.setEnabled(True)
             imagew.roiCoordsChanged.emit()
 
+    @QtCore.pyqtSlot()
     def onaddrois(self):
         if hcs.PYTANGO:
             roicoords = self.imageW.img_widget.roicoords
@@ -370,6 +372,7 @@ class HidraLiveViewer(QtGui.QDialog):
         else:
             print("Connection error")
 
+    @QtCore.pyqtSlot()
     def onapplyrois(self):
         if hcs.PYTANGO:
             roicoords = self.imageW.img_widget.roicoords
@@ -495,21 +498,20 @@ class HidraLiveViewer(QtGui.QDialog):
         """ stores the setting before finishing the application
         """
         self.__storeSettings()
-        try:
-            self.dataFetcher.newDataName.disconnect(self.getNewData)
-        except Exception as e:
-            print(str(e))
+        self.secstream = False
+        self.dataFetcher.newDataName.disconnect(self.getNewData)
         if self.hidraW.connected:
             self.hidraW.toggleServerConnection()
-        time.sleep(min(dataFetchThread.GLOBALREFRESHRATE * 5, 2))
         self.disconnect_hidra()
+        time.sleep(min(dataFetchThread.GLOBALREFRESHRATE * 5, 2))
         self.dataFetcher.stop()
-        try:
-            self.seccontext.destroy()
-            # print("disconnect")
-        except:
-            pass
-
+        self.seccontext.destroy()
+        #try:
+        #    # print("disconnect")
+        #except:
+        #    pass
+         
+    @QtCore.pyqtSlot()
     def onfetchrois(self):
         if hcs.PYTANGO:
             if not self.doorname:
@@ -549,6 +551,7 @@ class HidraLiveViewer(QtGui.QDialog):
         else:
             print("Connection error")
 
+    @QtCore.pyqtSlot()
     def onclearrois(self):
         if hcs.PYTANGO:
             if not self.doorname:
@@ -573,6 +576,7 @@ class HidraLiveViewer(QtGui.QDialog):
         else:
             print("Connection error")
 
+    @QtCore.pyqtSlot()
     def configuration(self):
         cnfdlg = configWidget.ConfigWidget(self)
         if not self.doorname:
@@ -617,9 +621,11 @@ class HidraLiveViewer(QtGui.QDialog):
         self.secport = dialog.secport
         self.secstream = dialog.secstream
 
+    @QtCore.pyqtSlot(str)
     def setSignalHost(self, signalhost):
         self._signalhost = signalhost
 
+    @QtCore.pyqtSlot(int)
     def updateSource(self, status):
         if status:
             self.data_source = getattr(
@@ -629,6 +635,8 @@ class HidraLiveViewer(QtGui.QDialog):
                 self.data_source.setSignalHost(self._signalhost)
         self.update_state.emit(status)
 
+    @QtCore.pyqtSlot(str)
+    @QtCore.pyqtSlot()
     def plot(self):
         """ The main command of the live viewer class:
         draw a numpy array with the given name."""
@@ -651,6 +659,7 @@ class HidraLiveViewer(QtGui.QDialog):
             self.levelsW.histogram.imageChanged(autoLevel=True)
             self.updatehisto = False
 
+    @QtCore.pyqtSlot()
     def calc_update_stats_sec(self):
         self.calc_update_stats(secstream=False)
 
@@ -681,8 +690,9 @@ class HidraLiveViewer(QtGui.QDialog):
                 'minval': minVal, 'meanval': meanVal, 'pid': self.apppid,
                 'scaling': currentscaling}
             topic = 10001
-            self.secsocket.send_string("%d %s" % (
-                topic, str(json.dumps(messagedata)).encode("ascii")))
+            message = "%d %s" % (
+                topic, str(json.dumps(messagedata)).encode("ascii"))
+            self.secsocket.send_string(str(message))
 
         self.statsW.update_stats(
             meanVal, maxVal, varVal, currentscaling, roiVal, roilabel)
@@ -692,6 +702,7 @@ class HidraLiveViewer(QtGui.QDialog):
             self.levelsW.updateLevels(float(minVal), float(maxVal))
 
     # mode changer: start plotting mode
+    @QtCore.pyqtSlot()
     def startPlotting(self):
         # only start plotting if the connection is really established
         if not self.hidraW.isConnected():
@@ -699,11 +710,13 @@ class HidraLiveViewer(QtGui.QDialog):
         self.dataFetcher.start()
 
     # mode changer: stop plotting mode
+    @QtCore.pyqtSlot()
     def stopPlotting(self):
         if self.dataFetcher is not None:
             pass
 
     # call the connect function of the hidra interface
+    @QtCore.pyqtSlot()
     def connect_hidra(self):
         if self.data_source is None:
             print("No data source is defined, this will result in trouble.")
@@ -726,6 +739,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.updatehisto = True
 
     # call the disconnect function of the hidra interface
+    @QtCore.pyqtSlot()
     def disconnect_hidra(self):
         self.data_source.disconnect()
         if self.secstream:
@@ -738,6 +752,7 @@ class HidraLiveViewer(QtGui.QDialog):
                 topic, str(json.dumps(messagedata)).encode("ascii")))
         # self.data_source = None
 
+    @QtCore.pyqtSlot(str)
     def getNewData(self, name):
         # check if data is there at all
         if name == "__ERROR__":
@@ -786,6 +801,7 @@ class HidraLiveViewer(QtGui.QDialog):
         # set all masked (non-zero values) to zero by index
         #     self.display_image[self.maskIndices] = 0
 
+    @QtCore.pyqtSlot(str)
     def scale(self, scalingType):
         self.imageW.img_widget.scaling = scalingType
         if self.display_image is None:
@@ -878,11 +894,13 @@ class HidraLiveViewer(QtGui.QDialog):
         if self.display_image is not None:
             return np.amin(self.display_image), np.amax(self.display_image)
 
+    # @QtCore.pyqtSlot(int)
     # def checkMasking(self, state):
     #   self.applyImageMask = state
     #   if self.applyImageMask and self.mask_image is None:
     #       self.maskW.noImage()
 
+    # @QtCore.pyqtSlot(str)
     # def prepareMasking(self, imagename):
     #     '''Get the mask image, select non-zero elements
     #        and store the indices.'''
@@ -890,6 +908,7 @@ class HidraLiveViewer(QtGui.QDialog):
     #         str(imagename)).getImage()
     #     self.maskIndices = np.nonzero(self.mask_image !=0)
 
+    @QtCore.pyqtSlot(int)
     def checkBKGSubtraction(self, state):
         self.doBkgSubtraction = state
         if self.doBkgSubtraction and self.background_image is None:
@@ -899,10 +918,12 @@ class HidraLiveViewer(QtGui.QDialog):
             self.bkgSubW.setDisplayedName("")
         self.imageW.img_widget.doBkgSubtraction = state
 
+    @QtCore.pyqtSlot(str)
     def prepareBKGSubtraction(self, imagename):
         self.background_image = imageFileHandler.ImageFileHandler(
             str(imagename)).getImage()
 
+    @QtCore.pyqtSlot()
     def setCurrentImageAsBKG(self):
         if self.raw_image is not None:
             self.background_image = self.raw_image
@@ -911,6 +932,7 @@ class HidraLiveViewer(QtGui.QDialog):
             self.bkgSubW.setDisplayedName("")
         #  self.updatehisto = True
 
+    @QtCore.pyqtSlot(str)
     def assessTransformation(self, trafoName):
         self.trafoName = trafoName
         self.plot()

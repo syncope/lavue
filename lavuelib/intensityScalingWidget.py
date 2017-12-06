@@ -33,7 +33,7 @@ class IntensityScalingWidget(QtGui.QGroupBox):
     """
     Select how the image intensity is supposed to be scaled.
     """
-    changedScaling = QtCore.pyqtSignal(QtCore.QString)
+    changedScaling = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         QtGui.QGroupBox.__init__(self, parent)
@@ -46,9 +46,9 @@ class IntensityScalingWidget(QtGui.QGroupBox):
         self.linbutton = QtGui.QRadioButton(u"linear")
         self.logbutton = QtGui.QRadioButton(u"log")
 
-        self.linbutton.toggled.connect(self.setCurrentScaling)
-        self.logbutton.toggled.connect(self.setCurrentScaling)
-        self.sqrtbutton.toggled.connect(self.setCurrentScaling)
+        self.linbutton.clicked.connect(self.setCurrentScaling)
+        self.logbutton.clicked.connect(self.setCurrentScaling)
+        self.sqrtbutton.clicked.connect(self.setCurrentScaling)
         self.sqrtbutton.setChecked(True)
 
         horizontallayout.addWidget(self.sqrtbutton)
@@ -60,7 +60,8 @@ class IntensityScalingWidget(QtGui.QGroupBox):
     def getCurrentScaling(self):
         return self.current
 
-    def setCurrentScaling(self, _):
+    @QtCore.pyqtSlot()
+    def setCurrentScaling(self):
         if self.linbutton.isChecked():
             self.current = "lin"
         elif self.logbutton.isChecked():

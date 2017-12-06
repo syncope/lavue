@@ -62,6 +62,7 @@ class MaskWidget(QtGui.QWidget):
 
         self.setLayout(masterlayout)
 
+    @QtCore.pyqtSlot()
     def showFileDialog(self):
         self.fileDialog = QtGui.QFileDialog()
         self.fileName = str(
