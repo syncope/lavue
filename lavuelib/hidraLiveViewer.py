@@ -68,7 +68,7 @@ class HidraLiveViewer(QtGui.QDialog):
 
     def __init__(self, umode=None, parent=None):
         QtGui.QDialog.__init__(self, parent)
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.sourcetypes = []
         if hcs.HIDRA:

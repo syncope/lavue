@@ -77,6 +77,7 @@ class BkgSubtractionkWidget(QtGui.QWidget):
 
         self.setLayout(layout)
 
+    @QtCore.pyqtSlot()
     def showFileDialog(self):
         self.fileDialog = QtGui.QFileDialog()
 
@@ -86,6 +87,7 @@ class BkgSubtractionkWidget(QtGui.QWidget):
         self.bkgFileSelection.emit(self.fileName)
         self.hideImageSelection()
 
+    @QtCore.pyqtSlot()
     def useCurrent(self):
         self.useCurrentImageAsBKG.emit()
         self.hideImageSelection()
@@ -98,6 +100,7 @@ class BkgSubtractionkWidget(QtGui.QWidget):
             self.fileLabel.setText("..." + str(name)[-24:])
             self.applyBkgSubtractBox.setEnabled(True)
 
+    @QtCore.pyqtSlot()
     def showImageSelection(self):
         self.selectCurrentButton.show()
         self.selectFileButton.show()
