@@ -39,7 +39,7 @@ import zmq
 
 from PyQt4 import QtCore, QtGui
 
-from . import hidra_cbf_source as hcs
+from . import imageSource as hcs
 from . import messageBox
 
 from . import gradientChoiceWidget
@@ -75,7 +75,7 @@ class HidraLiveViewer(QtGui.QDialog):
         if hcs.HIDRA:
             self.sourcetypes.append(
                 {"name": "Hidra",
-                 "datasource": "HiDRA_cbf_source",
+                 "datasource": "HiDRASource",
                  "slot": "updateHidraButton",
                  "hidden": ["attrLabel", "attrLineEdit"]}
             )
@@ -120,7 +120,6 @@ class HidraLiveViewer(QtGui.QDialog):
         # instantiation
 
         # note: host and target are defined in another place
-        # self.data_source = hcs.HiDRA_cbf_source()
         self.data_source = hcs.GeneralSource()
 
         # WIDGET DEFINITIONS
@@ -707,8 +706,6 @@ class HidraLiveViewer(QtGui.QDialog):
     def connect_hidra(self):
         if self.data_source is None:
             print("No data source is defined, this will result in trouble.")
-            # self.data_source = hcs.HiDRA_cbf_source(mystery.signal_host,
-            # mystery.target)
         if not self.data_source.connect():
             self.hidraW.connectFailure()
             print(
