@@ -112,9 +112,6 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.data = img
         self.mouse_position()
 
-    # def updateGradient(self, name):
-    #     self.graditem.setGradientByName(name)
-
     @QtCore.pyqtSlot(object)
     def mouse_position(self, event=None):
         try:

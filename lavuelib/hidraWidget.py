@@ -204,7 +204,8 @@ class HidraWidget(QtGui.QGroupBox):
         self.serverlistBox.setEnabled(True)
         self.sourceTypeComboBox.setEnabled(True)
         self.cStatus.setText("Trouble connecting")
-        self.button.setText("Retry connect")
+        # self.button.setText("Retry connect")
+        self.button.setText("Start")
 
     def setSourceType(self):
         """ set source type"""

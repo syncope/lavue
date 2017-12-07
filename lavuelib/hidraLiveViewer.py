@@ -195,6 +195,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.levelsW.changeview(self.showhisto)
 
         self.imageW.cnfButton.clicked.connect(self.configuration)
+        self.imageW.quitButton.clicked.connect(self.close)
         if self.umode in ["user"]:
             self.imageW.cnfButton.hide()
         self.imageW.applyROIButton.clicked.connect(self.onapplyrois)
@@ -676,10 +677,16 @@ class HidraLiveViewer(QtGui.QDialog):
     @QtCore.pyqtSlot()
     def connect_hidra(self):
         if self.data_source is None:
-            print("No data source is defined, this will result in trouble.")
+            messageBox.MessageBox.warning(
+                self, "lavue: No data source is defined",
+                "No data source is defined",
+                "Please select the image source")
+
         if not self.data_source.connect():
             self.hidraW.connectFailure()
-            print(
+            messageBox.MessageBox.warning(
+                self, "lavue: The HiDRA connection could not be established",
+                "The HiDRA connection could not be established",
                 "<WARNING> The HiDRA connection could not be established. "
                 "Check the settings.")
         else:

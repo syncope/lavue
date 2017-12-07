@@ -60,7 +60,9 @@ class ImageWidget(QtGui.QWidget):
         self.filenamedisplay.setReadOnly(True)
         filenamelayout.addWidget(self.filenamedisplay)
         self.cnfButton = QtGui.QPushButton("Configuration")
+        self.quitButton = QtGui.QPushButton("Quit")
         filenamelayout.addWidget(self.cnfButton)
+        filenamelayout.addWidget(self.quitButton)
 
         verticallayout.addLayout(filenamelayout)
         verticallayout.addWidget(self.img_widget)
