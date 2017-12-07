@@ -199,8 +199,6 @@ class HidraLiveViewer(QtGui.QDialog):
             self.imageW.cnfButton.hide()
         self.imageW.applyROIButton.clicked.connect(self.onapplyrois)
         self.imageW.fetchROIButton.clicked.connect(self.onfetchrois)
-#        self.imageW.addROIButton.clicked.connect(self.onaddrois)
-#        self.imageW.clearAllButton.clicked.connect(self.onclearrois)
         self.imageW.roiCoordsChanged.connect(self.calc_update_stats_sec)
         self.imageW.pixelComboBox.currentIndexChanged.connect(
             self.onPixelChanged)
@@ -345,46 +343,25 @@ class HidraLiveViewer(QtGui.QDialog):
             imagew.roiCoordsChanged.emit()
 
     @QtCore.pyqtSlot()
-    def onaddrois(self):
-        if hcs.PYTANGO:
-            roicoords = self.imageW.img_widget.roicoords
-            if not self.doorname:
-                self.doorname = self.sardana.getDeviceName("Door")
-            # print("add rois %s " % roicoords)
-            # print(self.sardana.getScanEnv(
-            #    str(self.doorname), ["DetectorROIs"]))
-            rois = json.loads(self.sardana.getScanEnv(
-                str(self.doorname), ["DetectorROIs"]))
-            rlabel = str(self.imageW.labelROILineEdit.text())
-            if rlabel:
-                if "DetectorROIs" not in rois or not isinstance(
-                        rois["DetectorROIs"], dict):
-                    rois["DetectorROIs"] = {}
-                if rlabel not in rois["DetectorROIs"] or \
-                   not isinstance(rois["DetectorROIs"][rlabel], list):
-                    rois["DetectorROIs"][rlabel] = []
-                rois["DetectorROIs"][rlabel].append(roicoords)
-                # print("rois %s " % rois)
-                self.sardana.setScanEnv(str(self.doorname), json.dumps(rois))
-            if self.addrois:
-                self.sardana.runMacro(
-                    str(self.doorname), ["nxsadd", "%s" % rlabel])
-        else:
-            print("Connection error")
-
-    @QtCore.pyqtSlot()
     def onapplyrois(self):
         if hcs.PYTANGO:
             roicoords = self.imageW.img_widget.roicoords
             roispin = self.imageW.roiSpinBox.value()
             if not self.doorname:
                 self.doorname = self.sardana.getDeviceName("Door")
+            try:
+                rois = json.loads(self.sardana.getScanEnv(
+                    str(self.doorname), ["DetectorROIs"]))
+            except Exception:
+                import traceback
+                value = traceback.format_exc()
+                text = messageBox.MessageBox.getText(
+                    "Problems in connecting to Door or MacroServer")
+                messageBox.MessageBox.warning(
+                    self, "lavue: Error in connecting to Door or MacroServer",
+                    text, str(value))
+                return
 
-            # print("add rois %s " % roicoords)
-            # print(self.sardana.getScanEnv(
-            # str(self.doorname), ["DetectorROIs"]))
-            rois = json.loads(self.sardana.getScanEnv(
-                str(self.doorname), ["DetectorROIs"]))
             rlabel = str(self.imageW.labelROILineEdit.text())
             slabel = re.split(';|,| |\n', rlabel)
             slabel = [lb for lb in slabel if lb]
@@ -425,9 +402,6 @@ class HidraLiveViewer(QtGui.QDialog):
                     else:
                         toremove.append(lastalias)
 
-            # print("rois %s " % rois)
-            # print("to remove %s" % toremove)
-            # print("to add %s" % toadd)
             self.sardana.setScanEnv(str(self.doorname), json.dumps(rois))
             warns = []
             if self.addrois:
@@ -512,9 +486,18 @@ class HidraLiveViewer(QtGui.QDialog):
         if hcs.PYTANGO:
             if not self.doorname:
                 self.doorname = self.sardana.getDeviceName("Door")
-            rois = json.loads(self.sardana.getScanEnv(
-                str(self.doorname), ["DetectorROIs"]))
-            # print("rois %s" % rois)
+            try:
+                rois = json.loads(self.sardana.getScanEnv(
+                    str(self.doorname), ["DetectorROIs"]))
+            except Exception:
+                import traceback
+                value = traceback.format_exc()
+                text = messageBox.MessageBox.getText(
+                    "Problems in connecting to Door or MacroServer")
+                messageBox.MessageBox.warning(
+                    self, "lavue: Error in connecting to Door or MacroServer",
+                    text, str(value))
+                return
             rlabel = str(self.imageW.labelROILineEdit.text())
             slabel = re.split(';|,| |\n', rlabel)
             slabel = [lb for lb in set(slabel) if lb]
@@ -525,7 +508,6 @@ class HidraLiveViewer(QtGui.QDialog):
                 if slabel:
                     detrois = dict(
                         (k, v) for k, v in detrois.items() if k in slabel)
-            # print("detrois %s " % detrois)
             coords = []
             aliases = []
             for k, v in detrois.items():
@@ -544,31 +526,6 @@ class HidraLiveViewer(QtGui.QDialog):
             self.imageW.labelROILineEdit.setText(" ".join(slabel))
             self.imageW.updateROIButton()
             self.imageW.roiNrChanged(len(coords), coords)
-        else:
-            print("Connection error")
-
-    @QtCore.pyqtSlot()
-    def onclearrois(self):
-        if hcs.PYTANGO:
-            if not self.doorname:
-                self.doorname = self.sardana.getDeviceName("Door")
-            # print(self.sardana.getScanEnv(
-            #     str(self.doorname)), ["DetectorROIs"])
-            rois = json.loads(self.sardana.getScanEnv(
-                str(self.doorname), ["DetectorROIs"]))
-            rlabel = str(self.imageW.labelROILineEdit.text())
-            if rlabel:
-                if "DetectorROIs" not in rois or not isinstance(
-                        rois["DetectorROIs"], dict):
-                    rois["DetectorROIs"] = {}
-                if rlabel in rois["DetectorROIs"]:
-                    rois["DetectorROIs"].pop(rlabel)
-                # print("rois %s " % rois)
-                self.sardana.setScanEnv(str(self.doorname), json.dumps(rois))
-            if self.addrois:
-                self.sardana.runMacro(
-                    str(self.doorname), ["nxsrm", "%s" % rlabel])
-
         else:
             print("Connection error")
 
