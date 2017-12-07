@@ -1,4 +1,4 @@
-2017-12-XX Jan Kotanski <jan.kotanski@desy.de>
+2017-12-07 Jan Kotanski <jan.kotanski@desy.de>
 	* add default TIF reader
 	* add pyqtslots
 	* improve sardana access
