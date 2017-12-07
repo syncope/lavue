@@ -241,8 +241,8 @@ class SardanaUtils(object):
 
         :param door: door device
         :type door: :obj:`str`
-        :param jdata: JSON String with important variables
-        :type jdata: :obj:`list` <:obj:`str`>
+        :param command: list with the macro name and its parameters
+        :type command: :obj:`list` <:obj:`str`>
         :param wait: wait till macro is finished
         :type wait: :obj:`bool`
         """
