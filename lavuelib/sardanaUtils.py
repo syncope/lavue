@@ -38,38 +38,13 @@ except ImportError:
 
 class SardanaUtils(object):
 
-    """ sardanamacro server and pools """
+    """ sardanamacro server"""
 
     def __init__(self):
         """ constructor """
         #: (:class:`PyTango.Database`) tango database
         self.__db = PyTango.Database()
 
-        #: (:obj:`str`) macro server device name
-        self.__macroserver = ""
-        #: (:obj:`list` <:obj:`PyTango.DeviceProxy`>) pool instances
-        self.__pools = []
-        #: (:obj:`list` <:obj:`str`>) black list of pools
-        self.poolBlacklist = []
-
-    @classmethod
-    def getProxies(cls, names):
-        """ provides proxies of given device names
-
-        :param names: given device names
-        :type names: :obj:`list` <:obj:`str`>
-        :returns: list of device DeviceProxies
-        :rtype: :obj:`list` <:class:`PyTango.DeviceProxy`>
-        """
-        dps = []
-        for name in names:
-            dp = PyTango.DeviceProxy(str(name))
-            try:
-                dp.ping()
-                dps.append(dp)
-            except (PyTango.DevFailed, PyTango.Except, PyTango.DevError):
-                pass
-        return dps
 
     @classmethod
     def openProxy(cls, device, counter=1000):
@@ -99,33 +74,27 @@ class SardanaUtils(object):
 
         return cnfServer
 
-    def updateMacroServer(self, door):
-        """ updates MacroServer and sardana pools for given door
+    def getMacroServer(self, door):
+        """ door macro server device name
 
         :param door: door device name
         :type door: :obj:`str`
+        :returns: macroserver device name
+        :rtype: :obj:`str`
         """
-        self.__macroserver = ""
-        self.__pools = []
         if not door:
             raise Exception("Door '%s' cannot be found" % door)
         macroserver = self.getMacroServerName(door, self.__db)
-        msp = self.openProxy(macroserver)
-        pnames = msp.get_property("PoolNames")["PoolNames"]
-        if not pnames:
-            pnames = []
-        poolNames = list(
-            set(pnames) - set(self.poolBlacklist))
-        self.__pools = self.getProxies(poolNames)
-        self.__macroserver = macroserver
+        return self.openProxy(macroserver)
+        
 
     def getMacroServerName(self, door, db=None):
         """ provides macro server of given door
 
-        :param db: tango database
-        :type db: :class:`PyTango.Database`
         :param door: given door
         :type door: :obj:`str`
+        :param db: tango database
+        :type db: :class:`PyTango.Database`
         :returns: first MacroServer of the given door
         :rtype: :obj:`str`
         """
@@ -146,14 +115,6 @@ class SardanaUtils(object):
                     break
         return ms
 
-    def getMacroServer(self, door):
-        """ door macro server device name
-
-        :param door: door device name
-        :type door: :obj:`str`
-        :returns: macroserver device name
-        :rtype: :obj:`str`
-        """
         if not self.__macroserver:
             self.updateMacroServer(door)
         return self.__macroserver
@@ -178,17 +139,20 @@ class SardanaUtils(object):
                         res[var] = dc['new'][var]
         return json.dumps(res)
 
-    def getDeviceName(self, cname):
+    def getDeviceName(self, cname, db=None):
         """ finds device of give class
 
         :param cname: device class name
         :type cname: :obj:`str`
+        :param db: tango database
+        :type db: :class:`PyTango.Database`
         :returns: device name if exists
         :rtype: :obj:`str`
         """
 
-        servers = self.__db.get_device_exported_for_class(
-            cname).value_string
+        if db is None:
+            db = self.__db
+        servers = db.get_device_exported_for_class(cname).value_string
         device = ''
         for server in servers:
             try:
