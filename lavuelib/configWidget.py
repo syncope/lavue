@@ -40,6 +40,7 @@ class ConfigWidget(QtGui.QDialog):
         self.secautoport = True
         self.refreshrate = 0.1
         self.showhisto = True
+        self.showmask = False
 
         self.doorLineEdit = None
         self.addroisCheckBox = None
@@ -48,6 +49,7 @@ class ConfigWidget(QtGui.QDialog):
         self.secautoportCheckBox = None
         self.rateDoubleSpinBox = None
         self.showhistoCheckBox = None
+        self.showmaskCheckBox = None
         self.buttonBox = None
 
     def createGUI(self):
@@ -79,6 +81,9 @@ class ConfigWidget(QtGui.QDialog):
         showhistoLabel = QtGui.QLabel(u"Show histogram:")
         self.showhistoCheckBox = QtGui.QCheckBox()
         self.showhistoCheckBox.setChecked(self.showhisto)
+        showmaskLabel = QtGui.QLabel(u"Show mask widget:")
+        self.showmaskCheckBox = QtGui.QCheckBox()
+        self.showmaskCheckBox.setChecked(self.showmask)
 
         gridlayout.addWidget(rateLabel, 0, 0)
         gridlayout.addWidget(self.rateDoubleSpinBox, 0, 1)
@@ -94,6 +99,8 @@ class ConfigWidget(QtGui.QDialog):
         gridlayout.addWidget(self.secportLineEdit, 5, 1)
         gridlayout.addWidget(showhistoLabel, 6, 0)
         gridlayout.addWidget(self.showhistoCheckBox, 6, 1)
+        gridlayout.addWidget(showmaskLabel, 7, 0)
+        gridlayout.addWidget(self.showmaskCheckBox, 7, 1)
         self.buttonBox = QtGui.QDialogButtonBox(
             QtGui.QDialogButtonBox.Ok
             | QtGui.QDialogButtonBox.Cancel)
@@ -124,4 +131,5 @@ class ConfigWidget(QtGui.QDialog):
         self.secautoport = self.secautoportCheckBox.isChecked()
         self.refreshrate = float(self.rateDoubleSpinBox.value())
         self.showhisto = self.showhistoCheckBox.isChecked()
+        self.showmask = self.showmaskCheckBox.isChecked()
         QtGui.QDialog.accept(self)

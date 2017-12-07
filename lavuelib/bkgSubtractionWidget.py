@@ -49,7 +49,7 @@ class BkgSubtractionkWidget(QtGui.QWidget):
         self.applyBkgSubtractBox.setChecked(False)
         self.applyBkgSubtractBox.setEnabled(False)
 
-        label = QtGui.QLabel("Current image:")
+        label = QtGui.QLabel("Background image:")
         self.fileLabel = QtGui.QLabel("No image selected")
 
         # the dialog to select the mask file

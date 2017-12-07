@@ -106,6 +106,7 @@ class HidraLiveViewer(QtGui.QDialog):
         else:
             self.umode = "user"
         self.showhisto = True
+        self.showmask = False
         self.updatehisto = False
         self.interruptonerror = True
 
@@ -135,7 +136,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.levelsW.histogram.setImageItem(self.imageW.img_widget.image)
         self.levelsW.histogram.item.imageChanged(autoLevel=True)
 
-        # self.maskW = self.prepBoxW.maskW
+        self.maskW = self.prepBoxW.maskW
         self.bkgSubW = self.prepBoxW.bkgSubW
         self.trafoW = self.prepBoxW.trafoW
 
@@ -236,8 +237,8 @@ class HidraLiveViewer(QtGui.QDialog):
         self.bkgSubW.useCurrentImageAsBKG.connect(self.setCurrentImageAsBKG)
         self.bkgSubW.applyBkgSubtractBox.stateChanged.connect(
             self.checkBKGSubtraction)
-        # self.maskW.maskFileSelection.connect(self.prepareMasking)
-        # self.maskW.applyMaskBox.stateChanged.connect(self.checkMasking)
+        self.maskW.maskFileSelection.connect(self.prepareMasking)
+        self.maskW.applyMaskBox.stateChanged.connect(self.checkMasking)
 
         # signals from transformation widget
         self.trafoW.activatedTransformation.connect(self.assessTransformation)
@@ -262,6 +263,9 @@ class HidraLiveViewer(QtGui.QDialog):
         qstval = str(settings.value("Configuration/ShowHistogram").toString())
         if qstval.lower() == "false":
             self.showhisto = False
+        qstval = str(settings.value("Configuration/ShowMaskWidget").toString())
+        if qstval.lower() == "true":
+            self.showmask = True
         qstval = str(settings.value("Configuration/SecPort").toString())
         try:
             int(qstval)
@@ -304,6 +308,7 @@ class HidraLiveViewer(QtGui.QDialog):
             self.interruptonerror = True
 
         self.levelsW.changeview(self.showhisto)
+        self.prepBoxW.changeview(self.showmask)
 
     @QtCore.pyqtSlot(int)
     def onPixelChanged(self):
@@ -448,6 +453,9 @@ class HidraLiveViewer(QtGui.QDialog):
             "Configuration/ShowHistogram",
             QtCore.QVariant(self.showhisto))
         settings.setValue(
+            "Configuration/ShowMaskWidget",
+            QtCore.QVariant(self.showmask))
+        settings.setValue(
             "Configuration/RefreshRate",
             QtCore.QVariant(dataFetchThread.GLOBALREFRESHRATE))
         settings.setValue(
@@ -538,6 +546,7 @@ class HidraLiveViewer(QtGui.QDialog):
         cnfdlg.door = self.doorname
         cnfdlg.addrois = self.addrois
         cnfdlg.showhisto = self.showhisto
+        cnfdlg.showmask = self.showmask
         cnfdlg.secautoport = self.secautoport
         cnfdlg.secport = self.secport
         cnfdlg.secstream = self.secstream
@@ -553,6 +562,9 @@ class HidraLiveViewer(QtGui.QDialog):
         if self.showhisto != dialog.showhisto:
             self.levelsW.changeview(dialog.showhisto)
             self.showhisto = dialog.showhisto
+        if self.showmask != dialog.showmask:
+            self.prepBoxW.changeview(dialog.showmask)
+            self.showmask = dialog.showmask
         dataFetchThread.GLOBALREFRESHRATE = dialog.refreshrate
         if self.secstream != dialog.secstream or (
                 self.secautoport != dialog.secautoport and dialog.secautoport):
@@ -761,9 +773,9 @@ class HidraLiveViewer(QtGui.QDialog):
                     "to the current image",
                     text, str(value))
 
-        # if self.applyImageMask and self.maskIndices is not None:
-        # set all masked (non-zero values) to zero by index
-        #     self.display_image[self.maskIndices] = 0
+        if self.applyImageMask and self.maskIndices is not None:
+            # set all masked (non-zero values) to zero by index
+            self.display_image[self.maskIndices] = 0
 
     @QtCore.pyqtSlot(str)
     def scale(self, scalingType):
@@ -858,19 +870,19 @@ class HidraLiveViewer(QtGui.QDialog):
         if self.display_image is not None:
             return np.amin(self.display_image), np.amax(self.display_image)
 
-    # @QtCore.pyqtSlot(int)
-    # def checkMasking(self, state):
-    #   self.applyImageMask = state
-    #   if self.applyImageMask and self.mask_image is None:
-    #       self.maskW.noImage()
+    @QtCore.pyqtSlot(int)
+    def checkMasking(self, state):
+        self.applyImageMask = state
+        if self.applyImageMask and self.mask_image is None:
+            self.maskW.noImage()
 
-    # @QtCore.pyqtSlot(str)
-    # def prepareMasking(self, imagename):
-    #     '''Get the mask image, select non-zero elements
-    #        and store the indices.'''
-    #     self.mask_image = imageFileHandler.ImageFileHandler(
-    #         str(imagename)).getImage()
-    #     self.maskIndices = np.nonzero(self.mask_image !=0)
+    @QtCore.pyqtSlot(str)
+    def prepareMasking(self, imagename):
+         '''Get the mask image, select non-zero elements
+         and store the indices.'''
+         self.mask_image = imageFileHandler.ImageFileHandler(
+             str(imagename)).getImage()
+         self.maskIndices = np.nonzero(self.mask_image !=0)
 
     @QtCore.pyqtSlot(int)
     def checkBKGSubtraction(self, state):
