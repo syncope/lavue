@@ -143,7 +143,7 @@ class HidraWidget(QtGui.QGroupBox):
     def updateButton(self):
         self.button.setEnabled(True)
 
-    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(int)
     def emitHostname(self, index):
         self.updateHidraButton()
 
