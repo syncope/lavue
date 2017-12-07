@@ -45,7 +45,6 @@ class SardanaUtils(object):
         #: (:class:`PyTango.Database`) tango database
         self.__db = PyTango.Database()
 
-
     @classmethod
     def openProxy(cls, device, counter=1000):
         """ opens device proxy of the given device
@@ -79,45 +78,43 @@ class SardanaUtils(object):
 
         :param door: door device name
         :type door: :obj:`str`
-        :returns: macroserver device name
-        :rtype: :obj:`str`
+        :returns: macroserver device proxy
+        :rtype: :class:`PyTango.DeviceProxy`
         """
         if not door:
             raise Exception("Door '%s' cannot be found" % door)
-        macroserver = self.getMacroServerName(door, self.__db)
-        return self.openProxy(macroserver)
-        
-
-    def getMacroServerName(self, door, db=None):
-        """ provides macro server of given door
-
-        :param door: given door
-        :type door: :obj:`str`
-        :param db: tango database
-        :type db: :class:`PyTango.Database`
-        :returns: first MacroServer of the given door
-        :rtype: :obj:`str`
-        """
-        if db is None:
-            db = self.__db
-        servers = db.get_device_exported_for_class(
-            "MacroServer").value_string
-        ms = ""
         sdoor = door.split("/")
+        tangohost = None
         if len(sdoor) > 1 and ":" in sdoor[0]:
             door = "/".join(sdoor[1:])
+            tangohost = sdoor[0]
+        if tangohost:
+            host, port = tangohost.split(":")
+            db = PyTango.Database(host, int(port))
+        else:
+            db = self.__db
+
+        servers = db.get_device_exported_for_class("MacroServer").value_string
+        ms = None
+
         for server in servers:
-            dp = PyTango.DeviceProxy(str(server))
+            dp = None
+            if tangohost and ":" not in server:
+                msname = "%s/%s" % (tangohost, server)
+            else:
+                msname = str(server)
+            try:
+                dp = self.openProxy(msname)
+            except Exception as e:
+                print(str(e))
+                dp = None
             if hasattr(dp, "DoorList"):
                 lst = dp.DoorList
-                if lst and door in lst:
-                    ms = server
+                if lst and (door in lst or
+                            ("%s/%s" % (tangohost, door) in lst)):
+                    ms = dp
                     break
         return ms
-
-        if not self.__macroserver:
-            self.updateMacroServer(door)
-        return self.__macroserver
 
     def getScanEnv(self, door, params=None):
         """ fetches Scan Environment Data
@@ -129,7 +126,7 @@ class SardanaUtils(object):
         """
         params = params or []
         res = {}
-        msp = PyTango.DeviceProxy(self.getMacroServer(door))
+        msp = self.getMacroServer(door)
         rec = msp.Environment
         if rec[0] == 'pickle':
             dc = pickle.loads(rec[1])
@@ -173,7 +170,7 @@ class SardanaUtils(object):
         :type jdata: :obj:`str`
         """
         data = json.loads(jdata)
-        msp = self.openProxy(self.getMacroServer(door))
+        msp = self.getMacroServer(door)
         rec = msp.Environment
         if rec[0] == 'pickle':
             dc = pickle.loads(rec[1])
@@ -211,7 +208,7 @@ class SardanaUtils(object):
         :type wait: :obj:`bool`
         """
         doorproxy = self.openProxy(door)
-        msp = PyTango.DeviceProxy(self.getMacroServer(door))
+        msp = self.getMacroServer(door)
         ml = msp.MacroList
         if len(command) == 0:
             raise Exception("Macro %s not found" % str(command))

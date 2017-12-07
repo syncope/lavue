@@ -506,10 +506,6 @@ class HidraLiveViewer(QtGui.QDialog):
         time.sleep(min(dataFetchThread.GLOBALREFRESHRATE * 5, 2))
         self.dataFetcher.stop()
         self.seccontext.destroy()
-        #try:
-        #    # print("disconnect")
-        #except:
-        #    pass
 
     @QtCore.pyqtSlot()
     def onfetchrois(self):
