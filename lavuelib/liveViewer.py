@@ -42,7 +42,7 @@ from . import imageSource as hcs
 from . import messageBox
 
 from . import gradientChoiceWidget
-from . import hidraWidget
+from . import sourceWidget
 from . import imageWidget
 from . import intensityScalingWidget
 from . import levelsWidget
@@ -60,7 +60,7 @@ except:
     print("Alternate method not yet implemented.")
 
 
-class HidraLiveViewer(QtGui.QDialog):
+class LiveViewer(QtGui.QDialog):
 
     '''The master class for the dialog, contains all other
     widget and handles communication.'''
@@ -124,7 +124,7 @@ class HidraLiveViewer(QtGui.QDialog):
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
-        self.hidraW = hidraWidget.HidraWidget(
+        self.sourceW = sourceWidget.HidraWidget(
             parent=self, serverdict=HidraServerList)
         self.prepBoxW = preparationBoxWidget.PreparationBoxWidget(parent=self)
         self.scalingW = intensityScalingWidget.IntensityScalingWidget(
@@ -167,7 +167,7 @@ class HidraLiveViewer(QtGui.QDialog):
         # first the vertical layout on the left side
 
         # first element is supposed to be tabbed:
-        vlayout.addWidget(self.hidraW)
+        vlayout.addWidget(self.sourceW)
         vlayout.addWidget(self.prepBoxW)
         vlayout.addWidget(self.scalingW)
         vlayout.addWidget(self.levelsW)
@@ -206,11 +206,11 @@ class HidraLiveViewer(QtGui.QDialog):
             self.onPixelChanged)
 
         # connecting signals from hidra widget:
-        self.hidraW.hidra_connect.connect(self.connect_hidra)
-        self.hidraW.hidra_connect.connect(self.startPlotting)
+        self.sourceW.hidra_connect.connect(self.connect_hidra)
+        self.sourceW.hidra_connect.connect(self.startPlotting)
 
-        self.hidraW.hidra_disconnect.connect(self.stopPlotting)
-        self.hidraW.hidra_disconnect.connect(self.disconnect_hidra)
+        self.sourceW.hidra_disconnect.connect(self.stopPlotting)
+        self.sourceW.hidra_disconnect.connect(self.disconnect_hidra)
 
         # gradient selector
         self.gradientW.chosenGradient.connect(
@@ -231,7 +231,7 @@ class HidraLiveViewer(QtGui.QDialog):
         self.dataFetcher.newDataName.connect(self.getNewData)
         # ugly !!! sent current state to the data fetcher...
         self.update_state.connect(self.dataFetcher.changeStatus)
-        self.hidraW.hidra_state.connect(self.updateSource)
+        self.sourceW.hidra_state.connect(self.updateSource)
 
         self.bkgSubW.bkgFileSelection.connect(self.prepareBKGSubtraction)
         self.bkgSubW.useCurrentImageAsBKG.connect(self.setCurrentImageAsBKG)
@@ -244,9 +244,9 @@ class HidraLiveViewer(QtGui.QDialog):
         self.trafoW.activatedTransformation.connect(self.assessTransformation)
 
         # set the right target name for the hidra display at initialization
-        self.hidraW.setTargetName(self.data_source.getTarget())
-        # self.hidraW.hidra_servername.connect(self.data_source.setSignalHost)
-        self.hidraW.hidra_servername.connect(self.setSignalHost)
+        self.sourceW.setTargetName(self.data_source.getTarget())
+        # self.sourceW.hidra_servername.connect(self.data_source.setSignalHost)
+        self.sourceW.hidra_servername.connect(self.setSignalHost)
         self.onPixelChanged()
 
         self.sardana = sardanaUtils.SardanaUtils()
@@ -482,9 +482,12 @@ class HidraLiveViewer(QtGui.QDialog):
         """
         self.__storeSettings()
         self.secstream = False
-        self.dataFetcher.newDataName.disconnect(self.getNewData)
-        if self.hidraW.connected:
-            self.hidraW.toggleServerConnection()
+        try:
+            self.dataFetcher.newDataName.disconnect(self.getNewData)
+        except:
+            pass
+        if self.sourceW.connected:
+            self.sourceW.toggleServerConnection()
         self.disconnect_hidra()
         time.sleep(min(dataFetchThread.GLOBALREFRESHRATE * 5, 2))
         self.dataFetcher.stop()
@@ -574,8 +577,8 @@ class HidraLiveViewer(QtGui.QDialog):
                     self.secsocket.unbind(self.secsockopt)
                 except:
                     pass
-                if self.hidraW.connected:
-                    self.hidraW.connectSuccess(None)
+                if self.sourceW.connected:
+                    self.sourceW.connectSuccess(None)
             if dialog.secstream:
                 if dialog.secautoport:
                     self.secsockopt = "tcp://*:*"
@@ -585,8 +588,8 @@ class HidraLiveViewer(QtGui.QDialog):
                 else:
                     self.secsockopt = "tcp://*:%s" % dialog.secport
                     self.secsocket.bind(self.secsockopt)
-                if self.hidraW.connected:
-                    self.hidraW.connectSuccess(dialog.secport)
+                if self.sourceW.connected:
+                    self.sourceW.connectSuccess(dialog.secport)
         self.secautoport = dialog.secautoport
         self.secport = dialog.secport
         self.secstream = dialog.secstream
@@ -675,7 +678,7 @@ class HidraLiveViewer(QtGui.QDialog):
     @QtCore.pyqtSlot()
     def startPlotting(self):
         # only start plotting if the connection is really established
-        if not self.hidraW.isConnected():
+        if not self.sourceW.isConnected():
             return
         self.dataFetcher.start()
 
@@ -695,14 +698,14 @@ class HidraLiveViewer(QtGui.QDialog):
                 "Please select the image source")
 
         if not self.data_source.connect():
-            self.hidraW.connectFailure()
+            self.sourceW.connectFailure()
             messageBox.MessageBox.warning(
                 self, "lavue: The HiDRA connection could not be established",
                 "The HiDRA connection could not be established",
                 "<WARNING> The HiDRA connection could not be established. "
                 "Check the settings.")
         else:
-            self.hidraW.connectSuccess(
+            self.sourceW.connectSuccess(
                 self.secport if self.secstream else None)
         if self.secstream:
             calctime = time.time()
@@ -733,8 +736,8 @@ class HidraLiveViewer(QtGui.QDialog):
         # check if data is there at all
         if name == "__ERROR__":
             if self.interruptonerror:
-                if self.hidraW.connected:
-                    self.hidraW.toggleServerConnection()
+                if self.sourceW.connected:
+                    self.sourceW.toggleServerConnection()
                 _, errortext = self.exchangelist.readData()
                 messageBox.MessageBox.warning(
                     self, "lavue: Error in reading data",
@@ -773,7 +776,7 @@ class HidraLiveViewer(QtGui.QDialog):
                     "to the current image",
                     text, str(value))
 
-        if self.maskshow and self.applyImageMask and \
+        if self.showmask and self.applyImageMask and \
            self.maskIndices is not None:
             # set all masked (non-zero values) to zero by index
             self.display_image[self.maskIndices] = 0

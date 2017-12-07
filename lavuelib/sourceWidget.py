@@ -23,7 +23,7 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
-""" hidraWidget """
+""" sourceWidget """
 
 from PyQt4 import QtCore, QtGui
 
