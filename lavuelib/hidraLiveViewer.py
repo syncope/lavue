@@ -773,7 +773,8 @@ class HidraLiveViewer(QtGui.QDialog):
                     "to the current image",
                     text, str(value))
 
-        if self.applyImageMask and self.maskIndices is not None:
+        if self.maskshow and self.applyImageMask and \
+           self.maskIndices is not None:
             # set all masked (non-zero values) to zero by index
             self.display_image[self.maskIndices] = 0
 
