@@ -879,11 +879,11 @@ class HidraLiveViewer(QtGui.QDialog):
 
     @QtCore.pyqtSlot(str)
     def prepareMasking(self, imagename):
-         '''Get the mask image, select non-zero elements
-         and store the indices.'''
-         self.mask_image = imageFileHandler.ImageFileHandler(
-             str(imagename)).getImage()
-         self.maskIndices = np.nonzero(self.mask_image !=0)
+        '''Get the mask image, select non-zero elements
+        and store the indices.'''
+        self.mask_image = imageFileHandler.ImageFileHandler(
+            str(imagename)).getImage()
+        self.maskIndices = np.nonzero(self.mask_image != 0)
 
     @QtCore.pyqtSlot(int)
     def checkBKGSubtraction(self, state):

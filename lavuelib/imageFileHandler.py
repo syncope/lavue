@@ -44,8 +44,8 @@ except ImportError:
 
 class ImageFileHandler(object):
 
-    '''Simple file handler class.
-       Reads image from file and returns the numpy array.'''
+    """Simple file handler class.
+       Reads image from file and returns the numpy array."""
 
     def __init__(self, fname):
         self._image = None

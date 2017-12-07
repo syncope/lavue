@@ -61,7 +61,6 @@ class MaskWidget(QtGui.QWidget):
         layout.addWidget(self.fileNameDisplay, 1, 1)
 
         masterlayout.addItem(layout)
-        #masterlayout.addWidget(self.fileNameDisplay)
 
         self.setLayout(masterlayout)
 
@@ -83,8 +82,6 @@ class MaskWidget(QtGui.QWidget):
             self.applyMaskBox.setEnabled(True)
 
     def setFileName(self, fname):
-        #print("setting filename called, name has length: " +
-        #      str(len(fname)) + " and is: " + fname)
         if len(fname) > 4 and fname != "NO IMAGE":
             self.fileSelectButton.setText("Mask selected")
         else:
