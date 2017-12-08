@@ -41,15 +41,16 @@ from PyQt4 import QtCore, QtGui
 from . import imageSource as hcs
 from . import messageBox
 
-from . import gradientChoiceWidget
 from . import sourceWidget
-from . import imageWidget
+from . import preparationBoxWidget
 from . import intensityScalingWidget
 from . import levelsWidget
+from . import gradientChoiceWidget
 from . import statisticsWidget
-from . import preparationBoxWidget
-from . import imageFileHandler
+from . import imageWidget
 from . import configWidget
+
+from . import imageFileHandler
 from . import sardanaUtils
 from . import dataFetchThread
 
@@ -884,9 +885,12 @@ class LiveViewer(QtGui.QDialog):
     def prepareMasking(self, imagename):
         '''Get the mask image, select non-zero elements
         and store the indices.'''
-        self.mask_image = imageFileHandler.ImageFileHandler(
-            str(imagename)).getImage()
-        self.maskIndices = (self.mask_image != 0)
+        if imagename:
+            self.mask_image = imageFileHandler.ImageFileHandler(
+                str(imagename)).getImage()
+            self.maskIndices = (self.mask_image != 0)
+        else:
+            self.mask_image = None
         # self.maskIndices = np.nonzero(self.mask_image != 0)
 
     @QtCore.pyqtSlot(int)

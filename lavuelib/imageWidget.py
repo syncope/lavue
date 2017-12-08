@@ -55,12 +55,17 @@ class ImageWidget(QtGui.QWidget):
         filenamelayout = QtGui.QHBoxLayout()
 
         filelabel = QtGui.QLabel("Image/File name: ")
+        filelabel.setToolTip("image or/and file name")
+
         filenamelayout.addWidget(filelabel)
         self.filenamedisplay = QtGui.QLineEdit()
         self.filenamedisplay.setReadOnly(True)
+        self.filenamedisplay.setToolTip("image or/and file name")
         filenamelayout.addWidget(self.filenamedisplay)
         self.cnfButton = QtGui.QPushButton("Configuration")
-        self.quitButton = QtGui.QPushButton("Quit")
+        self.cnfButton.setToolTip("image viewer configuration")
+        self.quitButton = QtGui.QPushButton("&Quit")
+        self.quitButton.setToolTip("quit the image viewer")
         filenamelayout.addWidget(self.cnfButton)
         filenamelayout.addWidget(self.quitButton)
 
@@ -70,20 +75,38 @@ class ImageWidget(QtGui.QWidget):
         self.pixelComboBox = QtGui.QComboBox()
         self.pixelComboBox.addItem("Intensity")
         self.pixelComboBox.addItem("ROI")
+        self.pixelComboBox.setToolTip(
+            "select the image tool for the mouse pointer, i.e. Intensity, ROI")
 
         pixelvaluelayout = QtGui.QHBoxLayout()
         self.pixellabel = QtGui.QLabel("Pixel position and intensity: ")
+        self.pixellabel.setToolTip(
+            "coordinate info display for the mouse pointer")
 
         self.infodisplay = QtGui.QLineEdit()
         self.infodisplay.setReadOnly(True)
+        self.infodisplay.setToolTip(
+            "coordinate info display for the mouse pointer")
 
         self.roiLabel = QtGui.QLabel("ROI alias(es): ")
+        self.roiLabel.setToolTip(
+            "ROI alias or aliases related to sardana experimental channels")
         self.labelROILineEdit = QtGui.QLineEdit("")
+        self.labelROILineEdit.setToolTip(
+            "ROI alias or aliases related to Sardana Pool "
+            "experimental channels")
         self.roiSpinBox = QtGui.QSpinBox()
         self.roiSpinBox.setMinimum(-1)
         self.roiSpinBox.setValue(1)
+        self.roiSpinBox.setToolTip(
+            "number of ROIs to add, -1 means remove ROI aliases from sardana")
         self.fetchROIButton = QtGui.QPushButton("Fetch")
+        self.fetchROIButton.setToolTip(
+            "fetch ROI aliases from the Door environment")
         self.applyROIButton = QtGui.QPushButton("Add")
+        self.applyROIButton.setToolTip(
+            "add ROI aliases to the Door environment "
+            "as well as to Active MntGrp")
 
         pixelvaluelayout.addWidget(self.pixellabel)
         pixelvaluelayout.addWidget(self.infodisplay)
@@ -132,8 +155,14 @@ class ImageWidget(QtGui.QWidget):
     def roiNrChanged(self, rid, coords=None):
         if rid < 0:
             self.applyROIButton.setText("Remove")
+            self.applyROIButton.setToolTip(
+                "remove ROI aliases from the Door environment"
+                " as well as from Active MntGrp")
         else:
             self.applyROIButton.setText("Add")
+            self.applyROIButton.setToolTip(
+                "add ROI aliases to the Door environment "
+                "as well as to Active MntGrp")
         if coords:
             for i, crd in enumerate(self.img_widget.roi):
                 if i < len(coords):

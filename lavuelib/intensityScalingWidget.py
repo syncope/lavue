@@ -43,8 +43,11 @@ class IntensityScalingWidget(QtGui.QGroupBox):
         horizontallayout = QtGui.QHBoxLayout()
 
         self.sqrtbutton = QtGui.QRadioButton(u"sqrt")
+        self.sqrtbutton.setToolTip("aply sqrt function on pixel intensity")
         self.linbutton = QtGui.QRadioButton(u"linear")
+        self.linbutton.setToolTip("do not apply function on pixel intensity")
         self.logbutton = QtGui.QRadioButton(u"log")
+        self.logbutton.setToolTip("aply log10 function on pixel intensity")
 
         self.linbutton.clicked.connect(self.setCurrentScaling)
         self.logbutton.clicked.connect(self.setCurrentScaling)

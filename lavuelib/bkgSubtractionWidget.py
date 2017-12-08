@@ -48,21 +48,30 @@ class BkgSubtractionkWidget(QtGui.QWidget):
         self.applyBkgSubtractBox = QtGui.QCheckBox(u"Subtract Bkg")
         self.applyBkgSubtractBox.setChecked(False)
         self.applyBkgSubtractBox.setEnabled(False)
+        self.applyBkgSubtractBox.setToolTip(
+            "apply background substraction to the image")
 
         label = QtGui.QLabel("Background image:")
         self.fileLabel = QtGui.QLabel("No image selected")
+        self.fileLabel.setToolTip("background substraction image file name")
 
         # the dialog to select the mask file
         self.selectButton = QtGui.QPushButton("Select")
         self.selectButton.clicked.connect(self.showImageSelection)
+        self.selectButton.setToolTip(
+            "select the background substraction image")
 
         self.selectCurrentButton = QtGui.QPushButton("Use current")
         self.selectCurrentButton.hide()
         self.selectCurrentButton.clicked.connect(self.useCurrent)
+        self.selectCurrentButton.setToolTip(
+            "select the current image for the background substraction image")
 
         self.selectFileButton = QtGui.QPushButton("Choose file")
         self.selectFileButton.hide()
         self.selectFileButton.clicked.connect(self.showFileDialog)
+        self.selectFileButton.setToolTip(
+            "select a file for the background substraction image")
 
         selectlayout = QtGui.QHBoxLayout()
         selectlayout.addWidget(self.selectButton)

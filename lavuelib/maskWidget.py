@@ -39,19 +39,23 @@ class MaskWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
 
-        self.fileName = ""
+        self.fileName = "No Image selected"
         self.fileDialog = None
         # one checkbox to choose whether the mask is applied
         self.applyMaskBox = QtGui.QCheckBox(u"Apply mask")
         self.applyMaskBox.setChecked(False)
         self.applyMaskBox.setChecked(False)
         self.applyMaskBox.setEnabled(False)
+        self.applyMaskBox.setToolTip("apply mask to the image")
 
         # the dialog to select the mask file
-        self.fileNameLabel = QtGui.QLabel("Mask file:")
+        self.fileNameLabel = QtGui.QLabel("Mask image:")
+        self.fileNameLabel.setToolTip("mask image file name")
         self.fileNameDisplay = QtGui.QLabel(str(self.fileName))
-        self.fileSelectButton = QtGui.QPushButton("Select mask file")
+        self.fileNameDisplay.setToolTip("mask image file name")
+        self.fileSelectButton = QtGui.QPushButton("Select")
         self.fileSelectButton.clicked.connect(self.showFileDialog)
+        self.fileSelectButton.setToolTip("select file for the mask")
 
         masterlayout = QtGui.QVBoxLayout()
         layout = QtGui.QGridLayout()

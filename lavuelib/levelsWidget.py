@@ -53,10 +53,15 @@ class LevelsWidget(QtGui.QGroupBox):
 
         self.autoLevelBox = QtGui.QCheckBox(u"Automatic levels")
         self.autoLevelBox.setChecked(True)
+        self.autoLevelBox.setToolTip(
+            "find mininum and maximum intensity values after scaling"
+            " for color distribution of the image")
 
         # informLabel = QtGui.QLabel("Linear scale, affects only display!")
         self.minLabel = QtGui.QLabel("minimum value: ")
+        self.minLabel.setToolTip("mininum intensity values after scaling")
         self.maxLabel = QtGui.QLabel("maximum value: ")
+        self.maxLabel.setToolTip("maximum intensity values after scaling")
 
         self.scalingLabel = QtGui.QLabel("sqrt scale!")
         self.scalingLabel.setStyleSheet("color: red;")
@@ -66,12 +71,17 @@ class LevelsWidget(QtGui.QGroupBox):
         self.maxVal = 1.
 
         self.minValSB = QtGui.QDoubleSpinBox()
+        self.minValSB.setToolTip("mininum intensity values after scaling")
         self.minValSB.setMinimum(-10e20)
         self.minValSB.setMaximum(10e20)
         self.maxValSB = QtGui.QDoubleSpinBox()
         self.maxValSB.setMinimum(-10e20)
         self.maxValSB.setMaximum(10e20)
+        self.maxValSB.setToolTip("maximum intensity values after scaling")
         self.applyButton = QtGui.QPushButton("Apply levels")
+        self.applyButton.setToolTip(
+            "apply mininum and maximum intensity values"
+            " to the color distribution of the image")
 
         self.histogram = HistogramHLUTWidget()
 

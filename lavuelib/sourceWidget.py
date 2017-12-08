@@ -55,26 +55,46 @@ class HidraWidget(QtGui.QGroupBox):
         gridlayout = QtGui.QGridLayout()
 
         self.sourceTypeLabel = QtGui.QLabel(u"Source:")
-        self.cStatusLabel = QtGui.QLabel("Status: ")
+        self.sourceTypeLabel.setToolTip(
+            "image source type, e.g. Hidra, Tango, Test")
         self.sourceTypeComboBox = QtGui.QComboBox()
+        self.sourceTypeComboBox.setToolTip(
+            "image source type, e.g. Hidra, Tango, Test")
         for st in self._types:
             self.sourceTypeComboBox.addItem(st["name"])
 
         self.serverLabel = QtGui.QLabel(u"Server:")
+        self.serverLabel.setToolTip("detector tangohost name")
         self.serverlistBox = QtGui.QComboBox()
         self.serverlistBox.addItem("Pick a server")
+        self.serverlistBox.setToolTip("detector tangohost name")
         self.hostlabel = QtGui.QLabel("Client:")
+        self.hostlabel.setToolTip("current host name and the hidra port")
         self.currenthost = QtGui.QLabel(u"SomeName")
+        self.currenthost.setToolTip("current host name and the hidra port")
 
         self.attrLabel = QtGui.QLabel(u"Attribute:")
+        self.attrLabel.setToolTip(
+            "tango device name with its attribute, "
+            "e.g. sys/tg_test/1/double_image_ro")
         self.attrLineEdit = QtGui.QLineEdit(u"")
+        self.attrLineEdit.setToolTip(
+            "tango device name with its attribute, "
+            "e.g. sys/tg_test/1/double_image_ro")
 
         self.cStatusLabel = QtGui.QLabel("Status: ")
+        self.cStatusLabel.setToolTip(
+            "connection status"
+            " and via which port the zmq security stream is being emitted")
         self.cStatus = QtGui.QLineEdit("Not connected")
+        # self.cStatus.setToolTip(
+        #     "connection status"
+        #     " and via which port the zmq security stream is being emitted")
         self.cStatus.setReadOnly(True)
         self.cStatus.setStyleSheet("color: blue;"
                                    "background-color: yellow;")
-        self.button = QtGui.QPushButton("Start")
+        self.button = QtGui.QPushButton("&Start")
+        self.button.setToolTip("start/stop reading images")
         self.button.setEnabled(False)
 
         self.button.clicked.connect(self.toggleServerConnection)
@@ -167,7 +187,7 @@ class HidraWidget(QtGui.QGroupBox):
                                        "background-color: red;")
             self.cStatus.setText("Disconnected")
             # self.button.setText("Re-Start")
-            self.button.setText("Start")
+            self.button.setText("&Start")
             self.connected = False
             self.hidra_state.emit(0)
             self.serverlistBox.setEnabled(True)
@@ -195,7 +215,7 @@ class HidraWidget(QtGui.QGroupBox):
                                        "background-color: green;")
             self.cStatus.setText("Connected")
         self.sourceTypeComboBox.setEnabled(False)
-        self.button.setText("Stop")
+        self.button.setText("&Stop")
 
     def connectFailure(self):
         """ Function doc """
@@ -205,7 +225,7 @@ class HidraWidget(QtGui.QGroupBox):
         self.sourceTypeComboBox.setEnabled(True)
         self.cStatus.setText("Trouble connecting")
         # self.button.setText("Retry connect")
-        self.button.setText("Start")
+        self.button.setText("&Start")
 
     def setSourceType(self):
         """ set source type"""

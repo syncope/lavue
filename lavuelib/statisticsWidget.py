@@ -47,18 +47,34 @@ class StatisticsWidget(QtGui.QGroupBox):
         self.scaleLabel = QtGui.QLabel(self.scaling)
 
         maxlabel = QtGui.QLabel("maximum: ")
+        maxlabel.setToolTip(
+            "maximum intensity values after image preparation and scaling")
         meanlabel = QtGui.QLabel("mean: ")
+        meanlabel.setToolTip(
+            "mean intensity values after image preparation and scaling")
         variancelabel = QtGui.QLabel("variance: ")
+        variancelabel.setToolTip(
+            "variance intensity values after image preparation and scaling")
         self.roilabel = QtGui.QLabel("roi   sum: ")
+        self.roilabel.setToolTip("ROI name (and its tango alias)")
 
         self.maxVal = QtGui.QLineEdit("Not set")
         self.maxVal.setReadOnly(True)
+        self.maxVal.setToolTip(
+            "maximum intensity values after image preparation and scaling")
         self.meanVal = QtGui.QLineEdit("Not set")
         self.meanVal.setReadOnly(True)
+        self.meanVal.setToolTip(
+            "mean intensity values after image preparation and scaling")
         self.varVal = QtGui.QLineEdit("Not set")
         self.varVal.setReadOnly(True)
+        self.varVal.setToolTip(
+            "variance intensity values after image preparation and scaling")
         self.roiVal = QtGui.QLineEdit("Not set")
         self.roiVal.setReadOnly(True)
+        self.roiVal.setToolTip(
+            "sum of intensity values after image preparation and scaling "
+            "for ROI")
         layout.addWidget(scalingLabel, 0, 0)
         layout.addWidget(self.scaleLabel, 0, 1)
 

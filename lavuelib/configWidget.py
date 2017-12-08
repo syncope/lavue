@@ -60,29 +60,61 @@ class ConfigWidget(QtGui.QDialog):
         vlayout = QtGui.QVBoxLayout()
 
         rateLabel = QtGui.QLabel(u"Refresh rate:")
+        rateLabel.setToolTip(
+            "refresh rate of the image in seconds")
         self.rateDoubleSpinBox = QtGui.QDoubleSpinBox()
         self.rateDoubleSpinBox.setValue(self.refreshrate)
         self.rateDoubleSpinBox.setSingleStep(0.01)
+        self.rateDoubleSpinBox.setToolTip(
+            "refresh rate of the image in seconds")
         doorLabel = QtGui.QLabel(u"Sardana Door:")
+        doorLabel.setToolTip(
+            "tango server device name of the Sarana Door")
         self.doorLineEdit = QtGui.QLineEdit(self.door)
+        self.doorLineEdit.setToolTip(
+            "tango server device name of the Sarana Door")
         addroisLabel = QtGui.QLabel(u"Add ROIs to Active MG:")
+        addroisLabel.setToolTip(
+            "add ROI aliases to the Active Measurement Group")
         self.addroisCheckBox = QtGui.QCheckBox()
         self.addroisCheckBox.setChecked(self.addrois)
+        self.addroisCheckBox.setToolTip(
+            "add ROI aliases to the Active Measurement Group")
         secstreamLabel = QtGui.QLabel(u"ZMQ secure stream:")
+        secstreamLabel.setToolTip(
+            "send the zmq security stream with the main image parameters")
         self.secstreamCheckBox = QtGui.QCheckBox()
         self.secstreamCheckBox.setChecked(self.secstream)
+        self.secstreamCheckBox.setToolTip(
+            "send the zmq security stream with the main image parameters")
         secautoportLabel = QtGui.QLabel(u"ZMQ secure automatic port:")
+        secautoportLabel.setToolTip(
+            "select port automatically for the zmq security stream")
         self.secautoportCheckBox = QtGui.QCheckBox()
+        self.secautoportCheckBox.setToolTip(
+            "select port automatically for the zmq security stream")
         self.secautoportCheckBox.setChecked(self.secautoport)
         secportLabel = QtGui.QLabel(u"ZMQ secure port:")
+        secportLabel.setToolTip(
+            "port for the zmq security stream")
         self.secportLineEdit = QtGui.QLineEdit(self.secport)
+        self.secportLineEdit.setToolTip(
+            "port for the zmq security stream")
         self.autoportChanged(self.secautoport)
         self.secautoportCheckBox.stateChanged.connect(self.autoportChanged)
         showhistoLabel = QtGui.QLabel(u"Show histogram:")
+        showhistoLabel.setToolTip(
+            "show histogram to set range and color distribution")
         self.showhistoCheckBox = QtGui.QCheckBox()
+        self.showhistoCheckBox.setToolTip(
+            "show histogram to set range and color distribution")
         self.showhistoCheckBox.setChecked(self.showhisto)
         showmaskLabel = QtGui.QLabel(u"Show mask widget:")
+        showmaskLabel.setToolTip(
+            "show widgets to select the image mask")
         self.showmaskCheckBox = QtGui.QCheckBox()
+        self.showmaskCheckBox.setToolTip(
+            "show widgets to select the image mask")
         self.showmaskCheckBox.setChecked(self.showmask)
 
         gridlayout.addWidget(rateLabel, 0, 0)

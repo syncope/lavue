@@ -49,9 +49,13 @@ class TransformationsWidget(QtGui.QWidget):
         self.cb.addItem("rot180")
         self.cb.addItem("rot270 (cw)")
         self.cb.addItem("rot180 + transpose")
+        self.cb.setToolTip(
+            "basic image transformation, i.e. flip, transpose")
 
         layout = QtGui.QHBoxLayout()
         self.label = QtGui.QLabel("Transformation:")
+        self.label.setToolTip(
+            "basic image transformation, i.e flip, transpose")
         layout.addWidget(self.label)
         layout.addWidget(self.cb)
         self.setLayout(layout)

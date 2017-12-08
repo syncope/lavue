@@ -55,6 +55,7 @@ class GradientChoiceWidget(QtGui.QGroupBox):
         self.cb.addItem("cyclic")
         self.cb.addItem("yellowy")
         self.cb.addItem("inverted")
+        self.cb.setToolTip("gradient for the color distribution of the image")
         layout.addWidget(self.cb)
         self.setLayout(layout)
         self.cb.activated.connect(self.emitText)
