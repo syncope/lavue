@@ -886,7 +886,8 @@ class LiveViewer(QtGui.QDialog):
         and store the indices.'''
         self.mask_image = imageFileHandler.ImageFileHandler(
             str(imagename)).getImage()
-        self.maskIndices = np.nonzero(self.mask_image != 0)
+        self.maskIndices = (self.mask_image != 0)
+        # self.maskIndices = np.nonzero(self.mask_image != 0)
 
     @QtCore.pyqtSlot(int)
     def checkBKGSubtraction(self, state):
