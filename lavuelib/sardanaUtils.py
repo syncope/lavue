@@ -43,7 +43,11 @@ class SardanaUtils(object):
     def __init__(self):
         """ constructor """
         #: (:class:`PyTango.Database`) tango database
-        self.__db = PyTango.Database()
+        try:
+            self.__db = PyTango.Database()
+        except Exception as e:
+            print(str(e))
+            self.__db = None
 
     @classmethod
     def openProxy(cls, device, counter=1000):
@@ -88,7 +92,7 @@ class SardanaUtils(object):
         if len(sdoor) > 1 and ":" in sdoor[0]:
             door = "/".join(sdoor[1:])
             tangohost = sdoor[0]
-        if tangohost:
+        if tangohost or not self.__db:
             host, port = tangohost.split(":")
             db = PyTango.Database(host, int(port))
         else:
@@ -149,7 +153,10 @@ class SardanaUtils(object):
 
         if db is None:
             db = self.__db
-        servers = db.get_device_exported_for_class(cname).value_string
+        try:
+            servers = db.get_device_exported_for_class(cname).value_string
+        except:
+            servers = []
         device = ''
         for server in servers:
             try:
