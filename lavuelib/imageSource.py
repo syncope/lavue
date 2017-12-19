@@ -179,8 +179,9 @@ class HiDRASource(object):
 
     def disconnect(self):
         try:
-            if self.query is not None:
-                self.query.stop()
+            pass
+            # if self.query is not None:
+            #     self.query.stop()
         except:
             pass
 
