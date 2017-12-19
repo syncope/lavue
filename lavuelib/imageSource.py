@@ -179,7 +179,8 @@ class HiDRASource(object):
 
     def disconnect(self):
         try:
-            pass  # self.query.stop()
+            if self.query is not None:
+                self.query.stop()
         except:
             pass
 
@@ -199,7 +200,8 @@ class HiDRASource(object):
                 img = imageFileHandler.CBFLoader().load(
                     np.fromstring(data[:], dtype=np.uint8))
                 return np.transpose(img), metadata["filename"]
-            elif data[:2] in ["II\x2A\x00", "MM\x00\x2A"]:
+            else:
+                # elif data[:2] in ["II\x2A\x00", "MM\x00\x2A"]:
                 print("[tif source module]::metadata", metadata["filename"])
                 if PILLOW:
                     img = np.array(PIL.Image.open(BytesIO(str(data))))
@@ -208,8 +210,8 @@ class HiDRASource(object):
                     img = imageFileHandler.TIFLoader().load(
                         np.fromstring(data[:], dtype=np.uint8))
                     return np.transpose(img), metadata["filename"]
-            else:
-                print(
-                    "[unknown source module]::metadata", metadata["filename"])
+            # else:
+            #     print(
+            #         "[unknown source module]::metadata", metadata["filename"])
         else:
             return None, None

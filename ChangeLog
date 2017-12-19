@@ -1,3 +1,7 @@
+2017-12-19 Jan Kotanski <jan.kotanski@desy.de>
+	* fix tiff support
+	* tagged as 0.6.9
+
 2017-12-08 Jan Kotanski <jan.kotanski@desy.de>
 	* fix on missing tango database
 	* tagged as 0.6.8
