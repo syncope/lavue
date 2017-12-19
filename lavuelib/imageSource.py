@@ -213,6 +213,6 @@ class HiDRASource(object):
                     return np.transpose(img), metadata["filename"]
             # else:
             #     print(
-            #         "[unknown source module]::metadata", metadata["filename"])
+            #       "[unknown source module]::metadata", metadata["filename"])
         else:
             return None, None
