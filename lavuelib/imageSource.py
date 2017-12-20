@@ -46,6 +46,13 @@ try:
 except ImportError:
     PILLOW = False
 
+try:
+    import zmq
+    ZMQMAJOR, ZMQMINOR = map(int, zmq.zmq_version().split(".")[:2])
+except:
+    ZMQMAJOR, ZMQMINOR = 0, 0
+
+
 import socket
 import numpy as np
 import random
@@ -148,6 +155,7 @@ class HiDRASource(object):
         self.query = None
         self._initiated = False
         self._timeout = timeout
+        self.__mutex = QtCore.QMutex()
 
     def getTargetSignalHost(self):
         return self.target[0] + ":" + self.portnumber, self.signal_host
@@ -159,7 +167,8 @@ class HiDRASource(object):
     def setSignalHost(self, signalhost):
         if self.signal_host != signalhost:
             self.signal_host = signalhost
-            self.query = hidra.Transfer("QUERY_NEXT", self.signal_host)
+            with QtCore.QMutexLocker(self.__mutex):
+                self.query = hidra.Transfer("QUERY_NEXT", self.signal_host)
             self._initiated = False
 
     def setTargetPort(self, portnumber):
@@ -168,20 +177,25 @@ class HiDRASource(object):
     def connect(self):
         try:
             if not self._initiated:
-                self.query.initiate(self.target)
+                with QtCore.QMutexLocker(self.__mutex):
+                    self.query.initiate(self.target)
                 self._initiated = True
-                self.query.start()
+                with QtCore.QMutexLocker(self.__mutex):
+                    self.query.start()
             return True
         except:
             if self.query is not None:
-                self.query.stop()
+                # if self.query is not None and ZMQMAJOR > 3 and ZMQMINOR > 0:
+                with QtCore.QMutexLocker(self.__mutex):
+                    self.query.stop()
             return False
 
     def disconnect(self):
         try:
-            pass
-            # if self.query is not None:
-            #     self.query.stop()
+            if self.query is not None:
+                # if self.query is not None and ZMQMAJOR > 3 and ZMQMINOR > 0:
+                with QtCore.QMutexLocker(self.__mutex):
+                    self.query.stop()
         except:
             pass
 
@@ -189,7 +203,8 @@ class HiDRASource(object):
         metadata = None
         data = None
         try:
-            [metadata, data] = self.query.get(self._timeout)
+            with QtCore.QMutexLocker(self.__mutex):
+                [metadata, data] = self.query.get(self._timeout)
         except:
             pass  # this needs a bit more care
 
