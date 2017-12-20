@@ -603,7 +603,7 @@ class LiveViewer(QtGui.QDialog):
     def updateSource(self, status):
         if status:
             self.data_source = getattr(
-                hcs, self.sourcetypes[status - 1]["datasource"])()
+                hcs, self.sourcetypes[status - 1]["datasource"])(0.1)
             self.dataFetcher.data_source = self.data_source
             if self._signalhost:
                 self.data_source.setSignalHost(self._signalhost)
