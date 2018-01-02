@@ -68,7 +68,7 @@ class GeneralSource(object):
     def __init__(self, timeout=None):
         self.signal_host = None
         self.portnumber = "50001"
-        self.target = [socket.getfqdn(), self.portnumber, 19, [".cbf"]]
+        self.target = [socket.getfqdn()]
         self.query = None
         self._initiated = False
         self._timeout = timeout
@@ -104,7 +104,7 @@ class TangoAttrSource(object):
     def __init__(self, timeout=None):
         self.signal_host = None
         self.portnumber = "50001"
-        self.target = [socket.getfqdn(), self.portnumber, 19, [".cbf"]]
+        self.target = [socket.getfqdn()]
         self.query = None
         self._initiated = False
         self._timeout = timeout
@@ -152,15 +152,15 @@ class ZMQPickleSource(object):
     def __init__(self, timeout=None):
         self.signal_host = None
         self.portnumber = "50001"
-        self.target = [socket.getfqdn(), self.portnumber, 19, [".cbf"]]
+        self.target = [socket.getfqdn()]
         self.query = None
         self._initiated = False
         self._timeout = timeout
         self._context = zmq.Context()
         self._socket = None
-        self._lastarray = None
         self._counter = 0
-        self._bindAddress = None
+        self._bindaddress = None
+        self.__mutex = QtCore.QMutex()
 
     def getTarget(self):
         return self.target[0] + ":" + self.portnumber
@@ -173,20 +173,23 @@ class ZMQPickleSource(object):
 
     def getData(self):
         try:
+            with QtCore.QMutexLocker(self.__mutex):
+                message = self._socket.recv_multipart(flags=zmq.NOBLOCK)
+
             (tag,
              _array,
              _shape,
-             _dtype) = self._socket.recv_multipart()
+             _dtype) = message
             array = np.frombuffer(
                 buffer(_array),
                 dtype=cPickle.loads(_dtype)
             )
             array = array.reshape(cPickle.loads(_shape))
-            if not np.array_equal(array, self._lastarray):
-                self._lastarray = array
-                self._counter += 1
-                return (np.transpose(array),
-                        '__%s_%s__' % (self.signal_host, self.counter))
+            self._counter += 1
+            return (np.transpose(array),
+                    '%s/%s (%s)' % (self._bindaddress, tag, self._counter))
+        except zmq.Again as e:
+            pass
         except Exception as e:
             print(str(e))
             return str(e), "__ERROR__"
@@ -200,17 +203,20 @@ class ZMQPickleSource(object):
             hwm = shost[2] if len(shost) > 2 else None
 
             if not self._initiated:
-                if hwm is not None:
-                    self._socket.set_hwm(hwm)
-                self._socket = self._context.socket(zmq.SUB)
-                self._bindAddress = (
-                    'tcp://'
-                    + socket.gethostbyname(host)
-                    + ':'
-                    + str(port)
-                )
-                self._socket.setsockopt(zmq.SUBSCRIBE, tag)
-                self._socket.connect(self._bindAddress)
+                if self._socket:
+                    self.disconnect()
+                with QtCore.QMutexLocker(self.__mutex):
+                    self._socket = self._context.socket(zmq.SUB)
+                    if hwm is not None:
+                        self._socket.set_hwm(hwm)
+                    self._bindaddress = (
+                        'tcp://'
+                        + socket.gethostbyname(host)
+                        + ':'
+                        + str(port)
+                    )
+                    self._socket.setsockopt(zmq.SUBSCRIBE, tag)
+                    self._socket.connect(self._bindaddress)
                 time.sleep(0.2)
             return True
         except Exception as e:
@@ -220,11 +226,21 @@ class ZMQPickleSource(object):
 
     def disconnect(self):
         try:
-            if self._bindAddress:
-                self.secsocket.unbind(self._bindAddress)
-        except:
+            with QtCore.QMutexLocker(self.__mutex):
+                if self._socket:
+                    if self._bindaddress:
+                        self._socket.unbind(self._bindaddress)
+                    self._socket.close(linger=0)
+                    self._socket = None
+        except Exception as e:
+            print(str(e))
             pass
-        self._bindAddress = None
+        with QtCore.QMutexLocker(self.__mutex):
+            self._bindaddress = None
+
+    def __del__(self):
+        self.disconnect()
+        self._context.destroy()
 
 
 class HiDRASource(object):

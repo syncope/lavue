@@ -1,0 +1,149 @@
+#!/usr/bin/python
+
+# Copyright (C) 2017  DESY, Notkestr. 85, D-22607 Hamburg
+#
+# lavue is an image viewing program for photon science imaging detectors.
+# Its usual application is as a live viewer using hidra as data source.
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation in  version 2
+# of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301, USA.
+#
+# Authors:
+#     Jan Kotanski <jan.kotanski@desy.de>
+#     Christoph Rosemann <christoph.rosemann@desy.de>
+#
+# Socket to talk to server
+
+import sys
+import zmq
+import time
+import argparse
+import signal
+import cPickle
+import PyTango
+
+maxtimegap = 0.1
+port = None
+topicfilter = "10001"
+debug = False
+attribute = ""
+hostname = "localhost"
+
+context = None
+
+original_sigint = signal.getsignal(signal.SIGINT)
+
+
+def _onexit(signum, frame):
+    global context
+    if context:
+        try:
+            context.destroy()
+            context = None
+            print("disconnect")
+        except:
+            pass
+    signal.signal(signal.SIGINT, original_sigint)
+    sys.exit(1)
+
+
+def main():
+    global lasttime
+    global context
+    signal.signal(signal.SIGINT, _onexit)
+    context = zmq.Context()
+    socket = context.socket(zmq.PUB)
+    conn = "tcp://*:%s" % (port)
+    print("Connecting to: %s" % conn)
+    socket.bind(conn)
+    counter = 0
+
+    receiveloop = True
+    da = PyTango.AttributeProxy(attribute)
+    while receiveloop:
+        try:
+            attr = da.read()
+            value = attr.value
+            shape = value.shape
+            dtype = value.dtype.name
+
+            message = (
+                topicfilter,
+                value,
+                cPickle.dumps(shape),
+                cPickle.dumps(dtype)
+            )
+            counter += 1
+            socket.send_multipart(message)
+            print("Send: tcp://*:%s/%s %s %s %s"
+                  % (port, topicfilter, shape, dtype, counter))
+        except Exception as e:
+            print("Error: %s" % str(e))
+        time.sleep(maxtimegap)
+
+
+if __name__ == "__main__":
+    options = None
+    parser = argparse.ArgumentParser(
+        description='ZMQ Pickle test server')
+    parser.add_argument(
+        "-g", "--time-gap",
+        help="maximal time gap in seconds (default: 0.1)",
+        dest="timegap", default="0.1")
+    parser.add_argument(
+        "-p", "--port",
+        help="zmq port (default: automatic)",
+        dest="port", default=None)
+    parser.add_argument(
+        "-t", "--topic",
+        help="zmq topic (default: 10001)",
+        dest="topic", default="10001")
+    parser.add_argument(
+        "-a", "--attribute",
+        help="tango attribute"
+        "(default: sys/tg_test/1/double_image_ro)",
+        dest="attribute", default="sys/tg_test/1/double_image_ro")
+    parser.add_argument(
+        "--debug", action="store_true",
+        default=False, dest="debug",
+        help="debug mode")
+    options = parser.parse_args()
+
+    try:
+        port = int(options.port)
+    except Exception as e:
+        # print str(e)
+        print >> sys.stderr, \
+            "lavuemonitor: Invalid --port parameter\n"
+        parser.print_help()
+        sys.exit(255)
+    try:
+        topicfilter = str(options.topic)
+    except:
+        print >> sys.stderr, \
+            "lavuemonitor: Invalid --topic parameter\n"
+        parser.print_help()
+        sys.exit(255)
+    try:
+        maxtimegap = float(options.timegap)
+    except:
+        print >> sys.stderr, \
+            "lavuemonitor: Invalid --time-gap parameter\n"
+        parser.print_help()
+        sys.exit(255)
+    debug = options.debug
+    attribute = options.attribute
+
+    main()

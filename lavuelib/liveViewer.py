@@ -126,11 +126,6 @@ class LiveViewer(QtGui.QDialog):
         self.secsocket = self.seccontext.socket(zmq.PUB)
         self.apppid = os.getpid()
 
-        # instantiate the data source
-        # here: hardcoded the hidra cbf source!
-        # future possibility: use abstract interface and factory for concrete
-        # instantiation
-
         # note: host and target are defined in another place
         self.data_source = hcs.GeneralSource()
 
@@ -217,7 +212,7 @@ class LiveViewer(QtGui.QDialog):
         self.imageW.pixelComboBox.currentIndexChanged.connect(
             self.onPixelChanged)
 
-        # connecting signals from hidra widget:
+        # connecting signals from source widget:
         self.sourceW.source_connect.connect(self.connect_source)
         self.sourceW.source_connect.connect(self.startPlotting)
 
@@ -255,7 +250,7 @@ class LiveViewer(QtGui.QDialog):
         # signals from transformation widget
         self.trafoW.activatedTransformation.connect(self.assessTransformation)
 
-        # set the right target name for the hidra display at initialization
+        # set the right target name for the source display at initialization
         self.sourceW.setTargetName(self.data_source.getTarget())
         # self.sourceW.source_servername.connect(self.data_source.setSignalHost)
         self.sourceW.source_servername.connect(self.setSignalHost)
@@ -700,7 +695,7 @@ class LiveViewer(QtGui.QDialog):
         if self.dataFetcher is not None:
             pass
 
-    # call the connect function of the hidra interface
+    # call the connect function of the source interface
     @QtCore.pyqtSlot()
     def connect_source(self):
         if self.data_source is None:
