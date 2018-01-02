@@ -33,11 +33,11 @@ class HidraWidget(QtGui.QGroupBox):
     """
     Connect and disconnect hidra service.
     """
-    hidra_disconnect = QtCore.pyqtSignal()
-    hidra_connect = QtCore.pyqtSignal()
-    hidra_state = QtCore.pyqtSignal(int)
-    hidra_servername = QtCore.pyqtSignal(str)
-    hidra_sourcetype = QtCore.pyqtSignal(str)
+    source_disconnect = QtCore.pyqtSignal()
+    source_connect = QtCore.pyqtSignal()
+    source_state = QtCore.pyqtSignal(int)
+    source_servername = QtCore.pyqtSignal(str)
+    source_sourcetype = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None, serverdict=None):
         QtGui.QGroupBox.__init__(self, parent)
@@ -123,7 +123,7 @@ class HidraWidget(QtGui.QGroupBox):
     @QtCore.pyqtSlot()
     def onSourceChanged(self):
         self.setSource(self.sourceTypeComboBox.currentText())
-        self.hidra_sourcetype.emit(self.sourceTypeComboBox.currentText())
+        self.source_sourcetype.emit(self.sourceTypeComboBox.currentText())
 
     def setSource(self, name=None):
         allhidden = set()
@@ -158,7 +158,7 @@ class HidraWidget(QtGui.QGroupBox):
         if self.connected:
             pass
         else:
-            self.hidra_servername.emit(str(self.attrLineEdit.text()).strip())
+            self.source_servername.emit(str(self.attrLineEdit.text()).strip())
 
     def updateButton(self):
         self.button.setEnabled(True)
@@ -168,7 +168,7 @@ class HidraWidget(QtGui.QGroupBox):
         self.updateHidraButton()
 
         if not self.connected:
-            self.hidra_servername.emit(self.serverlistBox.currentText())
+            self.source_servername.emit(self.serverlistBox.currentText())
 
     def setTargetName(self, name):
         self.currenthost.setText(str(name))
@@ -182,14 +182,14 @@ class HidraWidget(QtGui.QGroupBox):
     def toggleServerConnection(self):
         # if it is connected then it's easy:
         if self.connected:
-            self.hidra_disconnect.emit()
+            self.source_disconnect.emit()
             self.cStatus.setStyleSheet("color: yellow;"
                                        "background-color: red;")
             self.cStatus.setText("Disconnected")
             # self.button.setText("Re-Start")
             self.button.setText("&Start")
             self.connected = False
-            self.hidra_state.emit(0)
+            self.source_state.emit(0)
             self.serverlistBox.setEnabled(True)
             self.sourceTypeComboBox.setEnabled(True)
             if ":" in self.attrLineEdit.text():
@@ -200,8 +200,8 @@ class HidraWidget(QtGui.QGroupBox):
         else:
             self.serverlistBox.setEnabled(False)
             self.sourceTypeComboBox.setEnabled(False)
-            self.hidra_state.emit(self.sourceTypeComboBox.currentIndex() + 1)
-            self.hidra_connect.emit()
+            self.source_state.emit(self.sourceTypeComboBox.currentIndex() + 1)
+            self.source_connect.emit()
 
     def connectSuccess(self, port=None):
         """ Function doc """
@@ -220,7 +220,7 @@ class HidraWidget(QtGui.QGroupBox):
     def connectFailure(self):
         """ Function doc """
         self.connected = False
-        self.hidra_state.emit(0)
+        self.source_state.emit(0)
         self.serverlistBox.setEnabled(True)
         self.sourceTypeComboBox.setEnabled(True)
         self.cStatus.setText("Trouble connecting")

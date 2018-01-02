@@ -145,6 +145,54 @@ class TangoAttrSource(object):
             pass
 
 
+class ZMQPickleSource(object):
+
+    def __init__(self, timeout=None):
+        self.signal_host = None
+        self.portnumber = "50001"
+        self.target = [socket.getfqdn(), self.portnumber, 19, [".cbf"]]
+        self.query = None
+        self._initiated = False
+        self._timeout = timeout
+        self.aproxy = None
+
+    def getTarget(self):
+        return self.target[0] + ":" + self.portnumber
+
+    @QtCore.pyqtSlot(str)
+    def setSignalHost(self, signalhost):
+        if self.signal_host != signalhost:
+            self.signal_host = signalhost
+            self._initiated = False
+
+    def getData(self):
+
+        try:
+            attr = self.aproxy.read()
+            return (np.transpose(attr.value),
+                    '%s  (%s)' % (self.signal_host, str(attr.time)))
+        except Exception as e:
+            print(str(e))
+            return str(e), "__ERROR__"
+            pass  # this needs a bit more care
+        return None, None
+
+    def connect(self):
+        try:
+            if not self._initiated:
+                self.aproxy = PyTango.AttributeProxy(str(self.signal_host))
+            return True
+        except Exception as e:
+            print(str(e))
+            return False
+
+    def disconnect(self):
+        try:
+            pass
+        except:
+            pass
+
+
 class HiDRASource(object):
 
     def __init__(self, timeout=None):

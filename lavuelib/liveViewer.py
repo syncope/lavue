@@ -207,11 +207,11 @@ class LiveViewer(QtGui.QDialog):
             self.onPixelChanged)
 
         # connecting signals from hidra widget:
-        self.sourceW.hidra_connect.connect(self.connect_hidra)
-        self.sourceW.hidra_connect.connect(self.startPlotting)
+        self.sourceW.source_connect.connect(self.connect_hidra)
+        self.sourceW.source_connect.connect(self.startPlotting)
 
-        self.sourceW.hidra_disconnect.connect(self.stopPlotting)
-        self.sourceW.hidra_disconnect.connect(self.disconnect_hidra)
+        self.sourceW.source_disconnect.connect(self.stopPlotting)
+        self.sourceW.source_disconnect.connect(self.disconnect_hidra)
 
         # gradient selector
         self.gradientW.chosenGradient.connect(
@@ -232,7 +232,7 @@ class LiveViewer(QtGui.QDialog):
         self.dataFetcher.newDataName.connect(self.getNewData)
         # ugly !!! sent current state to the data fetcher...
         self.update_state.connect(self.dataFetcher.changeStatus)
-        self.sourceW.hidra_state.connect(self.updateSource)
+        self.sourceW.source_state.connect(self.updateSource)
 
         self.bkgSubW.bkgFileSelection.connect(self.prepareBKGSubtraction)
         self.bkgSubW.useCurrentImageAsBKG.connect(self.setCurrentImageAsBKG)
@@ -246,8 +246,8 @@ class LiveViewer(QtGui.QDialog):
 
         # set the right target name for the hidra display at initialization
         self.sourceW.setTargetName(self.data_source.getTarget())
-        # self.sourceW.hidra_servername.connect(self.data_source.setSignalHost)
-        self.sourceW.hidra_servername.connect(self.setSignalHost)
+        # self.sourceW.source_servername.connect(self.data_source.setSignalHost)
+        self.sourceW.source_servername.connect(self.setSignalHost)
         self.onPixelChanged()
 
         self.sardana = sardanaUtils.SardanaUtils()
