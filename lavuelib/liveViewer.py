@@ -77,7 +77,8 @@ class LiveViewer(QtGui.QDialog):
                 {"name": "Hidra",
                  "datasource": "HiDRASource",
                  "slot": "updateHidraButton",
-                 "hidden": ["attrLabel", "attrLineEdit"]}
+                 "hidden": ["attrLabel", "attrLineEdit",
+                            "pickleLabel", "pickleLineEdit"]}
             )
         if hcs.PYTANGO:
             self.sourcetypes.append(
@@ -85,14 +86,24 @@ class LiveViewer(QtGui.QDialog):
                  "datasource": "TangoAttrSource",
                  "slot": "updateAttrButton",
                  "hidden": ["hostlabel", "currenthost",
+                            "pickleLabel", "pickleLineEdit",
                             "serverLabel", "serverlistBox"]})
 
+        self.sourcetypes.append(
+            {"name": "ZMQ Pickle",
+             "datasource": "ZMQPickleSource",
+             "slot": "updateZMQPickleButton",
+             "hidden": ["hostlabel", "currenthost",
+                        "serverLabel", "serverlistBox",
+                        "attrLabel", "attrLineEdit"]},
+        )
         self.sourcetypes.append(
             {"name": "Test",
              "datasource": "GeneralSource",
              "slot": "updateButton",
              "hidden": ["hostlabel", "currenthost",
                         "serverLabel", "serverlistBox",
+                        "pickleLabel", "pickleLineEdit",
                         "attrLabel", "attrLineEdit"]},
         )
 
@@ -207,11 +218,11 @@ class LiveViewer(QtGui.QDialog):
             self.onPixelChanged)
 
         # connecting signals from hidra widget:
-        self.sourceW.source_connect.connect(self.connect_hidra)
+        self.sourceW.source_connect.connect(self.connect_source)
         self.sourceW.source_connect.connect(self.startPlotting)
 
         self.sourceW.source_disconnect.connect(self.stopPlotting)
-        self.sourceW.source_disconnect.connect(self.disconnect_hidra)
+        self.sourceW.source_disconnect.connect(self.disconnect_source)
 
         # gradient selector
         self.gradientW.chosenGradient.connect(
@@ -489,7 +500,7 @@ class LiveViewer(QtGui.QDialog):
             pass
         if self.sourceW.connected:
             self.sourceW.toggleServerConnection()
-        self.disconnect_hidra()
+        self.disconnect_source()
         time.sleep(min(dataFetchThread.GLOBALREFRESHRATE * 5, 2))
         self.dataFetcher.stop()
         self.seccontext.destroy()
@@ -691,7 +702,7 @@ class LiveViewer(QtGui.QDialog):
 
     # call the connect function of the hidra interface
     @QtCore.pyqtSlot()
-    def connect_hidra(self):
+    def connect_source(self):
         if self.data_source is None:
             messageBox.MessageBox.warning(
                 self, "lavue: No data source is defined",
@@ -701,10 +712,12 @@ class LiveViewer(QtGui.QDialog):
         if not self.data_source.connect():
             self.sourceW.connectFailure()
             messageBox.MessageBox.warning(
-                self, "lavue: The HiDRA connection could not be established",
-                "The HiDRA connection could not be established",
-                "<WARNING> The HiDRA connection could not be established. "
-                "Check the settings.")
+                self, "lavue: The %s connection could not be established"
+                % type(self.data_source).__name__,
+                "The %s connection could not be established"
+                % type(self.data_source).__name__,
+                "<WARNING> The %s connection could not be established. "
+                "Check the settings." % type(self.data_source))
         else:
             self.sourceW.connectSuccess(
                 self.secport if self.secstream else None)
@@ -720,7 +733,7 @@ class LiveViewer(QtGui.QDialog):
 
     # call the disconnect function of the hidra interface
     @QtCore.pyqtSlot()
-    def disconnect_hidra(self):
+    def disconnect_source(self):
         self.data_source.disconnect()
         if self.secstream:
             calctime = time.time()

@@ -81,6 +81,14 @@ class HidraWidget(QtGui.QGroupBox):
         self.attrLineEdit.setToolTip(
             "tango device name with its attribute, "
             "e.g. sys/tg_test/1/double_image_ro")
+        self.pickleLabel = QtGui.QLabel(u"ZMQ Server:")
+        self.pickleLabel.setToolTip(
+            "zmq server, port and tag, hwm (optional): server:port[/tag][/hwm]"
+            "e.g. haso228:9999/10001")
+        self.pickleLineEdit = QtGui.QLineEdit(u"")
+        self.pickleLineEdit.setToolTip(
+            "zmq server, port and tag, hwm (optional): server:port[/tag][/hwm]"
+            "e.g. haso228:9999/10001")
 
         self.cStatusLabel = QtGui.QLabel("Status: ")
         self.cStatusLabel.setToolTip(
@@ -108,9 +116,11 @@ class HidraWidget(QtGui.QGroupBox):
         gridlayout.addWidget(self.currenthost, 2, 1)
         gridlayout.addWidget(self.attrLabel, 3, 0)
         gridlayout.addWidget(self.attrLineEdit, 3, 1)
-        gridlayout.addWidget(self.cStatusLabel, 4, 0)
-        gridlayout.addWidget(self.cStatus, 4, 1)
-        gridlayout.addWidget(self.button, 5, 1)
+        gridlayout.addWidget(self.pickleLabel, 4, 0)
+        gridlayout.addWidget(self.pickleLineEdit, 4, 1)
+        gridlayout.addWidget(self.cStatusLabel, 5, 0)
+        gridlayout.addWidget(self.cStatus, 5, 1)
+        gridlayout.addWidget(self.button, 6, 1)
 
         self.setLayout(gridlayout)
 
@@ -118,6 +128,7 @@ class HidraWidget(QtGui.QGroupBox):
         self.sourceTypeComboBox.currentIndexChanged.connect(
             self.onSourceChanged)
         self.attrLineEdit.textEdited.connect(self.updateAttrButton)
+        self.pickleLineEdit.textEdited.connect(self.updateZMQPickleButton)
         self.onSourceChanged()
 
     @QtCore.pyqtSlot()
@@ -159,6 +170,20 @@ class HidraWidget(QtGui.QGroupBox):
             pass
         else:
             self.source_servername.emit(str(self.attrLineEdit.text()).strip())
+
+    @QtCore.pyqtSlot()
+    def updateZMQPickleButton(self):
+        if not str(self.pickleLineEdit.text()).strip() \
+           or ":" not in str(self.pickleLineEdit.text()):
+            self.button.setEnabled(False)
+        else:
+            self.button.setEnabled(True)
+
+        if self.connected:
+            pass
+        else:
+            self.source_servername.emit(
+                str(self.pickleLineEdit.text()).strip())
 
     def updateButton(self):
         self.button.setEnabled(True)

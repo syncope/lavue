@@ -56,6 +56,8 @@ except:
 import socket
 import numpy as np
 import random
+import time
+import cPickle
 
 from io import BytesIO
 import imageFileHandler
@@ -154,7 +156,11 @@ class ZMQPickleSource(object):
         self.query = None
         self._initiated = False
         self._timeout = timeout
-        self.aproxy = None
+        self._context = zmq.Context()
+        self._socket = None
+        self._lastarray = None
+        self._counter = 0
+        self._bindAddress = None
 
     def getTarget(self):
         return self.target[0] + ":" + self.portnumber
@@ -166,31 +172,59 @@ class ZMQPickleSource(object):
             self._initiated = False
 
     def getData(self):
-
         try:
-            attr = self.aproxy.read()
-            return (np.transpose(attr.value),
-                    '%s  (%s)' % (self.signal_host, str(attr.time)))
+            (tag,
+             _array,
+             _shape,
+             _dtype) = self._socket.recv_multipart()
+            array = np.frombuffer(
+                buffer(_array),
+                dtype=cPickle.loads(_dtype)
+            )
+            array = array.reshape(cPickle.loads(_shape))
+            if not np.array_equal(array, self._lastarray):
+                self._lastarray = array
+                self._counter += 1
+                return (np.transpose(array),
+                        '__%s_%s__' % (self.signal_host, self.counter))
         except Exception as e:
             print(str(e))
             return str(e), "__ERROR__"
-            pass  # this needs a bit more care
         return None, None
 
     def connect(self):
         try:
+            shost = str(self.signal_host).split("/")
+            host, port = str(shost[0]).split(":")
+            tag = shost[1] if len(shost) > 1 else ""
+            hwm = shost[2] if len(shost) > 2 else None
+
             if not self._initiated:
-                self.aproxy = PyTango.AttributeProxy(str(self.signal_host))
+                if hwm is not None:
+                    self._socket.set_hwm(hwm)
+                self._socket = self._context.socket(zmq.SUB)
+                self._bindAddress = (
+                    'tcp://'
+                    + socket.gethostbyname(host)
+                    + ':'
+                    + str(port)
+                )
+                self._socket.setsockopt(zmq.SUBSCRIBE, tag)
+                self._socket.connect(self._bindAddress)
+                time.sleep(0.2)
             return True
         except Exception as e:
+            self.disconnect()
             print(str(e))
             return False
 
     def disconnect(self):
         try:
-            pass
+            if self._bindAddress:
+                self.secsocket.unbind(self._bindAddress)
         except:
             pass
+        self._bindAddress = None
 
 
 class HiDRASource(object):
@@ -233,7 +267,6 @@ class HiDRASource(object):
             return True
         except:
             if self.query is not None:
-                # if self.query is not None and ZMQMAJOR > 3 and ZMQMINOR > 0:
                 with QtCore.QMutexLocker(self.__mutex):
                     self.query.stop()
             return False
@@ -241,7 +274,6 @@ class HiDRASource(object):
     def disconnect(self):
         try:
             if self.query is not None:
-                # if self.query is not None and ZMQMAJOR > 3 and ZMQMINOR > 0:
                 with QtCore.QMutexLocker(self.__mutex):
                     self.query.stop()
         except:
