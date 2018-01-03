@@ -153,7 +153,6 @@ class ImageWidget(QtGui.QWidget):
 
         self.cutSpinBox.valueChanged.connect(self.cutNrChanged)
 
-        
     @QtCore.pyqtSlot(int)
     def roiRegionChanged(self, _):
         self.roiChanged()
@@ -281,7 +280,8 @@ class ImageWidget(QtGui.QWidget):
     def cutChanged(self):
         try:
             cid = self.img_widget.currentcut
-            self.img_widget.cutcoords[cid] = self.img_widget.cut[cid].getCoordinates()
+            self.img_widget.cutcoords[cid] = \
+                self.img_widget.cut[cid].getCoordinates()
             self.cutCoordsChanged.emit()
         except Exception as e:
             print("Warning: %s" % str(e))
@@ -304,7 +304,7 @@ class ImageWidget(QtGui.QWidget):
         self.img_widget.roienable = True
         self.img_widget.roi[0].show()
         self.infodisplay.setText("")
-        
+
     def showIntensityFrame(self):
         self.pixellabel.setText("Pixel position and intensity: ")
         for roi in self.img_widget.roi:
@@ -322,7 +322,7 @@ class ImageWidget(QtGui.QWidget):
         self.img_widget.vLine.show()
         self.img_widget.hLine.show()
         self.infodisplay.setText("")
-        
+
     def showLineCutFrame(self):
         self.pixellabel.setText("Cut, pixel position and intensity: ")
         for roi in self.img_widget.roi:
@@ -340,8 +340,7 @@ class ImageWidget(QtGui.QWidget):
         self.img_widget.vLine.show()
         self.img_widget.hLine.show()
         self.infodisplay.setText("")
-        
-            
+
     def plot(self, array, name=None):
         if array is None:
             return

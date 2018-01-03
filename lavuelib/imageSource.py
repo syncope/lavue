@@ -184,7 +184,7 @@ class ZMQPickleSource(object):
 
             if isinstance(message, tuple) or isinstance(message, list):
                 lmsg = len(message)
-            if  lmsg == 4:
+            if lmsg == 4:
                 (topic, _array, _shape, _dtype) = message
                 name = '%s/%s (%s)' % (
                     self._bindaddress, topic, self._counter)
@@ -199,7 +199,7 @@ class ZMQPickleSource(object):
                 array = array.reshape(cPickle.loads(_shape))
                 self._counter += 1
                 return (np.transpose(array), name)
-            
+
         except zmq.Again as e:
             pass
         except Exception as e:

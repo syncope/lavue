@@ -39,18 +39,20 @@ class SimpleLineROI(LineROI):
         d = pos2 - pos1
         l = d.length()
         ang = pg.Point(1, 0).angle(d)
-        
+
         ROI.__init__(self, pos1, size=pg.Point(l, 1), angle=ang, **args)
         self.addScaleRotateHandle([0, 0.5], [1, 0.5])
         self.addScaleRotateHandle([1, 0.5], [0, 0.5])
-        
+
     def getCoordinates(self):
         ang = self.state['angle']
         pos1 = self.state['pos']
         size = self.state['size']
         ra = ang * np.pi / 180.
-        pos2 = pos1 + pg.Point(size.x() * math.cos(ra), size.x() * math.sin(ra))
+        pos2 = pos1 + pg.Point(size.x() * math.cos(ra),
+                               size.x() * math.sin(ra))
         return [pos1.x(), pos1.y(), pos2.x(), pos2.y()]
+
 
 class ImageDisplayWidget(pg.GraphicsLayoutWidget):
 
