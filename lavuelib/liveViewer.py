@@ -90,7 +90,7 @@ class LiveViewer(QtGui.QDialog):
                             "serverLabel", "serverlistBox"]})
 
         self.sourcetypes.append(
-            {"name": "ZMQ Pickle",
+            {"name": "ZMQ Stream",
              "datasource": "ZMQPickleSource",
              "slot": "updateZMQPickleButton",
              "hidden": ["hostlabel", "currenthost",
