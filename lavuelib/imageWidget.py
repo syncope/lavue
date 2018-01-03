@@ -31,6 +31,7 @@ import math
 from PyQt4 import QtCore, QtGui
 
 from . import imageDisplayWidget
+import pyqtgraph as pg
 
 
 class ImageWidget(QtGui.QWidget):
@@ -47,7 +48,6 @@ class ImageWidget(QtGui.QWidget):
 
         self.nparray = None
         self.imageItem = None
-        self.img_widget = imageDisplayWidget.ImageDisplayWidget(parent=self)
         self.currentroimapper = QtCore.QSignalMapper(self)
         self.roiregionmapper = QtCore.QSignalMapper(self)
         self.currentcutmapper = QtCore.QSignalMapper(self)
@@ -70,9 +70,32 @@ class ImageWidget(QtGui.QWidget):
         self.quitButton.setToolTip("quit the image viewer")
         filenamelayout.addWidget(self.cnfButton)
         filenamelayout.addWidget(self.quitButton)
-
         verticallayout.addLayout(filenamelayout)
-        verticallayout.addWidget(self.img_widget)
+
+        self.splitter = QtGui.QSplitter(self)
+        self.splitter.setOrientation(QtCore.Qt.Vertical)
+        self.img_widget = imageDisplayWidget.ImageDisplayWidget(
+            parent=self.splitter)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
+                                       QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(1)
+        sizePolicy.setHeightForWidth(
+            self.img_widget.sizePolicy().hasHeightForWidth())
+        self.img_widget.setSizePolicy(sizePolicy)
+
+        self.cutPlot = pg.PlotWidget(self.splitter)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
+                                       QtGui.QSizePolicy.Preferred)
+        self.cutCurve = self.cutPlot.plot()
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.cutPlot.sizePolicy().hasHeightForWidth())
+        self.cutPlot.setSizePolicy(sizePolicy)
+        self.cutPlot.setMinimumSize(QtCore.QSize(0, 120))
+
+        verticallayout.addWidget(self.splitter)
 
         self.pixelComboBox = QtGui.QComboBox()
         self.pixelComboBox.addItem("Intensity")
@@ -139,6 +162,7 @@ class ImageWidget(QtGui.QWidget):
         self.currentroimapper.setMapping(self.img_widget.roi[0], 0)
         self.roiregionmapper.setMapping(self.img_widget.roi[0], 0)
 
+        self.cutCoordsChanged.connect(self.plotCut)
         self.roiSpinBox.valueChanged.connect(self.roiNrChanged)
         self.labelROILineEdit.textEdited.connect(self.updateROIButton)
         self.updateROIButton()
@@ -289,6 +313,7 @@ class ImageWidget(QtGui.QWidget):
     def showROIFrame(self):
         self.img_widget.vLine.hide()
         self.img_widget.hLine.hide()
+        self.cutPlot.hide()
         self.fetchROIButton.show()
         self.applyROIButton.show()
         self.roiSpinBox.show()
@@ -311,6 +336,7 @@ class ImageWidget(QtGui.QWidget):
             roi.hide()
         for cut in self.img_widget.cut:
             cut.hide()
+        self.cutPlot.hide()
         self.fetchROIButton.hide()
         self.labelROILineEdit.hide()
         self.applyROIButton.hide()
@@ -329,6 +355,7 @@ class ImageWidget(QtGui.QWidget):
             roi.hide()
         for cut in self.img_widget.cut:
             cut.show()
+        self.cutPlot.show()
         self.fetchROIButton.hide()
         self.labelROILineEdit.hide()
         self.applyROIButton.hide()
@@ -348,6 +375,23 @@ class ImageWidget(QtGui.QWidget):
             self.filenamedisplay.setText(name)
 
         self.img_widget.updateImage(array)
+        if self.img_widget.cutenable:
+            self.plotCut()
+
+    @QtCore.pyqtSlot()
+    def plotCut(self):
+        cid = self.img_widget.currentcut
+        if cid > -1 and len(self.img_widget.cut) > cid:
+            cut = self.img_widget.cut[cid]
+            dt = cut.getArrayRegion(
+                self.img_widget.data, self.img_widget.image, axes=(0, 1))
+            while dt.ndim > 1:
+                dt = dt.mean(axis=1)
+            self.cutCurve.setData(y=dt)
+            self.cutPlot.setVisible(True)
+            self.cutCurve.setVisible(True)
+        else:
+            self.cutCurve.setVisible(False)
 
     @QtCore.pyqtSlot(int)
     def setAutoLevels(self, autoLvls):
