@@ -175,23 +175,35 @@ class ZMQPickleSource(object):
         try:
             with QtCore.QMutexLocker(self.__mutex):
                 message = self._socket.recv_multipart(flags=zmq.NOBLOCK)
+            topic = None
+            _array = None
+            _shape = None
+            _dtype = None
+            name = None
+            lmsg = None
 
-            (topic,
-             _array,
-             _shape,
-             _dtype) = message
-            array = np.frombuffer(
-                buffer(_array),
-                dtype=cPickle.loads(_dtype)
-            )
-            array = array.reshape(cPickle.loads(_shape))
-            self._counter += 1
-            return (np.transpose(array),
-                    '%s/%s (%s)' % (self._bindaddress, topic, self._counter))
+            if isinstance(message, tuple) or isinstance(message, list):
+                lmsg = len(message)
+            if  lmsg == 4:
+                (topic, _array, _shape, _dtype) = message
+                name = '%s/%s (%s)' % (
+                    self._bindaddress, topic, self._counter)
+            elif lmsg == 5:
+                (topic, _array, _shape, _dtype, name) = message
+
+            if _array:
+                array = np.frombuffer(
+                    buffer(_array),
+                    dtype=cPickle.loads(_dtype)
+                )
+                array = array.reshape(cPickle.loads(_shape))
+                self._counter += 1
+                return (np.transpose(array), name)
+            
         except zmq.Again as e:
             pass
         except Exception as e:
-            print(str(e))
+            # print(str(e))
             return str(e), "__ERROR__"
         return None, None
 

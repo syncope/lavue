@@ -65,7 +65,7 @@ setup(
     packages=['lavuelib'],
     # package_dir={'lauvelib': 'lavuelib'},
     include_package_data=True,
-    scripts=['lavue', 'lavuemonitor'],
+    scripts=['lavue', 'lavuemonitor', 'lavuezmqstreamfromtango'],
     zip_safe=False,
     # cmdclass={'build_sphinx': BuildDoc,},
     # command_options={

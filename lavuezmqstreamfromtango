@@ -40,6 +40,7 @@ topicfilter = "10001"
 debug = False
 attribute = ""
 hostname = "localhost"
+prefix = None
 
 context = None
 
@@ -79,16 +80,26 @@ def main():
             shape = value.shape
             dtype = value.dtype.name
 
-            message = (
-                topicfilter,
-                value,
-                cPickle.dumps(shape),
-                cPickle.dumps(dtype)
-            )
+            if prefix:
+                message = (
+                    topicfilter,
+                    value,
+                    cPickle.dumps(shape),
+                    cPickle.dumps(dtype),
+                    "%s_%s" % (prefix, counter)
+                )
+            else:
+                message = (
+                    topicfilter,
+                    value,
+                    cPickle.dumps(shape),
+                    cPickle.dumps(dtype)
+                )
             counter += 1
             socket.send_multipart(message)
-            print("Send: tcp://*:%s/%s %s %s %s"
-                  % (port, topicfilter, shape, dtype, counter))
+            print("Send: tcp://*:%s/%s %s %s %s_%s"
+                  % (port, topicfilter, shape, dtype,
+                     prefix or "", counter))
         except Exception as e:
             print("Error: %s" % str(e))
         time.sleep(maxtimegap)
@@ -111,8 +122,12 @@ if __name__ == "__main__":
         help="zmq topic (default: 10001)",
         dest="topic", default="10001")
     parser.add_argument(
+        "-n", "--name-prefix",
+        help="image name prefix",
+        dest="prefix", default=None)
+    parser.add_argument(
         "-a", "--attribute",
-        help="tango attribute"
+        help="tango attribute "
         "(default: sys/tg_test/1/double_image_ro)",
         dest="attribute", default="sys/tg_test/1/double_image_ro")
     parser.add_argument(
@@ -145,5 +160,6 @@ if __name__ == "__main__":
         sys.exit(255)
     debug = options.debug
     attribute = options.attribute
+    prefix = options.prefix
 
     main()
