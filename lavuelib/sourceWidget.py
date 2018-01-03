@@ -83,11 +83,11 @@ class HidraWidget(QtGui.QGroupBox):
             "e.g. sys/tg_test/1/double_image_ro")
         self.pickleLabel = QtGui.QLabel(u"ZMQ Server:")
         self.pickleLabel.setToolTip(
-            "zmq server, port and tag, hwm (optional): server:port[/tag][/hwm]"
+            "zmq server, port and topic, hwm (optional): server:port[/topic][/hwm]"
             "e.g. haso228:9999/10001")
         self.pickleLineEdit = QtGui.QLineEdit(u"")
         self.pickleLineEdit.setToolTip(
-            "zmq server, port and tag, hwm (optional): server:port[/tag][/hwm]"
+            "zmq server, port and topic, hwm (optional): server:port[/topic][/hwm]"
             "e.g. haso228:9999/10001")
 
         self.cStatusLabel = QtGui.QLabel("Status: ")

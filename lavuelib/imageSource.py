@@ -176,7 +176,7 @@ class ZMQPickleSource(object):
             with QtCore.QMutexLocker(self.__mutex):
                 message = self._socket.recv_multipart(flags=zmq.NOBLOCK)
 
-            (tag,
+            (topic,
              _array,
              _shape,
              _dtype) = message
@@ -187,7 +187,7 @@ class ZMQPickleSource(object):
             array = array.reshape(cPickle.loads(_shape))
             self._counter += 1
             return (np.transpose(array),
-                    '%s/%s (%s)' % (self._bindaddress, tag, self._counter))
+                    '%s/%s (%s)' % (self._bindaddress, topic, self._counter))
         except zmq.Again as e:
             pass
         except Exception as e:
@@ -199,7 +199,7 @@ class ZMQPickleSource(object):
         try:
             shost = str(self.signal_host).split("/")
             host, port = str(shost[0]).split(":")
-            tag = shost[1] if len(shost) > 1 else ""
+            topic = shost[1] if len(shost) > 1 else ""
             hwm = shost[2] if len(shost) > 2 else None
 
             if not self._initiated:
@@ -215,7 +215,7 @@ class ZMQPickleSource(object):
                         + ':'
                         + str(port)
                     )
-                    self._socket.setsockopt(zmq.SUBSCRIBE, tag)
+                    self._socket.setsockopt(zmq.SUBSCRIBE, topic)
                     self._socket.connect(self._bindaddress)
                 time.sleep(0.2)
             return True

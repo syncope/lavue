@@ -42,12 +42,12 @@ class TransformationsWidget(QtGui.QWidget):
 
         self.cb = QtGui.QComboBox()
         self.cb.addItem("None")
-        self.cb.addItem("flip (ud)")
-        self.cb.addItem("flip (lr)")
+        self.cb.addItem("flip (up-down)")
+        self.cb.addItem("flip (left-right)")
         self.cb.addItem("transpose")
-        self.cb.addItem("rot90 (cw)")
+        self.cb.addItem("rot90 (clockwise)")
         self.cb.addItem("rot180")
-        self.cb.addItem("rot270 (cw)")
+        self.cb.addItem("rot270 (clockwise)")
         self.cb.addItem("rot180 + transpose")
         self.cb.setToolTip(
             "basic image transformation, i.e. flip, transpose")
