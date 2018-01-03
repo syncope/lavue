@@ -464,7 +464,7 @@ class LiveViewer(QtGui.QDialog):
             "Configuration/InterruptOnError",
             QtCore.QVariant(self.interruptonerror))
 
-    def closeEvent(self, _):
+    def closeEvent(self, event):
         """ stores the setting before finishing the application
         """
         self.__storeSettings()
@@ -479,6 +479,8 @@ class LiveViewer(QtGui.QDialog):
         time.sleep(min(dataFetchThread.GLOBALREFRESHRATE * 5, 2))
         self.dataFetcher.stop()
         self.seccontext.destroy()
+        QtGui.QApplication.closeAllWindows()
+        event.accept()
 
     @QtCore.pyqtSlot()
     def onfetchrois(self):
