@@ -32,6 +32,23 @@ from pyqtgraph.graphicsItems.ROI import ROI, LineSegmentROI
 from PyQt4 import QtCore
 
 
+class SimpleLineROI(ROI):
+    def __init__(self, pos1, pos2, width, **args):
+        pos1 = Point(pos1)
+        pos2 = Point(pos2)
+        d = pos2-pos1
+        l = d.length()
+        ang = Point(1, 0).angle(d)
+        ra = ang * np.pi / 180.
+        c = Point(-width/2. * sin(ra), -width/2. * cos(ra))
+        pos1 = pos1 + c
+        
+        ROI.__init__(self, pos1, size=Point(l, width), angle=ang, **args)
+        self.addScaleRotateHandle([0, 0.5], [1, 0.5])
+        self.addScaleRotateHandle([1, 0.5], [0, 0.5])
+        # self.addScaleHandle([0.5, 1], [0.5, 0.5])
+        
+
 class ImageDisplayWidget(pg.GraphicsLayoutWidget):
 
     currentMousePosition = QtCore.pyqtSignal(QtCore.QString)
@@ -81,7 +98,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.roi[0].hide()
 
         self.cut = []
-        self.cut.append(LineSegmentROI([[10, 10], [60, 10]], pen='r'))
+        self.cut.append(SLineROI([10, 10], [60, 10], 1, pen='r'))
         self.viewbox.addItem(self.cut[0])
         self.cut[0].hide()
 
@@ -115,7 +132,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             pnt = 10 * (len(self.cut) + 1)
             sz = 50
             coords = [pnt, pnt, pnt + sz, pnt]
-        self.cut.append(LineSegmentROI([coords[:2], coords[2:]], pen='r'))
+        self.cut.append(SimpleLineROI(coords[:2], coords[2:], 1, pen='r'))
         self.viewbox.addItem(self.cut[-1])
         self.cutcoords.append(coords)
 
