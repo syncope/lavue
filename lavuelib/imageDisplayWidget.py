@@ -26,28 +26,31 @@
 """ image display widget """
 
 import pyqtgraph as pg
+import numpy as np
 import math
-from pyqtgraph.graphicsItems.ROI import ROI, LineSegmentROI
-
+from pyqtgraph.graphicsItems.ROI import ROI, LineROI
 from PyQt4 import QtCore
 
 
-class SimpleLineROI(ROI):
-    def __init__(self, pos1, pos2, width, **args):
-        pos1 = Point(pos1)
-        pos2 = Point(pos2)
-        d = pos2-pos1
+class SimpleLineROI(LineROI):
+    def __init__(self, pos1, pos2, **args):
+        pos1 = pg.Point(pos1)
+        pos2 = pg.Point(pos2)
+        d = pos2 - pos1
         l = d.length()
-        ang = Point(1, 0).angle(d)
-        ra = ang * np.pi / 180.
-        c = Point(-width/2. * sin(ra), -width/2. * cos(ra))
-        pos1 = pos1 + c
+        ang = pg.Point(1, 0).angle(d)
         
-        ROI.__init__(self, pos1, size=Point(l, width), angle=ang, **args)
+        ROI.__init__(self, pos1, size=pg.Point(l, 1), angle=ang, **args)
         self.addScaleRotateHandle([0, 0.5], [1, 0.5])
         self.addScaleRotateHandle([1, 0.5], [0, 0.5])
-        # self.addScaleHandle([0.5, 1], [0.5, 0.5])
         
+    def getCoordinates(self):
+        ang = self.state['angle']
+        pos1 = self.state['pos']
+        size = self.state['size']
+        ra = ang * np.pi / 180.
+        pos2 = pos1 + pg.Point(size.x() * math.cos(ra), size.x() * math.sin(ra))
+        return [pos1.x(), pos1.y(), pos2.x(), pos2.y()]
 
 class ImageDisplayWidget(pg.GraphicsLayoutWidget):
 
@@ -98,7 +101,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.roi[0].hide()
 
         self.cut = []
-        self.cut.append(SLineROI([10, 10], [60, 10], 1, pen='r'))
+        self.cut.append(SimpleLineROI([10, 10], [60, 10], pen='r'))
         self.viewbox.addItem(self.cut[0])
         self.cut[0].hide()
 
@@ -132,7 +135,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             pnt = 10 * (len(self.cut) + 1)
             sz = 50
             coords = [pnt, pnt, pnt + sz, pnt]
-        self.cut.append(SimpleLineROI(coords[:2], coords[2:], 1, pen='r'))
+        self.cut.append(SimpleLineROI(coords[:2], coords[2:], pen='r'))
         self.viewbox.addItem(self.cut[-1])
         self.cutcoords.append(coords)
 
@@ -198,23 +201,23 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                     crds = self.cutcoords[self.currentcut]
                     # print(self.currentcut)
                     # print(self.cutcoords)
-                    crds = [crds[:2], crds[2:]]
+                    crds = "[[%.2f, %.2f], [%.2f, %.2f]]" % tuple(crds)
                 else:
-                    crds = [[0, 0], [0, 0]]
+                    crds = "[[0, 0], [0, 0]]"
                 if self.doBkgSubtraction:
                     self.currentMousePosition.emit(
-                        "%s: x=%i, y=%i, %s(intensity-background)=%.2f" % (
+                        "%s, x=%i, y=%i, %s(intensity-background)=%.2f" % (
                             crds, self.xdata, self.ydata,
                             self.scaling if self.scaling != "lin" else "",
                             intensity))
                 else:
                     if self.scaling == "lin":
                         self.currentMousePosition.emit(
-                            "%s: x=%i, y=%i, intensity=%.2f" % (
+                            "%s, x=%i, y=%i, intensity=%.2f" % (
                                 crds, self.xdata, self.ydata, intensity))
                     else:
                         self.currentMousePosition.emit(
-                            "%s: x=%i, y=%i, %s(intensity)=%.2f" % (
+                            "%s, x=%i, y=%i, %s(intensity)=%.2f" % (
                                 crds, self.xdata, self.ydata,
                                 self.scaling, intensity))
             else:

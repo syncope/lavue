@@ -146,7 +146,6 @@ class ImageWidget(QtGui.QWidget):
         self.cutregionmapper.mapped.connect(self.cutRegionChanged)
         self.currentcutmapper.mapped.connect(self.currentCutChanged)
         self.img_widget.cut[0].sigHoverEvent.connect(self.currentcutmapper.map)
-        # self.img_widget.cut[0].sigRegionChanged.connect(self.currentcutmapper.map)
         self.img_widget.cut[0].sigRegionChanged.connect(
             self.cutregionmapper.map)
         self.currentcutmapper.setMapping(self.img_widget.cut[0], 0)
@@ -282,14 +281,7 @@ class ImageWidget(QtGui.QWidget):
     def cutChanged(self):
         try:
             cid = self.img_widget.currentcut
-            print("cc %s" %cid)
-            state = self.img_widget.cut[cid].state
-            print(state)
-            ptx = int(math.floor(state['pos'].x()))
-            pty = int(math.floor(state['pos'].y()))
-            szx = int(math.floor(state['size'].x()))
-            szy = int(math.floor(state['size'].y()))
-            self.img_widget.cutcoords[cid] = [ptx, pty, ptx + szx, pty + szy]
+            self.img_widget.cutcoords[cid] = self.img_widget.cut[cid].getCoordinates()
             self.cutCoordsChanged.emit()
         except Exception as e:
             print("Warning: %s" % str(e))
@@ -332,7 +324,7 @@ class ImageWidget(QtGui.QWidget):
         self.infodisplay.setText("")
         
     def showLineCutFrame(self):
-        self.pixellabel.setText("Pixel position and intensity: ")
+        self.pixellabel.setText("Cut, pixel position and intensity: ")
         for roi in self.img_widget.roi:
             roi.hide()
         for cut in self.img_widget.cut:
