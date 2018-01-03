@@ -27,7 +27,7 @@
 
 import pyqtgraph as pg
 import math
-from pyqtgraph.graphicsItems.ROI import ROI
+from pyqtgraph.graphicsItems.ROI import ROI, LineSegmentROI
 
 from PyQt4 import QtCore
 
@@ -41,8 +41,11 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.layout = self.ci
         self.crosshair_locked = False
         self.roienable = False
-        self.roicoords = [[0, 0, 0, 0]]
+        self.cutenable = False
+        self.roicoords = [[10, 10, 60, 60]]
         self.currentroi = 0
+        self.currentcut = 0
+        self.cutcoords = [[10, 10, 60, 10]]
         self.data = None
         self.autoDisplayLevels = True
         self.displayLevels = [None, None]
@@ -74,9 +77,13 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.roi.append(ROI(0, pg.Point(50, 50)))
         self.roi[0].addScaleHandle([1, 1], [0, 0])
         self.roi[0].addScaleHandle([0, 0], [1, 1])
-
         self.viewbox.addItem(self.roi[0])
         self.roi[0].hide()
+
+        self.cut = []
+        self.cut.append(LineSegmentROI([[10, 10], [60, 10]], pen='r'))
+        self.viewbox.addItem(self.cut[0])
+        self.cut[0].hide()
 
     def addItem(self, item, **args):
         self.image.additem(item)
@@ -102,6 +109,21 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         roi.hide()
         self.viewbox.removeItem(roi)
         self.roicoords.pop()
+
+    def addCut(self, coords=None):
+        if not coords or not isinstance(coords, list) or len(coords) != 4:
+            pnt = 10 * (len(self.cut) + 1)
+            sz = 50
+            coords = [pnt, pnt, pnt + sz, pnt]
+        self.cut.append(LineSegmentROI([coords[:2], coords[2:]], pen='r'))
+        self.viewbox.addItem(self.cut[-1])
+        self.cutcoords.append(coords)
+
+    def removeCut(self):
+        cut = self.cut.pop()
+        cut.hide()
+        self.viewbox.removeItem(cut)
+        self.cutcoords.pop()
 
     def updateImage(self, img=None):
         if self.autoDisplayLevels:
@@ -133,7 +155,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             else:
                 intensity = 0.
 
-            if not self.roienable:
+            if not self.roienable and not self.cutenable:
                 if self.doBkgSubtraction:
                     self.currentMousePosition.emit(
                         "x=%i, y=%i, %s(intensity-background)=%.2f" % (
@@ -150,10 +172,34 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                             "x=%i, y=%i, %s(intensity)=%.2f" % (
                                 self.xdata, self.ydata,
                                 self.scaling, intensity))
-            elif self.currentroi > -1:
+            elif self.roienable and self.currentroi > -1:
                 if event:
                     self.currentMousePosition.emit(
                         "%s" % self.roicoords[self.currentroi])
+            elif self.cutenable:
+                if self.currentcut > -1:
+                    crds = self.cutcoords[self.currentcut]
+                    # print(self.currentcut)
+                    # print(self.cutcoords)
+                    crds = [crds[:2], crds[2:]]
+                else:
+                    crds = [[0, 0], [0, 0]]
+                if self.doBkgSubtraction:
+                    self.currentMousePosition.emit(
+                        "%s: x=%i, y=%i, %s(intensity-background)=%.2f" % (
+                            crds, self.xdata, self.ydata,
+                            self.scaling if self.scaling != "lin" else "",
+                            intensity))
+                else:
+                    if self.scaling == "lin":
+                        self.currentMousePosition.emit(
+                            "%s: x=%i, y=%i, intensity=%.2f" % (
+                                crds, self.xdata, self.ydata, intensity))
+                    else:
+                        self.currentMousePosition.emit(
+                            "%s: x=%i, y=%i, %s(intensity)=%.2f" % (
+                                crds, self.xdata, self.ydata,
+                                self.scaling, intensity))
             else:
                 self.currentMousePosition.emit("")
 
@@ -172,7 +218,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         # if double click: fix mouse crosshair
         # another double click releases the crosshair again
         if event.double():
-            if not self.roienable:
+            if not self.roienable and not self.cutenable:
                 self.crosshair_locked = not self.crosshair_locked
                 if not self.crosshair_locked:
                     self.vLine.setPos(xdata + .5)

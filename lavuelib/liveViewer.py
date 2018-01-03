@@ -319,41 +319,21 @@ class LiveViewer(QtGui.QDialog):
 
     @QtCore.pyqtSlot(int)
     def onPixelChanged(self):
-        imagew = self.imageW
-        text = imagew.pixelComboBox.currentText()
+        text = self.imageW.pixelComboBox.currentText()
         if text == "ROI":
-            imagew.img_widget.vLine.hide()
-            imagew.img_widget.hLine.hide()
-            imagew.fetchROIButton.show()
-            imagew.applyROIButton.show()
-            imagew.roiSpinBox.show()
-            imagew.labelROILineEdit.show()
-            imagew.pixellabel.setText("[x1, y1, x2, y2]: ")
-            imagew.roiLabel.show()
-            for roi in imagew.img_widget.roi:
-                roi.show()
-            imagew.img_widget.roienable = True
-            imagew.img_widget.roi[0].show()
-            imagew.infodisplay.setText("")
+            self.imageW.showROIFrame()
             self.trafoName = "None"
             self.trafoW.cb.setCurrentIndex(0)
             self.trafoW.cb.setEnabled(False)
-            imagew.roiChanged()
-        else:
-            imagew.pixellabel.setText("Pixel position and intensity: ")
-            for roi in imagew.img_widget.roi:
-                roi.hide()
-            imagew.fetchROIButton.hide()
-            imagew.labelROILineEdit.hide()
-            imagew.applyROIButton.hide()
-            imagew.roiSpinBox.hide()
-            imagew.roiLabel.hide()
-            imagew.img_widget.roienable = False
-            imagew.img_widget.vLine.show()
-            imagew.img_widget.hLine.show()
-            imagew.infodisplay.setText("")
+            self.imageW.roiChanged()
+        elif text == "LineCut":
+            self.imageW.showLineCutFrame()
             self.trafoW.cb.setEnabled(True)
-            imagew.roiCoordsChanged.emit()
+            self.imageW.roiCoordsChanged.emit()
+        else:
+            self.imageW.showIntensityFrame()
+            self.trafoW.cb.setEnabled(True)
+            self.imageW.roiCoordsChanged.emit()
 
     @QtCore.pyqtSlot()
     def onapplyrois(self):
