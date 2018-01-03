@@ -383,15 +383,16 @@ class ImageWidget(QtGui.QWidget):
         cid = self.img_widget.currentcut
         if cid > -1 and len(self.img_widget.cut) > cid:
             cut = self.img_widget.cut[cid]
-            dt = cut.getArrayRegion(
-                self.img_widget.data, self.img_widget.image, axes=(0, 1))
-            while dt.ndim > 1:
-                dt = dt.mean(axis=1)
-            self.cutCurve.setData(y=dt)
-            self.cutPlot.setVisible(True)
-            self.cutCurve.setVisible(True)
-        else:
-            self.cutCurve.setVisible(False)
+            if self.img_widget.data is not None:
+                dt = cut.getArrayRegion(
+                    self.img_widget.data, self.img_widget.image, axes=(0, 1))
+                while dt.ndim > 1:
+                    dt = dt.mean(axis=1)
+                self.cutCurve.setData(y=dt)
+                self.cutPlot.setVisible(True)
+                self.cutCurve.setVisible(True)
+                return
+        self.cutCurve.setVisible(False)
 
     @QtCore.pyqtSlot(int)
     def setAutoLevels(self, autoLvls):
