@@ -65,8 +65,6 @@ class LevelsWidget(QtGui.QGroupBox):
 
         self.scalingLabel = QtGui.QLabel("sqrt scale!")
         self.scalingLabel.setStyleSheet("color: red;")
-        self.scaling2Label = QtGui.QLabel("sqrt scale!")
-        self.scaling2Label.setStyleSheet("color: red;")
         self.minVal = 0.1
         self.maxVal = 1.
 
@@ -78,53 +76,54 @@ class LevelsWidget(QtGui.QGroupBox):
         self.maxValSB.setMinimum(-10e20)
         self.maxValSB.setMaximum(10e20)
         self.maxValSB.setToolTip("maximum intensity values after scaling")
-        self.applyButton = QtGui.QPushButton("Apply levels")
-        self.applyButton.setToolTip(
-            "apply mininum and maximum intensity values"
-            " to the color distribution of the image")
 
         self.histogram = HistogramHLUTWidget()
 
         self.glayout = QtGui.QGridLayout()
         vlayout = QtGui.QVBoxLayout()
-        self.glayout.addWidget(self.scaling2Label, 0, 0)
+        self.glayout.addWidget(self.scalingLabel, 0, 0)
         self.glayout.addWidget(self.autoLevelBox, 0, 1)
         self.glayout.addWidget(self.minLabel, 1, 0)
         self.glayout.addWidget(self.minValSB, 1, 1)
         self.glayout.addWidget(self.maxLabel, 2, 0)
         self.glayout.addWidget(self.maxValSB, 2, 1)
-        self.glayout.addWidget(self.scalingLabel, 3, 0)
-        self.glayout.addWidget(self.applyButton, 3, 1)
         vlayout.addLayout(self.glayout)
         vlayout.addWidget(self.histogram)
 
         self.hideControls()
         self.setLayout(vlayout)
-        self.applyButton.clicked.connect(self.check_and_emit)
         self.autoLevelBox.stateChanged.connect(self.autoLevelChange)
         self.histogram.item.sigLevelsChanged.connect(self.levelChange)
         self.updateLevels(self.minVal, self.maxVal)
+        self.minValSB.valueChanged.connect(self.minChanged)
+        self.maxValSB.valueChanged.connect(self.maxChanged)
+
+    @QtCore.pyqtSlot(float)
+    def minChanged(self, value):
+        if not self.auto:
+            if self.histo:
+                levels = self.histogram.region.getRegion()
+                self.histogram.region.setRegion([value, levels[1]])
+            else:
+                self.check_and_emit()
+
+    @QtCore.pyqtSlot(float)
+    def maxChanged(self, value):
+        if not self.auto:
+            if self.histo:
+                levels = self.histogram.region.getRegion()
+                self.histogram.region.setRegion([levels[0], value])
+            else:
+                self.check_and_emit()
 
     def changeview(self, showhistogram=False):
         if showhistogram:
             self.histo = True
             self.histogram.show()
-            # self.autoLevelBox.hide()
-            self.applyButton.hide()
-            self.scalingLabel.hide()
-            self.scaling2Label.show()
-            self.maxValSB.setReadOnly(True)
-            self.minValSB.setReadOnly(True)
             self.histogram.fillHistogram(True)
         else:
             self.histo = False
-            # self.autoLevelBox.show()
-            self.applyButton.show()
-            self.scalingLabel.show()
-            self.scaling2Label.hide()
             self.histogram.hide()
-            self.maxValSB.setReadOnly(False)
-            self.minValSB.setReadOnly(False)
             self.histogram.fillHistogram(False)
 
     def isAutoLevel(self):
@@ -183,12 +182,10 @@ class LevelsWidget(QtGui.QGroupBox):
     def hideControls(self):
         self.minValSB.setEnabled(False)
         self.maxValSB.setEnabled(False)
-        self.applyButton.setEnabled(False)
 
     def showControls(self):
         self.minValSB.setEnabled(True)
         self.maxValSB.setEnabled(True)
-        self.applyButton.setEnabled(True)
 
     @QtCore.pyqtSlot(str)
     def setScalingLabel(self, scalingType):
@@ -197,7 +194,6 @@ class LevelsWidget(QtGui.QGroupBox):
         if scalingType == "log":
             if scalingType != self.scaling:
                 self.scalingLabel.setText("log scale!")
-                self.scaling2Label.setText("log scale!")
                 if not self.auto:
                     if self.scaling == "lin":
                         lowlim = math.log10(
@@ -212,7 +208,6 @@ class LevelsWidget(QtGui.QGroupBox):
         elif scalingType == "lin":
             if scalingType != self.scaling:
                 self.scalingLabel.setText("lin scale!")
-                self.scaling2Label.setText("lin scale!")
                 if not self.auto:
                     if self.scaling == "log":
                         lowlim = math.pow(10, lowlim)
@@ -223,7 +218,6 @@ class LevelsWidget(QtGui.QGroupBox):
         elif scalingType == "sqrt":
             if scalingType != self.scaling:
                 self.scalingLabel.setText("sqrt scale!")
-                self.scaling2Label.setText("sqrt scale!")
                 if not self.auto:
                     if self.scaling == "lin":
                         lowlim = math.sqrt(max(lowlim, 0))

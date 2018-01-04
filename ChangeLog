@@ -1,3 +1,7 @@
+2018-01-XX Jan Kotanski <jan.kotanski@desy.de>
+	* synchronize scale levels
+	* tagged as 0.7.2
+
 2018-01-04 Jan Kotanski <jan.kotanski@desy.de>
 	* add aspect ratio locker
 	* tagged as 0.7.1
