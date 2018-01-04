@@ -113,6 +113,7 @@ class LiveViewer(QtGui.QDialog):
         self.secautoport = True
         self.secsockopt = ""
         self.secport = "5657"
+        self.timeout = 3000
         if umode and umode.lower() in ["expert"]:
             self.umode = "expert"
         else:
@@ -277,6 +278,12 @@ class LiveViewer(QtGui.QDialog):
         try:
             int(qstval)
             self.secport = str(qstval)
+        except:
+            pass
+        qstval = str(settings.value("Configuration/SourceTimeout").toString())
+        try:
+            int(qstval)
+            self.timeout = int(qstval)
         except:
             pass
         qstval = str(settings.value("Configuration/SecStream").toString())
@@ -463,6 +470,9 @@ class LiveViewer(QtGui.QDialog):
         settings.setValue(
             "Configuration/InterruptOnError",
             QtCore.QVariant(self.interruptonerror))
+        settings.setValue(
+            "Configuration/SourceTimeout",
+            QtCore.QVariant(self.timeout))
 
     def closeEvent(self, event):
         """ stores the setting before finishing the application
@@ -543,6 +553,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.secport = self.secport
         cnfdlg.secstream = self.secstream
         cnfdlg.refreshrate = dataFetchThread.GLOBALREFRESHRATE
+        cnfdlg.timeout = self.timeout
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
@@ -581,6 +592,8 @@ class LiveViewer(QtGui.QDialog):
                     self.sourceW.connectSuccess(dialog.secport)
         self.secautoport = dialog.secautoport
         self.secport = dialog.secport
+        self.timeout = dialog.timeout
+        self.data_source.timeout = self.timeout
         self.secstream = dialog.secstream
 
     @QtCore.pyqtSlot(str)
@@ -591,7 +604,7 @@ class LiveViewer(QtGui.QDialog):
     def updateSource(self, status):
         if status:
             self.data_source = getattr(
-                hcs, self.sourcetypes[status - 1]["datasource"])(0.1)
+                hcs, self.sourcetypes[status - 1]["datasource"])(self.timeout)
             self.dataFetcher.data_source = self.data_source
             if self._signalhost:
                 self.data_source.setSignalHost(self._signalhost)

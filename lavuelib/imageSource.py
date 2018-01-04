@@ -71,7 +71,7 @@ class GeneralSource(object):
         self.target = [socket.getfqdn()]
         self.query = None
         self._initiated = False
-        self._timeout = timeout
+        self.timeout = timeout
         self._counter = 0
 
     def getTarget(self):
@@ -107,7 +107,7 @@ class TangoAttrSource(object):
         self.target = [socket.getfqdn()]
         self.query = None
         self._initiated = False
-        self._timeout = timeout
+        self.timeout = timeout
         self.aproxy = None
 
     def getTarget(self):
@@ -155,7 +155,7 @@ class ZMQPickleSource(object):
         self.target = [socket.getfqdn()]
         self.query = None
         self._initiated = False
-        self._timeout = timeout
+        self.timeout = timeout
         self._context = zmq.Context()
         self._socket = None
         self._counter = 0
@@ -264,7 +264,7 @@ class HiDRASource(object):
                        [".cbf", ".tif", ".tiff"]]
         self.query = None
         self._initiated = False
-        self._timeout = timeout
+        self.timeout = timeout
         self.__mutex = QtCore.QMutex()
 
     def getTargetSignalHost(self):
@@ -312,7 +312,8 @@ class HiDRASource(object):
         data = None
         try:
             with QtCore.QMutexLocker(self.__mutex):
-                [metadata, data] = self.query.get(self._timeout)
+                # [metadata, data] = self.query.get()
+                [metadata, data] = self.query.get(self.timeout)
         except:
             pass  # this needs a bit more care
 

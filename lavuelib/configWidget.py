@@ -41,6 +41,7 @@ class ConfigWidget(QtGui.QDialog):
         self.refreshrate = 0.1
         self.showhisto = True
         self.showmask = False
+        self.timeout = 3000
 
         self.doorLineEdit = None
         self.addroisCheckBox = None
@@ -117,6 +118,13 @@ class ConfigWidget(QtGui.QDialog):
             "show widgets to select the image mask")
         self.showmaskCheckBox.setChecked(self.showmask)
 
+        timeoutLabel = QtGui.QLabel(u"Source timeout in ms:")
+        timeoutLabel.setToolTip(
+            "Source timeout in ms")
+        self.timeoutLineEdit = QtGui.QLineEdit(str(self.timeout))
+        self.timeoutLineEdit.setToolTip(
+            "Source timeout in ms")
+
         gridlayout.addWidget(rateLabel, 0, 0)
         gridlayout.addWidget(self.rateDoubleSpinBox, 0, 1)
         gridlayout.addWidget(doorLabel, 1, 0)
@@ -133,6 +141,8 @@ class ConfigWidget(QtGui.QDialog):
         gridlayout.addWidget(self.showhistoCheckBox, 6, 1)
         gridlayout.addWidget(showmaskLabel, 7, 0)
         gridlayout.addWidget(self.showmaskCheckBox, 7, 1)
+        gridlayout.addWidget(timeoutLabel, 8, 0)
+        gridlayout.addWidget(self.timeoutLineEdit, 8, 1)
         self.buttonBox = QtGui.QDialogButtonBox(
             QtGui.QDialogButtonBox.Ok
             | QtGui.QDialogButtonBox.Cancel)
@@ -164,4 +174,8 @@ class ConfigWidget(QtGui.QDialog):
         self.refreshrate = float(self.rateDoubleSpinBox.value())
         self.showhisto = self.showhistoCheckBox.isChecked()
         self.showmask = self.showmaskCheckBox.isChecked()
+        try:
+            self.timeout = int(self.timeoutLineEdit.text())
+        except:
+            pass
         QtGui.QDialog.accept(self)
