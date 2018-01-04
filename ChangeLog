@@ -1,4 +1,4 @@
-2018-01-03 Jan Kotanski <jan.kotanski@desy.de>
+2018-01-04 Jan Kotanski <jan.kotanski@desy.de>
 	* add ZMQ Pickle source
 	* add line cut plotting
 	* tagged as 0.7.0
