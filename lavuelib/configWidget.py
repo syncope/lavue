@@ -42,6 +42,7 @@ class ConfigWidget(QtGui.QDialog):
         self.showhisto = True
         self.showmask = False
         self.timeout = 3000
+        self.aspectlocked = False
 
         self.doorLineEdit = None
         self.addroisCheckBox = None
@@ -51,6 +52,8 @@ class ConfigWidget(QtGui.QDialog):
         self.rateDoubleSpinBox = None
         self.showhistoCheckBox = None
         self.showmaskCheckBox = None
+        self.timeoutLineEdit = None
+        self.aspectlockedCheckBox = None
         self.buttonBox = None
 
     def createGUI(self):
@@ -68,12 +71,22 @@ class ConfigWidget(QtGui.QDialog):
         self.rateDoubleSpinBox.setSingleStep(0.01)
         self.rateDoubleSpinBox.setToolTip(
             "refresh rate of the image in seconds")
+
+        aspectlockedLabel = QtGui.QLabel(u"Aspect Ratio locked:")
+        aspectlockedLabel.setToolTip(
+            "lock the aspect ration of the image")
+        self.aspectlockedCheckBox = QtGui.QCheckBox()
+        self.aspectlockedCheckBox.setChecked(self.aspectlocked)
+        self.aspectlockedCheckBox.setToolTip(
+            "lock the aspect ration of the image")
+
         doorLabel = QtGui.QLabel(u"Sardana Door:")
         doorLabel.setToolTip(
             "tango server device name of the Sarana Door")
         self.doorLineEdit = QtGui.QLineEdit(self.door)
         self.doorLineEdit.setToolTip(
             "tango server device name of the Sarana Door")
+
         addroisLabel = QtGui.QLabel(u"Add ROIs to Active MG:")
         addroisLabel.setToolTip(
             "add ROI aliases to the Active Measurement Group")
@@ -81,6 +94,7 @@ class ConfigWidget(QtGui.QDialog):
         self.addroisCheckBox.setChecked(self.addrois)
         self.addroisCheckBox.setToolTip(
             "add ROI aliases to the Active Measurement Group")
+
         secstreamLabel = QtGui.QLabel(u"ZMQ secure stream:")
         secstreamLabel.setToolTip(
             "send the zmq security stream with the main image parameters")
@@ -88,6 +102,7 @@ class ConfigWidget(QtGui.QDialog):
         self.secstreamCheckBox.setChecked(self.secstream)
         self.secstreamCheckBox.setToolTip(
             "send the zmq security stream with the main image parameters")
+
         secautoportLabel = QtGui.QLabel(u"ZMQ secure automatic port:")
         secautoportLabel.setToolTip(
             "select port automatically for the zmq security stream")
@@ -95,6 +110,7 @@ class ConfigWidget(QtGui.QDialog):
         self.secautoportCheckBox.setToolTip(
             "select port automatically for the zmq security stream")
         self.secautoportCheckBox.setChecked(self.secautoport)
+
         secportLabel = QtGui.QLabel(u"ZMQ secure port:")
         secportLabel.setToolTip(
             "port for the zmq security stream")
@@ -103,6 +119,7 @@ class ConfigWidget(QtGui.QDialog):
             "port for the zmq security stream")
         self.autoportChanged(self.secautoport)
         self.secautoportCheckBox.stateChanged.connect(self.autoportChanged)
+
         showhistoLabel = QtGui.QLabel(u"Show histogram:")
         showhistoLabel.setToolTip(
             "show histogram to set range and color distribution")
@@ -110,6 +127,7 @@ class ConfigWidget(QtGui.QDialog):
         self.showhistoCheckBox.setToolTip(
             "show histogram to set range and color distribution")
         self.showhistoCheckBox.setChecked(self.showhisto)
+
         showmaskLabel = QtGui.QLabel(u"Show mask widget:")
         showmaskLabel.setToolTip(
             "show widgets to select the image mask")
@@ -127,22 +145,24 @@ class ConfigWidget(QtGui.QDialog):
 
         gridlayout.addWidget(rateLabel, 0, 0)
         gridlayout.addWidget(self.rateDoubleSpinBox, 0, 1)
-        gridlayout.addWidget(doorLabel, 1, 0)
-        gridlayout.addWidget(self.doorLineEdit, 1, 1)
-        gridlayout.addWidget(addroisLabel, 2, 0)
-        gridlayout.addWidget(self.addroisCheckBox, 2, 1)
-        gridlayout.addWidget(secstreamLabel, 3, 0)
-        gridlayout.addWidget(self.secstreamCheckBox, 3, 1)
-        gridlayout.addWidget(secautoportLabel, 4, 0)
-        gridlayout.addWidget(self.secautoportCheckBox, 4, 1)
-        gridlayout.addWidget(secportLabel, 5, 0)
-        gridlayout.addWidget(self.secportLineEdit, 5, 1)
-        gridlayout.addWidget(showhistoLabel, 6, 0)
-        gridlayout.addWidget(self.showhistoCheckBox, 6, 1)
-        gridlayout.addWidget(showmaskLabel, 7, 0)
-        gridlayout.addWidget(self.showmaskCheckBox, 7, 1)
-        gridlayout.addWidget(timeoutLabel, 8, 0)
-        gridlayout.addWidget(self.timeoutLineEdit, 8, 1)
+        gridlayout.addWidget(aspectlockedLabel, 1, 0)
+        gridlayout.addWidget(self.aspectlockedCheckBox, 1, 1)
+        gridlayout.addWidget(doorLabel, 2, 0)
+        gridlayout.addWidget(self.doorLineEdit, 2, 1)
+        gridlayout.addWidget(addroisLabel, 3, 0)
+        gridlayout.addWidget(self.addroisCheckBox, 3, 1)
+        gridlayout.addWidget(secstreamLabel, 4, 0)
+        gridlayout.addWidget(self.secstreamCheckBox, 4, 1)
+        gridlayout.addWidget(secautoportLabel, 5, 0)
+        gridlayout.addWidget(self.secautoportCheckBox, 5, 1)
+        gridlayout.addWidget(secportLabel, 6, 0)
+        gridlayout.addWidget(self.secportLineEdit, 6, 1)
+        gridlayout.addWidget(showhistoLabel, 7, 0)
+        gridlayout.addWidget(self.showhistoCheckBox, 7, 1)
+        gridlayout.addWidget(showmaskLabel, 8, 0)
+        gridlayout.addWidget(self.showmaskCheckBox, 8, 1)
+        gridlayout.addWidget(timeoutLabel, 9, 0)
+        gridlayout.addWidget(self.timeoutLineEdit, 9, 1)
         self.buttonBox = QtGui.QDialogButtonBox(
             QtGui.QDialogButtonBox.Ok
             | QtGui.QDialogButtonBox.Cancel)
@@ -174,6 +194,7 @@ class ConfigWidget(QtGui.QDialog):
         self.refreshrate = float(self.rateDoubleSpinBox.value())
         self.showhisto = self.showhistoCheckBox.isChecked()
         self.showmask = self.showmaskCheckBox.isChecked()
+        self.aspectlocked = self.aspectlockedCheckBox.isChecked()
         try:
             self.timeout = int(self.timeoutLineEdit.text())
         except:

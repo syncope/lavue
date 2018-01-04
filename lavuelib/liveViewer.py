@@ -122,7 +122,7 @@ class LiveViewer(QtGui.QDialog):
         self.showmask = False
         self.updatehisto = False
         self.interruptonerror = True
-
+        self.aspectlocked = False
         self.seccontext = zmq.Context()
         self.secsocket = self.seccontext.socket(zmq.PUB)
         self.apppid = os.getpid()
@@ -274,6 +274,10 @@ class LiveViewer(QtGui.QDialog):
         qstval = str(settings.value("Configuration/ShowMaskWidget").toString())
         if qstval.lower() == "true":
             self.showmask = True
+        qstval = str(settings.value("Configuration/AspectLocked").toString())
+        if qstval.lower() == "true":
+            self.aspectlocked = True
+            self.imageW.img_widget.setAspectLocked(self.aspectlocked)
         qstval = str(settings.value("Configuration/SecPort").toString())
         try:
             int(qstval)
@@ -284,6 +288,7 @@ class LiveViewer(QtGui.QDialog):
         try:
             int(qstval)
             self.timeout = int(qstval)
+            self.data_source.timeout = self.timeout
         except:
             pass
         qstval = str(settings.value("Configuration/SecStream").toString())
@@ -473,6 +478,9 @@ class LiveViewer(QtGui.QDialog):
         settings.setValue(
             "Configuration/SourceTimeout",
             QtCore.QVariant(self.timeout))
+        settings.setValue(
+            "Configuration/AspectLocked",
+            QtCore.QVariant(self.aspectlocked))
 
     def closeEvent(self, event):
         """ stores the setting before finishing the application
@@ -554,6 +562,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.secstream = self.secstream
         cnfdlg.refreshrate = dataFetchThread.GLOBALREFRESHRATE
         cnfdlg.timeout = self.timeout
+        cnfdlg.aspectlocked = self.aspectlocked
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
@@ -594,6 +603,8 @@ class LiveViewer(QtGui.QDialog):
         self.secport = dialog.secport
         self.timeout = dialog.timeout
         self.data_source.timeout = self.timeout
+        self.aspectlocked = dialog.aspectlocked
+        self.imageW.img_widget.setAspectLocked(self.aspectlocked)
         self.secstream = dialog.secstream
 
     @QtCore.pyqtSlot(str)

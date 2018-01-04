@@ -1,4 +1,8 @@
 2018-01-04 Jan Kotanski <jan.kotanski@desy.de>
+	* add aspect ratio locker
+	* tagged as 0.7.1
+
+2018-01-04 Jan Kotanski <jan.kotanski@desy.de>
 	* add ZMQ Pickle source
 	* add line cut plotting
 	* add source timeout into configuration

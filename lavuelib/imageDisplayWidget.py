@@ -107,6 +107,9 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.viewbox.addItem(self.cut[0])
         self.cut[0].hide()
 
+    def setAspectLocked(self, flag):
+        self.viewbox.setAspectLocked(flag)
+
     def addItem(self, item, **args):
         self.image.additem(item)
 
