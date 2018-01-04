@@ -27,7 +27,6 @@
 
 
 import lavuelib
-from lavuelib  import liveViewer
 import sys
 import os
 import argparse
