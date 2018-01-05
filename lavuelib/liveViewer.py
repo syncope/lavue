@@ -642,7 +642,7 @@ class LiveViewer(QtGui.QDialog):
         # calls internally the plot function of the plot widget
         self.imageW.plot(self.display_image, self.image_name)
         if self.updatehisto:
-            self.levelsW.histogram.imageChanged(autoLevel=True)
+            self.levelsW.histogram.imageChanged(autoLevel=self.levelsW.auto)
             self.updatehisto = False
 
     @QtCore.pyqtSlot()
