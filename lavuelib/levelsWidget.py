@@ -95,26 +95,28 @@ class LevelsWidget(QtGui.QGroupBox):
         self.autoLevelBox.stateChanged.connect(self.autoLevelChange)
         self.histogram.item.sigLevelsChanged.connect(self.levelChange)
         self.updateLevels(self.minVal, self.maxVal)
-        self.minValSB.valueChanged.connect(self.minChanged)
-        self.maxValSB.valueChanged.connect(self.maxChanged)
+        self.connectVal()
+
+    def connectVal(self):
+        self.minValSB.valueChanged.connect(self.valChanged)
+        self.maxValSB.valueChanged.connect(self.valChanged)
+
+    def disconnectVal(self):
+        self.minValSB.valueChanged.disconnect(self.valChanged)
+        self.maxValSB.valueChanged.disconnect(self.valChanged)
 
     @QtCore.pyqtSlot(float)
-    def minChanged(self, value):
+    def valChanged(self, _):
         if not self.auto:
-            if self.histo:
-                levels = self.histogram.region.getRegion()
-                self.histogram.region.setRegion([value, levels[1]])
-            else:
+            try:
+                self.disconnectVal()
                 self.check_and_emit()
-
-    @QtCore.pyqtSlot(float)
-    def maxChanged(self, value):
-        if not self.auto:
-            if self.histo:
-                levels = self.histogram.region.getRegion()
-                self.histogram.region.setRegion([levels[0], value])
-            else:
-                self.check_and_emit()
+                if self.histo:
+                    lowlim = self.minValSB.value()
+                    uplim = self.maxValSB.value()
+                    self.histogram.region.setRegion([lowlim, uplim])
+            finally:
+                self.connectVal()
 
     def changeview(self, showhistogram=False):
         if showhistogram:
