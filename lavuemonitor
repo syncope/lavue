@@ -91,7 +91,7 @@ def alive(pid, calctime, maxrawval, maxval, minval, scaling,  meanval, **args):
             val = val * val
         elif scaling == "log":
             val = math.pow(10, val)
-        elif scaling != "lin":
+        elif scaling != "linear":
             raise Exception("Unknown scaling: %s" % scaling)
     if debug:
         print "  ELIVE !!!", calctime, scaling, maxval, maxrawval, val

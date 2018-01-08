@@ -43,6 +43,7 @@ class ConfigWidget(QtGui.QDialog):
         self.showmask = False
         self.timeout = 3000
         self.aspectlocked = False
+        self.statswoscaling = False
 
         self.doorLineEdit = None
         self.addroisCheckBox = None
@@ -79,6 +80,14 @@ class ConfigWidget(QtGui.QDialog):
         self.aspectlockedCheckBox.setChecked(self.aspectlocked)
         self.aspectlockedCheckBox.setToolTip(
             "lock the aspect ration of the image")
+
+        statsscaleLabel = QtGui.QLabel(u"Statistic with scaling:")
+        statsscaleLabel.setToolTip(
+            "statistics values with scaling")
+        self.statsscaleCheckBox = QtGui.QCheckBox()
+        self.statsscaleCheckBox.setChecked(not self.statswoscaling)
+        self.statsscaleCheckBox.setToolTip(
+            "statistics values with scaling")
 
         doorLabel = QtGui.QLabel(u"Sardana Door:")
         doorLabel.setToolTip(
@@ -163,6 +172,8 @@ class ConfigWidget(QtGui.QDialog):
         gridlayout.addWidget(self.showmaskCheckBox, 8, 1)
         gridlayout.addWidget(timeoutLabel, 9, 0)
         gridlayout.addWidget(self.timeoutLineEdit, 9, 1)
+        gridlayout.addWidget(statsscaleLabel, 10, 0)
+        gridlayout.addWidget(self.statsscaleCheckBox, 10, 1)
         self.buttonBox = QtGui.QDialogButtonBox(
             QtGui.QDialogButtonBox.Ok
             | QtGui.QDialogButtonBox.Cancel)
@@ -195,6 +206,7 @@ class ConfigWidget(QtGui.QDialog):
         self.showhisto = self.showhistoCheckBox.isChecked()
         self.showmask = self.showmaskCheckBox.isChecked()
         self.aspectlocked = self.aspectlockedCheckBox.isChecked()
+        self.statswoscaling = not self.statsscaleCheckBox.isChecked()
         try:
             self.timeout = int(self.timeoutLineEdit.text())
         except:

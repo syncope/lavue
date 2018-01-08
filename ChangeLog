@@ -1,5 +1,6 @@
 2018-01-XX Jan Kotanski <jan.kotanski@desy.de>
-	* add load image file
+	* add loading image file
+	* statistics without scaling
 	* tagged as 0.8.0
 
 2018-01-05 Jan Kotanski <jan.kotanski@desy.de>

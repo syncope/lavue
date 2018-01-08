@@ -219,6 +219,7 @@ class HidraWidget(QtGui.QGroupBox):
             self.source_state.emit(0)
             self.serverlistBox.setEnabled(True)
             self.sourceTypeComboBox.setEnabled(True)
+            self.pickleLineEdit.setReadOnly(False)
             if ":" in self.attrLineEdit.text():
                 self.attrLineEdit.setText(u'')
                 self.updateAttrButton()
@@ -242,6 +243,7 @@ class HidraWidget(QtGui.QGroupBox):
                                        "background-color: green;")
             self.cStatus.setText("Connected")
         self.sourceTypeComboBox.setEnabled(False)
+        self.pickleLineEdit.setReadOnly(True)
         self.button.setText("&Stop")
 
     def connectFailure(self):
@@ -250,6 +252,7 @@ class HidraWidget(QtGui.QGroupBox):
         self.source_state.emit(0)
         self.serverlistBox.setEnabled(True)
         self.sourceTypeComboBox.setEnabled(True)
+        self.pickleLineEdit.setReadOnly(False)
         self.cStatus.setText("Trouble connecting")
         # self.button.setText("Retry connect")
         self.button.setText("&Start")

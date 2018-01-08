@@ -378,13 +378,15 @@ class ImageWidget(QtGui.QWidget):
         self.img_widget.hLine.show()
         self.infodisplay.setText("")
 
-    def plot(self, array, name=None):
+    def plot(self, array, name=None, rawarray=None):
         if array is None:
             return
+        if rawarray is None:
+            rawarray = array
         if name is not None:
             self.filenamedisplay.setText(name)
 
-        self.img_widget.updateImage(array)
+        self.img_widget.updateImage(array, rawarray)
         if self.img_widget.cutenable:
             self.plotCut()
 
@@ -393,9 +395,10 @@ class ImageWidget(QtGui.QWidget):
         cid = self.img_widget.currentcut
         if cid > -1 and len(self.img_widget.cut) > cid:
             cut = self.img_widget.cut[cid]
-            if self.img_widget.data is not None:
+            if self.img_widget.rawdata is not None:
                 dt = cut.getArrayRegion(
-                    self.img_widget.data, self.img_widget.image, axes=(0, 1))
+                    self.img_widget.rawdata,
+                    self.img_widget.image, axes=(0, 1))
                 while dt.ndim > 1:
                     dt = dt.mean(axis=1)
                 self.cutCurve.setData(y=dt)

@@ -197,7 +197,7 @@ class LevelsWidget(QtGui.QGroupBox):
             if scalingType != self.scaling:
                 self.scalingLabel.setText("log scale!")
                 if not self.auto:
-                    if self.scaling == "lin":
+                    if self.scaling == "linear":
                         lowlim = math.log10(
                             lowlim or 10e-3) if lowlim > 0 else -2
                         uplim = math.log10(
@@ -207,9 +207,9 @@ class LevelsWidget(QtGui.QGroupBox):
                             lowlim * lowlim or 10e-3) if lowlim > 0 else -2
                         uplim = math.log10(
                             uplim * uplim or 10e-3) if uplim > 0 else -2
-        elif scalingType == "lin":
+        elif scalingType == "linear":
             if scalingType != self.scaling:
-                self.scalingLabel.setText("lin scale!")
+                self.scalingLabel.setText("linear scale!")
                 if not self.auto:
                     if self.scaling == "log":
                         lowlim = math.pow(10, lowlim)
@@ -221,7 +221,7 @@ class LevelsWidget(QtGui.QGroupBox):
             if scalingType != self.scaling:
                 self.scalingLabel.setText("sqrt scale!")
                 if not self.auto:
-                    if self.scaling == "lin":
+                    if self.scaling == "linear":
                         lowlim = math.sqrt(max(lowlim, 0))
                         uplim = math.sqrt(max(uplim, 0))
                     elif self.scaling == "log":

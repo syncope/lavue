@@ -78,6 +78,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.viewbox.addItem(self.image)
         self.xdata = 0
         self.ydata = 0
+        self.statswoscaling = False
 
         leftAxis = pg.AxisItem('left')
         leftAxis.linkToView(self.viewbox)
@@ -150,13 +151,14 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.viewbox.removeItem(cut)
         self.cutcoords.pop()
 
-    def updateImage(self, img=None):
+    def updateImage(self, img=None, rawimg=None):
         if self.autoDisplayLevels:
             self.image.setImage(img, autoLevels=True)
         else:
             self.image.setImage(
                 img, autoLevels=False, levels=self.displayLevels)
         self.data = img
+        self.rawdata = rawimg
         self.mouse_position()
 
     @QtCore.pyqtSlot(object)
@@ -172,23 +174,23 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
 
             if self.data is not None:
                 try:
-                    intensity = self.data[
+                    intensity = self.rawdata[
                         int(math.floor(self.xdata)),
                         int(math.floor(self.ydata))]
                 except Exception:
                     intensity = 0.
             else:
                 intensity = 0.
-
+            scaling = self.scaling if not self.statswoscaling else "linear"
             if not self.roienable and not self.cutenable:
                 if self.doBkgSubtraction:
                     self.currentMousePosition.emit(
                         "x=%i, y=%i, %s(intensity-background)=%.2f" % (
                             self.xdata, self.ydata,
-                            self.scaling if self.scaling != "lin" else "",
+                            scaling if scaling != "linear" else "",
                             intensity))
                 else:
-                    if self.scaling == "lin":
+                    if scaling == "linear":
                         self.currentMousePosition.emit(
                             "x=%i, y=%i, intensity=%.2f" % (
                                 self.xdata, self.ydata, intensity))
@@ -196,7 +198,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                         self.currentMousePosition.emit(
                             "x=%i, y=%i, %s(intensity)=%.2f" % (
                                 self.xdata, self.ydata,
-                                self.scaling, intensity))
+                                scaling, intensity))
             elif self.roienable and self.currentroi > -1:
                 if event:
                     self.currentMousePosition.emit(
@@ -213,10 +215,10 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                     self.currentMousePosition.emit(
                         "%s, x=%i, y=%i, %s(intensity-background)=%.2f" % (
                             crds, self.xdata, self.ydata,
-                            self.scaling if self.scaling != "lin" else "",
+                            scaling if scaling != "linear" else "",
                             intensity))
                 else:
-                    if self.scaling == "lin":
+                    if scaling == "linear":
                         self.currentMousePosition.emit(
                             "%s, x=%i, y=%i, intensity=%.2f" % (
                                 crds, self.xdata, self.ydata, intensity))
@@ -224,7 +226,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                         self.currentMousePosition.emit(
                             "%s, x=%i, y=%i, %s(intensity)=%.2f" % (
                                 crds, self.xdata, self.ydata,
-                                self.scaling, intensity))
+                                scaling, intensity))
             else:
                 self.currentMousePosition.emit("")
 

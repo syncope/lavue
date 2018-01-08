@@ -127,6 +127,7 @@ class LiveViewer(QtGui.QDialog):
         self.secsocket = self.seccontext.socket(zmq.PUB)
         self.apppid = os.getpid()
         self.imagename = None
+        self.statswoscaling = False
 
         # note: host and target are defined in another place
         self.data_source = hcs.GeneralSource()
@@ -332,6 +333,11 @@ class LiveViewer(QtGui.QDialog):
             settings.value("Configuration/LastImageFileName").toString())
         if qstval:
             self.imagename = qstval
+        qstval = str(
+            settings.value(
+                "Configuration/StatisticsWithoutScaling").toString())
+        if qstval.lower() == "true":
+            self.statswoscaling = True
 
         self.levelsW.changeview(self.showhisto)
         self.prepBoxW.changeview(self.showmask)
@@ -491,6 +497,9 @@ class LiveViewer(QtGui.QDialog):
         settings.setValue(
             "Configuration/LastImageFileName",
             QtCore.QVariant(self.imagename))
+        settings.setValue(
+            "Configuration/StatisticsWithoutScaling",
+            QtCore.QVariant(self.statswoscaling))
 
     def closeEvent(self, event):
         """ stores the setting before finishing the application
@@ -596,6 +605,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.refreshrate = dataFetchThread.GLOBALREFRESHRATE
         cnfdlg.timeout = self.timeout
         cnfdlg.aspectlocked = self.aspectlocked
+        cnfdlg.statswoscaling = self.statswoscaling
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
@@ -639,6 +649,10 @@ class LiveViewer(QtGui.QDialog):
         self.aspectlocked = dialog.aspectlocked
         self.imageW.img_widget.setAspectLocked(self.aspectlocked)
         self.secstream = dialog.secstream
+        self.statswoscaling = dialog.statswoscaling
+        if self.imageW.img_widget.statswoscaling != self.statswoscaling:
+            self.imageW.img_widget.statswoscaling = self.statswoscaling
+            self.plot()
 
     @QtCore.pyqtSlot(str)
     def setSignalHost(self, signalhost):
@@ -667,16 +681,14 @@ class LiveViewer(QtGui.QDialog):
 
         # use the internal raw image to create a display image with chosen
         # scaling
-        print("S0")
         self.scale(self.scalingW.getCurrentScaling())
-        print("S1")
         # calculate and update the stats for this
         self.calc_update_stats()
-        print("S2")
 
         # calls internally the plot function of the plot widget
-        self.imageW.plot(self.scaled_image, self.image_name)
-        print("S3")
+        self.imageW.plot(self.scaled_image, self.image_name,
+                         self.display_image
+                         if self.statswoscaling else self.scaled_image)
         if self.updatehisto:
             self.levelsW.histogram.imageChanged(autoLevel=self.levelsW.auto)
             self.updatehisto = False
@@ -687,7 +699,7 @@ class LiveViewer(QtGui.QDialog):
 
     def calc_update_stats(self, secstream=True):
         # calculate the stats for this
-        maxVal, meanVal, varVal, minVal, maxRawVal = self.calcStats()
+        maxVal, meanVal, varVal, minVal, maxRawVal, maxSVal = self.calcStats()
         calctime = time.time()
         currentscaling = self.scalingW.getCurrentScaling()
         # update the statistics display
@@ -717,11 +729,13 @@ class LiveViewer(QtGui.QDialog):
             self.secsocket.send_string(str(message))
 
         self.statsW.update_stats(
-            meanVal, maxVal, varVal, currentscaling, roiVal, roilabel)
+            meanVal, maxVal, varVal,
+            'linear' if self.statswoscaling else currentscaling,
+            roiVal, roilabel)
 
         # if needed, update the levels display
         if self.levelsW.isAutoLevel():
-            self.levelsW.updateLevels(float(minVal), float(maxVal))
+            self.levelsW.updateLevels(float(minVal), float(maxSVal))
 
     # mode changer: start plotting mode
     @QtCore.pyqtSlot()
@@ -869,17 +883,21 @@ class LiveViewer(QtGui.QDialog):
             return
         if scalingType == "sqrt":
             self.scaled_image = np.clip(self.display_image, 0, np.inf)
-            self.scaled_image = np.sqrt(self.display_image)
+            self.scaled_image = np.sqrt(self.scaled_image)
         elif scalingType == "log":
             self.scaled_image = np.clip(self.display_image, 10e-3, np.inf)
-            self.scaled_image = np.log10(self.display_image)
+            self.scaled_image = np.log10(self.scaled_image)
 
     def calcROIsum(self):
         rid = self.imageW.img_widget.currentroi
-        if self.scaled_image is not None:
+        image = None
+        if self.statswoscaling and self.display_image is not None:
+            image = self.display_image
+        elif not self.statswoscaling and self.scaled_image is not None:
+            image = self.scaled_image
+        if image is not None:
             if self.imageW.img_widget.roienable:
                 if rid >= 0:
-                    image = self.scaled_image
                     roicoords = self.imageW.img_widget.roicoords
                     rcrds = list(roicoords[rid])
                     for i in [0, 2]:
@@ -905,22 +923,29 @@ class LiveViewer(QtGui.QDialog):
             return "0.", rid
 
     def calcStats(self):
-        if self.scaled_image is not None:
+        if self.statswoscaling and self.display_image is not None:
+            maxval = np.amax(self.display_image)
+            meanval = np.mean(self.display_image)
+            varval = np.var(self.display_image)
+            maxsval = np.amax(self.scaled_image)
+        elif not self.statswoscaling and self.scaled_image is not None:
             maxval = np.amax(self.scaled_image)
-            maxrawval = np.amax(self.raw_image)
             meanval = np.mean(self.scaled_image)
             varval = np.var(self.scaled_image)
-            # automatic maximum clipping to hardcoded value
-            checkval = meanval + 10 * np.sqrt(varval)
-            if maxval > checkval:
-                maxval = checkval
-            return (str("%.4f" % maxval),
-                    str("%.4f" % meanval),
-                    str("%.4f" % varval),
-                    str("%.3f" % np.amin(self.scaled_image)),
-                    str("%.4f" % maxrawval))
+            maxsval = maxval
         else:
-            return "0.", "0.", "0.", "0.", "0."
+            return "0.", "0.", "0.", "0.", "0.", "0."
+        maxrawval = np.amax(self.raw_image)
+        # automatic maximum clipping to hardcoded value
+        checkval = meanval + 10 * np.sqrt(varval)
+        if maxval > checkval:
+            maxval = checkval
+        return (str("%.4f" % maxval),
+                str("%.4f" % meanval),
+                str("%.4f" % varval),
+                str("%.3f" % np.amin(self.scaled_image)),
+                str("%.4f" % maxrawval),
+                str("%.3f" % maxsval))
 
     def getInitialLevels(self):
         if self.scaled_image is not None:

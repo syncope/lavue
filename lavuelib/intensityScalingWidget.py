@@ -66,7 +66,7 @@ class IntensityScalingWidget(QtGui.QGroupBox):
     @QtCore.pyqtSlot()
     def setCurrentScaling(self):
         if self.linbutton.isChecked():
-            self.current = "lin"
+            self.current = "linear"
         elif self.logbutton.isChecked():
             self.current = "log"
         else:
