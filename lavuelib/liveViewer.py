@@ -126,6 +126,7 @@ class LiveViewer(QtGui.QDialog):
         self.seccontext = zmq.Context()
         self.secsocket = self.seccontext.socket(zmq.PUB)
         self.apppid = os.getpid()
+        self.imagename = None
 
         # note: host and target are defined in another place
         self.data_source = hcs.GeneralSource()
@@ -205,6 +206,7 @@ class LiveViewer(QtGui.QDialog):
 
         self.imageW.cnfButton.clicked.connect(self.configuration)
         self.imageW.quitButton.clicked.connect(self.close)
+        self.imageW.loadButton.clicked.connect(self.loadfile)
         if self.umode in ["user"]:
             self.imageW.cnfButton.hide()
         self.imageW.applyROIButton.clicked.connect(self.onapplyrois)
@@ -325,6 +327,10 @@ class LiveViewer(QtGui.QDialog):
             self.interruptonerror = False
         elif qstval.lower() == "true":
             self.interruptonerror = True
+        qstval = str(
+            settings.value("Configuration/LastImageFileName").toString())
+        if qstval:
+            self.imagename = qstval
 
         self.levelsW.changeview(self.showhisto)
         self.prepBoxW.changeview(self.showmask)
@@ -481,6 +487,9 @@ class LiveViewer(QtGui.QDialog):
         settings.setValue(
             "Configuration/AspectLocked",
             QtCore.QVariant(self.aspectlocked))
+        settings.setValue(
+            "Configuration/LastImageFileName",
+            QtCore.QVariant(self.imagename))
 
     def closeEvent(self, event):
         """ stores the setting before finishing the application
@@ -547,6 +556,29 @@ class LiveViewer(QtGui.QDialog):
             self.imageW.roiNrChanged(len(coords), coords)
         else:
             print("Connection error")
+
+    @QtCore.pyqtSlot()
+    def loadfile(self):
+        self.fileDialog = QtGui.QFileDialog()
+        imagename = str(
+            self.fileDialog.getOpenFileName(
+                self, 'Load file', self.imagename or '.'))
+        if imagename:
+            self.imagename = imagename
+            newimage = imageFileHandler.ImageFileHandler(
+                str(self.imagename)).getImage()
+            if newimage is not None:
+                self.image_name = self.imagename
+                self.raw_image = np.transpose(newimage)
+                self.plot()
+            else:
+                text = messageBox.MessageBox.getText(
+                    "lavue: File %s cannot be loaded" % self.imagename)
+                messageBox.MessageBox.warning(
+                    self,
+                    "lavue: File %s cannot be loaded" % self.imagename,
+                    text,
+                    str("lavue: File %s cannot be loaded" % self.imagename))
 
     @QtCore.pyqtSlot()
     def configuration(self):
@@ -916,6 +948,7 @@ class LiveViewer(QtGui.QDialog):
             self.bkgSubW.applyBkgSubtractBox.setChecked(False)
             self.bkgSubW.setDisplayedName("")
         self.imageW.img_widget.doBkgSubtraction = state
+        self.plot()
 
     @QtCore.pyqtSlot(str)
     def prepareBKGSubtraction(self, imagename):

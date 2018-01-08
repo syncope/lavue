@@ -1,3 +1,7 @@
+2018-01-XX Jan Kotanski <jan.kotanski@desy.de>
+	* add load image file
+	* tagged as 0.8.0
+
 2018-01-05 Jan Kotanski <jan.kotanski@desy.de>
 	* switch off autolevel on plot
 	* tagged as 0.7.3
