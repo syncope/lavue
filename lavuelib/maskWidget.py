@@ -74,8 +74,10 @@ class MaskWidget(QtGui.QWidget):
         self.fileName = str(
             self.fileDialog.getOpenFileName(
                 self, 'Open mask file', '/ramdisk/'))
-        self.setDisplayedName(self.fileName)
-        self.maskFileSelection.emit(self.fileName)
+        if fileName:
+            self.fileName = fileName
+            self.setDisplayedName(self.fileName)
+            self.maskFileSelection.emit(self.fileName)
 
     def setDisplayedName(self, name):
         if name == "":

@@ -90,11 +90,13 @@ class BkgSubtractionkWidget(QtGui.QWidget):
     def showFileDialog(self):
         self.fileDialog = QtGui.QFileDialog()
 
-        self.fileName = str(
+        fileName = str(
             self.fileDialog.getOpenFileName(self, 'Open file', '.'))
-        self.setDisplayedName(self.fileName)
-        self.bkgFileSelection.emit(self.fileName)
-        self.hideImageSelection()
+        if fileName:
+            self.fileName = fileName
+            self.setDisplayedName(self.fileName)
+            self.bkgFileSelection.emit(self.fileName)
+            self.hideImageSelection()
 
     @QtCore.pyqtSlot()
     def useCurrent(self):

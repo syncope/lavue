@@ -81,7 +81,7 @@ class ConfigWidget(QtGui.QDialog):
         self.aspectlockedCheckBox.setToolTip(
             "lock the aspect ration of the image")
 
-        statsscaleLabel = QtGui.QLabel(u"Statistic with scaling:")
+        statsscaleLabel = QtGui.QLabel(u"Statistics with scaling:")
         statsscaleLabel.setToolTip(
             "statistics values with scaling")
         self.statsscaleCheckBox = QtGui.QCheckBox()

@@ -722,7 +722,8 @@ class LiveViewer(QtGui.QDialog):
                 'command': 'alive', 'calctime': calctime, 'maxval': maxVal,
                 'maxrawval': maxRawVal,
                 'minval': minVal, 'meanval': meanVal, 'pid': self.apppid,
-                'scaling': currentscaling}
+                'scaling': (
+                    'linear' if self.statswoscaling else currentscaling)}
             topic = 10001
             message = "%d %s" % (
                 topic, str(json.dumps(messagedata)).encode("ascii"))
