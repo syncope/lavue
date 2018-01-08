@@ -153,6 +153,7 @@ class LiveViewer(QtGui.QDialog):
         self.raw_image = None
         self.image_name = None
         self.display_image = None
+        self.scaled_image = None
 
         self.background_image = None
         self.doBkgSubtraction = False
@@ -193,7 +194,7 @@ class LiveViewer(QtGui.QDialog):
         # SIGNAL LOGIC::
 
         # signal from intensity scaling widget:
-        self.scalingW.changedScaling.connect(self.scale)
+        # self.scalingW.changedScaling.connect(self.scale)
         self.scalingW.changedScaling.connect(self.plot)
         self.scalingW.changedScaling.connect(self.levelsW.setScalingLabel)
 
@@ -666,13 +667,16 @@ class LiveViewer(QtGui.QDialog):
 
         # use the internal raw image to create a display image with chosen
         # scaling
+        print("S0")
         self.scale(self.scalingW.getCurrentScaling())
-
+        print("S1")
         # calculate and update the stats for this
         self.calc_update_stats()
+        print("S2")
 
         # calls internally the plot function of the plot widget
-        self.imageW.plot(self.display_image, self.image_name)
+        self.imageW.plot(self.scaled_image, self.image_name)
+        print("S3")
         if self.updatehisto:
             self.levelsW.histogram.imageChanged(autoLevel=self.levelsW.auto)
             self.updatehisto = False
@@ -701,7 +705,7 @@ class LiveViewer(QtGui.QDialog):
                     roilabel,
                     slabel[currentroi]
                     if currentroi < len(slabel) else slabel[-1])
-        if secstream and self.secstream and self.display_image is not None:
+        if secstream and self.secstream and self.scaled_image is not None:
             messagedata = {
                 'command': 'alive', 'calctime': calctime, 'maxval': maxVal,
                 'maxrawval': maxRawVal,
@@ -828,18 +832,6 @@ class LiveViewer(QtGui.QDialog):
             # set all masked (non-zero values) to zero by index
             self.display_image[self.maskIndices] = 0
 
-    @QtCore.pyqtSlot(str)
-    def scale(self, scalingType):
-        self.imageW.img_widget.scaling = scalingType
-        if self.display_image is None:
-            return
-        if scalingType == "sqrt":
-            self.display_image = np.clip(self.display_image, 0, np.inf)
-            self.display_image = np.sqrt(self.display_image)
-        elif scalingType == "log":
-            self.display_image = np.clip(self.display_image, 10e-3, np.inf)
-            self.display_image = np.log10(self.display_image)
-
     def transform(self):
         '''Do the image transformation on the given numpy array.'''
         if self.display_image is None or self.trafoName is "None":
@@ -869,12 +861,25 @@ class LiveViewer(QtGui.QDialog):
             self.display_image = np.transpose(
                 np.fliplr(np.flipud(self.display_image)))
 
+    @QtCore.pyqtSlot(str)
+    def scale(self, scalingType):
+        self.scaled_image = self.display_image
+        self.imageW.img_widget.scaling = scalingType
+        if self.display_image is None:
+            return
+        if scalingType == "sqrt":
+            self.scaled_image = np.clip(self.display_image, 0, np.inf)
+            self.scaled_image = np.sqrt(self.display_image)
+        elif scalingType == "log":
+            self.scaled_image = np.clip(self.display_image, 10e-3, np.inf)
+            self.scaled_image = np.log10(self.display_image)
+
     def calcROIsum(self):
         rid = self.imageW.img_widget.currentroi
-        if self.display_image is not None:
+        if self.scaled_image is not None:
             if self.imageW.img_widget.roienable:
                 if rid >= 0:
-                    image = self.display_image
+                    image = self.scaled_image
                     roicoords = self.imageW.img_widget.roicoords
                     rcrds = list(roicoords[rid])
                     for i in [0, 2]:
@@ -900,11 +905,11 @@ class LiveViewer(QtGui.QDialog):
             return "0.", rid
 
     def calcStats(self):
-        if self.display_image is not None:
-            maxval = np.amax(self.display_image)
+        if self.scaled_image is not None:
+            maxval = np.amax(self.scaled_image)
             maxrawval = np.amax(self.raw_image)
-            meanval = np.mean(self.display_image)
-            varval = np.var(self.display_image)
+            meanval = np.mean(self.scaled_image)
+            varval = np.var(self.scaled_image)
             # automatic maximum clipping to hardcoded value
             checkval = meanval + 10 * np.sqrt(varval)
             if maxval > checkval:
@@ -912,14 +917,14 @@ class LiveViewer(QtGui.QDialog):
             return (str("%.4f" % maxval),
                     str("%.4f" % meanval),
                     str("%.4f" % varval),
-                    str("%.3f" % np.amin(self.display_image)),
+                    str("%.3f" % np.amin(self.scaled_image)),
                     str("%.4f" % maxrawval))
         else:
             return "0.", "0.", "0.", "0.", "0."
 
     def getInitialLevels(self):
-        if self.display_image is not None:
-            return np.amin(self.display_image), np.amax(self.display_image)
+        if self.scaled_image is not None:
+            return np.amin(self.scaled_image), np.amax(self.scaled_image)
 
     @QtCore.pyqtSlot(int)
     def checkMasking(self, state):
