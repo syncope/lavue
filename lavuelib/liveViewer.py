@@ -346,14 +346,13 @@ class LiveViewer(QtGui.QDialog):
 
         qstval = \
             settings.value("Configuration/ZMQStreamTopics").toList()
-        print(type(qstval))
         if qstval:
             self.zmqtopics = [str(tp.toString()) for tp in qstval]
-        print(self.zmqtopics)
         self.sourceW.update(zmqtopics=self.zmqtopics)
 
         self.levelsW.changeview(self.showhisto)
         self.prepBoxW.changeview(self.showmask)
+        self.plot()
 
     @QtCore.pyqtSlot(int)
     def onPixelChanged(self):

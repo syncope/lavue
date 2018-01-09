@@ -45,6 +45,7 @@ class StatisticsWidget(QtGui.QGroupBox):
 
         scalingLabel = QtGui.QLabel("Scaling:")
         self.scaleLabel = QtGui.QLabel(self.scaling)
+        self.scaleLabel.setStyleSheet("color: red;")
 
         maxlabel = QtGui.QLabel("maximum: ")
         maxlabel.setToolTip(
