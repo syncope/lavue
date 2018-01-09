@@ -94,10 +94,10 @@ class SourceWidget(QtGui.QGroupBox):
             "zmq server, port and topic, hwm (optional): "
             "server:port[/topic][/hwm]"
             "\ne.g. haso228:9999/10001 or :55535")
-        self.pickleTopicLabel = QtGui.QLabel(u"Server:")
+        self.pickleTopicLabel = QtGui.QLabel(u"Topic:")
         self.pickleTopicLabel.setToolTip("ZMQ stream topic")
         self.pickleTopicComboBox = QtGui.QComboBox()
-        self.pickleTopicComboBox.addItem("Pick a topic")
+        self.pickleTopicComboBox.addItem("Pick an image")
         self.pickleTopicComboBox.setToolTip("ZMQ stream topic")
 
         self.cStatusLabel = QtGui.QLabel("Status: ")
@@ -248,14 +248,12 @@ class SourceWidget(QtGui.QGroupBox):
             self.serverlistBox.setEnabled(True)
             self.sourceTypeComboBox.setEnabled(True)
             self.pickleLineEdit.setReadOnly(False)
-            self.pickleTopicComboBox.setEnabled(True)
             if ":" in self.attrLineEdit.text():
                 self.attrLineEdit.setText(u'')
                 self.updateAttrButton()
             return
 
         else:
-            self.pickleTopicComboBox.setEnabled(False)
             self.serverlistBox.setEnabled(False)
             self.sourceTypeComboBox.setEnabled(False)
             self.source_state.emit(self.sourceTypeComboBox.currentIndex() + 1)

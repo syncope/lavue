@@ -678,6 +678,7 @@ class LiveViewer(QtGui.QDialog):
     @QtCore.pyqtSlot(str)
     def setSignalHost(self, signalhost):
         self._signalhost = signalhost
+        self.data_source.setSignalHost(self._signalhost)
 
     @QtCore.pyqtSlot(int)
     def updateSource(self, status):

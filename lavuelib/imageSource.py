@@ -154,11 +154,12 @@ class ZMQPickleSource(object):
         self.portnumber = "50001"
         self.target = [socket.getfqdn()]
         self.query = None
-        self._initiated = False
         self.timeout = timeout
+        self._initiated = False
         self._context = zmq.Context()
         self._socket = None
         self._counter = 0
+        self._topic = "10001"
         self._bindaddress = None
         self.__mutex = QtCore.QMutex()
 
@@ -170,6 +171,17 @@ class ZMQPickleSource(object):
         if self.signal_host != signalhost:
             self.signal_host = signalhost
             self._initiated = False
+            with QtCore.QMutexLocker(self.__mutex):
+                if self._socket:
+                    shost = str(self.signal_host).split("/")
+                    topic = shost[1] if len(shost) > 1 else ""
+                    self._socket.unbind(self._bindaddress)
+                    self._socket.setsockopt(
+                        zmq.UNSUBSCRIBE, self._topic)
+                    self._socket.setsockopt(
+                        zmq.SUBSCRIBE, topic)
+                    self._topic = topic
+                    self._socket.connect(self._bindaddress)
 
     def getData(self):
         try:
@@ -221,7 +233,7 @@ class ZMQPickleSource(object):
         try:
             shost = str(self.signal_host).split("/")
             host, port = str(shost[0]).split(":")
-            topic = shost[1] if len(shost) > 1 else ""
+            self._topic = shost[1] if len(shost) > 1 else ""
             hwm = int(shost[2]) if (len(shost) > 2 and shost[2]) else 1
             if not self._initiated:
                 if self._socket:
@@ -236,7 +248,7 @@ class ZMQPickleSource(object):
                         + ':'
                         + str(port)
                     )
-                    self._socket.setsockopt(zmq.SUBSCRIBE, topic)
+                    self._socket.setsockopt(zmq.SUBSCRIBE, self._topic)
                     self._socket.connect(self._bindaddress)
                 time.sleep(0.2)
             return True
