@@ -1,4 +1,8 @@
 2018-01-09 Jan Kotanski <jan.kotanski@desy.de>
+	* repack sources
+	* tagged as 0.8.1
+
+2018-01-09 Jan Kotanski <jan.kotanski@desy.de>
 	* add loading image file
 	* add topic ComboBox for ZMQ Stream source
 	* statistics without scaling
