@@ -29,7 +29,7 @@ import pyqtgraph as pg
 import numpy as np
 import math
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI
-from PyQt4 import QtCore
+from PyQt4 import QtCore, QtGui
 
 
 class SimpleLineROI(LineROI):
@@ -79,6 +79,11 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.xdata = 0
         self.ydata = 0
         self.statswoscaling = False
+
+        self.viewonetoone = QtGui.QAction(
+            "View 1:1 pixels", self.viewbox.menu)
+        self.viewonetoone.triggered.connect(self.oneToOneRange)
+        self.viewbox.menu.addAction(self.viewonetoone)
 
         leftAxis = pg.AxisItem('left')
         leftAxis.linkToView(self.viewbox)
@@ -150,6 +155,15 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         cut.hide()
         self.viewbox.removeItem(cut)
         self.cutcoords.pop()
+
+    def oneToOneRange(self):
+        ps = self.image.pixelSize()
+        currange = self.viewbox.viewRange()
+        xrg = currange[0][1] - currange[0][0]
+        yrg = currange[1][1] - currange[1][0]
+        self.viewbox.setRange(
+            QtCore.QRectF(0, 0, xrg * ps[0], yrg * ps[1]),
+            padding=0)
 
     def updateImage(self, img=None, rawimg=None):
         if self.autoDisplayLevels:
