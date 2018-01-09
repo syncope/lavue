@@ -56,6 +56,7 @@ class ConfigWidget(QtGui.QDialog):
         self.timeoutLineEdit = None
         self.aspectlockedCheckBox = None
         self.buttonBox = None
+        self.zmqtopics = []
 
     def createGUI(self):
 
@@ -152,6 +153,13 @@ class ConfigWidget(QtGui.QDialog):
         self.timeoutLineEdit.setToolTip(
             "Source timeout in ms")
 
+        zmqtopicsLabel = QtGui.QLabel(u"ZMQ Source topics:")
+        zmqtopicsLabel.setToolTip(
+            "ZMQ Source topics separated by spaces")
+        self.zmqtopicsLineEdit = QtGui.QLineEdit(" ".join(self.zmqtopics))
+        self.zmqtopicsLineEdit.setToolTip(
+            "ZMQ Source topics separated by spaces")
+
         gridlayout.addWidget(rateLabel, 0, 0)
         gridlayout.addWidget(self.rateDoubleSpinBox, 0, 1)
         gridlayout.addWidget(aspectlockedLabel, 1, 0)
@@ -174,6 +182,8 @@ class ConfigWidget(QtGui.QDialog):
         gridlayout.addWidget(self.timeoutLineEdit, 9, 1)
         gridlayout.addWidget(statsscaleLabel, 10, 0)
         gridlayout.addWidget(self.statsscaleCheckBox, 10, 1)
+        gridlayout.addWidget(zmqtopicsLabel, 11, 0)
+        gridlayout.addWidget(self.zmqtopicsLineEdit, 11, 1)
         self.buttonBox = QtGui.QDialogButtonBox(
             QtGui.QDialogButtonBox.Ok
             | QtGui.QDialogButtonBox.Cancel)
@@ -207,6 +217,8 @@ class ConfigWidget(QtGui.QDialog):
         self.showmask = self.showmaskCheckBox.isChecked()
         self.aspectlocked = self.aspectlockedCheckBox.isChecked()
         self.statswoscaling = not self.statsscaleCheckBox.isChecked()
+        zmqtopics = str(self.zmqtopicsLineEdit.text()).strip().split(" ")
+        self.zmqtopics = [tp for tp in zmqtopics if tp]
         try:
             self.timeout = int(self.timeoutLineEdit.text())
         except:

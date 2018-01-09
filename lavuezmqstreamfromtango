@@ -41,6 +41,7 @@ debug = False
 attribute = ""
 hostname = "localhost"
 prefix = None
+nodict = False
 
 context = None
 
@@ -80,20 +81,30 @@ def main():
             shape = value.shape
             dtype = value.dtype.name
 
-            if prefix:
-                message = (
-                    topicfilter,
-                    value,
-                    cPickle.dumps(shape),
-                    cPickle.dumps(dtype),
-                    "%s_%s" % (prefix, counter)
-                )
+            if nodict:
+                if prefix:
+                    message = (
+                        topicfilter,
+                        value,
+                        cPickle.dumps(shape),
+                        cPickle.dumps(dtype),
+                        "%s_%s" % (prefix, counter)
+                    )
+                else:
+                    message = (
+                        topicfilter,
+                        value,
+                        cPickle.dumps(shape),
+                        cPickle.dumps(dtype)
+                    )
             else:
+                metadata = {"shape": shape, "dtype": dtype}
+                if prefix:
+                    metadata["name"] = "%s_%s" % (prefix, counter)
                 message = (
                     topicfilter,
                     value,
-                    cPickle.dumps(shape),
-                    cPickle.dumps(dtype)
+                    cPickle.dumps(metadata)
                 )
             counter += 1
             socket.send_multipart(message)
@@ -131,6 +142,10 @@ if __name__ == "__main__":
         "(default: sys/tg_test/1/double_image_ro)",
         dest="attribute", default="sys/tg_test/1/double_image_ro")
     parser.add_argument(
+        "--no-dict", action="store_true",
+        default=False, dest="nodict",
+        help="create zmq stream without dictionary")
+    parser.add_argument(
         "--debug", action="store_true",
         default=False, dest="debug",
         help="debug mode")
@@ -161,5 +176,6 @@ if __name__ == "__main__":
     debug = options.debug
     attribute = options.attribute
     prefix = options.prefix
+    nodict = options.nodict
 
     main()

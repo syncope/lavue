@@ -177,26 +177,36 @@ class ZMQPickleSource(object):
                 message = self._socket.recv_multipart(flags=zmq.NOBLOCK)
             topic = None
             _array = None
-            _shape = None
-            _dtype = None
+            shape = None
+            dtype = None
             name = None
             lmsg = None
 
             if isinstance(message, tuple) or isinstance(message, list):
                 lmsg = len(message)
-            if lmsg == 4:
-                (topic, _array, _shape, _dtype) = message
-                name = '%s/%s (%s)' % (
-                    self._bindaddress, topic, self._counter)
-            elif lmsg == 5:
-                (topic, _array, _shape, _dtype, name) = message
+            if lmsg == 3:
+                (topic, _array, _metadata) = message
+                metadata = cPickle.loads(_metadata)
+                shape = metadata["shape"]
+                dtype = metadata["dtype"]
+                if "name" in metadata:
+                    name = metadata["name"]
+                else:
+                    name = '%s/%s (%s)' % (
+                        self._bindaddress, topic, self._counter)
+            else:
+                if lmsg == 4:
+                    (topic, _array, _shape, _dtype) = message
+                    name = '%s/%s (%s)' % (
+                        self._bindaddress, topic, self._counter)
+                elif lmsg == 5:
+                    (topic, _array, _shape, _dtype, name) = message
+                dtype = cPickle.loads(_dtype)
+                shape = cPickle.loads(_shape)
 
             if _array:
-                array = np.frombuffer(
-                    buffer(_array),
-                    dtype=cPickle.loads(_dtype)
-                )
-                array = array.reshape(cPickle.loads(_shape))
+                array = np.frombuffer(buffer(_array), dtype=dtype)
+                array = array.reshape(shape)
                 self._counter += 1
                 return (np.transpose(array), name)
 

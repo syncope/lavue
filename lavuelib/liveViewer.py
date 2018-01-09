@@ -78,6 +78,7 @@ class LiveViewer(QtGui.QDialog):
                  "datasource": "HiDRASource",
                  "slot": "updateHidraButton",
                  "hidden": ["attrLabel", "attrLineEdit",
+                            "pickleTopicLabel", "pickleTopicComboBox",
                             "pickleLabel", "pickleLineEdit"]}
             )
         if hcs.PYTANGO:
@@ -87,6 +88,7 @@ class LiveViewer(QtGui.QDialog):
                  "slot": "updateAttrButton",
                  "hidden": ["hostlabel", "currenthost",
                             "pickleLabel", "pickleLineEdit",
+                            "pickleTopicLabel", "pickleTopicComboBox",
                             "serverLabel", "serverlistBox"]})
 
         self.sourcetypes.append(
@@ -104,6 +106,7 @@ class LiveViewer(QtGui.QDialog):
              "hidden": ["hostlabel", "currenthost",
                         "serverLabel", "serverlistBox",
                         "pickleLabel", "pickleLineEdit",
+                        "pickleTopicLabel", "pickleTopicComboBox",
                         "attrLabel", "attrLineEdit"]},
         )
 
@@ -128,14 +131,16 @@ class LiveViewer(QtGui.QDialog):
         self.apppid = os.getpid()
         self.imagename = None
         self.statswoscaling = False
+        self.zmqtopics = []
 
         # note: host and target are defined in another place
         self.data_source = hcs.GeneralSource()
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
-        self.sourceW = sourceWidget.HidraWidget(
-            parent=self, serverdict=HidraServerList)
+        self.sourceW = sourceWidget.SourceWidget(
+            parent=self)
+        self.sourceW.serverdict = HidraServerList
         self.prepBoxW = preparationBoxWidget.PreparationBoxWidget(parent=self)
         self.scalingW = intensityScalingWidget.IntensityScalingWidget(
             parent=self)
@@ -339,6 +344,14 @@ class LiveViewer(QtGui.QDialog):
         if qstval.lower() == "true":
             self.statswoscaling = True
 
+        qstval = \
+            settings.value("Configuration/ZMQStreamTopics").toList()
+        print(type(qstval))
+        if qstval:
+            self.zmqtopics = [str(tp.toString()) for tp in qstval]
+        print(self.zmqtopics)
+        self.sourceW.update(zmqtopics=self.zmqtopics)
+
         self.levelsW.changeview(self.showhisto)
         self.prepBoxW.changeview(self.showmask)
 
@@ -500,6 +513,9 @@ class LiveViewer(QtGui.QDialog):
         settings.setValue(
             "Configuration/StatisticsWithoutScaling",
             QtCore.QVariant(self.statswoscaling))
+        settings.setValue(
+            "Configuration/ZMQStreamTopics",
+            QtCore.QVariant(self.zmqtopics))
 
     def closeEvent(self, event):
         """ stores the setting before finishing the application
@@ -606,6 +622,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.timeout = self.timeout
         cnfdlg.aspectlocked = self.aspectlocked
         cnfdlg.statswoscaling = self.statswoscaling
+        cnfdlg.zmqtopics = self.zmqtopics
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
@@ -649,6 +666,10 @@ class LiveViewer(QtGui.QDialog):
         self.aspectlocked = dialog.aspectlocked
         self.imageW.img_widget.setAspectLocked(self.aspectlocked)
         self.secstream = dialog.secstream
+        if self.zmqtopics != dialog.zmqtopics:
+            self.zmqtopics = dialog.zmqtopics
+            self.sourceW.zmqtopics = self.zmqtopics
+            self.sourceW.setSource()
         self.statswoscaling = dialog.statswoscaling
         if self.imageW.img_widget.statswoscaling != self.statswoscaling:
             self.imageW.img_widget.statswoscaling = self.statswoscaling

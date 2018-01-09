@@ -28,7 +28,7 @@
 from PyQt4 import QtCore, QtGui
 
 
-class HidraWidget(QtGui.QGroupBox):
+class SourceWidget(QtGui.QGroupBox):
 
     """
     Connect and disconnect hidra service.
@@ -39,15 +39,18 @@ class HidraWidget(QtGui.QGroupBox):
     source_servername = QtCore.pyqtSignal(str)
     source_sourcetype = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None, serverdict=None):
+    def __init__(self, parent=None):
         QtGui.QGroupBox.__init__(self, parent)
         self.setTitle("Image Source")
 
         self.signal_host = None
         self.target = None
         self.connected = False
-        self.serverdict = serverdict
+        self.serverdict = {}
         self.sortedserverlist = []
+        self.currentSource = ""
+
+        self.zmqtopics = []
 
         self._types = parent.sourcetypes
         self._defaultsource = "Hidra"
@@ -59,7 +62,7 @@ class HidraWidget(QtGui.QGroupBox):
             "image source type, e.g. Hidra, Tango, Test")
         self.sourceTypeComboBox = QtGui.QComboBox()
         self.sourceTypeComboBox.setToolTip(
-            "image source type, e.g. Hidra, Tango, Test")
+            "image source type, e.g. Hidra, Tango, ZMQ Stream, Test")
         for st in self._types:
             self.sourceTypeComboBox.addItem(st["name"])
 
@@ -91,6 +94,11 @@ class HidraWidget(QtGui.QGroupBox):
             "zmq server, port and topic, hwm (optional): "
             "server:port[/topic][/hwm]"
             "\ne.g. haso228:9999/10001 or :55535")
+        self.pickleTopicLabel = QtGui.QLabel(u"Server:")
+        self.pickleTopicLabel.setToolTip("ZMQ stream topic")
+        self.pickleTopicComboBox = QtGui.QComboBox()
+        self.pickleTopicComboBox.addItem("Pick a topic")
+        self.pickleTopicComboBox.setToolTip("ZMQ stream topic")
 
         self.cStatusLabel = QtGui.QLabel("Status: ")
         self.cStatusLabel.setToolTip(
@@ -120,9 +128,11 @@ class HidraWidget(QtGui.QGroupBox):
         gridlayout.addWidget(self.attrLineEdit, 3, 1)
         gridlayout.addWidget(self.pickleLabel, 4, 0)
         gridlayout.addWidget(self.pickleLineEdit, 4, 1)
-        gridlayout.addWidget(self.cStatusLabel, 5, 0)
-        gridlayout.addWidget(self.cStatus, 5, 1)
-        gridlayout.addWidget(self.button, 6, 1)
+        gridlayout.addWidget(self.pickleTopicLabel, 5, 0)
+        gridlayout.addWidget(self.pickleTopicComboBox, 5, 1)
+        gridlayout.addWidget(self.cStatusLabel, 6, 0)
+        gridlayout.addWidget(self.cStatus, 6, 1)
+        gridlayout.addWidget(self.button, 7, 1)
 
         self.setLayout(gridlayout)
 
@@ -131,6 +141,8 @@ class HidraWidget(QtGui.QGroupBox):
             self.onSourceChanged)
         self.attrLineEdit.textEdited.connect(self.updateAttrButton)
         self.pickleLineEdit.textEdited.connect(self.updateZMQPickleButton)
+        self.pickleTopicComboBox.currentIndexChanged.connect(
+            self.updateZMQPickleButton)
         self.onSourceChanged()
 
     @QtCore.pyqtSlot()
@@ -139,6 +151,10 @@ class HidraWidget(QtGui.QGroupBox):
         self.source_sourcetype.emit(self.sourceTypeComboBox.currentText())
 
     def setSource(self, name=None):
+        if name is not None:
+            self.currentSource = name
+        else:
+            name = self.currentSource
         allhidden = set()
         mst = None
         for st in self._types:
@@ -154,6 +170,7 @@ class HidraWidget(QtGui.QGroupBox):
                     wg.show()
 
             getattr(self, mst["slot"])()
+        self.update()
 
     def updateHidraButton(self):
         if self.serverlistBox.currentText() == "Pick a server":
@@ -168,10 +185,7 @@ class HidraWidget(QtGui.QGroupBox):
         else:
             self.button.setEnabled(True)
 
-        if self.connected:
-            pass
-        else:
-            self.source_servername.emit(str(self.attrLineEdit.text()).strip())
+        self.source_servername.emit(str(self.attrLineEdit.text()).strip())
 
     @QtCore.pyqtSlot()
     def updateZMQPickleButton(self):
@@ -181,11 +195,16 @@ class HidraWidget(QtGui.QGroupBox):
         else:
             self.button.setEnabled(True)
 
-        if self.connected:
-            pass
-        else:
-            self.source_servername.emit(
-                str(self.pickleLineEdit.text()).strip())
+        hosturl = str(self.pickleLineEdit.text()).strip()
+        if self.pickleTopicComboBox.currentIndex() > 0:
+            text = self.pickleTopicComboBox.currentText()
+            shost = hosturl.split("/")
+            if len(shost) > 2:
+                shost[1] = str(text)
+            else:
+                shost.append(str(text))
+            hosturl = "/".join(shost)
+        self.source_servername.emit(hosturl)
 
     def updateButton(self):
         self.button.setEnabled(True)
@@ -194,13 +213,22 @@ class HidraWidget(QtGui.QGroupBox):
     def emitHostname(self, index):
         self.updateHidraButton()
 
-        if not self.connected:
-            self.source_servername.emit(self.serverlistBox.currentText())
+        self.source_servername.emit(self.serverlistBox.currentText())
 
     def setTargetName(self, name):
         self.currenthost.setText(str(name))
         self.sortServerList(name)
         self.serverlistBox.addItems(self.sortedserverlist)
+
+    def update(self, zmqtopics=None):
+        if isinstance(zmqtopics, list):
+            self.zmqtopics = zmqtopics
+        for i in reversed(range(1, self.pickleTopicComboBox.count())):
+            self.pickleTopicComboBox.removeItem(i)
+        self.pickleTopicComboBox.addItems(self.zmqtopics)
+        if not self.zmqtopics:
+            self.pickleTopicComboBox.hide()
+            self.pickleTopicLabel.hide()
 
     def isConnected(self):
         return self.connected
@@ -220,12 +248,14 @@ class HidraWidget(QtGui.QGroupBox):
             self.serverlistBox.setEnabled(True)
             self.sourceTypeComboBox.setEnabled(True)
             self.pickleLineEdit.setReadOnly(False)
+            self.pickleTopicComboBox.setEnabled(True)
             if ":" in self.attrLineEdit.text():
                 self.attrLineEdit.setText(u'')
                 self.updateAttrButton()
             return
 
         else:
+            self.pickleTopicComboBox.setEnabled(False)
             self.serverlistBox.setEnabled(False)
             self.sourceTypeComboBox.setEnabled(False)
             self.source_state.emit(self.sourceTypeComboBox.currentIndex() + 1)

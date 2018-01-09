@@ -71,7 +71,7 @@ class MaskWidget(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def showFileDialog(self):
         self.fileDialog = QtGui.QFileDialog()
-        self.fileName = str(
+        fileName = str(
             self.fileDialog.getOpenFileName(
                 self, 'Open mask file', '/ramdisk/'))
         if fileName:
