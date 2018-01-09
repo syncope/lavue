@@ -343,6 +343,7 @@ class LiveViewer(QtGui.QDialog):
                 "Configuration/StatisticsWithoutScaling").toString())
         if qstval.lower() == "true":
             self.statswoscaling = True
+        self.imageW.img_widget.statswoscaling = self.statswoscaling
 
         qstval = \
             settings.value("Configuration/ZMQStreamTopics").toList()
