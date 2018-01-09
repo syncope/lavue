@@ -222,8 +222,7 @@ class ZMQPickleSource(object):
             shost = str(self.signal_host).split("/")
             host, port = str(shost[0]).split(":")
             topic = shost[1] if len(shost) > 1 else ""
-            hwm = shost[2] if len(shost) > 2 else None
-
+            hwm = int(shost[2]) if (len(shost) > 2 and shost[2]) else 1
             if not self._initiated:
                 if self._socket:
                     self.disconnect()
