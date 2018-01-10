@@ -85,6 +85,23 @@ class SourceWidget(QtGui.QGroupBox):
             "tango device name with its attribute, "
             "e.g. sys/tg_test/1/double_image_ro")
 
+        self.fileLabel = QtGui.QLabel(u"File Attr:")
+        self.fileLabel.setToolTip(
+            "tango device attribute with its filename, "
+            "e.g. p00/pilatus/1/LastImageTaken")
+        self.fileLineEdit = QtGui.QLineEdit(u"")
+        self.fileLineEdit.setToolTip(
+            "tango device attribute with its filename, "
+            "e.g. p00/pilatus/1/LastImageTaken")
+        self.dirLabel = QtGui.QLabel(u"Dir Attr:")
+        self.dirLabel.setToolTip(
+            "tango device attribute with its directory (optional), "
+            "e.g. p00/pilatus/1/LastImagePath")
+        self.dirLineEdit = QtGui.QLineEdit(u"")
+        self.dirLineEdit.setToolTip(
+            "tango device attribute with its directory (optional), "
+            "e.g. p00/pilatus/1/LastImagePath")
+
         self.httpLabel = QtGui.QLabel(u"URL:")
         self.httpLabel.setToolTip(
             "monitor url address or hostname/api_version, "
@@ -143,9 +160,13 @@ class SourceWidget(QtGui.QGroupBox):
         gridlayout.addWidget(self.pickleTopicComboBox, 5, 1)
         gridlayout.addWidget(self.httpLabel, 6, 0)
         gridlayout.addWidget(self.httpLineEdit, 6, 1)
-        gridlayout.addWidget(self.cStatusLabel, 7, 0)
-        gridlayout.addWidget(self.cStatus, 7, 1)
-        gridlayout.addWidget(self.button, 8, 1)
+        gridlayout.addWidget(self.fileLabel, 7, 0)
+        gridlayout.addWidget(self.fileLineEdit, 7, 1)
+        gridlayout.addWidget(self.dirLabel, 8, 0)
+        gridlayout.addWidget(self.dirLineEdit, 8, 1)
+        gridlayout.addWidget(self.cStatusLabel, 9, 0)
+        gridlayout.addWidget(self.cStatus, 9, 1)
+        gridlayout.addWidget(self.button, 10, 1)
 
         self.setLayout(gridlayout)
 
@@ -153,6 +174,7 @@ class SourceWidget(QtGui.QGroupBox):
         self.sourceTypeComboBox.currentIndexChanged.connect(
             self.onSourceChanged)
         self.attrLineEdit.textEdited.connect(self.updateAttrButton)
+        self.fileLineEdit.textEdited.connect(self.updateFileButton)
         self.pickleLineEdit.textEdited.connect(self.updateZMQPickleButton)
         self.httpLineEdit.textEdited.connect(self.updateHTTPButton)
         self.pickleTopicComboBox.currentIndexChanged.connect(
@@ -187,6 +209,9 @@ class SourceWidget(QtGui.QGroupBox):
         self.update()
 
     def updateHidraButton(self):
+        source = str(self.sourceTypeComboBox.currentText())
+        if source != "Hidra":
+            return
         if self.serverlistBox.currentText() == "Pick a server":
             self.button.setEnabled(False)
         else:
@@ -194,15 +219,37 @@ class SourceWidget(QtGui.QGroupBox):
 
     @QtCore.pyqtSlot()
     def updateAttrButton(self):
+        source = str(self.sourceTypeComboBox.currentText())
+        if source != "Tango Attr":
+            return
         if not str(self.attrLineEdit.text()).strip():
             self.button.setEnabled(False)
         else:
             self.button.setEnabled(True)
+            self.source_servername.emit(str(self.attrLineEdit.text()).strip())
 
-        self.source_servername.emit(str(self.attrLineEdit.text()).strip())
+    @QtCore.pyqtSlot()
+    def updateFileButton(self):
+        source = str(self.sourceTypeComboBox.currentText())
+        if source != "Tango File":
+            return
+        fattr = str(self.fileLineEdit.text()).strip()
+        if not str(self.fileLineEdit.text()).strip():
+            self.button.setEnabled(False)
+        else:
+            self.button.setEnabled(True)
+            dattr = str(self.dirLineEdit.text()).strip()
+            if dattr:
+                sourcename = "%s %s" % (fattr, dattr)
+            else:
+                sourcename = fattr
+            self.source_servername.emit(sourcename)
 
     @QtCore.pyqtSlot()
     def updateHTTPButton(self):
+        source = str(self.sourceTypeComboBox.currentText())
+        if source != "HTTP responce":
+            return
         url = str(self.httpLineEdit.text()).strip()
         if not url.startswith("http://") or not url.startswith("https://"):
             surl = url.split("/")
@@ -219,6 +266,9 @@ class SourceWidget(QtGui.QGroupBox):
 
     @QtCore.pyqtSlot()
     def updateZMQPickleButton(self):
+        source = str(self.sourceTypeComboBox.currentText())
+        if source != "ZMQ Stream":
+            return
         if not str(self.pickleLineEdit.text()).strip() \
            or ":" not in str(self.pickleLineEdit.text()):
             self.button.setEnabled(False)
@@ -230,21 +280,23 @@ class SourceWidget(QtGui.QGroupBox):
                 if port > 65535 or port < 0:
                     raise Exception("Wrong port")
                 self.button.setEnabled(True)
+                hosturl = str(self.pickleLineEdit.text()).strip()
+                if self.pickleTopicComboBox.currentIndex() >= 0:
+                    text = self.pickleTopicComboBox.currentText()
+                    shost = hosturl.split("/")
+                    if len(shost) > 2:
+                        shost[1] = str(text)
+                    else:
+                        shost.append(str(text))
+                    hosturl = "/".join(shost)
+                self.source_servername.emit(hosturl)
             except:
                 self.button.setEnabled(False)
 
-        hosturl = str(self.pickleLineEdit.text()).strip()
-        if self.pickleTopicComboBox.currentIndex() >= 0:
-            text = self.pickleTopicComboBox.currentText()
-            shost = hosturl.split("/")
-            if len(shost) > 2:
-                shost[1] = str(text)
-            else:
-                shost.append(str(text))
-            hosturl = "/".join(shost)
-        self.source_servername.emit(hosturl)
-
     def updateButton(self):
+        source = str(self.sourceTypeComboBox.currentText())
+        if source != "Test":
+            return
         self.button.setEnabled(True)
 
     @QtCore.pyqtSlot(int)

@@ -125,12 +125,12 @@ class TangoFileSource(object):
 
         try:
             filename = self.fproxy.read().value
-            if dattr:
+            if self.dproxy:
                 dattr = self.dproxy.read().value
                 filename = dattr + filename
             image = imageFileHandler.ImageFileHandler(
                 str(filename)).getImage()
-                
+
             return (np.transpose(image), '%s' % (filename))
         except Exception as e:
             print(str(e))
