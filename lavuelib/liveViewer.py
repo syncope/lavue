@@ -84,13 +84,25 @@ class LiveViewer(QtGui.QDialog):
             )
         if hcs.PYTANGO:
             self.sourcetypes.append(
-                {"name": "Tango",
+                {"name": "Tango Attr",
                  "datasource": "TangoAttrSource",
                  "slot": "updateAttrButton",
                  "hidden": ["hostlabel", "currenthost",
                             "pickleLabel", "pickleLineEdit",
                             "httpLabel", "httpLineEdit",
                             "pickleTopicLabel", "pickleTopicComboBox",
+                            "serverLabel", "serverlistBox"]})
+
+        if hcs.PYTANGO:
+            self.sourcetypes.append(
+                {"name": "Tango File",
+                 "datasource": "TangoFileSource",
+                 "slot": "updateFileButton",
+                 "hidden": ["hostlabel", "currenthost",
+                            "httpLabel", "httpLineEdit",
+                            "pickleLabel", "pickleLineEdit",
+                            "pickleTopicLabel", "pickleTopicComboBox",
+                            "attrLabel", "attrLineEdit",
                             "serverLabel", "serverlistBox"]})
 
         self.sourcetypes.append(

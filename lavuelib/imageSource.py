@@ -100,6 +100,69 @@ class GeneralSource(object):
             pass
 
 
+class TangoFileSource(object):
+
+    def __init__(self, timeout=None):
+        self.signal_host = None
+        self.portnumber = "50001"
+        self.target = [socket.getfqdn()]
+        self.query = None
+        self._initiated = False
+        self.timeout = timeout
+        self.fproxy = None
+        self.dproxy = None
+
+    def getTarget(self):
+        return self.target[0] + ":" + self.portnumber
+
+    @QtCore.pyqtSlot(str)
+    def setSignalHost(self, signalhost):
+        if self.signal_host != signalhost:
+            self.signal_host = signalhost
+            self._initiated = False
+
+    def getData(self):
+
+        try:
+            filename = self.fproxy.read().value
+            if dattr:
+                dattr = self.dproxy.read().value
+                filename = dattr + filename
+            image = imageFileHandler.ImageFileHandler(
+                str(filename)).getImage()
+                
+            return (np.transpose(image), '%s' % (filename))
+        except Exception as e:
+            print(str(e))
+            return str(e), "__ERROR__"
+            pass  # this needs a bit more care
+        return None, None
+
+    def connect(self):
+        try:
+            sattr = str(self.signal_host).strip().split(" ")
+            fattr = sattr[0]
+            dattr = None
+            if len(sattr) > 1:
+                dattr = sattr[1]
+            if not self._initiated:
+                self.fproxy = PyTango.AttributeProxy(fattr)
+                if dattr:
+                    self.dproxy = PyTango.AttributeProxy(dattr)
+                else:
+                    self.dproxy = None
+            return True
+        except Exception as e:
+            print(str(e))
+            return False
+
+    def disconnect(self):
+        try:
+            pass
+        except:
+            pass
+
+
 class TangoAttrSource(object):
 
     def __init__(self, timeout=None):
