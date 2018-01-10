@@ -1,0 +1,49 @@
+.TH lavuezmqstreamfromtango 1 "2017-05-12" lavuezmqstreamfromtango
+.SH NAME
+.B lavuezmqstreamfromtango
+\- ZMQ stream sender from tango attributes
+
+.SH SYNOPSIS
+.B  lavuezmqstreamfromtango
+[
+.I OPTIONS
+]
+
+.SH DESCRIPTION
+.B lavue
+is a simple implementation of a live viewer front end. It is supposed to show a live image view from xray-detectors at PETRA3.
+.B lavuezmqstreamfromtango
+is an example script to send the lavue ZMQ stream which can be viewed by
+.B lavue
+.
+
+.SH OPTIONS
+.IP "--help, -h"
+show a help message and exit
+.IP "--time-gap TIMEGAP, -g TIMEGAP"
+ maximal time gap in seconds (default: 1.)
+.IP "--port PORT, -p PORT"
+zmq host (default: automatic)
+.IP "--topic TOPIC, -t TOPIC"
+zmq topic (default: 10001)
+.IP "--name-prefix PREFIX, -n PREFIX"
+image  name prefix
+.IP "---attribute ATTRIBUTE, -a ATTRIBUTE"
+tango attribute (default: sys/tg_test/1/double_image_ro)
+.IP "--debug"
+debug mode
+
+
+.SH SEE ALSO
+https://github.com/syncope/lavue/
+https://github.com/jkotan/lavue/
+
+.SH COPYRIGHT
+Copyrights (c) 2017, GNU GPL v2, DESY, Christoph Rosemann, Jan Kotanski, Andre Rothkirch
+
+.SH BUGS
+Please report bugs on the project's mailing list:
+mailto://jankotan@gmail.com
+
+.SH AUTHORS
+Christoph Rosemann <christoph.rosemann@desy.de>, Jan Kotanski <jankotan@gmail.com>, Andre Rothkirch <andre.rothkirch@desy.de>

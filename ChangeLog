@@ -1,7 +1,7 @@
-2018-01-XX Jan Kotanski <jan.kotanski@desy.de>
+2018-01-10 Jan Kotanski <jan.kotanski@desy.de>
 	* add View 1:1 pixels action
-	* allow changing ZMQ Scream source topic during viewing
-	* set default HWM for ZMQ Scream source to 1
+	* allow changing ZMQ Stream source topic during viewing
+	* set default HWM for ZMQ Stream source to 1
 	* tagged as 0.8.3
 
 2018-01-09 Jan Kotanski <jan.kotanski@desy.de>
