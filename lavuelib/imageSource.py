@@ -28,6 +28,7 @@
 
 from PyQt4 import QtCore
 import requests
+import json
 
 try:
     import hidra
@@ -70,7 +71,6 @@ class GeneralSource(object):
         self.signal_host = None
         self.portnumber = "50001"
         self.target = [socket.getfqdn()]
-        self.query = None
         self._initiated = False
         self.timeout = timeout
         self._counter = 0
@@ -106,11 +106,11 @@ class TangoFileSource(object):
         self.signal_host = None
         self.portnumber = "50001"
         self.target = [socket.getfqdn()]
-        self.query = None
         self._initiated = False
         self.timeout = timeout
         self.fproxy = None
         self.dproxy = None
+        self.dirtrans = {"/ramdisk/": "/gpfs/"}
 
     def getTarget(self):
         return self.target[0] + ":" + self.portnumber
@@ -127,7 +127,9 @@ class TangoFileSource(object):
             filename = self.fproxy.read().value
             if self.dproxy:
                 dattr = self.dproxy.read().value
-                filename = dattr + filename
+                filename = "%s/%s" % (dattr, filename)
+                for key, val in self.dirtrans.items():
+                    filename = filename.replace(key, val)
             image = imageFileHandler.ImageFileHandler(
                 str(filename)).getImage()
 
@@ -140,11 +142,9 @@ class TangoFileSource(object):
 
     def connect(self):
         try:
-            sattr = str(self.signal_host).strip().split(" ")
-            fattr = sattr[0]
-            dattr = None
-            if len(sattr) > 1:
-                dattr = sattr[1]
+            fattr, dattr, dirtrans = str(
+                self.signal_host).strip().split(",")
+            self.dirtrans = json.loads(dirtrans)
             if not self._initiated:
                 self.fproxy = PyTango.AttributeProxy(fattr)
                 if dattr:
@@ -169,7 +169,6 @@ class TangoAttrSource(object):
         self.signal_host = None
         self.portnumber = "50001"
         self.target = [socket.getfqdn()]
-        self.query = None
         self._initiated = False
         self.timeout = timeout
         self.aproxy = None
@@ -217,7 +216,6 @@ class HTTPSource(object):
         self.signal_host = None
         self.portnumber = "50001"
         self.target = [socket.getfqdn()]
-        self.query = None
         self._initiated = False
         self.timeout = timeout
 
@@ -253,7 +251,7 @@ class HTTPSource(object):
                             return np.transpose(img), name
             except Exception as e:
                 print(str(e))
-            return str(e), "__ERROR__"
+                return str(e), "__ERROR__"
         return None, None
 
     def connect(self):
@@ -280,7 +278,6 @@ class ZMQPickleSource(object):
         self.signal_host = None
         self.portnumber = "50001"
         self.target = [socket.getfqdn()]
-        self.query = None
         self.timeout = timeout
         self._initiated = False
         self._context = zmq.Context()

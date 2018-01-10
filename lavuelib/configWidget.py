@@ -26,6 +26,7 @@
 """ configuration widget """
 
 from PyQt4 import QtGui, QtCore
+import json
 
 
 class ConfigWidget(QtGui.QDialog):
@@ -57,6 +58,7 @@ class ConfigWidget(QtGui.QDialog):
         self.aspectlockedCheckBox = None
         self.buttonBox = None
         self.zmqtopics = []
+        self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
 
     def createGUI(self):
 
@@ -160,6 +162,13 @@ class ConfigWidget(QtGui.QDialog):
         self.zmqtopicsLineEdit.setToolTip(
             "ZMQ Source topics separated by spaces")
 
+        dirtransLabel = QtGui.QLabel(u"ZMQ Source topics:")
+        dirtransLabel.setToolTip(
+            "ZMQ Source topics separated by spaces")
+        self.dirtransLineEdit = QtGui.QLineEdit(self.dirtrans)
+        self.dirtransLineEdit.setToolTip(
+            "ZMQ Source topics separated by spaces")
+
         gridlayout.addWidget(rateLabel, 0, 0)
         gridlayout.addWidget(self.rateDoubleSpinBox, 0, 1)
         gridlayout.addWidget(aspectlockedLabel, 1, 0)
@@ -184,6 +193,8 @@ class ConfigWidget(QtGui.QDialog):
         gridlayout.addWidget(self.statsscaleCheckBox, 10, 1)
         gridlayout.addWidget(zmqtopicsLabel, 11, 0)
         gridlayout.addWidget(self.zmqtopicsLineEdit, 11, 1)
+        gridlayout.addWidget(dirtransLabel, 11, 0)
+        gridlayout.addWidget(self.dirtransLineEdit, 11, 1)
         self.buttonBox = QtGui.QDialogButtonBox(
             QtGui.QDialogButtonBox.Ok
             | QtGui.QDialogButtonBox.Cancel)
@@ -218,6 +229,13 @@ class ConfigWidget(QtGui.QDialog):
         self.aspectlocked = self.aspectlockedCheckBox.isChecked()
         self.statswoscaling = not self.statsscaleCheckBox.isChecked()
         zmqtopics = str(self.zmqtopicsLineEdit.text()).strip().split(" ")
+        try:
+            dirtrans = str(self.dirtransLineEdit.text()).strip()
+            mytr = json.loads(dirtrans)
+            if isinstance(mytr, dict):
+                self.dirtrans = dirtrans
+        except Exception as e:
+            print(str(e))
         self.zmqtopics = [tp for tp in zmqtopics if tp]
         try:
             self.timeout = int(self.timeoutLineEdit.text())

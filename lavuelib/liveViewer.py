@@ -168,6 +168,7 @@ class LiveViewer(QtGui.QDialog):
         self.imagename = None
         self.statswoscaling = False
         self.zmqtopics = []
+        self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
 
         # note: host and target are defined in another place
         self.data_source = hcs.GeneralSource()
@@ -385,7 +386,13 @@ class LiveViewer(QtGui.QDialog):
             settings.value("Configuration/ZMQStreamTopics").toList()
         if qstval:
             self.zmqtopics = [str(tp.toString()) for tp in qstval]
-        self.sourceW.update(zmqtopics=self.zmqtopics)
+        qstval = str(
+            settings.value("Configuration/DirectoryTranslation").toString())
+        if qstval:
+            self.dirtrans = qstval
+
+        self.sourceW.update(
+            zmqtopics=self.zmqtopics, dirtrans=self.dirtrans)
 
         self.levelsW.changeview(self.showhisto)
         self.prepBoxW.changeview(self.showmask)
@@ -552,6 +559,9 @@ class LiveViewer(QtGui.QDialog):
         settings.setValue(
             "Configuration/ZMQStreamTopics",
             QtCore.QVariant(self.zmqtopics))
+        settings.setValue(
+            "Configuration/DirectoryTranslation",
+            QtCore.QVariant(self.dirtrans))
 
     def closeEvent(self, event):
         """ stores the setting before finishing the application
@@ -659,6 +669,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.aspectlocked = self.aspectlocked
         cnfdlg.statswoscaling = self.statswoscaling
         cnfdlg.zmqtopics = self.zmqtopics
+        cnfdlg.dirtrans = self.dirtrans
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
@@ -702,9 +713,16 @@ class LiveViewer(QtGui.QDialog):
         self.aspectlocked = dialog.aspectlocked
         self.imageW.img_widget.setAspectLocked(self.aspectlocked)
         self.secstream = dialog.secstream
+        setsrc = False
+        if self.dirtrans != dialog.dirtrans:
+            self.dirtrans = dialog.dirtrans
+            self.sourceW.dirtrans = self.dirtrans
+            setsrc = True
         if self.zmqtopics != dialog.zmqtopics:
             self.zmqtopics = dialog.zmqtopics
             self.sourceW.zmqtopics = self.zmqtopics
+            setsrc = True
+        if setsrc:
             self.sourceW.setSource()
         self.statswoscaling = dialog.statswoscaling
         if self.imageW.img_widget.statswoscaling != self.statswoscaling:

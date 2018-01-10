@@ -51,6 +51,7 @@ class SourceWidget(QtGui.QGroupBox):
         self.currentSource = ""
 
         self.zmqtopics = []
+        self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
 
         self._types = parent.sourcetypes
         self._defaultsource = "Hidra"
@@ -239,10 +240,8 @@ class SourceWidget(QtGui.QGroupBox):
         else:
             self.button.setEnabled(True)
             dattr = str(self.dirLineEdit.text()).strip()
-            if dattr:
-                sourcename = "%s %s" % (fattr, dattr)
-            else:
-                sourcename = fattr
+            dt = self.dirtrans
+            sourcename = "%s,%s,%s" % (fattr, dattr, dt)
             self.source_servername.emit(sourcename)
 
     @QtCore.pyqtSlot()
@@ -310,9 +309,10 @@ class SourceWidget(QtGui.QGroupBox):
         self.sortServerList(name)
         self.serverlistBox.addItems(self.sortedserverlist)
 
-    def update(self, zmqtopics=None):
+    def update(self, zmqtopics=None, dirtrans=None):
         if isinstance(zmqtopics, list):
             self.zmqtopics = zmqtopics
+        self.dirtrans = dirtrans
         for i in reversed(range(0, self.pickleTopicComboBox.count())):
             self.pickleTopicComboBox.removeItem(i)
         self.pickleTopicComboBox.addItems(self.zmqtopics)
