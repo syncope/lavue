@@ -207,7 +207,8 @@ class SourceWidget(QtGui.QGroupBox):
         if not url.startswith("http://") or not url.startswith("https://"):
             surl = url.split("/")
             if len(surl) == 2 and surl[0] and surl[1]:
-                url = "http://%s/monitor/api/%s/images/monitor" %(surl[0], surl[1])
+                url = "http://%s/monitor/api/%s/images/monitor" \
+                      % (surl[0], surl[1])
             else:
                 url = None
         if not url:
@@ -215,7 +216,6 @@ class SourceWidget(QtGui.QGroupBox):
         else:
             self.button.setEnabled(True)
             self.source_servername.emit(url)
-        
 
     @QtCore.pyqtSlot()
     def updateZMQPickleButton(self):
