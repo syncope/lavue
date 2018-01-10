@@ -94,10 +94,9 @@ class SourceWidget(QtGui.QGroupBox):
             "zmq server, port and topic, hwm (optional): "
             "server:port[/topic][/hwm]"
             "\ne.g. haso228:9999/10001 or :55535")
-        self.pickleTopicLabel = QtGui.QLabel(u"Topic:")
+        self.pickleTopicLabel = QtGui.QLabel(u"DataSource:")
         self.pickleTopicLabel.setToolTip("ZMQ stream topic")
         self.pickleTopicComboBox = QtGui.QComboBox()
-        self.pickleTopicComboBox.addItem("Pick an image")
         self.pickleTopicComboBox.setToolTip("ZMQ stream topic")
 
         self.cStatusLabel = QtGui.QLabel("Status: ")
@@ -193,10 +192,18 @@ class SourceWidget(QtGui.QGroupBox):
            or ":" not in str(self.pickleLineEdit.text()):
             self.button.setEnabled(False)
         else:
-            self.button.setEnabled(True)
+            try:
+                _, sport = str(self.pickleLineEdit.text())\
+                    .strip().split("/")[0].split(":")
+                port = int(sport)
+                if port > 65535 or port < 0:
+                    raise Exception("Wrong port")
+                self.button.setEnabled(True)
+            except:
+                self.button.setEnabled(False)
 
         hosturl = str(self.pickleLineEdit.text()).strip()
-        if self.pickleTopicComboBox.currentIndex() > 0:
+        if self.pickleTopicComboBox.currentIndex() >= 0:
             text = self.pickleTopicComboBox.currentText()
             shost = hosturl.split("/")
             if len(shost) > 2:
@@ -223,7 +230,7 @@ class SourceWidget(QtGui.QGroupBox):
     def update(self, zmqtopics=None):
         if isinstance(zmqtopics, list):
             self.zmqtopics = zmqtopics
-        for i in reversed(range(1, self.pickleTopicComboBox.count())):
+        for i in reversed(range(0, self.pickleTopicComboBox.count())):
             self.pickleTopicComboBox.removeItem(i)
         self.pickleTopicComboBox.addItems(self.zmqtopics)
         if not self.zmqtopics:

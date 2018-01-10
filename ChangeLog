@@ -1,5 +1,6 @@
 2018-01-10 Jan Kotanski <jan.kotanski@desy.de>
 	* fix View 1:1 pixels action for pg < 0.9.9
+	* tune ZMQ Stream source
 	* tagged as 0.8.4
 
 2018-01-10 Jan Kotanski <jan.kotanski@desy.de>
