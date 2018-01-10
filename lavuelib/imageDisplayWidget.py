@@ -31,6 +31,9 @@ import math
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI
 from PyQt4 import QtCore, QtGui
 
+VMAJOR, VMINOR, VPATCH = pg.__version__.split(".") \
+    if pg.__version__ else ("0", "9", "0")
+
 
 class SimpleLineROI(LineROI):
     def __init__(self, pos1, pos2, **args):
@@ -83,6 +86,8 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.viewonetoone = QtGui.QAction(
             "View 1:1 pixels", self.viewbox.menu)
         self.viewonetoone.triggered.connect(self.oneToOneRange)
+        if VMAJOR == '0' and int(VMINOR) < 10 and int(VPATCH) < 9:
+            self.viewbox.menu.axes.insert(0, self.viewonetoone)
         self.viewbox.menu.addAction(self.viewonetoone)
 
         leftAxis = pg.AxisItem('left')
