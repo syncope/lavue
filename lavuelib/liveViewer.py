@@ -78,6 +78,7 @@ class LiveViewer(QtGui.QDialog):
                  "datasource": "HiDRASource",
                  "slot": "updateHidraButton",
                  "hidden": ["attrLabel", "attrLineEdit",
+                            "httpLabel", "httpLineEdit",
                             "pickleTopicLabel", "pickleTopicComboBox",
                             "pickleLabel", "pickleLineEdit"]}
             )
@@ -88,6 +89,7 @@ class LiveViewer(QtGui.QDialog):
                  "slot": "updateAttrButton",
                  "hidden": ["hostlabel", "currenthost",
                             "pickleLabel", "pickleLineEdit",
+                            "httpLabel", "httpLineEdit",
                             "pickleTopicLabel", "pickleTopicComboBox",
                             "serverLabel", "serverlistBox"]})
 
@@ -97,6 +99,17 @@ class LiveViewer(QtGui.QDialog):
              "slot": "updateZMQPickleButton",
              "hidden": ["hostlabel", "currenthost",
                         "serverLabel", "serverlistBox",
+                        "httpLabel", "httpLineEdit",
+                        "attrLabel", "attrLineEdit"]},
+        )
+        self.sourcetypes.append(
+            {"name": "HTTP response",
+             "datasource": "HTTPSource",
+             "slot": "updateHTTPButton",
+             "hidden": ["hostlabel", "currenthost",
+                        "serverLabel", "serverlistBox",
+                        "pickleLabel", "pickleLineEdit",
+                        "pickleTopicLabel", "pickleTopicComboBox",
                         "attrLabel", "attrLineEdit"]},
         )
         self.sourcetypes.append(
@@ -104,6 +117,7 @@ class LiveViewer(QtGui.QDialog):
              "datasource": "GeneralSource",
              "slot": "updateButton",
              "hidden": ["hostlabel", "currenthost",
+                        "httpLabel", "httpLineEdit",
                         "serverLabel", "serverlistBox",
                         "pickleLabel", "pickleLineEdit",
                         "pickleTopicLabel", "pickleTopicComboBox",

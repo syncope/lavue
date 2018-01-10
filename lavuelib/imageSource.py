@@ -27,6 +27,7 @@
 """ set of image sources """
 
 from PyQt4 import QtCore
+import requests
 
 try:
     import hidra
@@ -136,6 +137,69 @@ class TangoAttrSource(object):
             if not self._initiated:
                 self.aproxy = PyTango.AttributeProxy(str(self.signal_host))
             return True
+        except Exception as e:
+            print(str(e))
+            return False
+
+    def disconnect(self):
+        try:
+            pass
+        except:
+            pass
+
+
+class HTTPSource(object):
+
+    def __init__(self, timeout=None):
+        self.signal_host = None
+        self.portnumber = "50001"
+        self.target = [socket.getfqdn()]
+        self.query = None
+        self._initiated = False
+        self.timeout = timeout
+
+    def getTarget(self):
+        return self.target[0] + ":" + self.portnumber
+
+    @QtCore.pyqtSlot(str)
+    def setSignalHost(self, signalhost):
+        if self.signal_host != signalhost:
+            self.signal_host = signalhost
+            self._initiated = False
+
+    def getData(self):
+        if self.signal_host:
+            try:
+                response = requests.get(self.signal_host)
+                if response.ok:
+                    name = self.signal_host
+                    data = response.content
+                    if data[:10] == "###CBF: VE":
+                        # print("[cbf source module]::metadata", name)
+                        img = imageFileHandler.CBFLoader().load(
+                            np.fromstring(data[:], dtype=np.uint8))
+                        return np.transpose(img), name
+                    else:
+                        # print("[tif source module]::metadata", name)
+                        if PILLOW:
+                            img = np.array(PIL.Image.open(BytesIO(str(data))))
+                            return np.transpose(img), name
+                        else:
+                            img = imageFileHandler.TIFLoader().load(
+                                np.fromstring(data[:], dtype=np.uint8))
+                            return np.transpose(img), name
+            except Exception as e:
+                print(str(e))
+            return str(e), "__ERROR__"
+        return None, None
+
+    def connect(self):
+        try:
+            if self.signal_host:
+                response = requests.get(self.signal_host)
+                if response.ok:
+                    return True
+            return False
         except Exception as e:
             print(str(e))
             return False

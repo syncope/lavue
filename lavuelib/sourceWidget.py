@@ -84,6 +84,18 @@ class SourceWidget(QtGui.QGroupBox):
         self.attrLineEdit.setToolTip(
             "tango device name with its attribute, "
             "e.g. sys/tg_test/1/double_image_ro")
+
+        self.httpLabel = QtGui.QLabel(u"URL:")
+        self.httpLabel.setToolTip(
+            "monitor url address or hostname/api_version, "
+            "e.g. http://haso228eiger/monitor/api/1.5.0/images/monitor"
+            " or haso228eiger/1.5.0")
+        self.httpLineEdit = QtGui.QLineEdit(u"")
+        self.httpLineEdit.setToolTip(
+            "monitor url address or hostname/api_version, "
+            "e.g. http://haso228eiger/monitor/api/1.5.0/images/monitor"
+            " or haso228eiger/1.5.0")
+
         self.pickleLabel = QtGui.QLabel(u"ZMQ Server:")
         self.pickleLabel.setToolTip(
             "zmq server, port and topic, hwm (optional): "
@@ -129,9 +141,11 @@ class SourceWidget(QtGui.QGroupBox):
         gridlayout.addWidget(self.pickleLineEdit, 4, 1)
         gridlayout.addWidget(self.pickleTopicLabel, 5, 0)
         gridlayout.addWidget(self.pickleTopicComboBox, 5, 1)
-        gridlayout.addWidget(self.cStatusLabel, 6, 0)
-        gridlayout.addWidget(self.cStatus, 6, 1)
-        gridlayout.addWidget(self.button, 7, 1)
+        gridlayout.addWidget(self.httpLabel, 6, 0)
+        gridlayout.addWidget(self.httpLineEdit, 6, 1)
+        gridlayout.addWidget(self.cStatusLabel, 7, 0)
+        gridlayout.addWidget(self.cStatus, 7, 1)
+        gridlayout.addWidget(self.button, 8, 1)
 
         self.setLayout(gridlayout)
 
@@ -140,6 +154,7 @@ class SourceWidget(QtGui.QGroupBox):
             self.onSourceChanged)
         self.attrLineEdit.textEdited.connect(self.updateAttrButton)
         self.pickleLineEdit.textEdited.connect(self.updateZMQPickleButton)
+        self.httpLineEdit.textEdited.connect(self.updateHTTPButton)
         self.pickleTopicComboBox.currentIndexChanged.connect(
             self.updateZMQPickleButton)
         self.onSourceChanged()
@@ -185,6 +200,22 @@ class SourceWidget(QtGui.QGroupBox):
             self.button.setEnabled(True)
 
         self.source_servername.emit(str(self.attrLineEdit.text()).strip())
+
+    @QtCore.pyqtSlot()
+    def updateHTTPButton(self):
+        url = str(self.httpLineEdit.text()).strip()
+        if not url.startswith("http://") or not url.startswith("https://"):
+            surl = url.split("/")
+            if len(surl) == 2 and surl[0] and surl[1]:
+                url = "http://%s/monitor/api/%s/images/monitor" %(surl[0], surl[1])
+            else:
+                url = None
+        if not url:
+            self.button.setEnabled(False)
+        else:
+            self.button.setEnabled(True)
+            self.source_servername.emit(url)
+        
 
     @QtCore.pyqtSlot()
     def updateZMQPickleButton(self):
