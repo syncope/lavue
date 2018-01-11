@@ -237,8 +237,8 @@ class CBFLoader(object):
 
         try:
             # print sum(isvalid)    #should be 305548
-            id = np.where(isvalid != 0)
-            flbuffer = flbuffer[id]
+            idd = np.where(isvalid != 0)
+            flbuffer = flbuffer[idd]
         except:
             pass
 

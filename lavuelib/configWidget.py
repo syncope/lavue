@@ -57,6 +57,10 @@ class ConfigWidget(QtGui.QDialog):
         self.timeoutLineEdit = None
         self.aspectlockedCheckBox = None
         self.buttonBox = None
+        self.statsscaleCheckBox = None
+        self.dirtransLineEdit = None
+        self.zmqtopicsLineEdit = None
+
         self.zmqtopics = []
         self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
 
@@ -162,12 +166,14 @@ class ConfigWidget(QtGui.QDialog):
         self.zmqtopicsLineEdit.setToolTip(
             "ZMQ Source topics separated by spaces")
 
-        dirtransLabel = QtGui.QLabel(u"ZMQ Source topics:")
+        dirtransLabel = QtGui.QLabel(u"File/Dir Translation:")
         dirtransLabel.setToolTip(
-            "ZMQ Source topics separated by spaces")
+            "JSON dictionary denoting what to replace "
+            "\nin the file name and the file directory for Tango File Source")
         self.dirtransLineEdit = QtGui.QLineEdit(self.dirtrans)
         self.dirtransLineEdit.setToolTip(
-            "ZMQ Source topics separated by spaces")
+            "JSON dictionary denoting what to replace "
+            "\nin the file name and the file directory for Tango File Source")
 
         gridlayout.addWidget(rateLabel, 0, 0)
         gridlayout.addWidget(self.rateDoubleSpinBox, 0, 1)
@@ -193,8 +199,8 @@ class ConfigWidget(QtGui.QDialog):
         gridlayout.addWidget(self.statsscaleCheckBox, 10, 1)
         gridlayout.addWidget(zmqtopicsLabel, 11, 0)
         gridlayout.addWidget(self.zmqtopicsLineEdit, 11, 1)
-        gridlayout.addWidget(dirtransLabel, 11, 0)
-        gridlayout.addWidget(self.dirtransLineEdit, 11, 1)
+        gridlayout.addWidget(dirtransLabel, 12, 0)
+        gridlayout.addWidget(self.dirtransLineEdit, 12, 1)
         self.buttonBox = QtGui.QDialogButtonBox(
             QtGui.QDialogButtonBox.Ok
             | QtGui.QDialogButtonBox.Cancel)

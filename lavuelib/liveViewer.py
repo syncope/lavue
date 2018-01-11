@@ -84,6 +84,18 @@ class LiveViewer(QtGui.QDialog):
                             "pickleTopicLabel", "pickleTopicComboBox",
                             "pickleLabel", "pickleLineEdit"]}
             )
+        self.sourcetypes.append(
+            {"name": "HTTP response",
+             "datasource": "HTTPSource",
+             "slot": "updateHTTPButton",
+             "hidden": ["hostlabel", "currenthost",
+                        "serverLabel", "serverlistBox",
+                        "fileLabel", "fileLineEdit",
+                        "dirLabel", "dirLineEdit",
+                        "pickleLabel", "pickleLineEdit",
+                        "pickleTopicLabel", "pickleTopicComboBox",
+                        "attrLabel", "attrLineEdit"]},
+        )
         if hcs.PYTANGO:
             self.sourcetypes.append(
                 {"name": "Tango Attr",
@@ -118,18 +130,6 @@ class LiveViewer(QtGui.QDialog):
                         "dirLabel", "dirLineEdit",
                         "serverLabel", "serverlistBox",
                         "httpLabel", "httpLineEdit",
-                        "attrLabel", "attrLineEdit"]},
-        )
-        self.sourcetypes.append(
-            {"name": "HTTP response",
-             "datasource": "HTTPSource",
-             "slot": "updateHTTPButton",
-             "hidden": ["hostlabel", "currenthost",
-                        "serverLabel", "serverlistBox",
-                        "fileLabel", "fileLineEdit",
-                        "dirLabel", "dirLineEdit",
-                        "pickleLabel", "pickleLineEdit",
-                        "pickleTopicLabel", "pickleTopicComboBox",
                         "attrLabel", "attrLineEdit"]},
         )
         self.sourcetypes.append(
@@ -247,7 +247,6 @@ class LiveViewer(QtGui.QDialog):
         self.levelsW.autoLevels.connect(self.imageW.setAutoLevels)
         self.levelsW.levelsChanged.connect(self.plot)
         self.levelsW.changeview(self.showhisto)
-
         self.imageW.cnfButton.clicked.connect(self.configuration)
         self.imageW.quitButton.clicked.connect(self.close)
         self.imageW.loadButton.clicked.connect(self.loadfile)
@@ -258,7 +257,6 @@ class LiveViewer(QtGui.QDialog):
         self.imageW.roiCoordsChanged.connect(self.calc_update_stats_sec)
         self.imageW.pixelComboBox.currentIndexChanged.connect(
             self.onPixelChanged)
-
         # connecting signals from source widget:
         self.sourceW.source_connect.connect(self.connect_source)
         self.sourceW.source_connect.connect(self.startPlotting)
@@ -631,9 +629,9 @@ class LiveViewer(QtGui.QDialog):
 
     @QtCore.pyqtSlot()
     def loadfile(self):
-        self.fileDialog = QtGui.QFileDialog()
+        fileDialog = QtGui.QFileDialog()
         imagename = str(
-            self.fileDialog.getOpenFileName(
+            fileDialog.getOpenFileName(
                 self, 'Load file', self.imagename or '.'))
         if imagename:
             self.imagename = imagename

@@ -60,10 +60,12 @@ class SourceWidget(QtGui.QGroupBox):
 
         self.sourceTypeLabel = QtGui.QLabel(u"Source:")
         self.sourceTypeLabel.setToolTip(
-            "image source type, e.g. Hidra, Tango, Test")
+            "image source type, e.g. Hidra, Tango, ZMQ Stream, "
+            "HTTP response, Test")
         self.sourceTypeComboBox = QtGui.QComboBox()
         self.sourceTypeComboBox.setToolTip(
-            "image source type, e.g. Hidra, Tango, ZMQ Stream, Test")
+            "image source type, e.g. Hidra, Tango, ZMQ Stream, "
+            "HTTP response, Test")
         for st in self._types:
             self.sourceTypeComboBox.addItem(st["name"])
 
@@ -241,6 +243,7 @@ class SourceWidget(QtGui.QGroupBox):
             self.button.setEnabled(True)
             dattr = str(self.dirLineEdit.text()).strip()
             dt = self.dirtrans
+            print("SEND %s,%s,%s" % (fattr, dattr, dt))
             sourcename = "%s,%s,%s" % (fattr, dattr, dt)
             self.source_servername.emit(sourcename)
 
@@ -299,7 +302,7 @@ class SourceWidget(QtGui.QGroupBox):
         self.button.setEnabled(True)
 
     @QtCore.pyqtSlot(int)
-    def emitHostname(self, index):
+    def emitHostname(self, _):
         self.updateHidraButton()
 
         self.source_servername.emit(self.serverlistBox.currentText())
@@ -312,7 +315,8 @@ class SourceWidget(QtGui.QGroupBox):
     def update(self, zmqtopics=None, dirtrans=None):
         if isinstance(zmqtopics, list):
             self.zmqtopics = zmqtopics
-        self.dirtrans = dirtrans
+        if dirtrans is not None:
+            self.dirtrans = dirtrans
         for i in reversed(range(0, self.pickleTopicComboBox.count())):
             self.pickleTopicComboBox.removeItem(i)
         self.pickleTopicComboBox.addItems(self.zmqtopics)

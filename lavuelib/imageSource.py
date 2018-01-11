@@ -62,7 +62,7 @@ import time
 import cPickle
 
 from io import BytesIO
-import imageFileHandler
+from . import imageFileHandler
 
 
 class GeneralSource(object):
@@ -142,9 +142,11 @@ class TangoFileSource(object):
 
     def connect(self):
         try:
+            print(self.signal_host)
             fattr, dattr, dirtrans = str(
-                self.signal_host).strip().split(",")
+                self.signal_host).strip().split(",", 2)
             self.dirtrans = json.loads(dirtrans)
+            print(self.dirtrans)
             if not self._initiated:
                 self.fproxy = PyTango.AttributeProxy(fattr)
                 if dattr:

@@ -72,6 +72,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.currentcut = 0
         self.cutcoords = [[10, 10, 60, 10]]
         self.data = None
+        self.rawdata = None
         self.autoDisplayLevels = True
         self.displayLevels = [None, None]
         self.viewbox = self.layout.addViewBox(row=0, col=1)
