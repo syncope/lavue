@@ -207,7 +207,7 @@ class SourceWidget(QtGui.QGroupBox):
                     wg.show()
 
             getattr(self, mst["slot"])()
-        
+
     def setSource(self, name=None):
         if name is not None:
             self.currentSource = name
@@ -335,7 +335,7 @@ class SourceWidget(QtGui.QGroupBox):
                 self.zmqtopics = datasources
         if dirtrans is not None:
             self.dirtrans = dirtrans
-            
+
         for i in reversed(range(0, self.pickleTopicComboBox.count())):
             self.pickleTopicComboBox.removeItem(i)
         self.pickleTopicComboBox.addItems(self.zmqtopics)

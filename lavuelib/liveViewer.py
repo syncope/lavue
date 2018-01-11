@@ -171,8 +171,7 @@ class LiveViewer(QtGui.QDialog):
         self.autozmqtopics = False
         self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
         self.__allowedmdata = ["datasources"]
-        
-        
+
         # note: host and target are defined in another place
         self.data_source = hcs.GeneralSource()
 
@@ -580,9 +579,10 @@ class LiveViewer(QtGui.QDialog):
         self.secstream = False
         try:
             self.dataFetcher.newDataName.disconnect(self.getNewData)
-        except Exception as e:
-            # print (str(e))
+        except:
             pass
+        # except Exception as e:
+        #     print (str(e))
         if self.sourceW.connected:
             self.sourceW.toggleServerConnection()
         self.disconnect_source()
@@ -735,7 +735,7 @@ class LiveViewer(QtGui.QDialog):
             self.sourceW.zmqtopics = self.zmqtopics
             setsrc = True
         if self.autozmqtopics != dialog.autozmqtopics:
-            self.autozmqtopics = dialog.autozmqtopics    
+            self.autozmqtopics = dialog.autozmqtopics
             setsrc = True
         if setsrc:
             self.sourceW.update(
@@ -912,7 +912,7 @@ class LiveViewer(QtGui.QDialog):
             try:
                 mdata = json.loads(str(metadata))
                 if isinstance(mdata, dict):
-                    resdata = dict((k,v) for (k,v) in mdata.items()
+                    resdata = dict((k, v) for (k, v) in mdata.items()
                                    if k in self.__allowedmdata)
                     if resdata:
                         self.sourceW.update(**resdata)

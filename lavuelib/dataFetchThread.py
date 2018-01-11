@@ -52,7 +52,7 @@ class ExchangeList(object):
 
     def readData(self):
         with QtCore.QMutexLocker(self.__mutex):
-            a, b, c= self.__elist[0], self.__elist[1], self.__elist[2]
+            a, b, c = self.__elist[0], self.__elist[1], self.__elist[2]
         return a, b, c
 
 

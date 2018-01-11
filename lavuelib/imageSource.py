@@ -85,9 +85,11 @@ class GeneralSource(object):
     def getData(self):
         self._counter += 1
         return (np.transpose(
-            [[random.randint(0, 1000)
-              for _ in range(512)] for _ in range(256)]),
-                '__random_%s__' % self._counter, "")
+            [
+                [random.randint(0, 1000) for _ in range(512)]
+                for _ in range(256)
+            ]),
+            '__random_%s__' % self._counter, "")
 
     def connect(self):
         self._initiated = True

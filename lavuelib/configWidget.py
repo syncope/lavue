@@ -64,7 +64,7 @@ class ConfigWidget(QtGui.QDialog):
 
         self.zmqtopics = []
         self.autozmqtopics = False
-        
+
         self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
 
     def createGUI(self):
