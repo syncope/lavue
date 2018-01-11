@@ -317,7 +317,8 @@ class SourceWidget(QtGui.QGroupBox):
         self.sortServerList(name)
         self.serverlistBox.addItems(self.sortedserverlist)
 
-    def update(self, zmqtopics=None, dirtrans=None, autozmqtopics=None):
+    def update(self, zmqtopics=None, dirtrans=None, autozmqtopics=None,
+               datasources=None):
         text = None
         if isinstance(zmqtopics, list):
             text = str(self.pickleTopicComboBox.currentText())
@@ -326,7 +327,12 @@ class SourceWidget(QtGui.QGroupBox):
             self.zmqtopics = zmqtopics
         if autozmqtopics is not None:
             self.autozmqtopics = autozmqtopics
-
+        if self.autozmqtopics:
+            if isinstance(datasources, list):
+                text = str(self.pickleTopicComboBox.currentText())
+                if not text or text not in datasources:
+                    text = None
+                self.zmqtopics = datasources
         if dirtrans is not None:
             self.dirtrans = dirtrans
             

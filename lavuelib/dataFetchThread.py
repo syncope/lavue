@@ -41,23 +41,24 @@ GLOBALREFRESHRATE = .1  # refresh rate if the data source is running in seconds
 class ExchangeList(object):
 
     def __init__(self):
-        self.__elist = [None, None]
+        self.__elist = [None, None, None]
         self.__mutex = QtCore.QMutex()
 
-    def addData(self, name, data):
+    def addData(self, name, data, metadata=""):
         with QtCore.QMutexLocker(self.__mutex):
             self.__elist[0] = name
             self.__elist[1] = data
+            self.__elist[2] = metadata
 
     def readData(self):
         with QtCore.QMutexLocker(self.__mutex):
-            a, b = self.__elist[0], self.__elist[1]
-        return a, b
+            a, b, c= self.__elist[0], self.__elist[1], self.__elist[2]
+        return a, b, c
 
 
 # subclass for threading
 class DataFetchThread(QtCore.QThread):
-    newDataName = QtCore.pyqtSignal(str)
+    newDataName = QtCore.pyqtSignal(str, str)
 
     def __init__(self, datasource, alist):
         QtCore.QThread.__init__(self)
@@ -72,13 +73,14 @@ class DataFetchThread(QtCore.QThread):
                 time.sleep(GLOBALREFRESHRATE)
             if self.__isConnected:
                 try:
-                    img, name = self.data_source.getData()
+                    img, name, metadata = self.data_source.getData()
                 except Exception as e:
                     name = "__ERROR__"
                     img = str(e)
+                    metadata = ""
                 if name is not None:
-                    self.__list.addData(name, img)
-                    self.newDataName.emit(name)
+                    self.__list.addData(name, img, metadata)
+                    self.newDataName.emit(name, metadata)
             else:
                 pass
 

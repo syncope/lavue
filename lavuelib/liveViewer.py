@@ -170,7 +170,9 @@ class LiveViewer(QtGui.QDialog):
         self.zmqtopics = []
         self.autozmqtopics = False
         self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
-
+        self.__allowedmdata = ["datasources"]
+        
+        
         # note: host and target are defined in another place
         self.data_source = hcs.GeneralSource()
 
@@ -196,6 +198,7 @@ class LiveViewer(QtGui.QDialog):
         # keep a reference to the "raw" image and the current filename
         self.raw_image = None
         self.image_name = None
+        self.metadata = ""
         self.display_image = None
         self.scaled_image = None
 
@@ -577,7 +580,8 @@ class LiveViewer(QtGui.QDialog):
         self.secstream = False
         try:
             self.dataFetcher.newDataName.disconnect(self.getNewData)
-        except:
+        except Exception as e:
+            # print (str(e))
             pass
         if self.sourceW.connected:
             self.sourceW.toggleServerConnection()
@@ -887,14 +891,14 @@ class LiveViewer(QtGui.QDialog):
                 topic, str(json.dumps(messagedata)).encode("ascii")))
         # self.data_source = None
 
-    @QtCore.pyqtSlot(str)
-    def getNewData(self, name):
+    @QtCore.pyqtSlot(str, str)
+    def getNewData(self, name, metadata=None):
         # check if data is there at all
         if name == "__ERROR__":
             if self.interruptonerror:
                 if self.sourceW.connected:
                     self.sourceW.toggleServerConnection()
-                _, errortext = self.exchangelist.readData()
+                _, errortext, _ = self.exchangelist.readData()
                 messageBox.MessageBox.warning(
                     self, "lavue: Error in reading data",
                     "Viewing will be interrupted", str(errortext))
@@ -902,11 +906,23 @@ class LiveViewer(QtGui.QDialog):
         if name is None:
             return
         # first time:
-        if self.image_name is None:
-            self.image_name, self.raw_image = self.exchangelist.readData()
-        # check if data is really new
-        elif str(self.image_name) is not str(name):
-            self.image_name, self.raw_image = self.exchangelist.readData()
+        if str(self.metadata) != str(metadata) and str(metadata).strip():
+            self.image_name, self.raw_image, self.metadata \
+                = self.exchangelist.readData()
+            try:
+                mdata = json.loads(str(metadata))
+                if isinstance(mdata, dict):
+                    resdata = dict((k,v) for (k,v) in mdata.items()
+                                   if k in self.__allowedmdata)
+                    if resdata:
+                        self.sourceW.update(**resdata)
+                else:
+                    print(metadata)
+            except Exception as e:
+                print(str(e))
+        elif self.image_name is None or str(self.image_name) != str(name):
+            self.image_name, self.raw_image, self.metadata \
+                = self.exchangelist.readData()
         self.plot()
 
     def prepareImage(self):

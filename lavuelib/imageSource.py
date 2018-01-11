@@ -84,9 +84,10 @@ class GeneralSource(object):
 
     def getData(self):
         self._counter += 1
-        return (np.transpose([[random.randint(0, 1000)
-                               for _ in range(512)] for _ in range(256)]),
-                '__random_%s__' % self._counter)
+        return (np.transpose(
+            [[random.randint(0, 1000)
+              for _ in range(512)] for _ in range(256)]),
+                '__random_%s__' % self._counter, "")
 
     def connect(self):
         self._initiated = True
@@ -133,20 +134,18 @@ class TangoFileSource(object):
             image = imageFileHandler.ImageFileHandler(
                 str(filename)).getImage()
 
-            return (np.transpose(image), '%s' % (filename))
+            return (np.transpose(image), '%s' % (filename), "")
         except Exception as e:
             print(str(e))
-            return str(e), "__ERROR__"
+            return str(e), "__ERROR__", None
             pass  # this needs a bit more care
-        return None, None
+        return None, None, None
 
     def connect(self):
         try:
-            print(self.signal_host)
             fattr, dattr, dirtrans = str(
                 self.signal_host).strip().split(",", 2)
             self.dirtrans = json.loads(dirtrans)
-            print(self.dirtrans)
             if not self._initiated:
                 self.fproxy = PyTango.AttributeProxy(fattr)
                 if dattr:
@@ -189,12 +188,12 @@ class TangoAttrSource(object):
         try:
             attr = self.aproxy.read()
             return (np.transpose(attr.value),
-                    '%s  (%s)' % (self.signal_host, str(attr.time)))
+                    '%s  (%s)' % (self.signal_host, str(attr.time)), "")
         except Exception as e:
             print(str(e))
-            return str(e), "__ERROR__"
+            return str(e), "__ERROR__", None
             pass  # this needs a bit more care
-        return None, None
+        return None, None, None
 
     def connect(self):
         try:
@@ -254,7 +253,7 @@ class HTTPSource(object):
             except Exception as e:
                 print(str(e))
                 return str(e), "__ERROR__"
-        return None, None
+        return None, None, None
 
     def connect(self):
         try:
@@ -319,6 +318,7 @@ class ZMQPickleSource(object):
             dtype = None
             name = None
             lmsg = None
+            metadata = None
 
             if isinstance(message, tuple) or isinstance(message, list):
                 lmsg = len(message)
@@ -346,14 +346,17 @@ class ZMQPickleSource(object):
                 array = np.frombuffer(buffer(_array), dtype=dtype)
                 array = array.reshape(shape)
                 self._counter += 1
-                return (np.transpose(array), name)
+                jmetadata = ""
+                if metadata:
+                    jmetadata = json.dumps(metadata)
+                return (np.transpose(array), name, jmetadata)
 
         except zmq.Again as e:
             pass
         except Exception as e:
             # print(str(e))
-            return str(e), "__ERROR__"
-        return None, None
+            return str(e), "__ERROR__", None
+        return None, None, None
 
     def connect(self):
         try:
@@ -471,19 +474,19 @@ class HiDRASource(object):
                 print("[cbf source module]::metadata", metadata["filename"])
                 img = imageFileHandler.CBFLoader().load(
                     np.fromstring(data[:], dtype=np.uint8))
-                return np.transpose(img), metadata["filename"]
+                return np.transpose(img), metadata["filename"], ""
             else:
                 # elif data[:2] in ["II\x2A\x00", "MM\x00\x2A"]:
                 print("[tif source module]::metadata", metadata["filename"])
                 if PILLOW:
                     img = np.array(PIL.Image.open(BytesIO(str(data))))
-                    return np.transpose(img), metadata["filename"]
+                    return np.transpose(img), metadata["filename"], ""
                 else:
                     img = imageFileHandler.TIFLoader().load(
                         np.fromstring(data[:], dtype=np.uint8))
-                    return np.transpose(img), metadata["filename"]
+                    return np.transpose(img), metadata["filename"], ""
             # else:
             #     print(
             #       "[unknown source module]::metadata", metadata["filename"])
         else:
-            return None, None
+            return None, None, None

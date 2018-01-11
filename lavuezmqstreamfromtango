@@ -98,7 +98,9 @@ def main():
                         cPickle.dumps(dtype)
                     )
             else:
-                metadata = {"shape": shape, "dtype": dtype}
+                metadata = {"shape": shape, "dtype": dtype,
+                            "datasources": ["10001", "10002","%s"
+                                            % ( 10010 + counter/10)]}
                 if prefix:
                     metadata["name"] = "%s_%s" % (prefix, counter)
                 message = (
