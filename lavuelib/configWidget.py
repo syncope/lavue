@@ -60,8 +60,11 @@ class ConfigWidget(QtGui.QDialog):
         self.statsscaleCheckBox = None
         self.dirtransLineEdit = None
         self.zmqtopicsLineEdit = None
+        self.autozmqtopicsCheckBox = None
 
         self.zmqtopics = []
+        self.autozmqtopics = False
+        
         self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
 
     def createGUI(self):
@@ -159,12 +162,20 @@ class ConfigWidget(QtGui.QDialog):
         self.timeoutLineEdit.setToolTip(
             "Source timeout in ms")
 
-        zmqtopicsLabel = QtGui.QLabel(u"ZMQ Source topics:")
+        zmqtopicsLabel = QtGui.QLabel(u"ZMQ Source datasources:")
         zmqtopicsLabel.setToolTip(
-            "ZMQ Source topics separated by spaces")
+            "ZMQ Source datasources separated by spaces")
         self.zmqtopicsLineEdit = QtGui.QLineEdit(" ".join(self.zmqtopics))
         self.zmqtopicsLineEdit.setToolTip(
-            "ZMQ Source topics separated by spaces")
+            "ZMQ Source datasources separated by spaces")
+
+        autozmqtopicsLabel = QtGui.QLabel(u"ZMQ Source automatic:")
+        autozmqtopicsLabel.setToolTip(
+            "load posible ZMQ source datasources from the stream")
+        self.autozmqtopicsCheckBox = QtGui.QCheckBox()
+        self.autozmqtopicsCheckBox.setToolTip(
+            "load posible ZMQ source datasources from the stream")
+        self.autozmqtopicsCheckBox.setChecked(self.autozmqtopics)
 
         dirtransLabel = QtGui.QLabel(u"File/Dir Translation:")
         dirtransLabel.setToolTip(
@@ -199,8 +210,10 @@ class ConfigWidget(QtGui.QDialog):
         gridlayout.addWidget(self.statsscaleCheckBox, 10, 1)
         gridlayout.addWidget(zmqtopicsLabel, 11, 0)
         gridlayout.addWidget(self.zmqtopicsLineEdit, 11, 1)
-        gridlayout.addWidget(dirtransLabel, 12, 0)
-        gridlayout.addWidget(self.dirtransLineEdit, 12, 1)
+        gridlayout.addWidget(autozmqtopicsLabel, 12, 0)
+        gridlayout.addWidget(self.autozmqtopicsCheckBox, 12, 1)
+        gridlayout.addWidget(dirtransLabel, 13, 0)
+        gridlayout.addWidget(self.dirtransLineEdit, 13, 1)
         self.buttonBox = QtGui.QDialogButtonBox(
             QtGui.QDialogButtonBox.Ok
             | QtGui.QDialogButtonBox.Cancel)
@@ -243,6 +256,7 @@ class ConfigWidget(QtGui.QDialog):
         except Exception as e:
             print(str(e))
         self.zmqtopics = [tp for tp in zmqtopics if tp]
+        self.autozmqtopics = self.autozmqtopicsCheckBox.isChecked()
         try:
             self.timeout = int(self.timeoutLineEdit.text())
         except:

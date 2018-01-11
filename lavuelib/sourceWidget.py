@@ -51,6 +51,7 @@ class SourceWidget(QtGui.QGroupBox):
         self.currentSource = ""
 
         self.zmqtopics = []
+        self.autozmqtopics = False
         self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
 
         self._types = parent.sourcetypes
@@ -189,11 +190,8 @@ class SourceWidget(QtGui.QGroupBox):
         self.setSource(self.sourceTypeComboBox.currentText())
         self.source_sourcetype.emit(self.sourceTypeComboBox.currentText())
 
-    def setSource(self, name=None):
-        if name is not None:
-            self.currentSource = name
-        else:
-            name = self.currentSource
+    def updateLayout(self):
+        name = self.currentSource
         allhidden = set()
         mst = None
         for st in self._types:
@@ -209,6 +207,11 @@ class SourceWidget(QtGui.QGroupBox):
                     wg.show()
 
             getattr(self, mst["slot"])()
+        
+    def setSource(self, name=None):
+        if name is not None:
+            self.currentSource = name
+        self.updateLayout()
         self.update()
 
     def updateHidraButton(self):
@@ -285,6 +288,8 @@ class SourceWidget(QtGui.QGroupBox):
                 hosturl = str(self.pickleLineEdit.text()).strip()
                 if self.pickleTopicComboBox.currentIndex() >= 0:
                     text = self.pickleTopicComboBox.currentText()
+                    if text == "**ALL**":
+                        text = ""
                     shost = hosturl.split("/")
                     if len(shost) > 2:
                         shost[1] = str(text)
@@ -312,17 +317,27 @@ class SourceWidget(QtGui.QGroupBox):
         self.sortServerList(name)
         self.serverlistBox.addItems(self.sortedserverlist)
 
-    def update(self, zmqtopics=None, dirtrans=None):
+    def update(self, zmqtopics=None, dirtrans=None, autozmqtopics=None):
+        text = None
         if isinstance(zmqtopics, list):
+            text = str(self.pickleTopicComboBox.currentText())
+            if not text or text not in zmqtopics:
+                text = None
             self.zmqtopics = zmqtopics
+        if autozmqtopics is not None:
+            self.autozmqtopics = autozmqtopics
+
         if dirtrans is not None:
             self.dirtrans = dirtrans
+            
         for i in reversed(range(0, self.pickleTopicComboBox.count())):
             self.pickleTopicComboBox.removeItem(i)
         self.pickleTopicComboBox.addItems(self.zmqtopics)
-        if not self.zmqtopics:
-            self.pickleTopicComboBox.hide()
-            self.pickleTopicLabel.hide()
+        self.pickleTopicComboBox.addItem("**ALL**")
+        if text:
+            tid = self.pickleTopicComboBox.findText(text)
+            if tid > -1:
+                self.pickleTopicComboBox.setCurrentIndex(tid)
 
     def isConnected(self):
         return self.connected
