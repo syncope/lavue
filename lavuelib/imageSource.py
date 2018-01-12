@@ -303,10 +303,10 @@ class ZMQPickleSource(object):
                     shost = str(self.signal_host).split("/")
                     topic = shost[1] if len(shost) > 1 else ""
                     self._socket.unbind(self._bindaddress)
-#                    self._socket.setsockopt(zmq.UNSUBSCRIBE, self._topic)
-#                    self._socket.setsockopt(zmq.UNSUBSCRIBE, "datasource")
-#                    self._socket.setsockopt(zmq.SUBSCRIBE, "datasources")
-#                    self._socket.setsockopt(zmq.SUBSCRIBE, topic)
+                    # self._socket.setsockopt(zmq.UNSUBSCRIBE, self._topic)
+                    # self._socket.setsockopt(zmq.UNSUBSCRIBE, "datasource")
+                    # self._socket.setsockopt(zmq.SUBSCRIBE, "datasources")
+                    # self._socket.setsockopt(zmq.SUBSCRIBE, topic)
                     self._topic = topic
                     self._socket.connect(self._bindaddress)
 
@@ -390,8 +390,8 @@ class ZMQPickleSource(object):
                         + ':'
                         + str(port)
                     )
-#                    self._socket.setsockopt(zmq.SUBSCRIBE, self._topic)
-#                    self._socket.setsockopt(zmq.SUBSCRIBE, "datasources")
+                    # self._socket.setsockopt(zmq.SUBSCRIBE, self._topic)
+                    # self._socket.setsockopt(zmq.SUBSCRIBE, "datasources")
                     self._socket.setsockopt(zmq.SUBSCRIBE, "")
                     self._socket.connect(self._bindaddress)
                 time.sleep(0.2)
