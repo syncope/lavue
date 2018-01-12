@@ -115,7 +115,6 @@ def main():
                 )
                 message2 = (
                     "datasources",
-                    "",
                     cPickle.dumps(metadata)
                 )
                 print("Send2: tcp://*:%s/%s %s"

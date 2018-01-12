@@ -326,8 +326,15 @@ class ZMQPickleSource(object):
                 lmsg = len(message)
                 topic = message[0]
             # print("topic %s %s" % (topic, self._topic))
-            if topic == "datasources" and lmsg == 3:
-                (topic, _array, _metadata) = message
+            if topic == "datasources" and lmsg == 2:
+                (topic, _metadata) = message
+                metadata = cPickle.loads(_metadata)
+                jmetadata = ""
+                if metadata:
+                    jmetadata = json.dumps(metadata)
+                return ("", "", jmetadata)
+            elif topic == "datasources" and lmsg == 3:
+                (topic, _, _metadata) = message
                 metadata = cPickle.loads(_metadata)
                 jmetadata = ""
                 if metadata:

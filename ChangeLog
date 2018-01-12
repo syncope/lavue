@@ -1,5 +1,9 @@
 2018-01-12 Jan Kotanski <jan.kotanski@desy.de>
-	* add datasource topic fileter to zmq source
+	* update datasource topic filter message format
+	* tagged as 0.10.2
+
+2018-01-12 Jan Kotanski <jan.kotanski@desy.de>
+	* add datasource topic filter to zmq source
 	* fix a bug in parameter number
 	* tagged as 0.10.1
 
