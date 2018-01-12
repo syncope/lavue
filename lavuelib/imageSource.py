@@ -139,7 +139,7 @@ class TangoFileSource(object):
             return (np.transpose(image), '%s' % (filename), "")
         except Exception as e:
             print(str(e))
-            return str(e), "__ERROR__", None
+            return str(e), "__ERROR__", ""
             pass  # this needs a bit more care
         return None, None, None
 
@@ -193,7 +193,7 @@ class TangoAttrSource(object):
                     '%s  (%s)' % (self.signal_host, str(attr.time)), "")
         except Exception as e:
             print(str(e))
-            return str(e), "__ERROR__", None
+            return str(e), "__ERROR__", ""
             pass  # this needs a bit more care
         return None, None, None
 
@@ -242,19 +242,19 @@ class HTTPSource(object):
                         # print("[cbf source module]::metadata", name)
                         img = imageFileHandler.CBFLoader().load(
                             np.fromstring(data[:], dtype=np.uint8))
-                        return np.transpose(img), name
+                        return np.transpose(img), name, ""
                     else:
                         # print("[tif source module]::metadata", name)
                         if PILLOW:
                             img = np.array(PIL.Image.open(BytesIO(str(data))))
-                            return np.transpose(img), name
+                            return np.transpose(img), name, ""
                         else:
                             img = imageFileHandler.TIFLoader().load(
                                 np.fromstring(data[:], dtype=np.uint8))
-                            return np.transpose(img), name
+                            return np.transpose(img), name, ""
             except Exception as e:
                 print(str(e))
-                return str(e), "__ERROR__"
+                return str(e), "__ERROR__", ""
         return None, None, None
 
     def connect(self):
@@ -357,7 +357,7 @@ class ZMQPickleSource(object):
             pass
         except Exception as e:
             # print(str(e))
-            return str(e), "__ERROR__", None
+            return str(e), "__ERROR__", ""
         return None, None, None
 
     def connect(self):
