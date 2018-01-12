@@ -1,4 +1,8 @@
 2018-01-12 Jan Kotanski <jan.kotanski@desy.de>
+	* remove dtype and shape from metadata
+	* tagged as 0.10.3
+
+2018-01-12 Jan Kotanski <jan.kotanski@desy.de>
 	* update datasource topic filter message format
 	* tagged as 0.10.2
 

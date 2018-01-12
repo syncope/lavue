@@ -329,6 +329,8 @@ class ZMQPickleSource(object):
             if topic == "datasources" and lmsg == 2:
                 (topic, _metadata) = message
                 metadata = cPickle.loads(_metadata)
+                metadata.pop("shape")
+                metadata.pop("dtype")
                 jmetadata = ""
                 if metadata:
                     jmetadata = json.dumps(metadata)
@@ -336,6 +338,8 @@ class ZMQPickleSource(object):
             elif topic == "datasources" and lmsg == 3:
                 (topic, _, _metadata) = message
                 metadata = cPickle.loads(_metadata)
+                metadata.pop("shape")
+                metadata.pop("dtype")
                 jmetadata = ""
                 if metadata:
                     jmetadata = json.dumps(metadata)
@@ -368,7 +372,12 @@ class ZMQPickleSource(object):
                 self._counter += 1
                 jmetadata = ""
                 if metadata:
-                    jmetadata = json.dumps(metadata)
+                    metadata.pop("shape")
+                    metadata.pop("dtype")
+                    try:
+                        jmetadata = json.dumps(metadata)
+                    except:
+                        pass
                 return (np.transpose(array), name, jmetadata)
 
         except zmq.Again as e:
