@@ -303,10 +303,10 @@ class ZMQPickleSource(object):
                     shost = str(self.signal_host).split("/")
                     topic = shost[1] if len(shost) > 1 else ""
                     self._socket.unbind(self._bindaddress)
-                    self._socket.setsockopt(
-                        zmq.UNSUBSCRIBE, self._topic)
-                    self._socket.setsockopt(
-                        zmq.SUBSCRIBE, topic)
+#                    self._socket.setsockopt(zmq.UNSUBSCRIBE, self._topic)
+#                    self._socket.setsockopt(zmq.UNSUBSCRIBE, "datasource")
+#                    self._socket.setsockopt(zmq.SUBSCRIBE, "datasources")
+#                    self._socket.setsockopt(zmq.SUBSCRIBE, topic)
                     self._topic = topic
                     self._socket.connect(self._bindaddress)
 
@@ -324,29 +324,40 @@ class ZMQPickleSource(object):
 
             if isinstance(message, tuple) or isinstance(message, list):
                 lmsg = len(message)
-            if lmsg == 3:
+                topic = message[0]
+            # print("topic %s %s" % (topic, self._topic))
+            if topic == "datasources" and lmsg == 3:
                 (topic, _array, _metadata) = message
                 metadata = cPickle.loads(_metadata)
-                shape = metadata["shape"]
-                dtype = metadata["dtype"]
-                if "name" in metadata:
-                    name = metadata["name"]
+                jmetadata = ""
+                if metadata:
+                    jmetadata = json.dumps(metadata)
+                return ("", "", jmetadata)
+            elif self._topic == "" or topic == self._topic:
+                if lmsg == 3:
+                    (topic, _array, _metadata) = message
+                    metadata = cPickle.loads(_metadata)
+                    shape = metadata["shape"]
+                    dtype = metadata["dtype"]
+                    if "name" in metadata:
+                        name = metadata["name"]
+                    else:
+                        name = '%s/%s (%s)' % (
+                            self._bindaddress, topic, self._counter)
                 else:
-                    name = '%s/%s (%s)' % (
-                        self._bindaddress, topic, self._counter)
-            else:
-                if lmsg == 4:
-                    (topic, _array, _shape, _dtype) = message
-                    name = '%s/%s (%s)' % (
-                        self._bindaddress, topic, self._counter)
-                elif lmsg == 5:
-                    (topic, _array, _shape, _dtype, name) = message
-                dtype = cPickle.loads(_dtype)
-                shape = cPickle.loads(_shape)
+                    if lmsg == 4:
+                        (topic, _array, _shape, _dtype) = message
+                        name = '%s/%s (%s)' % (
+                            self._bindaddress, topic, self._counter)
+                    elif lmsg == 5:
+                        (topic, _array, _shape, _dtype, name) = message
+                    dtype = cPickle.loads(_dtype)
+                    shape = cPickle.loads(_shape)
 
             if _array:
                 array = np.frombuffer(buffer(_array), dtype=dtype)
                 array = array.reshape(shape)
+                array = np.transpose(array)
                 self._counter += 1
                 jmetadata = ""
                 if metadata:
@@ -379,7 +390,9 @@ class ZMQPickleSource(object):
                         + ':'
                         + str(port)
                     )
-                    self._socket.setsockopt(zmq.SUBSCRIBE, self._topic)
+#                    self._socket.setsockopt(zmq.SUBSCRIBE, self._topic)
+#                    self._socket.setsockopt(zmq.SUBSCRIBE, "datasources")
+                    self._socket.setsockopt(zmq.SUBSCRIBE, "")
                     self._socket.connect(self._bindaddress)
                 time.sleep(0.2)
             return True

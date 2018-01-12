@@ -907,8 +907,10 @@ class LiveViewer(QtGui.QDialog):
             return
         # first time:
         if str(self.metadata) != str(metadata) and str(metadata).strip():
-            self.image_name, self.raw_image, self.metadata \
-                = self.exchangelist.readData()
+            image_name, raw_image, self.metadata = self.exchangelist.readData()
+            if str(image_name).strip():
+                self.image_name = image_name
+                self.raw_image = raw_image
             try:
                 mdata = json.loads(str(metadata))
                 if isinstance(mdata, dict):
@@ -916,13 +918,14 @@ class LiveViewer(QtGui.QDialog):
                                    if k in self.__allowedmdata)
                     if resdata:
                         self.sourceW.update(**resdata)
-                else:
-                    print(metadata)
+                # else:
+                #     print(metadata)
             except Exception as e:
                 print(str(e))
-        elif self.image_name is None or str(self.image_name) != str(name):
-            self.image_name, self.raw_image, self.metadata \
-                = self.exchangelist.readData()
+        elif str(name).strip():
+            if self.image_name is None or str(self.image_name) != str(name):
+                self.image_name, self.raw_image, self.metadata \
+                    = self.exchangelist.readData()
         self.plot()
 
     def prepareImage(self):

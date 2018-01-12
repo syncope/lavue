@@ -42,6 +42,7 @@ class SourceWidget(QtGui.QGroupBox):
     def __init__(self, parent=None):
         QtGui.QGroupBox.__init__(self, parent)
         self.setTitle("Image Source")
+        self.__mutex = QtCore.QMutex()
 
         self.signal_host = None
         self.target = None
@@ -149,7 +150,7 @@ class SourceWidget(QtGui.QGroupBox):
 
         self.button.clicked.connect(self.toggleServerConnection)
 
-        self.setSource(self._defaultsource)
+        self.setSource(self._defaultsource, disconnect=False)
         gridlayout.addWidget(self.sourceTypeLabel, 0, 0)
         gridlayout.addWidget(self.sourceTypeComboBox, 0, 1)
         gridlayout.addWidget(self.serverLabel, 1, 0)
@@ -182,7 +183,8 @@ class SourceWidget(QtGui.QGroupBox):
         self.pickleLineEdit.textEdited.connect(self.updateZMQPickleButton)
         self.httpLineEdit.textEdited.connect(self.updateHTTPButton)
         self.pickleTopicComboBox.currentIndexChanged.connect(
-            self.updateZMQPickleButton)
+            self.updateZMQComboBox)
+#            self.updateZMQComboBox, QtCore.Qt.QueuedConnection)
         self.onSourceChanged()
 
     @QtCore.pyqtSlot()
@@ -208,11 +210,11 @@ class SourceWidget(QtGui.QGroupBox):
 
             getattr(self, mst["slot"])()
 
-    def setSource(self, name=None):
+    def setSource(self, name=None, disconnect=True):
         if name is not None:
             self.currentSource = name
         self.updateLayout()
-        self.update()
+        self.update(disconnect=disconnect)
 
     def updateHidraButton(self):
         source = str(self.sourceTypeComboBox.currentText())
@@ -246,7 +248,6 @@ class SourceWidget(QtGui.QGroupBox):
             self.button.setEnabled(True)
             dattr = str(self.dirLineEdit.text()).strip()
             dt = self.dirtrans
-            print("SEND %s,%s,%s" % (fattr, dattr, dt))
             sourcename = "%s,%s,%s" % (fattr, dattr, dt)
             self.source_servername.emit(sourcename)
 
@@ -270,35 +271,53 @@ class SourceWidget(QtGui.QGroupBox):
             self.source_servername.emit(url)
 
     @QtCore.pyqtSlot()
-    def updateZMQPickleButton(self):
-        source = str(self.sourceTypeComboBox.currentText())
-        if source != "ZMQ Stream":
-            return
-        if not str(self.pickleLineEdit.text()).strip() \
-           or ":" not in str(self.pickleLineEdit.text()):
-            self.button.setEnabled(False)
-        else:
-            try:
-                _, sport = str(self.pickleLineEdit.text())\
-                    .strip().split("/")[0].split(":")
-                port = int(sport)
-                if port > 65535 or port < 0:
-                    raise Exception("Wrong port")
-                self.button.setEnabled(True)
-                hosturl = str(self.pickleLineEdit.text()).strip()
-                if self.pickleTopicComboBox.currentIndex() >= 0:
-                    text = self.pickleTopicComboBox.currentText()
-                    if text == "**ALL**":
-                        text = ""
-                    shost = hosturl.split("/")
-                    if len(shost) > 2:
-                        shost[1] = str(text)
-                    else:
-                        shost.append(str(text))
-                    hosturl = "/".join(shost)
-                self.source_servername.emit(hosturl)
-            except:
+    def updateZMQComboBox(self):
+        disconnected = False
+        if self.connected:
+            disconnected = True
+            self.source_state.emit(0)
+        self.updateZMQPickleButton()
+        if disconnected:
+            self.source_state.emit(self.sourceTypeComboBox.currentIndex() + 1)
+            self.source_connect.emit()
+
+    @QtCore.pyqtSlot()
+    def updateZMQPickleButton(self, disconnect=True):
+        with QtCore.QMutexLocker(self.__mutex):
+            if disconnect:
+                self.pickleTopicComboBox.currentIndexChanged.disconnect(
+                    self.updateZMQComboBox)
+            source = str(self.sourceTypeComboBox.currentText())
+            if source != "ZMQ Stream":
+                return
+            if not str(self.pickleLineEdit.text()).strip() \
+               or ":" not in str(self.pickleLineEdit.text()):
                 self.button.setEnabled(False)
+            else:
+                try:
+                    _, sport = str(self.pickleLineEdit.text())\
+                        .strip().split("/")[0].split(":")
+                    port = int(sport)
+                    if port > 65535 or port < 0:
+                        raise Exception("Wrong port")
+                    self.button.setEnabled(True)
+                    hosturl = str(self.pickleLineEdit.text()).strip()
+                    if self.pickleTopicComboBox.currentIndex() >= 0:
+                        text = self.pickleTopicComboBox.currentText()
+                        if text == "**ALL**":
+                            text = ""
+                        shost = hosturl.split("/")
+                        if len(shost) > 2:
+                            shost[1] = str(text)
+                        else:
+                            shost.append(str(text))
+                        hosturl = "/".join(shost)
+                    self.source_servername.emit(hosturl)
+                except:
+                    self.button.setEnabled(False)
+            if disconnect:
+                self.pickleTopicComboBox.currentIndexChanged.connect(
+                    self.updateZMQComboBox)
 
     def updateButton(self):
         source = str(self.sourceTypeComboBox.currentText())
@@ -318,10 +337,15 @@ class SourceWidget(QtGui.QGroupBox):
         self.serverlistBox.addItems(self.sortedserverlist)
 
     def update(self, zmqtopics=None, dirtrans=None, autozmqtopics=None,
-               datasources=None):
+               datasources=None, disconnect=True):
+        if disconnect:
+            with QtCore.QMutexLocker(self.__mutex):
+                self.pickleTopicComboBox.currentIndexChanged.disconnect(
+                    self.updateZMQComboBox)
         text = None
         if isinstance(zmqtopics, list):
-            text = str(self.pickleTopicComboBox.currentText())
+            with QtCore.QMutexLocker(self.__mutex):
+                text = str(self.pickleTopicComboBox.currentText())
             if not text or text not in zmqtopics:
                 text = None
             self.zmqtopics = zmqtopics
@@ -329,21 +353,27 @@ class SourceWidget(QtGui.QGroupBox):
             self.autozmqtopics = autozmqtopics
         if self.autozmqtopics:
             if isinstance(datasources, list):
-                text = str(self.pickleTopicComboBox.currentText())
+                with QtCore.QMutexLocker(self.__mutex):
+                    text = str(self.pickleTopicComboBox.currentText())
                 if not text or text not in datasources:
                     text = None
                 self.zmqtopics = datasources
         if dirtrans is not None:
             self.dirtrans = dirtrans
-
-        for i in reversed(range(0, self.pickleTopicComboBox.count())):
-            self.pickleTopicComboBox.removeItem(i)
-        self.pickleTopicComboBox.addItems(self.zmqtopics)
-        self.pickleTopicComboBox.addItem("**ALL**")
-        if text:
-            tid = self.pickleTopicComboBox.findText(text)
-            if tid > -1:
-                self.pickleTopicComboBox.setCurrentIndex(tid)
+        with QtCore.QMutexLocker(self.__mutex):
+            for i in reversed(range(0, self.pickleTopicComboBox.count())):
+                self.pickleTopicComboBox.removeItem(i)
+            self.pickleTopicComboBox.addItems(self.zmqtopics)
+            self.pickleTopicComboBox.addItem("**ALL**")
+            if text:
+                tid = self.pickleTopicComboBox.findText(text)
+                if tid > -1:
+                    self.pickleTopicComboBox.setCurrentIndex(tid)
+        if disconnect:
+            self.updateZMQPickleButton(disconnect=False)
+            with QtCore.QMutexLocker(self.__mutex):
+                self.pickleTopicComboBox.currentIndexChanged.connect(
+                    self.updateZMQComboBox)
 
     def isConnected(self):
         return self.connected

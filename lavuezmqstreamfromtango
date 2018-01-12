@@ -36,7 +36,7 @@ import PyTango
 
 maxtimegap = 0.1
 port = None
-topicfilter = "10001"
+topicfilter = None
 debug = False
 attribute = ""
 hostname = "localhost"
@@ -81,10 +81,15 @@ def main():
             shape = value.shape
             dtype = value.dtype.name
 
+            datasources = ["%s" % ( 10010 + counter/50), "10001", "10002"]
+            if topicfilter is not None:
+                tfilter = topicfilter
+            else:
+                tfilter = datasources[0]
             if nodict:
                 if prefix:
                     message = (
-                        topicfilter,
+                        tfilter,
                         value,
                         cPickle.dumps(shape),
                         cPickle.dumps(dtype),
@@ -92,26 +97,34 @@ def main():
                     )
                 else:
                     message = (
-                        topicfilter,
+                        tfilter,
                         value,
                         cPickle.dumps(shape),
                         cPickle.dumps(dtype)
                     )
             else:
                 metadata = {"shape": shape, "dtype": dtype,
-                            "datasources": ["10001", "10002","%s"
-                                            % ( 10010 + counter/10)]}
+
+                            "datasources": datasources}
                 if prefix:
                     metadata["name"] = "%s_%s" % (prefix, counter)
                 message = (
-                    topicfilter,
+                    tfilter,
                     value,
                     cPickle.dumps(metadata)
                 )
+                message2 = (
+                    "datasources",
+                    "",
+                    cPickle.dumps(metadata)
+                )
+                print("Send2: tcp://*:%s/%s %s"
+                      % (port, "datasources", metadata))
+                socket.send_multipart(message2)
             counter += 1
             socket.send_multipart(message)
             print("Send: tcp://*:%s/%s %s %s %s_%s"
-                  % (port, topicfilter, shape, dtype,
+                  % (port, tfilter, shape, dtype,
                      prefix or "", counter))
         except Exception as e:
             print("Error: %s" % str(e))
@@ -132,8 +145,8 @@ if __name__ == "__main__":
         dest="port", default=None)
     parser.add_argument(
         "-t", "--topic",
-        help="zmq topic (default: 10001)",
-        dest="topic", default="10001")
+        help="zmq topic (default: first one from datasources)",
+        dest="topic", default=None)
     parser.add_argument(
         "-n", "--name-prefix",
         help="image name prefix",
@@ -162,12 +175,10 @@ if __name__ == "__main__":
         parser.print_help()
         sys.exit(255)
     try:
-        topicfilter = str(options.topic)
+        if options.topic is not None:
+            topicfilter = str(options.topic)
     except:
-        print >> sys.stderr, \
-            "lavuemonitor: Invalid --topic parameter\n"
-        parser.print_help()
-        sys.exit(255)
+        pass
     try:
         maxtimegap = float(options.timegap)
     except:
