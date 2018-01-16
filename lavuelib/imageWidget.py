@@ -34,6 +34,136 @@ from . import imageDisplayWidget
 import pyqtgraph as pg
 import pyqtgraph.functions as fn
 
+
+
+import pyqtgraph as pg
+import numpy as np
+import decimal, re
+import ctypes
+import sys, struct
+
+try:
+    import scipy.ndimage
+    HAVE_SCIPY = True
+    if pg.getConfigOption('useWeave'):
+        try:
+            import scipy.weave
+        except ImportError:
+            pg.setConfigOptions(useWeave=False)
+except ImportError:
+    HAVE_SCIPY = False
+print("HAVE SP %s " %HAVE_SCIPY)
+
+
+
+def affineSlice(data, shape, origin, vectors, axes, order=1, returnCoords=False, **kargs):
+    """
+    Take a slice of any orientation through an array. This is useful for extracting sections of multi-dimensional arrays such as MRI images for viewing as 1D or 2D data.
+    
+    The slicing axes are aribtrary; they do not need to be orthogonal to the original data or even to each other. It is possible to use this function to extract arbitrary linear, rectangular, or parallelepiped shapes from within larger datasets. The original data is interpolated onto a new array of coordinates using scipy.ndimage.map_coordinates (see the scipy documentation for more information about this).
+    
+    For a graphical interface to this function, see :func:`ROI.getArrayRegion <pyqtgraph.ROI.getArrayRegion>`
+    
+    ==============  ====================================================================================================
+    Arguments:
+    *data*          (ndarray) the original dataset
+    *shape*         the shape of the slice to take (Note the return value may have more dimensions than len(shape))
+    *origin*        the location in the original dataset that will become the origin of the sliced data.
+    *vectors*       list of unit vectors which point in the direction of the slice axes. Each vector must have the same 
+                    length as *axes*. If the vectors are not unit length, the result will be scaled relative to the 
+                    original data. If the vectors are not orthogonal, the result will be sheared relative to the 
+                    original data.
+    *axes*          The axes in the original dataset which correspond to the slice *vectors*
+    *order*         The order of spline interpolation. Default is 1 (linear). See scipy.ndimage.map_coordinates
+                    for more information.
+    *returnCoords*  If True, return a tuple (result, coords) where coords is the array of coordinates used to select
+                    values from the original dataset.
+    *All extra keyword arguments are passed to scipy.ndimage.map_coordinates.*
+    --------------------------------------------------------------------------------------------------------------------
+    ==============  ====================================================================================================
+    
+    Note the following must be true: 
+        
+        | len(shape) == len(vectors) 
+        | len(origin) == len(axes) == len(vectors[i])
+        
+    Example: start with a 4D fMRI data set, take a diagonal-planar slice out of the last 3 axes
+        
+        * data = array with dims (time, x, y, z) = (100, 40, 40, 40)
+        * The plane to pull out is perpendicular to the vector (x,y,z) = (1,1,1) 
+        * The origin of the slice will be at (x,y,z) = (40, 0, 0)
+        * We will slice a 20x20 plane from each timepoint, giving a final shape (100, 20, 20)
+        
+    The call for this example would look like::
+        
+        affineSlice(data, shape=(20,20), origin=(40,0,0), vectors=((-1, 1, 0), (-1, 0, 1)), axes=(1,2,3))
+    
+    """
+    if not HAVE_SCIPY:
+        raise Exception("This function requires the scipy library, but it does not appear to be importable.")
+
+    # sanity check
+    if len(shape) != len(vectors):
+        raise Exception("shape and vectors must have same length.")
+    if len(origin) != len(axes):
+        raise Exception("origin and axes must have same length.")
+    for v in vectors:
+        if len(v) != len(axes):
+            raise Exception("each vector must be same length as axes.")
+        
+    shape = list(map(np.ceil, shape))
+
+    ## transpose data so slice axes come first
+    trAx = list(range(data.ndim))
+    for x in axes:
+        trAx.remove(x)
+    tr1 = tuple(axes) + tuple(trAx)
+    data = data.transpose(tr1)
+    #print "tr1:", tr1
+    ## dims are now [(slice axes), (other axes)]
+    
+
+    ## make sure vectors are arrays
+    if not isinstance(vectors, np.ndarray):
+        vectors = np.array(vectors)
+    if not isinstance(origin, np.ndarray):
+        origin = np.array(origin)
+    origin.shape = (len(axes),) + (1,)*len(shape)
+    
+    ## Build array of sample locations. 
+    grid = np.mgrid[tuple([slice(0,x) for x in shape])]  ## mesh grid of indexes
+    #print shape, grid.shape
+    x = (grid[np.newaxis,...] * vectors.transpose()[(Ellipsis,) + (np.newaxis,)*len(shape)]).sum(axis=1)  ## magic
+    x += origin
+    #print "X values:"
+    #print x
+    ## iterate manually over unused axes since map_coordinates won't do it for us
+    extraShape = data.shape[len(axes):]
+    print(" empty %s %s %s" %(str(tuple(shape)), str(extraShape), data.dtype))
+    output = np.empty(tuple(shape) + extraShape, dtype=data.dtype)
+    for inds in np.ndindex(*extraShape):
+        ind = (Ellipsis,) + inds
+        #print data[ind].shape, x.shape, output[ind].shape, output.shape
+        output[ind] = scipy.ndimage.map_coordinates(data[ind], x, order=order, **kargs)
+    
+    tr = list(range(output.ndim))
+    trb = []
+    for i in range(min(axes)):
+        ind = tr1.index(i) + (len(shape)-len(axes))
+        tr.remove(ind)
+        trb.append(ind)
+    tr2 = tuple(trb+tr)
+
+    ## Untranspose array before returning
+    output = output.transpose(tr2)
+    if returnCoords:
+        return (output, x)
+    else:
+        return output
+
+
+
+
 def myget(self, data, img, axes=(0,1),
           returnMappedCoords=False, **kwds):
 
@@ -45,7 +175,8 @@ def myget(self, data, img, axes=(0,1),
         print("OR %s" % str(origin))
         print("axes %s" % str(axes))
         print("ST %s" % str(self.state['size']))
-        return fn.affineSlice(data, shape=shape, vectors=vectors, origin=origin, axes=axes, **kwds)
+        print("kwds %s" % str(kwds))
+        return affineSlice(data, shape=shape, vectors=vectors, origin=origin, axes=axes, **kwds)
     else:
         kwds['returnCoords'] = True
         result, coords = fn.affineSlice(data, shape=shape, vectors=vectors, origin=origin, axes=axes, **kwds)
