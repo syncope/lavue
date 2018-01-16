@@ -32,6 +32,24 @@ from PyQt4 import QtCore, QtGui
 
 from . import imageDisplayWidget
 import pyqtgraph as pg
+import pyqtgraph.functions as fn
+
+def myget(self, data, img, axes=(0,1),
+          returnMappedCoords=False, **kwds):
+
+    shape, vectors, origin = self.getAffineSliceParams(data, img, axes)
+    if not returnMappedCoords:
+        print("D %s" % data)
+        print("S %s" % shape)
+        print("V %s" % str(vectors))
+        print("OR %s" % str(origin))
+        print("axes %s" % str(axes))
+        print("ST %s" % str(self.state['size']))
+        return fn.affineSlice(data, shape=shape, vectors=vectors, origin=origin, axes=axes, **kwds)
+    else:
+        kwds['returnCoords'] = True
+        result, coords = fn.affineSlice(data, shape=shape, vectors=vectors, origin=origin, axes=axes, **kwds)
+
 
 
 class ImageWidget(QtGui.QWidget):
@@ -389,13 +407,19 @@ class ImageWidget(QtGui.QWidget):
         self.img_widget.updateImage(array, rawarray)
         if self.img_widget.cutenable:
             self.plotCut()
-
+            
     @QtCore.pyqtSlot()
     def plotCut(self):
         cid = self.img_widget.currentcut
         if cid > -1 and len(self.img_widget.cut) > cid:
             cut = self.img_widget.cut[cid]
+            print("C %s" % cut)
+            print("R %s" % self.img_widget.rawdata)
+            print("I %s" % self.img_widget.image)
             if self.img_widget.rawdata is not None:
+                dt = myget(cut,
+                           self.img_widget.rawdata,
+                           self.img_widget.image, axes=(0, 1))
                 dt = cut.getArrayRegion(
                     self.img_widget.rawdata,
                     self.img_widget.image, axes=(0, 1))
