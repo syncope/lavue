@@ -180,6 +180,7 @@ class SourceWidget(QtGui.QGroupBox):
             self.onSourceChanged)
         self.attrLineEdit.textEdited.connect(self.updateAttrButton)
         self.fileLineEdit.textEdited.connect(self.updateFileButton)
+        self.dirLineEdit.textEdited.connect(self.updateFileButton)
         self.pickleLineEdit.textEdited.connect(self.updateZMQPickleButton)
         self.httpLineEdit.textEdited.connect(self.updateHTTPButton)
         self.pickleTopicComboBox.currentIndexChanged.connect(

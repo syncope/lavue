@@ -1046,6 +1046,8 @@ class LiveViewer(QtGui.QDialog):
         else:
             return "0.", "0.", "0.", "0.", "0.", "0."
         maxrawval = np.amax(self.raw_image)
+        # print("RAW: %s" % self.raw_image)
+        # print("MAX %s" % maxrawval)
         # automatic maximum clipping to hardcoded value
         try:
             checkval = meanval + 10 * np.sqrt(varval)
