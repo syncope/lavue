@@ -1,5 +1,8 @@
 2018-01-16 Jan Kotanski <jan.kotanski@desy.de>
 	* add workaround for HWM and topics interference in ZMQ Source (min(HWM) = 2)
+	* tagged as 0.10.5
+
+2018-01-16 Jan Kotanski <jan.kotanski@desy.de>
 	* fix passing info from Tango File source
 	* tagged as 0.10.4
 
