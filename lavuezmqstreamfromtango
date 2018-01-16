@@ -81,11 +81,11 @@ def main():
             shape = value.shape
             dtype = value.dtype.name
 
-            datasources = ["%s" % ( 10010 + counter/50), "10001", "10002"]
+            datasources = ["%s" % (10010 + counter / 50), "10001", "10002"]
             if topicfilter is not None:
                 tfilter = topicfilter
             else:
-                tfilter = datasources[0]
+                tfilter = datasources[counter % 2]
             if nodict:
                 if prefix:
                     message = (
