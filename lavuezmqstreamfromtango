@@ -113,12 +113,16 @@ def main():
                     value,
                     cPickle.dumps(metadata)
                 )
+                metadata2 = dict(metadata)
+                if counter % 3:
+                    metadata2.pop("shape")
+                    metadata2.pop("dtype")
                 message2 = (
                     "datasources",
-                    cPickle.dumps(metadata)
+                    cPickle.dumps(metadata2)
                 )
                 print("Send2: tcp://*:%s/%s %s"
-                      % (port, "datasources", metadata))
+                      % (port, "datasources", metadata2))
                 socket.send_multipart(message2)
             counter += 1
             socket.send_multipart(message)
