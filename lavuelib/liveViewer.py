@@ -651,8 +651,12 @@ class LiveViewer(QtGui.QDialog):
             newimage = imageFileHandler.ImageFileHandler(
                 str(self.imagename)).getImage()
             if newimage is not None:
+                print(newimage)
+                print(newimage.shape)
+                if len(newimage.shape) == 3:
+                    self.newimage = np.mean(newimage, -1)
                 self.image_name = self.imagename
-                self.raw_image = np.transpose(newimage)
+                self.raw_image = np.transpose(self.newimage)
                 self.plot()
             else:
                 text = messageBox.MessageBox.getText(
