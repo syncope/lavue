@@ -304,7 +304,7 @@ class ZMQPickleSource(object):
                     topic = shost[1] if len(shost) > 1 else ""
                     self._socket.unbind(self._bindaddress)
                     self._socket.setsockopt(zmq.UNSUBSCRIBE, self._topic)
-                    self._socket.setsockopt(zmq.UNSUBSCRIBE, "datasource")
+                    self._socket.setsockopt(zmq.UNSUBSCRIBE, "datasources")
                     self._socket.setsockopt(zmq.SUBSCRIBE, "datasources")
                     self._socket.setsockopt(zmq.SUBSCRIBE, topic)
                     self._topic = topic
@@ -329,8 +329,10 @@ class ZMQPickleSource(object):
             if topic == "datasources" and lmsg == 2:
                 (topic, _metadata) = message
                 metadata = cPickle.loads(_metadata)
-                metadata.pop("shape")
-                metadata.pop("dtype")
+                if "shape" in metadata:
+                    metadata.pop("shape")
+                if "dtype" in metadata:
+                    metadata.pop("dtype")
                 jmetadata = ""
                 if metadata:
                     jmetadata = json.dumps(metadata)
@@ -338,8 +340,10 @@ class ZMQPickleSource(object):
             elif topic == "datasources" and lmsg == 3:
                 (topic, _, _metadata) = message
                 metadata = cPickle.loads(_metadata)
-                metadata.pop("shape")
-                metadata.pop("dtype")
+                if "shape" in metadata:
+                    metadata.pop("shape")
+                if "dtype" in metadata:
+                    metadata.pop("dtype")
                 jmetadata = ""
                 if metadata:
                     jmetadata = json.dumps(metadata)
