@@ -1,3 +1,7 @@
+2018-01-XX Jan Kotanski <jan.kotanski@desy.de>
+	* add color channel
+	* tagged as 0.11.0
+
 2018-01-17 Jan Kotanski <jan.kotanski@desy.de>
 	* remove shape and dtype from datasources stream
 	* tagged as 0.10.6

@@ -171,6 +171,7 @@ class LiveViewer(QtGui.QDialog):
         self.autozmqtopics = False
         self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
         self.__allowedmdata = ["datasources"]
+        self.colorchannel = 0
 
         # note: host and target are defined in another place
         self.data_source = hcs.GeneralSource()
@@ -196,6 +197,7 @@ class LiveViewer(QtGui.QDialog):
 
         # keep a reference to the "raw" image and the current filename
         self.raw_image = None
+        self.rawgrey_image = None
         self.image_name = None
         self.metadata = ""
         self.display_image = None
@@ -651,12 +653,8 @@ class LiveViewer(QtGui.QDialog):
             newimage = imageFileHandler.ImageFileHandler(
                 str(self.imagename)).getImage()
             if newimage is not None:
-                print(newimage)
-                print(newimage.shape)
-                if len(newimage.shape) == 3:
-                    self.newimage = np.mean(newimage, -1)
                 self.image_name = self.imagename
-                self.raw_image = np.transpose(self.newimage)
+                self.raw_image = np.transpose(newimage)
                 self.plot()
             else:
                 text = messageBox.MessageBox.getText(
@@ -935,12 +933,36 @@ class LiveViewer(QtGui.QDialog):
     def prepareImage(self):
         if self.raw_image is None:
             return
-        self.display_image = self.raw_image
+
+        print(self.raw_image)
+        print(self.raw_image.shape)
+        if len(self.raw_image.shape) == 3:
+            if not self.colorchannel:
+                self.rawgrey_image = np.mean(self.raw_image, 0)
+            else:
+                try:
+                    self.rawgrey_image = self.raw_image[self.colorchannel]
+                except:
+                    import traceback
+                    value = traceback.format_exc()
+                    text = messageBox.MessageBox.getText(
+                        "lavue: color channel %s does not exist"
+                        % self.colorchannel)
+                    messageBox.MessageBox.warning(
+                        self,
+                        "lavue: color channel %s does not exist"
+                        % self.colorchannel,
+                        text, str(value))
+                    self.colorchannel = 0
+                    self.rawgrey_image = np.mean(self.raw_image, 0)
+        else:        
+            self.rawgrey_image = self.raw_image
+        self.display_image = self.rawgrey_image
 
         if self.doBkgSubtraction and self.background_image is not None:
             # simple subtraction
             try:
-                self.display_image = self.raw_image - self.background_image
+                self.display_image = self.rawgrey_image - self.background_image
             except:
                 self.checkBKGSubtraction(False)
                 self.background_image = None
@@ -1049,7 +1071,7 @@ class LiveViewer(QtGui.QDialog):
             maxsval = maxval
         else:
             return "0.", "0.", "0.", "0.", "0.", "0."
-        maxrawval = np.amax(self.raw_image)
+        maxrawval = np.amax(self.rawgrey_image)
         # automatic maximum clipping to hardcoded value
         try:
             checkval = meanval + 10 * np.sqrt(varval)
@@ -1105,8 +1127,8 @@ class LiveViewer(QtGui.QDialog):
 
     @QtCore.pyqtSlot()
     def setCurrentImageAsBKG(self):
-        if self.raw_image is not None:
-            self.background_image = self.raw_image
+        if self.rawgrey_image is not None:
+            self.background_image = self.rawgrey_image
             self.bkgSubW.setDisplayedName(str(self.image_name))
         else:
             self.bkgSubW.setDisplayedName("")
