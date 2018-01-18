@@ -35,13 +35,17 @@ class GradientChoiceWidget(QtGui.QGroupBox):
     """
 
     chosenGradient = QtCore.pyqtSignal(str)
+    channelChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         QtGui.QGroupBox.__init__(self, parent)
 
         self.setTitle("Gradient choice")
+        self.colorchannel = 0
+        self.numberofchannels = 0
 
-        layout = QtGui.QHBoxLayout()
+        vlayout = QtGui.QVBoxLayout()
+        hlayout = QtGui.QHBoxLayout()
         self.cb = QtGui.QComboBox()
         self.cb.addItem("reversegrey")
         self.cb.addItem("highcontrast")
@@ -56,9 +60,42 @@ class GradientChoiceWidget(QtGui.QGroupBox):
         self.cb.addItem("yellowy")
         self.cb.addItem("inverted")
         self.cb.setToolTip("gradient for the color distribution of the image")
-        layout.addWidget(self.cb)
-        self.setLayout(layout)
+        vlayout.addWidget(self.cb)
+        self.channelLabel = QtGui.QLabel("Color channel:")
+        self.channelComboBox = QtGui.QComboBox()
+        hlayout.addWidget(self.channelLabel)
+        hlayout.addWidget(self.channelComboBox)
+        vlayout.addLayout(hlayout)
+        self.setLayout(vlayout)
         self.cb.activated.connect(self.emitText)
+        self.setNumberOfChannels(-1)
+        self.channelComboBox.currentIndexChanged.connect(self.setChannel)
+
+    @QtCore.pyqtSlot(int)
+    def setChannel(self, channel):
+        if self.colorchannel != channel:
+            if channel >= 0 and channel <= self.numberofchannels + 1:
+                self.colorchannel = channel
+                self.channelChanged.emit()
+
+    def setNumberOfChannels(self, number):
+        if number != self.numberofchannels:
+            self.numberofchannels = int(max(number, 0))
+            if self.numberofchannels > 0:
+                for i in reversed(range(0, self.channelComboBox.count())):
+                    self.channelComboBox.removeItem(i)
+                self.channelComboBox.addItem("Sum")
+
+                self.channelComboBox.addItems(
+                    ["Channel %s" % (ch + 1)
+                     for ch in range(self.numberofchannels)])
+
+                self.channelComboBox.addItem("Mean")
+                self.channelLabel.show()
+                self.channelComboBox.show()
+            else:
+                self.channelLabel.hide()
+                self.channelComboBox.hide()
 
     @QtCore.pyqtSlot(int)
     def emitText(self, index):

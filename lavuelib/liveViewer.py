@@ -171,7 +171,6 @@ class LiveViewer(QtGui.QDialog):
         self.autozmqtopics = False
         self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
         self.__allowedmdata = ["datasources"]
-        self.colorchannel = 0
 
         # note: host and target are defined in another place
         self.data_source = hcs.GeneralSource()
@@ -272,6 +271,7 @@ class LiveViewer(QtGui.QDialog):
         # gradient selector
         self.gradientW.chosenGradient.connect(
             self.levelsW.histogram.setGradientByName)
+        self.gradientW.channelChanged.connect(self.plot)
         # self.gradientW.chosenGradient.connect(self.imageW.changeGradient)
         # self.imageW.img_widget.graditem.gradient.sigNameChanged.connect(
         #    self.gradientW.changeGradient)
@@ -934,29 +934,36 @@ class LiveViewer(QtGui.QDialog):
         if self.raw_image is None:
             return
 
-        print(self.raw_image)
-        print(self.raw_image.shape)
         if len(self.raw_image.shape) == 3:
-            if not self.colorchannel:
-                self.rawgrey_image = np.mean(self.raw_image, 0)
+            self.gradientW.setNumberOfChannels(self.raw_image.shape[0])
+            if not self.gradientW.colorchannel:
+                self.rawgrey_image = np.sum(self.raw_image, 0)
             else:
                 try:
-                    self.rawgrey_image = self.raw_image[self.colorchannel]
+                    if len(self.raw_image) >= self.gradientW.colorchannel:
+                        self.rawgrey_image = self.raw_image[
+                            self.gradientW.colorchannel - 1]
+                    else:
+                        self.rawgrey_image = np.mean(self.raw_image, 0)
                 except:
                     import traceback
                     value = traceback.format_exc()
                     text = messageBox.MessageBox.getText(
-                        "lavue: color channel %s does not exist"
-                        % self.colorchannel)
+                        "lavue: color channel %s does not exist."
+                        " Reset to grey scale"
+                        % self.gradientW.colorchannel)
                     messageBox.MessageBox.warning(
                         self,
-                        "lavue: color channel %s does not exist"
-                        % self.colorchannel,
+                        "lavue: color channel %s does not exist. "
+                        " Reset to grey scale"
+                        % self.gradientW.colorchannel,
                         text, str(value))
-                    self.colorchannel = 0
-                    self.rawgrey_image = np.mean(self.raw_image, 0)
-        else:        
+                    self.gradientW.colorchannel = 0
+                    self.rawgrey_image = np.sum(self.raw_image, 0)
+        else:
             self.rawgrey_image = self.raw_image
+            self.gradientW.setNumberOfChannels(0)
+
         self.display_image = self.rawgrey_image
 
         if self.doBkgSubtraction and self.background_image is not None:
