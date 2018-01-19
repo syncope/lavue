@@ -1,3 +1,7 @@
+2018-01-XX Jan Kotanski <jan.kotanski@desy.de>
+	* add  LIMA_VIDEO_IMAGE decoder
+	* tagged as 0.12.0
+
 2018-01-18 Jan Kotanski <jan.kotanski@desy.de>
 	* add color channel
 	* tagged as 0.11.0
