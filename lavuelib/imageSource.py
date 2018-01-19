@@ -29,6 +29,7 @@
 from PyQt4 import QtCore
 import requests
 import json
+import struct
 
 try:
     import hidra
@@ -166,6 +167,95 @@ class TangoFileSource(object):
             pass
 
 
+class VDEOdecoder(object):
+
+    """ VIDEO IMAGE LIMA decoder
+    """
+
+    def __init__(self):
+        """ constructor
+
+        :brief: It clears the local variables
+        """
+        #: (:obj:`str`) decoder name
+        self.name = "LIMA_VIDEO_IMAGE"
+        #: (:obj:`str`) decoder format
+        self.format = None
+        #: (:obj:`str`) data type
+        self.dtype = None
+
+        #: (:class:`numpy.ndarray`) image data
+        self.__value = None
+        #: ([:obj:`str`, :obj:`str`]) header and image data
+        self.__data = None
+        #: (:obj:`str`) struct header format
+        self.__headerFormat = '!IHHqiiHHHH'
+        #: (:obj:`dict` <:obj:`str`, :obj:`any` > ) header data
+        self.__header = {}
+        #: (:obj:`dict` <:obj:`int`, :obj:`str` > ) format modes
+        self.__formatID = {0: 'B', 1: 'H', 2: 'I', 3: 'Q'}
+        #: (:obj:`dict` <:obj:`int`, :obj:`str` > ) dtype modes
+        self.__dtypeID = {0: 'uint8', 1: 'uint16', 2: 'uint32', 3: 'uint64'}
+
+    def load(self, data):
+        """  loads encoded data
+
+        :param data: encoded data
+        :type data: [:obj:`str`, :obj:`str`]
+        """
+        self.__data = data
+        self.format = data[0]
+        self._loadHeader(data[1][:struct.calcsize(self.__headerFormat)])
+        self.__value = None
+
+    def _loadHeader(self, headerData):
+        """ loads the image header
+
+        :param headerData: buffer with header data
+        :type headerData: :obj:`str`
+        """
+        hdr = struct.unpack(self.__headerFormat, headerData)
+        self.__header = {}
+        self.__header['magic'] = hdr[0]
+        self.__header['headerVersion'] = hdr[1]
+        self.__header['imageMode'] = hdr[2]
+        self.__header['frameNumber'] = hdr[3]
+        self.__header['width'] = hdr[4]
+        self.__header['height'] = hdr[5]
+        self.__header['endianness'] = hdr[6]
+        self.__header['headerSize'] = hdr[7]
+        self.__header['padding'] = hdr[7:]
+
+        self.dtype = self.__dtypeID[self.__header['imageMode']]
+
+    def shape(self):
+        """ provides the data shape
+
+        :returns: the data shape if data was loaded
+        :rtype: :obj:`list` <:obj:`int` >
+        """
+        if self.__header:
+            return [self.__header['width'], self.__header['height']]
+
+    def decode(self):
+        """ provides the decoded data
+
+        :returns: the decoded data if data was loaded
+        :rtype: :class:`numpy.ndarray`
+        """
+        if not self.__header or not self.__data:
+            return
+        if not self.__value:
+            image = self.__data[1][struct.calcsize(self.__headerFormat):]
+            dformat = self.__formatID[self.__header['imageMode']]
+            fSize = struct.calcsize(dformat)
+            self.__value = np.array(
+                struct.unpack(dformat * (len(image) // fSize), image),
+                dtype=self.dtype).reshape(self.__header['width'],
+                                          self.__header['height'])
+        return self.__value
+
+
 class TangoAttrSource(object):
 
     def __init__(self, timeout=None):
@@ -175,6 +265,7 @@ class TangoAttrSource(object):
         self._initiated = False
         self.timeout = timeout
         self.aproxy = None
+        self.__decoders = {"LIMA_VIDEO_IMAGE": VDEOdecoder()}
 
     def getTarget(self):
         return self.target[0] + ":" + self.portnumber
@@ -189,8 +280,15 @@ class TangoAttrSource(object):
 
         try:
             attr = self.aproxy.read()
-            return (np.transpose(attr.value),
-                    '%s  (%s)' % (self.signal_host, str(attr.time)), "")
+            if str(attr.type) == "DevEncoded":
+                avalue = attr.value
+                dec = elf.__decoders[avalue[0]]
+                dec.load(avalue)
+                return (np.transpose(dec.decode()),
+                        '%s  (%s)' % (self.signal_host, str(attr.time)), "")
+            else:
+                return (np.transpose(attr.value),
+                        '%s  (%s)' % (self.signal_host, str(attr.time)), "")
         except Exception as e:
             print(str(e))
             return str(e), "__ERROR__", ""
