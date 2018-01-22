@@ -86,6 +86,12 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.ydata = 0
         self.statswoscaling = False
 
+        #: (:obj:`tuple` <:obj:`float`, :obj:`float`> ) image scale (x,y)
+        self.scale = None
+        #: (:obj:`tuple` <:obj:`float`, :obj:`float`> )
+        #    position of the first pixel
+        self.position = None
+
         #: (:obj:`float`) x-coordinates of the center of the image
         self.centerx = 0.0
         #: (:obj:`float`) y-coordinates of the center of the image
@@ -184,23 +190,36 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         currange = self.viewbox.viewRange()
         xrg = currange[0][1] - currange[0][0]
         yrg = currange[1][1] - currange[1][0]
-        self.viewbox.setRange(
-            QtCore.QRectF(0, 0, xrg * ps[0], yrg * ps[1]),
-            padding=0)
+        if self.scale is not None and self.position is not None:
+            self.viewbox.setRange(
+                QtCore.QRectF(
+                    self.position[0],
+                    self.position[1],
+                    xrg * ps[0],
+                    yrg * ps[1]),
+                padding=0)
+        else:
+            self.viewbox.setRange(
+                QtCore.QRectF(0, 0, xrg * ps[0], yrg * ps[1]),
+                padding=0)
+
+    def setScale(self, position, scale):
+        self.position = tuple(position)
+        self.scale = tuple(scale)
+        self.image.resetTransform()
+        self.image.scale(*scale)
+        self.image.setPos(*position)
 
     def updateImage(self, img=None, rawimg=None):
+        # print("H %s" % str(self.image.height()))
+        # print("W %s" % str(self.image.width()))
+        self.setScale((100, -100), (0.01, 0.02))
         if self.autoDisplayLevels:
-            self.image.resetTransform()
-            self.image.scale(0.001, 0.002)
-            self.image.setPos(-100,100)
             self.image.setImage(img, autoLevels=True)
-            #self.image.setRect(QtCore.QRectF(-100, 100, self.image.width() * 0.1, self.image.height() * 0.1))
-            print("SHAPE %s" % str(self.image.shape))
-            print("H %s" % str(self.image.height()))
-            print("W %s" % str(self.image.width()))
         else:
             self.image.setImage(
                 img, autoLevels=False, levels=self.displayLevels)
+        # self.image.setRect(QtCore.QRectF(-100, 100, self.image.width() * 0.1, self.image.height() * 0.1))
         self.data = img
         self.rawdata = rawimg
         self.mouse_position()
@@ -214,14 +233,24 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                 self.ydata = math.floor(mousePoint.y())
             if not self.roienable and not self.cutenable:
                 if not self.crosshair_locked:
-                    self.vLine.setPos(self.xdata + .5)
-                    self.hLine.setPos(self.ydata + .5)
+                    if self.scale is not None and self.position is not None:
+                        self.vLine.setPos((self.xdata + .5) * self.scale[0] \
+                                          + self.position[0])
+                        self.hLine.setPos((self.ydata + .5) * self.scale[1] \
+                                          + self.position[1])
+                    else:
+                        self.vLine.setPos(self.xdata + .5)
+                        self.hLine.setPos(self.ydata + .5)
 
-            if self.data is not None:
+            if self.rawdata is not None:
                 try:
-                    intensity = self.rawdata[
-                        int(math.floor(self.xdata)),
-                        int(math.floor(self.ydata))]
+                    xf = int(math.floor(self.xdata))
+                    yf = int(math.floor(self.ydata))
+                    if xf >= 0 and yf >= 0 and  xf < self.rawdata.shape[0] \
+                       and yf < self.rawdata.shape[1]:
+                        intensity = self.rawdata[xf, yf]
+                    else:
+                        intensity = 0.
                 except Exception:
                     intensity = 0.
             else:
