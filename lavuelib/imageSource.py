@@ -295,15 +295,18 @@ class TangoAttrSource(object):
                     enc = PyTango.EncodedAttribute()
                     data = getattr(enc, self.__tangodecoders[avalue[0]])(da)
                     return (np.transpose(data),
-                            '%s  (%s)' % (self.signal_host, str(attr.time)), "")
+                            '%s  (%s)' % (
+                                self.signal_host, str(attr.time)), "")
                 else:
                     dec = self.__decoders[avalue[0]]
                     dec.load(avalue)
                     return (np.transpose(dec.decode()),
-                            '%s  (%s)' % (self.signal_host, str(attr.time)), "")
+                            '%s  (%s)' % (
+                                self.signal_host, str(attr.time)), "")
             else:
                 return (np.transpose(attr.value),
-                        '%s  (%s)' % (self.signal_host, str(attr.time)), "")
+                        '%s  (%s)' % (
+                            self.signal_host, str(attr.time)), "")
         except Exception as e:
             print(str(e))
             return str(e), "__ERROR__", ""
