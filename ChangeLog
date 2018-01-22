@@ -1,5 +1,6 @@
-2018-01-XX Jan Kotanski <jan.kotanski@desy.de>
-	* add  LIMA_VIDEO_IMAGE decoder
+2018-01-22 Jan Kotanski <jan.kotanski@desy.de>
+	* add LIMA_VIDEO_IMAGE decoder
+	* add Angle/Q space coordinate display
 	* tagged as 0.12.0
 
 2018-01-18 Jan Kotanski <jan.kotanski@desy.de>

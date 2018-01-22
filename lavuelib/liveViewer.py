@@ -419,6 +419,10 @@ class LiveViewer(QtGui.QDialog):
             self.imageW.showLineCutFrame()
             self.trafoW.cb.setEnabled(True)
             self.imageW.roiCoordsChanged.emit()
+        elif text == "Angle/Q":
+            self.imageW.showAngleQFrame()
+            self.trafoW.cb.setEnabled(True)
+            self.imageW.roiCoordsChanged.emit()
         else:
             self.imageW.showIntensityFrame()
             self.trafoW.cb.setEnabled(True)

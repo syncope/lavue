@@ -265,7 +265,8 @@ class TangoAttrSource(object):
         self._initiated = False
         self.timeout = timeout
         self.aproxy = None
-        self.__decoders = {"LIMA_VIDEO_IMAGE": VDEOdecoder()}
+        self.__decoders = {"LIMA_VIDEO_IMAGE": VDEOdecoder(),
+                           "VIDEO_IMAGE": VDEOdecoder()}
 
     def getTarget(self):
         return self.target[0] + ":" + self.portnumber
@@ -282,7 +283,7 @@ class TangoAttrSource(object):
             attr = self.aproxy.read()
             if str(attr.type) == "DevEncoded":
                 avalue = attr.value
-                dec = elf.__decoders[avalue[0]]
+                dec = self.__decoders[avalue[0]]
                 dec.load(avalue)
                 return (np.transpose(dec.decode()),
                         '%s  (%s)' % (self.signal_host, str(attr.time)), "")

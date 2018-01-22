@@ -30,8 +30,10 @@ import math
 
 from PyQt4 import QtCore, QtGui
 
-from . import imageDisplayWidget
 import pyqtgraph as pg
+
+from . import imageDisplayWidget
+from . import geometryWidget
 
 
 class ImageWidget(QtGui.QWidget):
@@ -111,9 +113,10 @@ class ImageWidget(QtGui.QWidget):
         self.pixelComboBox.addItem("Intensity")
         self.pixelComboBox.addItem("ROI")
         self.pixelComboBox.addItem("LineCut")
+        self.pixelComboBox.addItem("Angle/Q")
         self.pixelComboBox.setToolTip(
             "select the image tool for the mouse pointer,"
-            " i.e. Intensity, ROI, LineCut")
+            " i.e. Intensity, ROI, LineCut, Angle/Q")
 
         pixelvaluelayout = QtGui.QHBoxLayout()
         self.pixellabel = QtGui.QLabel("Pixel position and intensity: ")
@@ -150,6 +153,13 @@ class ImageWidget(QtGui.QWidget):
             "add ROI aliases to the Door environment "
             "as well as to Active MntGrp")
 
+        self.angleqPushButton = QtGui.QPushButton("Geometry")
+        self.angleqPushButton.setToolTip("Input physical parameters")
+        self.angleqComboBox = QtGui.QComboBox()
+        self.angleqComboBox.addItem("Angles")
+        self.angleqComboBox.addItem("Q-space")
+        self.angleqComboBox.setToolTip("Select the display space")
+
         pixelvaluelayout.addWidget(self.pixellabel)
         pixelvaluelayout.addWidget(self.infodisplay)
         pixelvaluelayout.addWidget(self.roiLabel)
@@ -158,6 +168,8 @@ class ImageWidget(QtGui.QWidget):
         pixelvaluelayout.addWidget(self.cutSpinBox)
         pixelvaluelayout.addWidget(self.applyROIButton)
         pixelvaluelayout.addWidget(self.fetchROIButton)
+        pixelvaluelayout.addWidget(self.angleqPushButton)
+        pixelvaluelayout.addWidget(self.angleqComboBox)
         pixelvaluelayout.addWidget(self.pixelComboBox)
         verticallayout.addLayout(pixelvaluelayout)
 
@@ -184,8 +196,58 @@ class ImageWidget(QtGui.QWidget):
             self.cutregionmapper.map)
         self.currentcutmapper.setMapping(self.img_widget.cut[0], 0)
         self.cutregionmapper.setMapping(self.img_widget.cut[0], 0)
+        self.angleqPushButton.clicked.connect(self.geometry)
+        self.angleqComboBox.currentIndexChanged.connect(
+            self.onAngleQChanged)
+        self.img_widget.centerAngleChanged.connect(self.updateGeometryTip)
 
         self.cutSpinBox.valueChanged.connect(self.cutNrChanged)
+
+    @QtCore.pyqtSlot(int)
+    def onAngleQChanged(self, gindex):
+        self.img_widget.gspaceindex = gindex
+
+    @QtCore.pyqtSlot()
+    def geometry(self):
+        cnfdlg = geometryWidget.GeometryWidget(self)
+        cnfdlg.centerx = self.img_widget.centerx
+        cnfdlg.centery = self.img_widget.centery
+        cnfdlg.energy = self.img_widget.energy
+        cnfdlg.pixelsizex = self.img_widget.pixelsizex
+        cnfdlg.pixelsizey = self.img_widget.pixelsizey
+        cnfdlg.detdistance = self.img_widget.detdistance
+        cnfdlg.createGUI()
+        if cnfdlg.exec_():
+            self.img_widget.centerx = cnfdlg.centerx
+            self.img_widget.centery = cnfdlg.centery
+            self.img_widget.energy = cnfdlg.energy
+            self.img_widget.pixelsizex = cnfdlg.pixelsizex
+            self.img_widget.pixelsizey = cnfdlg.pixelsizey
+            self.img_widget.detdistance = cnfdlg.detdistance
+            self.updateGeometryTip()
+
+    @QtCore.pyqtSlot()
+    def updateGeometryTip(self):
+        message = "geometry:\n" \
+                  "  center = (%s, %s) pixels\n" \
+                  "  pixel_size = (%s, %s) um\n" \
+                  "  detector_distance = %s mm\n" \
+                  "  energy = %s eV" % (
+                      self.img_widget.centerx,
+                      self.img_widget.centery,
+                      self.img_widget.pixelsizex,
+                      self.img_widget.pixelsizey,
+                      self.img_widget.detdistance,
+                      self.img_widget.energy
+                  )
+        self.angleqPushButton.setToolTip(
+            "Input physical parameters\n%s" % message)
+        self.angleqComboBox.setToolTip(
+            "Select the display space\n%s" % message)
+        self.pixellabel.setToolTip(
+            "coordinate info display for the mouse pointer\n%s" % message)
+        self.infodisplay.setToolTip(
+            "coordinate info display for the mouse pointer\n%s" % message)
 
     @QtCore.pyqtSlot(int)
     def roiRegionChanged(self, _):
@@ -323,6 +385,8 @@ class ImageWidget(QtGui.QWidget):
     def showROIFrame(self):
         self.img_widget.vLine.hide()
         self.img_widget.hLine.hide()
+        self.angleqPushButton.hide()
+        self.angleqComboBox.hide()
         self.cutPlot.hide()
         self.fetchROIButton.show()
         self.applyROIButton.show()
@@ -337,8 +401,13 @@ class ImageWidget(QtGui.QWidget):
             cut.hide()
         self.img_widget.cutenable = False
         self.img_widget.roienable = True
+        self.img_widget.qenable = False
         self.img_widget.roi[0].show()
         self.infodisplay.setText("")
+        self.infodisplay.setToolTip(
+            "coordinate info display for the mouse pointer")
+        self.pixellabel.setToolTip(
+            "coordinate info display for the mouse pointer")
 
     def showIntensityFrame(self):
         self.pixellabel.setText("Pixel position and intensity: ")
@@ -347,6 +416,8 @@ class ImageWidget(QtGui.QWidget):
         for cut in self.img_widget.cut:
             cut.hide()
         self.cutPlot.hide()
+        self.angleqPushButton.hide()
+        self.angleqComboBox.hide()
         self.fetchROIButton.hide()
         self.labelROILineEdit.hide()
         self.applyROIButton.hide()
@@ -355,9 +426,14 @@ class ImageWidget(QtGui.QWidget):
         self.roiLabel.hide()
         self.img_widget.roienable = False
         self.img_widget.cutenable = False
+        self.img_widget.qenable = False
         self.img_widget.vLine.show()
         self.img_widget.hLine.show()
         self.infodisplay.setText("")
+        self.infodisplay.setToolTip(
+            "coordinate info display for the mouse pointer")
+        self.pixellabel.setToolTip(
+            "coordinate info display for the mouse pointer")
 
     def showLineCutFrame(self):
         self.pixellabel.setText("Cut, pixel position and intensity: ")
@@ -367,6 +443,8 @@ class ImageWidget(QtGui.QWidget):
             cut.show()
         self.cutPlot.show()
         self.fetchROIButton.hide()
+        self.angleqPushButton.hide()
+        self.angleqComboBox.hide()
         self.labelROILineEdit.hide()
         self.applyROIButton.hide()
         self.cutSpinBox.show()
@@ -374,9 +452,37 @@ class ImageWidget(QtGui.QWidget):
         self.roiLabel.hide()
         self.img_widget.roienable = False
         self.img_widget.cutenable = True
+        self.img_widget.qenable = False
+        self.img_widget.vLine.hide()
+        self.img_widget.hLine.hide()
+        self.infodisplay.setText("")
+        self.infodisplay.setToolTip(
+            "coordinate info display for the mouse pointer")
+        self.pixellabel.setToolTip(
+            "coordinate info display for the mouse pointer")
+
+    def showAngleQFrame(self):
+        self.pixellabel.setText("Pixel position and intensity: ")
+        for roi in self.img_widget.roi:
+            roi.hide()
+        for cut in self.img_widget.cut:
+            cut.hide()
+        self.cutPlot.hide()
+        self.angleqPushButton.show()
+        self.angleqComboBox.show()
+        self.fetchROIButton.hide()
+        self.labelROILineEdit.hide()
+        self.applyROIButton.hide()
+        self.roiSpinBox.hide()
+        self.cutSpinBox.hide()
+        self.roiLabel.hide()
+        self.img_widget.roienable = False
+        self.img_widget.cutenable = False
+        self.img_widget.qenable = True
         self.img_widget.vLine.show()
         self.img_widget.hLine.show()
         self.infodisplay.setText("")
+        self.updateGeometryTip()
 
     def plot(self, array, name=None, rawarray=None):
         if array is None:

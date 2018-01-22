@@ -60,6 +60,7 @@ class SimpleLineROI(LineROI):
 class ImageDisplayWidget(pg.GraphicsLayoutWidget):
 
     currentMousePosition = QtCore.pyqtSignal(QtCore.QString)
+    centerAngleChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         pg.GraphicsLayoutWidget.__init__(self, parent)
@@ -67,6 +68,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.crosshair_locked = False
         self.roienable = False
         self.cutenable = False
+        self.qenable = False
         self.roicoords = [[10, 10, 60, 60]]
         self.currentroi = 0
         self.currentcut = 0
@@ -83,6 +85,21 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.xdata = 0
         self.ydata = 0
         self.statswoscaling = False
+
+        #: (:obj:`float`) x-coordinates of the center of the image
+        self.centerx = 0.0
+        #: (:obj:`float`) y-coordinates of the center of the image
+        self.centery = 0.0
+        #: (:obj:`float`) energy in eV
+        self.energy = 0.0
+        #: (:obj:`float`) pixel x-size in um
+        self.pixelsizex = 0.0
+        #: (:obj:`float`) pixel y-size in um
+        self.pixelsizey = 0.0
+        #: (:obj:`float`) detector distance in mm
+        self.detdistance = 0.0
+        #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
+        self.gspaceindex = 0
 
         self.viewonetoone = QtGui.QAction(
             "View 1:1 pixels", self.viewbox.menu)
@@ -188,9 +205,10 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                 mousePoint = self.image.mapFromScene(event)
                 self.xdata = math.floor(mousePoint.x())
                 self.ydata = math.floor(mousePoint.y())
-            if not self.crosshair_locked:
-                self.vLine.setPos(self.xdata + .5)
-                self.hLine.setPos(self.ydata + .5)
+            if not self.roienable and not self.cutenable:
+                if not self.crosshair_locked:
+                    self.vLine.setPos(self.xdata + .5)
+                    self.hLine.setPos(self.ydata + .5)
 
             if self.data is not None:
                 try:
@@ -202,23 +220,21 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             else:
                 intensity = 0.
             scaling = self.scaling if not self.statswoscaling else "linear"
-            if not self.roienable and not self.cutenable:
+            ilabel = "intensity"
+            if not self.roienable:
                 if self.doBkgSubtraction:
-                    self.currentMousePosition.emit(
-                        "x=%i, y=%i, %s(intensity-background)=%.2f" % (
-                            self.xdata, self.ydata,
-                            scaling if scaling != "linear" else "",
-                            intensity))
+                    ilabel = "%s(intensity-background)" % (
+                        scaling if scaling != "linear" else "")
                 else:
                     if scaling == "linear":
-                        self.currentMousePosition.emit(
-                            "x=%i, y=%i, intensity=%.2f" % (
-                                self.xdata, self.ydata, intensity))
+                        ilabel = "intensity"
                     else:
-                        self.currentMousePosition.emit(
-                            "x=%i, y=%i, %s(intensity)=%.2f" % (
-                                self.xdata, self.ydata,
-                                scaling, intensity))
+                        ilabel = "%s(intensity)" % scaling
+            if not self.roienable and not self.cutenable and not self.qenable:
+                self.currentMousePosition.emit(
+                    "x=%i, y=%i, %s=%.2f" % (
+                        self.xdata, self.ydata, ilabel,
+                        intensity))
             elif self.roienable and self.currentroi > -1:
                 if event:
                     self.currentMousePosition.emit(
@@ -226,33 +242,54 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             elif self.cutenable:
                 if self.currentcut > -1:
                     crds = self.cutcoords[self.currentcut]
-                    # print(self.currentcut)
-                    # print(self.cutcoords)
                     crds = "[[%.2f, %.2f], [%.2f, %.2f]]" % tuple(crds)
                 else:
                     crds = "[[0, 0], [0, 0]]"
-                if self.doBkgSubtraction:
+                self.currentMousePosition.emit(
+                    "%s, x=%i, y=%i, %s(intensity-background)=%.2f" % (
+                        crds, self.xdata, self.ydata, ilabel,
+                        intensity))
+            elif self.qenable and self.energy > 0 and self.detdistance > 0:
+                if self.gspaceindex == 0:
+                    thetax, thetay, thetatotal = self.pixel2theta(
+                        self.xdata, self.ydata)
                     self.currentMousePosition.emit(
-                        "%s, x=%i, y=%i, %s(intensity-background)=%.2f" % (
-                            crds, self.xdata, self.ydata,
-                            scaling if scaling != "linear" else "",
-                            intensity))
+                        "th_x=%.5f deg, th_y=%.5f deg,"
+                        " th_tot=%.5f deg, %s=%.2f"
+                        % (thetax, thetay, thetatotal, ilabel, intensity))
                 else:
-                    if scaling == "linear":
-                        self.currentMousePosition.emit(
-                            "%s, x=%i, y=%i, intensity=%.2f" % (
-                                crds, self.xdata, self.ydata, intensity))
-                    else:
-                        self.currentMousePosition.emit(
-                            "%s, x=%i, y=%i, %s(intensity)=%.2f" % (
-                                crds, self.xdata, self.ydata,
-                                scaling, intensity))
+                    qx, qz, q = self.pixel2q(self.xdata, self.ydata)
+                    self.currentMousePosition.emit(
+                        "q_x=%.5f 1/A, q_z=%.5f 1/A, q=%.5f 1/A, %s=%.2f"
+                        % (qx, qz, q, ilabel, intensity))
+
             else:
                 self.currentMousePosition.emit("")
 
         except Exception:
             # print("Warning: %s" % str(e))
             pass
+
+    def pixel2theta(self, xdata, ydata):
+        xcentered = xdata - self.centerx
+        ycentered = ydata - self.centery
+        thetax = math.atan(
+            xcentered * self.pixelsizex/1000. / self.detdistance)
+        thetay = math.atan(
+            ycentered * self.pixelsizey/1000. / self.detdistance)
+        r = math.sqrt((xcentered * self.pixelsizex / 1000.) ** 2
+                      + (ycentered * self.pixelsizex / 1000.) ** 2)
+        thetatotal = math.atan(r/self.detdistance)*180/math.pi
+        return thetax, thetay, thetatotal
+
+    def pixel2q(self, xdata, ydata):
+        thetax, thetay, thetatotal = self.pixel2theta(
+            self.xdata, self.ydata)
+        wavelength = 12400./self.energy
+        qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
+        qz = 4 * math.pi / wavelength * math.sin(thetay/2.)
+        q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)
+        return qx, qz, q
 
     @QtCore.pyqtSlot(object)
     def mouse_click(self, event):
@@ -265,11 +302,16 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         # if double click: fix mouse crosshair
         # another double click releases the crosshair again
         if event.double():
-            if not self.roienable and not self.cutenable:
+            if not self.roienable and not self.cutenable and not self.qenable:
                 self.crosshair_locked = not self.crosshair_locked
                 if not self.crosshair_locked:
                     self.vLine.setPos(xdata + .5)
                     self.hLine.setPos(ydata + .5)
+            if self.qenable:
+                self.crosshair_locked = False
+                self.centerx = float(xdata)
+                self.centery = float(ydata)
+                self.centerAngleChanged.emit()
 
     def setAutoLevels(self, autoLvls):
         if autoLvls:
