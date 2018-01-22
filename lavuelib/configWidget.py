@@ -35,6 +35,7 @@ class ConfigWidget(QtGui.QDialog):
         QtGui.QDialog.__init__(self, parent)
 
         self.door = ""
+        self.sardana = True
         self.addrois = True
         self.secstream = False
         self.secport = "5657"
@@ -47,6 +48,7 @@ class ConfigWidget(QtGui.QDialog):
         self.statswoscaling = False
 
         self.doorLineEdit = None
+        self.sardanaCheckBox = None
         self.addroisCheckBox = None
         self.secportLineEdit = None
         self.secstreamCheckBox = None
@@ -98,6 +100,14 @@ class ConfigWidget(QtGui.QDialog):
         self.statsscaleCheckBox.setChecked(not self.statswoscaling)
         self.statsscaleCheckBox.setToolTip(
             "statistics values with scaling")
+
+        sardanaLabel = QtGui.QLabel(u"Enable Sardana:")
+        sardanaLabel.setToolTip(
+            "enable the sardana feature")
+        self.sardanaCheckBox = QtGui.QCheckBox()
+        self.sardanaCheckBox.setChecked(self.sardana)
+        self.sardanaCheckBox.setToolTip(
+            "enable the sardana feature")
 
         doorLabel = QtGui.QLabel(u"Sardana Door:")
         doorLabel.setToolTip(
@@ -190,30 +200,32 @@ class ConfigWidget(QtGui.QDialog):
         gridlayout.addWidget(self.rateDoubleSpinBox, 0, 1)
         gridlayout.addWidget(aspectlockedLabel, 1, 0)
         gridlayout.addWidget(self.aspectlockedCheckBox, 1, 1)
-        gridlayout.addWidget(doorLabel, 2, 0)
-        gridlayout.addWidget(self.doorLineEdit, 2, 1)
-        gridlayout.addWidget(addroisLabel, 3, 0)
-        gridlayout.addWidget(self.addroisCheckBox, 3, 1)
-        gridlayout.addWidget(secstreamLabel, 4, 0)
-        gridlayout.addWidget(self.secstreamCheckBox, 4, 1)
-        gridlayout.addWidget(secautoportLabel, 5, 0)
-        gridlayout.addWidget(self.secautoportCheckBox, 5, 1)
-        gridlayout.addWidget(secportLabel, 6, 0)
-        gridlayout.addWidget(self.secportLineEdit, 6, 1)
-        gridlayout.addWidget(showhistoLabel, 7, 0)
-        gridlayout.addWidget(self.showhistoCheckBox, 7, 1)
-        gridlayout.addWidget(showmaskLabel, 8, 0)
-        gridlayout.addWidget(self.showmaskCheckBox, 8, 1)
-        gridlayout.addWidget(timeoutLabel, 9, 0)
-        gridlayout.addWidget(self.timeoutLineEdit, 9, 1)
-        gridlayout.addWidget(statsscaleLabel, 10, 0)
-        gridlayout.addWidget(self.statsscaleCheckBox, 10, 1)
-        gridlayout.addWidget(zmqtopicsLabel, 11, 0)
-        gridlayout.addWidget(self.zmqtopicsLineEdit, 11, 1)
-        gridlayout.addWidget(autozmqtopicsLabel, 12, 0)
-        gridlayout.addWidget(self.autozmqtopicsCheckBox, 12, 1)
-        gridlayout.addWidget(dirtransLabel, 13, 0)
-        gridlayout.addWidget(self.dirtransLineEdit, 13, 1)
+        gridlayout.addWidget(sardanaLabel, 2, 0)
+        gridlayout.addWidget(self.sardanaCheckBox, 2, 1)
+        gridlayout.addWidget(doorLabel, 3, 0)
+        gridlayout.addWidget(self.doorLineEdit, 3, 1)
+        gridlayout.addWidget(addroisLabel, 4, 0)
+        gridlayout.addWidget(self.addroisCheckBox, 4, 1)
+        gridlayout.addWidget(secstreamLabel, 5, 0)
+        gridlayout.addWidget(self.secstreamCheckBox, 5, 1)
+        gridlayout.addWidget(secautoportLabel, 6, 0)
+        gridlayout.addWidget(self.secautoportCheckBox, 6, 1)
+        gridlayout.addWidget(secportLabel, 7, 0)
+        gridlayout.addWidget(self.secportLineEdit, 7, 1)
+        gridlayout.addWidget(showhistoLabel, 8, 0)
+        gridlayout.addWidget(self.showhistoCheckBox, 8, 1)
+        gridlayout.addWidget(showmaskLabel, 9, 0)
+        gridlayout.addWidget(self.showmaskCheckBox, 9, 1)
+        gridlayout.addWidget(timeoutLabel, 10, 0)
+        gridlayout.addWidget(self.timeoutLineEdit, 10, 1)
+        gridlayout.addWidget(statsscaleLabel, 11, 0)
+        gridlayout.addWidget(self.statsscaleCheckBox, 11, 1)
+        gridlayout.addWidget(zmqtopicsLabel, 12, 0)
+        gridlayout.addWidget(self.zmqtopicsLineEdit, 12, 1)
+        gridlayout.addWidget(autozmqtopicsLabel, 13, 0)
+        gridlayout.addWidget(self.autozmqtopicsCheckBox, 13, 1)
+        gridlayout.addWidget(dirtransLabel, 14, 0)
+        gridlayout.addWidget(self.dirtransLineEdit, 14, 1)
         self.buttonBox = QtGui.QDialogButtonBox(
             QtGui.QDialogButtonBox.Ok
             | QtGui.QDialogButtonBox.Cancel)
@@ -237,6 +249,7 @@ class ConfigWidget(QtGui.QDialog):
         """ updates class variables with the form content
         """
 
+        self.sardana = self.sardanaCheckBox.isChecked()
         self.door = str(self.doorLineEdit.text()).strip()
         self.addrois = self.addroisCheckBox.isChecked()
         self.secport = str(self.secportLineEdit.text()).strip()

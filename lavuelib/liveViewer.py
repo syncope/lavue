@@ -306,8 +306,12 @@ class LiveViewer(QtGui.QDialog):
         self.sourceW.source_servername.connect(self.setSignalHost)
         self.onPixelChanged()
 
-        self.sardana = sardanaUtils.SardanaUtils()
         settings = QtCore.QSettings()
+        qstval = str(settings.value("Configuration/Sardana").toString())
+        if qstval.lower() == "false":
+            self.setSardana(False)
+        else:
+            self.setSardana(True)
         self.restoreGeometry(
             settings.value("Layout/Geometry").toByteArray())
         qstval = str(settings.value("Configuration/AddROIs").toString())
@@ -547,9 +551,9 @@ class LiveViewer(QtGui.QDialog):
         settings.setValue(
             "Configuration/SecStream",
             QtCore.QVariant(self.secstream))
-        # settings.setValue(
-        #    "Configuration/Door",
-        #    QtCore.QVariant(self.doorname))
+        settings.setValue(
+            "Configuration/Sardana",
+            QtCore.QVariant(True if self.sardana is not None else False))
         settings.setValue(
             "Layout/Geometry",
             QtCore.QVariant(self.saveGeometry()))
@@ -672,8 +676,9 @@ class LiveViewer(QtGui.QDialog):
     @QtCore.pyqtSlot()
     def configuration(self):
         cnfdlg = configWidget.ConfigWidget(self)
-        if not self.doorname:
+        if not self.doorname and self.sardana is not None:
             self.doorname = self.sardana.getDeviceName("Door")
+        cnfdlg.sardana = True if self.sardana is not None else False
         cnfdlg.door = self.doorname
         cnfdlg.addrois = self.addrois
         cnfdlg.showhisto = self.showhisto
@@ -694,6 +699,8 @@ class LiveViewer(QtGui.QDialog):
 
     def __updateConfig(self, dialog):
         self.doorname = dialog.door
+        if dialog.sardana != (True if self.sardana is not None else False):
+            self.setSardana(dialog.sardana)
         self.addrois = dialog.addrois
 
         if self.showhisto != dialog.showhisto:
@@ -757,6 +764,16 @@ class LiveViewer(QtGui.QDialog):
     def setSignalHost(self, signalhost):
         self._signalhost = signalhost
         self.data_source.setSignalHost(self._signalhost)
+
+    def setSardana(self, status):
+        if status is False:
+            self.sardana = None
+            self.imageW.applyROIButton.setEnabled(False)
+            self.imageW.fetchROIButton.setEnabled(False)
+        else:
+            self.sardana = sardanaUtils.SardanaUtils()
+            self.imageW.applyROIButton.setEnabled(True)
+            self.imageW.fetchROIButton.setEnabled(True)
 
     @QtCore.pyqtSlot(int)
     def updateSource(self, status):
