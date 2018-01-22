@@ -190,7 +190,14 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
 
     def updateImage(self, img=None, rawimg=None):
         if self.autoDisplayLevels:
+            self.image.resetTransform()
+            self.image.scale(0.001, 0.002)
+            self.image.setPos(-100,100)
             self.image.setImage(img, autoLevels=True)
+            #self.image.setRect(QtCore.QRectF(-100, 100, self.image.width() * 0.1, self.image.height() * 0.1))
+            print("SHAPE %s" % str(self.image.shape))
+            print("H %s" % str(self.image.height()))
+            print("W %s" % str(self.image.width()))
         else:
             self.image.setImage(
                 img, autoLevels=False, levels=self.displayLevels)
