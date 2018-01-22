@@ -267,6 +267,13 @@ class TangoAttrSource(object):
         self.aproxy = None
         self.__decoders = {"LIMA_VIDEO_IMAGE": VDEOdecoder(),
                            "VIDEO_IMAGE": VDEOdecoder()}
+        self.__tangodecoders = {
+            "GRAY16": "decode_gray16",
+            "GRAY8": "decode_gray8",
+            "JPEG_GRAY8": "decode_gray8",
+            "JPEG_RGB": "decode_rgb32",
+            "RGB24": "decode_rgb32"
+        }
 
     def getTarget(self):
         return self.target[0] + ":" + self.portnumber
@@ -283,10 +290,17 @@ class TangoAttrSource(object):
             attr = self.aproxy.read()
             if str(attr.type) == "DevEncoded":
                 avalue = attr.value
-                dec = self.__decoders[avalue[0]]
-                dec.load(avalue)
-                return (np.transpose(dec.decode()),
-                        '%s  (%s)' % (self.signal_host, str(attr.time)), "")
+                if avalue[0] in self.__tangodecoders:
+                    da = self.aproxy.read(extract_as=PyTango.ExtractAs.Nothing)
+                    enc = PyTango.EncodedAttribute()
+                    data = getattr(enc, self.__tangodecoders[avalue[0]])(da)
+                    return (np.transpose(data),
+                            '%s  (%s)' % (self.signal_host, str(attr.time)), "")
+                else:
+                    dec = self.__decoders[avalue[0]]
+                    dec.load(avalue)
+                    return (np.transpose(dec.decode()),
+                            '%s  (%s)' % (self.signal_host, str(attr.time)), "")
             else:
                 return (np.transpose(attr.value),
                         '%s  (%s)' % (self.signal_host, str(attr.time)), "")

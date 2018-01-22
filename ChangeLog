@@ -1,3 +1,7 @@
+2018-01-XX Jan Kotanski <jan.kotanski@desy.de>
+	* add suport for build-in tango decoders
+	* tagged as 0.13.0
+
 2018-01-22 Jan Kotanski <jan.kotanski@desy.de>
 	* add LIMA_VIDEO_IMAGE decoder
 	* add Angle/Q space coordinate display
