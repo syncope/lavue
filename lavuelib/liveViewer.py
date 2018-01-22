@@ -98,7 +98,7 @@ class LiveViewer(QtGui.QDialog):
         )
         if hcs.PYTANGO:
             self.sourcetypes.append(
-                {"name": "Tango Attr",
+                {"name": "Tango Attribute",
                  "datasource": "TangoAttrSource",
                  "slot": "updateAttrButton",
                  "hidden": ["hostlabel", "currenthost",

@@ -229,7 +229,7 @@ class SourceWidget(QtGui.QGroupBox):
     @QtCore.pyqtSlot()
     def updateAttrButton(self):
         source = str(self.sourceTypeComboBox.currentText())
-        if source != "Tango Attr":
+        if source != "Tango Attribute":
             return
         if not str(self.attrLineEdit.text()).strip():
             self.button.setEnabled(False)
