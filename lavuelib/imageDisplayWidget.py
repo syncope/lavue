@@ -107,6 +107,13 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
         self.gspaceindex = 0
 
+        self.setaspectlocked = QtGui.QAction(
+            "Set Aspect Locked", self.viewbox.menu)
+        self.setaspectlocked.setCheckable(True)
+        if VMAJOR == '0' and int(VMINOR) < 10 and int(VPATCH) < 9:
+            self.viewbox.menu.axes.insert(0, self.setaspectlocked)
+        self.viewbox.menu.addAction(self.setaspectlocked)
+
         self.viewonetoone = QtGui.QAction(
             "View 1:1 pixels", self.viewbox.menu)
         self.viewonetoone.triggered.connect(self.oneToOneRange)
@@ -143,6 +150,8 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.cut[0].hide()
 
     def setAspectLocked(self, flag):
+        if flag != self.setaspectlocked.isChecked():
+            self.setaspectlocked.setChecked(flag)
         self.viewbox.setAspectLocked(flag)
 
     def addItem(self, item, **args):
@@ -190,36 +199,52 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         currange = self.viewbox.viewRange()
         xrg = currange[0][1] - currange[0][0]
         yrg = currange[1][1] - currange[1][0]
-        if self.scale is not None and self.position is not None:
+        if self.position is not None and \
+           not self.roienable and not self.cutenable and not self.qenable:
             self.viewbox.setRange(
-                QtCore.QRectF(
-                    self.position[0],
-                    self.position[1],
-                    xrg * ps[0],
-                    yrg * ps[1]),
+                QtCore.QRectF(self.position[0], self.position[1],
+                              xrg * ps[0], yrg * ps[1]),
                 padding=0)
         else:
             self.viewbox.setRange(
                 QtCore.QRectF(0, 0, xrg * ps[0], yrg * ps[1]),
                 padding=0)
+        if self.setaspectlocked.isChecked():
+            self.setaspectlocked.setChecked(False)
+            self.setaspectlocked.triggered.emit(False)
 
-    def setScale(self, position, scale):
-        self.position = tuple(position)
-        self.scale = tuple(scale)
+    def setScale(self, position=None, scale=None):
+        if self.position == position and self.scale == scale and \
+           position is None and scale is None:
+            return
+        self.position = position
+        self.scale = scale
         self.image.resetTransform()
-        self.image.scale(*scale)
-        self.image.setPos(*position)
+        if self.scale is not None:
+            self.image.scale(*self.scale)
+        else:
+            self.image.scale(1, 1)
+        if self.position is not None:
+            self.image.setPos(*self.position)
+        else:
+            self.image.setPos(0, 0)
+        self.viewbox.autoRange()
+
+    def resetScale(self):
+        self.image.resetTransform()
+        if self.scale is not None:
+            self.image.scale(1, 1)
+        if self.position is not None:
+            self.image.setPos(0, 0)
+        if self.scale is not None or self.position is not None:
+            self.viewbox.autoRange()
 
     def updateImage(self, img=None, rawimg=None):
-        # print("H %s" % str(self.image.height()))
-        # print("W %s" % str(self.image.width()))
-        self.setScale((100, -100), (0.01, 0.02))
         if self.autoDisplayLevels:
             self.image.setImage(img, autoLevels=True)
         else:
             self.image.setImage(
                 img, autoLevels=False, levels=self.displayLevels)
-        # self.image.setRect(QtCore.QRectF(-100, 100, self.image.width() * 0.1, self.image.height() * 0.1))
         self.data = img
         self.rawdata = rawimg
         self.mouse_position()
@@ -234,9 +259,9 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             if not self.roienable and not self.cutenable:
                 if not self.crosshair_locked:
                     if self.scale is not None and self.position is not None:
-                        self.vLine.setPos((self.xdata + .5) * self.scale[0] \
+                        self.vLine.setPos((self.xdata + .5) * self.scale[0]
                                           + self.position[0])
-                        self.hLine.setPos((self.ydata + .5) * self.scale[1] \
+                        self.hLine.setPos((self.ydata + .5) * self.scale[1]
                                           + self.position[1])
                     else:
                         self.vLine.setPos(self.xdata + .5)
@@ -246,7 +271,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                 try:
                     xf = int(math.floor(self.xdata))
                     yf = int(math.floor(self.ydata))
-                    if xf >= 0 and yf >= 0 and  xf < self.rawdata.shape[0] \
+                    if xf >= 0 and yf >= 0 and xf < self.rawdata.shape[0] \
                        and yf < self.rawdata.shape[1]:
                         intensity = self.rawdata[xf, yf]
                     else:
@@ -267,10 +292,28 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                     else:
                         ilabel = "%s(intensity)" % scaling
             if not self.roienable and not self.cutenable and not self.qenable:
-                self.currentMousePosition.emit(
-                    "x=%i, y=%i, %s=%.2f" % (
-                        self.xdata, self.ydata, ilabel,
-                        intensity))
+                if self.scale is not None:
+                    txdata = self.xdata * self.scale[0]
+                    tydata = self.ydata * self.scale[1]
+                    if self.position is not None:
+                        txdata = txdata + self.position[0]
+                        tydata = tydata + self.position[1]
+                    self.currentMousePosition.emit(
+                        "x=%f, y=%f, %s=%.2f" % (
+                            txdata, tydata, ilabel,
+                            intensity))
+                elif self.position is not None:
+                    txdata = self.xdata + self.position[0]
+                    tydata = self.ydata + self.position[1]
+                    self.currentMousePosition.emit(
+                        "x=%.2f, y=%.2f, %s=%.2f" % (
+                            txdata, tydata, ilabel,
+                            intensity))
+                else:
+                    self.currentMousePosition.emit(
+                        "x=%i, y=%i, %s=%.2f" % (
+                            self.xdata, self.ydata, ilabel,
+                            intensity))
             elif self.roienable and self.currentroi > -1:
                 if event:
                     self.currentMousePosition.emit(

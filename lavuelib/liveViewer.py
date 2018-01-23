@@ -277,6 +277,9 @@ class LiveViewer(QtGui.QDialog):
         #    self.gradientW.changeGradient)
         self.levelsW.histogram.gradient.sigNameChanged.connect(
             self.gradientW.changeGradient)
+        self.imageW.img_widget.setaspectlocked.triggered.connect(
+            self.toggleAspectLocked)
+        self.imageW.ticksPushButton.clicked.connect(self.setTicks)
 
         # simple mutable caching object for data exchange with thread
         # [blocked state | image name | image data]
@@ -409,6 +412,11 @@ class LiveViewer(QtGui.QDialog):
         self.levelsW.changeview(self.showhisto)
         self.prepBoxW.changeview(self.showmask)
         self.plot()
+
+    @QtCore.pyqtSlot(bool)
+    def toggleAspectLocked(self, status):
+        self.aspectlocked = status
+        self.imageW.img_widget.setAspectLocked(self.aspectlocked)
 
     @QtCore.pyqtSlot(int)
     def onPixelChanged(self):
@@ -1166,3 +1174,8 @@ class LiveViewer(QtGui.QDialog):
     def assessTransformation(self, trafoName):
         self.trafoName = trafoName
         self.plot()
+
+    @QtCore.pyqtSlot()
+    def setTicks(self):
+        if self.imageW.setTicks():
+            self.plot()

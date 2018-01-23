@@ -34,6 +34,7 @@ import pyqtgraph as pg
 
 from . import imageDisplayWidget
 from . import geometryWidget
+from . import ticksWidget
 
 
 class ImageWidget(QtGui.QWidget):
@@ -128,6 +129,8 @@ class ImageWidget(QtGui.QWidget):
         self.infodisplay.setToolTip(
             "coordinate info display for the mouse pointer")
 
+        self.ticksPushButton = QtGui.QPushButton("Ticks")
+
         self.roiLabel = QtGui.QLabel("ROI alias(es): ")
         self.roiLabel.setToolTip(
             "ROI alias or aliases related to sardana experimental channels")
@@ -170,6 +173,7 @@ class ImageWidget(QtGui.QWidget):
         pixelvaluelayout.addWidget(self.fetchROIButton)
         pixelvaluelayout.addWidget(self.angleqPushButton)
         pixelvaluelayout.addWidget(self.angleqComboBox)
+        pixelvaluelayout.addWidget(self.ticksPushButton)
         pixelvaluelayout.addWidget(self.pixelComboBox)
         verticallayout.addLayout(pixelvaluelayout)
 
@@ -385,6 +389,7 @@ class ImageWidget(QtGui.QWidget):
     def showROIFrame(self):
         self.img_widget.vLine.hide()
         self.img_widget.hLine.hide()
+        self.ticksPushButton.hide()
         self.angleqPushButton.hide()
         self.angleqComboBox.hide()
         self.cutPlot.hide()
@@ -408,6 +413,7 @@ class ImageWidget(QtGui.QWidget):
             "coordinate info display for the mouse pointer")
         self.pixellabel.setToolTip(
             "coordinate info display for the mouse pointer")
+        self.img_widget.resetScale()
 
     def showIntensityFrame(self):
         self.pixellabel.setText("Pixel position and intensity: ")
@@ -416,6 +422,7 @@ class ImageWidget(QtGui.QWidget):
         for cut in self.img_widget.cut:
             cut.hide()
         self.cutPlot.hide()
+        self.ticksPushButton.show()
         self.angleqPushButton.hide()
         self.angleqComboBox.hide()
         self.fetchROIButton.hide()
@@ -434,6 +441,8 @@ class ImageWidget(QtGui.QWidget):
             "coordinate info display for the mouse pointer")
         self.pixellabel.setToolTip(
             "coordinate info display for the mouse pointer")
+        self.img_widget.setScale(
+            self.img_widget.position, self.img_widget.scale)
 
     def showLineCutFrame(self):
         self.pixellabel.setText("Cut, pixel position and intensity: ")
@@ -443,6 +452,7 @@ class ImageWidget(QtGui.QWidget):
             cut.show()
         self.cutPlot.show()
         self.fetchROIButton.hide()
+        self.ticksPushButton.hide()
         self.angleqPushButton.hide()
         self.angleqComboBox.hide()
         self.labelROILineEdit.hide()
@@ -460,6 +470,7 @@ class ImageWidget(QtGui.QWidget):
             "coordinate info display for the mouse pointer")
         self.pixellabel.setToolTip(
             "coordinate info display for the mouse pointer")
+        self.img_widget.resetScale()
 
     def showAngleQFrame(self):
         self.pixellabel.setText("Pixel position and intensity: ")
@@ -468,6 +479,7 @@ class ImageWidget(QtGui.QWidget):
         for cut in self.img_widget.cut:
             cut.hide()
         self.cutPlot.hide()
+        self.ticksPushButton.hide()
         self.angleqPushButton.show()
         self.angleqComboBox.show()
         self.fetchROIButton.hide()
@@ -483,6 +495,7 @@ class ImageWidget(QtGui.QWidget):
         self.img_widget.hLine.show()
         self.infodisplay.setText("")
         self.updateGeometryTip()
+        self.img_widget.resetScale()
 
     def plot(self, array, name=None, rawarray=None):
         if array is None:
@@ -528,3 +541,32 @@ class ImageWidget(QtGui.QWidget):
     @QtCore.pyqtSlot(str)
     def changeGradient(self, name):
         self.img_widget.updateGradient(name)
+
+    def setTicks(self):
+        cnfdlg = ticksWidget.TicksWidget(self)
+        if self.img_widget.position is None:
+            cnfdlg.xposition = None
+            cnfdlg.yposition = None
+        else:
+            cnfdlg.xposition = self.img_widget.position[0]
+            cnfdlg.yposition = self.img_widget.position[1]
+        if self.img_widget.scale is None:
+            cnfdlg.xscale = None
+            cnfdlg.yscale = None
+        else:
+            cnfdlg.xscale = self.img_widget.scale[0]
+            cnfdlg.yscale = self.img_widget.scale[1]
+
+        cnfdlg.createGUI()
+        if cnfdlg.exec_():
+            if cnfdlg.xposition is not None and cnfdlg.yposition is not None:
+                position = tuple([cnfdlg.xposition, cnfdlg.yposition])
+            else:
+                position = None
+            if cnfdlg.xscale is not None and cnfdlg.yscale is not None:
+                scale = tuple([cnfdlg.xscale, cnfdlg.yscale])
+            else:
+                scale = None
+            self.img_widget.setScale(position, scale)
+            return True
+        return False
