@@ -221,24 +221,25 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             self.setaspectlocked.setChecked(False)
             self.setaspectlocked.triggered.emit(False)
 
-    def setScale(self, position=None, scale=None):
+    def setScale(self, position=None, scale=None, update=True):
         if self.position == position and self.scale == scale and \
            position is None and scale is None:
             return
         self.position = position
         self.scale = scale
         self.image.resetTransform()
-        if self.scale is not None:
+        if self.scale is not None and update:
             self.image.scale(*self.scale)
         else:
             self.image.scale(1, 1)
-        if self.position is not None:
+        if self.position is not None and update:
             self.image.setPos(*self.position)
         else:
             self.image.setPos(0, 0)
-        if self.rawdata is not None:
+        if self.rawdata is not None and update:
             self.viewbox.autoRange()
-        self.setLabels(self.xtext, self.ytext, self.xunits, self.yunits)
+        if update:
+            self.setLabels(self.xtext, self.ytext, self.xunits, self.yunits)
 
     def resetScale(self):
         self.image.resetTransform()
@@ -312,16 +313,22 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                         txdata = txdata + self.position[0]
                         tydata = tydata + self.position[1]
                     self.currentMousePosition.emit(
-                        "x=%f, y=%f, %s=%.2f" % (
-                            txdata, tydata, ilabel,
-                            intensity))
+                        "x=%f%s, y=%f%s, %s=%.2f" % (
+                            txdata,
+                            (" [%s]" % self.xunits) if self.xunits else "",
+                            tydata,
+                            (" [%s]" % self.yunits) if self.yunits else "",
+                            ilabel, intensity))
                 elif self.position is not None:
                     txdata = self.xdata + self.position[0]
                     tydata = self.ydata + self.position[1]
                     self.currentMousePosition.emit(
-                        "x=%.2f, y=%.2f, %s=%.2f" % (
-                            txdata, tydata, ilabel,
-                            intensity))
+                        "x=%f%s, y=%f%s, %s=%.2f" % (
+                            txdata,
+                            (" [%s]" % self.xunits) if self.xunits else "",
+                            tydata,
+                            (" [%s]" % self.yunits) if self.yunits else "",
+                            ilabel, intensity))
                 else:
                     self.currentMousePosition.emit(
                         "x=%i, y=%i, %s=%.2f" % (

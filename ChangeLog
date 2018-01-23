@@ -1,8 +1,9 @@
-2018-01-XX Jan Kotanski <jan.kotanski@desy.de>
+2018-01-23 Jan Kotanski <jan.kotanski@desy.de>
 	* add suport for build-in tango decoders
 	* add configuration switch for sardana
 	* add scale and translation of axes
 	* add labels and units for axes
+	* set axis scales and labels from ZMQ source
 	* tagged as 0.13.0
 
 2018-01-22 Jan Kotanski <jan.kotanski@desy.de>

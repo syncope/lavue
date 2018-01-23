@@ -86,6 +86,18 @@ def main():
                 tfilter = topicfilter
             else:
                 tfilter = datasources[counter % 2]
+            if not counter % 10:
+                axisscales = [
+                    float(counter), float(counter),
+                    (counter % 5) + 1.0, (counter % 5) + 2.0]
+            else:
+                axisscales = None
+            if not counter % 20:
+                axislabels = [
+                    "x%s" % counter, "y%s" % counter,
+                    "m" * ((counter / 20) % 3), "A" * ((counter / 20) % 3)]
+            else:
+                axislabels = None
             if nodict:
                 if prefix:
                     message = (
@@ -108,6 +120,11 @@ def main():
                             "datasources": datasources}
                 if prefix:
                     metadata["name"] = "%s_%s" % (prefix, counter)
+                if axislabels is not None:
+                    metadata["axislabels"] = axislabels
+                if axisscales is not None:
+                    metadata["axisscales"] = axisscales
+
                 message = (
                     tfilter,
                     value,

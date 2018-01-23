@@ -253,6 +253,33 @@ class ImageWidget(QtGui.QWidget):
         self.infodisplay.setToolTip(
             "coordinate info display for the mouse pointer\n%s" % message)
 
+    def updateMetaData(self, axisscales=None, axislabels=None):
+        if axislabels is not None:
+            self.img_widget.xtext = str(axislabels[0]) \
+                if axislabels[0] is not None else None
+            self.img_widget.ytext = str(axislabels[1]) \
+                if axislabels[0] is not None else None
+            self.img_widget.xunits = str(axislabels[2]) \
+                if axislabels[0] is not None else None
+            self.img_widget.yunits = str(axislabels[3]) \
+                if axislabels[0] is not None else None
+        position = None
+        scale = None
+        if axisscales is not None:
+            try:
+                position = (float(axisscales[0]), float(axisscales[1]))
+            except:
+                position = None
+            try:
+                scale = (float(axisscales[2]), float(axisscales[3]))
+            except:
+                scale = None
+        self.img_widget.setScale(
+            position, scale,
+            not self.img_widget.roienable
+            and not self.img_widget.cutenable
+            and not self.img_widget.qenable)
+
     @QtCore.pyqtSlot(int)
     def roiRegionChanged(self, _):
         self.roiChanged()

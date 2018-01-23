@@ -171,6 +171,7 @@ class LiveViewer(QtGui.QDialog):
         self.autozmqtopics = False
         self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
         self.__allowedmdata = ["datasources"]
+        self.__allowedwgdata = ["axisscales", "axislabels"]
 
         # note: host and target are defined in another place
         self.data_source = hcs.GeneralSource()
@@ -947,10 +948,12 @@ class LiveViewer(QtGui.QDialog):
                 if isinstance(mdata, dict):
                     resdata = dict((k, v) for (k, v) in mdata.items()
                                    if k in self.__allowedmdata)
+                    wgdata = dict((k, v) for (k, v) in mdata.items()
+                                  if k in self.__allowedwgdata)
+                    if wgdata:
+                        self.imageW.updateMetaData(**wgdata)
                     if resdata:
                         self.sourceW.update(**resdata)
-                # else:
-                #     print(metadata)
             except Exception as e:
                 print(str(e))
         elif str(name).strip():
