@@ -91,6 +91,14 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         #: (:obj:`tuple` <:obj:`float`, :obj:`float`> )
         #    position of the first pixel
         self.position = None
+        #: (:obj:`str`) label of x-axis
+        self.xtext = None
+        #: (:obj:`str`) label of y-axis
+        self.ytext = None
+        #: (:obj:`str`) units of x-axis
+        self.xunits = None
+        #: (:obj:`str`) units of y-axis
+        self.yunits = None
 
         #: (:obj:`float`) x-coordinates of the center of the image
         self.centerx = 0.0
@@ -121,13 +129,13 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             self.viewbox.menu.axes.insert(0, self.viewonetoone)
         self.viewbox.menu.addAction(self.viewonetoone)
 
-        leftAxis = pg.AxisItem('left')
-        leftAxis.linkToView(self.viewbox)
-        self.layout.addItem(leftAxis, row=0, col=0)
+        self.leftAxis = pg.AxisItem('left')
+        self.leftAxis.linkToView(self.viewbox)
+        self.layout.addItem(self.leftAxis, row=0, col=0)
 
-        bottomAxis = pg.AxisItem('bottom')
-        bottomAxis.linkToView(self.viewbox)
-        self.layout.addItem(bottomAxis, row=1, col=1)
+        self.bottomAxis = pg.AxisItem('bottom')
+        self.bottomAxis.linkToView(self.viewbox)
+        self.layout.addItem(self.bottomAxis, row=1, col=1)
 
         self.layout.scene().sigMouseMoved.connect(self.mouse_position)
         self.layout.scene().sigMouseClicked.connect(self.mouse_click)
@@ -228,7 +236,9 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             self.image.setPos(*self.position)
         else:
             self.image.setPos(0, 0)
-        self.viewbox.autoRange()
+        if self.rawdata is not None:
+            self.viewbox.autoRange()
+        self.setLabels(self.xtext, self.ytext, self.xunits, self.yunits)
 
     def resetScale(self):
         self.image.resetTransform()
@@ -237,7 +247,10 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         if self.position is not None:
             self.image.setPos(0, 0)
         if self.scale is not None or self.position is not None:
-            self.viewbox.autoRange()
+            if self.rawdata is not None:
+                self.viewbox.autoRange()
+            # self.setLabels("x-dim","y-dim","pixels","pixels")
+            self.setLabels()
 
     def updateImage(self, img=None, rawimg=None):
         if self.autoDisplayLevels:
@@ -369,6 +382,21 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         qz = 4 * math.pi / wavelength * math.sin(thetay/2.)
         q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)
         return qx, qz, q
+
+    def setLabels(self, xtext=None, ytext=None, xunits=None, yunits=None):
+        # print "set", xtext, ytext, xunits, yunits
+        self.bottomAxis.autoSIPrefix = False
+        self.leftAxis.autoSIPrefix = False
+        self.bottomAxis.setLabel(text=xtext, units=xunits)
+        self.leftAxis.setLabel(text=ytext, units=yunits)
+        if xunits is None:
+            self.bottomAxis.labelUnits = ''
+        if yunits is None:
+            self.leftAxis.labelUnits = ''
+        if xtext is None:
+            self.bottomAxis.label.setVisible(False)
+        if ytext is None:
+            self.leftAxis.label.setVisible(False)
 
     @QtCore.pyqtSlot(object)
     def mouse_click(self, event):

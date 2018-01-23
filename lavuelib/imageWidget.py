@@ -129,7 +129,7 @@ class ImageWidget(QtGui.QWidget):
         self.infodisplay.setToolTip(
             "coordinate info display for the mouse pointer")
 
-        self.ticksPushButton = QtGui.QPushButton("Ticks")
+        self.ticksPushButton = QtGui.QPushButton("Axes")
 
         self.roiLabel = QtGui.QLabel("ROI alias(es): ")
         self.roiLabel.setToolTip(
@@ -557,6 +557,12 @@ class ImageWidget(QtGui.QWidget):
             cnfdlg.xscale = self.img_widget.scale[0]
             cnfdlg.yscale = self.img_widget.scale[1]
 
+        cnfdlg.xtext = self.img_widget.xtext
+        cnfdlg.ytext = self.img_widget.ytext
+
+        cnfdlg.xunits = self.img_widget.xunits
+        cnfdlg.yunits = self.img_widget.yunits
+
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             if cnfdlg.xposition is not None and cnfdlg.yposition is not None:
@@ -567,6 +573,11 @@ class ImageWidget(QtGui.QWidget):
                 scale = tuple([cnfdlg.xscale, cnfdlg.yscale])
             else:
                 scale = None
+            self.img_widget.xtext = cnfdlg.xtext
+            self.img_widget.ytext = cnfdlg.ytext
+
+            self.img_widget.xunits = cnfdlg.xunits
+            self.img_widget.yunits = cnfdlg.yunits
             self.img_widget.setScale(position, scale)
             return True
         return False

@@ -46,11 +46,23 @@ class TicksWidget(QtGui.QDialog):
         self.xscale = None
         #: (:obj:`float`) y-scale of pixels
         self.yscale = None
+        #: (:obj:`str`) text of x-axis
+        self.xtext = None
+        #: (:obj:`str`) text of y-axis
+        self.ytext = None
+        #: (:obj:`str`) units of x-axis
+        self.xunits = None
+        #: (:obj:`str`) units of y-axis
+        self.yunits = None
 
         self.xpositionLineEdit = None
         self.ypositionLineEdit = None
         self.xscaleLineEdit = None
         self.yscaleLineEdit = None
+        self.xtextLineEdit = None
+        self.ytextLineEdit = None
+        self.xunitsLineEdit = None
+        self.yunitsLineEdit = None
 
     def createGUI(self):
         """ create GUI
@@ -87,6 +99,26 @@ class TicksWidget(QtGui.QDialog):
         self.yscaleLineEdit = QtGui.QLineEdit(str(self.yscale or ""))
         self.yscaleLineEdit.setToolTip("y-scale of pixels")
 
+        xtextLabel = QtGui.QLabel(u"Label X:")
+        xtextLabel.setToolTip("text of x-axis")
+        self.xtextLineEdit = QtGui.QLineEdit(str(self.xtext or ""))
+        self.xtextLineEdit.setToolTip("text of x-axis")
+
+        ytextLabel = QtGui.QLabel(u"Label Y:")
+        ytextLabel.setToolTip("text of y-axis")
+        self.ytextLineEdit = QtGui.QLineEdit(str(self.ytext or ""))
+        self.ytextLineEdit.setToolTip("text of y-axis")
+
+        xunitsLabel = QtGui.QLabel(u"Units X:")
+        xunitsLabel.setToolTip("units of x-axis")
+        self.xunitsLineEdit = QtGui.QLineEdit(str(self.xunits or ""))
+        self.xunitsLineEdit.setToolTip("units of x-axis")
+
+        yunitsLabel = QtGui.QLabel(u"Units Y:")
+        yunitsLabel.setToolTip("units of y-axis")
+        self.yunitsLineEdit = QtGui.QLineEdit(str(self.yunits or ""))
+        self.yunitsLineEdit.setToolTip("units of y-axis")
+
         gridlayout.addWidget(xpositionLabel, 0, 0)
         gridlayout.addWidget(self.xpositionLineEdit, 0, 1)
         gridlayout.addWidget(ypositionLabel, 1, 0)
@@ -95,6 +127,14 @@ class TicksWidget(QtGui.QDialog):
         gridlayout.addWidget(self.xscaleLineEdit, 2, 1)
         gridlayout.addWidget(yscaleLabel, 3, 0)
         gridlayout.addWidget(self.yscaleLineEdit, 3, 1)
+        gridlayout.addWidget(xtextLabel, 4, 0)
+        gridlayout.addWidget(self.xtextLineEdit, 4, 1)
+        gridlayout.addWidget(ytextLabel, 5, 0)
+        gridlayout.addWidget(self.ytextLineEdit, 5, 1)
+        gridlayout.addWidget(xunitsLabel, 6, 0)
+        gridlayout.addWidget(self.xunitsLineEdit, 6, 1)
+        gridlayout.addWidget(yunitsLabel, 7, 0)
+        gridlayout.addWidget(self.yunitsLineEdit, 7, 1)
 
         self.buttonBox = QtGui.QDialogButtonBox(
             QtGui.QDialogButtonBox.Ok
@@ -139,4 +179,8 @@ class TicksWidget(QtGui.QDialog):
         except:
             self.yscale = None
 
+        self.xtext = str(self.xtextLineEdit.text()) or ""
+        self.ytext = str(self.ytextLineEdit.text()) or ""
+        self.xunits = str(self.xunitsLineEdit.text()) or ""
+        self.yunits = str(self.yunitsLineEdit.text()) or ""
         QtGui.QDialog.accept(self)
