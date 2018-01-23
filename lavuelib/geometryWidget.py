@@ -86,12 +86,12 @@ class GeometryWidget(QtGui.QDialog):
         self.energyLineEdit = QtGui.QLineEdit(str(self.energy))
         self.energyLineEdit.setToolTip("light energy in eV")
 
-        pixelsizexLabel = QtGui.QLabel(u"Pixel x-size [um]:")
+        pixelsizexLabel = QtGui.QLabel(u"Pixel x-size [\u00B5m]:")
         pixelsizexLabel.setToolTip("pixel x-size in microns")
         self.pixelsizexLineEdit = QtGui.QLineEdit(str(self.pixelsizex))
         self.pixelsizexLineEdit.setToolTip("pixel x-size in microns")
 
-        pixelsizeyLabel = QtGui.QLabel(u"Pixel y-size [um]:")
+        pixelsizeyLabel = QtGui.QLabel(u"Pixel y-size [\u00B5m]:")
         pixelsizeyLabel.setToolTip("pixel y-size in microns")
         self.pixelsizeyLineEdit = QtGui.QLineEdit(str(self.pixelsizey))
         self.pixelsizeyLineEdit.setToolTip("pixel y-size in microns")

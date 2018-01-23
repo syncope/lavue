@@ -120,6 +120,7 @@ class ImageWidget(QtGui.QWidget):
             " i.e. Intensity, ROI, LineCut, Angle/Q")
 
         pixelvaluelayout = QtGui.QHBoxLayout()
+        pixelvaluelayout2 = QtGui.QHBoxLayout()
         self.pixellabel = QtGui.QLabel("Pixel position and intensity: ")
         self.pixellabel.setToolTip(
             "coordinate info display for the mouse pointer")
@@ -131,9 +132,11 @@ class ImageWidget(QtGui.QWidget):
 
         self.ticksPushButton = QtGui.QPushButton("Axes")
 
-        self.roiLabel = QtGui.QLabel("ROI alias(es): ")
-        self.roiLabel.setToolTip(
-            "ROI alias or aliases related to sardana experimental channels")
+        self.roiLabel = QtGui.QLabel("[x1, y1, x2, y2]: ")
+        #self.roiLabel = QtGui.QLabel("ROI alias(es): ")
+#        self.roiLabel.setToolTip(
+#            "ROI alias or aliases related to sardana experimental channels")
+        self.roiLabel.setToolTip("coordinate info display for the mouse pointer")
         self.labelROILineEdit = QtGui.QLineEdit("")
         self.labelROILineEdit.setToolTip(
             "ROI alias or aliases related to Sardana Pool "
@@ -164,8 +167,6 @@ class ImageWidget(QtGui.QWidget):
         self.angleqComboBox.setToolTip("Select the display space")
 
         pixelvaluelayout.addWidget(self.pixellabel)
-        pixelvaluelayout.addWidget(self.infodisplay)
-        pixelvaluelayout.addWidget(self.roiLabel)
         pixelvaluelayout.addWidget(self.labelROILineEdit)
         pixelvaluelayout.addWidget(self.roiSpinBox)
         pixelvaluelayout.addWidget(self.cutSpinBox)
@@ -174,8 +175,14 @@ class ImageWidget(QtGui.QWidget):
         pixelvaluelayout.addWidget(self.angleqPushButton)
         pixelvaluelayout.addWidget(self.angleqComboBox)
         pixelvaluelayout.addWidget(self.ticksPushButton)
-        pixelvaluelayout.addWidget(self.pixelComboBox)
+        # pixelvaluelayout.addWidget(self.pixelComboBox)
+        pixelvaluelayout2 = QtGui.QHBoxLayout()
+        pixelvaluelayout2.addWidget(self.roiLabel)
+        pixelvaluelayout2.addWidget(self.infodisplay)
+        pixelvaluelayout2.addWidget(self.pixelComboBox)
+
         verticallayout.addLayout(pixelvaluelayout)
+        verticallayout.addLayout(pixelvaluelayout2)
 
         self.setLayout(verticallayout)
         self.img_widget.currentMousePosition.connect(self.infodisplay.setText)
@@ -232,11 +239,11 @@ class ImageWidget(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def updateGeometryTip(self):
-        message = "geometry:\n" \
-                  "  center = (%s, %s) pixels\n" \
-                  "  pixel_size = (%s, %s) um\n" \
-                  "  detector_distance = %s mm\n" \
-                  "  energy = %s eV" % (
+        message = u"geometry:\n" \
+                  u"  center = (%s, %s) pixels\n" \
+                  u"  pixel_size = (%s, %s) \u00B5m\n" \
+                  u"  detector_distance = %s mm\n" \
+                  u"  energy = %s eV" % (
                       self.img_widget.centerx,
                       self.img_widget.centery,
                       self.img_widget.pixelsizex,
@@ -425,7 +432,9 @@ class ImageWidget(QtGui.QWidget):
         self.roiSpinBox.show()
         self.cutSpinBox.hide()
         self.labelROILineEdit.show()
-        self.pixellabel.setText("[x1, y1, x2, y2]: ")
+        
+        self.pixellabel.setText("ROI alias(es): ")
+        # self.pixellabel.setText("[x1, y1, x2, y2]: ")
         self.roiLabel.show()
         for roi in self.img_widget.roi:
             roi.show()
@@ -439,7 +448,9 @@ class ImageWidget(QtGui.QWidget):
         self.infodisplay.setToolTip(
             "coordinate info display for the mouse pointer")
         self.pixellabel.setToolTip(
-            "coordinate info display for the mouse pointer")
+            "ROI alias or aliases related to sardana experimental channels")
+#        self.pixellabel.setToolTip(
+#            "coordinate info display for the mouse pointer")
         self.img_widget.resetScale()
 
     def showIntensityFrame(self):
