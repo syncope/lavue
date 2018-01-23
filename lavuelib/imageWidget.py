@@ -115,6 +115,7 @@ class ImageWidget(QtGui.QWidget):
         self.pixelComboBox.addItem("ROI")
         self.pixelComboBox.addItem("LineCut")
         self.pixelComboBox.addItem("Angle/Q")
+        self.pixelComboBox.setStyleSheet("font: bold;")
         self.pixelComboBox.setToolTip(
             "select the image tool for the mouse pointer,"
             " i.e. Intensity, ROI, LineCut, Angle/Q")
@@ -133,10 +134,8 @@ class ImageWidget(QtGui.QWidget):
         self.ticksPushButton = QtGui.QPushButton("Axes")
 
         self.roiLabel = QtGui.QLabel("[x1, y1, x2, y2]: ")
-        #self.roiLabel = QtGui.QLabel("ROI alias(es): ")
-#        self.roiLabel.setToolTip(
-#            "ROI alias or aliases related to sardana experimental channels")
-        self.roiLabel.setToolTip("coordinate info display for the mouse pointer")
+        self.roiLabel.setToolTip(
+            "coordinate info display for the mouse pointer")
         self.labelROILineEdit = QtGui.QLineEdit("")
         self.labelROILineEdit.setToolTip(
             "ROI alias or aliases related to Sardana Pool "
@@ -175,7 +174,6 @@ class ImageWidget(QtGui.QWidget):
         pixelvaluelayout.addWidget(self.angleqPushButton)
         pixelvaluelayout.addWidget(self.angleqComboBox)
         pixelvaluelayout.addWidget(self.ticksPushButton)
-        # pixelvaluelayout.addWidget(self.pixelComboBox)
         pixelvaluelayout2 = QtGui.QHBoxLayout()
         pixelvaluelayout2.addWidget(self.roiLabel)
         pixelvaluelayout2.addWidget(self.infodisplay)
@@ -432,9 +430,8 @@ class ImageWidget(QtGui.QWidget):
         self.roiSpinBox.show()
         self.cutSpinBox.hide()
         self.labelROILineEdit.show()
-        
+
         self.pixellabel.setText("ROI alias(es): ")
-        # self.pixellabel.setText("[x1, y1, x2, y2]: ")
         self.roiLabel.show()
         for roi in self.img_widget.roi:
             roi.show()
@@ -449,8 +446,6 @@ class ImageWidget(QtGui.QWidget):
             "coordinate info display for the mouse pointer")
         self.pixellabel.setToolTip(
             "ROI alias or aliases related to sardana experimental channels")
-#        self.pixellabel.setToolTip(
-#            "coordinate info display for the mouse pointer")
         self.img_widget.resetScale()
 
     def showIntensityFrame(self):

@@ -250,7 +250,6 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         if self.scale is not None or self.position is not None:
             if self.rawdata is not None:
                 self.viewbox.autoRange()
-            # self.setLabels("x-dim","y-dim","pixels","pixels")
             self.setLabels()
 
     def updateImage(self, img=None, rawimg=None):
@@ -313,25 +312,25 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                         txdata = txdata + self.position[0]
                         tydata = tydata + self.position[1]
                     self.currentMousePosition.emit(
-                        "x=%f%s, y=%f%s, %s=%.2f" % (
+                        "x = %f%s, y = %f%s, %s = %.2f" % (
                             txdata,
-                            (" [%s]" % self.xunits) if self.xunits else "",
+                            (" %s" % self.xunits) if self.xunits else "",
                             tydata,
-                            (" [%s]" % self.yunits) if self.yunits else "",
+                            (" %s" % self.yunits) if self.yunits else "",
                             ilabel, intensity))
                 elif self.position is not None:
                     txdata = self.xdata + self.position[0]
                     tydata = self.ydata + self.position[1]
                     self.currentMousePosition.emit(
-                        "x=%f%s, y=%f%s, %s=%.2f" % (
+                        "x = %f%s, y = %f%s, %s = %.2f" % (
                             txdata,
-                            (" [%s]" % self.xunits) if self.xunits else "",
+                            (" %s" % self.xunits) if self.xunits else "",
                             tydata,
-                            (" [%s]" % self.yunits) if self.yunits else "",
+                            (" %s" % self.yunits) if self.yunits else "",
                             ilabel, intensity))
                 else:
                     self.currentMousePosition.emit(
-                        "x=%i, y=%i, %s=%.2f" % (
+                        "x = %i, y = %i, %s = %.2f" % (
                             self.xdata, self.ydata, ilabel,
                             intensity))
             elif self.roienable and self.currentroi > -1:
@@ -345,7 +344,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                 else:
                     crds = "[[0, 0], [0, 0]]"
                 self.currentMousePosition.emit(
-                    "%s, x=%i, y=%i, %s(intensity-background)=%.2f" % (
+                    "%s, x = %i, y = %i, %s(intensity-background) = %.2f" % (
                         crds, self.xdata, self.ydata, ilabel,
                         intensity))
             elif self.qenable and self.energy > 0 and self.detdistance > 0:
@@ -353,13 +352,14 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                     thetax, thetay, thetatotal = self.pixel2theta(
                         self.xdata, self.ydata)
                     self.currentMousePosition.emit(
-                        "th_x=%.5f deg, th_y=%.5f deg,"
-                        " th_tot=%.5f deg, %s=%.2f"
+                        "th_x = %f deg, th_y = %f deg,"
+                        " th_tot = %f deg, %s = %.2f"
                         % (thetax, thetay, thetatotal, ilabel, intensity))
                 else:
                     qx, qz, q = self.pixel2q(self.xdata, self.ydata)
                     self.currentMousePosition.emit(
-                        u"q_x=%.5f 1/\u212B, q_z=%.5f 1/\u212B, q=%.5f 1/\u212B, %s=%.2f"
+                        u"q_x = %f 1/\u212B, q_z = %f 1/\u212B, "
+                        u"q = %f 1/\u212B, %s = %.2f"
                         % (qx, qz, q, ilabel, intensity))
 
             else:

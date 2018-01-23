@@ -65,6 +65,7 @@ class SourceWidget(QtGui.QGroupBox):
             "image source type, e.g. Hidra, Tango, ZMQ Stream, "
             "HTTP response, Test")
         self.sourceTypeComboBox = QtGui.QComboBox()
+        self.sourceTypeComboBox.setStyleSheet("font: bold;")
         self.sourceTypeComboBox.setToolTip(
             "image source type, e.g. Hidra, Tango, ZMQ Stream, "
             "HTTP response, Test")

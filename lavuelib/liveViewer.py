@@ -940,7 +940,8 @@ class LiveViewer(QtGui.QDialog):
         # first time:
         if str(self.metadata) != str(metadata) and str(metadata).strip():
             image_name, raw_image, self.metadata = self.exchangelist.readData()
-            if str(image_name).strip():
+            if str(image_name).strip() and \
+               not isinstance(raw_image, (str, unicode)):
                 self.image_name = image_name
                 self.raw_image = raw_image
             try:
