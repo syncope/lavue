@@ -359,7 +359,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                 else:
                     qx, qz, q = self.pixel2q(self.xdata, self.ydata)
                     self.currentMousePosition.emit(
-                        "q_x=%.5f 1/A, q_z=%.5f 1/A, q=%.5f 1/A, %s=%.2f"
+                        u"q_x=%.5f 1/\u212B, q_z=%.5f 1/\u212B, q=%.5f 1/\u212B, %s=%.2f"
                         % (qx, qz, q, ilabel, intensity))
 
             else:
