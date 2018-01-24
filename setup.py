@@ -25,39 +25,152 @@
 
 """ setup.py for setting Lavue"""
 
-from setuptools import setup
-# from setuptools import find_packages
-
 import codecs
 import os
+import sys
 
-with codecs.open(os.path.join('.', 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
+from setuptools import setup
+from setuptools.command.build_py import build_py
+from distutils.command.clean import clean
+from distutils.util import get_platform
+import shutil
+
+
+def read(fname):
+    """ read the file
+
+    :param fname: readme file name
+    :type fname: :obj:`str`
+    """
+    with codecs.open(os.path.join('.', fname), encoding='utf-8') as f:
+        long_description = f.read()
+    return long_description
 
 # from sphinx.setup_command import BuildDoc
 
 #: (:obj:`str`) package name
-name = 'lavuelib'
-lavuepackage = __import__(name)
+NAME = 'lavuelib'
+lavuepackage = __import__(NAME)
 #: (:obj:`str`) full release version
 release = lavuepackage.__version__
 #: (:obj:`str`) package version
 version = ".".join(release.split(".")[:2])
+
+#: (:obj:`str`) .ui file directory
+UIDIR = os.path.join(NAME, "ui")
+#: (:obj:`str`) .qrc file directory
+QRCDIR = os.path.join(NAME, "qrc")
+#: (:obj:`list` < :obj:`str` >) executable scripts
+SCRIPTS = ['lavuemonitor', 'lavuezmqstreamfromtango']
+#: (:obj:`list` < :obj:`str` >) executable GUI scripts
+GUISCRIPTS = ['lavue']
+
+
+class toolBuild(build_py):
+    """ ui and qrc builder for python
+    """
+
+    @classmethod
+    def makeqrc(cls, qfile, path):
+        """  creates the python qrc files
+
+        :param qfile: qrc file name
+        :type qfile: :obj:`str`
+        :param path:  qrc file path
+        :type path: :obj:`str`
+        """
+        qrcfile = os.path.join(path, "%s.qrc" % qfile)
+        rccfile = os.path.join(path, "%s.rcc" % qfile)
+
+        compiled = os.system("rcc %s -o %s -binary" % (qrcfile, rccfile))
+        if compiled == 0:
+            print "Built: %s -> %s" % (qrcfile, rccfile)
+        else:
+            print >> sys.stderr, "Error: Cannot build  %s" % (rccfile)
+
+    def run(self):
+        """ runner
+
+        :brief: It is running during building
+        """
+
+        try:
+            qfiles = [(qfile[:-4], QRCDIR) for qfile
+                      in os.listdir(QRCDIR) if qfile.endswith('.qrc')]
+            for qrc in qfiles:
+                if not qrc[0] in (".", ".."):
+                    self.makeqrc(qrc[0], qrc[1])
+        except TypeError:
+            print >> sys.stderr, "No .qrc files to build"
+
+        if get_platform()[:3] == 'win':
+            for script in SCRIPTS:
+                shutil.copy(script, script + ".pyw")
+        build_py.run(self)
+
+
+class toolClean(clean):
+    """ cleaner for python
+    """
+
+    def run(self):
+        """ runner
+
+        :brief: It is running during cleaning
+        """
+
+        cfiles = [os.path.join(NAME, cfile) for cfile
+                  in os.listdir("%s" % NAME) if cfile.endswith('.pyc')]
+        for fl in cfiles:
+            os.remove(str(fl))
+
+        cfiles = [os.path.join(UIDIR, cfile) for cfile
+                  in os.listdir(UIDIR) if (
+                      cfile.endswith('.pyc') or
+                      (cfile.endswith('.py')
+                       and not cfile.endswith('__init__.py')))]
+        for fl in cfiles:
+            os.remove(str(fl))
+
+        cfiles = [os.path.join(QRCDIR, cfile) for cfile
+                  in os.listdir(QRCDIR) if (
+                      cfile.endswith('.pyc')
+                      or cfile.endswith('.rcc') or
+                      (cfile.endswith('.py')
+                       and not cfile.endswith('__init__.py')))]
+        for fl in cfiles:
+            os.remove(str(fl))
+
+        if get_platform()[:3] == 'win':
+            for script in SCRIPTS:
+                if os.path.exists(script + ".pyw"):
+                    os.remove(script + ".pyw")
+        clean.run(self)
+
+
+def get_scripts(scripts):
+    """ provides windows names of python scripts
+
+    :param scripts: list of script names
+    :type scripts: :obj:`list` <:obj:`str`>
+    """
+    if get_platform()[:3] == 'win':
+        return scripts + [sc + '.pyw' for sc in scripts]
+    return scripts
+
 
 #: (:obj:`dict` <:obj:`str`, :obj:`list` <:obj:`str`> > ) package data
 package_data = {
     'lavuelib': ['ui/*.ui', 'qrc/*.rcc']
 }
 
-#: (:obj:`str`) .ui file directory
-uidir = os.path.join(name, "ui")
 
 #: (:obj:`dict` <:obj:`str`, `any`>) metadata for distutils
 SETUPDATA = dict(
     name='lavue',
     version=release,
     description='Live image viewer application for photon science detectors.',
-    long_description=long_description,
+    long_description=read('README.rst'),
     url='https://github.com/syncope/lavue',
     author='Ch.Rosemann, J.Kotanski, A.Rothkirch',
     author_email='christoph.rosemann@desy.de, '
@@ -76,22 +189,28 @@ SETUPDATA = dict(
         # 'Programming Language :: Python :: 3.5',
     ],
     keywords='live viewer photon science detector',
-    packages=[name, uidir],
+    packages=[NAME, UIDIR],
     package_data=package_data,
-     # package_dir={'lauvelib': 'lavuelib'},
+    # package_dir={'lauvelib': 'lavuelib'},
     include_package_data=True,
-    scripts=['lavue', 'lavuemonitor', 'lavuezmqstreamfromtango'],
+    scripts=get_scripts(GUISCRIPTS).extend(SCRIPTS),
     zip_safe=False,
-    # cmdclass={'build_sphinx': BuildDoc,},
+    cmdclass={
+        "build_py": toolBuild,
+        "clean": toolClean,
+        # 'build_sphinx': BuildDoc
+    },
     # command_options={
-    #     'build_sphinx': {
-    #         'project': ('setup.py', name),
+    #    'build_sphinx': {
+    #         'project': ('setup.py', NAME),
     #         'version': ('setup.py', version),
     #         'release': ('setup.py', release)}},
 )
 
-## the main function
+
 def main():
+    """ the main function
+    """
     setup(**SETUPDATA)
 
 if __name__ == '__main__':

@@ -1,0 +1,5 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+<file alias="lavue.png">../images/lavue.png</file>
+</qresource>
+</RCC>

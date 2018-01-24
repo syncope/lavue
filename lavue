@@ -32,6 +32,7 @@ import sys
 import os
 import argparse
 
+import lavuelib.qrc as qrc
 
 # def main():
 if __name__ == "__main__":
@@ -47,8 +48,8 @@ if __name__ == "__main__":
     from PyQt4 import QtGui, QtCore
 
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
-    # Qt.QResource.registerResource(
-    #    os.path.join(qrc.__path__[0], "resources.rcc"))
+    QtCore.QResource.registerResource(
+        os.path.join(qrc.__path__[0], "resources.rcc"))
 
     parser = argparse.ArgumentParser(
         description='2d detector live image viewer')
@@ -99,7 +100,7 @@ if __name__ == "__main__":
         app.setStyle(options.style)
     if options.stylesheet:
         app.setStyle(options.stylesheet)
-    # app.setWindowIcon(QIcon(":/icon.png"))
+    app.setWindowIcon(QtGui.QIcon(":/lavue.png"))
     app.setOrganizationName("DESY")
     app.setOrganizationDomain("desy.de")
     app.setApplicationName("LaVue")

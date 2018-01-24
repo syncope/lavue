@@ -3,3 +3,6 @@ include COPYRIGHT
 include man/lavue.1
 include man/lavuemonitor.1
 include man/lavuezmqstreamfromtango.1
+include lavuelib/images/lavue.png
+include lavuelib/qrc/resources.qrc
+exclude lavuelib/qrc/resources.rcc
