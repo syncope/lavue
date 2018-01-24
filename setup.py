@@ -28,11 +28,13 @@
 import codecs
 import os
 import sys
-
 from setuptools import setup
 from setuptools.command.build_py import build_py
 from distutils.command.clean import clean
 from distutils.util import get_platform
+#from distutils.core import setup
+#from distutils.command.build import build
+#from distutils.command.clean import clean
 import shutil
 
 
@@ -48,8 +50,10 @@ def read(fname):
 
 # from sphinx.setup_command import BuildDoc
 
+
 #: (:obj:`str`) package name
 NAME = 'lavuelib'
+#: (:obj:`module`) package name
 lavuepackage = __import__(NAME)
 #: (:obj:`str`) full release version
 release = lavuepackage.__version__
@@ -84,7 +88,7 @@ class toolBuild(build_py):
 
         compiled = os.system("rcc %s -o %s -binary" % (qrcfile, rccfile))
         if compiled == 0:
-            print "Built: %s -> %s" % (qrcfile, rccfile)
+            print("Built: %s -> %s" % (qrcfile, rccfile))
         else:
             print >> sys.stderr, "Error: Cannot build  %s" % (rccfile)
 
@@ -164,7 +168,6 @@ package_data = {
     'lavuelib': ['ui/*.ui', 'qrc/*.rcc']
 }
 
-
 #: (:obj:`dict` <:obj:`str`, `any`>) metadata for distutils
 SETUPDATA = dict(
     name='lavue',
@@ -189,11 +192,11 @@ SETUPDATA = dict(
         # 'Programming Language :: Python :: 3.5',
     ],
     keywords='live viewer photon science detector',
-    packages=[NAME, UIDIR],
+    packages=[NAME, QRCDIR],
     package_data=package_data,
     # package_dir={'lauvelib': 'lavuelib'},
     include_package_data=True,
-    scripts=get_scripts(GUISCRIPTS).extend(SCRIPTS),
+    scripts=(get_scripts(GUISCRIPTS) + SCRIPTS),
     zip_safe=False,
     cmdclass={
         "build_py": toolBuild,
@@ -212,6 +215,7 @@ def main():
     """ the main function
     """
     setup(**SETUPDATA)
+
 
 if __name__ == '__main__':
     main()

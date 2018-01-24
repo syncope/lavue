@@ -62,12 +62,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "-m", "--mode", dest="mode",
         help="interface mode, i.e. user, expert")
-#    parser.add_argument(
-#        "--set-as-default-mode",
-#        action="store_true",
-#        default=False,
-#        dest="setdefault",
-#        help="set the current mode as default")
     parser.add_argument(
         "-t", "--style", dest="style",
         help="Qt style")
