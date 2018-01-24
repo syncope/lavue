@@ -75,10 +75,6 @@ class AxisWidget(QtGui.QDialog):
         self.__ui.xunitsLineEdit.setText(str(self.xunits or ""))
         self.__ui.yunitsLineEdit.setText(str(self.yunits or ""))
 
-        self.__ui.buttonBox.button(
-            QtGui.QDialogButtonBox.Cancel).clicked.connect(self.reject)
-        self.__ui.buttonBox.button(
-            QtGui.QDialogButtonBox.Ok).clicked.connect(self.accept)
         self.__ui.show()
 
     @QtCore.pyqtSlot()

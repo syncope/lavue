@@ -43,26 +43,43 @@ class ConfigWidget(QtGui.QDialog):
             os.path.join(os.path.dirname(os.path.abspath(__file__)),
                          "ui", "ConfigWidget.ui"), self)
 
+        #: (:obj:`str`) device name of sardana door
         self.door = ""
+        #: (:obj:`bool`) sardana enabled
         self.sardana = True
+        #: (:obj:`bool`) add rois enabled
         self.addrois = True
+        #: (:obj:`bool`) security stream enabled
         self.secstream = False
+        #: (:obj:`str`) security stream port
         self.secport = "5657"
+        #: (:obj:`bool`) find security stream port automatically
         self.secautoport = True
+        #: (:obj:`float`) refresh rate
         self.refreshrate = 0.1
+        #: (:obj:`bool`) show color distribution histogram widget
         self.showhisto = True
+        #: (:obj:`bool`) show mask widget
         self.showmask = False
+        #: (:obj:`int`) image source timeout in ms
         self.timeout = 3000
+        #: (:obj:`bool`) aspect ratio locked
         self.aspectlocked = False
+        #: (:obj:`bool`) statistics without intensity scaling
         self.statswoscaling = False
 
+        #: (:obj:`list` < :obj:`str`>) list of topics for ZMQ stream source
         self.zmqtopics = []
+        #: (:obj:`bool`) topics for ZMQ stream source fetched from the stream
         self.autozmqtopics = False
 
+        #: (:obj:`str`) JSON dictionary with directory and filename translation
+        #  for Tango file source
         self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
 
     def createGUI(self):
-
+        """ create GUI
+        """
         self.__ui.rateDoubleSpinBox.setValue(self.refreshrate)
         self.__ui.aspectlockedCheckBox.setChecked(self.aspectlocked)
         self.__ui.statsscaleCheckBox.setChecked(not self.statswoscaling)
@@ -72,25 +89,26 @@ class ConfigWidget(QtGui.QDialog):
         self.__ui.secstreamCheckBox.setChecked(self.secstream)
         self.__ui.secautoportCheckBox.setChecked(self.secautoport)
         self.__ui.secportLineEdit.setText(self.secport)
-        self.autoportChanged(self.secautoport)
-        self.__ui.secautoportCheckBox.stateChanged.connect(self.autoportChanged)
-
         self.__ui.showhistoCheckBox.setChecked(self.showhisto)
         self.__ui.showmaskCheckBox.setChecked(self.showmask)
-
         self.__ui.timeoutLineEdit.setText(str(self.timeout))
         self.__ui.zmqtopicsLineEdit.setText(" ".join(self.zmqtopics))
         self.__ui.autozmqtopicsCheckBox.setChecked(self.autozmqtopics)
-
         self.__ui.dirtransLineEdit.setText(self.dirtrans)
-        
-        self.buttonBox.button(
-            QtGui.QDialogButtonBox.Cancel).clicked.connect(self.reject)
-        self.buttonBox.button(
-            QtGui.QDialogButtonBox.Ok).clicked.connect(self.accept)
+
+        self.autoportChanged(self.secautoport)
+        self.__ui.secautoportCheckBox.stateChanged.connect(
+            self.autoportChanged)
+
+        self.__ui.show()
 
     @QtCore.pyqtSlot(int)
     def autoportChanged(self, value):
+        """ updates zmq security port lineedit widget
+
+        :param value: if False or 0 set widget enable otherwise disable
+        :param value: :obj:`int` or  :obj:`bool`
+        """
         if value:
             self.__ui.secportLineEdit.setEnabled(False)
         else:
