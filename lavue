@@ -110,7 +110,6 @@ if __name__ == "__main__":
     dialog.show()
 
     status = app.exec_()
-    # qrc_resources.qCleanupResources()
     # app = None
     dialog = None
     import gc

@@ -28,7 +28,6 @@
 from PyQt4 import QtGui, QtCore, uic
 import os
 
-path = os.path.dirname(os.path.abspath(__file__))
 
 class AxisWidget(QtGui.QDialog):
 
@@ -42,7 +41,8 @@ class AxisWidget(QtGui.QDialog):
         """
         QtGui.QDialog.__init__(self, parent)
         self.__ui = uic.loadUi(
-            os.path.join(path, "ui", "AxisWidget.ui"), self)
+            os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "ui", "AxisWidget.ui"), self)
 
         #: (:obj:`float`) x-coordinates of the first pixel
         self.xposition = None
