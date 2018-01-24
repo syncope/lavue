@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>678</width>
+    <height>448</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Configuration</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_7">
+   <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QGroupBox" name="imageGroupBox">
+           <property name="title">
+            <string>Image</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="imageGridLayout">
+              <item row="0" column="0">
+               <widget class="QLabel" name="rateLabel">
+                <property name="toolTip">
+                 <string>refresh rate of the image in seconds</string>
+                </property>
+                <property name="text">
+                 <string>Refresh rate:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>rateDoubleSpinBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QDoubleSpinBox" name="rateDoubleSpinBox">
+                <property name="toolTip">
+                 <string>refresh rate of the image in seconds</string>
+                </property>
+                <property name="singleStep">
+                 <double>0.010000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="aspectlockedLabel">
+                <property name="toolTip">
+                 <string>lock the aspect ration of the image</string>
+                </property>
+                <property name="text">
+                 <string>Aspect Ratio locked:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>aspectlockedCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QCheckBox" name="aspectlockedCheckBox">
+                <property name="toolTip">
+                 <string>lock the aspect ration of the image</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="statsscaleLabel">
+                <property name="toolTip">
+                 <string>statistics values with scaling</string>
+                </property>
+                <property name="text">
+                 <string>Statistics with scaling:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>statsscaleCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QCheckBox" name="statsscaleCheckBox">
+                <property name="toolTip">
+                 <string>statistics values with scaling</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="title">
+            <string>View</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="viewGridLayout">
+              <item row="0" column="0">
+               <widget class="QLabel" name="showhistoLabel">
+                <property name="toolTip">
+                 <string>show histogram to set range and color distribution</string>
+                </property>
+                <property name="text">
+                 <string>Show histogram:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showhistoCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QCheckBox" name="showhistoCheckBox">
+                <property name="toolTip">
+                 <string>show histogram to set range and color distribution</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="showmaskLabel">
+                <property name="toolTip">
+                 <string>show widgets to select the image mask</string>
+                </property>
+                <property name="text">
+                 <string>Show mask widget:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showmaskCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QCheckBox" name="showmaskCheckBox">
+                <property name="toolTip">
+                 <string>show widgets to select the image mask</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QGroupBox" name="secGroupBox">
+           <property name="title">
+            <string>ZMQ security stream</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="secGridLayout">
+              <item row="0" column="0">
+               <widget class="QLabel" name="secstreamLabel">
+                <property name="toolTip">
+                 <string>send the zmq security stream with the main image parameters</string>
+                </property>
+                <property name="text">
+                 <string>Enabled:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>secstreamCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QCheckBox" name="secstreamCheckBox">
+                <property name="toolTip">
+                 <string>send the zmq security stream with the main image parameters</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="secautoportLabel">
+                <property name="toolTip">
+                 <string>select port automatically for the zmq security stream</string>
+                </property>
+                <property name="text">
+                 <string>Automatic port:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>secautoportCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QCheckBox" name="secautoportCheckBox">
+                <property name="toolTip">
+                 <string>select port automatically for the zmq security stream</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="secportlLabel">
+                <property name="toolTip">
+                 <string>port for the zmq security stream</string>
+                </property>
+                <property name="text">
+                 <string>Port:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>secportLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="secportLineEdit">
+                <property name="toolTip">
+                 <string>port for the zmq security stream</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Sardana</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="sardanaGridLayout">
+              <item row="0" column="0">
+               <widget class="QLabel" name="sardanalabel">
+                <property name="toolTip">
+                 <string>enable sardana features</string>
+                </property>
+                <property name="text">
+                 <string>Enabled:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>sardanaCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QCheckBox" name="sardanaCheckBox">
+                <property name="toolTip">
+                 <string>enable sardana features</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="doorLabel">
+                <property name="toolTip">
+                 <string>tango server device name of the Sarana Door</string>
+                </property>
+                <property name="text">
+                 <string>Door:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>doorLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="doorLineEdit">
+                <property name="toolTip">
+                 <string>tango server device name of the Sarana Door</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="addroisLabel">
+                <property name="toolTip">
+                 <string>add ROI aliases to the Active Measurement Group</string>
+                </property>
+                <property name="text">
+                 <string>Add ROIs to MG:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>addroisCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QCheckBox" name="addroisCheckBox">
+                <property name="toolTip">
+                 <string>add ROI aliases to the Active Measurement Group</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="sourcesGroupBox">
+       <property name="title">
+        <string>Image Sources</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_6">
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="sourcesGridLayout">
+          <item row="3" column="1" colspan="4">
+           <widget class="QLineEdit" name="dirtransLineEdit">
+            <property name="toolTip">
+             <string>JSON dictionary denoting what to replace
+in the file name and the file directory for Tango File Source</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="zmqtopicsLabel">
+            <property name="toolTip">
+             <string>ZMQ source datasources separated by spaces</string>
+            </property>
+            <property name="text">
+             <string>ZMQ Source datasources:</string>
+            </property>
+            <property name="buddy">
+             <cstring>zmqtopicsLineEdit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="4">
+           <widget class="QLineEdit" name="zmqtopicsLineEdit">
+            <property name="toolTip">
+             <string>ZMQ source datasources separated by spaces</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="autozmqtopicsLabel">
+            <property name="toolTip">
+             <string>load possible ZMQ source datasources from the stream</string>
+            </property>
+            <property name="text">
+             <string>ZMQ Source automatic:</string>
+            </property>
+            <property name="buddy">
+             <cstring>autozmqtopicsCheckBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="dirtransLabel">
+            <property name="toolTip">
+             <string>JSON dictionary denoting what to replace
+in the file name and the file directory for Tango File Source</string>
+            </property>
+            <property name="text">
+             <string>File/Dir translation:</string>
+            </property>
+            <property name="buddy">
+             <cstring>dirtransLineEdit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="autozmqtopicsCheckBox">
+            <property name="toolTip">
+             <string>load possible ZMQ source datasources from the stream</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="timeoutLabel">
+            <property name="toolTip">
+             <string>source timeout in ms</string>
+            </property>
+            <property name="text">
+             <string>Source timeout in ms:</string>
+            </property>
+            <property name="buddy">
+             <cstring>timeoutLineEdit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="timeoutLineEdit">
+            <property name="toolTip">
+             <string>source timeout in ms</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>228</x>
+     <y>424</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>296</x>
+     <y>430</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

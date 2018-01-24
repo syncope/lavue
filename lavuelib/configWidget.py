@@ -25,14 +25,23 @@
 
 """ configuration widget """
 
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui, QtCore, uic
+import os
 import json
 
 
 class ConfigWidget(QtGui.QDialog):
 
     def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
         QtGui.QDialog.__init__(self, parent)
+        self.__ui = uic.loadUi(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "ui", "ConfigWidget.ui"), self)
 
         self.door = ""
         self.sardana = True
@@ -47,23 +56,6 @@ class ConfigWidget(QtGui.QDialog):
         self.aspectlocked = False
         self.statswoscaling = False
 
-        self.doorLineEdit = None
-        self.sardanaCheckBox = None
-        self.addroisCheckBox = None
-        self.secportLineEdit = None
-        self.secstreamCheckBox = None
-        self.secautoportCheckBox = None
-        self.rateDoubleSpinBox = None
-        self.showhistoCheckBox = None
-        self.showmaskCheckBox = None
-        self.timeoutLineEdit = None
-        self.aspectlockedCheckBox = None
-        self.buttonBox = None
-        self.statsscaleCheckBox = None
-        self.dirtransLineEdit = None
-        self.zmqtopicsLineEdit = None
-        self.autozmqtopicsCheckBox = None
-
         self.zmqtopics = []
         self.autozmqtopics = False
 
@@ -71,167 +63,27 @@ class ConfigWidget(QtGui.QDialog):
 
     def createGUI(self):
 
-        self.setWindowTitle("Configuration")
-
-        gridlayout = QtGui.QGridLayout()
-        vlayout = QtGui.QVBoxLayout()
-
-        rateLabel = QtGui.QLabel(u"Refresh rate:")
-        rateLabel.setToolTip(
-            "refresh rate of the image in seconds")
-        self.rateDoubleSpinBox = QtGui.QDoubleSpinBox()
-        self.rateDoubleSpinBox.setValue(self.refreshrate)
-        self.rateDoubleSpinBox.setSingleStep(0.01)
-        self.rateDoubleSpinBox.setToolTip(
-            "refresh rate of the image in seconds")
-
-        aspectlockedLabel = QtGui.QLabel(u"Aspect Ratio locked:")
-        aspectlockedLabel.setToolTip(
-            "lock the aspect ration of the image")
-        self.aspectlockedCheckBox = QtGui.QCheckBox()
-        self.aspectlockedCheckBox.setChecked(self.aspectlocked)
-        self.aspectlockedCheckBox.setToolTip(
-            "lock the aspect ration of the image")
-
-        statsscaleLabel = QtGui.QLabel(u"Statistics with scaling:")
-        statsscaleLabel.setToolTip(
-            "statistics values with scaling")
-        self.statsscaleCheckBox = QtGui.QCheckBox()
-        self.statsscaleCheckBox.setChecked(not self.statswoscaling)
-        self.statsscaleCheckBox.setToolTip(
-            "statistics values with scaling")
-
-        sardanaLabel = QtGui.QLabel(u"Enable Sardana:")
-        sardanaLabel.setToolTip(
-            "enable the sardana feature")
-        self.sardanaCheckBox = QtGui.QCheckBox()
-        self.sardanaCheckBox.setChecked(self.sardana)
-        self.sardanaCheckBox.setToolTip(
-            "enable the sardana feature")
-
-        doorLabel = QtGui.QLabel(u"Sardana Door:")
-        doorLabel.setToolTip(
-            "tango server device name of the Sarana Door")
-        self.doorLineEdit = QtGui.QLineEdit(self.door)
-        self.doorLineEdit.setToolTip(
-            "tango server device name of the Sarana Door")
-
-        addroisLabel = QtGui.QLabel(u"Add ROIs to Active MG:")
-        addroisLabel.setToolTip(
-            "add ROI aliases to the Active Measurement Group")
-        self.addroisCheckBox = QtGui.QCheckBox()
-        self.addroisCheckBox.setChecked(self.addrois)
-        self.addroisCheckBox.setToolTip(
-            "add ROI aliases to the Active Measurement Group")
-
-        secstreamLabel = QtGui.QLabel(u"ZMQ secure stream:")
-        secstreamLabel.setToolTip(
-            "send the zmq security stream with the main image parameters")
-        self.secstreamCheckBox = QtGui.QCheckBox()
-        self.secstreamCheckBox.setChecked(self.secstream)
-        self.secstreamCheckBox.setToolTip(
-            "send the zmq security stream with the main image parameters")
-
-        secautoportLabel = QtGui.QLabel(u"ZMQ secure automatic port:")
-        secautoportLabel.setToolTip(
-            "select port automatically for the zmq security stream")
-        self.secautoportCheckBox = QtGui.QCheckBox()
-        self.secautoportCheckBox.setToolTip(
-            "select port automatically for the zmq security stream")
-        self.secautoportCheckBox.setChecked(self.secautoport)
-
-        secportLabel = QtGui.QLabel(u"ZMQ secure port:")
-        secportLabel.setToolTip(
-            "port for the zmq security stream")
-        self.secportLineEdit = QtGui.QLineEdit(self.secport)
-        self.secportLineEdit.setToolTip(
-            "port for the zmq security stream")
+        self.__ui.rateDoubleSpinBox.setValue(self.refreshrate)
+        self.__ui.aspectlockedCheckBox.setChecked(self.aspectlocked)
+        self.__ui.statsscaleCheckBox.setChecked(not self.statswoscaling)
+        self.__ui.sardanaCheckBox.setChecked(self.sardana)
+        self.__ui.doorLineEdit.setText(self.door)
+        self.__ui.addroisCheckBox.setChecked(self.addrois)
+        self.__ui.secstreamCheckBox.setChecked(self.secstream)
+        self.__ui.secautoportCheckBox.setChecked(self.secautoport)
+        self.__ui.secportLineEdit.setText(self.secport)
         self.autoportChanged(self.secautoport)
-        self.secautoportCheckBox.stateChanged.connect(self.autoportChanged)
+        self.__ui.secautoportCheckBox.stateChanged.connect(self.autoportChanged)
 
-        showhistoLabel = QtGui.QLabel(u"Show histogram:")
-        showhistoLabel.setToolTip(
-            "show histogram to set range and color distribution")
-        self.showhistoCheckBox = QtGui.QCheckBox()
-        self.showhistoCheckBox.setToolTip(
-            "show histogram to set range and color distribution")
-        self.showhistoCheckBox.setChecked(self.showhisto)
+        self.__ui.showhistoCheckBox.setChecked(self.showhisto)
+        self.__ui.showmaskCheckBox.setChecked(self.showmask)
 
-        showmaskLabel = QtGui.QLabel(u"Show mask widget:")
-        showmaskLabel.setToolTip(
-            "show widgets to select the image mask")
-        self.showmaskCheckBox = QtGui.QCheckBox()
-        self.showmaskCheckBox.setToolTip(
-            "show widgets to select the image mask")
-        self.showmaskCheckBox.setChecked(self.showmask)
+        self.__ui.timeoutLineEdit.setText(str(self.timeout))
+        self.__ui.zmqtopicsLineEdit.setText(" ".join(self.zmqtopics))
+        self.__ui.autozmqtopicsCheckBox.setChecked(self.autozmqtopics)
 
-        timeoutLabel = QtGui.QLabel(u"Source timeout in ms:")
-        timeoutLabel.setToolTip(
-            "Source timeout in ms")
-        self.timeoutLineEdit = QtGui.QLineEdit(str(self.timeout))
-        self.timeoutLineEdit.setToolTip(
-            "Source timeout in ms")
-
-        zmqtopicsLabel = QtGui.QLabel(u"ZMQ Source datasources:")
-        zmqtopicsLabel.setToolTip(
-            "ZMQ Source datasources separated by spaces")
-        self.zmqtopicsLineEdit = QtGui.QLineEdit(" ".join(self.zmqtopics))
-        self.zmqtopicsLineEdit.setToolTip(
-            "ZMQ Source datasources separated by spaces")
-
-        autozmqtopicsLabel = QtGui.QLabel(u"ZMQ Source automatic:")
-        autozmqtopicsLabel.setToolTip(
-            "load posible ZMQ source datasources from the stream")
-        self.autozmqtopicsCheckBox = QtGui.QCheckBox()
-        self.autozmqtopicsCheckBox.setToolTip(
-            "load posible ZMQ source datasources from the stream")
-        self.autozmqtopicsCheckBox.setChecked(self.autozmqtopics)
-
-        dirtransLabel = QtGui.QLabel(u"File/Dir Translation:")
-        dirtransLabel.setToolTip(
-            "JSON dictionary denoting what to replace "
-            "\nin the file name and the file directory for Tango File Source")
-        self.dirtransLineEdit = QtGui.QLineEdit(self.dirtrans)
-        self.dirtransLineEdit.setToolTip(
-            "JSON dictionary denoting what to replace "
-            "\nin the file name and the file directory for Tango File Source")
-
-        gridlayout.addWidget(rateLabel, 0, 0)
-        gridlayout.addWidget(self.rateDoubleSpinBox, 0, 1)
-        gridlayout.addWidget(aspectlockedLabel, 1, 0)
-        gridlayout.addWidget(self.aspectlockedCheckBox, 1, 1)
-        gridlayout.addWidget(sardanaLabel, 2, 0)
-        gridlayout.addWidget(self.sardanaCheckBox, 2, 1)
-        gridlayout.addWidget(doorLabel, 3, 0)
-        gridlayout.addWidget(self.doorLineEdit, 3, 1)
-        gridlayout.addWidget(addroisLabel, 4, 0)
-        gridlayout.addWidget(self.addroisCheckBox, 4, 1)
-        gridlayout.addWidget(secstreamLabel, 5, 0)
-        gridlayout.addWidget(self.secstreamCheckBox, 5, 1)
-        gridlayout.addWidget(secautoportLabel, 6, 0)
-        gridlayout.addWidget(self.secautoportCheckBox, 6, 1)
-        gridlayout.addWidget(secportLabel, 7, 0)
-        gridlayout.addWidget(self.secportLineEdit, 7, 1)
-        gridlayout.addWidget(showhistoLabel, 8, 0)
-        gridlayout.addWidget(self.showhistoCheckBox, 8, 1)
-        gridlayout.addWidget(showmaskLabel, 9, 0)
-        gridlayout.addWidget(self.showmaskCheckBox, 9, 1)
-        gridlayout.addWidget(timeoutLabel, 10, 0)
-        gridlayout.addWidget(self.timeoutLineEdit, 10, 1)
-        gridlayout.addWidget(statsscaleLabel, 11, 0)
-        gridlayout.addWidget(self.statsscaleCheckBox, 11, 1)
-        gridlayout.addWidget(zmqtopicsLabel, 12, 0)
-        gridlayout.addWidget(self.zmqtopicsLineEdit, 12, 1)
-        gridlayout.addWidget(autozmqtopicsLabel, 13, 0)
-        gridlayout.addWidget(self.autozmqtopicsCheckBox, 13, 1)
-        gridlayout.addWidget(dirtransLabel, 14, 0)
-        gridlayout.addWidget(self.dirtransLineEdit, 14, 1)
-        self.buttonBox = QtGui.QDialogButtonBox(
-            QtGui.QDialogButtonBox.Ok
-            | QtGui.QDialogButtonBox.Cancel)
-        vlayout.addLayout(gridlayout)
-        vlayout.addWidget(self.buttonBox)
-        self.setLayout(vlayout)
+        self.__ui.dirtransLineEdit.setText(self.dirtrans)
+        
         self.buttonBox.button(
             QtGui.QDialogButtonBox.Cancel).clicked.connect(self.reject)
         self.buttonBox.button(
@@ -240,38 +92,38 @@ class ConfigWidget(QtGui.QDialog):
     @QtCore.pyqtSlot(int)
     def autoportChanged(self, value):
         if value:
-            self.secportLineEdit.setEnabled(False)
+            self.__ui.secportLineEdit.setEnabled(False)
         else:
-            self.secportLineEdit.setEnabled(True)
+            self.__ui.secportLineEdit.setEnabled(True)
 
     @QtCore.pyqtSlot()
     def accept(self):
         """ updates class variables with the form content
         """
 
-        self.sardana = self.sardanaCheckBox.isChecked()
-        self.door = str(self.doorLineEdit.text()).strip()
-        self.addrois = self.addroisCheckBox.isChecked()
-        self.secport = str(self.secportLineEdit.text()).strip()
-        self.secstream = self.secstreamCheckBox.isChecked()
-        self.secautoport = self.secautoportCheckBox.isChecked()
-        self.refreshrate = float(self.rateDoubleSpinBox.value())
-        self.showhisto = self.showhistoCheckBox.isChecked()
-        self.showmask = self.showmaskCheckBox.isChecked()
-        self.aspectlocked = self.aspectlockedCheckBox.isChecked()
-        self.statswoscaling = not self.statsscaleCheckBox.isChecked()
-        zmqtopics = str(self.zmqtopicsLineEdit.text()).strip().split(" ")
+        self.sardana = self.__ui.sardanaCheckBox.isChecked()
+        self.door = str(self.__ui.doorLineEdit.text()).strip()
+        self.addrois = self.__ui.addroisCheckBox.isChecked()
+        self.secport = str(self.__ui.secportLineEdit.text()).strip()
+        self.secstream = self.__ui.secstreamCheckBox.isChecked()
+        self.secautoport = self.__ui.secautoportCheckBox.isChecked()
+        self.refreshrate = float(self.__ui.rateDoubleSpinBox.value())
+        self.showhisto = self.__ui.showhistoCheckBox.isChecked()
+        self.showmask = self.__ui.showmaskCheckBox.isChecked()
+        self.aspectlocked = self.__ui.aspectlockedCheckBox.isChecked()
+        self.statswoscaling = not self.__ui.statsscaleCheckBox.isChecked()
+        zmqtopics = str(self.__ui.zmqtopicsLineEdit.text()).strip().split(" ")
         try:
-            dirtrans = str(self.dirtransLineEdit.text()).strip()
+            dirtrans = str(self.__ui.dirtransLineEdit.text()).strip()
             mytr = json.loads(dirtrans)
             if isinstance(mytr, dict):
                 self.dirtrans = dirtrans
         except Exception as e:
             print(str(e))
         self.zmqtopics = [tp for tp in zmqtopics if tp]
-        self.autozmqtopics = self.autozmqtopicsCheckBox.isChecked()
+        self.autozmqtopics = self.__ui.autozmqtopicsCheckBox.isChecked()
         try:
-            self.timeout = int(self.timeoutLineEdit.text())
+            self.timeout = int(self.__ui.timeoutLineEdit.text())
         except:
             pass
         QtGui.QDialog.accept(self)

@@ -35,6 +35,9 @@
             <property name="text">
              <string>Scale Y:</string>
             </property>
+            <property name="buddy">
+             <cstring>yscaleLineEdit</cstring>
+            </property>
            </widget>
           </item>
           <item row="1" column="1">
@@ -51,6 +54,9 @@
             </property>
             <property name="text">
              <string>Position X:</string>
+            </property>
+            <property name="buddy">
+             <cstring>xpositionLineEdit</cstring>
             </property>
            </widget>
           </item>
@@ -76,6 +82,9 @@
             <property name="text">
              <string>Scale X:</string>
             </property>
+            <property name="buddy">
+             <cstring>xscaleLineEdit</cstring>
+            </property>
            </widget>
           </item>
           <item row="0" column="3">
@@ -92,6 +101,9 @@
             </property>
             <property name="text">
              <string>Position Y:</string>
+            </property>
+            <property name="buddy">
+             <cstring>ypositionLineEdit</cstring>
             </property>
            </widget>
           </item>
@@ -130,6 +142,9 @@
             <property name="text">
              <string>Text X:</string>
             </property>
+            <property name="buddy">
+             <cstring>xtextLineEdit</cstring>
+            </property>
            </widget>
           </item>
           <item row="0" column="2">
@@ -139,6 +154,9 @@
             </property>
             <property name="text">
              <string>Units X:</string>
+            </property>
+            <property name="buddy">
+             <cstring>xunitsLineEdit</cstring>
             </property>
            </widget>
           </item>
@@ -157,6 +175,9 @@
             <property name="text">
              <string>Text Y:</string>
             </property>
+            <property name="buddy">
+             <cstring>ytextLineEdit</cstring>
+            </property>
            </widget>
           </item>
           <item row="1" column="2">
@@ -166,6 +187,9 @@
             </property>
             <property name="text">
              <string>Units Y:</string>
+            </property>
+            <property name="buddy">
+             <cstring>yunitsLineEdit</cstring>
             </property>
            </widget>
           </item>

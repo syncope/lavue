@@ -91,7 +91,7 @@ if __name__ == "__main__":
     # level = LogActions.levels.get(options.log, logging.INFO)
     # handler = LogHandler()
     # handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
-    # logger = logging.getLogger("nxsdesigner")
+    # logger = logging.getLogger("lavue")
     # logger.addHandler(handler)
     # logger.setLevel(level)
 
@@ -106,11 +106,9 @@ if __name__ == "__main__":
     app.setApplicationName("LaVue")
 
     dialog = lavuelib.liveViewer.LiveViewer(umode=umode)
-    # dialog.resize(1200, 800)
     dialog.show()
 
     status = app.exec_()
-    # app = None
     dialog = None
     import gc
     gc.collect()
