@@ -23,23 +23,37 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
+""" setup.py for setting Lavue"""
+
 from setuptools import setup
 # from setuptools import find_packages
 
-from codecs import open
-from os import path
+import codecs
+import os
 
-with open(path.join('.', 'README.rst'), encoding='utf-8') as f:
+with codecs.open(os.path.join('.', 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 # from sphinx.setup_command import BuildDoc
 
+#: (:obj:`str`) package name
 name = 'lavuelib'
 lavuepackage = __import__(name)
+#: (:obj:`str`) full release version
 release = lavuepackage.__version__
+#: (:obj:`str`) package version
 version = ".".join(release.split(".")[:2])
 
-setup(
+#: (:obj:`dict` <:obj:`str`, :obj:`list` <:obj:`str`> > ) package data
+package_data = {
+    'lavuelib': ['ui/*.ui', 'qrc/*.rcc']
+}
+
+#: (:obj:`str`) .ui file directory
+uidir = os.path.join(name, "ui")
+
+#: (:obj:`dict` <:obj:`str`, `any`>) metadata for distutils
+SETUPDATA = dict(
     name='lavue',
     version=release,
     description='Live image viewer application for photon science detectors.',
@@ -62,8 +76,9 @@ setup(
         # 'Programming Language :: Python :: 3.5',
     ],
     keywords='live viewer photon science detector',
-    packages=['lavuelib'],
-    # package_dir={'lauvelib': 'lavuelib'},
+    packages=[name, uidir],
+    package_data=package_data,
+     # package_dir={'lauvelib': 'lavuelib'},
     include_package_data=True,
     scripts=['lavue', 'lavuemonitor', 'lavuezmqstreamfromtango'],
     zip_safe=False,
@@ -74,3 +89,10 @@ setup(
     #         'version': ('setup.py', version),
     #         'release': ('setup.py', release)}},
 )
+
+## the main function
+def main():
+    setup(**SETUPDATA)
+
+if __name__ == '__main__':
+    main()

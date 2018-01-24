@@ -34,7 +34,7 @@ import pyqtgraph as pg
 
 from . import imageDisplayWidget
 from . import geometryWidget
-from . import ticksWidget
+from . import axisWidget
 
 
 class ImageWidget(QtGui.QWidget):
@@ -576,7 +576,7 @@ class ImageWidget(QtGui.QWidget):
         self.img_widget.updateGradient(name)
 
     def setTicks(self):
-        cnfdlg = ticksWidget.TicksWidget(self)
+        cnfdlg = axisWidget.AxisWidget(self)
         if self.img_widget.position is None:
             cnfdlg.xposition = None
             cnfdlg.yposition = None
