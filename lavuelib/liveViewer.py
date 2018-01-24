@@ -959,8 +959,10 @@ class LiveViewer(QtGui.QDialog):
                 print(str(e))
         elif str(name).strip():
             if self.image_name is None or str(self.image_name) != str(name):
-                self.image_name, self.raw_image, self.metadata \
+                self.image_name, raw_image, self.metadata \
                     = self.exchangelist.readData()
+                if not isinstance(raw_image, (str, unicode)):
+                    self.raw_image = raw_image
         self.plot()
 
     def prepareImage(self):

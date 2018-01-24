@@ -222,6 +222,8 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             self.setaspectlocked.triggered.emit(False)
 
     def setScale(self, position=None, scale=None, update=True):
+        if update:
+            self.setLabels(self.xtext, self.ytext, self.xunits, self.yunits)
         if self.position == position and self.scale == scale and \
            position is None and scale is None:
             return
@@ -238,11 +240,10 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             self.image.setPos(0, 0)
         if self.rawdata is not None and update:
             self.viewbox.autoRange()
-        if update:
-            self.setLabels(self.xtext, self.ytext, self.xunits, self.yunits)
 
     def resetScale(self):
-        self.image.resetTransform()
+        if self.scale is not None or self.position is not None:
+            self.image.resetTransform()
         if self.scale is not None:
             self.image.scale(1, 1)
         if self.position is not None:

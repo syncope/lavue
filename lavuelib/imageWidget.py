@@ -437,6 +437,9 @@ class ImageWidget(QtGui.QWidget):
             roi.show()
         for cut in self.img_widget.cut:
             cut.hide()
+        doreset = not (self.img_widget.cutenable or
+                       self.img_widget.roienable or
+                       self.img_widget.qenable)
         self.img_widget.cutenable = False
         self.img_widget.roienable = True
         self.img_widget.qenable = False
@@ -446,7 +449,8 @@ class ImageWidget(QtGui.QWidget):
             "coordinate info display for the mouse pointer")
         self.pixellabel.setToolTip(
             "ROI alias or aliases related to sardana experimental channels")
-        self.img_widget.resetScale()
+        if doreset:
+            self.img_widget.resetScale()
 
     def showIntensityFrame(self):
         self.pixellabel.setText("Pixel position and intensity: ")
@@ -493,6 +497,9 @@ class ImageWidget(QtGui.QWidget):
         self.cutSpinBox.show()
         self.roiSpinBox.hide()
         self.roiLabel.hide()
+        doreset = not (self.img_widget.cutenable or
+                       self.img_widget.roienable or
+                       self.img_widget.qenable)
         self.img_widget.roienable = False
         self.img_widget.cutenable = True
         self.img_widget.qenable = False
@@ -503,7 +510,8 @@ class ImageWidget(QtGui.QWidget):
             "coordinate info display for the mouse pointer")
         self.pixellabel.setToolTip(
             "coordinate info display for the mouse pointer")
-        self.img_widget.resetScale()
+        if doreset:
+            self.img_widget.resetScale()
 
     def showAngleQFrame(self):
         self.pixellabel.setText("Pixel position and intensity: ")
@@ -521,6 +529,9 @@ class ImageWidget(QtGui.QWidget):
         self.roiSpinBox.hide()
         self.cutSpinBox.hide()
         self.roiLabel.hide()
+        doreset = not (self.img_widget.cutenable or
+                       self.img_widget.roienable or
+                       self.img_widget.qenable)
         self.img_widget.roienable = False
         self.img_widget.cutenable = False
         self.img_widget.qenable = True
@@ -528,7 +539,8 @@ class ImageWidget(QtGui.QWidget):
         self.img_widget.hLine.show()
         self.infodisplay.setText("")
         self.updateGeometryTip()
-        self.img_widget.resetScale()
+        if doreset:
+            self.img_widget.resetScale()
 
     def plot(self, array, name=None, rawarray=None):
         if array is None:
@@ -606,11 +618,11 @@ class ImageWidget(QtGui.QWidget):
                 scale = tuple([cnfdlg.xscale, cnfdlg.yscale])
             else:
                 scale = None
-            self.img_widget.xtext = cnfdlg.xtext
-            self.img_widget.ytext = cnfdlg.ytext
+            self.img_widget.xtext = cnfdlg.xtext or None
+            self.img_widget.ytext = cnfdlg.ytext or None
 
-            self.img_widget.xunits = cnfdlg.xunits
-            self.img_widget.yunits = cnfdlg.yunits
+            self.img_widget.xunits = cnfdlg.xunits or None
+            self.img_widget.yunits = cnfdlg.yunits or None
             self.img_widget.setScale(position, scale)
             return True
         return False
