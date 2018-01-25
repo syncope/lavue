@@ -30,7 +30,12 @@ import os
 import json
 
 
-class ConfigWidget(QtGui.QDialog):
+_formclass, _baseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "ConfigDialog.ui"))
+
+
+class ConfigDialog(QtGui.QDialog):
 
     def __init__(self, parent=None):
         """ constructor
@@ -39,9 +44,10 @@ class ConfigWidget(QtGui.QDialog):
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
         QtGui.QDialog.__init__(self, parent)
-        self.__ui = uic.loadUi(
-            os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                         "ui", "ConfigWidget.ui"), self)
+
+        #: (:class:`Ui_ConfigDialog') ui_dialog object from qtdesigner
+        self.__ui = _formclass()
+        self.__ui.setupUi(self)
 
         #: (:obj:`str`) device name of sardana door
         self.door = ""
@@ -99,8 +105,6 @@ class ConfigWidget(QtGui.QDialog):
         self.autoportChanged(self.secautoport)
         self.__ui.secautoportCheckBox.stateChanged.connect(
             self.autoportChanged)
-
-        self.__ui.show()
 
     @QtCore.pyqtSlot(int)
     def autoportChanged(self, value):

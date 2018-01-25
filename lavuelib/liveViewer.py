@@ -44,11 +44,10 @@ from . import messageBox
 from . import sourceWidget
 from . import preparationBoxWidget
 from . import intensityScalingWidget
-from . import levelsWidget
-from . import gradientChoiceWidget
-from . import statisticsWidget
+from . import levelsGroupBox
+from . import statisticsGroupBox
 from . import imageWidget
-from . import configWidget
+from . import configDialog
 
 from . import imageFileHandler
 from . import sardanaUtils
@@ -178,18 +177,16 @@ class LiveViewer(QtGui.QDialog):
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
-        self.sourceW = sourceWidget.SourceWidget(
-            parent=self)
+        self.sourceW = sourceWidget.SourceWidget(parent=self)
         self.sourceW.serverdict = HidraServerList
         self.prepBoxW = preparationBoxWidget.PreparationBoxWidget(parent=self)
         self.scalingW = intensityScalingWidget.IntensityScalingWidget(
             parent=self)
-        self.levelsW = levelsWidget.LevelsWidget(parent=self)
-        self.gradientW = gradientChoiceWidget.GradientChoiceWidget(parent=self)
-        self.statsW = statisticsWidget.StatisticsWidget(parent=self)
+        self.levelsW = levelsGroupBox.LevelsGroupBox(parent=self)
+        self.statsW = statisticsGroupBox.StatisticsGroupBox(parent=self)
         self.imageW = imageWidget.ImageWidget(parent=self)
-        self.levelsW.histogram.setImageItem(self.imageW.img_widget.image)
-        self.levelsW.histogram.item.imageChanged(autoLevel=True)
+        self.levelsW.setImageItem(self.imageW.img_widget.image)
+        self.levelsW.imageChanged(autoLevel=True)
 
         self.maskW = self.prepBoxW.maskW
         self.bkgSubW = self.prepBoxW.bkgSubW
@@ -229,7 +226,7 @@ class LiveViewer(QtGui.QDialog):
         vlayout.addWidget(self.prepBoxW)
         vlayout.addWidget(self.scalingW)
         vlayout.addWidget(self.levelsW)
-        vlayout.addWidget(self.gradientW)
+        # vlayout.addWidget(self.gradientW)
         vlayout.addWidget(self.statsW)
 
         # then the vertical layout on the --global-- horizontal one
@@ -247,11 +244,11 @@ class LiveViewer(QtGui.QDialog):
         self.scalingW.changedScaling.connect(self.levelsW.setScalingLabel)
 
         # signal from limit setting widget
-        self.levelsW.changeMinLevel.connect(self.imageW.setMinLevel)
-        self.levelsW.changeMaxLevel.connect(self.imageW.setMaxLevel)
-        self.levelsW.autoLevels.connect(self.imageW.setAutoLevels)
+        self.levelsW.minLevelChanged.connect(self.imageW.setMinLevel)
+        self.levelsW.maxLevelChanged.connect(self.imageW.setMaxLevel)
+        self.levelsW.autoLevelsChanged.connect(self.imageW.setAutoLevels)
         self.levelsW.levelsChanged.connect(self.plot)
-        self.levelsW.changeview(self.showhisto)
+        self.levelsW.changeView(self.showhisto)
         self.imageW.cnfButton.clicked.connect(self.configuration)
         self.imageW.quitButton.clicked.connect(self.close)
         self.imageW.loadButton.clicked.connect(self.loadfile)
@@ -270,21 +267,12 @@ class LiveViewer(QtGui.QDialog):
         self.sourceW.source_disconnect.connect(self.disconnect_source)
 
         # gradient selector
-        self.gradientW.chosenGradient.connect(
-            self.levelsW.histogram.setGradientByName)
-        self.gradientW.channelChanged.connect(self.plot)
-        # self.gradientW.chosenGradient.connect(self.imageW.changeGradient)
-        # self.imageW.img_widget.graditem.gradient.sigNameChanged.connect(
-        #    self.gradientW.changeGradient)
-        self.levelsW.histogram.gradient.sigNameChanged.connect(
-            self.gradientW.changeGradient)
+        self.levelsW.channelChanged.connect(self.plot)
         self.imageW.img_widget.setaspectlocked.triggered.connect(
             self.toggleAspectLocked)
         self.imageW.ticksPushButton.clicked.connect(self.setTicks)
 
         # simple mutable caching object for data exchange with thread
-        # [blocked state | image name | image data]
-        # during read+write access state is set to blocked to avoid conflict
         self.exchangelist = dataFetchThread.ExchangeList()
 
         self.dataFetcher = dataFetchThread.DataFetchThread(
@@ -410,8 +398,8 @@ class LiveViewer(QtGui.QDialog):
             zmqtopics=self.zmqtopics, dirtrans=self.dirtrans,
             autozmqtopics=self.autozmqtopics)
 
-        self.levelsW.changeview(self.showhisto)
-        self.prepBoxW.changeview(self.showmask)
+        self.levelsW.changeView(self.showhisto)
+        self.prepBoxW.changeView(self.showmask)
         self.plot()
 
     @QtCore.pyqtSlot(bool)
@@ -684,7 +672,7 @@ class LiveViewer(QtGui.QDialog):
 
     @QtCore.pyqtSlot()
     def configuration(self):
-        cnfdlg = configWidget.ConfigWidget(self)
+        cnfdlg = configDialog.ConfigDialog(self)
         if not self.doorname and self.sardana is not None:
             self.doorname = self.sardana.getDeviceName("Door")
         cnfdlg.sardana = True if self.sardana is not None else False
@@ -713,10 +701,10 @@ class LiveViewer(QtGui.QDialog):
         self.addrois = dialog.addrois
 
         if self.showhisto != dialog.showhisto:
-            self.levelsW.changeview(dialog.showhisto)
+            self.levelsW.changeView(dialog.showhisto)
             self.showhisto = dialog.showhisto
         if self.showmask != dialog.showmask:
-            self.prepBoxW.changeview(dialog.showmask)
+            self.prepBoxW.changeView(dialog.showmask)
             self.showmask = dialog.showmask
         dataFetchThread.GLOBALREFRESHRATE = dialog.refreshrate
         if self.secstream != dialog.secstream or (
@@ -816,7 +804,7 @@ class LiveViewer(QtGui.QDialog):
                          self.display_image
                          if self.statswoscaling else self.scaled_image)
         if self.updatehisto:
-            self.levelsW.histogram.imageChanged(autoLevel=self.levelsW.auto)
+            self.levelsW.imageChanged()
             self.updatehisto = False
 
     @QtCore.pyqtSlot()
@@ -860,7 +848,7 @@ class LiveViewer(QtGui.QDialog):
             'linear' if self.statswoscaling else currentscaling,
             roiVal, roilabel)
 
-        # if needed, update the levels display
+        # if needed, update the level display
         if self.levelsW.isAutoLevel():
             self.levelsW.updateLevels(float(minVal), float(maxSVal))
 
@@ -970,14 +958,14 @@ class LiveViewer(QtGui.QDialog):
             return
 
         if len(self.raw_image.shape) == 3:
-            self.gradientW.setNumberOfChannels(self.raw_image.shape[0])
-            if not self.gradientW.colorchannel:
+            self.levelsW.setNumberOfChannels(self.raw_image.shape[0])
+            if not self.levelsW.colorChannel():
                 self.rawgrey_image = np.sum(self.raw_image, 0)
             else:
                 try:
-                    if len(self.raw_image) >= self.gradientW.colorchannel:
+                    if len(self.raw_image) >= self.levelsW.colorChannel():
                         self.rawgrey_image = self.raw_image[
-                            self.gradientW.colorchannel - 1]
+                            self.levelsW.colorChannel() - 1]
                     else:
                         self.rawgrey_image = np.mean(self.raw_image, 0)
                 except:
@@ -986,18 +974,18 @@ class LiveViewer(QtGui.QDialog):
                     text = messageBox.MessageBox.getText(
                         "lavue: color channel %s does not exist."
                         " Reset to grey scale"
-                        % self.gradientW.colorchannel)
+                        % self.levelsW.colorChannel())
                     messageBox.MessageBox.warning(
                         self,
                         "lavue: color channel %s does not exist. "
                         " Reset to grey scale"
-                        % self.gradientW.colorchannel,
+                        % self.levelsW.colorChannel(),
                         text, str(value))
-                    self.gradientW.colorchannel = 0
+                    self.levelsW.setChannel(0)
                     self.rawgrey_image = np.sum(self.raw_image, 0)
         else:
             self.rawgrey_image = self.raw_image
-            self.gradientW.setNumberOfChannels(0)
+            self.levelsW.setNumberOfChannels(0)
 
         self.display_image = self.rawgrey_image
 

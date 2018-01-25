@@ -28,8 +28,12 @@
 from PyQt4 import QtGui, QtCore, uic
 import os
 
+_formclass, _baseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "GeometryDialog.ui"))
 
-class GeometryWidget(QtGui.QDialog):
+
+class GeometryDialog(QtGui.QDialog):
 
     """ detector geometry widget class"""
 
@@ -40,9 +44,10 @@ class GeometryWidget(QtGui.QDialog):
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
         QtGui.QDialog.__init__(self, parent)
-        self.__ui = uic.loadUi(
-            os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                         "ui", "GeometryWidget.ui"), self)
+
+        #: (:class:`Ui_Dialog') ui_dialog object from qtdesigner
+        self.__ui = _formclass()
+        self.__ui.setupUi(self)
 
         #: (:obj:`float`) x-coordinates of the center of the image
         self.centerx = 0.0

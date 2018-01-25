@@ -29,8 +29,12 @@
 from PyQt4 import QtGui, uic
 import os
 
+_formclass, _baseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "StatisticsGroupBox.ui"))
 
-class StatisticsWidget(QtGui.QGroupBox):
+
+class StatisticsGroupBox(QtGui.QGroupBox):
 
     """
     Display some general image statistics.
@@ -43,9 +47,10 @@ class StatisticsWidget(QtGui.QGroupBox):
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
         QtGui.QGroupBox.__init__(self, parent)
-        self.__ui = uic.loadUi(
-            os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                         "ui", "StatisticsWidget.ui"), self)
+
+        #: (:class:`Ui_GroupBox') ui_groupbox object from qtdesigner
+        self.__ui = _formclass()
+        self.__ui.setupUi(self)
 
         #: (:obj: `str`) scale label
         self.__scaling = "sqrt"

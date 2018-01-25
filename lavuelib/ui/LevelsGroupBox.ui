@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LevelsGroupBox</class>
+ <widget class="QGroupBox" name="LevelsGroupBox">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>327</width>
+    <height>238</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>GroupBox</string>
+  </property>
+  <property name="title">
+   <string>Display levels and colors</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="scalingLabel">
+         <property name="toolTip">
+          <string>intensity display scaling</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color: red;</string>
+         </property>
+         <property name="text">
+          <string>sqrt scale!</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="maxLabel">
+         <property name="toolTip">
+          <string>maximum intensity values after scaling</string>
+         </property>
+         <property name="text">
+          <string>maximum value:</string>
+         </property>
+         <property name="buddy">
+          <cstring>maxDoubleSpinBox</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QCheckBox" name="autoLevelsCheckBox">
+         <property name="toolTip">
+          <string>find mininum and maximum intensity values after scaling
+for color distribution of the image</string>
+         </property>
+         <property name="text">
+          <string>automatic levels</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QDoubleSpinBox" name="minDoubleSpinBox">
+         <property name="toolTip">
+          <string>mininum intensity values after scaling</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QDoubleSpinBox" name="maxDoubleSpinBox">
+         <property name="toolTip">
+          <string>maximum intensity values after scaling</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="minLabel">
+         <property name="toolTip">
+          <string>mininum intensity values after scaling</string>
+         </property>
+         <property name="text">
+          <string>minimum value:</string>
+         </property>
+         <property name="buddy">
+          <cstring>minDoubleSpinBox</cstring>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QFrame" name="histogramFrame">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <layout class="QVBoxLayout" name="histogramLayout"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <layout class="QGridLayout" name="colorGridLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="gradientLabel">
+         <property name="toolTip">
+          <string>gradient for the color distribution of the image</string>
+         </property>
+         <property name="text">
+          <string>color gradient:</string>
+         </property>
+         <property name="buddy">
+          <cstring>gradientComboBox</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="gradientComboBox">
+         <property name="toolTip">
+          <string>gradient for the color distribution of the image</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>reversegrey</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>highcontrast</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>thermal</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>flame</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>bipolar</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>spectrum</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>spectrumclip</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>greyclip</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>grey</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>cyclic</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>yellowy</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>inverted</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="channelComboBox">
+         <property name="toolTip">
+          <string>color channel for multi color images like RGB or CMYK</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="channelLabel">
+         <property name="toolTip">
+          <string>color channel for multi color images like RGB or CMYK</string>
+         </property>
+         <property name="text">
+          <string>color channel:</string>
+         </property>
+         <property name="buddy">
+          <cstring>channelComboBox</cstring>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -62,7 +62,7 @@ class PreparationBoxWidget(QtGui.QGroupBox):
 
         self.setLayout(vlayout)
 
-    def changeview(self, showmask=False):
+    def changeView(self, showmask=False):
         if showmask:
             self.mask = True
             self.maskW.show()

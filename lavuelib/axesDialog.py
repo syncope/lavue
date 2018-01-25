@@ -29,7 +29,12 @@ from PyQt4 import QtGui, QtCore, uic
 import os
 
 
-class AxisWidget(QtGui.QDialog):
+_formclass, _baseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "AxesDialog.ui"))
+
+
+class AxesDialog(QtGui.QDialog):
 
     """ detector axis widget class"""
 
@@ -40,9 +45,10 @@ class AxisWidget(QtGui.QDialog):
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
         QtGui.QDialog.__init__(self, parent)
-        self.__ui = uic.loadUi(
-            os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                         "ui", "AxisWidget.ui"), self)
+
+        #: (:class:`Ui_AxesDialog') ui_dialog object from qtdesigner
+        self.__ui = _formclass()
+        self.__ui.setupUi(self)
 
         #: (:obj:`float`) x-coordinates of the first pixel
         self.xposition = None
@@ -74,8 +80,6 @@ class AxisWidget(QtGui.QDialog):
         self.__ui.ytextLineEdit.setText(str(self.ytext or ""))
         self.__ui.xunitsLineEdit.setText(str(self.xunits or ""))
         self.__ui.yunitsLineEdit.setText(str(self.yunits or ""))
-
-        self.__ui.show()
 
     @QtCore.pyqtSlot()
     def accept(self):

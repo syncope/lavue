@@ -33,8 +33,8 @@ from PyQt4 import QtCore, QtGui
 import pyqtgraph as pg
 
 from . import imageDisplayWidget
-from . import geometryWidget
-from . import axisWidget
+from . import geometryDialog
+from . import axesDialog
 
 
 class ImageWidget(QtGui.QWidget):
@@ -218,7 +218,7 @@ class ImageWidget(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def geometry(self):
-        cnfdlg = geometryWidget.GeometryWidget(self)
+        cnfdlg = geometryDialog.GeometryDialog(self)
         cnfdlg.centerx = self.img_widget.centerx
         cnfdlg.centery = self.img_widget.centery
         cnfdlg.energy = self.img_widget.energy
@@ -588,7 +588,7 @@ class ImageWidget(QtGui.QWidget):
         self.img_widget.updateGradient(name)
 
     def setTicks(self):
-        cnfdlg = axisWidget.AxisWidget(self)
+        cnfdlg = axesDialog.AxesDialog(self)
         if self.img_widget.position is None:
             cnfdlg.xposition = None
             cnfdlg.yposition = None
