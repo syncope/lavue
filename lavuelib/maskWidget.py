@@ -52,7 +52,7 @@ class MaskWidget(QtGui.QWidget):
         """
         QtGui.QWidget.__init__(self, parent)
 
-        #: (:class:`Ui_BkgSubtractionkWidget') ui_widget object from qtdesigner
+        #: (:class:`Ui_MaskWidget') ui_widget object from qtdesigner
         self.__ui = _formclass()
         self.__ui.setupUi(self)
 
@@ -96,7 +96,7 @@ class MaskWidget(QtGui.QWidget):
         :type name: :obj:`str`
         """
         if name == "":
-            self.__ui.fileNameLabel.setText("No Image selected")
+            self.__ui.fileNameLabel.setText("no image selected")
             self.__ui.applyMaskCheckBox.setEnabled(False)
         else:
             self.__ui.fileNameLabel.setText("..." + str(name)[-24:])

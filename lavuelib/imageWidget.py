@@ -75,7 +75,7 @@ class ImageWidget(QtGui.QWidget):
         self.quitButton.setToolTip("quit the image viewer")
         self.cnfButton = QtGui.QPushButton("Configuration")
         self.cnfButton.setToolTip("image viewer configuration")
-        self.loadButton = QtGui.QPushButton("Load")
+        self.loadButton = QtGui.QPushButton("Load ...")
         self.loadButton.setToolTip("load an image from a file")
         # self.buttonBox.addButton(self.cnfButton,
         #          QtGui.QDialogButtonBox.ActionRole)
@@ -131,7 +131,7 @@ class ImageWidget(QtGui.QWidget):
         self.infodisplay.setToolTip(
             "coordinate info display for the mouse pointer")
 
-        self.ticksPushButton = QtGui.QPushButton("Axes")
+        self.ticksPushButton = QtGui.QPushButton("Axes ...")
 
         self.roiLabel = QtGui.QLabel("[x1, y1, x2, y2]: ")
         self.roiLabel.setToolTip(
@@ -158,11 +158,11 @@ class ImageWidget(QtGui.QWidget):
             "add ROI aliases to the Door environment "
             "as well as to Active MntGrp")
 
-        self.angleqPushButton = QtGui.QPushButton("Geometry")
+        self.angleqPushButton = QtGui.QPushButton("Geometry ...")
         self.angleqPushButton.setToolTip("Input physical parameters")
         self.angleqComboBox = QtGui.QComboBox()
-        self.angleqComboBox.addItem("Angles")
-        self.angleqComboBox.addItem("Q-space")
+        self.angleqComboBox.addItem("angles")
+        self.angleqComboBox.addItem("q-space")
         self.angleqComboBox.setToolTip("Select the display space")
 
         pixelvaluelayout.addWidget(self.pixellabel)
@@ -443,7 +443,8 @@ class ImageWidget(QtGui.QWidget):
         self.img_widget.cutenable = False
         self.img_widget.roienable = True
         self.img_widget.qenable = False
-        self.img_widget.roi[0].show()
+        if  self.img_widget.roi:
+            self.img_widget.roi[0].show()
         self.infodisplay.setText("")
         self.infodisplay.setToolTip(
             "coordinate info display for the mouse pointer")

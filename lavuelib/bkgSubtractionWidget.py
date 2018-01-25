@@ -109,7 +109,7 @@ class BkgSubtractionWidget(QtGui.QWidget):
         :type name: :obj:`str`
         """
         if name == "":
-            self.__ui.fileLabel.setText("No Image selected")
+            self.__ui.fileLabel.setText("no Image selected")
             self.__ui.applyBkgCheckBox.setEnabled(False)
         else:
             self.__ui.fileLabel.setText("..." + str(name)[-24:])

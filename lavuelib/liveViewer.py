@@ -289,7 +289,7 @@ class LiveViewer(QtGui.QDialog):
         self.maskWg.applyStateChanged.connect(self.checkMasking)
 
         # signals from transformation widget
-        self.trafoWg.activatedTransformation.connect(self.assessTransformation)
+        self.trafoWg.transformationChanged.connect(self.assessTransformation)
 
         # set the right target name for the source display at initialization
         self.sourceW.setTargetName(self.data_source.getTarget())
@@ -412,20 +412,19 @@ class LiveViewer(QtGui.QDialog):
         if text == "ROI":
             self.imageW.showROIFrame()
             self.trafoName = "None"
-            self.trafoWg.cb.setCurrentIndex(0)
-            self.trafoWg.cb.setEnabled(False)
+            self.trafoWg.setEnabled(False)
             self.imageW.roiChanged()
         elif text == "LineCut":
             self.imageW.showLineCutFrame()
-            self.trafoWg.cb.setEnabled(True)
+            self.trafoWg.setEnabled(True)
             self.imageW.roiCoordsChanged.emit()
         elif text == "Angle/Q":
             self.imageW.showAngleQFrame()
-            self.trafoWg.cb.setEnabled(True)
+            self.trafoWg.setEnabled(True)
             self.imageW.roiCoordsChanged.emit()
         else:
             self.imageW.showIntensityFrame()
-            self.trafoWg.cb.setEnabled(True)
+            self.trafoWg.setEnabled(True)
             self.imageW.roiCoordsChanged.emit()
 
     @QtCore.pyqtSlot()
@@ -1026,7 +1025,7 @@ class LiveViewer(QtGui.QDialog):
 
     def transform(self):
         '''Do the image transformation on the given numpy array.'''
-        if self.display_image is None or self.trafoName is "None":
+        if self.display_image is None or self.trafoName is "none":
             return
         # !!! there is a place, where indices go to die...
         # somewhere, the ordering of the indices gets messed up

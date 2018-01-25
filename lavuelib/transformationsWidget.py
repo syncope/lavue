@@ -26,7 +26,13 @@
 """ transformation widget """
 
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
+import os
+
+_formclass, _baseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "TransformationsWidget.ui"))
+
 
 
 class TransformationsWidget(QtGui.QWidget):
@@ -35,32 +41,40 @@ class TransformationsWidget(QtGui.QWidget):
     """
     Select how an image should be transformed.
     """
-    activatedTransformation = QtCore.pyqtSignal(str)
+    transformationChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
         QtGui.QWidget.__init__(self, parent)
 
-        self.cb = QtGui.QComboBox()
-        self.cb.addItem("None")
-        self.cb.addItem("flip (up-down)")
-        self.cb.addItem("flip (left-right)")
-        self.cb.addItem("transpose")
-        self.cb.addItem("rot90 (clockwise)")
-        self.cb.addItem("rot180")
-        self.cb.addItem("rot270 (clockwise)")
-        self.cb.addItem("rot180 + transpose")
-        self.cb.setToolTip(
-            "basic image transformation, i.e. flip, transpose")
+        #: (:class:`Ui_TransformationsWidget') ui_widget object from qtdesigner
+        self.__ui = _formclass()
+        self.__ui.setupUi(self)
 
-        layout = QtGui.QHBoxLayout()
-        self.label = QtGui.QLabel("Transformation:")
-        self.label.setToolTip(
-            "basic image transformation, i.e flip, transpose")
-        layout.addWidget(self.label)
-        layout.addWidget(self.cb)
-        self.setLayout(layout)
-        self.cb.currentIndexChanged.connect(self.broadcastTransformation)
+        self.__ui.comboBox.currentIndexChanged.connect(
+            self._onTransformationChanged)
 
     @QtCore.pyqtSlot(int)
-    def broadcastTransformation(self, index):
-        self.activatedTransformation.emit(self.cb.itemText(index))
+    def _onTransformationChanged(self, index):
+        """ updates transformation according to the index
+
+        :param state: transformation index
+        :type state: :obj:`int`
+        """
+        
+        self.transformationChanged.emit(
+            self.__ui.comboBox.itemText(index))
+
+    def setEnable(self, flag):
+        """ disables or enables the combobox
+
+        :param flag: combobox to be enabled
+        :type flag: :obj:`bool`
+        """
+        self.__ui.comboBox.setEnable(flag)
+        if not state:
+            self.__ui.comboBox.setCurrentIndex(0)

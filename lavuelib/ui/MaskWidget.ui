@@ -27,7 +27,7 @@
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;apply mask to the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
-          <string>Apply mask:</string>
+          <string>apply mask</string>
          </property>
         </widget>
        </item>
@@ -37,7 +37,7 @@
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;select file for the mask&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
-          <string>Select</string>
+          <string>Select ...</string>
          </property>
         </widget>
        </item>
@@ -51,7 +51,7 @@
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;mask image file name&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
-          <string>Mask image:</string>
+          <string>mask image:</string>
          </property>
         </widget>
        </item>
@@ -61,7 +61,7 @@
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;mask image file name&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
-          <string>No image selected</string>
+          <string>no image selected</string>
          </property>
         </widget>
        </item>

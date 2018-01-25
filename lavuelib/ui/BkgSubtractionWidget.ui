@@ -27,7 +27,7 @@
           <string>apply background substraction to the image</string>
          </property>
          <property name="text">
-          <string>Subtract Bkg</string>
+          <string>subtract bkg</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -52,7 +52,7 @@
             <string>select the background substraction image</string>
            </property>
            <property name="text">
-            <string>Select</string>
+            <string>Select ...</string>
            </property>
           </widget>
          </item>
@@ -62,7 +62,7 @@
             <string>select a file for the background substraction image</string>
            </property>
            <property name="text">
-            <string>Choose file</string>
+            <string>Choose file ...</string>
            </property>
           </widget>
          </item>
@@ -78,7 +78,7 @@
           <string>background substraction image file name</string>
          </property>
          <property name="text">
-          <string>Background image:</string>
+          <string>background image:</string>
          </property>
         </widget>
        </item>
@@ -88,7 +88,7 @@
           <string>background substraction image file name</string>
          </property>
          <property name="text">
-          <string>No image selected</string>
+          <string>no image selected</string>
          </property>
         </widget>
        </item>
