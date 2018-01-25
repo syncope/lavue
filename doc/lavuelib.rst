@@ -99,10 +99,10 @@ lavuelib.imageWidget module
     :undoc-members:
     :show-inheritance:
 
-lavuelib.intensityScalingWidget module
+lavuelib.scalingGroupBox module
 --------------------------------------
 
-.. automodule:: lavuelib.intensityScalingWidget
+.. automodule:: lavuelib.scalingGroupBox
     :members:
     :undoc-members:
     :show-inheritance:

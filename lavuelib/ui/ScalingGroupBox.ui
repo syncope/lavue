@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ScalingGroupBox</class>
+ <widget class="QGroupBox" name="ScalingGroupBox">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>329</width>
+    <height>61</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>GroupBox</string>
+  </property>
+  <property name="title">
+   <string>Intensity display scaling</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QRadioButton" name="sqrtRadioButton">
+       <property name="toolTip">
+        <string>apply sqrt function on pixel intensity</string>
+       </property>
+       <property name="text">
+        <string>sqrt</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="linRadioButton">
+       <property name="toolTip">
+        <string>do not apply function on pixel intensity</string>
+       </property>
+       <property name="text">
+        <string>linear</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="logRadioButton">
+       <property name="toolTip">
+        <string>apply log10 function on pixel intensity</string>
+       </property>
+       <property name="text">
+        <string>log</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

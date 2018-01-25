@@ -43,7 +43,7 @@ from . import messageBox
 
 from . import sourceWidget
 from . import preparationBoxWidget
-from . import intensityScalingWidget
+from . import scalingGroupBox
 from . import levelsGroupBox
 from . import statisticsGroupBox
 from . import imageWidget
@@ -180,8 +180,7 @@ class LiveViewer(QtGui.QDialog):
         self.sourceW = sourceWidget.SourceWidget(parent=self)
         self.sourceW.serverdict = HidraServerList
         self.prepBoxW = preparationBoxWidget.PreparationBoxWidget(parent=self)
-        self.scalingW = intensityScalingWidget.IntensityScalingWidget(
-            parent=self)
+        self.scalingW = scalingGroupBox.ScalingGroupBox(parent=self)
         self.levelsW = levelsGroupBox.LevelsGroupBox(parent=self)
         self.statsW = statisticsGroupBox.StatisticsGroupBox(parent=self)
         self.imageW = imageWidget.ImageWidget(parent=self)
@@ -239,9 +238,9 @@ class LiveViewer(QtGui.QDialog):
         # SIGNAL LOGIC::
 
         # signal from intensity scaling widget:
-        # self.scalingW.changedScaling.connect(self.scale)
-        self.scalingW.changedScaling.connect(self.plot)
-        self.scalingW.changedScaling.connect(self.levelsW.setScalingLabel)
+        # self.scalingW.scalingChanged.connect(self.scale)
+        self.scalingW.scalingChanged.connect(self.plot)
+        self.scalingW.scalingChanged.connect(self.levelsW.setScalingLabel)
 
         # signal from limit setting widget
         self.levelsW.minLevelChanged.connect(self.imageW.setMinLevel)
@@ -795,7 +794,7 @@ class LiveViewer(QtGui.QDialog):
 
         # use the internal raw image to create a display image with chosen
         # scaling
-        self.scale(self.scalingW.getCurrentScaling())
+        self.scale(self.scalingW.currentScaling())
         # calculate and update the stats for this
         self.calc_update_stats()
 
@@ -815,7 +814,7 @@ class LiveViewer(QtGui.QDialog):
         # calculate the stats for this
         maxVal, meanVal, varVal, minVal, maxRawVal, maxSVal = self.calcStats()
         calctime = time.time()
-        currentscaling = self.scalingW.getCurrentScaling()
+        currentscaling = self.scalingW.currentScaling()
         # update the statistics display
         roiVal, currentroi = self.calcROIsum()
         roilabel = ""
