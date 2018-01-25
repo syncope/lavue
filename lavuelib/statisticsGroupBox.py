@@ -56,8 +56,7 @@ class StatisticsGroupBox(QtGui.QGroupBox):
         self.__scaling = "sqrt"
         self.__ui.scaleLabel.setText(self.__scaling)
 
-    def updateStatistics(self, mean, maximum, variance, scaling,
-                         roisum=None, roilabel=""):
+    def updateStatistics(self, mean, maximum, variance, scaling):
         """ update image statistic values
 
         :param meanparent: parent object
@@ -69,7 +68,3 @@ class StatisticsGroupBox(QtGui.QGroupBox):
         self.__ui.meanLineEdit.setText(mean)
         self.__ui.maxLineEdit.setText(maximum)
         self.__ui.varianceLineEdit.setText(variance)
-        roilabel = roilabel or "roi sum:"
-        self.__ui.roiLabel.setText("%s" % roilabel)
-        if roisum is not None:
-            self.__ui.roiLineEdit.setText(roisum)

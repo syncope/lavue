@@ -815,8 +815,6 @@ class LiveViewer(QtGui.QDialog):
         calctime = time.time()
         currentscaling = self.scalingWg.currentScaling()
         # update the statistics display
-        roiVal, currentroi = self.imageWg.calcROIsum()
-        roilabel = self.imageWg.createROILabel()
         if secstream and self.secstream and self.scaled_image is not None:
             messagedata = {
                 'command': 'alive', 'calctime': calctime, 'maxval': maxVal,
@@ -831,8 +829,7 @@ class LiveViewer(QtGui.QDialog):
 
         self.statsWg.updateStatistics(
             meanVal, maxVal, varVal,
-            'linear' if self.statswoscaling else currentscaling,
-            roiVal, roilabel)
+            'linear' if self.statswoscaling else currentscaling)
 
         # if needed, update the level display
         if self.levelsWg.isAutoLevel():

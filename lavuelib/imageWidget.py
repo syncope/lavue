@@ -58,6 +58,7 @@ class ImageWidget(QtGui.QWidget):
         self.currentcutmapper = QtCore.QSignalMapper(self)
         self.cutregionmapper = QtCore.QSignalMapper(self)
 
+        self.__lasttext = ""
         verticallayout = QtGui.QVBoxLayout()
         filenamelayout = QtGui.QHBoxLayout()
 
@@ -135,7 +136,7 @@ class ImageWidget(QtGui.QWidget):
 
         self.ticksPushButton = QtGui.QPushButton("Axes ...")
 
-        self.roiLabel = QtGui.QLabel("[x1, y1, x2, y2]: ")
+        self.roiLabel = QtGui.QLabel("[x1, y1, x2, y2], sum: ")
         self.roiLabel.setToolTip(
             "coordinate info display for the mouse pointer")
         self.labelROILineEdit = QtGui.QLineEdit("")
@@ -185,7 +186,7 @@ class ImageWidget(QtGui.QWidget):
         verticallayout.addLayout(pixelvaluelayout2)
 
         self.setLayout(verticallayout)
-        self.img_widget.currentMousePosition.connect(self.infodisplay.setText)
+        self.img_widget.currentMousePosition.connect(self.setDisplayedText)
 
         self.roiregionmapper.mapped.connect(self.roiRegionChanged)
         self.currentroimapper.mapped.connect(self.currentROIChanged)
@@ -556,22 +557,25 @@ class ImageWidget(QtGui.QWidget):
         self.img_widget.updateImage(array, rawarray)
         if self.img_widget.cutenable:
             self.plotCut()
+        if self.img_widget.roienable:
+            self.setDisplayedText()
 
     def createROILabel(self):
         roilabel = ""
         currentroi = self.img_widget.currentroi
         if currentroi >= 0:
-            roilabel = "roi_%s sum: " % (currentroi + 1)
+            roilabel = "roi [%s]" % (currentroi + 1)
             slabel = []
             rlabel = str(self.labelROILineEdit.text())
             if rlabel:
                 slabel = re.split(';|,| |\n', rlabel)
                 slabel = [lb for lb in slabel if lb]
             if slabel:
-                roilabel = "%s\n[%s]" % (
-                    roilabel,
+                roilabel = "%s [%s]" % (
                     slabel[currentroi]
-                    if currentroi < len(slabel) else slabel[-1])
+                    if currentroi < len(slabel) else slabel[-1],
+                    (currentroi + 1)
+                )
         return roilabel
 
     def calcROIsum(self):
@@ -638,6 +642,19 @@ class ImageWidget(QtGui.QWidget):
     @QtCore.pyqtSlot(str)
     def changeGradient(self, name):
         self.img_widget.updateGradient(name)
+
+    @QtCore.pyqtSlot(str)
+    def setDisplayedText(self, text=None):
+        if text is not None:
+            self.__lasttext = text
+        else:
+            text = self.__lasttext
+        if self.img_widget.roienable:
+            roiVal, currentroi = self.calcROIsum()
+            roilabel = self.createROILabel()
+
+            text = "%s, %s = %s" % (text, roilabel, roiVal)
+        self.infodisplay.setText(text)
 
     def setTicks(self):
         cnfdlg = axesDialog.AxesDialog(self)
