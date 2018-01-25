@@ -68,7 +68,7 @@ class MaskWidget(QtGui.QWidget):
     @QtCore.pyqtSlot(int)
     def _emitApplyStateChanged(self, state):
         """ emits state of apply button
-        
+
         :param state: apply button state
         :type state: :obj:`int`
         """
