@@ -34,7 +34,6 @@ _formclass, _baseclass = uic.loadUiType(
                  "ui", "TransformationsWidget.ui"))
 
 
-
 class TransformationsWidget(QtGui.QWidget):
     # still pending implemntation -> needs scipy, probably
 
@@ -65,7 +64,6 @@ class TransformationsWidget(QtGui.QWidget):
         :param state: transformation index
         :type state: :obj:`int`
         """
-        
         self.transformationChanged.emit(
             self.__ui.comboBox.itemText(index))
 
@@ -76,5 +74,5 @@ class TransformationsWidget(QtGui.QWidget):
         :type flag: :obj:`bool`
         """
         self.__ui.comboBox.setEnable(flag)
-        if not state:
+        if not flag:
             self.__ui.comboBox.setCurrentIndex(0)

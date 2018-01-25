@@ -177,19 +177,19 @@ class LiveViewer(QtGui.QDialog):
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
-        self.sourceW = sourceWidget.SourceWidget(parent=self)
-        self.sourceW.serverdict = HidraServerList
-        self.prepBoxW = preparationGroupBox.PreparationGroupBox(parent=self)
-        self.scalingW = scalingGroupBox.ScalingGroupBox(parent=self)
-        self.levelsW = levelsGroupBox.LevelsGroupBox(parent=self)
-        self.statsW = statisticsGroupBox.StatisticsGroupBox(parent=self)
-        self.imageW = imageWidget.ImageWidget(parent=self)
-        self.levelsW.setImageItem(self.imageW.img_widget.image)
-        self.levelsW.imageChanged(autoLevel=True)
+        self.sourceWg = sourceWidget.SourceWidget(parent=self)
+        self.sourceWg.serverdict = HidraServerList
+        self.prepBoxWg = preparationGroupBox.PreparationGroupBox(parent=self)
+        self.scalingWg = scalingGroupBox.ScalingGroupBox(parent=self)
+        self.levelsWg = levelsGroupBox.LevelsGroupBox(parent=self)
+        self.statsWg = statisticsGroupBox.StatisticsGroupBox(parent=self)
+        self.imageWg = imageWidget.ImageWidget(parent=self)
+        self.levelsWg.setImageItem(self.imageWg.img_widget.image)
+        self.levelsWg.imageChanged(autoLevel=True)
 
-        self.maskWg = self.prepBoxW.maskWg
-        self.bkgSubWg = self.prepBoxW.bkgSubWg
-        self.trafoWg = self.prepBoxW.trafoWg
+        self.maskWg = self.prepBoxWg.maskWg
+        self.bkgSubWg = self.prepBoxWg.bkgSubWg
+        self.trafoWg = self.prepBoxWg.trafoWg
 
         # keep a reference to the "raw" image and the current filename
         self.raw_image = None
@@ -221,16 +221,16 @@ class LiveViewer(QtGui.QDialog):
         # first the vertical layout on the left side
 
         # first element is supposed to be tabbed:
-        vlayout.addWidget(self.sourceW)
-        vlayout.addWidget(self.prepBoxW)
-        vlayout.addWidget(self.scalingW)
-        vlayout.addWidget(self.levelsW)
+        vlayout.addWidget(self.sourceWg)
+        vlayout.addWidget(self.prepBoxWg)
+        vlayout.addWidget(self.scalingWg)
+        vlayout.addWidget(self.levelsWg)
         # vlayout.addWidget(self.gradientW)
-        vlayout.addWidget(self.statsW)
+        vlayout.addWidget(self.statsWg)
 
         # then the vertical layout on the --global-- horizontal one
         globallayout.addLayout(vlayout, 1)
-        globallayout.addWidget(self.imageW, 10)
+        globallayout.addWidget(self.imageWg, 10)
 
         self.setLayout(globallayout)
         self.setWindowTitle("laVue: Live Image Viewer")
@@ -238,38 +238,38 @@ class LiveViewer(QtGui.QDialog):
         # SIGNAL LOGIC::
 
         # signal from intensity scaling widget:
-        # self.scalingW.scalingChanged.connect(self.scale)
-        self.scalingW.scalingChanged.connect(self.plot)
-        self.scalingW.scalingChanged.connect(self.levelsW.setScalingLabel)
+        # self.scalingWg.scalingChanged.connect(self.scale)
+        self.scalingWg.scalingChanged.connect(self.plot)
+        self.scalingWg.scalingChanged.connect(self.levelsWg.setScalingLabel)
 
         # signal from limit setting widget
-        self.levelsW.minLevelChanged.connect(self.imageW.setMinLevel)
-        self.levelsW.maxLevelChanged.connect(self.imageW.setMaxLevel)
-        self.levelsW.autoLevelsChanged.connect(self.imageW.setAutoLevels)
-        self.levelsW.levelsChanged.connect(self.plot)
-        self.levelsW.changeView(self.showhisto)
-        self.imageW.cnfButton.clicked.connect(self.configuration)
-        self.imageW.quitButton.clicked.connect(self.close)
-        self.imageW.loadButton.clicked.connect(self.loadfile)
+        self.levelsWg.minLevelChanged.connect(self.imageWg.setMinLevel)
+        self.levelsWg.maxLevelChanged.connect(self.imageWg.setMaxLevel)
+        self.levelsWg.autoLevelsChanged.connect(self.imageWg.setAutoLevels)
+        self.levelsWg.levelsChanged.connect(self.plot)
+        self.levelsWg.changeView(self.showhisto)
+        self.imageWg.cnfButton.clicked.connect(self.configuration)
+        self.imageWg.quitButton.clicked.connect(self.close)
+        self.imageWg.loadButton.clicked.connect(self.loadfile)
         if self.umode in ["user"]:
-            self.imageW.cnfButton.hide()
-        self.imageW.applyROIButton.clicked.connect(self.onapplyrois)
-        self.imageW.fetchROIButton.clicked.connect(self.onfetchrois)
-        self.imageW.roiCoordsChanged.connect(self.calc_update_stats_sec)
-        self.imageW.pixelComboBox.currentIndexChanged.connect(
+            self.imageWg.cnfButton.hide()
+        self.imageWg.applyROIButton.clicked.connect(self.onapplyrois)
+        self.imageWg.fetchROIButton.clicked.connect(self.onfetchrois)
+        self.imageWg.roiCoordsChanged.connect(self.calc_update_stats_sec)
+        self.imageWg.pixelComboBox.currentIndexChanged.connect(
             self.onPixelChanged)
         # connecting signals from source widget:
-        self.sourceW.source_connect.connect(self.connect_source)
-        self.sourceW.source_connect.connect(self.startPlotting)
+        self.sourceWg.source_connect.connect(self.connect_source)
+        self.sourceWg.source_connect.connect(self.startPlotting)
 
-        self.sourceW.source_disconnect.connect(self.stopPlotting)
-        self.sourceW.source_disconnect.connect(self.disconnect_source)
+        self.sourceWg.source_disconnect.connect(self.stopPlotting)
+        self.sourceWg.source_disconnect.connect(self.disconnect_source)
 
         # gradient selector
-        self.levelsW.channelChanged.connect(self.plot)
-        self.imageW.img_widget.setaspectlocked.triggered.connect(
+        self.levelsWg.channelChanged.connect(self.plot)
+        self.imageWg.img_widget.setaspectlocked.triggered.connect(
             self.toggleAspectLocked)
-        self.imageW.ticksPushButton.clicked.connect(self.setTicks)
+        self.imageWg.ticksPushButton.clicked.connect(self.setTicks)
 
         # simple mutable caching object for data exchange with thread
         self.exchangelist = dataFetchThread.ExchangeList()
@@ -279,7 +279,7 @@ class LiveViewer(QtGui.QDialog):
         self.dataFetcher.newDataName.connect(self.getNewData)
         # ugly !!! sent current state to the data fetcher...
         self.update_state.connect(self.dataFetcher.changeStatus)
-        self.sourceW.source_state.connect(self.updateSource)
+        self.sourceWg.source_state.connect(self.updateSource)
 
         self.bkgSubWg.bkgFileSelection.connect(self.prepareBkgSubtraction)
         self.bkgSubWg.useCurrentImageAsBkg.connect(self.setCurrentImageAsBkg)
@@ -292,9 +292,9 @@ class LiveViewer(QtGui.QDialog):
         self.trafoWg.transformationChanged.connect(self.assessTransformation)
 
         # set the right target name for the source display at initialization
-        self.sourceW.setTargetName(self.data_source.getTarget())
-        # self.sourceW.source_servername.connect(self.data_source.setSignalHost)
-        self.sourceW.source_servername.connect(self.setSignalHost)
+        self.sourceWg.setTargetName(self.data_source.getTarget())
+        # self.sourceWg.source_servername.connect(self.data_source.setSignalHost)
+        self.sourceWg.source_servername.connect(self.setSignalHost)
         self.onPixelChanged()
 
         settings = QtCore.QSettings()
@@ -321,7 +321,7 @@ class LiveViewer(QtGui.QDialog):
         qstval = str(settings.value("Configuration/AspectLocked").toString())
         if qstval.lower() == "true":
             self.aspectlocked = True
-            self.imageW.img_widget.setAspectLocked(self.aspectlocked)
+            self.imageWg.img_widget.setAspectLocked(self.aspectlocked)
         qstval = str(settings.value("Configuration/SecPort").toString())
         try:
             int(qstval)
@@ -378,7 +378,7 @@ class LiveViewer(QtGui.QDialog):
                 "Configuration/StatisticsWithoutScaling").toString())
         if qstval.lower() == "true":
             self.statswoscaling = True
-        self.imageW.img_widget.statswoscaling = self.statswoscaling
+        self.imageWg.img_widget.statswoscaling = self.statswoscaling
 
         qstval = \
             settings.value("Configuration/ZMQStreamTopics").toList()
@@ -393,45 +393,45 @@ class LiveViewer(QtGui.QDialog):
         if qstval:
             self.dirtrans = qstval
 
-        self.sourceW.update(
+        self.sourceWg.update(
             zmqtopics=self.zmqtopics, dirtrans=self.dirtrans,
             autozmqtopics=self.autozmqtopics)
 
-        self.levelsW.changeView(self.showhisto)
-        self.prepBoxW.changeView(self.showmask)
+        self.levelsWg.changeView(self.showhisto)
+        self.prepBoxWg.changeView(self.showmask)
         self.plot()
 
     @QtCore.pyqtSlot(bool)
     def toggleAspectLocked(self, status):
         self.aspectlocked = status
-        self.imageW.img_widget.setAspectLocked(self.aspectlocked)
+        self.imageWg.img_widget.setAspectLocked(self.aspectlocked)
 
     @QtCore.pyqtSlot(int)
     def onPixelChanged(self):
-        text = self.imageW.pixelComboBox.currentText()
+        text = self.imageWg.pixelComboBox.currentText()
         if text == "ROI":
-            self.imageW.showROIFrame()
+            self.imageWg.showROIFrame()
             self.trafoName = "None"
             self.trafoWg.setEnabled(False)
-            self.imageW.roiChanged()
+            self.imageWg.roiChanged()
         elif text == "LineCut":
-            self.imageW.showLineCutFrame()
+            self.imageWg.showLineCutFrame()
             self.trafoWg.setEnabled(True)
-            self.imageW.roiCoordsChanged.emit()
+            self.imageWg.roiCoordsChanged.emit()
         elif text == "Angle/Q":
-            self.imageW.showAngleQFrame()
+            self.imageWg.showAngleQFrame()
             self.trafoWg.setEnabled(True)
-            self.imageW.roiCoordsChanged.emit()
+            self.imageWg.roiCoordsChanged.emit()
         else:
-            self.imageW.showIntensityFrame()
+            self.imageWg.showIntensityFrame()
             self.trafoWg.setEnabled(True)
-            self.imageW.roiCoordsChanged.emit()
+            self.imageWg.roiCoordsChanged.emit()
 
     @QtCore.pyqtSlot()
     def onapplyrois(self):
         if hcs.PYTANGO:
-            roicoords = self.imageW.img_widget.roicoords
-            roispin = self.imageW.roiSpinBox.value()
+            roicoords = self.imageWg.img_widget.roicoords
+            roispin = self.imageWg.roiSpinBox.value()
             if not self.doorname:
                 self.doorname = self.sardana.getDeviceName("Door")
             try:
@@ -447,7 +447,7 @@ class LiveViewer(QtGui.QDialog):
                     text, str(value))
                 return
 
-            rlabel = str(self.imageW.labelROILineEdit.text())
+            rlabel = str(self.imageWg.labelROILineEdit.text())
             slabel = re.split(';|,| |\n', rlabel)
             slabel = [lb for lb in slabel if lb]
             rid = 0
@@ -588,8 +588,8 @@ class LiveViewer(QtGui.QDialog):
             pass
         # except Exception as e:
         #     print (str(e))
-        if self.sourceW.connected:
-            self.sourceW.toggleServerConnection()
+        if self.sourceWg.connected:
+            self.sourceWg.toggleServerConnection()
         self.disconnect_source()
         time.sleep(min(dataFetchThread.GLOBALREFRESHRATE * 5, 2))
         self.dataFetcher.stop()
@@ -614,7 +614,7 @@ class LiveViewer(QtGui.QDialog):
                     self, "lavue: Error in connecting to Door or MacroServer",
                     text, str(value))
                 return
-            rlabel = str(self.imageW.labelROILineEdit.text())
+            rlabel = str(self.imageWg.labelROILineEdit.text())
             slabel = re.split(';|,| |\n', rlabel)
             slabel = [lb for lb in set(slabel) if lb]
             detrois = {}
@@ -639,9 +639,9 @@ class LiveViewer(QtGui.QDialog):
                     break
                 else:
                     slabel.append(al)
-            self.imageW.labelROILineEdit.setText(" ".join(slabel))
-            self.imageW.updateROIButton()
-            self.imageW.roiNrChanged(len(coords), coords)
+            self.imageWg.labelROILineEdit.setText(" ".join(slabel))
+            self.imageWg.updateROIButton()
+            self.imageWg.roiNrChanged(len(coords), coords)
         else:
             print("Connection error")
 
@@ -699,10 +699,10 @@ class LiveViewer(QtGui.QDialog):
         self.addrois = dialog.addrois
 
         if self.showhisto != dialog.showhisto:
-            self.levelsW.changeView(dialog.showhisto)
+            self.levelsWg.changeView(dialog.showhisto)
             self.showhisto = dialog.showhisto
         if self.showmask != dialog.showmask:
-            self.prepBoxW.changeView(dialog.showmask)
+            self.prepBoxWg.changeView(dialog.showmask)
             self.showmask = dialog.showmask
         dataFetchThread.GLOBALREFRESHRATE = dialog.refreshrate
         if self.secstream != dialog.secstream or (
@@ -713,8 +713,8 @@ class LiveViewer(QtGui.QDialog):
                     self.secsocket.unbind(self.secsockopt)
                 except:
                     pass
-                if self.sourceW.connected:
-                    self.sourceW.connectSuccess(None)
+                if self.sourceWg.connected:
+                    self.sourceWg.connectSuccess(None)
             if dialog.secstream:
                 if dialog.secautoport:
                     self.secsockopt = "tcp://*:*"
@@ -724,35 +724,35 @@ class LiveViewer(QtGui.QDialog):
                 else:
                     self.secsockopt = "tcp://*:%s" % dialog.secport
                     self.secsocket.bind(self.secsockopt)
-                if self.sourceW.connected:
-                    self.sourceW.connectSuccess(dialog.secport)
+                if self.sourceWg.connected:
+                    self.sourceWg.connectSuccess(dialog.secport)
         self.secautoport = dialog.secautoport
         self.secport = dialog.secport
         self.timeout = dialog.timeout
         self.data_source.timeout = self.timeout
         self.aspectlocked = dialog.aspectlocked
-        self.imageW.img_widget.setAspectLocked(self.aspectlocked)
+        self.imageWg.img_widget.setAspectLocked(self.aspectlocked)
         self.secstream = dialog.secstream
         setsrc = False
         if self.dirtrans != dialog.dirtrans:
             self.dirtrans = dialog.dirtrans
-            self.sourceW.dirtrans = self.dirtrans
+            self.sourceWg.dirtrans = self.dirtrans
             setsrc = True
         if self.zmqtopics != dialog.zmqtopics:
             self.zmqtopics = dialog.zmqtopics
-            self.sourceW.zmqtopics = self.zmqtopics
+            self.sourceWg.zmqtopics = self.zmqtopics
             setsrc = True
         if self.autozmqtopics != dialog.autozmqtopics:
             self.autozmqtopics = dialog.autozmqtopics
             setsrc = True
         if setsrc:
-            self.sourceW.update(
+            self.sourceWg.update(
                 zmqtopics=self.zmqtopics, dirtrans=self.dirtrans,
                 autozmqtopics=self.autozmqtopics)
-            self.sourceW.updateLayout()
+            self.sourceWg.updateLayout()
         self.statswoscaling = dialog.statswoscaling
-        if self.imageW.img_widget.statswoscaling != self.statswoscaling:
-            self.imageW.img_widget.statswoscaling = self.statswoscaling
+        if self.imageWg.img_widget.statswoscaling != self.statswoscaling:
+            self.imageWg.img_widget.statswoscaling = self.statswoscaling
             self.plot()
 
     @QtCore.pyqtSlot(str)
@@ -763,12 +763,12 @@ class LiveViewer(QtGui.QDialog):
     def setSardana(self, status):
         if status is False:
             self.sardana = None
-            self.imageW.applyROIButton.setEnabled(False)
-            self.imageW.fetchROIButton.setEnabled(False)
+            self.imageWg.applyROIButton.setEnabled(False)
+            self.imageWg.fetchROIButton.setEnabled(False)
         else:
             self.sardana = sardanaUtils.SardanaUtils()
-            self.imageW.applyROIButton.setEnabled(True)
-            self.imageW.fetchROIButton.setEnabled(True)
+            self.imageWg.applyROIButton.setEnabled(True)
+            self.imageWg.fetchROIButton.setEnabled(True)
 
     @QtCore.pyqtSlot(int)
     def updateSource(self, status):
@@ -793,16 +793,16 @@ class LiveViewer(QtGui.QDialog):
 
         # use the internal raw image to create a display image with chosen
         # scaling
-        self.scale(self.scalingW.currentScaling())
+        self.scale(self.scalingWg.currentScaling())
         # calculate and update the stats for this
         self.calc_update_stats()
 
         # calls internally the plot function of the plot widget
-        self.imageW.plot(self.scaled_image, self.image_name,
-                         self.display_image
-                         if self.statswoscaling else self.scaled_image)
+        self.imageWg.plot(self.scaled_image, self.image_name,
+                          self.display_image
+                          if self.statswoscaling else self.scaled_image)
         if self.updatehisto:
-            self.levelsW.imageChanged()
+            self.levelsWg.imageChanged()
             self.updatehisto = False
 
     @QtCore.pyqtSlot()
@@ -813,22 +813,10 @@ class LiveViewer(QtGui.QDialog):
         # calculate the stats for this
         maxVal, meanVal, varVal, minVal, maxRawVal, maxSVal = self.calcStats()
         calctime = time.time()
-        currentscaling = self.scalingW.currentScaling()
+        currentscaling = self.scalingWg.currentScaling()
         # update the statistics display
-        roiVal, currentroi = self.calcROIsum()
-        roilabel = ""
-        if currentroi >= 0:
-            roilabel = "roi_%s sum: " % (currentroi + 1)
-            slabel = []
-            rlabel = str(self.imageW.labelROILineEdit.text())
-            if rlabel:
-                slabel = re.split(';|,| |\n', rlabel)
-                slabel = [lb for lb in slabel if lb]
-            if slabel:
-                roilabel = "%s\n[%s]" % (
-                    roilabel,
-                    slabel[currentroi]
-                    if currentroi < len(slabel) else slabel[-1])
+        roiVal, currentroi = self.imageWg.calcROIsum()
+        roilabel = self.imageWg.createROILabel()
         if secstream and self.secstream and self.scaled_image is not None:
             messagedata = {
                 'command': 'alive', 'calctime': calctime, 'maxval': maxVal,
@@ -841,20 +829,20 @@ class LiveViewer(QtGui.QDialog):
                 topic, str(json.dumps(messagedata)).encode("ascii"))
             self.secsocket.send_string(str(message))
 
-        self.statsW.updateStatistics(
+        self.statsWg.updateStatistics(
             meanVal, maxVal, varVal,
             'linear' if self.statswoscaling else currentscaling,
             roiVal, roilabel)
 
         # if needed, update the level display
-        if self.levelsW.isAutoLevel():
-            self.levelsW.updateLevels(float(minVal), float(maxSVal))
+        if self.levelsWg.isAutoLevel():
+            self.levelsWg.updateLevels(float(minVal), float(maxSVal))
 
     # mode changer: start plotting mode
     @QtCore.pyqtSlot()
     def startPlotting(self):
         # only start plotting if the connection is really established
-        if not self.sourceW.isConnected():
+        if not self.sourceWg.isConnected():
             return
         self.dataFetcher.start()
 
@@ -874,7 +862,7 @@ class LiveViewer(QtGui.QDialog):
                 "Please select the image source")
 
         if not self.data_source.connect():
-            self.sourceW.connectFailure()
+            self.sourceWg.connectFailure()
             messageBox.MessageBox.warning(
                 self, "lavue: The %s connection could not be established"
                 % type(self.data_source).__name__,
@@ -883,7 +871,7 @@ class LiveViewer(QtGui.QDialog):
                 "<WARNING> The %s connection could not be established. "
                 "Check the settings." % type(self.data_source))
         else:
-            self.sourceW.connectSuccess(
+            self.sourceWg.connectSuccess(
                 self.secport if self.secstream else None)
         if self.secstream:
             calctime = time.time()
@@ -914,8 +902,8 @@ class LiveViewer(QtGui.QDialog):
         # check if data is there at all
         if name == "__ERROR__":
             if self.interruptonerror:
-                if self.sourceW.connected:
-                    self.sourceW.toggleServerConnection()
+                if self.sourceWg.connected:
+                    self.sourceWg.toggleServerConnection()
                 _, errortext, _ = self.exchangelist.readData()
                 messageBox.MessageBox.warning(
                     self, "lavue: Error in reading data",
@@ -938,9 +926,9 @@ class LiveViewer(QtGui.QDialog):
                     wgdata = dict((k, v) for (k, v) in mdata.items()
                                   if k in self.__allowedwgdata)
                     if wgdata:
-                        self.imageW.updateMetaData(**wgdata)
+                        self.imageWg.updateMetaData(**wgdata)
                     if resdata:
-                        self.sourceW.update(**resdata)
+                        self.sourceWg.update(**resdata)
             except Exception as e:
                 print(str(e))
         elif str(name).strip():
@@ -956,14 +944,14 @@ class LiveViewer(QtGui.QDialog):
             return
 
         if len(self.raw_image.shape) == 3:
-            self.levelsW.setNumberOfChannels(self.raw_image.shape[0])
-            if not self.levelsW.colorChannel():
+            self.levelsWg.setNumberOfChannels(self.raw_image.shape[0])
+            if not self.levelsWg.colorChannel():
                 self.rawgrey_image = np.sum(self.raw_image, 0)
             else:
                 try:
-                    if len(self.raw_image) >= self.levelsW.colorChannel():
+                    if len(self.raw_image) >= self.levelsWg.colorChannel():
                         self.rawgrey_image = self.raw_image[
-                            self.levelsW.colorChannel() - 1]
+                            self.levelsWg.colorChannel() - 1]
                     else:
                         self.rawgrey_image = np.mean(self.raw_image, 0)
                 except:
@@ -972,18 +960,18 @@ class LiveViewer(QtGui.QDialog):
                     text = messageBox.MessageBox.getText(
                         "lavue: color channel %s does not exist."
                         " Reset to grey scale"
-                        % self.levelsW.colorChannel())
+                        % self.levelsWg.colorChannel())
                     messageBox.MessageBox.warning(
                         self,
                         "lavue: color channel %s does not exist. "
                         " Reset to grey scale"
-                        % self.levelsW.colorChannel(),
+                        % self.levelsWg.colorChannel(),
                         text, str(value))
-                    self.levelsW.setChannel(0)
+                    self.levelsWg.setChannel(0)
                     self.rawgrey_image = np.sum(self.raw_image, 0)
         else:
             self.rawgrey_image = self.raw_image
-            self.levelsW.setNumberOfChannels(0)
+            self.levelsWg.setNumberOfChannels(0)
 
         self.display_image = self.rawgrey_image
 
@@ -1055,7 +1043,7 @@ class LiveViewer(QtGui.QDialog):
     @QtCore.pyqtSlot(str)
     def scale(self, scalingType):
         self.scaled_image = self.display_image
-        self.imageW.img_widget.scaling = scalingType
+        self.imageWg.img_widget.scaling = scalingType
         if self.display_image is None:
             return
         if scalingType == "sqrt":
@@ -1064,40 +1052,6 @@ class LiveViewer(QtGui.QDialog):
         elif scalingType == "log":
             self.scaled_image = np.clip(self.display_image, 10e-3, np.inf)
             self.scaled_image = np.log10(self.scaled_image)
-
-    def calcROIsum(self):
-        rid = self.imageW.img_widget.currentroi
-        image = None
-        if self.statswoscaling and self.display_image is not None:
-            image = self.display_image
-        elif not self.statswoscaling and self.scaled_image is not None:
-            image = self.scaled_image
-        if image is not None:
-            if self.imageW.img_widget.roienable:
-                if rid >= 0:
-                    roicoords = self.imageW.img_widget.roicoords
-                    rcrds = list(roicoords[rid])
-                    for i in [0, 2]:
-                        if rcrds[i] > image.shape[0]:
-                            rcrds[i] = image.shape[0]
-                        elif rcrds[i] < -i / 2:
-                            rcrds[i] = -i / 2
-                    for i in [1, 3]:
-                        if rcrds[i] > image.shape[1]:
-                            rcrds[i] = image.shape[1]
-                        elif rcrds[i] < - (i - 1) / 2:
-                            rcrds[i] = - (i - 1) / 2
-                    roival = np.sum(image[
-                        int(rcrds[0]):(int(rcrds[2]) + 1),
-                        int(rcrds[1]):(int(rcrds[3]) + 1)
-                    ])
-                else:
-                    roival = 0.
-            else:
-                roival = 0.
-            return str("%.4f" % roival), rid
-        else:
-            return "0.", rid
 
     def calcStats(self):
         if self.statswoscaling and self.display_image is not None:
@@ -1159,7 +1113,7 @@ class LiveViewer(QtGui.QDialog):
             self.bkgSubWg.setDisplayedName("")
         else:
             self.bkgSubWg.checkBkgSubtraction(state)
-        self.imageW.img_widget.doBkgSubtraction = state
+        self.imageWg.img_widget.doBkgSubtraction = state
         self.plot()
 
     @QtCore.pyqtSlot(str)
@@ -1184,5 +1138,5 @@ class LiveViewer(QtGui.QDialog):
 
     @QtCore.pyqtSlot()
     def setTicks(self):
-        if self.imageW.setTicks():
+        if self.imageWg.setTicks():
             self.plot()

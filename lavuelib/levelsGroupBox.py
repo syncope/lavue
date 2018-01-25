@@ -320,13 +320,13 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 for i in reversed(
                         range(0, self.__ui.channelComboBox.count())):
                     self.__ui.channelComboBox.removeItem(i)
-                self.__ui.channelComboBox.addItem("Sum")
+                self.__ui.channelComboBox.addItem("sum")
 
                 self.__ui.channelComboBox.addItems(
-                    ["Channel %s" % (ch + 1)
+                    ["channel %s" % (ch + 1)
                      for ch in range(self.__numberofchannels)])
 
-                self.__ui.channelComboBox.addItem("Mean")
+                self.__ui.channelComboBox.addItem("mean")
                 self.__ui.channelLabel.show()
                 self.__ui.channelComboBox.show()
             else:

@@ -31,6 +31,8 @@ import math
 from PyQt4 import QtCore, QtGui
 
 import pyqtgraph as pg
+import numpy as np
+import re
 
 from . import imageDisplayWidget
 from . import geometryDialog
@@ -443,7 +445,7 @@ class ImageWidget(QtGui.QWidget):
         self.img_widget.cutenable = False
         self.img_widget.roienable = True
         self.img_widget.qenable = False
-        if  self.img_widget.roi:
+        if self.img_widget.roi:
             self.img_widget.roi[0].show()
         self.infodisplay.setText("")
         self.infodisplay.setToolTip(
@@ -554,6 +556,55 @@ class ImageWidget(QtGui.QWidget):
         self.img_widget.updateImage(array, rawarray)
         if self.img_widget.cutenable:
             self.plotCut()
+
+    def createROILabel(self):
+        roilabel = ""
+        currentroi = self.img_widget.currentroi
+        if currentroi >= 0:
+            roilabel = "roi_%s sum: " % (currentroi + 1)
+            slabel = []
+            rlabel = str(self.labelROILineEdit.text())
+            if rlabel:
+                slabel = re.split(';|,| |\n', rlabel)
+                slabel = [lb for lb in slabel if lb]
+            if slabel:
+                roilabel = "%s\n[%s]" % (
+                    roilabel,
+                    slabel[currentroi]
+                    if currentroi < len(slabel) else slabel[-1])
+        return roilabel
+
+    def calcROIsum(self):
+        rid = self.img_widget.currentroi
+        image = None
+        if self.img_widget.rawdata is not None:
+            image = self.img_widget.rawdata
+        if image is not None:
+            if self.img_widget.roienable:
+                if rid >= 0:
+                    roicoords = self.img_widget.roicoords
+                    rcrds = list(roicoords[rid])
+                    for i in [0, 2]:
+                        if rcrds[i] > image.shape[0]:
+                            rcrds[i] = image.shape[0]
+                        elif rcrds[i] < -i / 2:
+                            rcrds[i] = -i / 2
+                    for i in [1, 3]:
+                        if rcrds[i] > image.shape[1]:
+                            rcrds[i] = image.shape[1]
+                        elif rcrds[i] < - (i - 1) / 2:
+                            rcrds[i] = - (i - 1) / 2
+                    roival = np.sum(image[
+                        int(rcrds[0]):(int(rcrds[2]) + 1),
+                        int(rcrds[1]):(int(rcrds[3]) + 1)
+                    ])
+                else:
+                    roival = 0.
+            else:
+                roival = 0.
+            return str("%.4f" % roival), rid
+        else:
+            return "0.", rid
 
     @QtCore.pyqtSlot()
     def plotCut(self):
