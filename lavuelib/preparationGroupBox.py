@@ -49,13 +49,13 @@ class PreparationGroupBox(QtGui.QGroupBox):
 
         self.maskWg = maskWidget.MaskWidget(parent=self)
         self.bkgSubWg = bkgSubtractionWidget.BkgSubtractionWidget(parent=self)
-        hline = QHLine()
+        self.__hline = QHLine()
         self.trafoWg = transformationsWidget.TransformationsWidget(parent=self)
 
         vlayout = QtGui.QVBoxLayout()
         vlayout.addWidget(self.bkgSubWg)
         vlayout.addWidget(self.maskWg)
-        vlayout.addWidget(hline)
+        vlayout.addWidget(self.__hline)
         vlayout.addWidget(self.trafoWg)
 
         self.setLayout(vlayout)

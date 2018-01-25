@@ -40,8 +40,11 @@ class BkgSubtractionWidget(QtGui.QWidget):
     Define bkg image and subtract from displayed image.
     """
 
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) bkg file selection signal
     bkgFileSelection = QtCore.pyqtSignal(str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) use current image signal
     useCurrentImageAsBkg = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) apply state change signal
     applyStateChanged = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None):
@@ -65,11 +68,16 @@ class BkgSubtractionWidget(QtGui.QWidget):
 
         self.__ui.selectFilePushButton.hide()
         self.__ui.selectFilePushButton.clicked.connect(self._showFileDialog)
-        self.__ui.applyBkgCheckBox.stateChanged.connect(
+        self.__ui.applyBkgCheckBox.clicked.connect(
             self._emitApplyStateChanged)
 
     @QtCore.pyqtSlot(int)
     def _emitApplyStateChanged(self, state):
+        """ emits state of apply button
+        
+        :param state: apply button state
+        :type state: :obj:`int`
+        """
         self.applyStateChanged.emit(state)
 
     @QtCore.pyqtSlot()
@@ -79,7 +87,8 @@ class BkgSubtractionWidget(QtGui.QWidget):
         fileDialog = QtGui.QFileDialog()
 
         fileName = str(
-            fileDialog.getOpenFileName(self, 'Open file', '.'))
+            fileDialog.getOpenFileName(
+                self, 'Open file', self.__fileName or '.'))
         if fileName:
             self.__fileName = fileName
             self.setDisplayedName(self.__fileName)
@@ -137,6 +146,6 @@ if __name__ == "__main__":
     import sys
 
     app = QtGui.QApplication(sys.argv)
-    myapp = BkgSubtractionkWidget()
+    myapp = BkgSubtractionWidget()
     myapp.show()
     sys.exit(app.exec_())

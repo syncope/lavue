@@ -286,7 +286,7 @@ class LiveViewer(QtGui.QDialog):
         self.bkgSubWg.applyStateChanged.connect(self.checkBkgSubtraction)
 
         self.maskWg.maskFileSelection.connect(self.prepareMasking)
-        self.maskWg.applyMaskBox.stateChanged.connect(self.checkMasking)
+        self.maskWg.applyStateChanged.connect(self.checkMasking)
 
         # signals from transformation widget
         self.trafoWg.activatedTransformation.connect(self.assessTransformation)
@@ -1009,7 +1009,20 @@ class LiveViewer(QtGui.QDialog):
         if self.showmask and self.applyImageMask and \
            self.maskIndices is not None:
             # set all masked (non-zero values) to zero by index
-            self.display_image[self.maskIndices] = 0
+            try:
+                self.display_image[self.maskIndices] = 0
+            except IndexError:
+                self.maskWg.noImage()
+                self.applyImageMask = False
+                import traceback
+                value = traceback.format_exc()
+                text = messageBox.MessageBox.getText(
+                    "lavue: Mask image does not match "
+                    "to the current image")
+                messageBox.MessageBox.warning(
+                    self, "lavue: Mask image does not match "
+                    "to the current image",
+                    text, str(value))
 
     def transform(self):
         '''Do the image transformation on the given numpy array.'''
@@ -1125,6 +1138,7 @@ class LiveViewer(QtGui.QDialog):
         self.applyImageMask = state
         if self.applyImageMask and self.mask_image is None:
             self.maskWg.noImage()
+        self.plot()
 
     @QtCore.pyqtSlot(str)
     def prepareMasking(self, imagename):

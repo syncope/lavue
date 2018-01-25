@@ -25,7 +25,12 @@
 
 """ mask widget """
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
+import os
+
+_formclass, _baseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "MaskWidget.ui"))
 
 
 class MaskWidget(QtGui.QWidget):
@@ -34,74 +39,75 @@ class MaskWidget(QtGui.QWidget):
     Define and apply masking of the displayed image.
     """
 
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) mask file selection signal
     maskFileSelection = QtCore.pyqtSignal(str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) apply state change signal
+    applyStateChanged = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
         QtGui.QWidget.__init__(self, parent)
 
-        self.fileName = "No Image selected"
-        self.fileDialog = None
-        # one checkbox to choose whether the mask is applied
-        self.applyMaskBox = QtGui.QCheckBox(u"Apply mask")
-        self.applyMaskBox.setChecked(False)
-        self.applyMaskBox.setChecked(False)
-        self.applyMaskBox.setEnabled(False)
-        self.applyMaskBox.setToolTip("apply mask to the image")
+        #: (:class:`Ui_BkgSubtractionkWidget') ui_widget object from qtdesigner
+        self.__ui = _formclass()
+        self.__ui.setupUi(self)
 
-        # the dialog to select the mask file
-        self.fileNameLabel = QtGui.QLabel("Mask image:")
-        self.fileNameLabel.setToolTip("mask image file name")
-        self.fileNameDisplay = QtGui.QLabel(str(self.fileName))
-        self.fileNameDisplay.setToolTip("mask image file name")
-        self.fileSelectButton = QtGui.QPushButton("Select")
-        self.fileSelectButton.clicked.connect(self.showFileDialog)
-        self.fileSelectButton.setToolTip("select file for the mask")
+        #: (:obj:`str`) file name
+        self.__fileName = ""
+        #: (:obj:`str`) last file name
+        self.__lastFileName = ""
 
-        masterlayout = QtGui.QVBoxLayout()
-        layout = QtGui.QGridLayout()
-        layout.addWidget(self.applyMaskBox, 0, 0)
-        layout.addWidget(self.fileSelectButton, 0, 1)
-        layout.addWidget(self.fileNameLabel, 1, 0)
-        layout.addWidget(self.fileNameDisplay, 1, 1)
+        self.__ui.applyMaskCheckBox.clicked.connect(
+            self._emitApplyStateChanged)
+        self.__ui.fileSelectPushButton.clicked.connect(self._showFileDialog)
 
-        masterlayout.addItem(layout)
-
-        self.setLayout(masterlayout)
+    @QtCore.pyqtSlot(int)
+    def _emitApplyStateChanged(self, state):
+        """ emits state of apply button
+        
+        :param state: apply button state
+        :type state: :obj:`int`
+        """
+        self.applyStateChanged.emit(state)
 
     @QtCore.pyqtSlot()
-    def showFileDialog(self):
-        self.fileDialog = QtGui.QFileDialog()
+    def _showFileDialog(self):
+        """ shows file dialog and select the file name
+        """
+        fileDialog = QtGui.QFileDialog()
         fileName = str(
-            self.fileDialog.getOpenFileName(
-                self, 'Open mask file', '/ramdisk/'))
+            fileDialog.getOpenFileName(
+                self, 'Open mask file',
+                self.__lastFileName or '/ramdisk/'))
         if fileName:
-            self.fileName = fileName
-            self.setDisplayedName(self.fileName)
-            self.maskFileSelection.emit(self.fileName)
+            self.__fileName = fileName
+            self.__lastFileName = fileName
+            self.setDisplayedName(self.__fileName)
+            self.maskFileSelection.emit(self.__fileName)
 
     def setDisplayedName(self, name):
-        if name == "":
-            self.fileNameDisplay.setText("No Image selected")
-            self.applyMaskBox.setEnabled(False)
-        else:
-            self.fileNameDisplay.setText("..." + str(name)[-24:])
-            self.applyMaskBox.setEnabled(True)
+        """ sets displayed file name
 
-    def setFileName(self, fname):
-        if len(fname) > 4 and fname != "NO IMAGE":
-            self.fileSelectButton.setText("Mask selected")
+        :param name: file name
+        :type name: :obj:`str`
+        """
+        if name == "":
+            self.__ui.fileNameLabel.setText("No Image selected")
+            self.__ui.applyMaskCheckBox.setEnabled(False)
         else:
-            self.noImage()
+            self.__ui.fileNameLabel.setText("..." + str(name)[-24:])
+            self.__ui.applyMaskCheckBox.setEnabled(True)
 
     def noImage(self):
-        self.fileName = "NO IMAGE"
-        self.applyMaskBox.setChecked(False)
-
-    def showMinimum(self):
-        self.fileSelectButton.hide()
-
-    def showAll(self):
-        self.fileSelectButton.show()
+        """ unchecks the apply checkbox and clear the file display
+        """
+        self.setDisplayedName("")
+        self.__fileName = ""
+        self.__ui.applyMaskCheckBox.setChecked(False)
 
 
 if __name__ == "__main__":
