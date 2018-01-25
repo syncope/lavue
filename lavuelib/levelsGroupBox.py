@@ -312,7 +312,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
         """ sets maximum number of color channel
 
         :param number:  number of color channel
-        :type channel: :obj:`int`
+        :type number: :obj:`int`
         """
         if number != self.__numberofchannels:
             self.__numberofchannels = int(max(number, 0))

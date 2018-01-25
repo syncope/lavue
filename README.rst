@@ -85,13 +85,3 @@ The cursor position display (move the mouse over the image display area), indica
 The value is displayed in the line below the image, using linear intensities.
 The values in the "levels selection" box are also linear.
 
-Known issues and Things to fix
-------------------------------
-
-For now the script only works with Python2 because of HiDRA, that is required to use Python2.
-Technically, it also runs with Python3, but then no HiDRA will be available.
-
-Right now the image is displayed in a scaled way regarding its dimensions.
-In the future a 100% view (or 1:1) is planned, where one detector pixel equals one pixel on the screen display.
-
-A decision needs to be made regarding the ordering of mirroring and every other transformation.

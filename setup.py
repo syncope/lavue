@@ -37,6 +37,7 @@ from distutils.util import get_platform
 #from distutils.command.clean import clean
 import shutil
 
+from sphinx.setup_command import BuildDoc
 
 def read(fname):
     """ read the file
@@ -201,13 +202,13 @@ SETUPDATA = dict(
     cmdclass={
         "build_py": toolBuild,
         "clean": toolClean,
-        # 'build_sphinx': BuildDoc
+        "build_sphinx": BuildDoc
     },
-    # command_options={
-    #    'build_sphinx': {
-    #         'project': ('setup.py', NAME),
-    #         'version': ('setup.py', version),
-    #         'release': ('setup.py', release)}},
+    command_options={
+        'build_sphinx': {
+            'project': ('setup.py', NAME),
+            'version': ('setup.py', version),
+            'release': ('setup.py', release)}},
 )
 
 
