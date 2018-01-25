@@ -42,7 +42,7 @@ from . import imageSource as hcs
 from . import messageBox
 
 from . import sourceWidget
-from . import preparationBoxWidget
+from . import preparationGroupBox
 from . import scalingGroupBox
 from . import levelsGroupBox
 from . import statisticsGroupBox
@@ -179,7 +179,7 @@ class LiveViewer(QtGui.QDialog):
         # instantiate the widgets and declare the parent
         self.sourceW = sourceWidget.SourceWidget(parent=self)
         self.sourceW.serverdict = HidraServerList
-        self.prepBoxW = preparationBoxWidget.PreparationBoxWidget(parent=self)
+        self.prepBoxW = preparationGroupBox.PreparationGroupBox(parent=self)
         self.scalingW = scalingGroupBox.ScalingGroupBox(parent=self)
         self.levelsW = levelsGroupBox.LevelsGroupBox(parent=self)
         self.statsW = statisticsGroupBox.StatisticsGroupBox(parent=self)
@@ -187,9 +187,9 @@ class LiveViewer(QtGui.QDialog):
         self.levelsW.setImageItem(self.imageW.img_widget.image)
         self.levelsW.imageChanged(autoLevel=True)
 
-        self.maskW = self.prepBoxW.maskW
-        self.bkgSubW = self.prepBoxW.bkgSubW
-        self.trafoW = self.prepBoxW.trafoW
+        self.maskWg = self.prepBoxW.maskWg
+        self.bkgSubWg = self.prepBoxW.bkgSubWg
+        self.trafoWg = self.prepBoxW.trafoWg
 
         # keep a reference to the "raw" image and the current filename
         self.raw_image = None
@@ -281,15 +281,15 @@ class LiveViewer(QtGui.QDialog):
         self.update_state.connect(self.dataFetcher.changeStatus)
         self.sourceW.source_state.connect(self.updateSource)
 
-        self.bkgSubW.bkgFileSelection.connect(self.prepareBKGSubtraction)
-        self.bkgSubW.useCurrentImageAsBKG.connect(self.setCurrentImageAsBKG)
-        self.bkgSubW.applyBkgSubtractBox.stateChanged.connect(
-            self.checkBKGSubtraction)
-        self.maskW.maskFileSelection.connect(self.prepareMasking)
-        self.maskW.applyMaskBox.stateChanged.connect(self.checkMasking)
+        self.bkgSubWg.bkgFileSelection.connect(self.prepareBkgSubtraction)
+        self.bkgSubWg.useCurrentImageAsBkg.connect(self.setCurrentImageAsBkg)
+        self.bkgSubWg.applyStateChanged.connect(self.checkBkgSubtraction)
+
+        self.maskWg.maskFileSelection.connect(self.prepareMasking)
+        self.maskWg.applyMaskBox.stateChanged.connect(self.checkMasking)
 
         # signals from transformation widget
-        self.trafoW.activatedTransformation.connect(self.assessTransformation)
+        self.trafoWg.activatedTransformation.connect(self.assessTransformation)
 
         # set the right target name for the source display at initialization
         self.sourceW.setTargetName(self.data_source.getTarget())
@@ -412,20 +412,20 @@ class LiveViewer(QtGui.QDialog):
         if text == "ROI":
             self.imageW.showROIFrame()
             self.trafoName = "None"
-            self.trafoW.cb.setCurrentIndex(0)
-            self.trafoW.cb.setEnabled(False)
+            self.trafoWg.cb.setCurrentIndex(0)
+            self.trafoWg.cb.setEnabled(False)
             self.imageW.roiChanged()
         elif text == "LineCut":
             self.imageW.showLineCutFrame()
-            self.trafoW.cb.setEnabled(True)
+            self.trafoWg.cb.setEnabled(True)
             self.imageW.roiCoordsChanged.emit()
         elif text == "Angle/Q":
             self.imageW.showAngleQFrame()
-            self.trafoW.cb.setEnabled(True)
+            self.trafoWg.cb.setEnabled(True)
             self.imageW.roiCoordsChanged.emit()
         else:
             self.imageW.showIntensityFrame()
-            self.trafoW.cb.setEnabled(True)
+            self.trafoWg.cb.setEnabled(True)
             self.imageW.roiCoordsChanged.emit()
 
     @QtCore.pyqtSlot()
@@ -993,7 +993,7 @@ class LiveViewer(QtGui.QDialog):
             try:
                 self.display_image = self.rawgrey_image - self.background_image
             except:
-                self.checkBKGSubtraction(False)
+                self.checkBkgSubtraction(False)
                 self.background_image = None
                 self.doBkgSubtraction = False
                 import traceback
@@ -1124,43 +1124,44 @@ class LiveViewer(QtGui.QDialog):
     def checkMasking(self, state):
         self.applyImageMask = state
         if self.applyImageMask and self.mask_image is None:
-            self.maskW.noImage()
+            self.maskWg.noImage()
 
     @QtCore.pyqtSlot(str)
     def prepareMasking(self, imagename):
         '''Get the mask image, select non-zero elements
         and store the indices.'''
         if imagename:
-            self.mask_image = imageFileHandler.ImageFileHandler(
-                str(imagename)).getImage()
+            self.mask_image = np.transpose(
+                imageFileHandler.ImageFileHandler(
+                    str(imagename)).getImage())
             self.maskIndices = (self.mask_image != 0)
         else:
             self.mask_image = None
         # self.maskIndices = np.nonzero(self.mask_image != 0)
 
     @QtCore.pyqtSlot(int)
-    def checkBKGSubtraction(self, state):
+    def checkBkgSubtraction(self, state):
         self.doBkgSubtraction = state
         if self.doBkgSubtraction and self.background_image is None:
-            self.bkgSubW.setDisplayedName("")
-        elif not state and self.bkgSubW.applyBkgSubtractBox.isChecked():
-            self.bkgSubW.applyBkgSubtractBox.setChecked(False)
-            self.bkgSubW.setDisplayedName("")
+            self.bkgSubWg.setDisplayedName("")
+        else:
+            self.bkgSubWg.checkBkgSubtraction(state)
         self.imageW.img_widget.doBkgSubtraction = state
         self.plot()
 
     @QtCore.pyqtSlot(str)
-    def prepareBKGSubtraction(self, imagename):
-        self.background_image = imageFileHandler.ImageFileHandler(
-            str(imagename)).getImage()
+    def prepareBkgSubtraction(self, imagename):
+        self.background_image = np.transpose(
+            imageFileHandler.ImageFileHandler(
+                str(imagename)).getImage())
 
     @QtCore.pyqtSlot()
-    def setCurrentImageAsBKG(self):
+    def setCurrentImageAsBkg(self):
         if self.rawgrey_image is not None:
             self.background_image = self.rawgrey_image
-            self.bkgSubW.setDisplayedName(str(self.image_name))
+            self.bkgSubWg.setDisplayedName(str(self.image_name))
         else:
-            self.bkgSubW.setDisplayedName("")
+            self.bkgSubWg.setDisplayedName("")
         #  self.updatehisto = True
 
     @QtCore.pyqtSlot(str)

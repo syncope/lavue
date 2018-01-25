@@ -40,32 +40,30 @@ class QHLine(QtGui.QFrame):
         self.setFrameShadow(QtGui.QFrame.Sunken)
 
 
-class PreparationBoxWidget(QtGui.QGroupBox):
+class PreparationGroupBox(QtGui.QGroupBox):
 
     def __init__(self, parent=None):
         QtGui.QGroupBox.__init__(self, parent)
         self.setTitle("Image preparation")
         self.mask = True
 
-        self.maskW = maskWidget.MaskWidget(parent=self)
-        self.bkgSubW = bkgSubtractionWidget.BkgSubtractionkWidget(parent=self)
-
+        self.maskWg = maskWidget.MaskWidget(parent=self)
+        self.bkgSubWg = bkgSubtractionWidget.BkgSubtractionWidget(parent=self)
         hline = QHLine()
-
-        self.trafoW = transformationsWidget.TransformationsWidget(parent=self)
+        self.trafoWg = transformationsWidget.TransformationsWidget(parent=self)
 
         vlayout = QtGui.QVBoxLayout()
-        vlayout.addWidget(self.maskW)
-        vlayout.addWidget(self.bkgSubW)
+        vlayout.addWidget(self.bkgSubWg)
+        vlayout.addWidget(self.maskWg)
         vlayout.addWidget(hline)
-        vlayout.addWidget(self.trafoW)
+        vlayout.addWidget(self.trafoWg)
 
         self.setLayout(vlayout)
 
     def changeView(self, showmask=False):
         if showmask:
             self.mask = True
-            self.maskW.show()
+            self.maskWg.show()
         else:
             self.mask = False
-            self.maskW.hide()
+            self.maskWg.hide()

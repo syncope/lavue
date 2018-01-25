@@ -26,101 +26,111 @@
 """ background subtreaction widget """
 
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
+import os
+
+_formclass, _baseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "BkgSubtractionWidget.ui"))
 
 
-class BkgSubtractionkWidget(QtGui.QWidget):
+class BkgSubtractionWidget(QtGui.QWidget):
 
     """
     Define bkg image and subtract from displayed image.
     """
 
     bkgFileSelection = QtCore.pyqtSignal(str)
-    useCurrentImageAsBKG = QtCore.pyqtSignal()
+    useCurrentImageAsBkg = QtCore.pyqtSignal()
+    applyStateChanged = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
         QtGui.QWidget.__init__(self, parent)
 
-        self.fileName = ""
-        self.fileDialog = None
+        #: (:class:`Ui_BkgSubtractionkWidget') ui_widget object from qtdesigner
+        self.__ui = _formclass()
+        self.__ui.setupUi(self)
 
-        # one checkbox to choose whether the mask is applied
-        self.applyBkgSubtractBox = QtGui.QCheckBox(u"Subtract Bkg")
-        self.applyBkgSubtractBox.setChecked(False)
-        self.applyBkgSubtractBox.setEnabled(False)
-        self.applyBkgSubtractBox.setToolTip(
-            "apply background substraction to the image")
+        #: (:obj:`str`) file name
+        self.__fileName = ""
 
-        label = QtGui.QLabel("Background image:")
-        self.fileLabel = QtGui.QLabel("No image selected")
-        self.fileLabel.setToolTip("background substraction image file name")
+        self.__ui.selectPushButton.clicked.connect(self._showImageSelection)
+        self.__ui.selectCurrentPushButton.hide()
+        self.__ui.selectCurrentPushButton.clicked.connect(self._useCurrent)
 
-        # the dialog to select the mask file
-        self.selectButton = QtGui.QPushButton("Select")
-        self.selectButton.clicked.connect(self.showImageSelection)
-        self.selectButton.setToolTip(
-            "select the background substraction image")
+        self.__ui.selectFilePushButton.hide()
+        self.__ui.selectFilePushButton.clicked.connect(self._showFileDialog)
+        self.__ui.applyBkgCheckBox.stateChanged.connect(
+            self._emitApplyStateChanged)
 
-        self.selectCurrentButton = QtGui.QPushButton("Use current")
-        self.selectCurrentButton.hide()
-        self.selectCurrentButton.clicked.connect(self.useCurrent)
-        self.selectCurrentButton.setToolTip(
-            "select the current image for the background substraction image")
-
-        self.selectFileButton = QtGui.QPushButton("Choose file")
-        self.selectFileButton.hide()
-        self.selectFileButton.clicked.connect(self.showFileDialog)
-        self.selectFileButton.setToolTip(
-            "select a file for the background substraction image")
-
-        selectlayout = QtGui.QHBoxLayout()
-        selectlayout.addWidget(self.selectButton)
-        selectlayout.addWidget(self.selectCurrentButton)
-        selectlayout.addWidget(self.selectFileButton)
-
-        layout = QtGui.QGridLayout()
-        layout.addWidget(self.applyBkgSubtractBox, 0, 0)
-        layout.addLayout(selectlayout, 0, 1)
-        layout.addWidget(label, 1, 0)
-        layout.addWidget(self.fileLabel, 1, 1)
-
-        self.setLayout(layout)
+    @QtCore.pyqtSlot(int)
+    def _emitApplyStateChanged(self, state):
+        self.applyStateChanged.emit(state)
 
     @QtCore.pyqtSlot()
-    def showFileDialog(self):
-        self.fileDialog = QtGui.QFileDialog()
+    def _showFileDialog(self):
+        """ shows file dialog and select the file name
+        """
+        fileDialog = QtGui.QFileDialog()
 
         fileName = str(
-            self.fileDialog.getOpenFileName(self, 'Open file', '.'))
+            fileDialog.getOpenFileName(self, 'Open file', '.'))
         if fileName:
-            self.fileName = fileName
-            self.setDisplayedName(self.fileName)
-            self.bkgFileSelection.emit(self.fileName)
-            self.hideImageSelection()
+            self.__fileName = fileName
+            self.setDisplayedName(self.__fileName)
+            self.bkgFileSelection.emit(self.__fileName)
+            self.__hideImageSelection()
 
     @QtCore.pyqtSlot()
-    def useCurrent(self):
-        self.useCurrentImageAsBKG.emit()
-        self.hideImageSelection()
+    def _useCurrent(self):
+        """ emits useCurrentImageAsBkg and hides image selection
+        """
+        self.useCurrentImageAsBkg.emit()
+        self.__hideImageSelection()
 
     def setDisplayedName(self, name):
+        """ sets displayed file name
+
+        :param name: file name
+        :type name: :obj:`str`
+        """
         if name == "":
-            self.fileLabel.setText("No Image selected")
-            self.applyBkgSubtractBox.setEnabled(False)
+            self.__ui.fileLabel.setText("No Image selected")
+            self.__ui.applyBkgCheckBox.setEnabled(False)
         else:
-            self.fileLabel.setText("..." + str(name)[-24:])
-            self.applyBkgSubtractBox.setEnabled(True)
+            self.__ui.fileLabel.setText("..." + str(name)[-24:])
+            self.__ui.applyBkgCheckBox.setEnabled(True)
 
     @QtCore.pyqtSlot()
-    def showImageSelection(self):
-        self.selectCurrentButton.show()
-        self.selectFileButton.show()
-        self.selectButton.hide()
+    def _showImageSelection(self):
+        """ shows image selection
+        """
+        self.__ui.selectCurrentPushButton.show()
+        self.__ui.selectFilePushButton.show()
+        self.__ui.selectPushButton.hide()
 
-    def hideImageSelection(self):
-        self.selectCurrentButton.hide()
-        self.selectFileButton.hide()
-        self.selectButton.show()
+    def __hideImageSelection(self):
+        """ hides image selection
+        """
+        self.__ui.selectCurrentPushButton.hide()
+        self.__ui.selectFilePushButton.hide()
+        self.__ui.selectPushButton.show()
+
+    def checkBkgSubtraction(self, state):
+        """ unchecks apply CheckBox if state is 1 and it is checked
+        and reset the display
+
+        :param state: checkbox state
+        :type state:  :obj:`int`
+        """
+        if not state and self.__ui.applyBkgCheckBox.isChecked():
+            self.__ui.applyBkgCheckBox.setChecked(False)
+            self.setDisplayedName("")
 
 
 if __name__ == "__main__":
