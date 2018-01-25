@@ -855,7 +855,7 @@ class LiveViewer(QtGui.QDialog):
                 topic, str(json.dumps(messagedata)).encode("ascii"))
             self.secsocket.send_string(str(message))
 
-        self.statsW.update_stats(
+        self.statsW.updateStatistics(
             meanVal, maxVal, varVal,
             'linear' if self.statswoscaling else currentscaling,
             roiVal, roilabel)

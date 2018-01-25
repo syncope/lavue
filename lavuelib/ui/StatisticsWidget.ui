@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>285</width>
+    <height>210</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_3">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Image statistics</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="scalingLabel">
+          <property name="toolTip">
+           <string>intensity scaling</string>
+          </property>
+          <property name="text">
+           <string>scaling:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="scaleLabel">
+          <property name="toolTip">
+           <string>intensity scaling</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: red;</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="maxLineEdit">
+          <property name="toolTip">
+           <string>maximum intensity values after image preparation and scaling</string>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="meanLabel">
+          <property name="toolTip">
+           <string>mean intensity values after image preparation and scaling</string>
+          </property>
+          <property name="text">
+           <string>mean:</string>
+          </property>
+          <property name="buddy">
+           <cstring>meanLineEdit</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="meanLineEdit">
+          <property name="toolTip">
+           <string>mean intensity values after image preparation and scaling</string>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="varianceLabel">
+          <property name="toolTip">
+           <string>variance intensity values after image preparation and scaling</string>
+          </property>
+          <property name="text">
+           <string>variance:</string>
+          </property>
+          <property name="buddy">
+           <cstring>varianceLineEdit</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="varianceLineEdit">
+          <property name="toolTip">
+           <string>variance intensity values after image preparation and scaling</string>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="roiLabel">
+          <property name="toolTip">
+           <string>sum of intensity values after image preparation and scaling for ROI</string>
+          </property>
+          <property name="text">
+           <string>roi sum:</string>
+          </property>
+          <property name="buddy">
+           <cstring>roiLineEdit</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLineEdit" name="roiLineEdit">
+          <property name="toolTip">
+           <string>sum of intensity values after image preparation and scaling for ROI</string>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="maxLabel">
+          <property name="toolTip">
+           <string>maximum intensity values after image preparation and scaling</string>
+          </property>
+          <property name="text">
+           <string>maximum:</string>
+          </property>
+          <property name="buddy">
+           <cstring>maxLineEdit</cstring>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
