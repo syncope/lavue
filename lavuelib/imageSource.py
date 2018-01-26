@@ -104,7 +104,7 @@ class GeneralSource(object):
             pass
 
 
-class TangoFileSource(object):
+class TangoFileSource(GeneralSource):
 
     def __init__(self, timeout=None):
         self.signal_host = None
@@ -256,7 +256,7 @@ class VDEOdecoder(object):
         return self.__value
 
 
-class TangoAttrSource(object):
+class TangoAttrSource(GeneralSource):
 
     def __init__(self, timeout=None):
         self.signal_host = None
@@ -329,7 +329,7 @@ class TangoAttrSource(object):
             pass
 
 
-class HTTPSource(object):
+class HTTPSource(GeneralSource):
 
     def __init__(self, timeout=None):
         self.signal_host = None
@@ -391,7 +391,7 @@ class HTTPSource(object):
             pass
 
 
-class ZMQPickleSource(object):
+class ZMQPickleSource(GeneralSource):
 
     def __init__(self, timeout=None):
         self.signal_host = None
@@ -556,7 +556,7 @@ class ZMQPickleSource(object):
         self._context.destroy()
 
 
-class HiDRASource(object):
+class HiDRASource(GeneralSource):
 
     def __init__(self, timeout=None):
         self.signal_host = None

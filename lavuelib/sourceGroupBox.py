@@ -75,7 +75,7 @@ class SourceGroupBox(QtGui.QGroupBox):
 
         #: (:obj:`dict` < :obj:`str`, :obj:`list` <:obj:`str`> >)
         #:  server dictionary
-        self.serverdict = {}
+        self.__serverdict = {}
 
         #: (:obj:`list` <:obj:`str`> >) sorted server list
         self.__sortedserverlist = []
@@ -299,7 +299,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         self.__ui.serverComboBox.addItems(self.__sortedserverlist)
 
     def update(self, zmqtopics=None, dirtrans=None, autozmqtopics=None,
-               datasources=None, disconnect=True):
+               datasources=None, disconnect=True, serverdict=None):
         """ update source input parameters
 
         :param zmqtopics: zmq source topics
@@ -313,6 +313,8 @@ class SourceGroupBox(QtGui.QGroupBox):
         :type datasources: :obj:`list` <:obj:`str`> >
         :param disconnect: disconnect on update
         :type disconnect: :obj:`bool`
+        :param serverdict: server dictionary
+        :type serverdict: :obj:`dict` < :obj:`str`, :obj:`list` <:obj:`str`> >
         """
 
         if disconnect:
@@ -320,6 +322,8 @@ class SourceGroupBox(QtGui.QGroupBox):
                 self.__ui.pickleTopicComboBox.currentIndexChanged.disconnect(
                     self._updateZMQComboBox)
         text = None
+        if isinstance(serverdict, dict):
+            self.__serverdict = serverdict
         if isinstance(zmqtopics, list):
             with QtCore.QMutexLocker(self.__mutex):
                 text = str(self.__ui.pickleTopicComboBox.currentText())
@@ -437,5 +441,5 @@ class SourceGroupBox(QtGui.QGroupBox):
 
         for bl in beamlines:
             if bl in name:
-                self.__sortedserverlist.extend(self.serverdict[bl])
-        self.__sortedserverlist.extend(self.serverdict["pool"])
+                self.__sortedserverlist.extend(self.__serverdict[bl])
+        self.__sortedserverlist.extend(self.__serverdict["pool"])

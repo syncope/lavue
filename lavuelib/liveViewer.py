@@ -53,11 +53,7 @@ from . import imageFileHandler
 from . import sardanaUtils
 from . import dataFetchThread
 
-try:
-    from .hidraServerList import HidraServerList
-except:
-    print("Cannot read the list of HiDRA servers.")
-    print("Alternate method not yet implemented.")
+from .hidraServerList import HidraServerList
 
 
 class LiveViewer(QtGui.QDialog):
@@ -180,7 +176,7 @@ class LiveViewer(QtGui.QDialog):
         self.sourceWg = sourceGroupBox.SourceGroupBox(
             parent=self,
             sourcetypes=self.sourcetypes)
-        self.sourceWg.serverdict = HidraServerList
+        self.sourceWg.update(serverdict=HidraServerList)
         self.prepBoxWg = preparationGroupBox.PreparationGroupBox(parent=self)
         self.scalingWg = scalingGroupBox.ScalingGroupBox(parent=self)
         self.levelsWg = levelsGroupBox.LevelsGroupBox(parent=self)

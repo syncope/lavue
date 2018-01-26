@@ -33,24 +33,44 @@ import time
 from PyQt4 import QtCore
 
 
-# magic numbers:
-GLOBALREFRESHRATE = .1  # refresh rate if the data source is running in seconds
+#: (:obj:`float`) refresh rate if the data source is running in seconds
+GLOBALREFRESHRATE = .1  
 
 
-# subclass for data caching
 class ExchangeList(object):
 
+    """  subclass for data caching """
+    
     def __init__(self):
+        """ constructor
+        """
+        #: (:obj:`list` <:obj:`str`, :class:`numpy.ndarray`, :obj:`str` >)
+        #:      exchange object
         self.__elist = [None, None, None]
+        #: (:obj:`PyQt4.QtCore.QMutex`) mutex lock
         self.__mutex = QtCore.QMutex()
 
     def addData(self, name, data, metadata=""):
+        """ write data into exchange object
+
+        :param name: image name
+        :type name: :obj:`str` 
+        :param data: image data
+        :type data: :class:`numpy.ndarray`
+        :param metadata: json dictionary with image metadata
+        :type metadata: :obj:`str` 
+        """
         with QtCore.QMutexLocker(self.__mutex):
             self.__elist[0] = name
             self.__elist[1] = data
             self.__elist[2] = metadata
 
     def readData(self):
+        """ write data into exchange object
+
+        :returns: tuple of exchange object (name, data, metadata)
+        :rtype: :obj:`list` <:obj:`str`, :class:`numpy.ndarray`, :obj:`str` >
+        """
         with QtCore.QMutexLocker(self.__mutex):
             a, b, c = self.__elist[0], self.__elist[1], self.__elist[2]
         return a, b, c
@@ -58,9 +78,19 @@ class ExchangeList(object):
 
 # subclass for threading
 class DataFetchThread(QtCore.QThread):
+
+    
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) new data name signal
     newDataName = QtCore.pyqtSignal(str, str)
 
     def __init__(self, datasource, alist):
+        """ constructor
+        
+        :param datasource: image datasource
+        :type datasource: :class:`lavuelib.imageSource.GeneralSource`
+        :param alist: exchange object
+        :type alist: :class:`ExchangeList`
+        """
         QtCore.QThread.__init__(self)
         self.data_source = datasource
         self.__list = alist
@@ -68,6 +98,8 @@ class DataFetchThread(QtCore.QThread):
         self.__loop = True
 
     def run(self):
+        """ runner of the fetching thread
+        """
         while self.__loop:
             if time:
                 time.sleep(GLOBALREFRESHRATE)
@@ -86,8 +118,15 @@ class DataFetchThread(QtCore.QThread):
 
     @QtCore.pyqtSlot(int)
     def changeStatus(self, status):
+        """ change connection status
+
+        :param status: connection status
+        :type status: :obj:`bool`
+        """
         self.__isConnected = status
 
     def stop(self):
+        """ stop the thread
+        """
         self.__loop = False
         self.__isConnected = False

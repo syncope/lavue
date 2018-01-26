@@ -25,6 +25,8 @@
 
 """A list of possible hidra servers. Take your pick."""
 
+#: (:obj:`dict` < :obj:`str`, :obj:`list` <:obj:`str`> >)
+#:  server dictionary
 HidraServerList = {
     "p03": ['haspp03pilatus.desy.de'],
     "p08": ['haspp08pil100.desy.de'],
