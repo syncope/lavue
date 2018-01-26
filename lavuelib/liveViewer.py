@@ -41,7 +41,7 @@ from PyQt4 import QtCore, QtGui
 from . import imageSource as hcs
 from . import messageBox
 
-from . import sourceWidget
+from . import sourceGroupBox
 from . import preparationGroupBox
 from . import scalingGroupBox
 from . import levelsGroupBox
@@ -177,7 +177,7 @@ class LiveViewer(QtGui.QDialog):
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
-        self.sourceWg = sourceWidget.SourceWidget(parent=self)
+        self.sourceWg = sourceGroupBox.SourceGroupBox(parent=self)
         self.sourceWg.serverdict = HidraServerList
         self.prepBoxWg = preparationGroupBox.PreparationGroupBox(parent=self)
         self.scalingWg = scalingGroupBox.ScalingGroupBox(parent=self)
