@@ -34,13 +34,13 @@ from PyQt4 import QtCore
 
 
 #: (:obj:`float`) refresh rate if the data source is running in seconds
-GLOBALREFRESHRATE = .1  
+GLOBALREFRESHRATE = .1
 
 
 class ExchangeList(object):
 
     """  subclass for data caching """
-    
+
     def __init__(self):
         """ constructor
         """
@@ -54,11 +54,11 @@ class ExchangeList(object):
         """ write data into exchange object
 
         :param name: image name
-        :type name: :obj:`str` 
+        :type name: :obj:`str`
         :param data: image data
         :type data: :class:`numpy.ndarray`
         :param metadata: json dictionary with image metadata
-        :type metadata: :obj:`str` 
+        :type metadata: :obj:`str`
         """
         with QtCore.QMutexLocker(self.__mutex):
             self.__elist[0] = name
@@ -79,13 +79,12 @@ class ExchangeList(object):
 # subclass for threading
 class DataFetchThread(QtCore.QThread):
 
-    
     #: (:class:`PyQt4.QtCore.pyqtSignal`) new data name signal
     newDataName = QtCore.pyqtSignal(str, str)
 
     def __init__(self, datasource, alist):
         """ constructor
-        
+
         :param datasource: image datasource
         :type datasource: :class:`lavuelib.imageSource.GeneralSource`
         :param alist: exchange object

@@ -211,7 +211,7 @@ class ImageWidget(QtGui.QWidget):
         self.angleqPushButton.clicked.connect(self.geometry)
         self.angleqComboBox.currentIndexChanged.connect(
             self.onAngleQChanged)
-        self.img_widget.centerAngleChanged.connect(self.updateGeometryTip)
+        self.img_widget.centerAngleChanged.connect(self.updateGeometry)
         self.cutSpinBox.valueChanged.connect(self.cutNrChanged)
 
     @QtCore.pyqtSlot(int)
@@ -236,6 +236,11 @@ class ImageWidget(QtGui.QWidget):
             self.img_widget.pixelsizey = cnfdlg.pixelsizey
             self.img_widget.detdistance = cnfdlg.detdistance
             self.updateGeometryTip()
+
+    @QtCore.pyqtSlot()
+    def updateGeometry(self):
+        self.setDisplayedText("")
+        self.updateGeometryTip()
 
     @QtCore.pyqtSlot()
     def updateGeometryTip(self):
