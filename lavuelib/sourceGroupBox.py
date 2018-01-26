@@ -159,7 +159,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         if name is not None:
             self.__currentSource = name
         self.updateLayout()
-        self.update(disconnect=disconnect)
+        self.updateMetaData(disconnect=disconnect)
 
     def updateHidraButton(self):
         """ update slot for Hidra source
@@ -298,8 +298,10 @@ class SourceGroupBox(QtGui.QGroupBox):
         self.__sortServerList(name)
         self.__ui.serverComboBox.addItems(self.__sortedserverlist)
 
-    def update(self, zmqtopics=None, dirtrans=None, autozmqtopics=None,
-               datasources=None, disconnect=True, serverdict=None):
+    def updateMetaData(
+            self,
+            zmqtopics=None, dirtrans=None, autozmqtopics=None,
+            datasources=None, disconnect=True, serverdict=None):
         """ update source input parameters
 
         :param zmqtopics: zmq source topics

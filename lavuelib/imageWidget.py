@@ -212,7 +212,6 @@ class ImageWidget(QtGui.QWidget):
         self.angleqComboBox.currentIndexChanged.connect(
             self.onAngleQChanged)
         self.img_widget.centerAngleChanged.connect(self.updateGeometryTip)
-
         self.cutSpinBox.valueChanged.connect(self.cutNrChanged)
 
     @QtCore.pyqtSlot(int)

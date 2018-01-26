@@ -175,7 +175,7 @@ class LiveViewer(QtGui.QDialog):
         # instantiate the widgets and declare the parent
         self.sourceWg = sourceGroupBox.SourceGroupBox(
             parent=self, sourcetypes=self.sourcetypes)
-        self.sourceWg.update(serverdict=HIDRASERVERLIST)
+        self.sourceWg.updateMetaData(serverdict=HIDRASERVERLIST)
         self.prepBoxWg = preparationGroupBox.PreparationGroupBox(parent=self)
         self.scalingWg = scalingGroupBox.ScalingGroupBox(parent=self)
         self.levelsWg = levelsGroupBox.LevelsGroupBox(parent=self)
@@ -391,7 +391,7 @@ class LiveViewer(QtGui.QDialog):
         if qstval:
             self.dirtrans = qstval
 
-        self.sourceWg.update(
+        self.sourceWg.updateMetaData(
             zmqtopics=self.zmqtopics, dirtrans=self.dirtrans,
             autozmqtopics=self.autozmqtopics)
 
@@ -744,7 +744,7 @@ class LiveViewer(QtGui.QDialog):
             self.autozmqtopics = dialog.autozmqtopics
             setsrc = True
         if setsrc:
-            self.sourceWg.update(
+            self.sourceWg.updateMetaData(
                 zmqtopics=self.zmqtopics, dirtrans=self.dirtrans,
                 autozmqtopics=self.autozmqtopics)
             self.sourceWg.updateLayout()
@@ -923,7 +923,7 @@ class LiveViewer(QtGui.QDialog):
                     if wgdata:
                         self.imageWg.updateMetaData(**wgdata)
                     if resdata:
-                        self.sourceWg.update(**resdata)
+                        self.sourceWg.updateMetaData(**resdata)
             except Exception as e:
                 print(str(e))
         elif str(name).strip():
