@@ -23,7 +23,7 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
-""" sourceGroupBox """
+""" image source selection """
 
 from PyQt4 import QtCore, QtGui, uic
 import os
@@ -32,22 +32,34 @@ _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "SourceGroupBox.ui"))
 
+
 class SourceGroupBox(QtGui.QGroupBox):
-
+    """ image source selection
     """
-    Connect and disconnect hidra service.
-    """
-    source_disconnect = QtCore.pyqtSignal()
-    source_connect = QtCore.pyqtSignal()
-    source_state = QtCore.pyqtSignal(int)
-    source_servername = QtCore.pyqtSignal(str)
-    source_sourcetype = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None):
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) source disconnected signal
+    sourceDisconnect = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) source connected signal
+    sourceConnect = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) source state signal
+    sourceState = QtCore.pyqtSignal(int)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) source server name signal
+    sourceServerName = QtCore.pyqtSignal(str)
+
+    def __init__(self, parent=None, sourcetypes=None):
         """ constructor
 
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
+        :param sourcetypes: source types, their corresponding
+                            datasource classes, slots form checks
+                            and widgets to hide.
+
+        :type sourcetypes: :obj:`list` < {"name": :obj:`str`,
+                            "datasource": :obj:`str`,
+                            "slot": :obj:`str`,
+                            "hidden": :obj:`list` <:obj:`str`> >
+                            } >
         """
         QtGui.QGroupBox.__init__(self, parent)
 
@@ -55,51 +67,74 @@ class SourceGroupBox(QtGui.QGroupBox):
         self.__ui = _formclass()
         self.__ui.setupUi(self)
 
+        #: (:class:`PyQt4.QtCore.QMutex`) zmq datasource mutex
         self.__mutex = QtCore.QMutex()
 
-        self.signal_host = None
-        self.target = None
-        self.connected = False
+        #: (:obj:`bool`) if image source connected
+        self.__connected = False
+
+        #: (:obj:`dict` < :obj:`str`, :obj:`list` <:obj:`str`> >)
+        #:  server dictionary
         self.serverdict = {}
-        self.sortedserverlist = []
-        self.currentSource = ""
 
-        self.zmqtopics = []
-        self.autozmqtopics = False
-        self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
+        #: (:obj:`list` <:obj:`str`> >) sorted server list
+        self.__sortedserverlist = []
+        #: (:obj:`str`) current source
+        self.__currentSource = ""
 
-        self._types = parent.sourcetypes
-        self._defaultsource = "Hidra"
+        #: (:obj:`list` <:obj:`str`> >) zmq source datasources
+        self.__zmqtopics = []
+        #: (:obj:`bool`) automatic zmq topics enabled
+        self.__autozmqtopics = False
 
-        for st in self._types:
+        #: (:obj:`str`) json dictionary with directory
+        #:               and file name translation
+        self.__dirtrans = '{"/ramdisk/": "/gpfs/"}'
+
+        #: (:obj:`list` < {"name": :obj:`str`,
+        #:                 "datasource": :obj:`str`,
+        #:                 "slot": :obj:`str`,
+        #:                 "hidden": :obj:`list` <:obj:`str`> >
+        #:               } > )
+        #:  source types, their corresponding datasource classes,
+        #:  slots form checks and widgets to hide.
+        self.__types = sourcetypes or []
+        #:  (:obj:`str`) default datasource
+        self.__defaultsource = "Hidra"
+
+        for st in self.__types:
             self.__ui.sourceTypeComboBox.addItem(st["name"])
 
         self.__ui.pushButton.clicked.connect(self.toggleServerConnection)
 
-        self.setSource(self._defaultsource, disconnect=False)
+        self.__setSource(self.__defaultsource, disconnect=False)
 
-        self.__ui.serverComboBox.currentIndexChanged.connect(self.emitHostname)
+        self.__ui.serverComboBox.currentIndexChanged.connect(
+            self.updateHidraButton)
         self.__ui.sourceTypeComboBox.currentIndexChanged.connect(
-            self.onSourceChanged)
+            self._onSourceChanged)
         self.__ui.attrLineEdit.textEdited.connect(self.updateAttrButton)
         self.__ui.fileLineEdit.textEdited.connect(self.updateFileButton)
         self.__ui.dirLineEdit.textEdited.connect(self.updateFileButton)
         self.__ui.pickleLineEdit.textEdited.connect(self.updateZMQPickleButton)
         self.__ui.httpLineEdit.textEdited.connect(self.updateHTTPButton)
         self.__ui.pickleTopicComboBox.currentIndexChanged.connect(
-            self.updateZMQComboBox)
-        self.onSourceChanged()
+            self._updateZMQComboBox)
+        self._onSourceChanged()
 
     @QtCore.pyqtSlot()
-    def onSourceChanged(self):
-        self.setSource(self.__ui.sourceTypeComboBox.currentText())
-        self.source_sourcetype.emit(self.__ui.sourceTypeComboBox.currentText())
+    def _onSourceChanged(self):
+        """ update current source widgets
+        """
+        self.__setSource(self.__ui.sourceTypeComboBox.currentText())
 
     def updateLayout(self):
-        name = self.currentSource
+        """ update source layout
+        """
+        name = self.__currentSource
         allhidden = set()
         mst = None
-        for st in self._types:
+        for st in self.__types:
             allhidden.update(st["hidden"])
             if name == st["name"]:
                 mst = st
@@ -113,13 +148,22 @@ class SourceGroupBox(QtGui.QGroupBox):
 
             getattr(self, mst["slot"])()
 
-    def setSource(self, name=None, disconnect=True):
+    def __setSource(self, name=None, disconnect=True):
+        """ set source with the given name
+
+        :param name: source name
+        :type name: :obj:`str`
+        :param disconnect: disconnect signals on update
+        :type disconnect: :obj:`bool`
+        """
         if name is not None:
-            self.currentSource = name
+            self.__currentSource = name
         self.updateLayout()
         self.update(disconnect=disconnect)
 
     def updateHidraButton(self):
+        """ update slot for Hidra source
+        """
         source = str(self.__ui.sourceTypeComboBox.currentText())
         if source != "Hidra":
             return
@@ -127,9 +171,13 @@ class SourceGroupBox(QtGui.QGroupBox):
             self.__ui.pushButton.setEnabled(False)
         else:
             self.__ui.pushButton.setEnabled(True)
+            self.sourceServerName.emit(
+                str(self.__ui.serverComboBox.currentText()))
 
     @QtCore.pyqtSlot()
     def updateAttrButton(self):
+        """ update slot for Tango attribute source
+        """
         source = str(self.__ui.sourceTypeComboBox.currentText())
         if source != "Tango Attribute":
             return
@@ -137,10 +185,13 @@ class SourceGroupBox(QtGui.QGroupBox):
             self.__ui.pushButton.setEnabled(False)
         else:
             self.__ui.pushButton.setEnabled(True)
-            self.source_servername.emit(str(self.__ui.attrLineEdit.text()).strip())
+            self.sourceServerName.emit(
+                str(self.__ui.attrLineEdit.text()).strip())
 
     @QtCore.pyqtSlot()
     def updateFileButton(self):
+        """ update slot for Tango file source
+        """
         source = str(self.__ui.sourceTypeComboBox.currentText())
         if source != "Tango File":
             return
@@ -150,12 +201,14 @@ class SourceGroupBox(QtGui.QGroupBox):
         else:
             self.__ui.pushButton.setEnabled(True)
             dattr = str(self.__ui.dirLineEdit.text()).strip()
-            dt = self.dirtrans
+            dt = self.__dirtrans
             sourcename = "%s,%s,%s" % (fattr, dattr, dt)
-            self.source_servername.emit(sourcename)
+            self.sourceServerName.emit(sourcename)
 
     @QtCore.pyqtSlot()
     def updateHTTPButton(self):
+        """ update slot for HTTP response source
+        """
         source = str(self.__ui.sourceTypeComboBox.currentText())
         if source != "HTTP responce":
             return
@@ -171,25 +224,30 @@ class SourceGroupBox(QtGui.QGroupBox):
             self.__ui.pushButton.setEnabled(False)
         else:
             self.__ui.pushButton.setEnabled(True)
-            self.source_servername.emit(url)
+            self.sourceServerName.emit(url)
 
     @QtCore.pyqtSlot()
-    def updateZMQComboBox(self):
+    def _updateZMQComboBox(self):
+        """ update ZMQ datasource combobox
+        """
         disconnected = False
-        if self.connected:
+        if self.__connected:
             disconnected = True
-            self.source_state.emit(0)
+            self.sourceState.emit(0)
         self.updateZMQPickleButton()
         if disconnected:
-            self.source_state.emit(self.__ui.sourceTypeComboBox.currentIndex() + 1)
-            self.source_connect.emit()
+            self.sourceState.emit(
+                self.__ui.sourceTypeComboBox.currentIndex() + 1)
+            self.sourceConnect.emit()
 
     @QtCore.pyqtSlot()
     def updateZMQPickleButton(self, disconnect=True):
+        """ update slot for ZMQ source
+        """
         with QtCore.QMutexLocker(self.__mutex):
             if disconnect:
                 self.__ui.pickleTopicComboBox.currentIndexChanged.disconnect(
-                    self.updateZMQComboBox)
+                    self._updateZMQComboBox)
             source = str(self.__ui.sourceTypeComboBox.currentText())
             if source != "ZMQ Stream":
                 return
@@ -215,58 +273,74 @@ class SourceGroupBox(QtGui.QGroupBox):
                         else:
                             shost.append(str(text))
                         hosturl = "/".join(shost)
-                    self.source_servername.emit(hosturl)
+                    self.sourceServerName.emit(hosturl)
                 except:
                     self.__ui.pushButton.setEnabled(False)
             if disconnect:
                 self.__ui.pickleTopicComboBox.currentIndexChanged.connect(
-                    self.updateZMQComboBox)
+                    self._updateZMQComboBox)
 
     def updateButton(self):
+        """ update slot for test source
+        """
         source = str(self.__ui.sourceTypeComboBox.currentText())
         if source != "Test":
             return
         self.__ui.pushButton.setEnabled(True)
 
-    @QtCore.pyqtSlot(int)
-    def emitHostname(self, _):
-        self.updateHidraButton()
-
-        self.source_servername.emit(self.__ui.serverComboBox.currentText())
-
     def setTargetName(self, name):
+        """ set target name
+
+        :param name: source name
+        :type name: :obj:`str`
+        """
         self.__ui.currenthostLabel.setText(str(name))
-        self.sortServerList(name)
-        self.__ui.serverComboBox.addItems(self.sortedserverlist)
+        self.__sortServerList(name)
+        self.__ui.serverComboBox.addItems(self.__sortedserverlist)
 
     def update(self, zmqtopics=None, dirtrans=None, autozmqtopics=None,
                datasources=None, disconnect=True):
+        """ update source input parameters
+
+        :param zmqtopics: zmq source topics
+        :type zmqtopics: :obj:`list` <:obj:`str`> >
+        :param dirtrans: json dictionary with directory
+                         and file name translation
+        :type dirtrans: :obj:`str`
+        :param autozmqtopics: automatic zmq topics enabled
+        :type autozmqtopics: :obj:`bool`
+        :param datasources: automatic zmq source topics
+        :type datasources: :obj:`list` <:obj:`str`> >
+        :param disconnect: disconnect on update
+        :type disconnect: :obj:`bool`
+        """
+
         if disconnect:
             with QtCore.QMutexLocker(self.__mutex):
                 self.__ui.pickleTopicComboBox.currentIndexChanged.disconnect(
-                    self.updateZMQComboBox)
+                    self._updateZMQComboBox)
         text = None
         if isinstance(zmqtopics, list):
             with QtCore.QMutexLocker(self.__mutex):
                 text = str(self.__ui.pickleTopicComboBox.currentText())
             if not text or text not in zmqtopics:
                 text = None
-            self.zmqtopics = zmqtopics
+            self.__zmqtopics = zmqtopics
         if autozmqtopics is not None:
-            self.autozmqtopics = autozmqtopics
-        if self.autozmqtopics:
+            self.__autozmqtopics = autozmqtopics
+        if self.__autozmqtopics:
             if isinstance(datasources, list):
                 with QtCore.QMutexLocker(self.__mutex):
                     text = str(self.__ui.pickleTopicComboBox.currentText())
                 if not text or text not in datasources:
                     text = None
-                self.zmqtopics = datasources
+                self.__zmqtopics = datasources
         if dirtrans is not None:
-            self.dirtrans = dirtrans
+            self.__dirtrans = dirtrans
         with QtCore.QMutexLocker(self.__mutex):
             for i in reversed(range(0, self.__ui.pickleTopicComboBox.count())):
                 self.__ui.pickleTopicComboBox.removeItem(i)
-            self.__ui.pickleTopicComboBox.addItems(self.zmqtopics)
+            self.__ui.pickleTopicComboBox.addItems(self.__zmqtopics)
             self.__ui.pickleTopicComboBox.addItem("**ALL**")
             if text:
                 tid = self.__ui.pickleTopicComboBox.findText(text)
@@ -276,56 +350,73 @@ class SourceGroupBox(QtGui.QGroupBox):
             self.updateZMQPickleButton(disconnect=False)
             with QtCore.QMutexLocker(self.__mutex):
                 self.__ui.pickleTopicComboBox.currentIndexChanged.connect(
-                    self.updateZMQComboBox)
+                    self._updateZMQComboBox)
 
     def isConnected(self):
-        return self.connected
+        """ is datasource source connected
+
+        :returns: if datasource source connected
+        :rtype: :obj:`bool`
+        """
+        return self.__connected
 
     @QtCore.pyqtSlot()
     def toggleServerConnection(self):
+        """ toggles server connection
+        """
         # if it is connected then it's easy:
-        if self.connected:
-            self.source_disconnect.emit()
-            self.__ui.cStatusLineEdit.setStyleSheet("color: yellow;"
-                                       "background-color: red;")
+        if self.__connected:
+            self.sourceDisconnect.emit()
+            self.__ui.cStatusLineEdit.setStyleSheet(
+                "color: yellow;"
+                "background-color: red;")
             self.__ui.cStatusLineEdit.setText("Disconnected")
-            # self.__ui.pushButton.setText("Re-Start")
             self.__ui.pushButton.setText("&Start")
-            self.connected = False
-            self.source_state.emit(0)
+            self.__connected = False
+            self.sourceState.emit(0)
             self.__ui.serverComboBox.setEnabled(True)
             self.__ui.sourceTypeComboBox.setEnabled(True)
             self.__ui.pickleLineEdit.setReadOnly(False)
             if ":" in self.__ui.attrLineEdit.text():
                 self.__ui.attrLineEdit.setText(u'')
-                self.updateAttrButton()
+                if self.__currentSource == "Tango Attribute":
+                    self.updateAttrButton()
             return
 
         else:
             self.__ui.serverComboBox.setEnabled(False)
             self.__ui.sourceTypeComboBox.setEnabled(False)
-            self.source_state.emit(self.__ui.sourceTypeComboBox.currentIndex() + 1)
-            self.source_connect.emit()
+            self.sourceState.emit(
+                self.__ui.sourceTypeComboBox.currentIndex() + 1)
+            self.sourceConnect.emit()
 
     def connectSuccess(self, port=None):
-        """ Function doc """
-        self.connected = True
+        """ set connection status on and display connection status
+
+        :param port: zmq port
+        :type port: :obj: `str`
+        """
+        self.__connected = True
         if port is not None:
-            self.__ui.cStatusLineEdit.setStyleSheet("color: white;"
-                                       "background-color: blue;")
-            self.__ui.cStatusLineEdit.setText("Connected (emitting via %s)" % port)
+            self.__ui.cStatusLineEdit.setStyleSheet(
+                "color: white;"
+                "background-color: blue;")
+            self.__ui.cStatusLineEdit.setText(
+                "Connected (emitting via %s)" % port)
         else:
-            self.__ui.cStatusLineEdit.setStyleSheet("color: white;"
-                                       "background-color: green;")
+            self.__ui.cStatusLineEdit.setStyleSheet(
+                "color: white;"
+                "background-color: green;")
             self.__ui.cStatusLineEdit.setText("Connected")
         self.__ui.sourceTypeComboBox.setEnabled(False)
         self.__ui.pickleLineEdit.setReadOnly(True)
         self.__ui.pushButton.setText("&Stop")
 
     def connectFailure(self):
-        """ Function doc """
-        self.connected = False
-        self.source_state.emit(0)
+        """ set connection status off and display connection status
+        """
+        self.__connected = False
+        self.sourceState.emit(0)
         self.__ui.serverComboBox.setEnabled(True)
         self.__ui.sourceTypeComboBox.setEnabled(True)
         self.__ui.pickleLineEdit.setReadOnly(False)
@@ -333,17 +424,18 @@ class SourceGroupBox(QtGui.QGroupBox):
         # self.pushButton.setText("Retry connect")
         self.__ui.pushButton.setText("&Start")
 
-    def setSourceType(self):
-        """ set source type"""
-        self.connected = False
+    def __sortServerList(self, name):
+        """ small function to sort out the server list details.
+        It searches the hostname for a
+        string and return only the elements in the list that fit
 
-    def sortServerList(self, name):
-        # small function to sort out the server list details
-        # stupid programming, but effective: search the hostname for a
-        # string and return only the elements in the list that fit
+        :param name: beamline name
+        :type name: :obj:`str`
+        """
+        #
         beamlines = ['p03', 'p08', 'p09', 'p10', 'p11']
 
         for bl in beamlines:
             if bl in name:
-                self.sortedserverlist.extend(self.serverdict[bl])
-        self.sortedserverlist.extend(self.serverdict["pool"])
+                self.__sortedserverlist.extend(self.serverdict[bl])
+        self.__sortedserverlist.extend(self.serverdict["pool"])

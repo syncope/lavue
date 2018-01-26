@@ -155,10 +155,10 @@ lavuelib.sardanaUtils module
     :undoc-members:
     :show-inheritance:
 
-lavuelib.sourceWidget module
-----------------------------
+lavuelib.sourceGroupBox module
+------------------------------
 
-.. automodule:: lavuelib.sourceWidget
+.. automodule:: lavuelib.sourceGroupBox
     :members:
     :undoc-members:
     :show-inheritance:

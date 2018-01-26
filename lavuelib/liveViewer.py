@@ -177,7 +177,9 @@ class LiveViewer(QtGui.QDialog):
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
-        self.sourceWg = sourceGroupBox.SourceGroupBox(parent=self)
+        self.sourceWg = sourceGroupBox.SourceGroupBox(
+            parent=self,
+            sourcetypes=self.sourcetypes)
         self.sourceWg.serverdict = HidraServerList
         self.prepBoxWg = preparationGroupBox.PreparationGroupBox(parent=self)
         self.scalingWg = scalingGroupBox.ScalingGroupBox(parent=self)
@@ -259,11 +261,11 @@ class LiveViewer(QtGui.QDialog):
         self.imageWg.pixelComboBox.currentIndexChanged.connect(
             self.onPixelChanged)
         # connecting signals from source widget:
-        self.sourceWg.source_connect.connect(self.connect_source)
-        self.sourceWg.source_connect.connect(self.startPlotting)
+        self.sourceWg.sourceConnect.connect(self.connect_source)
+        self.sourceWg.sourceConnect.connect(self.startPlotting)
 
-        self.sourceWg.source_disconnect.connect(self.stopPlotting)
-        self.sourceWg.source_disconnect.connect(self.disconnect_source)
+        self.sourceWg.sourceDisconnect.connect(self.stopPlotting)
+        self.sourceWg.sourceDisconnect.connect(self.disconnect_source)
 
         # gradient selector
         self.levelsWg.channelChanged.connect(self.plot)
@@ -279,7 +281,7 @@ class LiveViewer(QtGui.QDialog):
         self.dataFetcher.newDataName.connect(self.getNewData)
         # ugly !!! sent current state to the data fetcher...
         self.update_state.connect(self.dataFetcher.changeStatus)
-        self.sourceWg.source_state.connect(self.updateSource)
+        self.sourceWg.sourceState.connect(self.updateSource)
 
         self.bkgSubWg.bkgFileSelected.connect(self.prepareBkgSubtraction)
         self.bkgSubWg.useCurrentImageAsBkg.connect(self.setCurrentImageAsBkg)
@@ -293,8 +295,9 @@ class LiveViewer(QtGui.QDialog):
 
         # set the right target name for the source display at initialization
         self.sourceWg.setTargetName(self.data_source.getTarget())
-        # self.sourceWg.source_servername.connect(self.data_source.setSignalHost)
-        self.sourceWg.source_servername.connect(self.setSignalHost)
+        # self.sourceWg.sourceServerName.connect(self.data_source.setSignalHost)
+        self.sourceWg.sourceServerName.connect(self.setSignalHost)
+        self.sourceWg.updateLayout()
         self.onPixelChanged()
 
         settings = QtCore.QSettings()
@@ -588,7 +591,7 @@ class LiveViewer(QtGui.QDialog):
             pass
         # except Exception as e:
         #     print (str(e))
-        if self.sourceWg.connected:
+        if self.sourceWg.isConnected():
             self.sourceWg.toggleServerConnection()
         self.disconnect_source()
         time.sleep(min(dataFetchThread.GLOBALREFRESHRATE * 5, 2))
@@ -713,7 +716,7 @@ class LiveViewer(QtGui.QDialog):
                     self.secsocket.unbind(self.secsockopt)
                 except:
                     pass
-                if self.sourceWg.connected:
+                if self.sourceWg.isConnected():
                     self.sourceWg.connectSuccess(None)
             if dialog.secstream:
                 if dialog.secautoport:
@@ -724,7 +727,7 @@ class LiveViewer(QtGui.QDialog):
                 else:
                     self.secsockopt = "tcp://*:%s" % dialog.secport
                     self.secsocket.bind(self.secsockopt)
-                if self.sourceWg.connected:
+                if self.sourceWg.isConnected():
                     self.sourceWg.connectSuccess(dialog.secport)
         self.secautoport = dialog.secautoport
         self.secport = dialog.secport
@@ -899,7 +902,7 @@ class LiveViewer(QtGui.QDialog):
         # check if data is there at all
         if name == "__ERROR__":
             if self.interruptonerror:
-                if self.sourceWg.connected:
+                if self.sourceWg.isConnected():
                     self.sourceWg.toggleServerConnection()
                 _, errortext, _ = self.exchangelist.readData()
                 messageBox.MessageBox.warning(
