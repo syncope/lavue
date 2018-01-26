@@ -95,7 +95,7 @@ class ImageWidget(QtGui.QWidget):
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
                                        QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(1)
+        sizePolicy.setVerticalStretch(15)
         sizePolicy.setHeightForWidth(
             self.img_widget.sizePolicy().hasHeightForWidth())
         self.img_widget.setSizePolicy(sizePolicy)
@@ -105,7 +105,7 @@ class ImageWidget(QtGui.QWidget):
                                        QtGui.QSizePolicy.Preferred)
         self.cutCurve = self.cutPlot.plot()
         sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(
             self.cutPlot.sizePolicy().hasHeightForWidth())
         self.cutPlot.setSizePolicy(sizePolicy)
@@ -649,7 +649,7 @@ class ImageWidget(QtGui.QWidget):
             self.__lasttext = text
         else:
             text = self.__lasttext
-        if self.img_widget.roienable:
+        if self.img_widget.roienable and self.img_widget.roi:
             roiVal, currentroi = self.calcROIsum()
             roilabel = self.createROILabel()
 
