@@ -53,7 +53,7 @@ from . import imageFileHandler
 from . import sardanaUtils
 from . import dataFetchThread
 
-from .hidraServerList import HidraServerList
+from .hidraServerList import HIDRASERVERLIST
 
 
 class LiveViewer(QtGui.QDialog):
@@ -174,9 +174,8 @@ class LiveViewer(QtGui.QDialog):
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
         self.sourceWg = sourceGroupBox.SourceGroupBox(
-            parent=self,
-            sourcetypes=self.sourcetypes)
-        self.sourceWg.update(serverdict=HidraServerList)
+            parent=self, sourcetypes=self.sourcetypes)
+        self.sourceWg.update(serverdict=HIDRASERVERLIST)
         self.prepBoxWg = preparationGroupBox.PreparationGroupBox(parent=self)
         self.scalingWg = scalingGroupBox.ScalingGroupBox(parent=self)
         self.levelsWg = levelsGroupBox.LevelsGroupBox(parent=self)

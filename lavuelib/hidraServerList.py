@@ -27,7 +27,7 @@
 
 #: (:obj:`dict` < :obj:`str`, :obj:`list` <:obj:`str`> >)
 #:  server dictionary
-HidraServerList = {
+HIDRASERVERLIST = {
     "p03": ['haspp03pilatus.desy.de'],
     "p08": ['haspp08pil100.desy.de'],
     "p09": ['haspp09pilatus.desy.de'],
