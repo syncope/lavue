@@ -139,10 +139,10 @@ lavuelib.messageBox module
     :undoc-members:
     :show-inheritance:
 
-lavuelib.preparationBoxWidget module
+lavuelib.preparationGroupBox module
 ------------------------------------
 
-.. automodule:: lavuelib.preparationBoxWidget
+.. automodule:: lavuelib.preparationGroupBox
     :members:
     :undoc-members:
     :show-inheritance:

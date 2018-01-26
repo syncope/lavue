@@ -74,13 +74,13 @@ class SourceWidget(QtGui.QGroupBox):
 
         self.serverLabel = QtGui.QLabel(u"Server:")
         self.serverLabel.setToolTip("detector tangohost name")
-        self.serverlistBox = QtGui.QComboBox()
-        self.serverlistBox.addItem("Pick a server")
-        self.serverlistBox.setToolTip("detector tangohost name")
-        self.hostlabel = QtGui.QLabel("Client:")
-        self.hostlabel.setToolTip("current host name and the hidra port")
-        self.currenthost = QtGui.QLabel(u"SomeName")
-        self.currenthost.setToolTip("current host name and the hidra port")
+        self.serverComboBox = QtGui.QComboBox()
+        self.serverComboBox.addItem("Pick a server")
+        self.serverComboBox.setToolTip("detector tangohost name")
+        self.hostLabel = QtGui.QLabel("Client:")
+        self.hostLabel.setToolTip("current host name and the hidra port")
+        self.currenthostLabel = QtGui.QLabel(u"SomeName")
+        self.currenthostLabel.setToolTip("current host name and the hidra port")
 
         self.attrLabel = QtGui.QLabel(u"Attribute:")
         self.attrLabel.setToolTip(
@@ -138,26 +138,26 @@ class SourceWidget(QtGui.QGroupBox):
         self.cStatusLabel.setToolTip(
             "connection status"
             " and via which port the zmq security stream is being emitted")
-        self.cStatus = QtGui.QLineEdit("Not connected")
-        # self.cStatus.setToolTip(
+        self.cStatusLineEdit = QtGui.QLineEdit("Not connected")
+        # self.cStatusLineEdit.setToolTip(
         #     "connection status"
         #     " and via which port the zmq security stream is being emitted")
-        self.cStatus.setReadOnly(True)
-        self.cStatus.setStyleSheet("color: blue;"
+        self.cStatusLineEdit.setReadOnly(True)
+        self.cStatusLineEdit.setStyleSheet("color: blue;"
                                    "background-color: yellow;")
-        self.button = QtGui.QPushButton("&Start")
-        self.button.setToolTip("start/stop reading images")
-        self.button.setEnabled(False)
+        self.pushButton = QtGui.QPushButton("&Start")
+        self.pushButton.setToolTip("start/stop reading images")
+        self.pushButton.setEnabled(False)
 
-        self.button.clicked.connect(self.toggleServerConnection)
+        self.pushButton.clicked.connect(self.toggleServerConnection)
 
         self.setSource(self._defaultsource, disconnect=False)
         gridlayout.addWidget(self.sourceTypeLabel, 0, 0)
         gridlayout.addWidget(self.sourceTypeComboBox, 0, 1)
         gridlayout.addWidget(self.serverLabel, 1, 0)
-        gridlayout.addWidget(self.serverlistBox, 1, 1)
-        gridlayout.addWidget(self.hostlabel, 2, 0)
-        gridlayout.addWidget(self.currenthost, 2, 1)
+        gridlayout.addWidget(self.serverComboBox, 1, 1)
+        gridlayout.addWidget(self.hostLabel, 2, 0)
+        gridlayout.addWidget(self.currenthostLabel, 2, 1)
         gridlayout.addWidget(self.attrLabel, 3, 0)
         gridlayout.addWidget(self.attrLineEdit, 3, 1)
         gridlayout.addWidget(self.pickleLabel, 4, 0)
@@ -171,12 +171,12 @@ class SourceWidget(QtGui.QGroupBox):
         gridlayout.addWidget(self.dirLabel, 8, 0)
         gridlayout.addWidget(self.dirLineEdit, 8, 1)
         gridlayout.addWidget(self.cStatusLabel, 9, 0)
-        gridlayout.addWidget(self.cStatus, 9, 1)
-        gridlayout.addWidget(self.button, 10, 1)
+        gridlayout.addWidget(self.cStatusLineEdit, 9, 1)
+        gridlayout.addWidget(self.pushButton, 10, 1)
 
         self.setLayout(gridlayout)
 
-        self.serverlistBox.currentIndexChanged.connect(self.emitHostname)
+        self.serverComboBox.currentIndexChanged.connect(self.emitHostname)
         self.sourceTypeComboBox.currentIndexChanged.connect(
             self.onSourceChanged)
         self.attrLineEdit.textEdited.connect(self.updateAttrButton)
@@ -222,10 +222,10 @@ class SourceWidget(QtGui.QGroupBox):
         source = str(self.sourceTypeComboBox.currentText())
         if source != "Hidra":
             return
-        if self.serverlistBox.currentText() == "Pick a server":
-            self.button.setEnabled(False)
+        if self.serverComboBox.currentText() == "Pick a server":
+            self.pushButton.setEnabled(False)
         else:
-            self.button.setEnabled(True)
+            self.pushButton.setEnabled(True)
 
     @QtCore.pyqtSlot()
     def updateAttrButton(self):
@@ -233,9 +233,9 @@ class SourceWidget(QtGui.QGroupBox):
         if source != "Tango Attribute":
             return
         if not str(self.attrLineEdit.text()).strip():
-            self.button.setEnabled(False)
+            self.pushButton.setEnabled(False)
         else:
-            self.button.setEnabled(True)
+            self.pushButton.setEnabled(True)
             self.source_servername.emit(str(self.attrLineEdit.text()).strip())
 
     @QtCore.pyqtSlot()
@@ -245,9 +245,9 @@ class SourceWidget(QtGui.QGroupBox):
             return
         fattr = str(self.fileLineEdit.text()).strip()
         if not str(self.fileLineEdit.text()).strip():
-            self.button.setEnabled(False)
+            self.pushButton.setEnabled(False)
         else:
-            self.button.setEnabled(True)
+            self.pushButton.setEnabled(True)
             dattr = str(self.dirLineEdit.text()).strip()
             dt = self.dirtrans
             sourcename = "%s,%s,%s" % (fattr, dattr, dt)
@@ -267,9 +267,9 @@ class SourceWidget(QtGui.QGroupBox):
             else:
                 url = None
         if not url:
-            self.button.setEnabled(False)
+            self.pushButton.setEnabled(False)
         else:
-            self.button.setEnabled(True)
+            self.pushButton.setEnabled(True)
             self.source_servername.emit(url)
 
     @QtCore.pyqtSlot()
@@ -294,7 +294,7 @@ class SourceWidget(QtGui.QGroupBox):
                 return
             if not str(self.pickleLineEdit.text()).strip() \
                or ":" not in str(self.pickleLineEdit.text()):
-                self.button.setEnabled(False)
+                self.pushButton.setEnabled(False)
             else:
                 try:
                     _, sport = str(self.pickleLineEdit.text())\
@@ -302,7 +302,7 @@ class SourceWidget(QtGui.QGroupBox):
                     port = int(sport)
                     if port > 65535 or port < 0:
                         raise Exception("Wrong port")
-                    self.button.setEnabled(True)
+                    self.pushButton.setEnabled(True)
                     hosturl = str(self.pickleLineEdit.text()).strip()
                     if self.pickleTopicComboBox.currentIndex() >= 0:
                         text = self.pickleTopicComboBox.currentText()
@@ -316,7 +316,7 @@ class SourceWidget(QtGui.QGroupBox):
                         hosturl = "/".join(shost)
                     self.source_servername.emit(hosturl)
                 except:
-                    self.button.setEnabled(False)
+                    self.pushButton.setEnabled(False)
             if disconnect:
                 self.pickleTopicComboBox.currentIndexChanged.connect(
                     self.updateZMQComboBox)
@@ -325,18 +325,18 @@ class SourceWidget(QtGui.QGroupBox):
         source = str(self.sourceTypeComboBox.currentText())
         if source != "Test":
             return
-        self.button.setEnabled(True)
+        self.pushButton.setEnabled(True)
 
     @QtCore.pyqtSlot(int)
     def emitHostname(self, _):
         self.updateHidraButton()
 
-        self.source_servername.emit(self.serverlistBox.currentText())
+        self.source_servername.emit(self.serverComboBox.currentText())
 
     def setTargetName(self, name):
-        self.currenthost.setText(str(name))
+        self.currenthostLabel.setText(str(name))
         self.sortServerList(name)
-        self.serverlistBox.addItems(self.sortedserverlist)
+        self.serverComboBox.addItems(self.sortedserverlist)
 
     def update(self, zmqtopics=None, dirtrans=None, autozmqtopics=None,
                datasources=None, disconnect=True):
@@ -385,14 +385,14 @@ class SourceWidget(QtGui.QGroupBox):
         # if it is connected then it's easy:
         if self.connected:
             self.source_disconnect.emit()
-            self.cStatus.setStyleSheet("color: yellow;"
+            self.cStatusLineEdit.setStyleSheet("color: yellow;"
                                        "background-color: red;")
-            self.cStatus.setText("Disconnected")
-            # self.button.setText("Re-Start")
-            self.button.setText("&Start")
+            self.cStatusLineEdit.setText("Disconnected")
+            # self.pushButton.setText("Re-Start")
+            self.pushButton.setText("&Start")
             self.connected = False
             self.source_state.emit(0)
-            self.serverlistBox.setEnabled(True)
+            self.serverComboBox.setEnabled(True)
             self.sourceTypeComboBox.setEnabled(True)
             self.pickleLineEdit.setReadOnly(False)
             if ":" in self.attrLineEdit.text():
@@ -401,7 +401,7 @@ class SourceWidget(QtGui.QGroupBox):
             return
 
         else:
-            self.serverlistBox.setEnabled(False)
+            self.serverComboBox.setEnabled(False)
             self.sourceTypeComboBox.setEnabled(False)
             self.source_state.emit(self.sourceTypeComboBox.currentIndex() + 1)
             self.source_connect.emit()
@@ -410,27 +410,27 @@ class SourceWidget(QtGui.QGroupBox):
         """ Function doc """
         self.connected = True
         if port is not None:
-            self.cStatus.setStyleSheet("color: white;"
+            self.cStatusLineEdit.setStyleSheet("color: white;"
                                        "background-color: blue;")
-            self.cStatus.setText("Connected (emitting via %s)" % port)
+            self.cStatusLineEdit.setText("Connected (emitting via %s)" % port)
         else:
-            self.cStatus.setStyleSheet("color: white;"
+            self.cStatusLineEdit.setStyleSheet("color: white;"
                                        "background-color: green;")
-            self.cStatus.setText("Connected")
+            self.cStatusLineEdit.setText("Connected")
         self.sourceTypeComboBox.setEnabled(False)
         self.pickleLineEdit.setReadOnly(True)
-        self.button.setText("&Stop")
+        self.pushButton.setText("&Stop")
 
     def connectFailure(self):
         """ Function doc """
         self.connected = False
         self.source_state.emit(0)
-        self.serverlistBox.setEnabled(True)
+        self.serverComboBox.setEnabled(True)
         self.sourceTypeComboBox.setEnabled(True)
         self.pickleLineEdit.setReadOnly(False)
-        self.cStatus.setText("Trouble connecting")
-        # self.button.setText("Retry connect")
-        self.button.setText("&Start")
+        self.cStatusLineEdit.setText("Trouble connecting")
+        # self.pushButton.setText("Retry connect")
+        self.pushButton.setText("&Start")
 
     def setSourceType(self):
         """ set source type"""

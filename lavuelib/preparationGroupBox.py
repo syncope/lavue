@@ -33,23 +33,42 @@ from . import bkgSubtractionWidget
 
 
 class QHLine(QtGui.QFrame):
+    """ horizontal line
+    """
 
     def __init__(self):
+        """ constructor
+        """
         QtGui.QFrame.__init__(self)
+
         self.setFrameShape(QtGui.QFrame.HLine)
         self.setFrameShadow(QtGui.QFrame.Sunken)
 
 
 class PreparationGroupBox(QtGui.QGroupBox):
+    """ colection of image preperation widgets
+    """
 
     def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
         QtGui.QGroupBox.__init__(self, parent)
         self.setTitle("Image preparation")
-        self.mask = True
 
+        #: (:obj:`bool`) show mask
+        self.__mask = True
+
+        #: (:class:`lavuelib.maskWidget.Maskwidget`) mask widget
         self.maskWg = maskWidget.MaskWidget(parent=self)
+        #: (:class:`lavuelib.bkgSubtractionWidget.BkgSubtractionWidget`)
+        #  background subtrantion widget
         self.bkgSubWg = bkgSubtractionWidget.BkgSubtractionWidget(parent=self)
         self.__hline = QHLine()
+        #: (:class:`lavuelib.transformationsWidget.TransformationsWidget`)
+        #  transformations widget
         self.trafoWg = transformationsWidget.TransformationsWidget(parent=self)
 
         vlayout = QtGui.QVBoxLayout()
@@ -61,9 +80,15 @@ class PreparationGroupBox(QtGui.QGroupBox):
         self.setLayout(vlayout)
 
     def changeView(self, showmask=False):
+        """ show or hide widgets in the preparation colection
+
+        :param showmask: is mask shown
+        :type showmask: :obj:`bool`
+        """
+
         if showmask:
-            self.mask = True
+            self.__mask = True
             self.maskWg.show()
         else:
-            self.mask = False
+            self.__mask = False
             self.maskWg.hide()

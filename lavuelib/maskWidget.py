@@ -39,8 +39,8 @@ class MaskWidget(QtGui.QWidget):
     Define and apply masking of the displayed image.
     """
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) mask file selection signal
-    maskFileSelection = QtCore.pyqtSignal(str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) mask file selected signal
+    maskFileSelected = QtCore.pyqtSignal(str)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) apply state change signal
     applyStateChanged = QtCore.pyqtSignal(int)
 
@@ -87,7 +87,7 @@ class MaskWidget(QtGui.QWidget):
             self.__fileName = fileName
             self.__lastFileName = fileName
             self.setDisplayedName(self.__fileName)
-            self.maskFileSelection.emit(self.__fileName)
+            self.maskFileSelected.emit(self.__fileName)
 
     def setDisplayedName(self, name):
         """ sets displayed file name

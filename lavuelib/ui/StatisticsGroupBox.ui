@@ -48,7 +48,7 @@
         <string>intensity scaling</string>
        </property>
        <property name="text">
-        <string>scaling:</string>
+        <string>Scaling:</string>
        </property>
       </widget>
      </item>
@@ -58,7 +58,7 @@
         <string>mean intensity values after image preparation and scaling</string>
        </property>
        <property name="text">
-        <string>mean:</string>
+        <string>Mean:</string>
        </property>
        <property name="buddy">
         <cstring>meanLineEdit</cstring>
@@ -81,7 +81,7 @@
         <string>variance intensity values after image preparation and scaling</string>
        </property>
        <property name="text">
-        <string>variance:</string>
+        <string>Variance:</string>
        </property>
        <property name="buddy">
         <cstring>varianceLineEdit</cstring>
@@ -104,7 +104,7 @@
         <string>maximum intensity values after image preparation and scaling</string>
        </property>
        <property name="text">
-        <string>maximum:</string>
+        <string>Maximum:</string>
        </property>
        <property name="buddy">
         <cstring>maxLineEdit</cstring>

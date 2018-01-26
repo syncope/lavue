@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>421</width>
+    <width>469</width>
     <height>82</height>
    </rect>
   </property>
@@ -27,7 +27,7 @@
           <string>apply background substraction to the image</string>
          </property>
          <property name="text">
-          <string>subtract bkg</string>
+          <string>Subtract bkg</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -78,7 +78,7 @@
           <string>background substraction image file name</string>
          </property>
          <property name="text">
-          <string>background image:</string>
+          <string>Background image:</string>
          </property>
         </widget>
        </item>

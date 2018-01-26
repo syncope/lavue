@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>307</width>
+    <width>314</width>
     <height>50</height>
    </rect>
   </property>
@@ -22,7 +22,7 @@
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;basic image transformation, i.e. flip, transpose&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
-        <string>transformation:</string>
+        <string>Transformation:</string>
        </property>
       </widget>
      </item>

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>227</width>
+    <width>257</width>
     <height>80</height>
    </rect>
   </property>
@@ -27,7 +27,7 @@
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;apply mask to the image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
-          <string>apply mask</string>
+          <string>Apply mask</string>
          </property>
         </widget>
        </item>
@@ -51,7 +51,7 @@
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;mask image file name&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
-          <string>mask image:</string>
+          <string>Mask image:</string>
          </property>
         </widget>
        </item>

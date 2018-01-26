@@ -40,7 +40,7 @@
           <string>maximum intensity values after scaling</string>
          </property>
          <property name="text">
-          <string>maximum value:</string>
+          <string>Maximum value:</string>
          </property>
          <property name="buddy">
           <cstring>maxDoubleSpinBox</cstring>
@@ -54,7 +54,7 @@
 for color distribution of the image</string>
          </property>
          <property name="text">
-          <string>automatic levels</string>
+          <string>Automatic levels</string>
          </property>
          <property name="checked">
           <bool>true</bool>
@@ -81,7 +81,7 @@ for color distribution of the image</string>
           <string>mininum intensity values after scaling</string>
          </property>
          <property name="text">
-          <string>minimum value:</string>
+          <string>Minimum value:</string>
          </property>
          <property name="buddy">
           <cstring>minDoubleSpinBox</cstring>
@@ -122,7 +122,7 @@ for color distribution of the image</string>
           <string>gradient for the color distribution of the image</string>
          </property>
          <property name="text">
-          <string>color gradient:</string>
+          <string>Color gradient:</string>
          </property>
          <property name="buddy">
           <cstring>gradientComboBox</cstring>
@@ -209,7 +209,7 @@ for color distribution of the image</string>
           <string>color channel for multi color images like RGB or CMYK</string>
          </property>
          <property name="text">
-          <string>color channel:</string>
+          <string>Color channel:</string>
          </property>
          <property name="buddy">
           <cstring>channelComboBox</cstring>

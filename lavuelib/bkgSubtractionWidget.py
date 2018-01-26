@@ -40,8 +40,8 @@ class BkgSubtractionWidget(QtGui.QWidget):
     Define bkg image and subtract from displayed image.
     """
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) bkg file selection signal
-    bkgFileSelection = QtCore.pyqtSignal(str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) bkg file selected signal
+    bkgFileSelected = QtCore.pyqtSignal(str)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) use current image signal
     useCurrentImageAsBkg = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) apply state change signal

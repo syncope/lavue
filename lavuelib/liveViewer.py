@@ -87,8 +87,8 @@ class LiveViewer(QtGui.QDialog):
             {"name": "HTTP response",
              "datasource": "HTTPSource",
              "slot": "updateHTTPButton",
-             "hidden": ["hostlabel", "currenthost",
-                        "serverLabel", "serverlistBox",
+             "hidden": ["hostLabel", "currenthostLabel",
+                        "serverLabel", "serverComboBox",
                         "fileLabel", "fileLineEdit",
                         "dirLabel", "dirLineEdit",
                         "pickleLabel", "pickleLineEdit",
@@ -100,34 +100,34 @@ class LiveViewer(QtGui.QDialog):
                 {"name": "Tango Attribute",
                  "datasource": "TangoAttrSource",
                  "slot": "updateAttrButton",
-                 "hidden": ["hostlabel", "currenthost",
+                 "hidden": ["hostLabel", "currenthostLabel",
                             "fileLabel", "fileLineEdit",
                             "dirLabel", "dirLineEdit",
                             "pickleLabel", "pickleLineEdit",
                             "httpLabel", "httpLineEdit",
                             "pickleTopicLabel", "pickleTopicComboBox",
-                            "serverLabel", "serverlistBox"]})
+                            "serverLabel", "serverComboBox"]})
 
         if hcs.PYTANGO:
             self.sourcetypes.append(
                 {"name": "Tango File",
                  "datasource": "TangoFileSource",
                  "slot": "updateFileButton",
-                 "hidden": ["hostlabel", "currenthost",
+                 "hidden": ["hostLabel", "currenthostLabel",
                             "httpLabel", "httpLineEdit",
                             "pickleLabel", "pickleLineEdit",
                             "pickleTopicLabel", "pickleTopicComboBox",
                             "attrLabel", "attrLineEdit",
-                            "serverLabel", "serverlistBox"]})
+                            "serverLabel", "serverComboBox"]})
 
         self.sourcetypes.append(
             {"name": "ZMQ Stream",
              "datasource": "ZMQPickleSource",
              "slot": "updateZMQPickleButton",
-             "hidden": ["hostlabel", "currenthost",
+             "hidden": ["hostLabel", "currenthostLabel",
                         "fileLabel", "fileLineEdit",
                         "dirLabel", "dirLineEdit",
-                        "serverLabel", "serverlistBox",
+                        "serverLabel", "serverComboBox",
                         "httpLabel", "httpLineEdit",
                         "attrLabel", "attrLineEdit"]},
         )
@@ -135,11 +135,11 @@ class LiveViewer(QtGui.QDialog):
             {"name": "Test",
              "datasource": "GeneralSource",
              "slot": "updateButton",
-             "hidden": ["hostlabel", "currenthost",
+             "hidden": ["hostLabel", "currenthostLabel",
                         "httpLabel", "httpLineEdit",
                         "fileLabel", "fileLineEdit",
                         "dirLabel", "dirLineEdit",
-                        "serverLabel", "serverlistBox",
+                        "serverLabel", "serverComboBox",
                         "pickleLabel", "pickleLineEdit",
                         "pickleTopicLabel", "pickleTopicComboBox",
                         "attrLabel", "attrLineEdit"]},
@@ -281,11 +281,11 @@ class LiveViewer(QtGui.QDialog):
         self.update_state.connect(self.dataFetcher.changeStatus)
         self.sourceWg.source_state.connect(self.updateSource)
 
-        self.bkgSubWg.bkgFileSelection.connect(self.prepareBkgSubtraction)
+        self.bkgSubWg.bkgFileSelected.connect(self.prepareBkgSubtraction)
         self.bkgSubWg.useCurrentImageAsBkg.connect(self.setCurrentImageAsBkg)
         self.bkgSubWg.applyStateChanged.connect(self.checkBkgSubtraction)
 
-        self.maskWg.maskFileSelection.connect(self.prepareMasking)
+        self.maskWg.maskFileSelected.connect(self.prepareMasking)
         self.maskWg.applyStateChanged.connect(self.checkMasking)
 
         # signals from transformation widget
