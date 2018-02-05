@@ -32,11 +32,13 @@ import numpy as np
 
 try:
     import fabio
+    #: (:obj:`bool`) fabio can be imported
     FABIO = True
 except ImportError:
     FABIO = False
 try:
     import PIL
+    #: (:obj:`bool`) PIL can be imported
     PILLOW = True
 except ImportError:
     PILLOW = False
@@ -48,38 +50,59 @@ class ImageFileHandler(object):
        Reads image from file and returns the numpy array."""
 
     def __init__(self, fname):
-        self._image = None
-        self._data = None
+        """ constructor
+
+        :param fname: file name
+        :type fname: :obj:`str`
+        """
+        #: (:obj:`any`) module image object
+        self.__image = None
+        #: (:obj:`numpy.ndarray`) image data
+        self.__data = None
         try:
             if FABIO:
-                self._image = fabio.open(fname)
-                self._data = self._image.data
+                self.__image = fabio.open(fname)
+                self.__data = self.__image.data
             elif PILLOW:
-                self._image = PIL.Image.open(fname)
-                self._data = np.array(self._image)
+                self.__image = PIL.Image.open(fname)
+                self.__data = np.array(self.__image)
         except Exception:
             try:
                 if FABIO and PILLOW:
-                    self._image = PIL.Image.open(fname)
-                    self._data = np.array(self._image)
+                    self.__image = PIL.Image.open(fname)
+                    self.__data = np.array(self.__image)
             except Exception:
                 try:
-                    self._image = np.fromfile(filename, dtype='uint8')
+                    self.__image = np.fromfile(filename, dtype='uint8')
                     if fname.endswith(".cbf"):
-                        self._data = CBFLoader().load(self._image)
+                        self.__data = CBFLoader().load(self.__image)
                     else:
-                        self._data = TIFLoader().load(self._image)
+                        self.__data = TIFLoader().load(self.__image)
                 except Exception:
                     pass
 
     def getImage(self):
-        return self._data
+        """  provides the image data
+
+        :returns: image data
+        :rtype: :class:`numpy.ndarray`
+        """
+        return self.__data
 
 
 class CBFLoader(object):
 
+    """ CBF loader """
+
     @classmethod
     def load(cls, flbuffer):
+        """ loads CBF file image data into numpy array
+
+        :param flbuffer: numpy array with CBF file image data
+        :type flbuffer: :class:`numpy.ndarray`
+        :returns: image data
+        :rtype: :class:`numpy.ndarray`
+        """
         image = np.array([0])
         inpoint = np.array([26, 4, 213], dtype='uint8')
         outpoint = np.array(
@@ -172,6 +195,15 @@ class CBFLoader(object):
 
     @classmethod
     def _decompress_cbf_c(cls, stream, vals):
+        """ decompresses CBF
+
+        :param stream: a part of cbf data
+        :type stream: :class:`numpy.ndarray`
+        :param val: decompress parameters, i.e. n_out, xdim, ydum padding
+        :type val: :class:`numpy.ndarray`
+        :returns: image data
+        :rtype: :class:`numpy.ndarray`
+        """
         xdim = long(487)
         ydim = 619
         padding = long(4095)
@@ -257,8 +289,17 @@ class CBFLoader(object):
 
 class TIFLoader(object):
 
+    """ TIF loader """
+
     @classmethod
     def load(cls, flbuffer):
+        """ loads TIF file image data into numpy array
+
+        :param flbuffer: numpy array with TIF file image data
+        :type flbuffer: :class:`numpy.ndarray`
+        :returns: image data
+        :rtype: :class:`numpy.ndarray`
+        """
         image = np.float(-1)
         # define unsigned default if undefined - i.e. like MAR165 data
         sample_format = 1
