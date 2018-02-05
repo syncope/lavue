@@ -67,79 +67,79 @@ class LiveViewer(QtGui.QDialog):
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.sourcetypes = []
-        if hcs.HIDRA:
-            self.sourcetypes.append(
-                {"name": "Hidra",
-                 "datasource": "HiDRASource",
-                 "slot": "updateHidraButton",
-                 "hidden": ["attrLabel", "attrLineEdit",
-                            "fileLabel", "fileLineEdit",
-                            "dirLabel", "dirLineEdit",
-                            "httpLabel", "httpLineEdit",
-                            "pickleTopicLabel", "pickleTopicComboBox",
-                            "pickleLabel", "pickleLineEdit"]}
-            )
-        self.sourcetypes.append(
-            {"name": "HTTP response",
-             "datasource": "HTTPSource",
-             "slot": "updateHTTPButton",
-             "hidden": ["hostLabel", "currenthostLabel",
-                        "serverLabel", "serverComboBox",
-                        "fileLabel", "fileLineEdit",
-                        "dirLabel", "dirLineEdit",
-                        "pickleLabel", "pickleLineEdit",
-                        "pickleTopicLabel", "pickleTopicComboBox",
-                        "attrLabel", "attrLineEdit"]},
-        )
-        if hcs.PYTANGO:
-            self.sourcetypes.append(
-                {"name": "Tango Attribute",
-                 "datasource": "TangoAttrSource",
-                 "slot": "updateAttrButton",
-                 "hidden": ["hostLabel", "currenthostLabel",
-                            "fileLabel", "fileLineEdit",
-                            "dirLabel", "dirLineEdit",
-                            "pickleLabel", "pickleLineEdit",
-                            "httpLabel", "httpLineEdit",
-                            "pickleTopicLabel", "pickleTopicComboBox",
-                            "serverLabel", "serverComboBox"]})
+        # if hcs.HIDRA:
+        #     self.sourcetypes.append(
+        #         {"name": "Hidra",
+        #          "datasource": "HiDRASource",
+        #          "slot": "updateHidraButton",
+        #          "hidden": ["attrLabel", "attrLineEdit",
+        #                     "fileLabel", "fileLineEdit",
+        #                     "dirLabel", "dirLineEdit",
+        #                     "httpLabel", "httpLineEdit",
+        #                     "pickleTopicLabel", "pickleTopicComboBox",
+        #                     "pickleLabel", "pickleLineEdit"]}
+        #     )
+        # self.sourcetypes.append(
+        #     {"name": "HTTP response",
+        #      "datasource": "HTTPSource",
+        #      "slot": "updateHTTPButton",
+        #      "hidden": ["hostLabel", "currenthostLabel",
+        #                 "serverLabel", "serverComboBox",
+        #                 "fileLabel", "fileLineEdit",
+        #                 "dirLabel", "dirLineEdit",
+        #                 "pickleLabel", "pickleLineEdit",
+        #                 "pickleTopicLabel", "pickleTopicComboBox",
+        #                 "attrLabel", "attrLineEdit"]},
+        # )
+        # if hcs.PYTANGO:
+        #     self.sourcetypes.append(
+        #         {"name": "Tango Attribute",
+        #          "datasource": "TangoAttrSource",
+        #          "slot": "updateAttrButton",
+        #          "hidden": ["hostLabel", "currenthostLabel",
+        #                     "fileLabel", "fileLineEdit",
+        #                     "dirLabel", "dirLineEdit",
+        #                     "pickleLabel", "pickleLineEdit",
+        #                     "httpLabel", "httpLineEdit",
+        #                     "pickleTopicLabel", "pickleTopicComboBox",
+        #                     "serverLabel", "serverComboBox"]})
 
-        if hcs.PYTANGO:
-            self.sourcetypes.append(
-                {"name": "Tango File",
-                 "datasource": "TangoFileSource",
-                 "slot": "updateFileButton",
-                 "hidden": ["hostLabel", "currenthostLabel",
-                            "httpLabel", "httpLineEdit",
-                            "pickleLabel", "pickleLineEdit",
-                            "pickleTopicLabel", "pickleTopicComboBox",
-                            "attrLabel", "attrLineEdit",
-                            "serverLabel", "serverComboBox"]})
+        # if hcs.PYTANGO:
+        #     self.sourcetypes.append(
+        #         {"name": "Tango File",
+        #          "datasource": "TangoFileSource",
+        #          "slot": "updateFileButton",
+        #          "hidden": ["hostLabel", "currenthostLabel",
+        #                     "httpLabel", "httpLineEdit",
+        #                     "pickleLabel", "pickleLineEdit",
+        #                     "pickleTopicLabel", "pickleTopicComboBox",
+        #                     "attrLabel", "attrLineEdit",
+        #                     "serverLabel", "serverComboBox"]})
 
-        self.sourcetypes.append(
-            {"name": "ZMQ Stream",
-             "datasource": "ZMQSource",
-             "slot": "updateZMQButton",
-             "hidden": ["hostLabel", "currenthostLabel",
-                        "fileLabel", "fileLineEdit",
-                        "dirLabel", "dirLineEdit",
-                        "serverLabel", "serverComboBox",
-                        "httpLabel", "httpLineEdit",
-                        "attrLabel", "attrLineEdit"]},
-        )
-        self.sourcetypes.append(
-            {"name": "Test",
-             "datasource": "GeneralSource",
-             "slot": "updateButton",
-             "hidden": ["hostLabel", "currenthostLabel",
-                        "httpLabel", "httpLineEdit",
-                        "fileLabel", "fileLineEdit",
-                        "dirLabel", "dirLineEdit",
-                        "serverLabel", "serverComboBox",
-                        "pickleLabel", "pickleLineEdit",
-                        "pickleTopicLabel", "pickleTopicComboBox",
-                        "attrLabel", "attrLineEdit"]},
-        )
+        # self.sourcetypes.append(
+        #     {"name": "ZMQ Stream",
+        #      "datasource": "ZMQSource",
+        #      "slot": "updateZMQButton",
+        #      "hidden": ["hostLabel", "currenthostLabel",
+        #                 "fileLabel", "fileLineEdit",
+        #                 "dirLabel", "dirLineEdit",
+        #                 "serverLabel", "serverComboBox",
+        #                 "httpLabel", "httpLineEdit",
+        #                 "attrLabel", "attrLineEdit"]},
+        # )
+        # self.sourcetypes.append(
+        #     {"name": "Test",
+        #      "datasource": "GeneralSource",
+        #      "slot": "updateButton",
+        #      "hidden": ["hostLabel", "currenthostLabel",
+        #                 "httpLabel", "httpLineEdit",
+        #                 "fileLabel", "fileLineEdit",
+        #                 "dirLabel", "dirLineEdit",
+        #                 "serverLabel", "serverComboBox",
+        #                 "pickleLabel", "pickleLineEdit",
+        #                 "pickleTopicLabel", "pickleTopicComboBox",
+        #                 "attrLabel", "attrLineEdit"]},
+        # )
 
         self.doorname = ""
         self.addrois = True
@@ -173,9 +173,14 @@ class LiveViewer(QtGui.QDialog):
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
+
+        # <<
         self.sourceWg = sourceGroupBox.SourceGroupBox(
             parent=self, sourcetypes=self.sourcetypes)
         self.sourceWg.updateMetaData(serverdict=HIDRASERVERLIST)
+        # >>
+
+        
         self.prepBoxWg = preparationGroupBox.PreparationGroupBox(parent=self)
         self.scalingWg = scalingGroupBox.ScalingGroupBox(parent=self)
         self.levelsWg = levelsGroupBox.LevelsGroupBox(parent=self)
@@ -289,9 +294,13 @@ class LiveViewer(QtGui.QDialog):
         self.trafoWg.transformationChanged.connect(self.assessTransformation)
 
         # set the right target name for the source display at initialization
+
+        # <<
         self.sourceWg.setTargetName(self.data_source.getTarget())
         # self.sourceWg.sourceServerName.connect(self.data_source.setSignalHost)
         self.sourceWg.sourceServerName.connect(self.setSignalHost)
+        # >>
+
         self.sourceWg.updateLayout()
         self.onPixelChanged()
 
@@ -734,11 +743,9 @@ class LiveViewer(QtGui.QDialog):
         setsrc = False
         if self.dirtrans != dialog.dirtrans:
             self.dirtrans = dialog.dirtrans
-            self.sourceWg.dirtrans = self.dirtrans
             setsrc = True
         if self.zmqtopics != dialog.zmqtopics:
             self.zmqtopics = dialog.zmqtopics
-            self.sourceWg.zmqtopics = self.zmqtopics
             setsrc = True
         if self.autozmqtopics != dialog.autozmqtopics:
             self.autozmqtopics = dialog.autozmqtopics
@@ -771,9 +778,11 @@ class LiveViewer(QtGui.QDialog):
     @QtCore.pyqtSlot(int)
     def updateSource(self, status):
         if status:
+            # <<
             self.data_source = getattr(
                 hcs, self.sourcetypes[status - 1]["datasource"])(self.timeout)
             self.dataFetcher.data_source = self.data_source
+            # >>
             if self._signalhost:
                 self.data_source.setSignalHost(self._signalhost)
         self.update_state.emit(status)
