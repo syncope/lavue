@@ -118,8 +118,8 @@ class LiveViewer(QtGui.QDialog):
 
         self.sourcetypes.append(
             {"name": "ZMQ Stream",
-             "datasource": "ZMQPickleSource",
-             "slot": "updateZMQPickleButton",
+             "datasource": "ZMQSource",
+             "slot": "updateZMQButton",
              "hidden": ["hostLabel", "currenthostLabel",
                         "fileLabel", "fileLineEdit",
                         "dirLabel", "dirLineEdit",

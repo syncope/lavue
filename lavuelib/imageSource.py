@@ -391,7 +391,7 @@ class HTTPSource(GeneralSource):
             pass
 
 
-class ZMQPickleSource(GeneralSource):
+class ZMQSource(GeneralSource):
 
     def __init__(self, timeout=None):
         self.signal_host = None

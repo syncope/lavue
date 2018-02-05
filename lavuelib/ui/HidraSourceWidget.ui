@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>HidraSourceWidget</class>
+ <widget class="QWidget" name="HidraSourceWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>280</width>
+    <height>72</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="serverLabel">
+       <property name="toolTip">
+        <string>detector tangohost name</string>
+       </property>
+       <property name="text">
+        <string>Server:</string>
+       </property>
+       <property name="buddy">
+        <cstring>serverComboBox</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="serverComboBox">
+       <property name="toolTip">
+        <string>detector tangohost name</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="hostLabel">
+       <property name="toolTip">
+        <string>current host name and the hidra port</string>
+       </property>
+       <property name="text">
+        <string>Client:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="currenthostLabel">
+       <property name="toolTip">
+        <string>current host name and the hidra port</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -116,7 +116,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         self.__ui.attrLineEdit.textEdited.connect(self.updateAttrButton)
         self.__ui.fileLineEdit.textEdited.connect(self.updateFileButton)
         self.__ui.dirLineEdit.textEdited.connect(self.updateFileButton)
-        self.__ui.pickleLineEdit.textEdited.connect(self.updateZMQPickleButton)
+        self.__ui.pickleLineEdit.textEdited.connect(self.updateZMQButton)
         self.__ui.httpLineEdit.textEdited.connect(self.updateHTTPButton)
         self.__ui.pickleTopicComboBox.currentIndexChanged.connect(
             self._updateZMQComboBox)
@@ -234,14 +234,14 @@ class SourceGroupBox(QtGui.QGroupBox):
         if self.__connected:
             disconnected = True
             self.sourceState.emit(0)
-        self.updateZMQPickleButton()
+        self.updateZMQButton()
         if disconnected:
             self.sourceState.emit(
                 self.__ui.sourceTypeComboBox.currentIndex() + 1)
             self.sourceConnect.emit()
 
     @QtCore.pyqtSlot()
-    def updateZMQPickleButton(self, disconnect=True):
+    def updateZMQButton(self, disconnect=True):
         """ update slot for ZMQ source
         """
         with QtCore.QMutexLocker(self.__mutex):
@@ -353,7 +353,7 @@ class SourceGroupBox(QtGui.QGroupBox):
                 if tid > -1:
                     self.__ui.pickleTopicComboBox.setCurrentIndex(tid)
         if disconnect:
-            self.updateZMQPickleButton(disconnect=False)
+            self.updateZMQButton(disconnect=False)
             with QtCore.QMutexLocker(self.__mutex):
                 self.__ui.pickleTopicComboBox.currentIndexChanged.connect(
                     self._updateZMQComboBox)
