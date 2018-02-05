@@ -28,6 +28,8 @@
 from PyQt4 import QtCore, QtGui, uic
 import os
 
+from . import sourceWidget as swgm
+
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "SourceGroupBox.ui"))
@@ -102,26 +104,52 @@ class SourceGroupBox(QtGui.QGroupBox):
         #:  (:obj:`str`) default datasource
         self.__defaultsource = "Hidra"
 
-        for st in self.__types:
-            self.__ui.sourceTypeComboBox.addItem(st["name"])
+        self.__sourcewidgets = []
+
+        self.__datasources = []
+        self.__subwidgets = []
+
+        self.__addSourceWidgets()
 
         self.__ui.pushButton.clicked.connect(self.toggleServerConnection)
 
         self.__setSource(self.__defaultsource, disconnect=False)
 
-        self.__ui.serverComboBox.currentIndexChanged.connect(
-            self.updateHidraButton)
+#        self.__ui.serverComboBox.currentIndexChanged.connect(
+#            self.updateHidraButton)
         self.__ui.sourceTypeComboBox.currentIndexChanged.connect(
             self._onSourceChanged)
-        self.__ui.attrLineEdit.textEdited.connect(self.updateAttrButton)
-        self.__ui.fileLineEdit.textEdited.connect(self.updateFileButton)
-        self.__ui.dirLineEdit.textEdited.connect(self.updateFileButton)
-        self.__ui.pickleLineEdit.textEdited.connect(self.updateZMQButton)
-        self.__ui.httpLineEdit.textEdited.connect(self.updateHTTPButton)
-        self.__ui.pickleTopicComboBox.currentIndexChanged.connect(
-            self._updateZMQComboBox)
+#        self.__ui.attrLineEdit.textEdited.connect(self.updateAttrButton)
+#        self.__ui.fileLineEdit.textEdited.connect(self.updateFileButton)
+#        self.__ui.dirLineEdit.textEdited.connect(self.updateFileButton)
+#        self.__ui.pickleLineEdit.textEdited.connect(self.updateZMQButton)
+#        self.__ui.httpLineEdit.textEdited.connect(self.updateHTTPButton)
+#        self.__ui.pickleTopicComboBox.currentIndexChanged.connect(
+#            self._updateZMQComboBox)
         self._onSourceChanged()
 
+    def __addSourceWidgets(self):
+        self.__ui.gridLayout.removeWidget(self.__ui.cStatusLabel)
+        self.__ui.gridLayout.removeWidget(self.__ui.cStatusLineEdit)
+        self.__ui.gridLayout.removeWidget(self.__ui.pushButton)
+        for st in self.__types:
+            swg = getattr(swgm, st)()
+            self.__sourcewidgets.append(swg)
+            self.__ui.sourceTypeComboBox.addItem(swg.name)
+            self.__datasources.append(swg.datasource)
+            widgets = zip(swg.widgets[0::2], swg.widgets[1::2])
+            for wg1, wg2 in widgets:
+                sln = len(self.__subwidgets)
+                self.__ui.gridLayout.addWidget(wg1, sln + 1, 0)
+                self.__ui.gridLayout.addWidget(wg2, sln + 1, 1)
+                self.__subwidgets.append([wg1, wg2])
+                
+        sln = len(self.__subwidgets)
+        self.__ui.gridLayout.addWidget(self.__ui.cStatusLabel, sln + 1, 0)
+        self.__ui.gridLayout.addWidget(self.__ui.cStatusLineEdit, sln + 1, 1)
+        self.__ui.gridLayout.addWidget(self.__ui.pushButton, sln + 2 , 1)
+
+        
     @QtCore.pyqtSlot()
     def _onSourceChanged(self):
         """ update current source widgets
@@ -134,19 +162,16 @@ class SourceGroupBox(QtGui.QGroupBox):
         name = self.__currentSource
         allhidden = set()
         mst = None
-        for st in self.__types:
-            allhidden.update(st["hidden"])
-            if name == st["name"]:
+        for st in self.__sourcewidgets:
+            if name == st.name:
                 mst = st
-        if mst:
-            for hd in allhidden:
-                wg = getattr(self.__ui, hd)
-                if hd in mst["hidden"]:
-                    wg.hide()
-                else:
+                for wg in st.widgets:
                     wg.show()
-
-            getattr(self, mst["slot"])()
+            else:
+                for wg in st.widgets:
+                    wg.hide()
+        if mst:
+            mst.updateButton()
 
     def __setSource(self, name=None, disconnect=True):
         """ set source with the given name
@@ -298,7 +323,11 @@ class SourceGroupBox(QtGui.QGroupBox):
         self.__sortServerList(name)
         self.__ui.serverComboBox.addItems(self.__sortedserverlist)
 
-    def updateMetaData(
+    def updateMetaData(self, **kargs):
+        for wg in self.__sourcewidgets:
+            wg.updateMetaData(**kargs)
+
+    def updateMetaDataold(
             self,
             zmqtopics=None, dirtrans=None, autozmqtopics=None,
             datasources=None, disconnect=True, serverdict=None):

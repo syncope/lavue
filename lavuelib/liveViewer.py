@@ -67,6 +67,14 @@ class LiveViewer(QtGui.QDialog):
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.sourcetypes = []
+        if hcs.HIDRA:
+            self.sourcetypes.append("HidraSourceWidget")
+        self.sourcetypes.append("HTTPSourceWidget")
+        if hcs.PYTANGO:
+            self.sourcetypes.append("TangoAttrSourceWidget")
+            self.sourcetypes.append("TangoFileSourceWidget")
+        self.sourcetypes.append("ZMQSourceWidget")
+        self.sourcetypes.append("TestSourceWidget")
         # if hcs.HIDRA:
         #     self.sourcetypes.append(
         #         {"name": "Hidra",
@@ -296,10 +304,11 @@ class LiveViewer(QtGui.QDialog):
         # set the right target name for the source display at initialization
 
         # <<
-        self.sourceWg.setTargetName(self.data_source.getTarget())
+        # ???self.sourceWg.setTargetName(self.data_source.getTarget())
+        self.sourceWg.updateMetaData(target=self.data_source.getTarget())
         # self.sourceWg.sourceServerName.connect(self.data_source.setSignalHost)
-        self.sourceWg.sourceServerName.connect(self.setSignalHost)
         # >>
+        self.sourceWg.sourceServerName.connect(self.setSignalHost)
 
         self.sourceWg.updateLayout()
         self.onPixelChanged()
