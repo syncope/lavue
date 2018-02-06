@@ -99,7 +99,7 @@ class SourceGroupBox(QtGui.QGroupBox):
 
         self.__ui.pushButton.clicked.connect(self.toggleServerConnection)
 
-        self.__setSource(self.__defaultsource, disconnect=False)
+        self.setSource(self.__defaultsource, disconnect=False)
 
         self.__ui.sourceTypeComboBox.currentIndexChanged.connect(
             self._onSourceChanged)
@@ -141,7 +141,7 @@ class SourceGroupBox(QtGui.QGroupBox):
     def _onSourceChanged(self):
         """ update current source widgets
         """
-        self.__setSource(str(self.__ui.sourceTypeComboBox.currentText()))
+        self.setSource(str(self.__ui.sourceTypeComboBox.currentText()))
 
     def updateLayout(self):
         """ update source layout
@@ -162,7 +162,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         if mst:
             mst.updateButton()
 
-    def __setSource(self, name=None, disconnect=True):
+    def setSource(self, name=None, disconnect=True):
         """ set source with the given name
 
         :param name: source name

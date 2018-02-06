@@ -231,6 +231,7 @@ class LiveViewer(QtGui.QDialog):
         self.sourceWg.configurationSignal.connect(self.setSourceConfiguration)
 
         self.sourceWg.updateLayout()
+        self.sourceWg.setSource()
         self.onPixelChanged()
 
         settings = QtCore.QSettings()
