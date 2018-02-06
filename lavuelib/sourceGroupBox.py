@@ -144,7 +144,10 @@ class SourceGroupBox(QtGui.QGroupBox):
     def updateLayout(self):
         """ update source layout
         """
-        name = self.__currentSource.name
+        if hasattr(self.__currentSource, "name"):
+            name = self.__currentSource.name
+        else:
+            name = None
         mst = None
         for stnm, st in self.__sourcewidgets.items():
             if name == stnm:
