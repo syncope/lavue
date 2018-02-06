@@ -231,7 +231,7 @@ class HidraSourceWidget(GeneralSourceWidget):
         self._ui.serverComboBox.currentIndexChanged.connect(
             self.updateButton)
 
-    def updateHidraButton(self):
+    def updateButton(self):
         """ update slot for Hidra source
         """
         if not self.active:
@@ -239,9 +239,9 @@ class HidraSourceWidget(GeneralSourceWidget):
         if self._ui.serverComboBox.currentText() == "Pick a server":
             self.buttonEnabledSignal.emit(False)
         else:
-            self.buttonEnabledSignal.emit(True)
             self.sourceServerName.emit(
                 str(self._ui.serverComboBox.currentText()))
+            self.buttonEnabledSignal.emit(True)
 
     def updateMetaData(self, serverdict=None, targetname=None, **kargs):
         """ update source input parameters
