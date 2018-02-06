@@ -214,6 +214,7 @@ class LiveViewer(QtGui.QDialog):
         # ugly !!! sent current state to the data fetcher...
         self.update_state.connect(self.dataFetcher.changeStatus)
         self.sourceWg.sourceStateSignal.connect(self.updateSource)
+        self.sourceWg.sourceChangedSignal.connect(self.onSourceChanged)
 
         self.bkgSubWg.bkgFileSelected.connect(self.prepareBkgSubtraction)
         self.bkgSubWg.useCurrentImageAsBkg.connect(self.setCurrentImageAsBkg)
@@ -706,10 +707,16 @@ class LiveViewer(QtGui.QDialog):
             self.imageWg.fetchROIButton.setEnabled(True)
 
     @QtCore.pyqtSlot(int)
-    def updateSource(self, status):
+    def onSourceChanged(self, status):
         if status:
             self.data_source = getattr(
                 hcs, self.sourceWg.currentDataSource())(self.timeout)
+            self.sourceWg.updateMetaData(**self.data_source.getMetaData())
+
+    @QtCore.pyqtSlot(int)
+    def updateSource(self, status):
+        if status:
+            self.data_source.timeout = self.timeout
             self.dataFetcher.data_source = self.data_source
             if self._sourceConfiguration:
                 self.data_source.setConfiguration(self._sourceConfiguration)

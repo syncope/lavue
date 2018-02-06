@@ -45,6 +45,8 @@ class SourceGroupBox(QtGui.QGroupBox):
     sourceConnectSignal = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source state signal
     sourceStateSignal = QtCore.pyqtSignal(int)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) source state signal
+    sourceChangedSignal = QtCore.pyqtSignal(int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source server name signal
     configurationSignal = QtCore.pyqtSignal(str)
 
@@ -188,6 +190,8 @@ class SourceGroupBox(QtGui.QGroupBox):
                 self._emitSourceStateSignal)
         self.updateLayout()
         self.updateMetaData(disconnect=disconnect)
+        status = self.__ui.sourceTypeComboBox.currentIndex() + 1
+        self.sourceChangedSignal.emit(status)
 
     @QtCore.pyqtSlot(str)
     def _emitConfigurationSignal(self,  name):
