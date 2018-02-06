@@ -182,13 +182,10 @@ class LiveViewer(QtGui.QDialog):
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent
 
-        # <<
         self.sourceWg = sourceGroupBox.SourceGroupBox(
             parent=self, sourcetypes=self.sourcetypes)
         self.sourceWg.updateMetaData(serverdict=HIDRASERVERLIST)
-        # >>
 
-        
         self.prepBoxWg = preparationGroupBox.PreparationGroupBox(parent=self)
         self.scalingWg = scalingGroupBox.ScalingGroupBox(parent=self)
         self.levelsWg = levelsGroupBox.LevelsGroupBox(parent=self)
@@ -303,11 +300,8 @@ class LiveViewer(QtGui.QDialog):
 
         # set the right target name for the source display at initialization
 
-        # <<
-        # ???self.sourceWg.setTargetName(self.data_source.getTarget())
-        self.sourceWg.updateMetaData(target=self.data_source.getTarget())
+        self.sourceWg.updateMetaData(targetname=self.data_source.getTarget())
         # self.sourceWg.sourceServerName.connect(self.data_source.setSignalHost)
-        # >>
         self.sourceWg.sourceServerName.connect(self.setSignalHost)
 
         self.sourceWg.updateLayout()
@@ -789,7 +783,7 @@ class LiveViewer(QtGui.QDialog):
         if status:
             # <<
             self.data_source = getattr(
-                hcs, self.sourcetypes[status - 1]["datasource"])(self.timeout)
+                hcs, self.sourceWg.currentDataSource())(self.timeout)
             self.dataFetcher.data_source = self.data_source
             # >>
             if self._signalhost:

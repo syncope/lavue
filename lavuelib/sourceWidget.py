@@ -81,9 +81,10 @@ class GeneralSourceWidget(QtGui.QWidget):
         self.widgetnames = []
         self.widgets = []
         self.active = False
+        self._connected = False
         self._ui = None
         self.__detached = False
-        
+
     def updateButton(self):
         """ update slot for test source
         """
@@ -93,12 +94,25 @@ class GeneralSourceWidget(QtGui.QWidget):
 
     def updateMetaData(self, **kargs):
         """ update source input parameters
+
+        :param kargs:  source widget input parameter dictionary
+        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
         """
+
+    def connectWidget(self):
+        """ connects widget
+        """
+        self._connected = True
+
+    def disconnectWidget(self):
+        """ disconnects widget
+        """
+        self._connected = False
 
     def _detachWidgets(self):
         """ detaches the form widgets from the gridLayout
         """
-        
+
         for wnm in self.widgetnames:
             if hasattr(self._ui, wnm):
                 wg = getattr(self._ui, wnm)
@@ -106,7 +120,6 @@ class GeneralSourceWidget(QtGui.QWidget):
                     self._ui.gridLayout.removeWidget(wg)
                 self.widgets.append(wg)
         self.__detached = True
-        
 
 
 class TestSourceWidget(GeneralSourceWidget):
@@ -154,6 +167,36 @@ class HTTPSourceWidget(GeneralSourceWidget):
 
         self._detachWidgets()
 
+        self._ui.httpLineEdit.textEdited.connect(self.updateButton)
+
+    @QtCore.pyqtSlot()
+    def updateButton(self):
+        """ update slot for HTTP response source
+        """
+        if not self.active:
+            return
+        url = str(self._ui.httpLineEdit.text()).strip()
+        if not url.startswith("http://") or not url.startswith("https://"):
+            surl = url.split("/")
+            if len(surl) == 2 and surl[0] and surl[1]:
+                url = "http://%s/monitor/api/%s/images/monitor" \
+                      % (surl[0], surl[1])
+            else:
+                url = None
+        if not url:
+            self.buttonEnabledSignal.emit(False)
+        else:
+            self.buttonEnabledSignal.emit(True)
+            self.sourceServerName.emit(url)
+
+    def updateMetaData(self, **kargs):
+        """ update source input parameters
+
+        :param kargs:  source widget input parameter dictionary
+        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+
+
 class HidraSourceWidget(GeneralSourceWidget):
 
     """ test source widget """
@@ -176,8 +219,74 @@ class HidraSourceWidget(GeneralSourceWidget):
             "hostLabel", "currenthostLabel"
         ]
         self.active = False
+        #: (:obj:`dict` < :obj:`str`, :obj:`list` <:obj:`str`> >)
+        #:  server dictionary
+        self.__serverdict = {}
+
+        #: (:obj:`list` <:obj:`str`> >) sorted server list
+        self.__sortedserverlist = []
 
         self._detachWidgets()
+
+        self._ui.serverComboBox.currentIndexChanged.connect(
+            self.updateButton)
+
+    def updateHidraButton(self):
+        """ update slot for Hidra source
+        """
+        if not self.active:
+            return
+        if self._ui.serverComboBox.currentText() == "Pick a server":
+            self.buttonEnabledSignal.emit(False)
+        else:
+            self.buttonEnabledSignal.emit(True)
+            self.sourceServerName.emit(
+                str(self._ui.serverComboBox.currentText()))
+
+    def updateMetaData(self, serverdict=None, targetname=None, **kargs):
+        """ update source input parameters
+
+        :param serverdict: server dictionary
+        :type serverdict: :obj:`dict` < :obj:`str`, :obj:`list` <:obj:`str`> >
+        :param targetname: source targetname
+        :type targetname: :obj:`str`
+        :param kargs:  source widget input parameter dictionary
+        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        if isinstance(serverdict, dict):
+            self.__serverdict = serverdict
+        if targetname is not None:
+            self._ui.currenthostLabel.setText(str(targetname))
+            self.__sortServerList(targetname)
+            self._ui.serverComboBox.addItems(self.__sortedserverlist)
+
+    def __sortServerList(self, name):
+        """ small function to sort out the server list details.
+        It searches the hostname for a
+        string and return only the elements in the list that fit
+
+        :param name: beamline name
+        :type name: :obj:`str`
+        """
+        #
+        beamlines = ['p03', 'p08', 'p09', 'p10', 'p11']
+
+        for bl in beamlines:
+            if bl in name:
+                self.__sortedserverlist.extend(self.__serverdict[bl])
+        self.__sortedserverlist.extend(self.__serverdict["pool"])
+
+    def connectWidget(self):
+        """ connects widget
+        """
+        self._connected = True
+        self._ui.serverComboBox.setEnabled(False)
+
+    def disconnectWidget(self):
+        """ disconnects widget
+        """
+        self._connected = False
+        self._ui.serverComboBox.setEnabled(True)
 
 
 class TangoAttrSourceWidget(GeneralSourceWidget):
@@ -204,6 +313,33 @@ class TangoAttrSourceWidget(GeneralSourceWidget):
 
         self._detachWidgets()
 
+        self._ui.attrLineEdit.textEdited.connect(self.updateButton)
+
+    @QtCore.pyqtSlot()
+    def updateButton(self):
+        """ update slot for Tango attribute source
+        """
+        if not self.active:
+            return
+        if not str(self._ui.attrLineEdit.text()).strip():
+            self.buttonEnabledSignal.emit(False)
+        else:
+            self.buttonEnabledSignal.emit(True)
+            self.sourceServerName.emit(
+                str(self._ui.attrLineEdit.text()).strip())
+
+    def updateMetaData(self, **kargs):
+        """ update source input parameters
+        """
+
+    def disconnectWidget(self):
+        """ disconnects widget
+        """
+        self._connected = False
+        if ":" in self._ui.attrLineEdit.text():
+            self._ui.attrLineEdit.setText(u'')
+            self.updateButton()
+
 
 class TangoFileSourceWidget(GeneralSourceWidget):
 
@@ -228,7 +364,42 @@ class TangoFileSourceWidget(GeneralSourceWidget):
         ]
         self.active = False
 
+        #: (:obj:`str`) json dictionary with directory
+        #:               and file name translation
+        self.__dirtrans = '{"/ramdisk/": "/gpfs/"}'
+
         self._detachWidgets()
+
+        self._ui.fileLineEdit.textEdited.connect(self.updateButton)
+        self._ui.dirLineEdit.textEdited.connect(self.updateButton)
+
+    @QtCore.pyqtSlot()
+    def updateButton(self):
+        """ update slot for Tango file source
+        """
+        if not self.active:
+            return
+        fattr = str(self._ui.fileLineEdit.text()).strip()
+        if not str(self._ui.fileLineEdit.text()).strip():
+            self.buttonEnabledSignal.emit(False)
+        else:
+            self.buttonEnabledSignal.emit(True)
+            dattr = str(self._ui.dirLineEdit.text()).strip()
+            dt = self.__dirtrans
+            sourcename = "%s,%s,%s" % (fattr, dattr, dt)
+            self.sourceServerName.emit(sourcename)
+
+    def updateMetaData(self, dirtrans=None, **kargs):
+        """ update source input parameters
+
+        :param dirtrans: json dictionary with directory
+                         and file name translation
+        :type dirtrans: :obj:`str`
+        :param kargs:  source widget input parameter dictionary
+        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        if dirtrans is not None:
+            self.__dirtrans = dirtrans
 
 
 class ZMQSourceWidget(GeneralSourceWidget):
@@ -254,4 +425,131 @@ class ZMQSourceWidget(GeneralSourceWidget):
         ]
         self.active = False
 
+        #: (:obj:`list` <:obj:`str`> >) zmq source datasources
+        self.__zmqtopics = []
+        #: (:obj:`bool`) automatic zmq topics enabled
+        self.__autozmqtopics = False
+
+        #: (:class:`PyQt4.QtCore.QMutex`) zmq datasource mutex
+        self.__mutex = QtCore.QMutex()
+
         self._detachWidgets()
+        self._ui.pickleLineEdit.textEdited.connect(self.updateButton)
+        self._ui.pickleTopicComboBox.currentIndexChanged.connect(
+            self._updateZMQComboBox)
+
+    @QtCore.pyqtSlot()
+    def updateButton(self, disconnect=True):
+        """ update slot for ZMQ source
+        """
+        if not self.active:
+            return
+        with QtCore.QMutexLocker(self.__mutex):
+            if disconnect:
+                self._ui.pickleTopicComboBox.currentIndexChanged.disconnect(
+                    self._updateZMQComboBox)
+            if not str(self._ui.pickleLineEdit.text()).strip() \
+               or ":" not in str(self._ui.pickleLineEdit.text()):
+                self.buttonEnabledSignal.emit(False)
+            else:
+                try:
+                    _, sport = str(self._ui.pickleLineEdit.text())\
+                        .strip().split("/")[0].split(":")
+                    port = int(sport)
+                    if port > 65535 or port < 0:
+                        raise Exception("Wrong port")
+                    self.buttonEnabledSignal.emit(True)
+                    hosturl = str(self._ui.pickleLineEdit.text()).strip()
+                    if self._ui.pickleTopicComboBox.currentIndex() >= 0:
+                        text = self._ui.pickleTopicComboBox.currentText()
+                        if text == "**ALL**":
+                            text = ""
+                        shost = hosturl.split("/")
+                        if len(shost) > 2:
+                            shost[1] = str(text)
+                        else:
+                            shost.append(str(text))
+                        hosturl = "/".join(shost)
+                    self.sourceServerName.emit(hosturl)
+                except:
+                    self.buttonEnabledSignal.emit(False)
+            if disconnect:
+                self._ui.pickleTopicComboBox.currentIndexChanged.connect(
+                    self._updateZMQComboBox)
+
+    @QtCore.pyqtSlot()
+    def _updateZMQComboBox(self):
+        """ update ZMQ datasource combobox
+        """
+        disconnected = False
+        if self._connected:
+            disconnected = True
+            self.sourceState.emit(0)
+        self.updateButton()
+        if disconnected:
+            self.sourceState.emit(-1)
+
+    def updateMetaData(
+            self,
+            zmqtopics=None, autozmqtopics=None,
+            datasources=None, disconnect=True, **kargs):
+        """ update source input parameters
+
+        :param zmqtopics: zmq source topics
+        :type zmqtopics: :obj:`list` <:obj:`str`> >
+        :param autozmqtopics: automatic zmq topics enabled
+        :type autozmqtopics: :obj:`bool`
+        :param datasources: automatic zmq source topics
+        :type datasources: :obj:`list` <:obj:`str`> >
+        :param disconnect: disconnect on update
+        :type disconnect: :obj:`bool`
+        :param kargs:  source widget input parameter dictionary
+        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+
+        if disconnect:
+            with QtCore.QMutexLocker(self.__mutex):
+                self._ui.pickleTopicComboBox.currentIndexChanged.disconnect(
+                    self._updateZMQComboBox)
+        text = None
+        if isinstance(zmqtopics, list):
+            with QtCore.QMutexLocker(self.__mutex):
+                text = str(self._ui.pickleTopicComboBox.currentText())
+            if not text or text not in zmqtopics:
+                text = None
+            self.__zmqtopics = zmqtopics
+        if autozmqtopics is not None:
+            self.__autozmqtopics = autozmqtopics
+        if self.__autozmqtopics:
+            if isinstance(datasources, list):
+                with QtCore.QMutexLocker(self.__mutex):
+                    text = str(self._ui.pickleTopicComboBox.currentText())
+                if not text or text not in datasources:
+                    text = None
+                self.__zmqtopics = datasources
+        with QtCore.QMutexLocker(self.__mutex):
+            for i in reversed(range(0, self._ui.pickleTopicComboBox.count())):
+                self._ui.pickleTopicComboBox.removeItem(i)
+            self._ui.pickleTopicComboBox.addItems(self.__zmqtopics)
+            self._ui.pickleTopicComboBox.addItem("**ALL**")
+            if text:
+                tid = self._ui.pickleTopicComboBox.findText(text)
+                if tid > -1:
+                    self._ui.pickleTopicComboBox.setCurrentIndex(tid)
+        if disconnect:
+            self.updateButton(disconnect=False)
+            with QtCore.QMutexLocker(self.__mutex):
+                self._ui.pickleTopicComboBox.currentIndexChanged.connect(
+                    self._updateZMQComboBox)
+
+    def connectWidget(self):
+        """ connects widget
+        """
+        self._connected = True
+        self._ui.pickleLineEdit.setReadOnly(True)
+
+    def disconnectWidget(self):
+        """ disconnects widget
+        """
+        self._connected = False
+        self._ui.pickleLineEdit.setReadOnly(False)

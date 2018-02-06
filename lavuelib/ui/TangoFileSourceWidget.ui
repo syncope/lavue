@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
-      <widget class="QLabel" name="dirLabel">
+      <widget class="QLabel" name="fileLabel">
        <property name="toolTip">
         <string>tango device attribute with its filename, e.g. p00/pilatus/1/LastImageTake</string>
        </property>
@@ -37,7 +37,7 @@
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="fileLabel">
+      <widget class="QLabel" name="dirLabel">
        <property name="toolTip">
         <string>tango device attribute with its directory (optional), e.g. p00/pilatus/1/LastImagePath</string>
        </property>
