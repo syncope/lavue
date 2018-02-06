@@ -140,7 +140,7 @@ class LiveViewer(QtGui.QDialog):
         self.maskIndices = None
         self.applyImageMask = False
 
-        self._signalhost = None
+        self._sourceConfiguration = None
 
         self.trafoName = "None"
 
@@ -227,9 +227,7 @@ class LiveViewer(QtGui.QDialog):
 
         # set the right target name for the source display at initialization
 
-        self.sourceWg.updateMetaData(targetname=self.data_source.getTarget())
-        # self.sourceWg.configurationSignal.connect(self.data_source.setSignalHost)
-        self.sourceWg.configurationSignal.connect(self.setSignalHost)
+        self.sourceWg.configurationSignal.connect(self.setSourceConfiguration)
 
         self.sourceWg.updateLayout()
         self.onPixelChanged()
@@ -333,6 +331,8 @@ class LiveViewer(QtGui.QDialog):
         self.sourceWg.updateMetaData(
             zmqtopics=self.zmqtopics, dirtrans=self.dirtrans,
             autozmqtopics=self.autozmqtopics)
+        #print("PRINT %s" % self.data_source.getMetaData())
+        #self.sourceWg.updateMetaData(**self.data_source.getMetaData())
 
         self.levelsWg.changeView(self.showhisto)
         self.prepBoxWg.changeView(self.showmask)
@@ -691,9 +691,9 @@ class LiveViewer(QtGui.QDialog):
             self.plot()
 
     @QtCore.pyqtSlot(str)
-    def setSignalHost(self, signalhost):
-        self._signalhost = signalhost
-        self.data_source.setSignalHost(self._signalhost)
+    def setSourceConfiguration(self, sourceConfiguration):
+        self._sourceConfiguration = sourceConfiguration
+        self.data_source.setConfiguration(self._sourceConfiguration)
 
     def setSardana(self, status):
         if status is False:
@@ -708,13 +708,12 @@ class LiveViewer(QtGui.QDialog):
     @QtCore.pyqtSlot(int)
     def updateSource(self, status):
         if status:
-            # <<
             self.data_source = getattr(
                 hcs, self.sourceWg.currentDataSource())(self.timeout)
             self.dataFetcher.data_source = self.data_source
-            # >>
-            if self._signalhost:
-                self.data_source.setSignalHost(self._signalhost)
+            if self._sourceConfiguration:
+                self.data_source.setConfiguration(self._sourceConfiguration)
+            self.sourceWg.updateMetaData(**self.data_source.getMetaData())
         self.update_state.emit(status)
 
     @QtCore.pyqtSlot(str)

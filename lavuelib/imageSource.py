@@ -33,26 +33,34 @@ import struct
 
 try:
     import hidra
+    #: (:obj:`bool`) hidra imported
     HIDRA = True
 except ImportError:
+    #: (:obj:`bool`) hidra imported
     HIDRA = False
 
 try:
     import PyTango
+    #: (:obj:`bool`) PyTango imported
     PYTANGO = True
 except ImportError:
+    #: (:obj:`bool`) PyTango imported
     PYTANGO = False
 
 try:
     import PIL
+    #: (:obj:`bool`) PIL imported
     PILLOW = True
 except ImportError:
+    #: (:obj:`bool`) PIL imported
     PILLOW = False
 
 try:
     import zmq
+    #: (:obj:`str`,:obj:`str`) zmq major version, zmq minor version
     ZMQMAJOR, ZMQMINOR = map(int, zmq.zmq_version().split(".")[:2])
 except:
+    #: (:obj:`str`,:obj:`str`) zmq major version, zmq minor version
     ZMQMAJOR, ZMQMINOR = 0, 0
 
 
@@ -69,18 +77,16 @@ from . import imageFileHandler
 class GeneralSource(object):
 
     def __init__(self, timeout=None):
-        self.signal_host = None
-        self.portnumber = "50001"
-        self.target = [socket.getfqdn()]
+        self.configuration = None
         self._initiated = False
         self.timeout = timeout
         self._counter = 0
 
-    def getTarget(self):
-        return self.target[0] + ":" + self.portnumber
+    def getMetaData(self):
+        return {}
 
     @QtCore.pyqtSlot(str)
-    def setSignalHost(self, _):
+    def setConfiguration(self, _):
         self._initiated = False
 
     def getData(self):
@@ -107,22 +113,17 @@ class GeneralSource(object):
 class TangoFileSource(GeneralSource):
 
     def __init__(self, timeout=None):
-        self.signal_host = None
-        self.portnumber = "50001"
-        self.target = [socket.getfqdn()]
+        self.configuration = None
         self._initiated = False
         self.timeout = timeout
         self.fproxy = None
         self.dproxy = None
         self.dirtrans = {"/ramdisk/": "/gpfs/"}
 
-    def getTarget(self):
-        return self.target[0] + ":" + self.portnumber
-
     @QtCore.pyqtSlot(str)
-    def setSignalHost(self, signalhost):
-        if self.signal_host != signalhost:
-            self.signal_host = signalhost
+    def setConfiguration(self, configuration):
+        if self.configuration != configuration:
+            self.configuration = configuration
             self._initiated = False
 
     def getData(self):
@@ -147,7 +148,7 @@ class TangoFileSource(GeneralSource):
     def connect(self):
         try:
             fattr, dattr, dirtrans = str(
-                self.signal_host).strip().split(",", 2)
+                self.configuration).strip().split(",", 2)
             self.dirtrans = json.loads(dirtrans)
             if not self._initiated:
                 self.fproxy = PyTango.AttributeProxy(fattr)
@@ -259,9 +260,7 @@ class VDEOdecoder(object):
 class TangoAttrSource(GeneralSource):
 
     def __init__(self, timeout=None):
-        self.signal_host = None
-        self.portnumber = "50001"
-        self.target = [socket.getfqdn()]
+        self.configuration = None
         self._initiated = False
         self.timeout = timeout
         self.aproxy = None
@@ -275,13 +274,10 @@ class TangoAttrSource(GeneralSource):
             "RGB24": "decode_rgb32"
         }
 
-    def getTarget(self):
-        return self.target[0] + ":" + self.portnumber
-
     @QtCore.pyqtSlot(str)
-    def setSignalHost(self, signalhost):
-        if self.signal_host != signalhost:
-            self.signal_host = signalhost
+    def setConfiguration(self, configuration):
+        if self.configuration != configuration:
+            self.configuration = configuration
             self._initiated = False
 
     def getData(self):
@@ -296,17 +292,17 @@ class TangoAttrSource(GeneralSource):
                     data = getattr(enc, self.__tangodecoders[avalue[0]])(da)
                     return (np.transpose(data),
                             '%s  (%s)' % (
-                                self.signal_host, str(attr.time)), "")
+                                self.configuration, str(attr.time)), "")
                 else:
                     dec = self.__decoders[avalue[0]]
                     dec.load(avalue)
                     return (np.transpose(dec.decode()),
                             '%s  (%s)' % (
-                                self.signal_host, str(attr.time)), "")
+                                self.configuration, str(attr.time)), "")
             else:
                 return (np.transpose(attr.value),
                         '%s  (%s)' % (
-                            self.signal_host, str(attr.time)), "")
+                            self.configuration, str(attr.time)), "")
         except Exception as e:
             print(str(e))
             return str(e), "__ERROR__", ""
@@ -316,7 +312,7 @@ class TangoAttrSource(GeneralSource):
     def connect(self):
         try:
             if not self._initiated:
-                self.aproxy = PyTango.AttributeProxy(str(self.signal_host))
+                self.aproxy = PyTango.AttributeProxy(str(self.configuration))
             return True
         except Exception as e:
             print(str(e))
@@ -332,27 +328,22 @@ class TangoAttrSource(GeneralSource):
 class HTTPSource(GeneralSource):
 
     def __init__(self, timeout=None):
-        self.signal_host = None
-        self.portnumber = "50001"
-        self.target = [socket.getfqdn()]
+        self.configuration = None
         self._initiated = False
         self.timeout = timeout
 
-    def getTarget(self):
-        return self.target[0] + ":" + self.portnumber
-
     @QtCore.pyqtSlot(str)
-    def setSignalHost(self, signalhost):
-        if self.signal_host != signalhost:
-            self.signal_host = signalhost
+    def setConfiguration(self, configuration):
+        if self.configuration != configuration:
+            self.configuration = configuration
             self._initiated = False
 
     def getData(self):
-        if self.signal_host:
+        if self.configuration:
             try:
-                response = requests.get(self.signal_host)
+                response = requests.get(self.configuration)
                 if response.ok:
-                    name = self.signal_host
+                    name = self.configuration
                     data = response.content
                     if data[:10] == "###CBF: VE":
                         # print("[cbf source module]::metadata", name)
@@ -375,8 +366,8 @@ class HTTPSource(GeneralSource):
 
     def connect(self):
         try:
-            if self.signal_host:
-                response = requests.get(self.signal_host)
+            if self.configuration:
+                response = requests.get(self.configuration)
                 if response.ok:
                     return True
             return False
@@ -394,9 +385,7 @@ class HTTPSource(GeneralSource):
 class ZMQSource(GeneralSource):
 
     def __init__(self, timeout=None):
-        self.signal_host = None
-        self.portnumber = "50001"
-        self.target = [socket.getfqdn()]
+        self.configuration = None
         self.timeout = timeout
         self._initiated = False
         self._context = zmq.Context()
@@ -406,17 +395,14 @@ class ZMQSource(GeneralSource):
         self._bindaddress = None
         self.__mutex = QtCore.QMutex()
 
-    def getTarget(self):
-        return self.target[0] + ":" + self.portnumber
-
     @QtCore.pyqtSlot(str)
-    def setSignalHost(self, signalhost):
-        if self.signal_host != signalhost:
-            self.signal_host = signalhost
+    def setConfiguration(self, configuration):
+        if self.configuration != configuration:
+            self.configuration = configuration
             self._initiated = False
             with QtCore.QMutexLocker(self.__mutex):
                 if self._socket:
-                    shost = str(self.signal_host).split("/")
+                    shost = str(self.configuration).split("/")
                     topic = shost[1] if len(shost) > 1 else ""
                     self._socket.unbind(self._bindaddress)
                     self._socket.setsockopt(zmq.UNSUBSCRIBE, self._topic)
@@ -509,7 +495,7 @@ class ZMQSource(GeneralSource):
 
     def connect(self):
         try:
-            shost = str(self.signal_host).split("/")
+            shost = str(self.configuration).split("/")
             host, port = str(shost[0]).split(":")
             self._topic = shost[1] if len(shost) > 1 else ""
             hwm = int(shost[2]) if (len(shost) > 2 and shost[2]) else 2
@@ -559,7 +545,7 @@ class ZMQSource(GeneralSource):
 class HiDRASource(GeneralSource):
 
     def __init__(self, timeout=None):
-        self.signal_host = None
+        self.configuration = None
         self.portnumber = "50001"
         self.target = [socket.getfqdn(), self.portnumber, 19,
                        [".cbf", ".tif", ".tiff"]]
@@ -568,22 +554,16 @@ class HiDRASource(GeneralSource):
         self.timeout = timeout
         self.__mutex = QtCore.QMutex()
 
-    def getTargetSignalHost(self):
-        return self.target[0] + ":" + self.portnumber, self.signal_host
-
-    def getTarget(self):
-        return self.target[0] + ":" + self.portnumber
+    def getMetaData(self):
+        return {"targetname": self.target[0] + ":" + self.portnumber}
 
     @QtCore.pyqtSlot(str)
-    def setSignalHost(self, signalhost):
-        if self.signal_host != signalhost:
-            self.signal_host = signalhost
+    def setConfiguration(self, configuration):
+        if self.configuration != configuration:
+            self.configuration = configuration
             with QtCore.QMutexLocker(self.__mutex):
-                self.query = hidra.Transfer("QUERY_NEXT", self.signal_host)
+                self.query = hidra.Transfer("QUERY_NEXT", self.configuration)
             self._initiated = False
-
-    def setTargetPort(self, portnumber):
-        self.portnumber = portnumber
 
     def connect(self):
         try:
