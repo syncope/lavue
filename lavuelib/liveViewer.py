@@ -75,79 +75,6 @@ class LiveViewer(QtGui.QDialog):
             self.sourcetypes.append("TangoFileSourceWidget")
         self.sourcetypes.append("ZMQSourceWidget")
         self.sourcetypes.append("TestSourceWidget")
-        # if hcs.HIDRA:
-        #     self.sourcetypes.append(
-        #         {"name": "Hidra",
-        #          "datasource": "HiDRASource",
-        #          "slot": "updateHidraButton",
-        #          "hidden": ["attrLabel", "attrLineEdit",
-        #                     "fileLabel", "fileLineEdit",
-        #                     "dirLabel", "dirLineEdit",
-        #                     "httpLabel", "httpLineEdit",
-        #                     "pickleTopicLabel", "pickleTopicComboBox",
-        #                     "pickleLabel", "pickleLineEdit"]}
-        #     )
-        # self.sourcetypes.append(
-        #     {"name": "HTTP response",
-        #      "datasource": "HTTPSource",
-        #      "slot": "updateHTTPButton",
-        #      "hidden": ["hostLabel", "currenthostLabel",
-        #                 "serverLabel", "serverComboBox",
-        #                 "fileLabel", "fileLineEdit",
-        #                 "dirLabel", "dirLineEdit",
-        #                 "pickleLabel", "pickleLineEdit",
-        #                 "pickleTopicLabel", "pickleTopicComboBox",
-        #                 "attrLabel", "attrLineEdit"]},
-        # )
-        # if hcs.PYTANGO:
-        #     self.sourcetypes.append(
-        #         {"name": "Tango Attribute",
-        #          "datasource": "TangoAttrSource",
-        #          "slot": "updateAttrButton",
-        #          "hidden": ["hostLabel", "currenthostLabel",
-        #                     "fileLabel", "fileLineEdit",
-        #                     "dirLabel", "dirLineEdit",
-        #                     "pickleLabel", "pickleLineEdit",
-        #                     "httpLabel", "httpLineEdit",
-        #                     "pickleTopicLabel", "pickleTopicComboBox",
-        #                     "serverLabel", "serverComboBox"]})
-
-        # if hcs.PYTANGO:
-        #     self.sourcetypes.append(
-        #         {"name": "Tango File",
-        #          "datasource": "TangoFileSource",
-        #          "slot": "updateFileButton",
-        #          "hidden": ["hostLabel", "currenthostLabel",
-        #                     "httpLabel", "httpLineEdit",
-        #                     "pickleLabel", "pickleLineEdit",
-        #                     "pickleTopicLabel", "pickleTopicComboBox",
-        #                     "attrLabel", "attrLineEdit",
-        #                     "serverLabel", "serverComboBox"]})
-
-        # self.sourcetypes.append(
-        #     {"name": "ZMQ Stream",
-        #      "datasource": "ZMQSource",
-        #      "slot": "updateZMQButton",
-        #      "hidden": ["hostLabel", "currenthostLabel",
-        #                 "fileLabel", "fileLineEdit",
-        #                 "dirLabel", "dirLineEdit",
-        #                 "serverLabel", "serverComboBox",
-        #                 "httpLabel", "httpLineEdit",
-        #                 "attrLabel", "attrLineEdit"]},
-        # )
-        # self.sourcetypes.append(
-        #     {"name": "Test",
-        #      "datasource": "GeneralSource",
-        #      "slot": "updateButton",
-        #      "hidden": ["hostLabel", "currenthostLabel",
-        #                 "httpLabel", "httpLineEdit",
-        #                 "fileLabel", "fileLineEdit",
-        #                 "dirLabel", "dirLineEdit",
-        #                 "serverLabel", "serverComboBox",
-        #                 "pickleLabel", "pickleLineEdit",
-        #                 "pickleTopicLabel", "pickleTopicComboBox",
-        #                 "attrLabel", "attrLineEdit"]},
-        # )
 
         self.doorname = ""
         self.addrois = True
@@ -266,11 +193,11 @@ class LiveViewer(QtGui.QDialog):
         self.imageWg.pixelComboBox.currentIndexChanged.connect(
             self.onPixelChanged)
         # connecting signals from source widget:
-        self.sourceWg.sourceConnect.connect(self.connect_source)
-        self.sourceWg.sourceConnect.connect(self.startPlotting)
+        self.sourceWg.sourceConnectSignal.connect(self.connect_source)
+        self.sourceWg.sourceConnectSignal.connect(self.startPlotting)
 
-        self.sourceWg.sourceDisconnect.connect(self.stopPlotting)
-        self.sourceWg.sourceDisconnect.connect(self.disconnect_source)
+        self.sourceWg.sourceDisconnectSignal.connect(self.stopPlotting)
+        self.sourceWg.sourceDisconnectSignal.connect(self.disconnect_source)
 
         # gradient selector
         self.levelsWg.channelChanged.connect(self.plot)
@@ -286,7 +213,7 @@ class LiveViewer(QtGui.QDialog):
         self.dataFetcher.newDataName.connect(self.getNewData)
         # ugly !!! sent current state to the data fetcher...
         self.update_state.connect(self.dataFetcher.changeStatus)
-        self.sourceWg.sourceState.connect(self.updateSource)
+        self.sourceWg.sourceStateSignal.connect(self.updateSource)
 
         self.bkgSubWg.bkgFileSelected.connect(self.prepareBkgSubtraction)
         self.bkgSubWg.useCurrentImageAsBkg.connect(self.setCurrentImageAsBkg)
@@ -301,8 +228,8 @@ class LiveViewer(QtGui.QDialog):
         # set the right target name for the source display at initialization
 
         self.sourceWg.updateMetaData(targetname=self.data_source.getTarget())
-        # self.sourceWg.sourceServerName.connect(self.data_source.setSignalHost)
-        self.sourceWg.sourceServerName.connect(self.setSignalHost)
+        # self.sourceWg.configurationSignal.connect(self.data_source.setSignalHost)
+        self.sourceWg.configurationSignal.connect(self.setSignalHost)
 
         self.sourceWg.updateLayout()
         self.onPixelChanged()
@@ -1022,10 +949,7 @@ class LiveViewer(QtGui.QDialog):
         '''Do the image transformation on the given numpy array.'''
         if self.display_image is None or self.trafoName is "none":
             return
-        # !!! there is a place, where indices go to die...
-        # somewhere, the ordering of the indices gets messed up
-        # to rectify the situation and not mislead users,
-        # make the transformation, so that at least the name fits
+
         elif self.trafoName == "flip (up-down)":
             self.display_image = np.fliplr(self.display_image)
         elif self.trafoName == "flip (left-right)":

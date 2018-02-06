@@ -59,14 +59,10 @@ class GeneralSourceWidget(QtGui.QWidget):
 
     #: (:class:`PyQt4.QtCore.pyqtSignal`) push button enabled signal
     buttonEnabledSignal = QtCore.pyqtSignal(bool)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) source disconnected signal
-    sourceDisconnect = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) source connected signal
-    sourceConnect = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source state signal
-    sourceState = QtCore.pyqtSignal(int)
+    sourceStateSignal = QtCore.pyqtSignal(int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source server name signal
-    sourceServerName = QtCore.pyqtSignal(str)
+    configurationSignal = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         """ constructor
@@ -187,7 +183,7 @@ class HTTPSourceWidget(GeneralSourceWidget):
             self.buttonEnabledSignal.emit(False)
         else:
             self.buttonEnabledSignal.emit(True)
-            self.sourceServerName.emit(url)
+            self.configurationSignal.emit(url)
 
     def updateMetaData(self, **kargs):
         """ update source input parameters
@@ -239,7 +235,7 @@ class HidraSourceWidget(GeneralSourceWidget):
         if self._ui.serverComboBox.currentText() == "Pick a server":
             self.buttonEnabledSignal.emit(False)
         else:
-            self.sourceServerName.emit(
+            self.configurationSignal.emit(
                 str(self._ui.serverComboBox.currentText()))
             self.buttonEnabledSignal.emit(True)
 
@@ -325,7 +321,7 @@ class TangoAttrSourceWidget(GeneralSourceWidget):
             self.buttonEnabledSignal.emit(False)
         else:
             self.buttonEnabledSignal.emit(True)
-            self.sourceServerName.emit(
+            self.configurationSignal.emit(
                 str(self._ui.attrLineEdit.text()).strip())
 
     def updateMetaData(self, **kargs):
@@ -387,7 +383,7 @@ class TangoFileSourceWidget(GeneralSourceWidget):
             dattr = str(self._ui.dirLineEdit.text()).strip()
             dt = self.__dirtrans
             sourcename = "%s,%s,%s" % (fattr, dattr, dt)
-            self.sourceServerName.emit(sourcename)
+            self.configurationSignal.emit(sourcename)
 
     def updateMetaData(self, dirtrans=None, **kargs):
         """ update source input parameters
@@ -470,7 +466,7 @@ class ZMQSourceWidget(GeneralSourceWidget):
                         else:
                             shost.append(str(text))
                         hosturl = "/".join(shost)
-                    self.sourceServerName.emit(hosturl)
+                    self.configurationSignal.emit(hosturl)
                 except:
                     self.buttonEnabledSignal.emit(False)
             if disconnect:
@@ -484,10 +480,10 @@ class ZMQSourceWidget(GeneralSourceWidget):
         disconnected = False
         if self._connected:
             disconnected = True
-            self.sourceState.emit(0)
+            self.sourceStateSignal.emit(0)
         self.updateButton()
         if disconnected:
-            self.sourceState.emit(-1)
+            self.sourceStateSignal.emit(-1)
 
     def updateMetaData(
             self,
