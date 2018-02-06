@@ -508,30 +508,34 @@ class ZMQSourceWidget(GeneralSourceWidget):
                 self._ui.pickleTopicComboBox.currentIndexChanged.disconnect(
                     self._updateZMQComboBox)
         text = None
+        updatecombo = False
         if isinstance(zmqtopics, list):
             with QtCore.QMutexLocker(self.__mutex):
                 text = str(self._ui.pickleTopicComboBox.currentText())
             if not text or text not in zmqtopics:
                 text = None
             self.__zmqtopics = zmqtopics
+            updatecombo = True
         if autozmqtopics is not None:
             self.__autozmqtopics = autozmqtopics
         if self.__autozmqtopics:
+            updatecombo = True
+            with QtCore.QMutexLocker(self.__mutex):
+                text = str(self._ui.pickleTopicComboBox.currentText())
             if isinstance(datasources, list):
-                with QtCore.QMutexLocker(self.__mutex):
-                    text = str(self._ui.pickleTopicComboBox.currentText())
                 if not text or text not in datasources:
                     text = None
                 self.__zmqtopics = datasources
-        with QtCore.QMutexLocker(self.__mutex):
-            for i in reversed(range(0, self._ui.pickleTopicComboBox.count())):
-                self._ui.pickleTopicComboBox.removeItem(i)
-            self._ui.pickleTopicComboBox.addItems(self.__zmqtopics)
-            self._ui.pickleTopicComboBox.addItem("**ALL**")
-            if text:
-                tid = self._ui.pickleTopicComboBox.findText(text)
-                if tid > -1:
-                    self._ui.pickleTopicComboBox.setCurrentIndex(tid)
+        if updatecombo is True:
+            with QtCore.QMutexLocker(self.__mutex):
+                for i in reversed(range(0, self._ui.pickleTopicComboBox.count())):
+                    self._ui.pickleTopicComboBox.removeItem(i)
+                self._ui.pickleTopicComboBox.addItems(self.__zmqtopics)
+                self._ui.pickleTopicComboBox.addItem("**ALL**")
+                if text:
+                    tid = self._ui.pickleTopicComboBox.findText(text)
+                    if tid > -1:
+                        self._ui.pickleTopicComboBox.setCurrentIndex(tid)
         if disconnect:
             self.updateButton(disconnect=False)
             with QtCore.QMutexLocker(self.__mutex):
