@@ -66,27 +66,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
     def __init__(self, parent=None):
         _pg.GraphicsLayoutWidget.__init__(self, parent)
         self.__layout = self.ci
-        self.roienable = False
-        self.cutenable = False
-        self.qenable = False
-        self.roicoords = [[10, 10, 60, 60]]
-        self.currentroi = 0
-        self.currentcut = 0
-        self.cutcoords = [[10, 10, 60, 10]]
-        self.data = None
-        self.rawdata = None
-        self.doBkgSubtraction = False
-        self.scaling = "sqrt"
-        self.image = _pg.ImageItem()
-        self.statswoscaling = False
-
-        self.__viewbox = self.__layout.addViewBox(row=0, col=1)
-        self.__crosshairlocked = False
-        self.__viewbox.addItem(self.image)
-        self.__xdata = 0
-        self.__ydata = 0
-        self.__autodisplaylevels = True
-        self.__displaylevels = [None, None]
 
         #: (:obj:`tuple` <:obj:`float`, :obj:`float`> ) image scale (x,y)
         self.scale = None
@@ -102,6 +81,15 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         #: (:obj:`str`) units of y-axis
         self.yunits = None
 
+        self.roienable = False
+        self.currentroi = 0
+        self.roicoords = [[10, 10, 60, 60]]
+
+        self.cutenable = False
+        self.currentcut = 0
+        self.cutcoords = [[10, 10, 60, 10]]
+
+        self.qenable = False
         #: (:obj:`float`) x-coordinates of the center of the image
         self.centerx = 0.0
         #: (:obj:`float`) y-coordinates of the center of the image
@@ -116,6 +104,23 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.detdistance = 0.0
         #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
         self.gspaceindex = 0
+
+        self.dobkgsubtraction = False
+        self.statswoscaling = False
+        self.scaling = "sqrt"
+
+        self.data = None
+        self.rawdata = None
+
+        self.image = _pg.ImageItem()
+
+        self.__viewbox = self.__layout.addViewBox(row=0, col=1)
+        self.__crosshairlocked = False
+        self.__viewbox.addItem(self.image)
+        self.__xdata = 0
+        self.__ydata = 0
+        self.__autodisplaylevels = True
+        self.__displaylevels = [None, None]
 
         self.setaspectlocked = QtGui.QAction(
             "Set Aspect Locked", self.__viewbox.menu)
@@ -343,7 +348,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             scaling = self.scaling if not self.statswoscaling else "linear"
             ilabel = "intensity"
             if not self.roienable:
-                if self.doBkgSubtraction:
+                if self.dobkgsubtraction:
                     ilabel = "%s(intensity-background)" % (
                         scaling if scaling != "linear" else "")
                 else:

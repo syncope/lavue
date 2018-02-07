@@ -969,7 +969,7 @@ class LiveViewer(QtGui.QDialog):
             self.__bkgSubwg.setDisplayedName("")
         else:
             self.__bkgSubwg.checkBkgSubtraction(state)
-        self.__imagewg.displaywidget.doBkgSubtraction = state
+        self.__imagewg.displaywidget.dobkgsubtraction = state
         self._plot()
 
     @QtCore.pyqtSlot(str)
