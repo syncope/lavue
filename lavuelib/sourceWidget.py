@@ -531,7 +531,8 @@ class ZMQSourceWidget(BaseSourceWidget):
                 self.__zmqtopics = datasources
         if updatecombo is True:
             with QtCore.QMutexLocker(self.__mutex):
-                for i in reversed(range(0, self._ui.pickleTopicComboBox.count())):
+                for i in reversed(
+                        range(0, self._ui.pickleTopicComboBox.count())):
                     self._ui.pickleTopicComboBox.removeItem(i)
                 self._ui.pickleTopicComboBox.addItems(self.__zmqtopics)
                 self._ui.pickleTopicComboBox.addItem("**ALL**")

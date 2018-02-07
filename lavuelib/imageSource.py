@@ -355,7 +355,8 @@ class TangoAttrSource(BaseSource):
             if str(attr.type) == "DevEncoded":
                 avalue = attr.value
                 if avalue[0] in self.__tangodecoders:
-                    da = self.__aproxy.read(extract_as=PyTango.ExtractAs.Nothing)
+                    da = self.__aproxy.read(
+                        extract_as=PyTango.ExtractAs.Nothing)
                     enc = PyTango.EncodedAttribute()
                     data = getattr(enc, self.__tangodecoders[avalue[0]])(da)
                     return (np.transpose(data),
@@ -382,7 +383,8 @@ class TangoAttrSource(BaseSource):
         """
         try:
             if not self._initiated:
-                self.__aproxy = PyTango.AttributeProxy(str(self._configuration))
+                self.__aproxy = PyTango.AttributeProxy(
+                    str(self._configuration))
             return True
         except Exception as e:
             print(str(e))
@@ -668,7 +670,7 @@ class HiDRASource(BaseSource):
         #:   :obj:`int` :obj:`list` < :obj:`str`> >) hidra target:
         #:   [host name, portnumber, priority, a list of extensions]
         self.__target = [socket.getfqdn(), self.__portnumber, 19,
-                       [".cbf", ".tif", ".tiff"]]
+                         [".cbf", ".tif", ".tiff"]]
         #: (:class:`hidra.transfer.Transfer`) hidra query
         self.__query = None
         #: (:class:`PyQt4.QtCore.QMutex`) zmq bind address
@@ -692,7 +694,8 @@ class HiDRASource(BaseSource):
         if self._configuration != configuration:
             self._configuration = configuration
             with QtCore.QMutexLocker(self.__mutex):
-                self.__query = hidra.Transfer("QUERY_NEXT", self._configuration)
+                self.__query = hidra.Transfer(
+                    "QUERY_NEXT", self._configuration)
             self._initiated = False
 
     def connect(self):
@@ -717,7 +720,7 @@ class HiDRASource(BaseSource):
         """
         try:
             if self.__query is not None:
-               with QtCore.QMutexLocker(self.__mutex):
+                with QtCore.QMutexLocker(self.__mutex):
                     self.__query.stop()
         except:
             pass

@@ -333,8 +333,6 @@ class LiveViewer(QtGui.QDialog):
         self.sourceWg.updateMetaData(
             zmqtopics=self.zmqtopics, dirtrans=self.dirtrans,
             autozmqtopics=self.autozmqtopics)
-        #print("PRINT %s" % self.data_source.getMetaData())
-        #self.sourceWg.updateMetaData(**self.data_source.getMetaData())
 
         self.levelsWg.changeView(self.showhisto)
         self.prepBoxWg.changeView(self.showmask)
