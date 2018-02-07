@@ -56,7 +56,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         :param sourcetypes: source type class names
-        :type sourcetypes: :obj:`list` <:obj:`str`> 
+        :type sourcetypes: :obj:`list` <:obj:`str`>
         """
         QtGui.QGroupBox.__init__(self, parent)
 

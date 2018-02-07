@@ -84,7 +84,8 @@ class BaseSourceWidget(QtGui.QWidget):
         self.active = False
         #: (:obj:`bool`) source widget connected
         self._connected = False
-        #: (:class:`Ui_BaseSourceWidget') ui_sourcewidget object from qtdesigner
+        #: (:class:`Ui_BaseSourceWidget')
+        #:     ui_sourcewidget object from qtdesigner
         self._ui = None
         #: (:obj:`bool`) source widget detached
         self.__detached = False

@@ -62,20 +62,22 @@ class PreparationGroupBox(QtGui.QGroupBox):
         self.__mask = True
 
         #: (:class:`lavuelib.maskWidget.Maskwidget`) mask widget
-        self.maskWg = maskWidget.MaskWidget(parent=self)
+        self.maskWidget = maskWidget.MaskWidget(parent=self)
         #: (:class:`lavuelib.bkgSubtractionWidget.BkgSubtractionWidget`)
         #  background subtrantion widget
-        self.bkgSubWg = bkgSubtractionWidget.BkgSubtractionWidget(parent=self)
+        self.bkgSubWidget = bkgSubtractionWidget.BkgSubtractionWidget(
+            parent=self)
         self.__hline = QHLine()
         #: (:class:`lavuelib.transformationsWidget.TransformationsWidget`)
         #  transformations widget
-        self.trafoWg = transformationsWidget.TransformationsWidget(parent=self)
+        self.trafoWidget = transformationsWidget.TransformationsWidget(
+            parent=self)
 
         vlayout = QtGui.QVBoxLayout()
-        vlayout.addWidget(self.bkgSubWg)
-        vlayout.addWidget(self.maskWg)
+        vlayout.addWidget(self.bkgSubWidget)
+        vlayout.addWidget(self.maskWidget)
         vlayout.addWidget(self.__hline)
-        vlayout.addWidget(self.trafoWg)
+        vlayout.addWidget(self.trafoWidget)
 
         self.setLayout(vlayout)
 
@@ -88,7 +90,7 @@ class PreparationGroupBox(QtGui.QGroupBox):
 
         if showmask:
             self.__mask = True
-            self.maskWg.show()
+            self.maskWidget.show()
         else:
             self.__mask = False
-            self.maskWg.hide()
+            self.maskWidget.hide()
