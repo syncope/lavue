@@ -72,13 +72,21 @@ class BaseSourceWidget(QtGui.QWidget):
         """
         QtGui.QGroupBox.__init__(self, parent)
 
+        #: (:obj:`str`) source name
         self.name = "Test"
+        #: (:obj:`str`) datasource class name
         self.datasource = "BaseSource"
+        #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = []
+        #: (:obj:`list` <:class:`PyQt4.QtGui.QWidget`>) subwidget objects
         self.widgets = []
+        #: (:obj:`bool`) source widget active
         self.active = False
+        #: (:obj:`bool`) source widget connected
         self._connected = False
+        #: (:class:`Ui_BaseSourceWidget') ui_sourcewidget object from qtdesigner
         self._ui = None
+        #: (:obj:`bool`) source widget detached
         self.__detached = False
 
     def updateButton(self):
@@ -133,11 +141,6 @@ class TestSourceWidget(BaseSourceWidget):
         self._ui = _testformclass()
         self._ui.setupUi(self)
 
-        self.name = "Test"
-        self.datasource = "BaseSource"
-        self.widgetnames = []
-        self.active = False
-
         self._detachWidgets()
 
 
@@ -156,10 +159,12 @@ class HTTPSourceWidget(BaseSourceWidget):
         self._ui = _httpformclass()
         self._ui.setupUi(self)
 
+        #: (:obj:`str`) source name
         self.name = "HTTP response"
+        #: (:obj:`str`) datasource class name
         self.datasource = "HTTPSource"
+        #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = ["httpLabel", "httpLineEdit"]
-        self.active = False
 
         self._detachWidgets()
 
@@ -208,13 +213,15 @@ class HidraSourceWidget(BaseSourceWidget):
         self._ui = _hidraformclass()
         self._ui.setupUi(self)
 
+        #: (:obj:`str`) source name
         self.name = "Hidra"
+        #: (:obj:`str`) datasource class name
         self.datasource = "HiDRASource"
+        #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "serverLabel", "serverComboBox",
             "hostLabel", "currenthostLabel"
         ]
-        self.active = False
         #: (:obj:`dict` < :obj:`str`, :obj:`list` <:obj:`str`> >)
         #:  server dictionary
         self.__serverdict = {}
@@ -303,12 +310,14 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         self._ui = _tangoattrformclass()
         self._ui.setupUi(self)
 
+        #: (:obj:`str`) source name
         self.name = "Tango Attribute"
+        #: (:obj:`str`) datasource class name
         self.datasource = "TangoAttrSource"
+        #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "attrLabel", "attrLineEdit"
         ]
-        self.active = False
 
         self._detachWidgets()
 
@@ -355,13 +364,15 @@ class TangoFileSourceWidget(BaseSourceWidget):
         self._ui = _tangofileformclass()
         self._ui.setupUi(self)
 
+        #: (:obj:`str`) source name
         self.name = "Tango File"
+        #: (:obj:`str`) datasource class name
         self.datasource = "TangoFileSource"
+        #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "fileLabel", "fileLineEdit",
             "dirLabel", "dirLineEdit"
         ]
-        self.active = False
 
         #: (:obj:`str`) json dictionary with directory
         #:               and file name translation
@@ -416,13 +427,15 @@ class ZMQSourceWidget(BaseSourceWidget):
         self._ui = _zmqformclass()
         self._ui.setupUi(self)
 
+        #: (:obj:`str`) source name
         self.name = "ZMQ Stream"
+        #: (:obj:`str`) datasource class name
         self.datasource = "ZMQSource"
+        #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "pickleLabel", "pickleLineEdit",
             "pickleTopicLabel", "pickleTopicComboBox"
         ]
-        self.active = False
 
         #: (:obj:`list` <:obj:`str`> >) zmq source datasources
         self.__zmqtopics = []

@@ -30,7 +30,7 @@ import math
 
 from PyQt4 import QtCore, QtGui
 
-import pyqtgraph as pg
+import pyqtgraph as _pg
 import numpy as np
 import re
 
@@ -60,58 +60,21 @@ class ImageWidget(QtGui.QWidget):
 
         self.__lasttext = ""
         verticallayout = QtGui.QVBoxLayout()
-        filenamelayout = QtGui.QHBoxLayout()
 
-        filelabel = QtGui.QLabel("Image/File name: ")
-        filelabel.setToolTip("image or/and file name")
+        self.splitter2 = QtGui.QSplitter(self)
+        self.splitter2.setOrientation(QtCore.Qt.Vertical)
 
-        filenamelayout.addWidget(filelabel)
-        self.filenamedisplay = QtGui.QLineEdit()
-        self.filenamedisplay.setReadOnly(True)
-        self.filenamedisplay.setToolTip("image or/and file name")
-        filenamelayout.addWidget(self.filenamedisplay)
-        # self.buttonBox = QtGui.QDialogButtonBox()
-        # self.quitButton  = self.buttonBox.addButton(
-        #        QtGui.QDialogButtonBox.Close)
-        # self.quitButton.setText("&Quit")
-        self.quitButton = QtGui.QPushButton("&Quit")
-        self.quitButton.setToolTip("quit the image viewer")
-        self.cnfButton = QtGui.QPushButton("Configuration")
-        self.cnfButton.setToolTip("image viewer configuration")
-        self.loadButton = QtGui.QPushButton("Load ...")
-        self.loadButton.setToolTip("load an image from a file")
-        # self.buttonBox.addButton(self.cnfButton,
-        #          QtGui.QDialogButtonBox.ActionRole)
-        filenamelayout.addWidget(self.loadButton)
-        filenamelayout.addWidget(self.cnfButton)
-        filenamelayout.addWidget(self.quitButton)
-        # filenamelayout.addWidget(self.buttonBox)
-        verticallayout.addLayout(filenamelayout)
-
-        self.splitter = QtGui.QSplitter(self)
+        self.splitter = QtGui.QSplitter(self.splitter2)
         self.splitter.setOrientation(QtCore.Qt.Vertical)
-        self.img_widget = imageDisplayWidget.ImageDisplayWidget(
+        self.displaywidget = imageDisplayWidget.ImageDisplayWidget(
             parent=self.splitter)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
-                                       QtGui.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(15)
-        sizePolicy.setHeightForWidth(
-            self.img_widget.sizePolicy().hasHeightForWidth())
-        self.img_widget.setSizePolicy(sizePolicy)
 
-        self.cutPlot = pg.PlotWidget(self.splitter)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
-                                       QtGui.QSizePolicy.Preferred)
-        self.cutCurve = self.cutPlot.plot()
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(
-            self.cutPlot.sizePolicy().hasHeightForWidth())
-        self.cutPlot.setSizePolicy(sizePolicy)
+        self.cutPlot = _pg.PlotWidget(self.splitter)
         self.cutPlot.setMinimumSize(QtCore.QSize(0, 120))
+        self.cutCurve = self.cutPlot.plot()
 
-        verticallayout.addWidget(self.splitter)
+        self.splitter.setStretchFactor(0, 20)
+        self.splitter.setStretchFactor(1, 1)
 
         self.pixelComboBox = QtGui.QComboBox()
         self.pixelComboBox.addItem("Intensity")
@@ -125,19 +88,21 @@ class ImageWidget(QtGui.QWidget):
 
         pixelvaluelayout = QtGui.QHBoxLayout()
         pixelvaluelayout2 = QtGui.QHBoxLayout()
+        pixelvlayout = QtGui.QVBoxLayout()
+
         self.pixellabel = QtGui.QLabel("Pixel position and intensity: ")
         self.pixellabel.setToolTip(
             "coordinate info display for the mouse pointer")
 
-        self.infodisplay = QtGui.QLineEdit()
-        self.infodisplay.setReadOnly(True)
-        self.infodisplay.setToolTip(
+        self.infoLineEdit = QtGui.QLineEdit()
+        self.infoLineEdit.setReadOnly(True)
+        self.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer")
 
         self.ticksPushButton = QtGui.QPushButton("Axes ...")
 
-        self.roiLabel = QtGui.QLabel("[x1, y1, x2, y2], sum: ")
-        self.roiLabel.setToolTip(
+        self.infoLabel = QtGui.QLabel("[x1, y1, x2, y2], sum: ")
+        self.infoLabel.setToolTip(
             "coordinate info display for the mouse pointer")
         self.labelROILineEdit = QtGui.QLineEdit("")
         self.labelROILineEdit.setToolTip(
@@ -177,24 +142,36 @@ class ImageWidget(QtGui.QWidget):
         pixelvaluelayout.addWidget(self.angleqPushButton)
         pixelvaluelayout.addWidget(self.angleqComboBox)
         pixelvaluelayout.addWidget(self.ticksPushButton)
+
         pixelvaluelayout2 = QtGui.QHBoxLayout()
-        pixelvaluelayout2.addWidget(self.roiLabel)
-        pixelvaluelayout2.addWidget(self.infodisplay)
+        pixelvaluelayout2.addWidget(self.infoLabel)
+        pixelvaluelayout2.addWidget(self.infoLineEdit)
         pixelvaluelayout2.addWidget(self.pixelComboBox)
 
-        verticallayout.addLayout(pixelvaluelayout)
-        verticallayout.addLayout(pixelvaluelayout2)
+        pixelvlayout.addLayout(pixelvaluelayout)
+        pixelvlayout.addLayout(pixelvaluelayout2)
+        spacerItem = QtGui.QSpacerItem(
+            0, 0, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        pixelvlayout.addItem(spacerItem)
+        frame = QtGui.QFrame(self.splitter2)
+        frame.setLayout(pixelvlayout)
+
+        self.splitter2.setStretchFactor(0, 100)
+        self.splitter2.setStretchFactor(1, 1)
+
+        verticallayout.addWidget(self.splitter2)
 
         self.setLayout(verticallayout)
-        self.img_widget.currentMousePosition.connect(self.setDisplayedText)
+        self.displaywidget.currentMousePosition.connect(self.setDisplayedText)
 
         self.roiregionmapper.mapped.connect(self.roiRegionChanged)
         self.currentroimapper.mapped.connect(self.currentROIChanged)
-        self.img_widget.roi[0].sigHoverEvent.connect(self.currentroimapper.map)
-        self.img_widget.roi[0].sigRegionChanged.connect(
+        self.displaywidget.roi[0].sigHoverEvent.connect(
+            self.currentroimapper.map)
+        self.displaywidget.roi[0].sigRegionChanged.connect(
             self.roiregionmapper.map)
-        self.currentroimapper.setMapping(self.img_widget.roi[0], 0)
-        self.roiregionmapper.setMapping(self.img_widget.roi[0], 0)
+        self.currentroimapper.setMapping(self.displaywidget.roi[0], 0)
+        self.roiregionmapper.setMapping(self.displaywidget.roi[0], 0)
 
         self.cutCoordsChanged.connect(self.plotCut)
         self.roiSpinBox.valueChanged.connect(self.roiNrChanged)
@@ -203,38 +180,39 @@ class ImageWidget(QtGui.QWidget):
 
         self.cutregionmapper.mapped.connect(self.cutRegionChanged)
         self.currentcutmapper.mapped.connect(self.currentCutChanged)
-        self.img_widget.cut[0].sigHoverEvent.connect(self.currentcutmapper.map)
-        self.img_widget.cut[0].sigRegionChanged.connect(
+        self.displaywidget.cut[0].sigHoverEvent.connect(
+            self.currentcutmapper.map)
+        self.displaywidget.cut[0].sigRegionChanged.connect(
             self.cutregionmapper.map)
-        self.currentcutmapper.setMapping(self.img_widget.cut[0], 0)
-        self.cutregionmapper.setMapping(self.img_widget.cut[0], 0)
+        self.currentcutmapper.setMapping(self.displaywidget.cut[0], 0)
+        self.cutregionmapper.setMapping(self.displaywidget.cut[0], 0)
         self.angleqPushButton.clicked.connect(self.geometry)
         self.angleqComboBox.currentIndexChanged.connect(
             self.onAngleQChanged)
-        self.img_widget.centerAngleChanged.connect(self.updateGeometry)
+        self.displaywidget.centerAngleChanged.connect(self.updateGeometry)
         self.cutSpinBox.valueChanged.connect(self.cutNrChanged)
 
     @QtCore.pyqtSlot(int)
     def onAngleQChanged(self, gindex):
-        self.img_widget.gspaceindex = gindex
+        self.displaywidget.gspaceindex = gindex
 
     @QtCore.pyqtSlot()
     def geometry(self):
         cnfdlg = geometryDialog.GeometryDialog(self)
-        cnfdlg.centerx = self.img_widget.centerx
-        cnfdlg.centery = self.img_widget.centery
-        cnfdlg.energy = self.img_widget.energy
-        cnfdlg.pixelsizex = self.img_widget.pixelsizex
-        cnfdlg.pixelsizey = self.img_widget.pixelsizey
-        cnfdlg.detdistance = self.img_widget.detdistance
+        cnfdlg.centerx = self.displaywidget.centerx
+        cnfdlg.centery = self.displaywidget.centery
+        cnfdlg.energy = self.displaywidget.energy
+        cnfdlg.pixelsizex = self.displaywidget.pixelsizex
+        cnfdlg.pixelsizey = self.displaywidget.pixelsizey
+        cnfdlg.detdistance = self.displaywidget.detdistance
         cnfdlg.createGUI()
         if cnfdlg.exec_():
-            self.img_widget.centerx = cnfdlg.centerx
-            self.img_widget.centery = cnfdlg.centery
-            self.img_widget.energy = cnfdlg.energy
-            self.img_widget.pixelsizex = cnfdlg.pixelsizex
-            self.img_widget.pixelsizey = cnfdlg.pixelsizey
-            self.img_widget.detdistance = cnfdlg.detdistance
+            self.displaywidget.centerx = cnfdlg.centerx
+            self.displaywidget.centery = cnfdlg.centery
+            self.displaywidget.energy = cnfdlg.energy
+            self.displaywidget.pixelsizex = cnfdlg.pixelsizex
+            self.displaywidget.pixelsizey = cnfdlg.pixelsizey
+            self.displaywidget.detdistance = cnfdlg.detdistance
             self.updateGeometryTip()
 
     @QtCore.pyqtSlot()
@@ -249,12 +227,12 @@ class ImageWidget(QtGui.QWidget):
                   u"  pixel_size = (%s, %s) \u00B5m\n" \
                   u"  detector_distance = %s mm\n" \
                   u"  energy = %s eV" % (
-                      self.img_widget.centerx,
-                      self.img_widget.centery,
-                      self.img_widget.pixelsizex,
-                      self.img_widget.pixelsizey,
-                      self.img_widget.detdistance,
-                      self.img_widget.energy
+                      self.displaywidget.centerx,
+                      self.displaywidget.centery,
+                      self.displaywidget.pixelsizex,
+                      self.displaywidget.pixelsizey,
+                      self.displaywidget.detdistance,
+                      self.displaywidget.energy
                   )
         self.angleqPushButton.setToolTip(
             "Input physical parameters\n%s" % message)
@@ -262,18 +240,18 @@ class ImageWidget(QtGui.QWidget):
             "Select the display space\n%s" % message)
         self.pixellabel.setToolTip(
             "coordinate info display for the mouse pointer\n%s" % message)
-        self.infodisplay.setToolTip(
+        self.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer\n%s" % message)
 
     def updateMetaData(self, axisscales=None, axislabels=None):
         if axislabels is not None:
-            self.img_widget.xtext = str(axislabels[0]) \
+            self.displaywidget.xtext = str(axislabels[0]) \
                 if axislabels[0] is not None else None
-            self.img_widget.ytext = str(axislabels[1]) \
+            self.displaywidget.ytext = str(axislabels[1]) \
                 if axislabels[0] is not None else None
-            self.img_widget.xunits = str(axislabels[2]) \
+            self.displaywidget.xunits = str(axislabels[2]) \
                 if axislabels[0] is not None else None
-            self.img_widget.yunits = str(axislabels[3]) \
+            self.displaywidget.yunits = str(axislabels[3]) \
                 if axislabels[0] is not None else None
         position = None
         scale = None
@@ -286,11 +264,11 @@ class ImageWidget(QtGui.QWidget):
                 scale = (float(axisscales[2]), float(axisscales[3]))
             except:
                 scale = None
-        self.img_widget.setScale(
+        self.displaywidget.setScale(
             position, scale,
-            not self.img_widget.roienable
-            and not self.img_widget.cutenable
-            and not self.img_widget.qenable)
+            not self.displaywidget.roienable
+            and not self.displaywidget.cutenable
+            and not self.displaywidget.qenable)
 
     @QtCore.pyqtSlot(int)
     def roiRegionChanged(self, _):
@@ -302,16 +280,16 @@ class ImageWidget(QtGui.QWidget):
 
     @QtCore.pyqtSlot(int)
     def currentROIChanged(self, rid):
-        oldrid = self.img_widget.currentroi
+        oldrid = self.displaywidget.currentroi
         if rid != oldrid:
-            self.img_widget.currentroi = rid
+            self.displaywidget.currentroi = rid
             self.roiCoordsChanged.emit()
 
     @QtCore.pyqtSlot(int)
     def currentCutChanged(self, cid):
-        oldcid = self.img_widget.currentcut
+        oldcid = self.displaywidget.currentcut
         if cid != oldcid:
-            self.img_widget.currentcut = cid
+            self.displaywidget.currentcut = cid
             self.cutCoordsChanged.emit()
 
     @QtCore.pyqtSlot()
@@ -334,100 +312,115 @@ class ImageWidget(QtGui.QWidget):
                 "add ROI aliases to the Door environment "
                 "as well as to Active MntGrp")
         if coords:
-            for i, crd in enumerate(self.img_widget.roi):
+            for i, crd in enumerate(self.displaywidget.roi):
                 if i < len(coords):
-                    self.img_widget.roicoords[i] = coords[i]
+                    self.displaywidget.roicoords[i] = coords[i]
                     crd.setPos([coords[i][0], coords[i][1]])
                     crd.setSize(
                         [coords[i][2] - coords[i][0],
                          coords[i][3] - coords[i][1]])
-        while rid > len(self.img_widget.roi):
-            if coords and len(coords) >= len(self.img_widget.roi):
-                self.img_widget.addROI(coords[len(self.img_widget.roi)])
+        while rid > len(self.displaywidget.roi):
+            if coords and len(coords) >= len(self.displaywidget.roi):
+                self.displaywidget.addROI(coords[len(self.displaywidget.roi)])
             else:
-                self.img_widget.addROI()
-            self.img_widget.roi[-1].sigHoverEvent.connect(
+                self.displaywidget.addROI()
+            self.displaywidget.roi[-1].sigHoverEvent.connect(
                 self.currentroimapper.map)
-            self.img_widget.roi[-1].sigRegionChanged.connect(
+            self.displaywidget.roi[-1].sigRegionChanged.connect(
                 self.roiregionmapper.map)
             self.currentroimapper.setMapping(
-                self.img_widget.roi[-1],
-                len(self.img_widget.roi) - 1)
+                self.displaywidget.roi[-1],
+                len(self.displaywidget.roi) - 1)
             self.roiregionmapper.setMapping(
-                self.img_widget.roi[-1],
-                len(self.img_widget.roi) - 1)
+                self.displaywidget.roi[-1],
+                len(self.displaywidget.roi) - 1)
         if rid <= 0:
-            self.img_widget.currentroi = -1
-        elif self.img_widget.currentroi >= rid:
-            self.img_widget.currentroi = 0
-        while max(rid, 0) < len(self.img_widget.roi):
-            self.currentroimapper.removeMappings(self.img_widget.roi[-1])
-            self.roiregionmapper.removeMappings(self.img_widget.roi[-1])
-            self.img_widget.removeROI()
+            self.displaywidget.currentroi = -1
+        elif self.displaywidget.currentroi >= rid:
+            self.displaywidget.currentroi = 0
+        while max(rid, 0) < len(self.displaywidget.roi):
+            self.currentroimapper.removeMappings(self.displaywidget.roi[-1])
+            self.roiregionmapper.removeMappings(self.displaywidget.roi[-1])
+            self.displaywidget.removeROI()
         self.roiCoordsChanged.emit()
         self.roiSpinBox.setValue(rid)
 
     @QtCore.pyqtSlot(int)
     def cutNrChanged(self, cid, coords=None):
         if coords:
-            for i, crd in enumerate(self.img_widget.cut):
+            for i, crd in enumerate(self.displaywidget.cut):
                 if i < len(coords):
-                    self.img_widget.cutcoords[i] = coords[i]
+                    self.displaywidget.cutcoords[i] = coords[i]
                     crd.setPos([coords[i][0], coords[i][1]])
                     crd.setSize(
                         [coords[i][2] - coords[i][0],
                          coords[i][3] - coords[i][1]])
-        while cid > len(self.img_widget.cut):
-            if coords and len(coords) >= len(self.img_widget.cut):
-                self.img_widget.addCut(coords[len(self.img_widget.cut)])
+        while cid > len(self.displaywidget.cut):
+            if coords and len(coords) >= len(self.displaywidget.cut):
+                self.displaywidget.addCut(coords[len(self.displaywidget.cut)])
             else:
-                self.img_widget.addCut()
-            self.img_widget.cut[-1].sigHoverEvent.connect(
+                self.displaywidget.addCut()
+            self.displaywidget.cut[-1].sigHoverEvent.connect(
                 self.currentcutmapper.map)
-            self.img_widget.cut[-1].sigRegionChanged.connect(
+            self.displaywidget.cut[-1].sigRegionChanged.connect(
                 self.cutregionmapper.map)
             self.currentcutmapper.setMapping(
-                self.img_widget.cut[-1],
-                len(self.img_widget.cut) - 1)
+                self.displaywidget.cut[-1],
+                len(self.displaywidget.cut) - 1)
             self.cutregionmapper.setMapping(
-                self.img_widget.cut[-1],
-                len(self.img_widget.cut) - 1)
+                self.displaywidget.cut[-1],
+                len(self.displaywidget.cut) - 1)
         if cid <= 0:
-            self.img_widget.currentcut = -1
-        elif self.img_widget.currentcut >= cid:
-            self.img_widget.currentcut = 0
-        while max(cid, 0) < len(self.img_widget.cut):
-            self.currentcutmapper.removeMappings(self.img_widget.cut[-1])
-            self.cutregionmapper.removeMappings(self.img_widget.cut[-1])
-            self.img_widget.removeCut()
+            self.displaywidget.currentcut = -1
+        elif self.displaywidget.currentcut >= cid:
+            self.displaywidget.currentcut = 0
+        while max(cid, 0) < len(self.displaywidget.cut):
+            self.currentcutmapper.removeMappings(self.displaywidget.cut[-1])
+            self.cutregionmapper.removeMappings(self.displaywidget.cut[-1])
+            self.displaywidget.removeCut()
         self.cutCoordsChanged.emit()
         self.cutSpinBox.setValue(cid)
 
+    def onPixelChanged(self, text):
+        if text == "ROI":
+            self.showROIFrame()
+            self.roiChanged()
+        elif text == "LineCut":
+            self.showLineCutFrame()
+            self.roiCoordsChanged.emit()
+        elif text == "Angle/Q":
+            self.showAngleQFrame()
+            self.roiCoordsChanged.emit()
+        else:
+            self.showIntensityFrame()
+            self.roiCoordsChanged.emit()
+
     def roiChanged(self):
         try:
-            rid = self.img_widget.currentroi
-            state = self.img_widget.roi[rid].state
+            rid = self.displaywidget.currentroi
+            state = self.displaywidget.roi[rid].state
             ptx = int(math.floor(state['pos'].x()))
             pty = int(math.floor(state['pos'].y()))
             szx = int(math.floor(state['size'].x()))
             szy = int(math.floor(state['size'].y()))
-            self.img_widget.roicoords[rid] = [ptx, pty, ptx + szx, pty + szy]
+            self.displaywidget.roicoords[rid] = [
+                ptx, pty, ptx + szx, pty + szy]
             self.roiCoordsChanged.emit()
         except Exception as e:
             print("Warning: %s" % str(e))
 
     def cutChanged(self):
         try:
-            cid = self.img_widget.currentcut
-            self.img_widget.cutcoords[cid] = \
-                self.img_widget.cut[cid].getCoordinates()
+            cid = self.displaywidget.currentcut
+            self.displaywidget.cutcoords[cid] = \
+                self.displaywidget.cut[cid].getCoordinates()
             self.cutCoordsChanged.emit()
         except Exception as e:
             print("Warning: %s" % str(e))
 
     def showROIFrame(self):
-        self.img_widget.vLine.hide()
-        self.img_widget.hLine.hide()
+        self.displaywidget.vLine.hide()
+        self.displaywidget.hLine.hide()
         self.ticksPushButton.hide()
         self.angleqPushButton.hide()
         self.angleqComboBox.hide()
@@ -439,32 +432,32 @@ class ImageWidget(QtGui.QWidget):
         self.labelROILineEdit.show()
 
         self.pixellabel.setText("ROI alias(es): ")
-        self.roiLabel.show()
-        for roi in self.img_widget.roi:
+        self.infoLabel.show()
+        for roi in self.displaywidget.roi:
             roi.show()
-        for cut in self.img_widget.cut:
+        for cut in self.displaywidget.cut:
             cut.hide()
-        doreset = not (self.img_widget.cutenable or
-                       self.img_widget.roienable or
-                       self.img_widget.qenable)
-        self.img_widget.cutenable = False
-        self.img_widget.roienable = True
-        self.img_widget.qenable = False
-        if self.img_widget.roi:
-            self.img_widget.roi[0].show()
-        self.infodisplay.setText("")
-        self.infodisplay.setToolTip(
+        doreset = not (self.displaywidget.cutenable or
+                       self.displaywidget.roienable or
+                       self.displaywidget.qenable)
+        self.displaywidget.cutenable = False
+        self.displaywidget.roienable = True
+        self.displaywidget.qenable = False
+        if self.displaywidget.roi:
+            self.displaywidget.roi[0].show()
+        self.infoLineEdit.setText("")
+        self.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer")
         self.pixellabel.setToolTip(
             "ROI alias or aliases related to sardana experimental channels")
         if doreset:
-            self.img_widget.resetScale()
+            self.displaywidget.resetScale()
 
     def showIntensityFrame(self):
         self.pixellabel.setText("Pixel position and intensity: ")
-        for roi in self.img_widget.roi:
+        for roi in self.displaywidget.roi:
             roi.hide()
-        for cut in self.img_widget.cut:
+        for cut in self.displaywidget.cut:
             cut.hide()
         self.cutPlot.hide()
         self.ticksPushButton.show()
@@ -475,25 +468,25 @@ class ImageWidget(QtGui.QWidget):
         self.applyROIButton.hide()
         self.roiSpinBox.hide()
         self.cutSpinBox.hide()
-        self.roiLabel.hide()
-        self.img_widget.roienable = False
-        self.img_widget.cutenable = False
-        self.img_widget.qenable = False
-        self.img_widget.vLine.show()
-        self.img_widget.hLine.show()
-        self.infodisplay.setText("")
-        self.infodisplay.setToolTip(
+        self.infoLabel.hide()
+        self.displaywidget.roienable = False
+        self.displaywidget.cutenable = False
+        self.displaywidget.qenable = False
+        self.displaywidget.vLine.show()
+        self.displaywidget.hLine.show()
+        self.infoLineEdit.setText("")
+        self.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer")
         self.pixellabel.setToolTip(
             "coordinate info display for the mouse pointer")
-        self.img_widget.setScale(
-            self.img_widget.position, self.img_widget.scale)
+        self.displaywidget.setScale(
+            self.displaywidget.position, self.displaywidget.scale)
 
     def showLineCutFrame(self):
         self.pixellabel.setText("Cut, pixel position and intensity: ")
-        for roi in self.img_widget.roi:
+        for roi in self.displaywidget.roi:
             roi.hide()
-        for cut in self.img_widget.cut:
+        for cut in self.displaywidget.cut:
             cut.show()
         self.cutPlot.show()
         self.fetchROIButton.hide()
@@ -504,28 +497,28 @@ class ImageWidget(QtGui.QWidget):
         self.applyROIButton.hide()
         self.cutSpinBox.show()
         self.roiSpinBox.hide()
-        self.roiLabel.hide()
-        doreset = not (self.img_widget.cutenable or
-                       self.img_widget.roienable or
-                       self.img_widget.qenable)
-        self.img_widget.roienable = False
-        self.img_widget.cutenable = True
-        self.img_widget.qenable = False
-        self.img_widget.vLine.hide()
-        self.img_widget.hLine.hide()
-        self.infodisplay.setText("")
-        self.infodisplay.setToolTip(
+        self.infoLabel.hide()
+        doreset = not (self.displaywidget.cutenable or
+                       self.displaywidget.roienable or
+                       self.displaywidget.qenable)
+        self.displaywidget.roienable = False
+        self.displaywidget.cutenable = True
+        self.displaywidget.qenable = False
+        self.displaywidget.vLine.hide()
+        self.displaywidget.hLine.hide()
+        self.infoLineEdit.setText("")
+        self.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer")
         self.pixellabel.setToolTip(
             "coordinate info display for the mouse pointer")
         if doreset:
-            self.img_widget.resetScale()
+            self.displaywidget.resetScale()
 
     def showAngleQFrame(self):
         self.pixellabel.setText("Pixel position and intensity: ")
-        for roi in self.img_widget.roi:
+        for roi in self.displaywidget.roi:
             roi.hide()
-        for cut in self.img_widget.cut:
+        for cut in self.displaywidget.cut:
             cut.hide()
         self.cutPlot.hide()
         self.ticksPushButton.hide()
@@ -536,37 +529,35 @@ class ImageWidget(QtGui.QWidget):
         self.applyROIButton.hide()
         self.roiSpinBox.hide()
         self.cutSpinBox.hide()
-        self.roiLabel.hide()
-        doreset = not (self.img_widget.cutenable or
-                       self.img_widget.roienable or
-                       self.img_widget.qenable)
-        self.img_widget.roienable = False
-        self.img_widget.cutenable = False
-        self.img_widget.qenable = True
-        self.img_widget.vLine.show()
-        self.img_widget.hLine.show()
-        self.infodisplay.setText("")
+        self.infoLabel.hide()
+        doreset = not (self.displaywidget.cutenable or
+                       self.displaywidget.roienable or
+                       self.displaywidget.qenable)
+        self.displaywidget.roienable = False
+        self.displaywidget.cutenable = False
+        self.displaywidget.qenable = True
+        self.displaywidget.vLine.show()
+        self.displaywidget.hLine.show()
+        self.infoLineEdit.setText("")
         self.updateGeometryTip()
         if doreset:
-            self.img_widget.resetScale()
+            self.displaywidget.resetScale()
 
-    def plot(self, array, name=None, rawarray=None):
+    def plot(self, array, rawarray=None):
         if array is None:
             return
         if rawarray is None:
             rawarray = array
-        if name is not None:
-            self.filenamedisplay.setText(name)
 
-        self.img_widget.updateImage(array, rawarray)
-        if self.img_widget.cutenable:
+        self.displaywidget.updateImage(array, rawarray)
+        if self.displaywidget.cutenable:
             self.plotCut()
-        if self.img_widget.roienable:
+        if self.displaywidget.roienable:
             self.setDisplayedText()
 
     def createROILabel(self):
         roilabel = ""
-        currentroi = self.img_widget.currentroi
+        currentroi = self.displaywidget.currentroi
         if currentroi >= 0:
             roilabel = "roi [%s]" % (currentroi + 1)
             slabel = []
@@ -583,14 +574,14 @@ class ImageWidget(QtGui.QWidget):
         return roilabel
 
     def calcROIsum(self):
-        rid = self.img_widget.currentroi
+        rid = self.displaywidget.currentroi
         image = None
-        if self.img_widget.rawdata is not None:
-            image = self.img_widget.rawdata
+        if self.displaywidget.rawdata is not None:
+            image = self.displaywidget.rawdata
         if image is not None:
-            if self.img_widget.roienable:
+            if self.displaywidget.roienable:
                 if rid >= 0:
-                    roicoords = self.img_widget.roicoords
+                    roicoords = self.displaywidget.roicoords
                     rcrds = list(roicoords[rid])
                     for i in [0, 2]:
                         if rcrds[i] > image.shape[0]:
@@ -616,13 +607,13 @@ class ImageWidget(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def plotCut(self):
-        cid = self.img_widget.currentcut
-        if cid > -1 and len(self.img_widget.cut) > cid:
-            cut = self.img_widget.cut[cid]
-            if self.img_widget.rawdata is not None:
+        cid = self.displaywidget.currentcut
+        if cid > -1 and len(self.displaywidget.cut) > cid:
+            cut = self.displaywidget.cut[cid]
+            if self.displaywidget.rawdata is not None:
                 dt = cut.getArrayRegion(
-                    self.img_widget.rawdata,
-                    self.img_widget.image, axes=(0, 1))
+                    self.displaywidget.rawdata,
+                    self.displaywidget.image, axes=(0, 1))
                 while dt.ndim > 1:
                     dt = dt.mean(axis=1)
                 self.cutCurve.setData(y=dt)
@@ -633,19 +624,19 @@ class ImageWidget(QtGui.QWidget):
 
     @QtCore.pyqtSlot(int)
     def setAutoLevels(self, autoLvls):
-        self.img_widget.setAutoLevels(autoLvls)
+        self.displaywidget.setAutoLevels(autoLvls)
 
     @QtCore.pyqtSlot(float)
     def setMinLevel(self, level=None):
-        self.img_widget.setDisplayMinLevel(level)
+        self.displaywidget.setDisplayMinLevel(level)
 
     @QtCore.pyqtSlot(float)
     def setMaxLevel(self, level=None):
-        self.img_widget.setDisplayMaxLevel(level)
+        self.displaywidget.setDisplayMaxLevel(level)
 
     @QtCore.pyqtSlot(str)
     def changeGradient(self, name):
-        self.img_widget.updateGradient(name)
+        self.displaywidget.updateGradient(name)
 
     @QtCore.pyqtSlot(str)
     def setDisplayedText(self, text=None):
@@ -653,33 +644,33 @@ class ImageWidget(QtGui.QWidget):
             self.__lasttext = text
         else:
             text = self.__lasttext
-        if self.img_widget.roienable and self.img_widget.roi:
+        if self.displaywidget.roienable and self.displaywidget.roi:
             roiVal, currentroi = self.calcROIsum()
             roilabel = self.createROILabel()
 
             text = "%s, %s = %s" % (text, roilabel, roiVal)
-        self.infodisplay.setText(text)
+        self.infoLineEdit.setText(text)
 
     def setTicks(self):
         cnfdlg = axesDialog.AxesDialog(self)
-        if self.img_widget.position is None:
+        if self.displaywidget.position is None:
             cnfdlg.xposition = None
             cnfdlg.yposition = None
         else:
-            cnfdlg.xposition = self.img_widget.position[0]
-            cnfdlg.yposition = self.img_widget.position[1]
-        if self.img_widget.scale is None:
+            cnfdlg.xposition = self.displaywidget.position[0]
+            cnfdlg.yposition = self.displaywidget.position[1]
+        if self.displaywidget.scale is None:
             cnfdlg.xscale = None
             cnfdlg.yscale = None
         else:
-            cnfdlg.xscale = self.img_widget.scale[0]
-            cnfdlg.yscale = self.img_widget.scale[1]
+            cnfdlg.xscale = self.displaywidget.scale[0]
+            cnfdlg.yscale = self.displaywidget.scale[1]
 
-        cnfdlg.xtext = self.img_widget.xtext
-        cnfdlg.ytext = self.img_widget.ytext
+        cnfdlg.xtext = self.displaywidget.xtext
+        cnfdlg.ytext = self.displaywidget.ytext
 
-        cnfdlg.xunits = self.img_widget.xunits
-        cnfdlg.yunits = self.img_widget.yunits
+        cnfdlg.xunits = self.displaywidget.xunits
+        cnfdlg.yunits = self.displaywidget.yunits
 
         cnfdlg.createGUI()
         if cnfdlg.exec_():
@@ -691,11 +682,11 @@ class ImageWidget(QtGui.QWidget):
                 scale = tuple([cnfdlg.xscale, cnfdlg.yscale])
             else:
                 scale = None
-            self.img_widget.xtext = cnfdlg.xtext or None
-            self.img_widget.ytext = cnfdlg.ytext or None
+            self.displaywidget.xtext = cnfdlg.xtext or None
+            self.displaywidget.ytext = cnfdlg.ytext or None
 
-            self.img_widget.xunits = cnfdlg.xunits or None
-            self.img_widget.yunits = cnfdlg.yunits or None
-            self.img_widget.setScale(position, scale)
+            self.displaywidget.xunits = cnfdlg.xunits or None
+            self.displaywidget.yunits = cnfdlg.yunits or None
+            self.displaywidget.setScale(position, scale)
             return True
         return False

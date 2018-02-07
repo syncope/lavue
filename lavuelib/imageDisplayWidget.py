@@ -25,25 +25,25 @@
 
 """ image display widget """
 
-import pyqtgraph as pg
+import pyqtgraph as _pg
 import numpy as np
 import math
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI
 from PyQt4 import QtCore, QtGui
 
-VMAJOR, VMINOR, VPATCH = pg.__version__.split(".") \
-    if pg.__version__ else ("0", "9", "0")
+VMAJOR, VMINOR, VPATCH = _pg.__version__.split(".") \
+    if _pg.__version__ else ("0", "9", "0")
 
 
 class SimpleLineROI(LineROI):
     def __init__(self, pos1, pos2, **args):
-        pos1 = pg.Point(pos1)
-        pos2 = pg.Point(pos2)
+        pos1 = _pg.Point(pos1)
+        pos2 = _pg.Point(pos2)
         d = pos2 - pos1
         l = d.length()
-        ang = pg.Point(1, 0).angle(d)
+        ang = _pg.Point(1, 0).angle(d)
 
-        ROI.__init__(self, pos1, size=pg.Point(l, 1), angle=ang, **args)
+        ROI.__init__(self, pos1, size=_pg.Point(l, 1), angle=ang, **args)
         self.addScaleRotateHandle([0, 0.5], [1, 0.5])
         self.addScaleRotateHandle([1, 0.5], [0, 0.5])
 
@@ -52,20 +52,21 @@ class SimpleLineROI(LineROI):
         pos1 = self.state['pos']
         size = self.state['size']
         ra = ang * np.pi / 180.
-        pos2 = pos1 + pg.Point(size.x() * math.cos(ra),
-                               size.x() * math.sin(ra))
+        pos2 = pos1 + _pg.Point(
+            size.x() * math.cos(ra),
+            size.x() * math.sin(ra))
         return [pos1.x(), pos1.y(), pos2.x(), pos2.y()]
 
 
-class ImageDisplayWidget(pg.GraphicsLayoutWidget):
+class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
     currentMousePosition = QtCore.pyqtSignal(QtCore.QString)
     centerAngleChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
-        pg.GraphicsLayoutWidget.__init__(self, parent)
+        _pg.GraphicsLayoutWidget.__init__(self, parent)
         self.layout = self.ci
-        self.crosshair_locked = False
+        self.__crosshair_locked = False
         self.roienable = False
         self.cutenable = False
         self.qenable = False
@@ -80,7 +81,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         self.viewbox = self.layout.addViewBox(row=0, col=1)
         self.doBkgSubtraction = False
         self.scaling = "sqrt"
-        self.image = pg.ImageItem()
+        self.image = _pg.ImageItem()
         self.viewbox.addItem(self.image)
         self.xdata = 0
         self.ydata = 0
@@ -129,24 +130,24 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             self.viewbox.menu.axes.insert(0, self.viewonetoone)
         self.viewbox.menu.addAction(self.viewonetoone)
 
-        self.leftAxis = pg.AxisItem('left')
+        self.leftAxis = _pg.AxisItem('left')
         self.leftAxis.linkToView(self.viewbox)
         self.layout.addItem(self.leftAxis, row=0, col=0)
 
-        self.bottomAxis = pg.AxisItem('bottom')
+        self.bottomAxis = _pg.AxisItem('bottom')
         self.bottomAxis.linkToView(self.viewbox)
         self.layout.addItem(self.bottomAxis, row=1, col=1)
 
         self.layout.scene().sigMouseMoved.connect(self.mouse_position)
         self.layout.scene().sigMouseClicked.connect(self.mouse_click)
 
-        self.vLine = pg.InfiniteLine(angle=90, movable=False, pen=(255, 0, 0))
-        self.hLine = pg.InfiniteLine(angle=0, movable=False, pen=(255, 0, 0))
+        self.vLine = _pg.InfiniteLine(angle=90, movable=False, pen=(255, 0, 0))
+        self.hLine = _pg.InfiniteLine(angle=0, movable=False, pen=(255, 0, 0))
         self.viewbox.addItem(self.vLine, ignoreBounds=True)
         self.viewbox.addItem(self.hLine, ignoreBounds=True)
 
         self.roi = []
-        self.roi.append(ROI(0, pg.Point(50, 50)))
+        self.roi.append(ROI(0, _pg.Point(50, 50)))
         self.roi[0].addScaleHandle([1, 1], [0, 0])
         self.roi[0].addScaleHandle([0, 0], [1, 1])
         self.viewbox.addItem(self.roi[0])
@@ -170,10 +171,10 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
             pnt = 10 * len(self.roi)
             sz = 50
             coords = [pnt, pnt, pnt + sz, pnt + sz]
-            spnt = pg.Point(sz, sz)
+            spnt = _pg.Point(sz, sz)
         else:
-            pnt = pg.Point(coords[0], coords[1])
-            spnt = pg.Point(coords[2] - coords[0], coords[3] - coords[1])
+            pnt = _pg.Point(coords[0], coords[1])
+            spnt = _pg.Point(coords[2] - coords[0], coords[3] - coords[1])
         self.roi.append(ROI(pnt, spnt))
         self.roi[-1].addScaleHandle([1, 1], [0, 0])
         self.roi[-1].addScaleHandle([0, 0], [1, 1])
@@ -271,7 +272,7 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
                 self.xdata = math.floor(mousePoint.x())
                 self.ydata = math.floor(mousePoint.y())
             if not self.roienable and not self.cutenable:
-                if not self.crosshair_locked:
+                if not self.__crosshair_locked:
                     if self.scale is not None and self.position is not None:
                         self.vLine.setPos((self.xdata + .5) * self.scale[0]
                                           + self.position[0])
@@ -418,12 +419,12 @@ class ImageDisplayWidget(pg.GraphicsLayoutWidget):
         # another double click releases the crosshair again
         if event.double():
             if not self.roienable and not self.cutenable and not self.qenable:
-                self.crosshair_locked = not self.crosshair_locked
-                if not self.crosshair_locked:
+                self.__crosshair_locked = not self.__crosshair_locked
+                if not self.__crosshair_locked:
                     self.vLine.setPos(xdata + .5)
                     self.hLine.setPos(ydata + .5)
             if self.qenable:
-                self.crosshair_locked = False
+                self.__crosshair_locked = False
                 self.centerx = float(xdata)
                 self.centery = float(ydata)
                 self.centerAngleChanged.emit()

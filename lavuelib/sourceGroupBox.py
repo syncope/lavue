@@ -55,15 +55,8 @@ class SourceGroupBox(QtGui.QGroupBox):
 
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
-        :param sourcetypes: source types, their corresponding
-                            datasource classes, slots form checks
-                            and widgets to hide.
-
-        :type sourcetypes: :obj:`list` < {"name": :obj:`str`,
-                            "datasource": :obj:`str`,
-                            "slot": :obj:`str`,
-                            "hidden": :obj:`list` <:obj:`str`> >
-                            } >
+        :param sourcetypes: source type class names
+        :type sourcetypes: :obj:`list` <:obj:`str`> 
         """
         QtGui.QGroupBox.__init__(self, parent)
 

@@ -155,6 +155,14 @@ lavuelib.scalingGroupBox module
     :undoc-members:
     :show-inheritance:
 
+lavuelib.settings module
+------------------------
+
+.. automodule:: lavuelib.settings
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lavuelib.sourceGroupBox module
 ------------------------------
 
