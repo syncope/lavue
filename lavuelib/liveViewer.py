@@ -104,7 +104,7 @@ class LiveViewer(QtGui.QDialog):
         self.__allowedwgdata = ["axisscales", "axislabels"]
 
         # note: host and target are defined in another place
-        self.data_source = hcs.GeneralSource()
+        self.data_source = hcs.BaseSource()
 
         # WIDGET DEFINITIONS
         # instantiate the widgets and declare the parent

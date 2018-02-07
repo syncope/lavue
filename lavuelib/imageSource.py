@@ -74,11 +74,13 @@ from io import BytesIO
 from . import imageFileHandler
 
 
-class GeneralSource(object):
+class BaseSource(object):
+
+    """ General"""
 
     def __init__(self, timeout=None):
         self.configuration = None
-        self._initiated = False
+        self.__initiated = False
         self.timeout = timeout
         self._counter = 0
 
@@ -87,7 +89,7 @@ class GeneralSource(object):
 
     @QtCore.pyqtSlot(str)
     def setConfiguration(self, _):
-        self._initiated = False
+        self.__initiated = False
 
     def getData(self):
         self._counter += 1
@@ -99,7 +101,7 @@ class GeneralSource(object):
             '__random_%s__' % self._counter, "")
 
     def connect(self):
-        self._initiated = True
+        self.__initiated = True
         self._counter = 0
         return True
 
@@ -110,11 +112,11 @@ class GeneralSource(object):
             pass
 
 
-class TangoFileSource(GeneralSource):
+class TangoFileSource(BaseSource):
 
     def __init__(self, timeout=None):
         self.configuration = None
-        self._initiated = False
+        self.__initiated = False
         self.timeout = timeout
         self.fproxy = None
         self.dproxy = None
@@ -124,7 +126,7 @@ class TangoFileSource(GeneralSource):
     def setConfiguration(self, configuration):
         if self.configuration != configuration:
             self.configuration = configuration
-            self._initiated = False
+            self.__initiated = False
 
     def getData(self):
 
@@ -150,7 +152,7 @@ class TangoFileSource(GeneralSource):
             fattr, dattr, dirtrans = str(
                 self.configuration).strip().split(",", 2)
             self.dirtrans = json.loads(dirtrans)
-            if not self._initiated:
+            if not self.__initiated:
                 self.fproxy = PyTango.AttributeProxy(fattr)
                 if dattr:
                     self.dproxy = PyTango.AttributeProxy(dattr)
@@ -257,11 +259,11 @@ class VDEOdecoder(object):
         return self.__value
 
 
-class TangoAttrSource(GeneralSource):
+class TangoAttrSource(BaseSource):
 
     def __init__(self, timeout=None):
         self.configuration = None
-        self._initiated = False
+        self.__initiated = False
         self.timeout = timeout
         self.aproxy = None
         self.__decoders = {"LIMA_VIDEO_IMAGE": VDEOdecoder(),
@@ -278,7 +280,7 @@ class TangoAttrSource(GeneralSource):
     def setConfiguration(self, configuration):
         if self.configuration != configuration:
             self.configuration = configuration
-            self._initiated = False
+            self.__initiated = False
 
     def getData(self):
 
@@ -311,7 +313,7 @@ class TangoAttrSource(GeneralSource):
 
     def connect(self):
         try:
-            if not self._initiated:
+            if not self.__initiated:
                 self.aproxy = PyTango.AttributeProxy(str(self.configuration))
             return True
         except Exception as e:
@@ -325,18 +327,18 @@ class TangoAttrSource(GeneralSource):
             pass
 
 
-class HTTPSource(GeneralSource):
+class HTTPSource(BaseSource):
 
     def __init__(self, timeout=None):
         self.configuration = None
-        self._initiated = False
+        self.__initiated = False
         self.timeout = timeout
 
     @QtCore.pyqtSlot(str)
     def setConfiguration(self, configuration):
         if self.configuration != configuration:
             self.configuration = configuration
-            self._initiated = False
+            self.__initiated = False
 
     def getData(self):
         if self.configuration:
@@ -382,12 +384,12 @@ class HTTPSource(GeneralSource):
             pass
 
 
-class ZMQSource(GeneralSource):
+class ZMQSource(BaseSource):
 
     def __init__(self, timeout=None):
         self.configuration = None
         self.timeout = timeout
-        self._initiated = False
+        self.__initiated = False
         self._context = zmq.Context()
         self._socket = None
         self._counter = 0
@@ -399,7 +401,7 @@ class ZMQSource(GeneralSource):
     def setConfiguration(self, configuration):
         if self.configuration != configuration:
             self.configuration = configuration
-            self._initiated = False
+            self.__initiated = False
             with QtCore.QMutexLocker(self.__mutex):
                 if self._socket:
                     shost = str(self.configuration).split("/")
@@ -499,7 +501,7 @@ class ZMQSource(GeneralSource):
             host, port = str(shost[0]).split(":")
             self._topic = shost[1] if len(shost) > 1 else ""
             hwm = int(shost[2]) if (len(shost) > 2 and shost[2]) else 2
-            if not self._initiated:
+            if not self.__initiated:
                 if self._socket:
                     self.disconnect()
                 with QtCore.QMutexLocker(self.__mutex):
@@ -542,7 +544,7 @@ class ZMQSource(GeneralSource):
         self._context.destroy()
 
 
-class HiDRASource(GeneralSource):
+class HiDRASource(BaseSource):
 
     def __init__(self, timeout=None):
         self.configuration = None
@@ -550,7 +552,7 @@ class HiDRASource(GeneralSource):
         self.target = [socket.getfqdn(), self.portnumber, 19,
                        [".cbf", ".tif", ".tiff"]]
         self.query = None
-        self._initiated = False
+        self.__initiated = False
         self.timeout = timeout
         self.__mutex = QtCore.QMutex()
 
@@ -563,14 +565,14 @@ class HiDRASource(GeneralSource):
             self.configuration = configuration
             with QtCore.QMutexLocker(self.__mutex):
                 self.query = hidra.Transfer("QUERY_NEXT", self.configuration)
-            self._initiated = False
+            self.__initiated = False
 
     def connect(self):
         try:
-            if not self._initiated:
+            if not self.__initiated:
                 with QtCore.QMutexLocker(self.__mutex):
                     self.query.initiate(self.target)
-                self._initiated = True
+                self.__initiated = True
                 with QtCore.QMutexLocker(self.__mutex):
                     self.query.start()
             return True
@@ -583,7 +585,7 @@ class HiDRASource(GeneralSource):
     def disconnect(self):
         try:
             if self.query is not None:
-                with QtCore.QMutexLocker(self.__mutex):
+               with QtCore.QMutexLocker(self.__mutex):
                     self.query.stop()
         except:
             pass

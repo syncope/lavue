@@ -53,7 +53,7 @@ _zmqformclass, _zmqbaseclass = uic.loadUiType(
                  "ui", "ZMQSourceWidget.ui"))
 
 
-class GeneralSourceWidget(QtGui.QWidget):
+class BaseSourceWidget(QtGui.QWidget):
 
     """ general source widget """
 
@@ -73,7 +73,7 @@ class GeneralSourceWidget(QtGui.QWidget):
         QtGui.QGroupBox.__init__(self, parent)
 
         self.name = "Test"
-        self.datasource = "GeneralSource"
+        self.datasource = "BaseSource"
         self.widgetnames = []
         self.widgets = []
         self.active = False
@@ -118,7 +118,7 @@ class GeneralSourceWidget(QtGui.QWidget):
         self.__detached = True
 
 
-class TestSourceWidget(GeneralSourceWidget):
+class TestSourceWidget(BaseSourceWidget):
 
     """ test source widget """
 
@@ -128,20 +128,20 @@ class TestSourceWidget(GeneralSourceWidget):
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        GeneralSourceWidget.__init__(self, parent)
+        BaseSourceWidget.__init__(self, parent)
 
         self._ui = _testformclass()
         self._ui.setupUi(self)
 
         self.name = "Test"
-        self.datasource = "GeneralSource"
+        self.datasource = "BaseSource"
         self.widgetnames = []
         self.active = False
 
         self._detachWidgets()
 
 
-class HTTPSourceWidget(GeneralSourceWidget):
+class HTTPSourceWidget(BaseSourceWidget):
 
     """ test source widget """
 
@@ -151,7 +151,7 @@ class HTTPSourceWidget(GeneralSourceWidget):
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        GeneralSourceWidget.__init__(self, parent)
+        BaseSourceWidget.__init__(self, parent)
 
         self._ui = _httpformclass()
         self._ui.setupUi(self)
@@ -193,7 +193,7 @@ class HTTPSourceWidget(GeneralSourceWidget):
         """
 
 
-class HidraSourceWidget(GeneralSourceWidget):
+class HidraSourceWidget(BaseSourceWidget):
 
     """ test source widget """
 
@@ -203,7 +203,7 @@ class HidraSourceWidget(GeneralSourceWidget):
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        GeneralSourceWidget.__init__(self, parent)
+        BaseSourceWidget.__init__(self, parent)
 
         self._ui = _hidraformclass()
         self._ui.setupUi(self)
@@ -254,6 +254,8 @@ class HidraSourceWidget(GeneralSourceWidget):
         if targetname is not None:
             self._ui.currenthostLabel.setText(str(targetname))
             self.__sortServerList(targetname)
+            for i in reversed(range(0, self._ui.serverComboBox.count())):
+                self._ui.serverComboBox.removeItem(i)
             self._ui.serverComboBox.addItems(self.__sortedserverlist)
 
     def __sortServerList(self, name):
@@ -267,6 +269,7 @@ class HidraSourceWidget(GeneralSourceWidget):
         #
         beamlines = ['p03', 'p08', 'p09', 'p10', 'p11']
 
+        self.__sortedserverlist = []
         for bl in beamlines:
             if bl in name:
                 self.__sortedserverlist.extend(self.__serverdict[bl])
@@ -285,7 +288,7 @@ class HidraSourceWidget(GeneralSourceWidget):
         self._ui.serverComboBox.setEnabled(True)
 
 
-class TangoAttrSourceWidget(GeneralSourceWidget):
+class TangoAttrSourceWidget(BaseSourceWidget):
 
     """ test source widget """
 
@@ -295,7 +298,7 @@ class TangoAttrSourceWidget(GeneralSourceWidget):
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        GeneralSourceWidget.__init__(self, parent)
+        BaseSourceWidget.__init__(self, parent)
 
         self._ui = _tangoattrformclass()
         self._ui.setupUi(self)
@@ -337,7 +340,7 @@ class TangoAttrSourceWidget(GeneralSourceWidget):
             self.updateButton()
 
 
-class TangoFileSourceWidget(GeneralSourceWidget):
+class TangoFileSourceWidget(BaseSourceWidget):
 
     """ test source widget """
 
@@ -347,7 +350,7 @@ class TangoFileSourceWidget(GeneralSourceWidget):
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        GeneralSourceWidget.__init__(self, parent)
+        BaseSourceWidget.__init__(self, parent)
 
         self._ui = _tangofileformclass()
         self._ui.setupUi(self)
@@ -398,7 +401,7 @@ class TangoFileSourceWidget(GeneralSourceWidget):
             self.__dirtrans = dirtrans
 
 
-class ZMQSourceWidget(GeneralSourceWidget):
+class ZMQSourceWidget(BaseSourceWidget):
 
     """ test source widget """
 
@@ -408,7 +411,7 @@ class ZMQSourceWidget(GeneralSourceWidget):
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        GeneralSourceWidget.__init__(self, parent)
+        BaseSourceWidget.__init__(self, parent)
 
         self._ui = _zmqformclass()
         self._ui.setupUi(self)

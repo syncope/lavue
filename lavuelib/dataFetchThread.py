@@ -86,7 +86,7 @@ class DataFetchThread(QtCore.QThread):
         """ constructor
 
         :param datasource: image datasource
-        :type datasource: :class:`lavuelib.imageSource.GeneralSource`
+        :type datasource: :class:`lavuelib.imageSource.BaseSource`
         :param alist: exchange object
         :type alist: :class:`ExchangeList`
         """
