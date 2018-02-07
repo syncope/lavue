@@ -269,7 +269,7 @@ class LiveViewer(QtGui.QDialog):
         try:
             int(qstval)
             self.timeout = int(qstval)
-            self.data_source.timeout = self.timeout
+            self.data_source.setTimeOut(self.timeout)
         except:
             pass
         qstval = str(settings.value("Configuration/SecStream").toString())
@@ -668,7 +668,7 @@ class LiveViewer(QtGui.QDialog):
         self.secautoport = dialog.secautoport
         self.secport = dialog.secport
         self.timeout = dialog.timeout
-        self.data_source.timeout = self.timeout
+        self.data_source.setTimeOut(self.timeout)
         self.aspectlocked = dialog.aspectlocked
         self.imageWg.img_widget.setAspectLocked(self.aspectlocked)
         self.secstream = dialog.secstream
@@ -717,7 +717,7 @@ class LiveViewer(QtGui.QDialog):
     @QtCore.pyqtSlot(int)
     def updateSource(self, status):
         if status:
-            self.data_source.timeout = self.timeout
+            self.data_source.setTimeOut(self.timeout)
             self.dataFetcher.data_source = self.data_source
             if self._sourceConfiguration:
                 self.data_source.setConfiguration(self._sourceConfiguration)

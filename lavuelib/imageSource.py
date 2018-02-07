@@ -76,36 +76,74 @@ from . import imageFileHandler
 
 class BaseSource(object):
 
-    """ General"""
+    """ source base class"""
 
     def __init__(self, timeout=None):
-        self.configuration = None
-        self.__initiated = False
-        self.timeout = timeout
-        self._counter = 0
+        """ constructor
+
+        :param timeout: timeout for setting connection in ms
+        :type timeout: :obj:`int`
+        """
+        #: (:obj:`int`) timeout in ms
+        self._timeout = timeout
+        #: (:obj:`str`) configuration string
+        self._configuration = None
+        #: (:obj:`bool`) connection initiated  flag
+        self._initiated = False
+        #: (:obj:`int`) internal counter
+        self.__counter = 0
 
     def getMetaData(self):
+        """ get metadata
+
+        :returns: dictionary with metadata
+        :rtype: :obj:`dict` <:obj:`str`, :obj:`any`>
+        """
         return {}
 
     @QtCore.pyqtSlot(str)
-    def setConfiguration(self, _):
-        self.__initiated = False
+    def setConfiguration(self, configuration):
+        """ set configuration
+
+        :param configuration:  configuration string
+        :type configuration: :obj:`str`
+        """
+        if self._configuration != configuration:
+            self._configuration = configuration
+            self._initiated = False
+
+    def setTimeOut(self, timeout):
+        """ set timeout
+
+        :param timeout: timeout in ms
+        :type timeout: :obj:`int`
+        """
+        self._timeout = timeout
 
     def getData(self):
-        self._counter += 1
+        """ provides image name, image data and metadata
+
+        :returns:  image name, image data, json dictionary with metadata
+        :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
+        """
+        self.__counter += 1
         return (np.transpose(
             [
                 [random.randint(0, 1000) for _ in range(512)]
                 for _ in range(256)
             ]),
-            '__random_%s__' % self._counter, "")
+            '__random_%s__' % self.__counter, "")
 
     def connect(self):
-        self.__initiated = True
-        self._counter = 0
+        """ connects the source
+        """
+        self._initiated = True
+        self.__counter = 0
         return True
 
     def disconnect(self):
+        """ disconnects the source
+        """
         try:
             pass
         except:
@@ -114,28 +152,44 @@ class BaseSource(object):
 
 class TangoFileSource(BaseSource):
 
-    def __init__(self, timeout=None):
-        self.configuration = None
-        self.__initiated = False
-        self.timeout = timeout
-        self.fproxy = None
-        self.dproxy = None
-        self.dirtrans = {"/ramdisk/": "/gpfs/"}
+    """ image source as Tango attributes describing
+        an image file name and its directory"""
 
-    @QtCore.pyqtSlot(str)
-    def setConfiguration(self, configuration):
-        if self.configuration != configuration:
-            self.configuration = configuration
-            self.__initiated = False
+    def __init__(self, timeout=None):
+        """ constructor
+
+        :param timeout: timeout for setting connection in ms
+        :type timeout: :obj:`int`
+        """
+        #: (:obj:`str`) configuration string
+        self._configuration = None
+        #: (:obj:`int`) timeout in ms
+        self._timeout = timeout
+        #: (:obj:`bool`) connection initiated  flag
+        self._initiated = False
+        #: (:class`PyTango.AttributeProxy`:)
+        #:       device proxy for the image file name
+        self.__fproxy = None
+        #: (:class`PyTango.AttributeProxy`:)
+        #:      device proxy for the image directory
+        self.__dproxy = None
+        #: (:dict: <:obj:`str`, :obj:`str`>)
+        #:      translation dictionary for the image directory
+        self.__dirtrans = {"/ramdisk/": "/gpfs/"}
 
     def getData(self):
+        """ provides image name, image data and metadata
+
+        :returns:  image name, image data, json dictionary with metadata
+        :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
+        """
 
         try:
-            filename = self.fproxy.read().value
-            if self.dproxy:
-                dattr = self.dproxy.read().value
+            filename = self.__fproxy.read().value
+            if self.__dproxy:
+                dattr = self.__dproxy.read().value
                 filename = "%s/%s" % (dattr, filename)
-                for key, val in self.dirtrans.items():
+                for key, val in self.__dirtrans.items():
                     filename = filename.replace(key, val)
             image = imageFileHandler.ImageFileHandler(
                 str(filename)).getImage()
@@ -148,26 +202,22 @@ class TangoFileSource(BaseSource):
         return None, None, None
 
     def connect(self):
+        """ connects the source
+        """
         try:
             fattr, dattr, dirtrans = str(
-                self.configuration).strip().split(",", 2)
-            self.dirtrans = json.loads(dirtrans)
-            if not self.__initiated:
-                self.fproxy = PyTango.AttributeProxy(fattr)
+                self._configuration).strip().split(",", 2)
+            self.__dirtrans = json.loads(dirtrans)
+            if not self._initiated:
+                self.__fproxy = PyTango.AttributeProxy(fattr)
                 if dattr:
-                    self.dproxy = PyTango.AttributeProxy(dattr)
+                    self.__dproxy = PyTango.AttributeProxy(dattr)
                 else:
-                    self.dproxy = None
+                    self.__dproxy = None
             return True
         except Exception as e:
             print(str(e))
             return False
-
-    def disconnect(self):
-        try:
-            pass
-        except:
-            pass
 
 
 class VDEOdecoder(object):
@@ -261,13 +311,30 @@ class VDEOdecoder(object):
 
 class TangoAttrSource(BaseSource):
 
+    """ image source as IMAGE Tango attribute
+    """
+
     def __init__(self, timeout=None):
-        self.configuration = None
-        self.__initiated = False
-        self.timeout = timeout
-        self.aproxy = None
+        """ constructor
+
+        :param timeout: timeout for setting connection in ms
+        :type timeout: :obj:`int`
+        """
+        #: (:obj:`int`) timeout in ms
+        self._timeout = timeout
+        #: (:obj:`str`) configuration string
+        self._configuration = None
+        #: (:obj:`bool`) connection initiated  flag
+        self._initiated = False
+        #: (:class`PyTango.AttributeProxy`:)
+        #:      device proxy for the image attribute
+        self.__aproxy = None
+        #: (:dict: <:obj:`str`, :obj:`any`>)
+        #:      dictionary of external decorders
         self.__decoders = {"LIMA_VIDEO_IMAGE": VDEOdecoder(),
                            "VIDEO_IMAGE": VDEOdecoder()}
+        #: (:dict: <:obj:`str`, :obj:`str`>)
+        #:      dictionary of tango decorders
         self.__tangodecoders = {
             "GRAY16": "decode_gray16",
             "GRAY8": "decode_gray8",
@@ -276,35 +343,34 @@ class TangoAttrSource(BaseSource):
             "RGB24": "decode_rgb32"
         }
 
-    @QtCore.pyqtSlot(str)
-    def setConfiguration(self, configuration):
-        if self.configuration != configuration:
-            self.configuration = configuration
-            self.__initiated = False
-
     def getData(self):
+        """ provides image name, image data and metadata
+
+        :returns:  image name, image data, json dictionary with metadata
+        :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
+        """
 
         try:
-            attr = self.aproxy.read()
+            attr = self.__aproxy.read()
             if str(attr.type) == "DevEncoded":
                 avalue = attr.value
                 if avalue[0] in self.__tangodecoders:
-                    da = self.aproxy.read(extract_as=PyTango.ExtractAs.Nothing)
+                    da = self.__aproxy.read(extract_as=PyTango.ExtractAs.Nothing)
                     enc = PyTango.EncodedAttribute()
                     data = getattr(enc, self.__tangodecoders[avalue[0]])(da)
                     return (np.transpose(data),
                             '%s  (%s)' % (
-                                self.configuration, str(attr.time)), "")
+                                self._configuration, str(attr.time)), "")
                 else:
                     dec = self.__decoders[avalue[0]]
                     dec.load(avalue)
                     return (np.transpose(dec.decode()),
                             '%s  (%s)' % (
-                                self.configuration, str(attr.time)), "")
+                                self._configuration, str(attr.time)), "")
             else:
                 return (np.transpose(attr.value),
                         '%s  (%s)' % (
-                            self.configuration, str(attr.time)), "")
+                            self._configuration, str(attr.time)), "")
         except Exception as e:
             print(str(e))
             return str(e), "__ERROR__", ""
@@ -312,40 +378,46 @@ class TangoAttrSource(BaseSource):
         return None, None, None
 
     def connect(self):
+        """ connects the source
+        """
         try:
-            if not self.__initiated:
-                self.aproxy = PyTango.AttributeProxy(str(self.configuration))
+            if not self._initiated:
+                self.__aproxy = PyTango.AttributeProxy(str(self._configuration))
             return True
         except Exception as e:
             print(str(e))
             return False
 
-    def disconnect(self):
-        try:
-            pass
-        except:
-            pass
-
 
 class HTTPSource(BaseSource):
 
-    def __init__(self, timeout=None):
-        self.configuration = None
-        self.__initiated = False
-        self.timeout = timeout
+    """ image source as HTTP request response
+    """
 
-    @QtCore.pyqtSlot(str)
-    def setConfiguration(self, configuration):
-        if self.configuration != configuration:
-            self.configuration = configuration
-            self.__initiated = False
+    def __init__(self, timeout=None):
+        """ constructor
+
+        :param timeout: timeout for setting connection in ms
+        :type timeout: :obj:`int`
+        """
+        #: (:obj:`str`) configuration string
+        self._configuration = None
+        #: (:obj:`int`) timeout in ms
+        self._timeout = timeout
+        #: (:obj:`bool`) connection initiated  flag
+        self._initiated = False
 
     def getData(self):
-        if self.configuration:
+        """ provides image name, image data and metadata
+
+        :returns:  image name, image data, json dictionary with metadata
+        :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
+        """
+        if self._configuration:
             try:
-                response = requests.get(self.configuration)
+                response = requests.get(self._configuration)
                 if response.ok:
-                    name = self.configuration
+                    name = self._configuration
                     data = response.content
                     if data[:10] == "###CBF: VE":
                         # print("[cbf source module]::metadata", name)
@@ -367,9 +439,11 @@ class HTTPSource(BaseSource):
         return None, None, None
 
     def connect(self):
+        """ connects the source
+        """
         try:
-            if self.configuration:
-                response = requests.get(self.configuration)
+            if self._configuration:
+                response = requests.get(self._configuration)
                 if response.ok:
                     return True
             return False
@@ -377,47 +451,68 @@ class HTTPSource(BaseSource):
             print(str(e))
             return False
 
-    def disconnect(self):
-        try:
-            pass
-        except:
-            pass
-
 
 class ZMQSource(BaseSource):
 
+    """ image source as ZMQ stream"""
+
     def __init__(self, timeout=None):
-        self.configuration = None
-        self.timeout = timeout
-        self.__initiated = False
-        self._context = zmq.Context()
-        self._socket = None
-        self._counter = 0
-        self._topic = "10001"
-        self._bindaddress = None
+        """ constructor
+
+        :param timeout: timeout for setting connection in ms
+        :type timeout: :obj:`int`
+        """
+        #: (:obj:`str`) configuration string
+        self._configuration = None
+        #: (:obj:`int`) timeout in ms
+        self._timeout = timeout
+        #: (:obj:`bool`) connection initiated  flag
+        self._initiated = False
+
+        #: (:class:`zmq.Context`) zmq context
+        self.__context = zmq.Context()
+        #: (:class:`zmq.Socket`) zmq socket
+        self.__socket = None
+        #: (:obj:`int`) internal counter
+        self.__counter = 0
+        #: (:obj:`str`) zmq topic
+        self.__topic = "10001"
+        #: (:obj:`str`) zmq bind address
+        self.__bindaddress = None
+        #: (:class:`PyQt4.QtCore.QMutex`) zmq bind address
         self.__mutex = QtCore.QMutex()
 
     @QtCore.pyqtSlot(str)
     def setConfiguration(self, configuration):
-        if self.configuration != configuration:
-            self.configuration = configuration
-            self.__initiated = False
+        """ set configuration
+
+        :param configuration:  configuration string
+        :type configuration: :obj:`str`
+        """
+        if self._configuration != configuration:
+            self._configuration = configuration
+            self._initiated = False
             with QtCore.QMutexLocker(self.__mutex):
-                if self._socket:
-                    shost = str(self.configuration).split("/")
+                if self.__socket:
+                    shost = str(self._configuration).split("/")
                     topic = shost[1] if len(shost) > 1 else ""
-                    self._socket.unbind(self._bindaddress)
-                    self._socket.setsockopt(zmq.UNSUBSCRIBE, self._topic)
-                    self._socket.setsockopt(zmq.UNSUBSCRIBE, "datasources")
-                    self._socket.setsockopt(zmq.SUBSCRIBE, "datasources")
-                    self._socket.setsockopt(zmq.SUBSCRIBE, topic)
-                    self._topic = topic
-                    self._socket.connect(self._bindaddress)
+                    self.__socket.unbind(self.__bindaddress)
+                    self.__socket.setsockopt(zmq.UNSUBSCRIBE, self.__topic)
+                    self.__socket.setsockopt(zmq.UNSUBSCRIBE, "datasources")
+                    self.__socket.setsockopt(zmq.SUBSCRIBE, "datasources")
+                    self.__socket.setsockopt(zmq.SUBSCRIBE, topic)
+                    self.__topic = topic
+                    self.__socket.connect(self.__bindaddress)
 
     def getData(self):
+        """ provides image name, image data and metadata
+
+        :returns:  image name, image data, json dictionary with metadata
+        :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
+        """
         try:
             with QtCore.QMutexLocker(self.__mutex):
-                message = self._socket.recv_multipart(flags=zmq.NOBLOCK)
+                message = self.__socket.recv_multipart(flags=zmq.NOBLOCK)
             topic = None
             _array = None
             shape = None
@@ -429,7 +524,7 @@ class ZMQSource(BaseSource):
             if isinstance(message, tuple) or isinstance(message, list):
                 lmsg = len(message)
                 topic = message[0]
-            # print("topic %s %s" % (topic, self._topic))
+            # print("topic %s %s" % (topic, self.__topic))
             if topic == "datasources" and lmsg == 2:
                 (topic, _metadata) = message
                 metadata = cPickle.loads(_metadata)
@@ -452,7 +547,7 @@ class ZMQSource(BaseSource):
                 if metadata:
                     jmetadata = json.dumps(metadata)
                 return ("", "", jmetadata)
-            elif self._topic == "" or topic == self._topic:
+            elif self.__topic == "" or topic == self.__topic:
                 if lmsg == 3:
                     (topic, _array, _metadata) = message
                     metadata = cPickle.loads(_metadata)
@@ -462,12 +557,12 @@ class ZMQSource(BaseSource):
                         name = metadata["name"]
                     else:
                         name = '%s/%s (%s)' % (
-                            self._bindaddress, topic, self._counter)
+                            self.__bindaddress, topic, self.__counter)
                 else:
                     if lmsg == 4:
                         (topic, _array, _shape, _dtype) = message
                         name = '%s/%s (%s)' % (
-                            self._bindaddress, topic, self._counter)
+                            self.__bindaddress, topic, self.__counter)
                     elif lmsg == 5:
                         (topic, _array, _shape, _dtype, name) = message
                     dtype = cPickle.loads(_dtype)
@@ -477,7 +572,7 @@ class ZMQSource(BaseSource):
                 array = np.frombuffer(buffer(_array), dtype=dtype)
                 array = array.reshape(shape)
                 array = np.transpose(array)
-                self._counter += 1
+                self.__counter += 1
                 jmetadata = ""
                 if metadata:
                     metadata.pop("shape")
@@ -496,28 +591,30 @@ class ZMQSource(BaseSource):
         return None, None, None
 
     def connect(self):
+        """ connects the source
+        """
         try:
-            shost = str(self.configuration).split("/")
+            shost = str(self._configuration).split("/")
             host, port = str(shost[0]).split(":")
-            self._topic = shost[1] if len(shost) > 1 else ""
+            self.__topic = shost[1] if len(shost) > 1 else ""
             hwm = int(shost[2]) if (len(shost) > 2 and shost[2]) else 2
-            if not self.__initiated:
-                if self._socket:
+            if not self._initiated:
+                if self.__socket:
                     self.disconnect()
                 with QtCore.QMutexLocker(self.__mutex):
-                    self._socket = self._context.socket(zmq.SUB)
+                    self.__socket = self.__context.socket(zmq.SUB)
                     if hwm is not None:
-                        self._socket.set_hwm(hwm)
-                    self._bindaddress = (
+                        self.__socket.set_hwm(hwm)
+                    self.__bindaddress = (
                         'tcp://'
                         + socket.gethostbyname(host)
                         + ':'
                         + str(port)
                     )
-                    self._socket.setsockopt(zmq.SUBSCRIBE, self._topic)
-                    self._socket.setsockopt(zmq.SUBSCRIBE, "datasources")
-                    # self._socket.setsockopt(zmq.SUBSCRIBE, "")
-                    self._socket.connect(self._bindaddress)
+                    self.__socket.setsockopt(zmq.SUBSCRIBE, self.__topic)
+                    self.__socket.setsockopt(zmq.SUBSCRIBE, "datasources")
+                    # self.__socket.setsockopt(zmq.SUBSCRIBE, "")
+                    self.__socket.connect(self.__bindaddress)
                 time.sleep(0.2)
             return True
         except Exception as e:
@@ -526,77 +623,117 @@ class ZMQSource(BaseSource):
             return False
 
     def disconnect(self):
+        """ disconnects the source
+        """
         try:
             with QtCore.QMutexLocker(self.__mutex):
-                if self._socket:
-                    if self._bindaddress:
-                        self._socket.unbind(self._bindaddress)
-                    self._socket.close(linger=0)
-                    self._socket = None
+                if self.__socket:
+                    if self.__bindaddress:
+                        self.__socket.unbind(self.__bindaddress)
+                    self.__socket.close(linger=0)
+                    self.__socket = None
         except Exception as e:
             print(str(e))
             pass
         with QtCore.QMutexLocker(self.__mutex):
-            self._bindaddress = None
+            self.__bindaddress = None
 
     def __del__(self):
+        """ destructor
+        """
         self.disconnect()
-        self._context.destroy()
+        self.__context.destroy()
 
 
 class HiDRASource(BaseSource):
 
+    """ hidra image source"""
+
     def __init__(self, timeout=None):
-        self.configuration = None
-        self.portnumber = "50001"
-        self.target = [socket.getfqdn(), self.portnumber, 19,
+        """ constructor
+
+        :param timeout: timeout for setting connection in ms
+        :type timeout: :obj:`int`
+        """
+        #: (:obj:`str`) configuration string
+        self._configuration = None
+        #: (:obj:`int`) timeout in ms
+        self._timeout = timeout
+        #: (:obj:`bool`) connection initiated  flag
+        self._initiated = False
+
+        #: (:obj:`str`) hidra port number
+        self.__portnumber = "50001"
+        #: (:obj:`list` < :obj:`str`, :obj:`str`,
+        #:   :obj:`int` :obj:`list` < :obj:`str`> >) hidra target:
+        #:   [host name, portnumber, priority, a list of extensions]
+        self.__target = [socket.getfqdn(), self.__portnumber, 19,
                        [".cbf", ".tif", ".tiff"]]
-        self.query = None
-        self.__initiated = False
-        self.timeout = timeout
+        #: (:class:`hidra.transfer.Transfer`) hidra query
+        self.__query = None
+        #: (:class:`PyQt4.QtCore.QMutex`) zmq bind address
         self.__mutex = QtCore.QMutex()
 
     def getMetaData(self):
-        return {"targetname": self.target[0] + ":" + self.portnumber}
+        """ get metadata
+
+        :returns: dictionary with metadata
+        :rtype: :obj:`dict` <:obj:`str`, :obj:`any`>
+        """
+        return {"targetname": self.__target[0] + ":" + self.__portnumber}
 
     @QtCore.pyqtSlot(str)
     def setConfiguration(self, configuration):
-        if self.configuration != configuration:
-            self.configuration = configuration
+        """ set configuration
+
+        :param configuration:  configuration string
+        :type configuration: :obj:`str`
+        """
+        if self._configuration != configuration:
+            self._configuration = configuration
             with QtCore.QMutexLocker(self.__mutex):
-                self.query = hidra.Transfer("QUERY_NEXT", self.configuration)
-            self.__initiated = False
+                self.__query = hidra.Transfer("QUERY_NEXT", self._configuration)
+            self._initiated = False
 
     def connect(self):
+        """ connects the source
+        """
         try:
-            if not self.__initiated:
+            if not self._initiated:
                 with QtCore.QMutexLocker(self.__mutex):
-                    self.query.initiate(self.target)
-                self.__initiated = True
+                    self.__query.initiate(self.__target)
+                self._initiated = True
                 with QtCore.QMutexLocker(self.__mutex):
-                    self.query.start()
+                    self.__query.start()
             return True
         except:
-            if self.query is not None:
+            if self.__query is not None:
                 with QtCore.QMutexLocker(self.__mutex):
-                    self.query.stop()
+                    self.__query.stop()
             return False
 
     def disconnect(self):
+        """ disconnects the source
+        """
         try:
-            if self.query is not None:
+            if self.__query is not None:
                with QtCore.QMutexLocker(self.__mutex):
-                    self.query.stop()
+                    self.__query.stop()
         except:
             pass
 
     def getData(self):
+        """ provides image name, image data and metadata
+
+        :returns:  image name, image data, json dictionary with metadata
+        :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
+        """
         metadata = None
         data = None
         try:
             with QtCore.QMutexLocker(self.__mutex):
-                # [metadata, data] = self.query.get()
-                [metadata, data] = self.query.get(self.timeout)
+                # [metadata, data] = self.__query.get()
+                [metadata, data] = self.__query.get(self._timeout)
         except:
             pass  # this needs a bit more care
 

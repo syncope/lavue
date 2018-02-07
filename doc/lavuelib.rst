@@ -99,14 +99,6 @@ lavuelib.imageWidget module
     :undoc-members:
     :show-inheritance:
 
-lavuelib.scalingGroupBox module
---------------------------------------
-
-.. automodule:: lavuelib.scalingGroupBox
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 lavuelib.levelsGroupBox module
 ------------------------------
 
@@ -155,10 +147,26 @@ lavuelib.sardanaUtils module
     :undoc-members:
     :show-inheritance:
 
+lavuelib.scalingGroupBox module
+--------------------------------------
+
+.. automodule:: lavuelib.scalingGroupBox
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lavuelib.sourceGroupBox module
 ------------------------------
 
 .. automodule:: lavuelib.sourceGroupBox
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lavuelib.sourceWidget module
+----------------------------
+
+.. automodule:: lavuelib.sourceWidget
     :members:
     :undoc-members:
     :show-inheritance:
