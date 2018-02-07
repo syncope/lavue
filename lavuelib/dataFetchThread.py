@@ -91,7 +91,7 @@ class DataFetchThread(QtCore.QThread):
         :type alist: :class:`ExchangeList`
         """
         QtCore.QThread.__init__(self)
-        self.data_source = datasource
+        self.datasource = datasource
         self.__list = alist
         self.__isConnected = False
         self.__loop = True
@@ -104,7 +104,7 @@ class DataFetchThread(QtCore.QThread):
                 time.sleep(GLOBALREFRESHRATE)
             if self.__isConnected:
                 try:
-                    img, name, metadata = self.data_source.getData()
+                    img, name, metadata = self.datasource.getData()
                 except Exception as e:
                     name = "__ERROR__"
                     img = str(e)

@@ -631,7 +631,7 @@ class LiveViewer(QtGui.QDialog):
     def _updateSource(self, status):
         if status:
             self.__datasource.setTimeOut(self.__settings.timeout)
-            self.__dataFetcher.data_source = self.__datasource
+            self.__dataFetcher.datasource = self.__datasource
             if self.__sourceconfiguration:
                 self.__datasource.setConfiguration(self.__sourceconfiguration)
             self.__sourcewg.updateMetaData(**self.__datasource.getMetaData())

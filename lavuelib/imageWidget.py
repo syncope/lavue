@@ -166,12 +166,12 @@ class ImageWidget(QtGui.QWidget):
 
         self.roiregionmapper.mapped.connect(self.roiRegionChanged)
         self.currentroimapper.mapped.connect(self.currentROIChanged)
-        self.displaywidget.roi[0].sigHoverEvent.connect(
+        self.displaywidget.getROI().sigHoverEvent.connect(
             self.currentroimapper.map)
-        self.displaywidget.roi[0].sigRegionChanged.connect(
+        self.displaywidget.getROI().sigRegionChanged.connect(
             self.roiregionmapper.map)
-        self.currentroimapper.setMapping(self.displaywidget.roi[0], 0)
-        self.roiregionmapper.setMapping(self.displaywidget.roi[0], 0)
+        self.currentroimapper.setMapping(self.displaywidget.getROI(), 0)
+        self.roiregionmapper.setMapping(self.displaywidget.getROI(), 0)
 
         self.cutCoordsChanged.connect(self.plotCut)
         self.roiSpinBox.valueChanged.connect(self.roiNrChanged)
@@ -180,12 +180,12 @@ class ImageWidget(QtGui.QWidget):
 
         self.cutregionmapper.mapped.connect(self.cutRegionChanged)
         self.currentcutmapper.mapped.connect(self.currentCutChanged)
-        self.displaywidget.cut[0].sigHoverEvent.connect(
+        self.displaywidget.getCut().sigHoverEvent.connect(
             self.currentcutmapper.map)
-        self.displaywidget.cut[0].sigRegionChanged.connect(
+        self.displaywidget.getCut().sigRegionChanged.connect(
             self.cutregionmapper.map)
-        self.currentcutmapper.setMapping(self.displaywidget.cut[0], 0)
-        self.cutregionmapper.setMapping(self.displaywidget.cut[0], 0)
+        self.currentcutmapper.setMapping(self.displaywidget.getCut(), 0)
+        self.cutregionmapper.setMapping(self.displaywidget.getCut(), 0)
         self.angleqPushButton.clicked.connect(self.geometry)
         self.angleqComboBox.currentIndexChanged.connect(
             self.onAngleQChanged)
@@ -319,28 +319,30 @@ class ImageWidget(QtGui.QWidget):
                     crd.setSize(
                         [coords[i][2] - coords[i][0],
                          coords[i][3] - coords[i][1]])
-        while rid > len(self.displaywidget.roi):
-            if coords and len(coords) >= len(self.displaywidget.roi):
-                self.displaywidget.addROI(coords[len(self.displaywidget.roi)])
+        while rid > self.displaywidget.countROIs():
+            if coords and len(coords) >= self.displaywidget.countROIs():
+                self.displaywidget.addROI(
+                    coords[self.displaywidget.countROIs()])
             else:
                 self.displaywidget.addROI()
-            self.displaywidget.roi[-1].sigHoverEvent.connect(
+            self.displaywidget.getROI().sigHoverEvent.connect(
                 self.currentroimapper.map)
-            self.displaywidget.roi[-1].sigRegionChanged.connect(
+            self.displaywidget.getROI().sigRegionChanged.connect(
                 self.roiregionmapper.map)
             self.currentroimapper.setMapping(
-                self.displaywidget.roi[-1],
-                len(self.displaywidget.roi) - 1)
+                self.displaywidget.getROI(),
+                self.displaywidget.countROIs() - 1)
             self.roiregionmapper.setMapping(
-                self.displaywidget.roi[-1],
-                len(self.displaywidget.roi) - 1)
+                self.displaywidget.getROI(),
+                self.displaywidget.countROIs() - 1)
         if rid <= 0:
             self.displaywidget.currentroi = -1
         elif self.displaywidget.currentroi >= rid:
             self.displaywidget.currentroi = 0
-        while max(rid, 0) < len(self.displaywidget.roi):
-            self.currentroimapper.removeMappings(self.displaywidget.roi[-1])
-            self.roiregionmapper.removeMappings(self.displaywidget.roi[-1])
+        #        while max(rid, 0) < len(self.displaywidget.roi):
+        while self.displaywidget.getROI(max(rid, 0)) is not None:
+            self.currentroimapper.removeMappings(self.displaywidget.getROI())
+            self.roiregionmapper.removeMappings(self.displaywidget.getROI())
             self.displaywidget.removeROI()
         self.roiCoordsChanged.emit()
         self.roiSpinBox.setValue(rid)
@@ -355,28 +357,29 @@ class ImageWidget(QtGui.QWidget):
                     crd.setSize(
                         [coords[i][2] - coords[i][0],
                          coords[i][3] - coords[i][1]])
-        while cid > len(self.displaywidget.cut):
-            if coords and len(coords) >= len(self.displaywidget.cut):
-                self.displaywidget.addCut(coords[len(self.displaywidget.cut)])
+        while cid > self.displaywidget.countCuts():
+            if coords and len(coords) >= self.displaywidget.countCuts():
+                self.displaywidget.addCut(
+                    coords[self.displaywidget.countCuts()])
             else:
                 self.displaywidget.addCut()
-            self.displaywidget.cut[-1].sigHoverEvent.connect(
+            self.displaywidget.getCut().sigHoverEvent.connect(
                 self.currentcutmapper.map)
-            self.displaywidget.cut[-1].sigRegionChanged.connect(
+            self.displaywidget.getCut().sigRegionChanged.connect(
                 self.cutregionmapper.map)
             self.currentcutmapper.setMapping(
-                self.displaywidget.cut[-1],
-                len(self.displaywidget.cut) - 1)
+                self.displaywidget.getCut(),
+                self.displaywidget.countCuts() - 1)
             self.cutregionmapper.setMapping(
-                self.displaywidget.cut[-1],
-                len(self.displaywidget.cut) - 1)
+                self.displaywidget.getCut(),
+                self.displaywidget.countCuts() - 1)
         if cid <= 0:
             self.displaywidget.currentcut = -1
         elif self.displaywidget.currentcut >= cid:
             self.displaywidget.currentcut = 0
-        while max(cid, 0) < len(self.displaywidget.cut):
-            self.currentcutmapper.removeMappings(self.displaywidget.cut[-1])
-            self.cutregionmapper.removeMappings(self.displaywidget.cut[-1])
+        while max(cid, 0) < self.displaywidget.countCuts():
+            self.currentcutmapper.removeMappings(self.displaywidget.getCut())
+            self.cutregionmapper.removeMappings(self.displaywidget.getCut())
             self.displaywidget.removeCut()
         self.cutCoordsChanged.emit()
         self.cutSpinBox.setValue(cid)
@@ -398,7 +401,7 @@ class ImageWidget(QtGui.QWidget):
     def roiChanged(self):
         try:
             rid = self.displaywidget.currentroi
-            state = self.displaywidget.roi[rid].state
+            state = self.displaywidget.getROI(rid).state
             ptx = int(math.floor(state['pos'].x()))
             pty = int(math.floor(state['pos'].y()))
             szx = int(math.floor(state['size'].x()))
@@ -413,14 +416,13 @@ class ImageWidget(QtGui.QWidget):
         try:
             cid = self.displaywidget.currentcut
             self.displaywidget.cutcoords[cid] = \
-                self.displaywidget.cut[cid].getCoordinates()
+                self.displaywidget.getCut(cid).getCoordinates()
             self.cutCoordsChanged.emit()
         except Exception as e:
             print("Warning: %s" % str(e))
 
     def showROIFrame(self):
-        self.displaywidget.vLine.hide()
-        self.displaywidget.hLine.hide()
+        self.displaywidget.showLines(False)
         self.ticksPushButton.hide()
         self.angleqPushButton.hide()
         self.angleqComboBox.hide()
@@ -433,18 +435,14 @@ class ImageWidget(QtGui.QWidget):
 
         self.pixellabel.setText("ROI alias(es): ")
         self.infoLabel.show()
-        for roi in self.displaywidget.roi:
-            roi.show()
-        for cut in self.displaywidget.cut:
-            cut.hide()
+        self.displaywidget.showROIs(True)
+        self.displaywidget.showCuts(False)
         doreset = not (self.displaywidget.cutenable or
                        self.displaywidget.roienable or
                        self.displaywidget.qenable)
         self.displaywidget.cutenable = False
         self.displaywidget.roienable = True
         self.displaywidget.qenable = False
-        if self.displaywidget.roi:
-            self.displaywidget.roi[0].show()
         self.infoLineEdit.setText("")
         self.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer")
@@ -455,10 +453,8 @@ class ImageWidget(QtGui.QWidget):
 
     def showIntensityFrame(self):
         self.pixellabel.setText("Pixel position and intensity: ")
-        for roi in self.displaywidget.roi:
-            roi.hide()
-        for cut in self.displaywidget.cut:
-            cut.hide()
+        self.displaywidget.showROIs(False)
+        self.displaywidget.showCuts(False)
         self.cutPlot.hide()
         self.ticksPushButton.show()
         self.angleqPushButton.hide()
@@ -472,8 +468,7 @@ class ImageWidget(QtGui.QWidget):
         self.displaywidget.roienable = False
         self.displaywidget.cutenable = False
         self.displaywidget.qenable = False
-        self.displaywidget.vLine.show()
-        self.displaywidget.hLine.show()
+        self.displaywidget.showLines(True)
         self.infoLineEdit.setText("")
         self.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer")
@@ -484,10 +479,8 @@ class ImageWidget(QtGui.QWidget):
 
     def showLineCutFrame(self):
         self.pixellabel.setText("Cut, pixel position and intensity: ")
-        for roi in self.displaywidget.roi:
-            roi.hide()
-        for cut in self.displaywidget.cut:
-            cut.show()
+        self.displaywidget.showROIs(False)
+        self.displaywidget.showCuts(True)
         self.cutPlot.show()
         self.fetchROIButton.hide()
         self.ticksPushButton.hide()
@@ -504,8 +497,7 @@ class ImageWidget(QtGui.QWidget):
         self.displaywidget.roienable = False
         self.displaywidget.cutenable = True
         self.displaywidget.qenable = False
-        self.displaywidget.vLine.hide()
-        self.displaywidget.hLine.hide()
+        self.displaywidget.showLines(False)
         self.infoLineEdit.setText("")
         self.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer")
@@ -516,10 +508,8 @@ class ImageWidget(QtGui.QWidget):
 
     def showAngleQFrame(self):
         self.pixellabel.setText("Pixel position and intensity: ")
-        for roi in self.displaywidget.roi:
-            roi.hide()
-        for cut in self.displaywidget.cut:
-            cut.hide()
+        self.displaywidget.showROIs(False)
+        self.displaywidget.showCuts(False)
         self.cutPlot.hide()
         self.ticksPushButton.hide()
         self.angleqPushButton.show()
@@ -536,8 +526,7 @@ class ImageWidget(QtGui.QWidget):
         self.displaywidget.roienable = False
         self.displaywidget.cutenable = False
         self.displaywidget.qenable = True
-        self.displaywidget.vLine.show()
-        self.displaywidget.hLine.show()
+        self.displaywidget.showLines(True)
         self.infoLineEdit.setText("")
         self.updateGeometryTip()
         if doreset:
@@ -608,8 +597,8 @@ class ImageWidget(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def plotCut(self):
         cid = self.displaywidget.currentcut
-        if cid > -1 and len(self.displaywidget.cut) > cid:
-            cut = self.displaywidget.cut[cid]
+        if cid > -1 and self.displaywidget.countCuts() > cid:
+            cut = self.displaywidget.getCut(cid)
             if self.displaywidget.rawdata is not None:
                 dt = cut.getArrayRegion(
                     self.displaywidget.rawdata,
@@ -644,7 +633,8 @@ class ImageWidget(QtGui.QWidget):
             self.__lasttext = text
         else:
             text = self.__lasttext
-        if self.displaywidget.roienable and self.displaywidget.roi:
+        if self.displaywidget.roienable and \
+           self.displaywidget.getROI() is not None:
             roiVal, currentroi = self.calcROIsum()
             roilabel = self.createROILabel()
 
