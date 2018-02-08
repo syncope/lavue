@@ -220,7 +220,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__levelswg.channelChanged.connect(self._plot)
         self.__imagewg.displaywidget.setaspectlocked.triggered.connect(
             self._toggleAspectLocked)
-        self.__imagewg.ticksPushButton.clicked.connect(self._setTicks)
+        self.__imagewg.axesPushButton.clicked.connect(self._setTicks)
 
         # simple mutable caching object for data exchange with thread
         #: (:class:`lavuelib.dataFetchTread.ExchangeList`)

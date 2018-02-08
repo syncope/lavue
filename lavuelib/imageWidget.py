@@ -43,6 +43,22 @@ _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "ImageWidget.ui"))
 
+_intensityformclass, _intensitybaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "IntensityToolWidget.ui"))
+
+_roiformclass, _roibaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "ROIToolWidget.ui"))
+
+_cutformclass, _cutbaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "LineCutToolWidget.ui"))
+
+_angleqformclass, _angleqbaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "AngleQToolWidget.ui"))
+
 
 class ImageWidget(QtGui.QWidget):
 
@@ -85,7 +101,7 @@ class ImageWidget(QtGui.QWidget):
         sizePolicy.setHeightForWidth(
             self.displaywidget.sizePolicy().hasHeightForWidth())
         self.displaywidget.setSizePolicy(sizePolicy)
-        self.cutPlot.setMinimumSize(QtCore.QSize(0, 220))
+        self.cutPlot.setMinimumSize(QtCore.QSize(0, 180))
 
         self.__ui.toolComboBox.addItem("Intensity")
         self.__ui.toolComboBox.addItem("ROI")
@@ -94,11 +110,11 @@ class ImageWidget(QtGui.QWidget):
 
         pixelvaluelayout = QtGui.QHBoxLayout()
 
-        self.pixellabel = QtGui.QLabel("Pixel position and intensity: ")
-        self.pixellabel.setToolTip(
+        self.toolLabel = QtGui.QLabel("Pixel position and intensity: ")
+        self.toolLabel.setToolTip(
             "coordinate info display for the mouse pointer")
 
-        self.ticksPushButton = QtGui.QPushButton("Axes ...")
+        self.axesPushButton = QtGui.QPushButton("Axes ...")
 
         self.labelROILineEdit = QtGui.QLineEdit("")
         self.labelROILineEdit.setToolTip(
@@ -109,11 +125,6 @@ class ImageWidget(QtGui.QWidget):
         self.roiSpinBox.setValue(1)
         self.roiSpinBox.setToolTip(
             "number of ROIs to add, -1 means remove ROI aliases from sardana")
-        self.cutSpinBox = QtGui.QSpinBox()
-        self.cutSpinBox.setMinimum(0)
-        self.cutSpinBox.setValue(1)
-        self.cutSpinBox.setToolTip(
-            "number of Line Cuts")
         self.fetchROIButton = QtGui.QPushButton("Fetch")
         self.fetchROIButton.setToolTip(
             "fetch ROI aliases from the Door environment")
@@ -122,6 +133,12 @@ class ImageWidget(QtGui.QWidget):
             "add ROI aliases to the Door environment "
             "as well as to Active MntGrp")
 
+        self.cutSpinBox = QtGui.QSpinBox()
+        self.cutSpinBox.setMinimum(0)
+        self.cutSpinBox.setValue(1)
+        self.cutSpinBox.setToolTip(
+            "number of Line Cuts")
+
         self.angleqPushButton = QtGui.QPushButton("Geometry ...")
         self.angleqPushButton.setToolTip("Input physical parameters")
         self.angleqComboBox = QtGui.QComboBox()
@@ -129,7 +146,7 @@ class ImageWidget(QtGui.QWidget):
         self.angleqComboBox.addItem("q-space")
         self.angleqComboBox.setToolTip("Select the display space")
 
-        pixelvaluelayout.addWidget(self.pixellabel)
+        pixelvaluelayout.addWidget(self.toolLabel)
         pixelvaluelayout.addWidget(self.labelROILineEdit)
         pixelvaluelayout.addWidget(self.roiSpinBox)
         pixelvaluelayout.addWidget(self.cutSpinBox)
@@ -137,7 +154,7 @@ class ImageWidget(QtGui.QWidget):
         pixelvaluelayout.addWidget(self.fetchROIButton)
         pixelvaluelayout.addWidget(self.angleqPushButton)
         pixelvaluelayout.addWidget(self.angleqComboBox)
-        pixelvaluelayout.addWidget(self.ticksPushButton)
+        pixelvaluelayout.addWidget(self.axesPushButton)
 
 
         self.__ui.toolVerticalLayout.addLayout(pixelvaluelayout)
@@ -226,7 +243,7 @@ class ImageWidget(QtGui.QWidget):
             "Input physical parameters\n%s" % message)
         self.angleqComboBox.setToolTip(
             "Select the display space\n%s" % message)
-        self.pixellabel.setToolTip(
+        self.toolLabel.setToolTip(
             "coordinate info display for the mouse pointer\n%s" % message)
         self.__ui.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer\n%s" % message)
@@ -415,7 +432,7 @@ class ImageWidget(QtGui.QWidget):
 
     def showROIFrame(self):
         self.displaywidget.showLines(False)
-        self.ticksPushButton.hide()
+        self.axesPushButton.hide()
         self.angleqPushButton.hide()
         self.angleqComboBox.hide()
         self.cutPlot.hide()
@@ -425,7 +442,7 @@ class ImageWidget(QtGui.QWidget):
         self.cutSpinBox.hide()
         self.labelROILineEdit.show()
 
-        self.pixellabel.setText("ROI alias(es): ")
+        self.toolLabel.setText("ROI alias(es): ")
         self.__ui.infoLabel.show()
         self.displaywidget.showROIs(True)
         self.displaywidget.showCuts(False)
@@ -438,17 +455,17 @@ class ImageWidget(QtGui.QWidget):
         self.__ui.infoLineEdit.setText("")
         self.__ui.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer")
-        self.pixellabel.setToolTip(
+        self.toolLabel.setToolTip(
             "ROI alias or aliases related to sardana experimental channels")
         if doreset:
             self.displaywidget.resetScale()
 
     def showIntensityFrame(self):
-        self.pixellabel.setText("Pixel position and intensity: ")
+        self.toolLabel.setText("Pixel position and intensity: ")
         self.displaywidget.showROIs(False)
         self.displaywidget.showCuts(False)
         self.cutPlot.hide()
-        self.ticksPushButton.show()
+        self.axesPushButton.show()
         self.angleqPushButton.hide()
         self.angleqComboBox.hide()
         self.fetchROIButton.hide()
@@ -464,18 +481,18 @@ class ImageWidget(QtGui.QWidget):
         self.__ui.infoLineEdit.setText("")
         self.__ui.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer")
-        self.pixellabel.setToolTip(
+        self.toolLabel.setToolTip(
             "coordinate info display for the mouse pointer")
         self.displaywidget.setScale(
             self.displaywidget.position, self.displaywidget.scale)
 
     def showLineCutFrame(self):
-        self.pixellabel.setText("Cut, pixel position and intensity: ")
+        self.toolLabel.setText("Cut, pixel position and intensity: ")
         self.displaywidget.showROIs(False)
         self.displaywidget.showCuts(True)
         self.cutPlot.show()
         self.fetchROIButton.hide()
-        self.ticksPushButton.hide()
+        self.axesPushButton.hide()
         self.angleqPushButton.hide()
         self.angleqComboBox.hide()
         self.labelROILineEdit.hide()
@@ -493,17 +510,17 @@ class ImageWidget(QtGui.QWidget):
         self.__ui.infoLineEdit.setText("")
         self.__ui.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer")
-        self.pixellabel.setToolTip(
+        self.toolLabel.setToolTip(
             "coordinate info display for the mouse pointer")
         if doreset:
             self.displaywidget.resetScale()
 
     def showAngleQFrame(self):
-        self.pixellabel.setText("Pixel position and intensity: ")
+        self.toolLabel.setText("Pixel position and intensity: ")
         self.displaywidget.showROIs(False)
         self.displaywidget.showCuts(False)
         self.cutPlot.hide()
-        self.ticksPushButton.hide()
+        self.axesPushButton.hide()
         self.angleqPushButton.show()
         self.angleqComboBox.show()
         self.fetchROIButton.hide()
