@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>476</width>
-    <height>134</height>
+    <width>514</width>
+    <height>136</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,8 +31,11 @@
         </sizepolicy>
        </property>
        <layout class="QGridLayout" name="gridLayout_2" columnstretch="0">
+        <property name="margin">
+         <number>0</number>
+        </property>
         <item row="0" column="0">
-         <layout class="QVBoxLayout" name="twoDVerticalLayout" stretch=""/>
+         <layout class="QVBoxLayout" name="twoDVerticalLayout"/>
         </item>
        </layout>
       </widget>
@@ -44,13 +47,16 @@
         </sizepolicy>
        </property>
        <layout class="QGridLayout" name="gridLayout_3" columnstretch="0">
+        <property name="margin">
+         <number>0</number>
+        </property>
         <item row="0" column="0">
          <layout class="QVBoxLayout" name="oneDVerticalLayout"/>
         </item>
        </layout>
       </widget>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QWidget" name="toolWidget" native="true">
@@ -61,6 +67,9 @@
           </sizepolicy>
          </property>
          <layout class="QGridLayout" name="gridLayout">
+          <property name="margin">
+           <number>0</number>
+          </property>
           <item row="0" column="0">
            <layout class="QVBoxLayout" name="toolVerticalLayout"/>
           </item>
