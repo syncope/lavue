@@ -135,10 +135,10 @@ class ImageWidget(QtGui.QWidget):
         self.__ui.toolSplitter.setStretchFactor(1, 1)
 
         self.__displaywidget.currentMousePosition.connect(
-            self.setDisplayedText)
+            self._setDisplayedText)
 
-        self.__roiregionmapper.mapped.connect(self.roiRegionChanged)
-        self.__currentroimapper.mapped.connect(self.currentROIChanged)
+        self.__roiregionmapper.mapped.connect(self._roiRegionChanged)
+        self.__currentroimapper.mapped.connect(self._currentROIChanged)
         self.__displaywidget.getROI().sigHoverEvent.connect(
             self.__currentroimapper.map)
         self.__displaywidget.getROI().sigRegionChanged.connect(
@@ -146,17 +146,17 @@ class ImageWidget(QtGui.QWidget):
         self.__currentroimapper.setMapping(self.__displaywidget.getROI(), 0)
         self.__roiregionmapper.setMapping(self.__displaywidget.getROI(), 0)
 
-        self.cutCoordsChanged.connect(self.plotCut)
+        self.cutCoordsChanged.connect(self._plotCut)
 
-        self.__cutregionmapper.mapped.connect(self.cutRegionChanged)
-        self.__currentcutmapper.mapped.connect(self.currentCutChanged)
+        self.__cutregionmapper.mapped.connect(self._cutRegionChanged)
+        self.__currentcutmapper.mapped.connect(self._currentCutChanged)
         self.__displaywidget.getCut().sigHoverEvent.connect(
             self.__currentcutmapper.map)
         self.__displaywidget.getCut().sigRegionChanged.connect(
             self.__cutregionmapper.map)
         self.__currentcutmapper.setMapping(self.__displaywidget.getCut(), 0)
         self.__cutregionmapper.setMapping(self.__displaywidget.getCut(), 0)
-        self.__displaywidget.centerAngleChanged.connect(self.updateGeometry)
+        self.__displaywidget.centerAngleChanged.connect(self._updateGeometry)
 
         self.__ui.toolComboBox.currentIndexChanged.connect(
             self.onToolChanged)
@@ -203,15 +203,14 @@ class ImageWidget(QtGui.QWidget):
             self.__displaywidget.pixelsizex = cnfdlg.pixelsizex
             self.__displaywidget.pixelsizey = cnfdlg.pixelsizey
             self.__displaywidget.detdistance = cnfdlg.detdistance
-            self.updateGeometryTip()
+            self.__updateGeometryTip()
 
     @QtCore.pyqtSlot()
-    def updateGeometry(self):
-        self.setDisplayedText("")
-        self.updateGeometryTip()
+    def _updateGeometry(self):
+        self._setDisplayedText("")
+        self.__updateGeometryTip()
 
-    @QtCore.pyqtSlot()
-    def updateGeometryTip(self):
+    def __updateGeometryTip(self):
         message = self.__displaywidget.geometryMessage()
         self.__ui.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer\n%s" % message)
@@ -245,22 +244,41 @@ class ImageWidget(QtGui.QWidget):
             and not self.__displaywidget.qenable)
 
     @QtCore.pyqtSlot(int)
-    def roiRegionChanged(self, _):
-        self.roiChanged()
+    def _roiRegionChanged(self, rid=None):
+        try:
+            # ?? rid == rid
+            rid = self.__displaywidget.currentroi
+            state = self.__displaywidget.getROI(rid).state
+            ptx = int(math.floor(state['pos'].x()))
+            pty = int(math.floor(state['pos'].y()))
+            szx = int(math.floor(state['size'].x()))
+            szy = int(math.floor(state['size'].y()))
+            self.__displaywidget.roicoords[rid] = [
+                ptx, pty, ptx + szx, pty + szy]
+            self.roiCoordsChanged.emit()
+        except Exception as e:
+            print("Warning: %s" % str(e))
 
     @QtCore.pyqtSlot(int)
-    def cutRegionChanged(self, cid):
-        self.cutChanged()
+    def _cutRegionChanged(self, cid):
+        try:
+            # ??? cid == cid
+            cid = self.__displaywidget.currentcut
+            self.__displaywidget.cutcoords[cid] = \
+                self.__displaywidget.getCut(cid).getCoordinates()
+            self.cutCoordsChanged.emit()
+        except Exception as e:
+            print("Warning: %s" % str(e))
 
     @QtCore.pyqtSlot(int)
-    def currentROIChanged(self, rid):
+    def _currentROIChanged(self, rid):
         oldrid = self.__displaywidget.currentroi
         if rid != oldrid:
             self.__displaywidget.currentroi = rid
             self.roiCoordsChanged.emit()
 
     @QtCore.pyqtSlot(int)
-    def currentCutChanged(self, cid):
+    def _currentCutChanged(self, cid):
         oldcid = self.__displaywidget.currentcut
         if cid != oldcid:
             self.__displaywidget.currentcut = cid
@@ -361,38 +379,15 @@ class ImageWidget(QtGui.QWidget):
             self.__updateinfowidgets(stwg.parameters)
 
         if text == "ROI":
-            self.roiChanged()
+            self._roiRegionChanged()
         elif text == "LineCut":
             self.roiCoordsChanged.emit()
         elif text == "Angle/Q":
-            self.updateGeometryTip()
+            self.__updateGeometryTip()
             self.roiCoordsChanged.emit()
         else:
             self.roiCoordsChanged.emit()
         self.currentToolChanged.emit(text)
-
-    def roiChanged(self):
-        try:
-            rid = self.__displaywidget.currentroi
-            state = self.__displaywidget.getROI(rid).state
-            ptx = int(math.floor(state['pos'].x()))
-            pty = int(math.floor(state['pos'].y()))
-            szx = int(math.floor(state['size'].x()))
-            szy = int(math.floor(state['size'].y()))
-            self.__displaywidget.roicoords[rid] = [
-                ptx, pty, ptx + szx, pty + szy]
-            self.roiCoordsChanged.emit()
-        except Exception as e:
-            print("Warning: %s" % str(e))
-
-    def cutChanged(self):
-        try:
-            cid = self.__displaywidget.currentcut
-            self.__displaywidget.cutcoords[cid] = \
-                self.__displaywidget.getCut(cid).getCoordinates()
-            self.cutCoordsChanged.emit()
-        except Exception as e:
-            print("Warning: %s" % str(e))
 
     def __updateinfowidgets(self, parameters):
         """ update info widgets
@@ -428,11 +423,11 @@ class ImageWidget(QtGui.QWidget):
 
         self.__displaywidget.updateImage(array, rawarray)
         if self.__displaywidget.cutenable:
-            self.plotCut()
+            self._plotCut()
         if self.__displaywidget.roienable:
-            self.setDisplayedText()
+            self._setDisplayedText()
 
-    def calcROIsum(self):
+    def __calcROIsum(self):
         rid = self.__displaywidget.currentroi
         image = None
         if self.__displaywidget.rawdata is not None:
@@ -465,7 +460,7 @@ class ImageWidget(QtGui.QWidget):
             return "0.", rid
 
     @QtCore.pyqtSlot()
-    def plotCut(self):
+    def _plotCut(self):
         cid = self.__displaywidget.currentcut
         if cid > -1 and self.__displaywidget.countCuts() > cid:
             cut = self.__displaywidget.getCut(cid)
@@ -494,11 +489,7 @@ class ImageWidget(QtGui.QWidget):
         self.__displaywidget.setDisplayMaxLevel(level)
 
     @QtCore.pyqtSlot(str)
-    def changeGradient(self, name):
-        self.__displaywidget.updateGradient(name)
-
-    @QtCore.pyqtSlot(str)
-    def setDisplayedText(self, text=None):
+    def _setDisplayedText(self, text=None):
         if text is not None:
             self.__lasttext = text
         else:
@@ -508,7 +499,7 @@ class ImageWidget(QtGui.QWidget):
             currentroi = self.__displaywidget.currentroi
             self.__ui.infoLineEdit.setText(text)
             if currentroi >= 0:
-                roiVal, currentroi = self.calcROIsum()
+                roiVal, currentroi = self.__calcROIsum()
                 self.roiValueChanged.emit(text, currentroi, roiVal)
         else:
             self.__ui.infoLineEdit.setText(text)
@@ -582,9 +573,6 @@ class ImageWidget(QtGui.QWidget):
     def setDoBkgSubtraction(self, state):
         self.__displaywidget.dobkgsubtraction = state
 
-    def roiCoords(self):
-        return self.__displaywidget.roicoords
-
     def setSardanaUtils(self, sardana):
         if sardana:
             self.sardanaEnabled.emit(True)
@@ -610,7 +598,7 @@ class ImageWidget(QtGui.QWidget):
                     text, str(value))
                 return
 
-            roicoords = self.roiCoords()
+            roicoords = self.__displaywidget.roicoords
             roispin = self.roiSpinBox.value()
             # rlabel = str(self.labelROILineEdit.text())
             slabel = re.split(';|,| |\n', rlabel)
