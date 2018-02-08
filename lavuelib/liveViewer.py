@@ -58,10 +58,10 @@ from .hidraServerList import HIDRASERVERLIST
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                 "ui", "LavueDialog.ui"))
+                 "ui", "MainWindow.ui"))
 
 
-class LiveViewer(QtGui.QDialog):
+class LiveViewer(QtGui.QMainWindow):
 
     '''The master class for the dialog, contains all other
     widget and handles communication.'''
