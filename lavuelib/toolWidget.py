@@ -26,9 +26,10 @@
 """ image widget """
 
 
-from PyQt4 import QtGui, uic
+from PyQt4 import QtCore, QtGui, uic
 
 import os
+import re
 
 _intensityformclass, _intensitybaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -77,7 +78,7 @@ class ToolParameters(object):
 class ToolWidget(QtGui.QWidget):
     """ tool widget
     """
-    def __init__(self, parent=None, parameters=None):
+    def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
@@ -92,14 +93,18 @@ class ToolWidget(QtGui.QWidget):
         #:     ui_toolwidget object from qtdesigner
         self._ui = None
         #: (:class:`ToolParameters`) tool parameters
-        self.parameters = parameters or ToolParameters()
+        self.parameters = ToolParameters()
+
+        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: list of [signal, slot] object to connect
+        self.signal2slot = []
 
 
 class IntensityToolWidget(ToolWidget):
     """ intensity tool widget
     """
 
-    def __init__(self, parent=None, parameters=None):
+    def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
@@ -125,12 +130,24 @@ class IntensityToolWidget(ToolWidget):
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
 
+        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: list of [signal, slot] object to connect
+        self.signal2slot = [
+            [self.__ui.axesPushButton.clicked, "setTicks"]
+        ]
+
 
 class ROIToolWidget(ToolWidget):
     """ roi tool widget
     """
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) apply ROI pressed signal
+    applyROIPressed = QtCore.pyqtSignal(str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) fetch ROI pressed signal
+    fetchROIPressed = QtCore.pyqtSignal(str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi info Changed signal
+    roiInfoChanged = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None, parameters=None):
+    def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
@@ -150,13 +167,84 @@ class ROIToolWidget(ToolWidget):
         self.parameters.infolabel = "[x1, y1, x2, y2], sum: "
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
+        self.__ui.labelROILineEdit.textEdited.connect(self.updateROIButton)
+        self.__ui.applyROIPushButton.clicked.connect(self._onApplyROI)
+        self.__ui.fetchROIPushButton.clicked.connect(self._onFetchROI)
+
+        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: list of [signal, slot] object to connect
+        self.signal2slot = [
+            [self.applyROIPressed, "onapplyrois"],
+            [self.fetchROIPressed, "onfetchrois"],
+            [self.roiInfoChanged, "updateDisplayedText"],
+            [self.__ui.roiSpinBox.valueChanged, "roiNrChanged"],
+            ["roiLineEditChanged", self.updateApplyButton],
+            ["roiAliasesChanged", self.updateROILineEdit],
+            ["roiValueChanged", self.updateROIDisplayText],
+            ["sardanaEnabled", self.updateROIButton]
+        ]
+
+    @QtCore.pyqtSlot()
+    def _onApplyROI(self):
+        text = str(self.__ui.labelROILineEdit.text())
+        self.applyROIPressed.emit(text)
+
+    @QtCore.pyqtSlot()
+    def _onFetchROI(self):
+        text = str(self.__ui.labelROILineEdit.text())
+        self.fetchROIPressed.emit(text)
+
+    @QtCore.pyqtSlot()
+    def updateApplyButton(self):
+        if not str(self.__ui.labelROILineEdit.text()).strip():
+            self.__ui.applyROIPushButton.setEnabled(False)
+        else:
+            self.__ui.applyROIPushButton.setEnabled(True)
+
+    @QtCore.pyqtSlot(str)
+    def updateROILineEdit(self, text):
+        self.labelROILineEdit.setText(text)
+
+    @QtCore.pyqtSlot(bool)
+    def updateROIButton(self, enabled):
+        self.__ui.applyROIPushButton.setEnabled(enabled)
+        self.__ui.fetchROIPushButton.setEnabled(enabled)
+
+    @QtCore.pyqtSlot(int)
+    def updateApplyTips(self, rid):
+        if rid < 0:
+            self.__ui.applyROIPushButton.setToolTip(
+                "remove ROI aliases from the Door environment"
+                " as well as from Active MntGrp")
+        else:
+            self.__ui.applyROIPushButton.setToolTip(
+                "add ROI aliases to the Door environment "
+                "as well as to Active MntGrp")
+
+    @QtCore.pyqtSlot(str, int, str)
+    def updateROIDisplayText(self, text, currentroi, roiVal):
+
+        roilabel = "roi [%s]" % (currentroi + 1)
+        slabel = []
+
+        rlabel = str(self.__ui.labelROILineEdit.text())
+        if rlabel:
+            slabel = re.split(';|,| |\n', rlabel)
+            slabel = [lb for lb in slabel if lb]
+        if slabel:
+            roilabel = "%s [%s]" % (
+                slabel[currentroi]
+                if currentroi < len(slabel) else slabel[-1],
+                (currentroi + 1)
+            )
+        self.roiInfoChanged.emit("%s, %s = %s" % (text, roilabel, roiVal))
 
 
 class LineCutToolWidget(ToolWidget):
     """ line-cut tool widget
     """
 
-    def __init__(self, parent=None, parameters=None):
+    def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
@@ -177,12 +265,23 @@ class LineCutToolWidget(ToolWidget):
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
 
+        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: list of [signal, slot] object to connect
+        self.signal2slot = [
+            [self.__ui.cutSpinBox.valueChanged, "cutNrChanged"],
+            ["cutNumberChanged", self.onCutNumberChanged]
+        ]
+
+    @QtCore.pyqtSlot(int)
+    def onCutNumberChanged(self, cid):
+        self.__ui.cutSpinBox.setValue(cid)
+
 
 class AngleQToolWidget(ToolWidget):
     """ angle/q tool widget
     """
 
-    def __init__(self, parent=None, parameters=None):
+    def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
@@ -201,3 +300,20 @@ class AngleQToolWidget(ToolWidget):
         self.parameters.qspace = True
         self.parameters.infolineedit = ""
         self.parameters.infotips = ""
+
+        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: list of [signal, slot] object to connect
+        self.signal2slot = [
+            [self.__ui.angleqPushButton.clicked, "geometry"],
+            [self.__ui.angleqComboBox.currentIndexChanged, "onAngleQChanged"],
+            ["geometryTipsChanged", self.updateTips]
+        ]
+
+    @QtCore.pyqtSlot(str)
+    def updateTips(self, message):
+        self.__ui.angleqPushButton.setToolTip(
+            "Input physical parameters\n%s" % message)
+        self.__ui.angleqComboBox.setToolTip(
+            "Select the display space\n%s" % message)
+        self.__ui.toolLabel.setToolTip(
+            "coordinate info display for the mouse pointer\n%s" % message)

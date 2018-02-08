@@ -54,11 +54,30 @@ class ImageWidget(QtGui.QWidget):
     The part of the GUI that incorporates the image view.
     """
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) current tool changed
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) current tool changed signal
     currentToolChanged = QtCore.pyqtSignal(int)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) geometry tips changed signal
+    geometryTipsChanged = QtCore.pyqtSignal(str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) cut number changed signal
+    cutNumberChanged = QtCore.pyqtSignal(int)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi number changed signal
+    roiNumberChanged = QtCore.pyqtSignal(int)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi coordinate changed signal
     roiCoordsChanged = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) cut coordinate changed signal
     cutCoordsChanged = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi Line Edit changed signal
+    roiLineEditChanged = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) sardana enabled signal
+    sardanaEnabled = QtCore.pyqtSignal(bool)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) aspect locked toggled signal
     aspectLockedToggled = QtCore.pyqtSignal(bool)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) apply tips changed signal
+    applyTipsChanged = QtCore.pyqtSignal(int)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi aliases changed signal
+    roiAliasesChanged = QtCore.pyqtSignal(str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi value changed signal
+    roiValueChanged = QtCore.pyqtSignal(str, int, str)
 
     def __init__(self, parent=None, tooltypes=None, settings=None):
         """ constructor
@@ -80,7 +99,6 @@ class ImageWidget(QtGui.QWidget):
         #: (:class:`lavuelib.settings.Settings`) settings
         self.__settings = settings
 
-        self.imageItem = None
         self.__currentroimapper = QtCore.QSignalMapper(self)
         self.__roiregionmapper = QtCore.QSignalMapper(self)
         self.__currentcutmapper = QtCore.QSignalMapper(self)
@@ -107,45 +125,9 @@ class ImageWidget(QtGui.QWidget):
         sizePolicy.setHeightForWidth(
             self.__displaywidget.sizePolicy().hasHeightForWidth())
         self.__displaywidget.setSizePolicy(sizePolicy)
-        self.__cutPlot.setMinimumSize(QtCore.QSize(0, 180))
+        # self.__cutPlot.setMinimumSize(QtCore.QSize(0, 180))
 
         self.__addToolWidgets()
-
-        self.toolLabel = QtGui.QLabel("Pixel position and intensity: ")
-        self.toolLabel.setToolTip(
-            "coordinate info display for the mouse pointer")
-
-        self.axesPushButton = QtGui.QPushButton("Axes ...")
-
-        self.labelROILineEdit = QtGui.QLineEdit("")
-        self.labelROILineEdit.setToolTip(
-            "ROI alias or aliases related to Sardana Pool "
-            "experimental channels")
-        self.roiSpinBox = QtGui.QSpinBox()
-        self.roiSpinBox.setMinimum(-1)
-        self.roiSpinBox.setValue(1)
-        self.roiSpinBox.setToolTip(
-            "number of ROIs to add, -1 means remove ROI aliases from sardana")
-        self.fetchROIButton = QtGui.QPushButton("Fetch")
-        self.fetchROIButton.setToolTip(
-            "fetch ROI aliases from the Door environment")
-        self.applyROIButton = QtGui.QPushButton("Add")
-        self.applyROIButton.setToolTip(
-            "add ROI aliases to the Door environment "
-            "as well as to Active MntGrp")
-
-        self.cutSpinBox = QtGui.QSpinBox()
-        self.cutSpinBox.setMinimum(0)
-        self.cutSpinBox.setValue(1)
-        self.cutSpinBox.setToolTip(
-            "number of Line Cuts")
-
-        self.angleqPushButton = QtGui.QPushButton("Geometry ...")
-        self.angleqPushButton.setToolTip("Input physical parameters")
-        self.angleqComboBox = QtGui.QComboBox()
-        self.angleqComboBox.addItem("angles")
-        self.angleqComboBox.addItem("q-space")
-        self.angleqComboBox.setToolTip("Select the display space")
 
         self.__ui.plotSplitter.setStretchFactor(0, 20)
         self.__ui.plotSplitter.setStretchFactor(1, 1)
@@ -165,9 +147,6 @@ class ImageWidget(QtGui.QWidget):
         self.__roiregionmapper.setMapping(self.__displaywidget.getROI(), 0)
 
         self.cutCoordsChanged.connect(self.plotCut)
-        self.roiSpinBox.valueChanged.connect(self.roiNrChanged)
-        self.labelROILineEdit.textEdited.connect(self.updateROIButton)
-        self.updateROIButton()
 
         self.__cutregionmapper.mapped.connect(self.cutRegionChanged)
         self.__currentcutmapper.mapped.connect(self.currentCutChanged)
@@ -177,20 +156,15 @@ class ImageWidget(QtGui.QWidget):
             self.__cutregionmapper.map)
         self.__currentcutmapper.setMapping(self.__displaywidget.getCut(), 0)
         self.__cutregionmapper.setMapping(self.__displaywidget.getCut(), 0)
-        self.angleqPushButton.clicked.connect(self.geometry)
-        self.angleqComboBox.currentIndexChanged.connect(
-            self.onAngleQChanged)
         self.__displaywidget.centerAngleChanged.connect(self.updateGeometry)
-        self.cutSpinBox.valueChanged.connect(self.cutNrChanged)
 
         self.__ui.toolComboBox.currentIndexChanged.connect(
             self.onToolChanged)
-        self.axesPushButton.clicked.connect(self._setTicks)
 
         self.__displaywidget.setaspectlocked.triggered.connect(
             self._toggleAspectLocked)
-        self.applyROIButton.clicked.connect(self._onapplyrois)
-        self.fetchROIButton.clicked.connect(self._onfetchrois)
+
+        self.roiLineEditChanged.emit()
 
     def __addToolWidgets(self):
         """ add tool subwidgets into grid layout
@@ -201,6 +175,12 @@ class ImageWidget(QtGui.QWidget):
             self.__toolnames.append(twg.name)
             self.__ui.toolComboBox.addItem(twg.name)
             self.__ui.toolVerticalLayout.addWidget(twg)
+            for signal, slot in twg.signal2slot:
+                if isinstance(signal, str):
+                    signal = getattr(self, signal)
+                if isinstance(slot, str):
+                    slot = getattr(self, slot)
+                signal.connect(slot)
 
     @QtCore.pyqtSlot(int)
     def onAngleQChanged(self, gindex):
@@ -233,14 +213,9 @@ class ImageWidget(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def updateGeometryTip(self):
         message = self.__displaywidget.geometryMessage()
-        self.angleqPushButton.setToolTip(
-            "Input physical parameters\n%s" % message)
-        self.angleqComboBox.setToolTip(
-            "Select the display space\n%s" % message)
-        self.toolLabel.setToolTip(
-            "coordinate info display for the mouse pointer\n%s" % message)
         self.__ui.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer\n%s" % message)
+        self.geometryTipsChanged.emit(message)
 
     def updateMetaData(self, axisscales=None, axislabels=None):
         if axislabels is not None:
@@ -291,25 +266,9 @@ class ImageWidget(QtGui.QWidget):
             self.__displaywidget.currentcut = cid
             self.cutCoordsChanged.emit()
 
-    @QtCore.pyqtSlot()
-    def updateROIButton(self):
-        if not str(self.labelROILineEdit.text()).strip():
-            self.applyROIButton.setEnabled(False)
-        else:
-            self.applyROIButton.setEnabled(True)
-
     @QtCore.pyqtSlot(int)
     def roiNrChanged(self, rid, coords=None):
-        if rid < 0:
-            self.applyROIButton.setText("Remove")
-            self.applyROIButton.setToolTip(
-                "remove ROI aliases from the Door environment"
-                " as well as from Active MntGrp")
-        else:
-            self.applyROIButton.setText("Add")
-            self.applyROIButton.setToolTip(
-                "add ROI aliases to the Door environment "
-                "as well as to Active MntGrp")
+        self.applyTipsChanged.emit(rid)
         if coords:
             for i, crd in enumerate(self.__displaywidget.roi):
                 if i < len(coords):
@@ -346,7 +305,7 @@ class ImageWidget(QtGui.QWidget):
                 self.__displaywidget.getROI())
             self.__displaywidget.removeROI()
         self.roiCoordsChanged.emit()
-        self.roiSpinBox.setValue(rid)
+        self.roiNumberChanged.emit(rid)
 
     @QtCore.pyqtSlot(int)
     def cutNrChanged(self, cid, coords=None):
@@ -385,18 +344,22 @@ class ImageWidget(QtGui.QWidget):
                 self.__displaywidget.getCut())
             self.__displaywidget.removeCut()
         self.cutCoordsChanged.emit()
-        self.cutSpinBox.setValue(cid)
+        self.cutNumberChanged.emit(cid)
 
     @QtCore.pyqtSlot(int)
     def onToolChanged(self):
         text = self.__ui.toolComboBox.currentText()
+        stwg = None
         for nm, twg in self.__toolwidgets.items():
             if text == nm:
-                self.__displaywidget.setSubWidgets(twg.parameters)
-                self.__updateinfowidgets(twg.parameters)
-                twg.show()
+                stwg = twg
             else:
                 twg.hide()
+        if stwg is not None:
+            stwg.show()
+            self.__displaywidget.setSubWidgets(stwg.parameters)
+            self.__updateinfowidgets(stwg.parameters)
+
         if text == "ROI":
             self.roiChanged()
         elif text == "LineCut":
@@ -468,24 +431,6 @@ class ImageWidget(QtGui.QWidget):
             self.plotCut()
         if self.__displaywidget.roienable:
             self.setDisplayedText()
-
-    def createROILabel(self):
-        roilabel = ""
-        currentroi = self.__displaywidget.currentroi
-        if currentroi >= 0:
-            roilabel = "roi [%s]" % (currentroi + 1)
-            slabel = []
-            rlabel = str(self.labelROILineEdit.text())
-            if rlabel:
-                slabel = re.split(';|,| |\n', rlabel)
-                slabel = [lb for lb in slabel if lb]
-            if slabel:
-                roilabel = "%s [%s]" % (
-                    slabel[currentroi]
-                    if currentroi < len(slabel) else slabel[-1],
-                    (currentroi + 1)
-                )
-        return roilabel
 
     def calcROIsum(self):
         rid = self.__displaywidget.currentroi
@@ -560,14 +505,20 @@ class ImageWidget(QtGui.QWidget):
             text = self.__lasttext
         if self.__displaywidget.roienable and \
            self.__displaywidget.getROI() is not None:
-            roiVal, currentroi = self.calcROIsum()
-            roilabel = self.createROILabel()
+            currentroi = self.__displaywidget.currentroi
+            self.__ui.infoLineEdit.setText(text)
+            if currentroi >= 0:
+                roiVal, currentroi = self.calcROIsum()
+                self.roiValueChanged.emit(text, currentroi, roiVal)
+        else:
+            self.__ui.infoLineEdit.setText(text)
 
-            text = "%s, %s = %s" % (text, roilabel, roiVal)
+    @QtCore.pyqtSlot(str)
+    def updateDisplayedText(self, text):
         self.__ui.infoLineEdit.setText(text)
 
     @QtCore.pyqtSlot()
-    def _setTicks(self):
+    def setTicks(self):
         cnfdlg = axesDialog.AxesDialog(self)
         if self.__displaywidget.position is None:
             cnfdlg.xposition = None
@@ -636,18 +587,14 @@ class ImageWidget(QtGui.QWidget):
 
     def setSardanaUtils(self, sardana):
         if sardana:
-            self.applyROIButton.setEnabled(True)
-            self.fetchROIButton.setEnabled(True)
+            self.sardanaEnabled.emit(True)
         else:
-            self.applyROIButton.setEnabled(False)
-            self.fetchROIButton.setEnabled(False)
+            self.sardanaEnabled.emit(False)
         self.__sardana = sardana
 
-    @QtCore.pyqtSlot()
-    def _onapplyrois(self):
+    @QtCore.pyqtSlot(str)
+    def onapplyrois(self, rlabel):
         if isr.PYTANGO:
-            roicoords = self.roiCoords()
-            roispin = self.roiSpinBox.value()
             if not self.__settings.doorname:
                 self.__settings.doorname = self.__sardana.getDeviceName("Door")
             try:
@@ -663,7 +610,9 @@ class ImageWidget(QtGui.QWidget):
                     text, str(value))
                 return
 
-            rlabel = str(self.labelROILineEdit.text())
+            roicoords = self.roiCoords()
+            roispin = self.roiSpinBox.value()
+            # rlabel = str(self.labelROILineEdit.text())
             slabel = re.split(';|,| |\n', rlabel)
             slabel = [lb for lb in slabel if lb]
             rid = 0
@@ -738,8 +687,8 @@ class ImageWidget(QtGui.QWidget):
         else:
             print("Connection error")
 
-    @QtCore.pyqtSlot()
-    def _onfetchrois(self):
+    @QtCore.pyqtSlot(str)
+    def onfetchrois(self, rlabel):
         if isr.PYTANGO:
             if not self.__settings.doorname:
                 self.__settings.doorname = self.__sardana.getDeviceName("Door")
@@ -755,7 +704,7 @@ class ImageWidget(QtGui.QWidget):
                     self, "lavue: Error in connecting to Door or MacroServer",
                     text, str(value))
                 return
-            rlabel = str(self.labelROILineEdit.text())
+            # rlabel = str(self.labelROILineEdit.text())
             slabel = re.split(';|,| |\n', rlabel)
             slabel = [lb for lb in set(slabel) if lb]
             detrois = {}
@@ -780,8 +729,9 @@ class ImageWidget(QtGui.QWidget):
                     break
                 else:
                     slabel.append(al)
-            self.labelROILineEdit.setText(" ".join(slabel))
-            self.updateROIButton()
+            # self.labelROILineEdit.setText(" ".join(slabel))
+            self.roiAliasesChanged.emit(" ".join(slabel))
+            self.roiLineEditChanged.emit()
             self.roiNrChanged(len(coords), coords)
         else:
             print("Connection error")

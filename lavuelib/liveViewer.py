@@ -225,7 +225,6 @@ class LiveViewer(QtGui.QMainWindow):
         # gradient selector
         self.__levelswg.channelChanged.connect(self._plot)
         self.__imagewg.aspectLockedToggled.connect(self._toggleAspectLocked)
-        # self.__imagewg.axesPushButton.clicked.connect(self._setTicks)
 
         # simple mutable caching object for data exchange with thread
         #: (:class:`lavuelib.dataFetchTread.ExchangeList`)
