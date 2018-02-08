@@ -187,6 +187,15 @@ lavuelib.statisticsGroupBox module
     :undoc-members:
     :show-inheritance:
 
+lavuelib.toolWidget module
+--------------------------
+
+.. automodule:: lavuelib.toolWidget
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 lavuelib.transformationsWidget module
 -------------------------------------
 

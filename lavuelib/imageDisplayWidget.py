@@ -492,3 +492,45 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
     def setDisplayMaxLevel(self, level=None):
         if level is not None:
             self.__displaylevels[1] = level
+
+    def setSubWidgets(self, parameters):
+        """ set subwidget properties
+
+        :param parameters: tool parameters
+        :type parameters: :class:`lavuelib.toolWidget.ToolParameters`
+        """
+
+        if parameters.scale is False:
+            doreset = not (self.cutenable or
+                           self.roienable or
+                           self.qenable)
+
+        if parameters.lines is not None:
+            self.showLines(parameters.lines)
+        if parameters.rois is not None:
+            self.showROIs(parameters.rois)
+            self.roienable = parameters.rois
+        if parameters.cuts is not None:
+            self.showCuts(parameters.cuts)
+            self.cutenable = parameters.cuts
+        if parameters.qspace is not None:
+            self.qenable = parameters.qspace
+
+        if parameters.scale is False and doreset:
+            self.resetScale()
+        if parameters.scale is True:
+            self.setScale(self.position, self.scale)
+
+    def geometryMessage(self):
+        return u"geometry:\n" \
+            u"  center = (%s, %s) pixels\n" \
+            u"  pixel_size = (%s, %s) \u00B5m\n" \
+            u"  detector_distance = %s mm\n" \
+            u"  energy = %s eV" % (
+                self.centerx,
+                self.centery,
+                self.pixelsizex,
+                self.pixelsizey,
+                self.detdistance,
+                self.energy
+            )

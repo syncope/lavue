@@ -31,7 +31,6 @@ from __future__ import unicode_literals
 
 import time
 import json
-import re
 import numpy as np
 import os
 import zmq
@@ -82,6 +81,13 @@ class LiveViewer(QtGui.QMainWindow):
         self.__sourcetypes.append("ZMQSourceWidget")
         self.__sourcetypes.append("TestSourceWidget")
 
+        #: (:obj:`list` < :obj:`str` > ) tool class names
+        self.__tooltypes = []
+        self.__tooltypes.append("IntensityToolWidget")
+        self.__tooltypes.append("ROIToolWidget")
+        self.__tooltypes.append("LineCutToolWidget")
+        self.__tooltypes.append("AngleQToolWidget")
+
         if umode and umode.lower() in ["expert"]:
             #: (:obj:`str`) execution mode: expert or user
             self.__umode = "expert"
@@ -105,6 +111,9 @@ class LiveViewer(QtGui.QMainWindow):
         #:  sardana utils
         self.__sardana = None
 
+        #: (:class:`lavuelib.settings.Settings`) settings
+        self.__settings = settings.Settings()
+
         # WIDGET DEFINITIONS
         #: (:class:`lavuelib.sourceGroupBox.SourceGroupBox`) source groupbox
         self.__sourcewg = sourceGroupBox.SourceGroupBox(
@@ -122,9 +131,10 @@ class LiveViewer(QtGui.QMainWindow):
         #:     statistic groupbox
         self.__statswg = statisticsGroupBox.StatisticsGroupBox(parent=self)
         #: (:class:`lavuelib.imageWidget.ImageWidget`) image widget
-        self.__imagewg = imageWidget.ImageWidget(parent=self)
+        self.__imagewg = imageWidget.ImageWidget(
+            parent=self, tooltypes=self.__tooltypes, settings=self.__settings)
 
-        self.__levelswg.setImageItem(self.__imagewg.displaywidget.image)
+        self.__levelswg.setImageItem(self.__imagewg.image())
         self.__levelswg.imageChanged(autoLevel=True)
 
         #: (:class:`lavuelib.maskWidget.MaskWidget`) mask widget
@@ -172,8 +182,6 @@ class LiveViewer(QtGui.QMainWindow):
         self.__ui = _formclass()
         self.__ui.setupUi(self)
 
-        self.__settings = settings.Settings()
-
         # # LAYOUT DEFINITIONS
         self.setWindowTitle("laVue: Live Image Viewer")
         self.__ui.confVerticalLayout.addWidget(self.__sourcewg)
@@ -204,8 +212,6 @@ class LiveViewer(QtGui.QMainWindow):
         self.__ui.loadPushButton.clicked.connect(self._loadfile)
         if self.__umode in ["user"]:
             self.__ui.cnfPushButton.hide()
-        self.__imagewg.applyROIButton.clicked.connect(self._onapplyrois)
-        self.__imagewg.fetchROIButton.clicked.connect(self._onfetchrois)
         self.__imagewg.roiCoordsChanged.connect(self._calcUpdateStatsSec)
         self.__imagewg.currentToolChanged.connect(
             self._onToolChanged)
@@ -218,9 +224,8 @@ class LiveViewer(QtGui.QMainWindow):
 
         # gradient selector
         self.__levelswg.channelChanged.connect(self._plot)
-        self.__imagewg.displaywidget.setaspectlocked.triggered.connect(
-            self._toggleAspectLocked)
-        self.__imagewg.axesPushButton.clicked.connect(self._setTicks)
+        self.__imagewg.aspectLockedToggled.connect(self._toggleAspectLocked)
+        # self.__imagewg.axesPushButton.clicked.connect(self._setTicks)
 
         # simple mutable caching object for data exchange with thread
         #: (:class:`lavuelib.dataFetchTread.ExchangeList`)
@@ -274,12 +279,10 @@ class LiveViewer(QtGui.QMainWindow):
             messageBox.MessageBox.warning(self, topic, text, str(value))
 
         self.__setSardana(self.__settings.sardana)
-        self.__imagewg.displaywidget.setAspectLocked(
-            self.__settings.aspectlocked)
+        self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
         self.__datasource.setTimeOut(self.__settings.timeout)
         dataFetchThread.GLOBALREFRESHRATE = self.__settings.refreshrate
-        self.__imagewg.displaywidget.statswoscaling = \
-            self.__settings.statswoscaling
+        self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling)
 
         self.__sourcewg.updateMetaData(
             zmqtopics=self.__settings.zmqtopics,
@@ -304,8 +307,7 @@ class LiveViewer(QtGui.QMainWindow):
     @QtCore.pyqtSlot(bool)
     def _toggleAspectLocked(self, status):
         self.__settings.aspectlocked = status
-        self.__imagewg.displaywidget.setAspectLocked(
-            self.__settings.aspectlocked)
+        self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
 
     @QtCore.pyqtSlot(str)
     def _onToolChanged(self, text):
@@ -318,101 +320,6 @@ class LiveViewer(QtGui.QMainWindow):
             self.__trafowg.setEnabled(True)
         else:
             self.__trafowg.setEnabled(True)
-
-    @QtCore.pyqtSlot()
-    def _onapplyrois(self):
-        if isr.PYTANGO:
-            roicoords = self.__imagewg.displaywidget.roicoords
-            roispin = self.__imagewg.roiSpinBox.value()
-            if not self.__settings.doorname:
-                self.__settings.doorname = self.__sardana.getDeviceName("Door")
-            try:
-                rois = json.loads(self.__sardana.getScanEnv(
-                    str(self.__settings.doorname), ["DetectorROIs"]))
-            except Exception:
-                import traceback
-                value = traceback.format_exc()
-                text = messageBox.MessageBox.getText(
-                    "Problems in connecting to Door or MacroServer")
-                messageBox.MessageBox.warning(
-                    self, "lavue: Error in connecting to Door or MacroServer",
-                    text, str(value))
-                return
-
-            rlabel = str(self.__imagewg.labelROILineEdit.text())
-            slabel = re.split(';|,| |\n', rlabel)
-            slabel = [lb for lb in slabel if lb]
-            rid = 0
-            lastcrdlist = None
-            toremove = []
-            toadd = []
-            if "DetectorROIs" not in rois or not isinstance(
-                    rois["DetectorROIs"], dict):
-                rois["DetectorROIs"] = {}
-            lastalias = None
-            for alias in slabel:
-                if alias not in toadd:
-                    rois["DetectorROIs"][alias] = []
-                lastcrdlist = rois["DetectorROIs"][alias]
-                if rid < len(roicoords):
-                    lastcrdlist.append(roicoords[rid])
-                    rid += 1
-                    if alias not in toadd:
-                        toadd.append(alias)
-                if not lastcrdlist:
-                    if alias in rois["DetectorROIs"].keys():
-                        rois["DetectorROIs"].pop(alias)
-                    if roispin >= 0:
-                        toadd.append(alias)
-                    else:
-                        toremove.append(alias)
-                lastalias = alias
-            if rid > 0:
-                while rid < len(roicoords):
-                    lastcrdlist.append(roicoords[rid])
-                    rid += 1
-                if not lastcrdlist:
-                    if lastalias in rois["DetectorROIs"].keys():
-                        rois["DetectorROIs"].pop(lastalias)
-                    if roispin >= 0:
-                        toadd.append(lastalias)
-                    else:
-                        toremove.append(lastalias)
-
-            self.__sardana.setScanEnv(
-                str(self.__settings.doorname), json.dumps(rois))
-            warns = []
-            if self.__settings.addrois:
-                try:
-                    for alias in toadd:
-                        _, warn = self.__sardana.runMacro(
-                            str(self.__settings.doorname), ["nxsadd", alias])
-                        if warn:
-                            warns.extend(list(warn))
-                            print("Warning: %s" % warn)
-                    for alias in toremove:
-                        _, warn = self.__sardana.runMacro(
-                            str(self.__settings.doorname), ["nxsrm", alias])
-                        if warn:
-                            warns.extend(list(warn))
-                            print("Warning: %s" % warn)
-                    if warns:
-                        msg = "\n".join(set(warns))
-                        messageBox.MessageBox.warning(
-                            self, "lavue: Errors in setting Measurement group",
-                            msg, str(warns))
-
-                except Exception:
-                    import traceback
-                    value = traceback.format_exc()
-                    text = messageBox.MessageBox.getText(
-                        "Problems in setting Measurement group")
-                    messageBox.MessageBox.warning(
-                        self, "lavue: Error in Setting Measurement group",
-                        text, str(value))
-
-        else:
-            print("Connection error")
 
     def closeEvent(self, event):
         """ stores the setting before finishing the application
@@ -433,54 +340,6 @@ class LiveViewer(QtGui.QMainWindow):
         self.__settings.seccontext.destroy()
         QtGui.QApplication.closeAllWindows()
         event.accept()
-
-    @QtCore.pyqtSlot()
-    def _onfetchrois(self):
-        if isr.PYTANGO:
-            if not self.__settings.doorname:
-                self.__settings.doorname = self.__sardana.getDeviceName("Door")
-            try:
-                rois = json.loads(self.__sardana.getScanEnv(
-                    str(self.__settings.doorname), ["DetectorROIs"]))
-            except Exception:
-                import traceback
-                value = traceback.format_exc()
-                text = messageBox.MessageBox.getText(
-                    "Problems in connecting to Door or MacroServer")
-                messageBox.MessageBox.warning(
-                    self, "lavue: Error in connecting to Door or MacroServer",
-                    text, str(value))
-                return
-            rlabel = str(self.__imagewg.labelROILineEdit.text())
-            slabel = re.split(';|,| |\n', rlabel)
-            slabel = [lb for lb in set(slabel) if lb]
-            detrois = {}
-            if "DetectorROIs" in rois and isinstance(
-                    rois["DetectorROIs"], dict):
-                detrois = rois["DetectorROIs"]
-                if slabel:
-                    detrois = dict(
-                        (k, v) for k, v in detrois.items() if k in slabel)
-            coords = []
-            aliases = []
-            for k, v in detrois.items():
-                if isinstance(v, list):
-                    for cr in v:
-                        if isinstance(cr, list):
-                            coords.append(cr)
-                            aliases.append(k)
-            slabel = []
-            for i, al in enumerate(aliases):
-                if len(set(aliases[i:])) == 1:
-                    slabel.append(al)
-                    break
-                else:
-                    slabel.append(al)
-            self.__imagewg.labelROILineEdit.setText(" ".join(slabel))
-            self.__imagewg.updateROIButton()
-            self.__imagewg.roiNrChanged(len(coords), coords)
-        else:
-            print("Connection error")
 
     @QtCore.pyqtSlot()
     def _loadfile(self):
@@ -575,8 +434,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__settings.timeout = dialog.timeout
         self.__datasource.setTimeOut(self.__settings.timeout)
         self.__settings.aspectlocked = dialog.aspectlocked
-        self.__imagewg.displaywidget.setAspectLocked(
-            self.__settings.aspectlocked)
+        self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
         self.__settings.secstream = dialog.secstream
         setsrc = False
         if self.__settings.dirtrans != dialog.dirtrans:
@@ -596,10 +454,7 @@ class LiveViewer(QtGui.QMainWindow):
             self.__sourcewg.updateLayout()
 
         self.__settings.statswoscaling = dialog.statswoscaling
-        if self.__imagewg.displaywidget.statswoscaling != \
-           self.__settings.statswoscaling:
-            self.__imagewg.displaywidget.statswoscaling = \
-                self.__settings.statswoscaling
+        if self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling):
             self._plot()
 
     @QtCore.pyqtSlot(str)
@@ -610,12 +465,9 @@ class LiveViewer(QtGui.QMainWindow):
     def __setSardana(self, status):
         if status is False:
             self.__sardana = None
-            self.__imagewg.applyROIButton.setEnabled(False)
-            self.__imagewg.fetchROIButton.setEnabled(False)
         else:
             self.__sardana = sardanaUtils.SardanaUtils()
-            self.__imagewg.applyROIButton.setEnabled(True)
-            self.__imagewg.fetchROIButton.setEnabled(True)
+        self.__imagewg.setSardanaUtils(self.__sardana)
 
     @QtCore.pyqtSlot(int)
     def _onSourceChanged(self, status):
@@ -900,7 +752,7 @@ class LiveViewer(QtGui.QMainWindow):
 
     def __scale(self, scalingtype):
         self.__scaledimage = self.__displayimage
-        self.__imagewg.displaywidget.scaling = scalingtype
+        self.__imagewg.setScalingType(scalingtype)
         if self.__displayimage is None:
             return
         if scalingtype == "sqrt":
@@ -967,7 +819,7 @@ class LiveViewer(QtGui.QMainWindow):
             self.__bkgSubwg.setDisplayedName("")
         else:
             self.__bkgSubwg.checkBkgSubtraction(state)
-        self.__imagewg.displaywidget.dobkgsubtraction = state
+        self.__imagewg.setDoBkgSubtraction(state)
         self._plot()
 
     @QtCore.pyqtSlot(str)
@@ -988,8 +840,3 @@ class LiveViewer(QtGui.QMainWindow):
     def _assessTransformation(self, trafoname):
         self.__trafoname = trafoname
         self._plot()
-
-    @QtCore.pyqtSlot()
-    def _setTicks(self):
-        if self.__imagewg.setTicks():
-            self._plot()
