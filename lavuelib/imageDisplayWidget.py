@@ -396,7 +396,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 else:
                     crds = "[[0, 0], [0, 0]]"
                 self.currentMousePosition.emit(
-                    "%s, x = %i, y = %i, %s(intensity-background) = %.2f" % (
+                    "%s, x = %i, y = %i, %s = %.2f" % (
                         crds, self.__xdata, self.__ydata, ilabel,
                         intensity))
             elif self.qenable and self.energy > 0 and self.detdistance > 0:

@@ -28,15 +28,20 @@
 
 import math
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 
 import pyqtgraph as _pg
 import numpy as np
 import re
+import os
 
 from . import imageDisplayWidget
 from . import geometryDialog
 from . import axesDialog
+
+_formclass, _baseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "ImageWidget.ui"))
 
 
 class ImageWidget(QtGui.QWidget):
@@ -47,6 +52,8 @@ class ImageWidget(QtGui.QWidget):
 
     roiCoordsChanged = QtCore.pyqtSignal()
     cutCoordsChanged = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) current tool changed
+    currentToolChanged = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
@@ -59,51 +66,40 @@ class ImageWidget(QtGui.QWidget):
         self.cutregionmapper = QtCore.QSignalMapper(self)
 
         self.__lasttext = ""
-        verticallayout = QtGui.QVBoxLayout()
 
-        self.splitter2 = QtGui.QSplitter(self)
-        self.splitter2.setOrientation(QtCore.Qt.Vertical)
+        #: (:class:`Ui_ImageWidget') ui_imagewidget object from qtdesigner
+        self.__ui = _formclass()
+        self.__ui.setupUi(self)
 
-        self.splitter = QtGui.QSplitter(self.splitter2)
-        self.splitter.setOrientation(QtCore.Qt.Vertical)
-        self.displaywidget = imageDisplayWidget.ImageDisplayWidget(
-            parent=self.splitter)
-
-        self.cutPlot = _pg.PlotWidget(self.splitter)
-        self.cutPlot.setMinimumSize(QtCore.QSize(0, 120))
+        self.displaywidget = imageDisplayWidget.ImageDisplayWidget(parent=self)
+        
+        self.cutPlot = _pg.PlotWidget(self)
         self.cutCurve = self.cutPlot.plot()
+        self.__ui.twoDVerticalLayout.addWidget(self.displaywidget)
+        self.__ui.oneDVerticalLayout.addWidget(self.cutPlot)
 
-        self.splitter.setStretchFactor(0, 20)
-        self.splitter.setStretchFactor(1, 1)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
+                                       QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(15)
+        sizePolicy.setHeightForWidth(
+            self.displaywidget.sizePolicy().hasHeightForWidth())
+        self.displaywidget.setSizePolicy(sizePolicy)
+        self.cutPlot.setMinimumSize(QtCore.QSize(0, 220))
 
-        self.pixelComboBox = QtGui.QComboBox()
-        self.pixelComboBox.addItem("Intensity")
-        self.pixelComboBox.addItem("ROI")
-        self.pixelComboBox.addItem("LineCut")
-        self.pixelComboBox.addItem("Angle/Q")
-        self.pixelComboBox.setStyleSheet("font: bold;")
-        self.pixelComboBox.setToolTip(
-            "select the image tool for the mouse pointer,"
-            " i.e. Intensity, ROI, LineCut, Angle/Q")
+        self.__ui.toolComboBox.addItem("Intensity")
+        self.__ui.toolComboBox.addItem("ROI")
+        self.__ui.toolComboBox.addItem("LineCut")
+        self.__ui.toolComboBox.addItem("Angle/Q")
 
         pixelvaluelayout = QtGui.QHBoxLayout()
-        pixelvaluelayout2 = QtGui.QHBoxLayout()
-        pixelvlayout = QtGui.QVBoxLayout()
 
         self.pixellabel = QtGui.QLabel("Pixel position and intensity: ")
         self.pixellabel.setToolTip(
             "coordinate info display for the mouse pointer")
 
-        self.infoLineEdit = QtGui.QLineEdit()
-        self.infoLineEdit.setReadOnly(True)
-        self.infoLineEdit.setToolTip(
-            "coordinate info display for the mouse pointer")
-
         self.ticksPushButton = QtGui.QPushButton("Axes ...")
 
-        self.infoLabel = QtGui.QLabel("[x1, y1, x2, y2], sum: ")
-        self.infoLabel.setToolTip(
-            "coordinate info display for the mouse pointer")
         self.labelROILineEdit = QtGui.QLineEdit("")
         self.labelROILineEdit.setToolTip(
             "ROI alias or aliases related to Sardana Pool "
@@ -143,25 +139,14 @@ class ImageWidget(QtGui.QWidget):
         pixelvaluelayout.addWidget(self.angleqComboBox)
         pixelvaluelayout.addWidget(self.ticksPushButton)
 
-        pixelvaluelayout2 = QtGui.QHBoxLayout()
-        pixelvaluelayout2.addWidget(self.infoLabel)
-        pixelvaluelayout2.addWidget(self.infoLineEdit)
-        pixelvaluelayout2.addWidget(self.pixelComboBox)
 
-        pixelvlayout.addLayout(pixelvaluelayout)
-        pixelvlayout.addLayout(pixelvaluelayout2)
-        spacerItem = QtGui.QSpacerItem(
-            0, 0, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        pixelvlayout.addItem(spacerItem)
-        frame = QtGui.QFrame(self.splitter2)
-        frame.setLayout(pixelvlayout)
+        self.__ui.toolVerticalLayout.addLayout(pixelvaluelayout)
 
-        self.splitter2.setStretchFactor(0, 100)
-        self.splitter2.setStretchFactor(1, 1)
+        self.__ui.plotSplitter.setStretchFactor(0, 20)
+        self.__ui.plotSplitter.setStretchFactor(1, 1)
+        self.__ui.toolSplitter.setStretchFactor(0, 100)
+        self.__ui.toolSplitter.setStretchFactor(1, 1)
 
-        verticallayout.addWidget(self.splitter2)
-
-        self.setLayout(verticallayout)
         self.displaywidget.currentMousePosition.connect(self.setDisplayedText)
 
         self.roiregionmapper.mapped.connect(self.roiRegionChanged)
@@ -191,6 +176,9 @@ class ImageWidget(QtGui.QWidget):
             self.onAngleQChanged)
         self.displaywidget.centerAngleChanged.connect(self.updateGeometry)
         self.cutSpinBox.valueChanged.connect(self.cutNrChanged)
+
+        self.__ui.toolComboBox.currentIndexChanged.connect(
+            self.onToolChanged)
 
     @QtCore.pyqtSlot(int)
     def onAngleQChanged(self, gindex):
@@ -240,7 +228,7 @@ class ImageWidget(QtGui.QWidget):
             "Select the display space\n%s" % message)
         self.pixellabel.setToolTip(
             "coordinate info display for the mouse pointer\n%s" % message)
-        self.infoLineEdit.setToolTip(
+        self.__ui.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer\n%s" % message)
 
     def updateMetaData(self, axisscales=None, axislabels=None):
@@ -384,7 +372,9 @@ class ImageWidget(QtGui.QWidget):
         self.cutCoordsChanged.emit()
         self.cutSpinBox.setValue(cid)
 
-    def onPixelChanged(self, text):
+    @QtCore.pyqtSlot(int)
+    def onToolChanged(self):
+        text = self.__ui.toolComboBox.currentText()
         if text == "ROI":
             self.showROIFrame()
             self.roiChanged()
@@ -397,6 +387,8 @@ class ImageWidget(QtGui.QWidget):
         else:
             self.showIntensityFrame()
             self.roiCoordsChanged.emit()
+        self.currentToolChanged.emit(text)
+
 
     def roiChanged(self):
         try:
@@ -434,7 +426,7 @@ class ImageWidget(QtGui.QWidget):
         self.labelROILineEdit.show()
 
         self.pixellabel.setText("ROI alias(es): ")
-        self.infoLabel.show()
+        self.__ui.infoLabel.show()
         self.displaywidget.showROIs(True)
         self.displaywidget.showCuts(False)
         doreset = not (self.displaywidget.cutenable or
@@ -443,8 +435,8 @@ class ImageWidget(QtGui.QWidget):
         self.displaywidget.cutenable = False
         self.displaywidget.roienable = True
         self.displaywidget.qenable = False
-        self.infoLineEdit.setText("")
-        self.infoLineEdit.setToolTip(
+        self.__ui.infoLineEdit.setText("")
+        self.__ui.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer")
         self.pixellabel.setToolTip(
             "ROI alias or aliases related to sardana experimental channels")
@@ -464,13 +456,13 @@ class ImageWidget(QtGui.QWidget):
         self.applyROIButton.hide()
         self.roiSpinBox.hide()
         self.cutSpinBox.hide()
-        self.infoLabel.hide()
+        self.__ui.infoLabel.hide()
         self.displaywidget.roienable = False
         self.displaywidget.cutenable = False
         self.displaywidget.qenable = False
         self.displaywidget.showLines(True)
-        self.infoLineEdit.setText("")
-        self.infoLineEdit.setToolTip(
+        self.__ui.infoLineEdit.setText("")
+        self.__ui.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer")
         self.pixellabel.setToolTip(
             "coordinate info display for the mouse pointer")
@@ -490,7 +482,7 @@ class ImageWidget(QtGui.QWidget):
         self.applyROIButton.hide()
         self.cutSpinBox.show()
         self.roiSpinBox.hide()
-        self.infoLabel.hide()
+        self.__ui.infoLabel.hide()
         doreset = not (self.displaywidget.cutenable or
                        self.displaywidget.roienable or
                        self.displaywidget.qenable)
@@ -498,8 +490,8 @@ class ImageWidget(QtGui.QWidget):
         self.displaywidget.cutenable = True
         self.displaywidget.qenable = False
         self.displaywidget.showLines(False)
-        self.infoLineEdit.setText("")
-        self.infoLineEdit.setToolTip(
+        self.__ui.infoLineEdit.setText("")
+        self.__ui.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer")
         self.pixellabel.setToolTip(
             "coordinate info display for the mouse pointer")
@@ -519,7 +511,7 @@ class ImageWidget(QtGui.QWidget):
         self.applyROIButton.hide()
         self.roiSpinBox.hide()
         self.cutSpinBox.hide()
-        self.infoLabel.hide()
+        self.__ui.infoLabel.hide()
         doreset = not (self.displaywidget.cutenable or
                        self.displaywidget.roienable or
                        self.displaywidget.qenable)
@@ -527,7 +519,7 @@ class ImageWidget(QtGui.QWidget):
         self.displaywidget.cutenable = False
         self.displaywidget.qenable = True
         self.displaywidget.showLines(True)
-        self.infoLineEdit.setText("")
+        self.__ui.infoLineEdit.setText("")
         self.updateGeometryTip()
         if doreset:
             self.displaywidget.resetScale()
@@ -639,7 +631,7 @@ class ImageWidget(QtGui.QWidget):
             roilabel = self.createROILabel()
 
             text = "%s, %s = %s" % (text, roilabel, roiVal)
-        self.infoLineEdit.setText(text)
+        self.__ui.infoLineEdit.setText(text)
 
     def setTicks(self):
         cnfdlg = axesDialog.AxesDialog(self)

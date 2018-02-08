@@ -207,8 +207,8 @@ class LiveViewer(QtGui.QDialog):
         self.__imagewg.applyROIButton.clicked.connect(self._onapplyrois)
         self.__imagewg.fetchROIButton.clicked.connect(self._onfetchrois)
         self.__imagewg.roiCoordsChanged.connect(self._calcUpdateStatsSec)
-        self.__imagewg.pixelComboBox.currentIndexChanged.connect(
-            self._onPixelChanged)
+        self.__imagewg.currentToolChanged.connect(
+            self._onToolChanged)
         # connecting signals from source widget:
         self.__sourcewg.sourceConnectSignal.connect(self._connectSource)
         self.__sourcewg.sourceConnectSignal.connect(self._startPlotting)
@@ -256,7 +256,7 @@ class LiveViewer(QtGui.QDialog):
 
         self.__sourcewg.updateLayout()
         self.__sourcewg.emitSourceChangedSignal()
-        self._onPixelChanged()
+        self.__imagewg.onToolChanged()
 
         self.__loadSettings()
 
@@ -307,9 +307,8 @@ class LiveViewer(QtGui.QDialog):
         self.__imagewg.displaywidget.setAspectLocked(
             self.__settings.aspectlocked)
 
-    @QtCore.pyqtSlot(int)
-    def _onPixelChanged(self):
-        text = self.__imagewg.pixelComboBox.currentText()
+    @QtCore.pyqtSlot(str)
+    def _onToolChanged(self, text):
         if text == "ROI":
             self.__trafoname = "None"
             self.__trafowg.setEnabled(False)
@@ -319,7 +318,6 @@ class LiveViewer(QtGui.QDialog):
             self.__trafowg.setEnabled(True)
         else:
             self.__trafowg.setEnabled(True)
-        self.__imagewg.onPixelChanged(text)
 
     @QtCore.pyqtSlot()
     def _onapplyrois(self):
