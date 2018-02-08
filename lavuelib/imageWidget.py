@@ -59,6 +59,29 @@ _angleqformclass, _angleqbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "AngleQToolWidget.ui"))
 
+class ToolWidget(QtGui.QWidget):
+    """ tool widget
+    """
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
+        QtGui.QWidget.__init__(self, parent)
+    
+
+class IntensityToolWidget(ToolWidget):
+    """ intensity tool widget
+    """
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
+        ToolWidget.__init__(self, parent)
 
 class ImageWidget(QtGui.QWidget):
 

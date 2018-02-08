@@ -70,7 +70,7 @@ class BaseSourceWidget(QtGui.QWidget):
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        QtGui.QGroupBox.__init__(self, parent)
+        QtGui.QWidget.__init__(self, parent)
 
         #: (:obj:`str`) source name
         self.name = "Test"
