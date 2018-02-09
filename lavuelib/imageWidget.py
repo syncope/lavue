@@ -83,6 +83,10 @@ class ImageWidget(QtGui.QWidget):
 
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
+        :param tooltypes: tool class names
+        :type tooltypes: :obj:`list` <:obj:`str`>
+        :param settings: lavue configuration settings
+        :type settings: :class:`lavuelib.settings.Settings`
         """
         QtGui.QWidget.__init__(self, parent)
 
@@ -176,7 +180,7 @@ class ImageWidget(QtGui.QWidget):
     def setGeometry(self):
         """ launches geometry widget
         """
-        if self.__displaywidget.setGeomerty():
+        if self.__displaywidget.setGeometry():
             self.__updateGeometryTip()
 
     @QtCore.pyqtSlot()
@@ -198,9 +202,11 @@ class ImageWidget(QtGui.QWidget):
         """ update Metadata informations
 
         :param axisscales: [xstart, ystart, xscale, yscale]
-        :type axisscales: [float, float, float, float]
+        :type axisscales:
+                  [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`]
         :param axislabels: [xtext, ytext, xunits, yunits]
-        :type axislabels: [float, float, float, float]
+        :type axislabels:
+                  [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`]
         """
         self.__displaywidget.updateMetaData(axisscales, axislabels)
 
@@ -211,7 +217,8 @@ class ImageWidget(QtGui.QWidget):
         :param rid: roi id
         :type rid: :obj:`int`
         :param coords: roi coordinates
-        :type coords: :obj:`list` < [float, float, float, float] >
+        :type coords: :obj:`list`
+                  < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
         """
         self.applyTipsChanged.emit(rid)
         self.__displaywidget.updateROIs(rid, coords)
@@ -225,7 +232,8 @@ class ImageWidget(QtGui.QWidget):
         :param cid: cut id
         :type cid: :obj:`int`
         :param coords: cut coordinates
-        :type coords: :obj:`list` < [float, float, float, float] >
+        :type coords: :obj:`list`
+                  < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
         """
         self.__displaywidget.updateCuts(cid, coords)
         self.cutCoordsChanged.emit()
@@ -248,7 +256,7 @@ class ImageWidget(QtGui.QWidget):
             self.__updateinfowidgets(stwg.parameters)
 
         if text == "ROI":
-            self.__displaywidget.roiRegionChanged()
+            self.__displaywidget.changeROIRegion()
         elif text == "LineCut":
             self.roiCoordsChanged.emit()
         elif text == "Angle/Q":
@@ -381,7 +389,7 @@ class ImageWidget(QtGui.QWidget):
         """ provides imageItem object
 
         :returns: image object
-        :rtype: :class:`pyqtgraph.imageItem.ImageItem`
+        :rtype: :class:`pyqtgraph.ImageItem`
         """
         return self.__displaywidget.image()
 

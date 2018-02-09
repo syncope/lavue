@@ -67,7 +67,7 @@ class SimpleLineROI(LineROI):
         """ provides the roi coordinates
 
         :returns: x1, y1, x2, y2 positions of the roi
-        :rtype: [float, float, float, float]
+        :rtype: [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`]
         """
         ang = self.state['angle']
         pos1 = self.state['pos']
@@ -93,7 +93,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
     angleCenterChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
         _pg.GraphicsLayoutWidget.__init__(self, parent)
+        #: (:class:`PyQt4.QtGui.QLayout`) the main layout
         self.__layout = self.ci
 
         #: (:class:`lavuelib.displayParameters.AxesParameters`)
@@ -112,24 +118,38 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         #:                  intensity parameters
         self.__intensity = displayParameters.IntensityParameters()
 
+        #: (:class:`numpy.ndarray`) data to displayed in 2d widget
         self.__data = None
+        #: (:class:`numpy.ndarray`) raw data to cut plots
         self.__rawdata = None
 
+        #: (:class:`pyqtgraph.ImageItem`) image item
         self.__image = _pg.ImageItem()
 
+        #: (:class:`pyqtgraph.ViewBox`) viewbox item
         self.__viewbox = self.__layout.addViewBox(row=0, col=1)
+        #: (:obj:`bool`) crooshair locked flag
         self.__crosshairlocked = False
         self.__viewbox.addItem(self.__image)
+        #: (:obj:`float`) current x-position
         self.__xdata = 0
+        #: (:obj:`float`) current y-position
         self.__ydata = 0
+        #: (:obj:`bool`) auto display level flag
         self.__autodisplaylevels = True
+        #: ([:obj:`float`, :obj:`float`]) minimum and maximum intensity levels
         self.__displaylevels = [None, None]
 
+        #: (:class:`PyQt4.QtCore.QSignalMapper`) current roi mapper
         self.__currentroimapper = QtCore.QSignalMapper(self)
+        #: (:class:`PyQt4.QtCore.QSignalMapper`) roi region mapper
         self.__roiregionmapper = QtCore.QSignalMapper(self)
+        #: (:class:`PyQt4.QtCore.QSignalMapper`) current cut mapper
         self.__currentcutmapper = QtCore.QSignalMapper(self)
+        #: (:class:`PyQt4.QtCore.QSignalMapper`) cut region mapper
         self.__cutregionmapper = QtCore.QSignalMapper(self)
 
+        #: (:class:`PyQt4.QtGui.QAction`) set aspect ration locked action
         self.__setaspectlocked = QtGui.QAction(
             "Set Aspect Locked", self.__viewbox.menu)
         self.__setaspectlocked.setCheckable(True)
@@ -137,17 +157,20 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__viewbox.menu.axes.insert(0, self.__setaspectlocked)
         self.__viewbox.menu.addAction(self.__setaspectlocked)
 
+        #: (:class:`PyQt4.QtGui.QAction`) view one to one pixel action
         self.__viewonetoone = QtGui.QAction(
             "View 1:1 pixels", self.__viewbox.menu)
-        self.__viewonetoone.triggered.connect(self.oneToOneRange)
+        self.__viewonetoone.triggered.connect(self._oneToOneRange)
         if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
             self.__viewbox.menu.axes.insert(0, self.__viewonetoone)
         self.__viewbox.menu.addAction(self.__viewonetoone)
 
+        #: (:class:`pyqtgraph.AxisItem`) left axis
         self.__leftaxis = _pg.AxisItem('left')
         self.__leftaxis.linkToView(self.__viewbox)
         self.__layout.addItem(self.__leftaxis, row=0, col=0)
 
+        #: (:class:`pyqtgraph.AxisItem`) bottom axis
         self.__bottomAxis = _pg.AxisItem('bottom')
         self.__bottomAxis.linkToView(self.__viewbox)
         self.__layout.addItem(self.__bottomAxis, row=1, col=1)
@@ -155,13 +178,19 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__layout.scene().sigMouseMoved.connect(self.mouse_position)
         self.__layout.scene().sigMouseClicked.connect(self.mouse_click)
 
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:                 vertical line of the mouse position
         self.__vLine = _pg.InfiniteLine(
             angle=90, movable=False, pen=(255, 0, 0))
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:                   horizontal line of the mouse position
         self.__hLine = _pg.InfiniteLine(
             angle=0, movable=False, pen=(255, 0, 0))
         self.__viewbox.addItem(self.__vLine, ignoreBounds=True)
         self.__viewbox.addItem(self.__hLine, ignoreBounds=True)
 
+        #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.ROI`>)
+        #:            list of roi widgets
         self.__roi = []
         self.__roi.append(ROI(0, _pg.Point(50, 50)))
         self.__roi[0].addScaleHandle([1, 1], [0, 0])
@@ -169,6 +198,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__viewbox.addItem(self.__roi[0])
         self.__roi[0].hide()
 
+        #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.ROI`>)
+        #:        list of cut widgets
         self.__cut = []
         self.__cut.append(SimpleLineROI([10, 10], [60, 10], pen='r'))
         self.__viewbox.addItem(self.__cut[0])
@@ -176,25 +207,30 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
         self.__setaspectlocked.triggered.connect(self.emitAspectLockedToggled)
 
-        self.__roiregionmapper.mapped.connect(self.roiRegionChanged)
-        self.__currentroimapper.mapped.connect(self.currentROIChanged)
-        self.getROI().sigHoverEvent.connect(
+        self.__roiregionmapper.mapped.connect(self.changeROIRegion)
+        self.__currentroimapper.mapped.connect(self._emitROICoordsChanged)
+        self._getROI().sigHoverEvent.connect(
             self.__currentroimapper.map)
-        self.getROI().sigRegionChanged.connect(
+        self._getROI().sigRegionChanged.connect(
             self.__roiregionmapper.map)
-        self.__currentroimapper.setMapping(self.getROI(), 0)
-        self.__roiregionmapper.setMapping(self.getROI(), 0)
+        self.__currentroimapper.setMapping(self._getROI(), 0)
+        self.__roiregionmapper.setMapping(self._getROI(), 0)
 
-        self.__cutregionmapper.mapped.connect(self.cutRegionChanged)
-        self.__currentcutmapper.mapped.connect(self.currentCutChanged)
-        self.getCut().sigHoverEvent.connect(
+        self.__cutregionmapper.mapped.connect(self.changeCutRegion)
+        self.__currentcutmapper.mapped.connect(self._emitCutCoordsChanged)
+        self._getCut().sigHoverEvent.connect(
             self.__currentcutmapper.map)
-        self.getCut().sigRegionChanged.connect(
+        self._getCut().sigRegionChanged.connect(
             self.__cutregionmapper.map)
-        self.__currentcutmapper.setMapping(self.getCut(), 0)
-        self.__cutregionmapper.setMapping(self.getCut(), 0)
+        self.__currentcutmapper.setMapping(self._getCut(), 0)
+        self.__cutregionmapper.setMapping(self._getCut(), 0)
 
-    def showLines(self, status):
+    def __showLines(self, status):
+        """ shows or hides HV mouse lines
+
+        :param status: will be shown
+        :type status: :obj:`bool`
+        """
         if status:
             self.__vLine.show()
             self.__hLine.show()
@@ -212,10 +248,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__setaspectlocked.setChecked(flag)
         self.__viewbox.setAspectLocked(flag)
 
-    def addItem(self, item, **args):
-        self.__image.additem(item)
+    def __addROI(self, coords=None):
+        """ adds ROIs
 
-    def addROI(self, coords=None):
+        :param coords: roi coordinates
+        :type coords: :obj:`list`
+                 < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
         if not coords or not isinstance(coords, list) or len(coords) != 4:
             pnt = 10 * len(self.__roi)
             sz = 50
@@ -231,22 +270,31 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
         self.__rois.coords.append(coords)
 
-    def removeROI(self):
+    def __removeROI(self):
+        """ removes the last roi
+        """
         roi = self.__roi.pop()
         roi.hide()
         self.__viewbox.removeItem(roi)
         self.__rois.coords.pop()
 
-    def getROI(self, rid=-1):
+    def _getROI(self, rid=-1):
+        """ get the given or the last ROI
+
+        :param rid: roi id
+        :type rid: :obj:`int`
+        """
         if self.__roi and len(self.__roi) > rid:
             return self.__roi[rid]
         else:
             return None
 
-    def countROIs(self):
-        return len(self.__roi)
+    def __showROIs(self, status):
+        """ shows or hides rois
 
-    def showROIs(self, status):
+        :param status: will be shown
+        :type status: :obj:`bool`
+        """
         if status:
             for roi in self.__roi:
                 roi.show()
@@ -254,7 +302,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             for roi in self.__roi:
                 roi.hide()
 
-    def addROICoords(self, coords):
+    def __addROICoords(self, coords):
+        """ adds ROI coorinates
+
+        :param coords: roi coordinates
+        :type coords: :obj:`list`
+                < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
         if coords:
             for i, crd in enumerate(self.__roi):
                 if i < len(coords):
@@ -264,7 +318,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                         [coords[i][2] - coords[i][0],
                          coords[i][3] - coords[i][1]])
 
-    def addCutCoords(self, coords):
+    def __addCutCoords(self, coords):
+        """ adds Cut coorinates
+
+        :param coords: cut coordinates
+        :type coords: :obj:`list`
+                  < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
         if coords:
             for i, crd in enumerate(self.__cut):
                 if i < len(coords):
@@ -274,7 +334,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                         [coords[i][2] - coords[i][0],
                          coords[i][3] - coords[i][1]])
 
-    def addCut(self, coords=None):
+    def __addCut(self, coords=None):
+        """ adds Cuts
+
+        :param coords: cut coordinates
+        :type coords: :obj:`list`
+                  < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
         if not coords or not isinstance(coords, list) or len(coords) != 4:
             pnt = 10 * (len(self.__cut) + 1)
             sz = 50
@@ -283,22 +349,31 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__viewbox.addItem(self.__cut[-1])
         self.__cuts.coords.append(coords)
 
-    def removeCut(self):
+    def __removeCut(self):
+        """ removes the last cut
+        """
         cut = self.__cut.pop()
         cut.hide()
         self.__viewbox.removeItem(cut)
         self.__cuts.coords.pop()
 
-    def getCut(self, cid=-1):
+    def _getCut(self, cid=-1):
+        """ get the given or the last Cut
+
+        :param cid: roi id
+        :type cid: :obj:`int`
+        """
         if self.__cut and len(self.__cut) > cid:
             return self.__cut[cid]
         else:
             return None
 
-    def countCuts(self):
-        return len(self.__cut)
+    def __showCuts(self, status):
+        """ shows or hides cuts
 
-    def showCuts(self, status):
+        :param status: will be shown
+        :type status: :obj:`bool`
+        """
         if status:
             for cut in self.__cut:
                 cut.show()
@@ -306,7 +381,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             for cut in self.__cut:
                 cut.hide()
 
-    def oneToOneRange(self):
+    def _oneToOneRange(self):
+        """ set one to one range
+        """
         ps = self.__image.pixelSize()
         currange = self.__viewbox.viewRange()
         xrg = currange[0][1] - currange[0][0]
@@ -326,9 +403,18 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__setaspectlocked.setChecked(False)
             self.__setaspectlocked.triggered.emit(False)
 
-    def setScale(self, position=None, scale=None, update=True):
+    def __setScale(self, position=None, scale=None, update=True):
+        """ set axes scales
+
+        :param position: start position of axes
+        :type position: [:obj:`float`, :obj:`float`]
+        :param scale: scale axes
+        :type scale: [:obj:`float`, :obj:`float`]
+        :param update: update scales on image
+        :type updatescale: :obj:`bool`
+        """
         if update:
-            self.setLabels(
+            self.__setLabels(
                 self.__axes.xtext, self.__axes.ytext,
                 self.__axes.xunits, self.__axes.yunits)
         if self.__axes.position == position and \
@@ -349,7 +435,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if self.__rawdata is not None and update:
             self.__viewbox.autoRange()
 
-    def resetScale(self):
+    def __resetScale(self):
+        """ reset axes scales
+        """
         if self.__axes.scale is not None or self.__axes.position is not None:
             self.__image.resetTransform()
         if self.__axes.scale is not None:
@@ -359,9 +447,16 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if self.__axes.scale is not None or self.__axes.position is not None:
             if self.__rawdata is not None:
                 self.__viewbox.autoRange()
-            self.setLabels()
+            self.__setLabels()
 
     def updateImage(self, img=None, rawimg=None):
+        """ updates the image to display
+
+        :param img: 2d image array
+        :type img: :class:`numpy.ndarray`
+        :param rawimg: 2d raw image array
+        :type rawimg: :class:`numpy.ndarray`
+        """
         if self.__autodisplaylevels:
             self.__image.setImage(img, autoLevels=True)
         else:
@@ -373,6 +468,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
     @QtCore.pyqtSlot(object)
     def mouse_position(self, event=None):
+        """ updates image widget after mouse position change
+
+        :param event: mouse move event
+        :type event: :class:`PyQt4.QtCore.QEvent`
+        """
         try:
             if event is not None:
                 mousePoint = self.__image.mapFromScene(event)
@@ -465,16 +565,19 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     "%s, x = %i, y = %i, %s = %.2f" % (
                         crds, self.__xdata, self.__ydata, ilabel,
                         intensity))
-            elif self.__geometry.enabled and self.__geometry.energy > 0 and self.__geometry.detdistance > 0:
+            elif (self.__geometry.enabled and
+                  self.__geometry.energy > 0 and
+                  self.__geometry.detdistance > 0):
                 if self.__geometry.gspaceindex == 0:
-                    thetax, thetay, thetatotal = self.pixel2theta(
+                    thetax, thetay, thetatotal = self.__geometry.pixel2theta(
                         self.__xdata, self.__ydata)
                     self.mousePositionChanged.emit(
                         "th_x = %f deg, th_y = %f deg,"
                         " th_tot = %f deg, %s = %.2f"
                         % (thetax, thetay, thetatotal, ilabel, intensity))
                 else:
-                    qx, qz, q = self.pixel2q(self.__xdata, self.__ydata)
+                    qx, qz, q = self.__geometry.pixel2q(
+                        self.__xdata, self.__ydata)
                     self.mousePositionChanged.emit(
                         u"q_x = %f 1/\u212B, q_z = %f 1/\u212B, "
                         u"q = %f 1/\u212B, %s = %.2f"
@@ -487,31 +590,18 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             # print("Warning: %s" % str(e))
             pass
 
-    def pixel2theta(self, xdata, ydata):
-        xcentered = xdata - self.__geometry.centerx
-        ycentered = ydata - self.__geometry.centery
-        thetax = math.atan(
-            xcentered * self.__geometry.pixelsizex/1000.
-            / self.__geometry.detdistance)
-        thetay = math.atan(
-            ycentered * self.__geometry.pixelsizey/1000.
-            / self.__geometry.detdistance)
-        r = math.sqrt((xcentered * self.__geometry.pixelsizex / 1000.) ** 2
-                      + (ycentered * self.__geometry.pixelsizex / 1000.) ** 2)
-        thetatotal = math.atan(r/self.__geometry.detdistance)*180/math.pi
-        return thetax, thetay, thetatotal
+    def __setLabels(self, xtext=None, ytext=None, xunits=None, yunits=None):
+        """ sets labels and units
 
-    def pixel2q(self, xdata, ydata):
-        thetax, thetay, thetatotal = self.pixel2theta(
-            self.__xdata, self.__ydata)
-        wavelength = 12400./self.__geometry.energy
-        qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
-        qz = 4 * math.pi / wavelength * math.sin(thetay/2.)
-        q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)
-        return qx, qz, q
-
-    def setLabels(self, xtext=None, ytext=None, xunits=None, yunits=None):
-        # print "set", xtext, ytext, xunits, yunits
+        :param xtext: x-label text
+        :param type: :obj:`str`
+        :param ytext: y-label text
+        :param type: :obj:`str`
+        :param xunits: x-units text
+        :param type: :obj:`str`
+        :param yunits: y-units text
+        :param type: :obj:`str`
+        """
         self.__bottomAxis.autoSIPrefix = False
         self.__leftaxis.autoSIPrefix = False
         self.__bottomAxis.setLabel(text=xtext, units=xunits)
@@ -527,6 +617,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
     @QtCore.pyqtSlot(object)
     def mouse_click(self, event):
+        """ updates image widget after mouse click
+
+        :param event: mouse click event
+        :type event: :class:`PyQt4.QtCore.QEvent`
+        """
 
         mousePoint = self.__image.mapFromScene(event.scenePos())
 
@@ -536,7 +631,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         # if double click: fix mouse crosshair
         # another double click releases the crosshair again
         if event.double():
-            if not self.__rois.enabled and not self.__cuts.enabled and not self.__geometry.enabled:
+            if not self.__rois.enabled and \
+               not self.__cuts.enabled and \
+               not self.__geometry.enabled:
                 self.__crosshairlocked = not self.__crosshairlocked
                 if not self.__crosshairlocked:
                     self.__vLine.setPos(xdata + .5)
@@ -589,20 +686,20 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                            self.__geometry.enabled)
 
         if parameters.lines is not None:
-            self.showLines(parameters.lines)
+            self.__showLines(parameters.lines)
         if parameters.rois is not None:
-            self.showROIs(parameters.rois)
+            self.__showROIs(parameters.rois)
             self.__rois.enabled = parameters.rois
         if parameters.cuts is not None:
-            self.showCuts(parameters.cuts)
+            self.__showCuts(parameters.cuts)
             self.__cuts.enabled = parameters.cuts
         if parameters.qspace is not None:
             self.__geometry.enabled = parameters.qspace
 
         if parameters.scale is False and doreset:
-            self.resetScale()
+            self.__resetScale()
         if parameters.scale is True:
-            self.setScale(self.__axes.position, self.__axes.scale)
+            self.__setScale(self.__axes.position, self.__axes.scale)
 
     def setGSpaceIndex(self, gindex):
         """ set gspace index
@@ -612,22 +709,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         self.__geometry.gspaceindex = gindex
 
-    def geometryMessage(self):
-        return u"geometry:\n" \
-            u"  center = (%s, %s) pixels\n" \
-            u"  pixel_size = (%s, %s) \u00B5m\n" \
-            u"  detector_distance = %s mm\n" \
-            u"  energy = %s eV" % (
-                self.__geometry.centerx,
-                self.__geometry.centery,
-                self.__geometry.pixelsizex,
-                self.__geometry.pixelsizey,
-                self.__geometry.detdistance,
-                self.__geometry.energy
-            )
-
     @QtCore.pyqtSlot(bool)
     def emitAspectLockedToggled(self, status):
+        """ emits aspectLockedToggled
+
+        :param status: aspectLockedToggled status
+        :type status: :obj:`bool`
+        """
         self.aspectLockedToggled.emit(status)
 
     def setTicks(self):
@@ -671,13 +759,16 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
             self.__axes.xunits = cnfdlg.xunits or None
             self.__axes.yunits = cnfdlg.yunits or None
-            self.setScale(position, scale)
+            self.__setScale(position, scale)
             self.updateImage(self.__data, self.__rawdata)
             return True
         return False
 
     def setGeometry(self):
         """ launches geometry widget
+
+        :returns: apply status
+        :rtype: :obj:`bool`
         """
         cnfdlg = geometryDialog.GeometryDialog(self)
         cnfdlg.centerx = self.__geometry.centerx
@@ -698,7 +789,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         return False
 
     def calcROIsum(self):
-        if self.__rois.enabled and self.getROI() is not None:
+        """ calculates the current roi sum
+
+        :returns: sum roi value, roi id
+        :rtype: (:obj:`str`, :obj:`int`)
+        """
+        if self.__rois.enabled and self._getROI() is not None:
             rid = self.__rois.current
             if rid >= 0:
                 image = self.__rawdata
@@ -731,9 +827,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         return "", None
 
     def cutData(self):
+        """ provides the current cut data
+
+        :returns: current cut data
+        :rtype: :class:`numpy.ndarray`
+        """
         cid = self.__cuts.current
-        if cid > -1 and self.countCuts() > cid:
-            cut = self.getCut(cid)
+        if cid > -1 and len(self.__cut) > cid:
+            cut = self._getCut(cid)
             if self.__rawdata is not None:
                 dt = cut.getArrayRegion(
                     self.__rawdata,
@@ -744,10 +845,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         return None
 
     @QtCore.pyqtSlot(int)
-    def roiRegionChanged(self, _=None):
+    def changeROIRegion(self, _=None):
+        """ changes the current roi region
+        """
         try:
             rid = self.__rois.current
-            state = self.getROI(rid).state
+            state = self._getROI(rid).state
             ptx = int(math.floor(state['pos'].x()))
             pty = int(math.floor(state['pos'].y()))
             szx = int(math.floor(state['size'].x()))
@@ -759,24 +862,36 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             print("Warning: %s" % str(e))
 
     @QtCore.pyqtSlot(int)
-    def currentROIChanged(self, rid):
+    def _emitROICoordsChanged(self, rid):
+        """ emits roiCoordsChanged signal
+
+        :param rid: roi id
+        :type rid: :obj:`int`
+        """
         oldrid = self.__rois.current
         if rid != oldrid:
             self.__rois.current = rid
             self.roiCoordsChanged.emit()
 
     @QtCore.pyqtSlot(int)
-    def cutRegionChanged(self, _=None):
+    def changeCutRegion(self, _=None):
+        """ changes the current roi region
+        """
         try:
             cid = self.__cuts.current
             self.__cuts.coords[cid] = \
-                self.getCut(cid).getCoordinates()
+                self._getCut(cid).getCoordinates()
             self.cutCoordsChanged.emit()
         except Exception as e:
             print("Warning: %s" % str(e))
 
     @QtCore.pyqtSlot(int)
-    def currentCutChanged(self, cid):
+    def _emitCutCoordsChanged(self, cid):
+        """ emits cutCoordsChanged signal
+
+        :param cid: cut id
+        :type cid: :obj:`int`
+        """
         oldcid = self.__cuts.current
         if cid != oldcid:
             self.__cuts.current = cid
@@ -788,72 +903,83 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :param rid: roi id
         :type rid: :obj:`int`
         :param coords: roi coordinates
-        :type coords: :obj:`list` < [float, float, float, float] >
+        :type coords: :obj:`list`
+                 < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
         """
-        self.addROICoords(coords)
-        while rid > self.countROIs():
-            if coords and len(coords) >= self.countROIs():
-                self.addROI(
-                    coords[self.countROIs()])
+        self.__addROICoords(coords)
+        while rid > len(self.__roi):
+            if coords and len(coords) >= len(self.__roi):
+                self.__addROI(
+                    coords[len(self.__roi)])
             else:
-                self.addROI()
-            self.getROI().sigHoverEvent.connect(
+                self.__addROI()
+            self._getROI().sigHoverEvent.connect(
                 self.__currentroimapper.map)
-            self.getROI().sigRegionChanged.connect(
+            self._getROI().sigRegionChanged.connect(
                 self.__roiregionmapper.map)
             self.__currentroimapper.setMapping(
-                self.getROI(),
-                self.countROIs() - 1)
+                self._getROI(),
+                len(self.__roi) - 1)
             self.__roiregionmapper.setMapping(
-                self.getROI(),
-                self.countROIs() - 1)
+                self._getROI(),
+                len(self.__roi) - 1)
         if rid <= 0:
             self.__rois.current = -1
         elif self.__rois.current >= rid:
             self.__rois.current = 0
-        while self.getROI(max(rid, 0)) is not None:
+        while self._getROI(max(rid, 0)) is not None:
             self.__currentroimapper.removeMappings(
-                self.getROI())
+                self._getROI())
             self.__roiregionmapper.removeMappings(
-                self.getROI())
-            self.removeROI()
+                self._getROI())
+            self.__removeROI()
 
     def updateCuts(self, cid, coords):
-        self.addCutCoords(coords)
-        while cid > self.countCuts():
-            if coords and len(coords) >= self.countCuts():
-                self.addCut(
-                    coords[self.countCuts()])
+        """ update Cuts
+
+        :param rid: cut id
+        :type rid: :obj:`int`
+        :param coords: cut coordinates
+        :type coords: :obj:`list`
+                < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
+        self.__addCutCoords(coords)
+        while cid > len(self.__cut):
+            if coords and len(coords) >= len(self.__cut):
+                self.__addCut(
+                    coords[len(self.__cut)])
             else:
-                self.addCut()
-            self.getCut().sigHoverEvent.connect(
+                self.__addCut()
+            self._getCut().sigHoverEvent.connect(
                 self.__currentcutmapper.map)
-            self.getCut().sigRegionChanged.connect(
+            self._getCut().sigRegionChanged.connect(
                 self.__cutregionmapper.map)
             self.__currentcutmapper.setMapping(
-                self.getCut(),
-                self.countCuts() - 1)
+                self._getCut(),
+                len(self.__cut) - 1)
             self.__cutregionmapper.setMapping(
-                self.getCut(),
-                self.countCuts() - 1)
+                self._getCut(),
+                len(self.__cut) - 1)
         if cid <= 0:
             self.__cuts.current = -1
         elif self.__cuts.current >= cid:
             self.__cuts.current = 0
-        while max(cid, 0) < self.countCuts():
+        while max(cid, 0) < len(self.__cut):
             self.__currentcutmapper.removeMappings(
-                self.getCut())
+                self._getCut())
             self.__cutregionmapper.removeMappings(
-                self.getCut())
-            self.removeCut()
+                self._getCut())
+            self.__removeCut()
 
     def updateMetaData(self, axisscales=None, axislabels=None):
         """ update Metadata informations
 
         :param axisscales: [xstart, ystart, xscale, yscale]
-        :type axisscales: [float, float, float, float]
+        :type axisscales:
+                  [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`]
         :param axislabels: [xtext, ytext, xunits, yunits]
-        :type axislabels: [float, float, float, float]
+        :type axislabels:
+                  [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`]
         """
         if axislabels is not None:
             self.__axes.xtext = str(axislabels[0]) \
@@ -875,10 +1001,10 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 scale = (float(axisscales[2]), float(axisscales[3]))
             except:
                 scale = None
-        self.setScale(position, scale,
-                      not self.__rois.enabled
-                      and not self.__cuts.enabled
-                      and not self.__geometry.enabled)
+        self.__setScale(position, scale,
+                        not self.__rois.enabled
+                        and not self.__cuts.enabled
+                        and not self.__geometry.enabled)
 
     def setStatsWOScaling(self, status):
         """ sets statistics without scaling flag
@@ -908,12 +1034,28 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__intensity.dobkgsubtraction = state
 
     def isCutsEnabled(self):
+        """ provides flag cuts enabled
+
+        :return: cut enabled flag
+        :rtype: :obj:`bool`
+        """
         return self.__cuts.enabled
 
     def isROIsEnabled(self):
+        """ provides flag rois enabled
+
+        :return: roi enabled flag
+        :rtype: :obj:`bool`
+        """
         return self.__rois.enabled
 
     def roiCoords(self):
+        """ provides rois coordinates
+
+        :return: roi coordinates
+        :rtype: :obj:`list`
+               < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
         return self.__rois.coords
 
     def image(self):
@@ -923,3 +1065,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :rtype: :class:`pyqtgraph.imageItem.ImageItem`
         """
         return self.__image
+
+    def geometryMessage(self):
+        """ provides geometry messate
+
+        :returns: geometry text
+        :rtype: :obj:`unicode`
+        """
+        return self.__geometry.geometryMessage()

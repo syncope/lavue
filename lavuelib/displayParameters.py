@@ -26,6 +26,7 @@
 """ image display widget """
 
 import pyqtgraph as _pg
+import math
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
     if _pg.__version__ else ("0", "9", "0")
@@ -78,6 +79,66 @@ class GeometryParameters(object):
         self.detdistance = 0.0
         #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
         self.gspaceindex = 0
+
+    def pixel2theta(self, xdata, ydata):
+        """ converts coordinates from pixel positions to theta angles
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        :returns: x-theta, y-theta, total-theta
+        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
+        """
+
+        xcentered = xdata - self.centerx
+        ycentered = ydata - self.centery
+        thetax = math.atan(
+            xcentered * self.pixelsizex/1000. / self.detdistance)
+        thetay = math.atan(
+            ycentered * self.pixelsizey/1000. / self.detdistance)
+        r = math.sqrt((xcentered * self.pixelsizex / 1000.) ** 2
+                      + (ycentered * self.pixelsizex / 1000.) ** 2)
+        thetatotal = math.atan(r/self.detdistance)*180/math.pi
+        return thetax, thetay, thetatotal
+
+    def pixel2q(self, xdata, ydata):
+        """ converts coordinates from pixel positions to q-space coordinates
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        :returns: q_x, q_y, q_total
+        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
+        """
+        thetax, thetay, thetatotal = self.pixel2theta(
+            xdata, ydata)
+        wavelength = 12400./self.energy
+        qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
+        qz = 4 * math.pi / wavelength * math.sin(thetay/2.)
+        q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)
+        return qx, qz, q
+
+    def geometryMessage(self):
+        """ provides geometry messate
+
+        :returns: geometry text
+        :rtype: :obj:`unicode`
+        """
+
+        return u"geometry:\n" \
+            u"  center = (%s, %s) pixels\n" \
+            u"  pixel_size = (%s, %s) \u00B5m\n" \
+            u"  detector_distance = %s mm\n" \
+            u"  energy = %s eV" % (
+                self.centerx,
+                self.centery,
+                self.pixelsizex,
+                self.pixelsizey,
+                self.detdistance,
+                self.energy
+            )
 
 
 class ROIsParameters(object):
