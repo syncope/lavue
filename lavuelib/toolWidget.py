@@ -244,7 +244,7 @@ class ROIToolWidget(ToolWidget):
     @QtCore.pyqtSlot(int)
     def onROINumberChanged(self, rid):
         self.__ui.roiSpinBox.setValue(rid)
-        
+
 
 class LineCutToolWidget(ToolWidget):
     """ line-cut tool widget

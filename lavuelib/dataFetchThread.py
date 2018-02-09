@@ -130,8 +130,7 @@ class DataFetchThread(QtCore.QThread):
     def setDataSource(self, datasource):
         with QtCore.QMutexLocker(self.__mutex):
             self.__datasource = datasource
-                        
-        
+
     def stop(self):
         """ stop the thread
         """

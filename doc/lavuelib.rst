@@ -43,6 +43,14 @@ lavuelib.dataFetchThread module
     :undoc-members:
     :show-inheritance:
 
+lavuelib.displayParameters module
+---------------------------------
+
+.. automodule:: lavuelib.displayParameters
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lavuelib.geometryDialog module
 ------------------------------
 

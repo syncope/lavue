@@ -267,6 +267,8 @@ class LiveViewer(QtGui.QMainWindow):
         self._plot()
 
     def __loadSettings(self):
+        """ loads settings from QSettings object
+        """
         settings = QtCore.QSettings()
         self.restoreGeometry(
             settings.value("Layout/Geometry").toByteArray())
@@ -292,7 +294,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__prepwg.changeView(self.__settings.showmask)
 
     def __storeSettings(self):
-        """ Stores settings in QSettings object
+        """ stores settings in QSettings object
         """
         settings = QtCore.QSettings()
         settings.setValue(

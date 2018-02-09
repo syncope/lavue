@@ -31,12 +31,28 @@ import math
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI
 from PyQt4 import QtCore, QtGui
 
+from . import axesDialog
+from . import geometryDialog
+from . import displayParameters
+
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
     if _pg.__version__ else ("0", "9", "0")
 
 
 class SimpleLineROI(LineROI):
+    """ simple line roi """
+
     def __init__(self, pos1, pos2, **args):
+        """ constructor
+
+        :param pos1: start position
+        :type pos1: [float, float]
+        :param pos2: end position
+        :type pos2: [float, float]
+        :param args: dictionary with ROI parameters
+        :type args: :obj:`dict`<:obj:`str`, :obj:`any`>
+        """
+
         pos1 = _pg.Point(pos1)
         pos2 = _pg.Point(pos2)
         d = pos2 - pos1
@@ -48,6 +64,11 @@ class SimpleLineROI(LineROI):
         self.addScaleRotateHandle([1, 0.5], [0, 0.5])
 
     def getCoordinates(self):
+        """ provides the roi coordinates
+
+        :returns: x1, y1, x2, y2 positions of the roi
+        :rtype: [float, float, float, float]
+        """
         ang = self.state['angle']
         pos1 = self.state['pos']
         size = self.state['size']
@@ -60,57 +81,39 @@ class SimpleLineROI(LineROI):
 
 class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
-    currentMousePosition = QtCore.pyqtSignal(QtCore.QString)
-    centerAngleChanged = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi coordinate changed signal
+    roiCoordsChanged = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) cut coordinate changed signal
+    cutCoordsChanged = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) aspect locked toggled signal
+    aspectLockedToggled = QtCore.pyqtSignal(bool)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse position changed signal
+    mousePositionChanged = QtCore.pyqtSignal(QtCore.QString)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) angle chenter changed signal
+    angleCenterChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         _pg.GraphicsLayoutWidget.__init__(self, parent)
         self.__layout = self.ci
 
-        #: (:obj:`tuple` <:obj:`float`, :obj:`float`> ) image scale (x,y)
-        self.scale = None
-        #: (:obj:`tuple` <:obj:`float`, :obj:`float`> )
-        #    position of the first pixel
-        self.position = None
-        #: (:obj:`str`) label of x-axis
-        self.xtext = None
-        #: (:obj:`str`) label of y-axis
-        self.ytext = None
-        #: (:obj:`str`) units of x-axis
-        self.xunits = None
-        #: (:obj:`str`) units of y-axis
-        self.yunits = None
+        #: (:class:`lavuelib.displayParameters.AxesParameters`)
+        #:            axes parameters
+        self.axes = displayParameters.AxesParameters()
+        #: (:class:`lavuelib.displayParameters.ROIsParameters`)
+        #:                rois parameters
+        self.rois = displayParameters.ROIsParameters()
+        #: (:class:`lavuelib.displayParameters.CutsParameters`)
+        #:                 cuts parameters
+        self.cuts = displayParameters.CutsParameters()
+        #: (:class:`lavuelib.displayParameters.GeometryParameters`)
+        #:         geometry parameters
+        self.geometry = displayParameters.GeometryParameters()
+        #: (:class:`lavuelib.displayParameters.IntensityParameters`)
+        #:                  intensity parameters
+        self.intensity = displayParameters.IntensityParameters()
 
-        self.roienable = False
-        self.currentroi = 0
-        self.roicoords = [[10, 10, 60, 60]]
-
-        self.cutenable = False
-        self.currentcut = 0
-        self.cutcoords = [[10, 10, 60, 10]]
-
-        self.qenable = False
-        #: (:obj:`float`) x-coordinates of the center of the image
-        self.centerx = 0.0
-        #: (:obj:`float`) y-coordinates of the center of the image
-        self.centery = 0.0
-        #: (:obj:`float`) energy in eV
-        self.energy = 0.0
-        #: (:obj:`float`) pixel x-size in um
-        self.pixelsizex = 0.0
-        #: (:obj:`float`) pixel y-size in um
-        self.pixelsizey = 0.0
-        #: (:obj:`float`) detector distance in mm
-        self.detdistance = 0.0
-        #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
-        self.gspaceindex = 0
-
-        self.dobkgsubtraction = False
-        self.statswoscaling = False
-        self.scaling = "sqrt"
-
-        self.data = None
-        self.rawdata = None
+        self.__data = None
+        self.__rawdata = None
 
         self.image = _pg.ImageItem()
 
@@ -122,12 +125,17 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__autodisplaylevels = True
         self.__displaylevels = [None, None]
 
-        self.setaspectlocked = QtGui.QAction(
+        self.__currentroimapper = QtCore.QSignalMapper(self)
+        self.__roiregionmapper = QtCore.QSignalMapper(self)
+        self.__currentcutmapper = QtCore.QSignalMapper(self)
+        self.__cutregionmapper = QtCore.QSignalMapper(self)
+
+        self.__setaspectlocked = QtGui.QAction(
             "Set Aspect Locked", self.__viewbox.menu)
-        self.setaspectlocked.setCheckable(True)
+        self.__setaspectlocked.setCheckable(True)
         if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
-            self.__viewbox.menu.axes.insert(0, self.setaspectlocked)
-        self.__viewbox.menu.addAction(self.setaspectlocked)
+            self.__viewbox.menu.axes.insert(0, self.__setaspectlocked)
+        self.__viewbox.menu.addAction(self.__setaspectlocked)
 
         self.__viewonetoone = QtGui.QAction(
             "View 1:1 pixels", self.__viewbox.menu)
@@ -166,6 +174,26 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__viewbox.addItem(self.__cut[0])
         self.__cut[0].hide()
 
+        self.__setaspectlocked.triggered.connect(self._toggleAspectLocked)
+
+        self.__roiregionmapper.mapped.connect(self.roiRegionChanged)
+        self.__currentroimapper.mapped.connect(self.currentROIChanged)
+        self.getROI().sigHoverEvent.connect(
+            self.__currentroimapper.map)
+        self.getROI().sigRegionChanged.connect(
+            self.__roiregionmapper.map)
+        self.__currentroimapper.setMapping(self.getROI(), 0)
+        self.__roiregionmapper.setMapping(self.getROI(), 0)
+
+        self.__cutregionmapper.mapped.connect(self.cutRegionChanged)
+        self.__currentcutmapper.mapped.connect(self.currentCutChanged)
+        self.getCut().sigHoverEvent.connect(
+            self.__currentcutmapper.map)
+        self.getCut().sigRegionChanged.connect(
+            self.__cutregionmapper.map)
+        self.__currentcutmapper.setMapping(self.getCut(), 0)
+        self.__cutregionmapper.setMapping(self.getCut(), 0)
+
     def showLines(self, status):
         if status:
             self.__vLine.show()
@@ -175,8 +203,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__hLine.hide()
 
     def setAspectLocked(self, flag):
-        if flag != self.setaspectlocked.isChecked():
-            self.setaspectlocked.setChecked(flag)
+        if flag != self.__setaspectlocked.isChecked():
+            self.__setaspectlocked.setChecked(flag)
         self.__viewbox.setAspectLocked(flag)
 
     def addItem(self, item, **args):
@@ -196,13 +224,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__roi[-1].addScaleHandle([0, 0], [1, 1])
         self.__viewbox.addItem(self.__roi[-1])
 
-        self.roicoords.append(coords)
+        self.rois.coords.append(coords)
 
     def removeROI(self):
         roi = self.__roi.pop()
         roi.hide()
         self.__viewbox.removeItem(roi)
-        self.roicoords.pop()
+        self.rois.coords.pop()
 
     def getROI(self, rid=-1):
         if self.__roi and len(self.__roi) > rid:
@@ -225,17 +253,17 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if coords:
             for i, crd in enumerate(self.__roi):
                 if i < len(coords):
-                    self.roicoords[i] = coords[i]
+                    self.rois.coords[i] = coords[i]
                     crd.setPos([coords[i][0], coords[i][1]])
                     crd.setSize(
                         [coords[i][2] - coords[i][0],
                          coords[i][3] - coords[i][1]])
-        
+
     def addCutCoords(self, coords):
         if coords:
             for i, crd in enumerate(self.__cut):
                 if i < len(coords):
-                    self.cutcoords[i] = coords[i]
+                    self.cuts.coords[i] = coords[i]
                     crd.setPos([coords[i][0], coords[i][1]])
                     crd.setSize(
                         [coords[i][2] - coords[i][0],
@@ -248,13 +276,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             coords = [pnt, pnt, pnt + sz, pnt]
         self.__cut.append(SimpleLineROI(coords[:2], coords[2:], pen='r'))
         self.__viewbox.addItem(self.__cut[-1])
-        self.cutcoords.append(coords)
+        self.cuts.coords.append(coords)
 
     def removeCut(self):
         cut = self.__cut.pop()
         cut.hide()
         self.__viewbox.removeItem(cut)
-        self.cutcoords.pop()
+        self.cuts.coords.pop()
 
     def getCut(self, cid=-1):
         if self.__cut and len(self.__cut) > cid:
@@ -278,49 +306,53 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         currange = self.__viewbox.viewRange()
         xrg = currange[0][1] - currange[0][0]
         yrg = currange[1][1] - currange[1][0]
-        if self.position is not None and \
-           not self.roienable and not self.cutenable and not self.qenable:
+        if self.axes.position is not None and \
+           not self.rois.enabled and not self.cuts.enabled and \
+           not self.geometry.enabled:
             self.__viewbox.setRange(
-                QtCore.QRectF(self.position[0], self.position[1],
+                QtCore.QRectF(self.axes.position[0], self.axes.position[1],
                               xrg * ps[0], yrg * ps[1]),
                 padding=0)
         else:
             self.__viewbox.setRange(
                 QtCore.QRectF(0, 0, xrg * ps[0], yrg * ps[1]),
                 padding=0)
-        if self.setaspectlocked.isChecked():
-            self.setaspectlocked.setChecked(False)
-            self.setaspectlocked.triggered.emit(False)
+        if self.__setaspectlocked.isChecked():
+            self.__setaspectlocked.setChecked(False)
+            self.__setaspectlocked.triggered.emit(False)
 
     def setScale(self, position=None, scale=None, update=True):
         if update:
-            self.setLabels(self.xtext, self.ytext, self.xunits, self.yunits)
-        if self.position == position and self.scale == scale and \
+            self.setLabels(
+                self.axes.xtext, self.axes.ytext,
+                self.axes.xunits, self.axes.yunits)
+        if self.axes.position == position and \
+           self.axes.scale == scale and \
            position is None and scale is None:
             return
-        self.position = position
-        self.scale = scale
+        self.axes.position = position
+        self.axes.scale = scale
         self.image.resetTransform()
-        if self.scale is not None and update:
-            self.image.scale(*self.scale)
+        if self.axes.scale is not None and update:
+            self.image.scale(*self.axes.scale)
         else:
             self.image.scale(1, 1)
-        if self.position is not None and update:
-            self.image.setPos(*self.position)
+        if self.axes.position is not None and update:
+            self.image.setPos(*self.axes.position)
         else:
             self.image.setPos(0, 0)
-        if self.rawdata is not None and update:
+        if self.__rawdata is not None and update:
             self.__viewbox.autoRange()
 
     def resetScale(self):
-        if self.scale is not None or self.position is not None:
+        if self.axes.scale is not None or self.axes.position is not None:
             self.image.resetTransform()
-        if self.scale is not None:
+        if self.axes.scale is not None:
             self.image.scale(1, 1)
-        if self.position is not None:
+        if self.axes.position is not None:
             self.image.setPos(0, 0)
-        if self.scale is not None or self.position is not None:
-            if self.rawdata is not None:
+        if self.axes.scale is not None or self.axes.position is not None:
+            if self.__rawdata is not None:
                 self.__viewbox.autoRange()
             self.setLabels()
 
@@ -330,8 +362,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         else:
             self.image.setImage(
                 img, autoLevels=False, levels=self.__displaylevels)
-        self.data = img
-        self.rawdata = rawimg
+        self.__data = img
+        self.__rawdata = rawimg
         self.mouse_position()
 
     @QtCore.pyqtSlot(object)
@@ -341,34 +373,38 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 mousePoint = self.image.mapFromScene(event)
                 self.__xdata = math.floor(mousePoint.x())
                 self.__ydata = math.floor(mousePoint.y())
-            if not self.roienable and not self.cutenable:
+            if not self.rois.enabled and not self.cuts.enabled:
                 if not self.__crosshairlocked:
-                    if self.scale is not None and self.position is not None:
-                        self.__vLine.setPos((self.__xdata + .5) * self.scale[0]
-                                            + self.position[0])
-                        self.__hLine.setPos((self.__ydata + .5) * self.scale[1]
-                                            + self.position[1])
+                    if self.axes.scale is not None and \
+                       self.axes.position is not None:
+                        self.__vLine.setPos(
+                            (self.__xdata + .5) * self.axes.scale[0]
+                            + self.axes.position[0])
+                        self.__hLine.setPos(
+                            (self.__ydata + .5) * self.axes.scale[1]
+                            + self.axes.position[1])
                     else:
                         self.__vLine.setPos(self.__xdata + .5)
                         self.__hLine.setPos(self.__ydata + .5)
 
-            if self.rawdata is not None:
+            if self.__rawdata is not None:
                 try:
                     xf = int(math.floor(self.__xdata))
                     yf = int(math.floor(self.__ydata))
-                    if xf >= 0 and yf >= 0 and xf < self.rawdata.shape[0] \
-                       and yf < self.rawdata.shape[1]:
-                        intensity = self.rawdata[xf, yf]
+                    if xf >= 0 and yf >= 0 and xf < self.__rawdata.shape[0] \
+                       and yf < self.__rawdata.shape[1]:
+                        intensity = self.__rawdata[xf, yf]
                     else:
                         intensity = 0.
                 except Exception:
                     intensity = 0.
             else:
                 intensity = 0.
-            scaling = self.scaling if not self.statswoscaling else "linear"
+            scaling = self.intensity.scaling \
+                if not self.intensity.statswoscaling else "linear"
             ilabel = "intensity"
-            if not self.roienable:
-                if self.dobkgsubtraction:
+            if not self.rois.enabled:
+                if self.intensity.dobkgsubtraction:
                     ilabel = "%s(intensity-background)" % (
                         scaling if scaling != "linear" else "")
                 else:
@@ -376,87 +412,94 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                         ilabel = "intensity"
                     else:
                         ilabel = "%s(intensity)" % scaling
-            if not self.roienable and not self.cutenable and not self.qenable:
-                if self.scale is not None:
-                    txdata = self.__xdata * self.scale[0]
-                    tydata = self.__ydata * self.scale[1]
-                    if self.position is not None:
-                        txdata = txdata + self.position[0]
-                        tydata = tydata + self.position[1]
-                    self.currentMousePosition.emit(
+            if not self.rois.enabled and not self.cuts.enabled and \
+               not self.geometry.enabled:
+                if self.axes.scale is not None:
+                    txdata = self.__xdata * self.axes.scale[0]
+                    tydata = self.__ydata * self.axes.scale[1]
+                    if self.axes.position is not None:
+                        txdata = txdata + self.axes.position[0]
+                        tydata = tydata + self.axes.position[1]
+                    self.mousePositionChanged.emit(
                         "x = %f%s, y = %f%s, %s = %.2f" % (
                             txdata,
-                            (" %s" % self.xunits) if self.xunits else "",
+                            (" %s" % self.axes.xunits)
+                            if self.axes.xunits else "",
                             tydata,
-                            (" %s" % self.yunits) if self.yunits else "",
+                            (" %s" % self.axes.yunits)
+                            if self.axes.yunits else "",
                             ilabel, intensity))
-                elif self.position is not None:
-                    txdata = self.__xdata + self.position[0]
-                    tydata = self.__ydata + self.position[1]
-                    self.currentMousePosition.emit(
+                elif self.axes.position is not None:
+                    txdata = self.__xdata + self.axes.position[0]
+                    tydata = self.__ydata + self.axes.position[1]
+                    self.mousePositionChanged.emit(
                         "x = %f%s, y = %f%s, %s = %.2f" % (
                             txdata,
-                            (" %s" % self.xunits) if self.xunits else "",
+                            (" %s" % self.axes.xunits)
+                            if self.axes.xunits else "",
                             tydata,
-                            (" %s" % self.yunits) if self.yunits else "",
+                            (" %s" % self.axes.yunits)
+                            if self.axes.yunits else "",
                             ilabel, intensity))
                 else:
-                    self.currentMousePosition.emit(
+                    self.mousePositionChanged.emit(
                         "x = %i, y = %i, %s = %.2f" % (
                             self.__xdata, self.__ydata, ilabel,
                             intensity))
-            elif self.roienable and self.currentroi > -1:
+            elif self.rois.enabled and self.rois.current > -1:
                 if event:
-                    self.currentMousePosition.emit(
-                        "%s" % self.roicoords[self.currentroi])
-            elif self.cutenable:
-                if self.currentcut > -1:
-                    crds = self.cutcoords[self.currentcut]
+                    self.mousePositionChanged.emit(
+                        "%s" % self.rois.coords[self.rois.current])
+            elif self.cuts.enabled:
+                if self.cuts.current > -1:
+                    crds = self.cuts.coords[self.cuts.current]
                     crds = "[[%.2f, %.2f], [%.2f, %.2f]]" % tuple(crds)
                 else:
                     crds = "[[0, 0], [0, 0]]"
-                self.currentMousePosition.emit(
+                self.mousePositionChanged.emit(
                     "%s, x = %i, y = %i, %s = %.2f" % (
                         crds, self.__xdata, self.__ydata, ilabel,
                         intensity))
-            elif self.qenable and self.energy > 0 and self.detdistance > 0:
-                if self.gspaceindex == 0:
+            elif self.geometry.enabled and self.geometry.energy > 0 and self.geometry.detdistance > 0:
+                if self.geometry.gspaceindex == 0:
                     thetax, thetay, thetatotal = self.pixel2theta(
                         self.__xdata, self.__ydata)
-                    self.currentMousePosition.emit(
+                    self.mousePositionChanged.emit(
                         "th_x = %f deg, th_y = %f deg,"
                         " th_tot = %f deg, %s = %.2f"
                         % (thetax, thetay, thetatotal, ilabel, intensity))
                 else:
                     qx, qz, q = self.pixel2q(self.__xdata, self.__ydata)
-                    self.currentMousePosition.emit(
+                    self.mousePositionChanged.emit(
                         u"q_x = %f 1/\u212B, q_z = %f 1/\u212B, "
                         u"q = %f 1/\u212B, %s = %.2f"
                         % (qx, qz, q, ilabel, intensity))
 
             else:
-                self.currentMousePosition.emit("")
+                self.mousePositionChanged.emit("")
 
         except Exception:
             # print("Warning: %s" % str(e))
             pass
 
     def pixel2theta(self, xdata, ydata):
-        xcentered = xdata - self.centerx
-        ycentered = ydata - self.centery
+        xcentered = xdata - self.geometry.centerx
+        ycentered = ydata - self.geometry.centery
         thetax = math.atan(
-            xcentered * self.pixelsizex/1000. / self.detdistance)
+            xcentered * self.geometry.pixelsizex/1000.
+            / self.geometry.detdistance)
         thetay = math.atan(
-            ycentered * self.pixelsizey/1000. / self.detdistance)
-        r = math.sqrt((xcentered * self.pixelsizex / 1000.) ** 2
-                      + (ycentered * self.pixelsizex / 1000.) ** 2)
-        thetatotal = math.atan(r/self.detdistance)*180/math.pi
+            ycentered * self.geometry.pixelsizey/1000.
+            / self.geometry.detdistance)
+        r = math.sqrt((xcentered * self.geometry.pixelsizex / 1000.) ** 2
+                      + (ycentered * self.geometry.pixelsizex / 1000.) ** 2)
+        thetatotal = math.atan(r/self.geometry.detdistance)*180/math.pi
         return thetax, thetay, thetatotal
 
     def pixel2q(self, xdata, ydata):
         thetax, thetay, thetatotal = self.pixel2theta(
             self.__xdata, self.__ydata)
-        wavelength = 12400./self.energy
+        wavelength = 12400./self.geometry.energy
         qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
         qz = 4 * math.pi / wavelength * math.sin(thetay/2.)
         q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)
@@ -488,16 +531,16 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         # if double click: fix mouse crosshair
         # another double click releases the crosshair again
         if event.double():
-            if not self.roienable and not self.cutenable and not self.qenable:
+            if not self.rois.enabled and not self.cuts.enabled and not self.geometry.enabled:
                 self.__crosshairlocked = not self.__crosshairlocked
                 if not self.__crosshairlocked:
                     self.__vLine.setPos(xdata + .5)
                     self.__hLine.setPos(ydata + .5)
-            if self.qenable:
+            if self.geometry.enabled:
                 self.__crosshairlocked = False
-                self.centerx = float(xdata)
-                self.centery = float(ydata)
-                self.centerAngleChanged.emit()
+                self.geometry.centerx = float(xdata)
+                self.geometry.centery = float(ydata)
+                self.angleCenterChanged.emit()
 
     def setAutoLevels(self, autoLvls):
         if autoLvls:
@@ -521,25 +564,25 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
 
         if parameters.scale is False:
-            doreset = not (self.cutenable or
-                           self.roienable or
-                           self.qenable)
+            doreset = not (self.cuts.enabled or
+                           self.rois.enabled or
+                           self.geometry.enabled)
 
         if parameters.lines is not None:
             self.showLines(parameters.lines)
         if parameters.rois is not None:
             self.showROIs(parameters.rois)
-            self.roienable = parameters.rois
+            self.rois.enabled = parameters.rois
         if parameters.cuts is not None:
             self.showCuts(parameters.cuts)
-            self.cutenable = parameters.cuts
+            self.cuts.enabled = parameters.cuts
         if parameters.qspace is not None:
-            self.qenable = parameters.qspace
+            self.geometry.enabled = parameters.qspace
 
         if parameters.scale is False and doreset:
             self.resetScale()
         if parameters.scale is True:
-            self.setScale(self.position, self.scale)
+            self.setScale(self.axes.position, self.axes.scale)
 
     def geometryMessage(self):
         return u"geometry:\n" \
@@ -547,10 +590,245 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             u"  pixel_size = (%s, %s) \u00B5m\n" \
             u"  detector_distance = %s mm\n" \
             u"  energy = %s eV" % (
-                self.centerx,
-                self.centery,
-                self.pixelsizex,
-                self.pixelsizey,
-                self.detdistance,
-                self.energy
+                self.geometry.centerx,
+                self.geometry.centery,
+                self.geometry.pixelsizex,
+                self.geometry.pixelsizey,
+                self.geometry.detdistance,
+                self.geometry.energy
             )
+
+    @QtCore.pyqtSlot(bool)
+    def _toggleAspectLocked(self, status):
+        self.aspectLockedToggled.emit(status)
+
+    def setTicks(self):
+        cnfdlg = axesDialog.AxesDialog(self)
+        if self.axes.position is None:
+            cnfdlg.xposition = None
+            cnfdlg.yposition = None
+        else:
+            cnfdlg.xposition = self.axes.position[0]
+            cnfdlg.yposition = self.axes.position[1]
+        if self.axes.scale is None:
+            cnfdlg.xscale = None
+            cnfdlg.yscale = None
+        else:
+            cnfdlg.xscale = self.axes.scale[0]
+            cnfdlg.yscale = self.axes.scale[1]
+
+        cnfdlg.xtext = self.axes.xtext
+        cnfdlg.ytext = self.axes.ytext
+
+        cnfdlg.xunits = self.axes.xunits
+        cnfdlg.yunits = self.axes.yunits
+
+        cnfdlg.createGUI()
+        if cnfdlg.exec_():
+            if cnfdlg.xposition is not None and cnfdlg.yposition is not None:
+                position = tuple([cnfdlg.xposition, cnfdlg.yposition])
+            else:
+                position = None
+            if cnfdlg.xscale is not None and cnfdlg.yscale is not None:
+                scale = tuple([cnfdlg.xscale, cnfdlg.yscale])
+            else:
+                scale = None
+            self.axes.xtext = cnfdlg.xtext or None
+            self.axes.ytext = cnfdlg.ytext or None
+
+            self.axes.xunits = cnfdlg.xunits or None
+            self.axes.yunits = cnfdlg.yunits or None
+            self.setScale(position, scale)
+            self.updateImage(self.__data, self.__rawdata)
+            return True
+        return False
+
+    def setGeometry(self):
+        cnfdlg = geometryDialog.GeometryDialog(self)
+        cnfdlg.centerx = self.geometry.centerx
+        cnfdlg.centery = self.geometry.centery
+        cnfdlg.energy = self.geometry.energy
+        cnfdlg.pixelsizex = self.geometry.pixelsizex
+        cnfdlg.pixelsizey = self.geometry.pixelsizey
+        cnfdlg.detdistance = self.geometry.detdistance
+        cnfdlg.createGUI()
+        if cnfdlg.exec_():
+            self.geometry.centerx = cnfdlg.centerx
+            self.geometry.centery = cnfdlg.centery
+            self.geometry.energy = cnfdlg.energy
+            self.geometry.pixelsizex = cnfdlg.pixelsizex
+            self.geometry.pixelsizey = cnfdlg.pixelsizey
+            self.geometry.detdistance = cnfdlg.detdistance
+            return True
+        return False
+
+    def calcROIsum(self):
+        if self.rois.enabled and self.getROI() is not None:
+            rid = self.rois.current
+            if rid >= 0:
+                image = self.__rawdata
+                if image is not None:
+                    if self.rois.enabled:
+                        if rid >= 0:
+                            roicoords = self.rois.coords
+                            rcrds = list(roicoords[rid])
+                            for i in [0, 2]:
+                                if rcrds[i] > image.shape[0]:
+                                    rcrds[i] = image.shape[0]
+                                elif rcrds[i] < -i / 2:
+                                    rcrds[i] = -i / 2
+                            for i in [1, 3]:
+                                if rcrds[i] > image.shape[1]:
+                                    rcrds[i] = image.shape[1]
+                                elif rcrds[i] < - (i - 1) / 2:
+                                    rcrds[i] = - (i - 1) / 2
+                            roival = np.sum(image[
+                                int(rcrds[0]):(int(rcrds[2]) + 1),
+                                int(rcrds[1]):(int(rcrds[3]) + 1)
+                            ])
+                        else:
+                            roival = 0.
+                    else:
+                        roival = 0.
+                    return str("%.4f" % roival), rid
+                else:
+                    return "0.", rid
+        return "", None
+
+    def cutData(self):
+        cid = self.cuts.current
+        if cid > -1 and self.countCuts() > cid:
+            cut = self.getCut(cid)
+            if self.__rawdata is not None:
+                dt = cut.getArrayRegion(
+                    self.__rawdata,
+                    self.image, axes=(0, 1))
+                while dt.ndim > 1:
+                    dt = dt.mean(axis=1)
+                return dt
+        return None
+
+    @QtCore.pyqtSlot(int)
+    def roiRegionChanged(self, rid=None):
+        try:
+            # ?? rid == rid
+            rid = self.rois.current
+            state = self.getROI(rid).state
+            ptx = int(math.floor(state['pos'].x()))
+            pty = int(math.floor(state['pos'].y()))
+            szx = int(math.floor(state['size'].x()))
+            szy = int(math.floor(state['size'].y()))
+            self.rois.coords[rid] = [
+                ptx, pty, ptx + szx, pty + szy]
+            self.roiCoordsChanged.emit()
+        except Exception as e:
+            print("Warning: %s" % str(e))
+
+    @QtCore.pyqtSlot(int)
+    def currentROIChanged(self, rid):
+        oldrid = self.rois.current
+        if rid != oldrid:
+            self.rois.current = rid
+            self.roiCoordsChanged.emit()
+
+    @QtCore.pyqtSlot(int)
+    def cutRegionChanged(self, cid):
+        try:
+            # ??? cid == cid
+            cid = self.cuts.current
+            self.cuts.coords[cid] = \
+                self.getCut(cid).getCoordinates()
+            self.cutCoordsChanged.emit()
+        except Exception as e:
+            print("Warning: %s" % str(e))
+
+    @QtCore.pyqtSlot(int)
+    def currentCutChanged(self, cid):
+        oldcid = self.cuts.current
+        if cid != oldcid:
+            self.cuts.current = cid
+            self.cutCoordsChanged.emit()
+
+    def roiNrChanged(self, rid, coords):
+        self.addROICoords(coords)
+        while rid > self.countROIs():
+            if coords and len(coords) >= self.countROIs():
+                self.addROI(
+                    coords[self.countROIs()])
+            else:
+                self.addROI()
+            self.getROI().sigHoverEvent.connect(
+                self.__currentroimapper.map)
+            self.getROI().sigRegionChanged.connect(
+                self.__roiregionmapper.map)
+            self.__currentroimapper.setMapping(
+                self.getROI(),
+                self.countROIs() - 1)
+            self.__roiregionmapper.setMapping(
+                self.getROI(),
+                self.countROIs() - 1)
+        if rid <= 0:
+            self.rois.current = -1
+        elif self.rois.current >= rid:
+            self.rois.current = 0
+        while self.getROI(max(rid, 0)) is not None:
+            self.__currentroimapper.removeMappings(
+                self.getROI())
+            self.__roiregionmapper.removeMappings(
+                self.getROI())
+            self.removeROI()
+
+    def cutNrChanged(self, cid, coords):
+        self.addCutCoords(coords)
+        while cid > self.countCuts():
+            if coords and len(coords) >= self.countCuts():
+                self.addCut(
+                    coords[self.countCuts()])
+            else:
+                self.addCut()
+            self.getCut().sigHoverEvent.connect(
+                self.__currentcutmapper.map)
+            self.getCut().sigRegionChanged.connect(
+                self.__cutregionmapper.map)
+            self.__currentcutmapper.setMapping(
+                self.getCut(),
+                self.countCuts() - 1)
+            self.__cutregionmapper.setMapping(
+                self.getCut(),
+                self.countCuts() - 1)
+        if cid <= 0:
+            self.cuts.current = -1
+        elif self.cuts.current >= cid:
+            self.cuts.current = 0
+        while max(cid, 0) < self.countCuts():
+            self.__currentcutmapper.removeMappings(
+                self.getCut())
+            self.__cutregionmapper.removeMappings(
+                self.getCut())
+            self.removeCut()
+
+    def updateMetaData(self, axisscales=None, axislabels=None):
+        if axislabels is not None:
+            self.axes.xtext = str(axislabels[0]) \
+                if axislabels[0] is not None else None
+            self.axes.ytext = str(axislabels[1]) \
+                if axislabels[0] is not None else None
+            self.axes.xunits = str(axislabels[2]) \
+                if axislabels[0] is not None else None
+            self.axes.yunits = str(axislabels[3]) \
+                if axislabels[0] is not None else None
+        position = None
+        scale = None
+        if axisscales is not None:
+            try:
+                position = (float(axisscales[0]), float(axisscales[1]))
+            except:
+                position = None
+            try:
+                scale = (float(axisscales[2]), float(axisscales[3]))
+            except:
+                scale = None
+        self.setScale(position, scale,
+                      not self.rois.enabled
+                      and not self.cuts.enabled
+                      and not self.geometry.enabled)
