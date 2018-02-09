@@ -31,7 +31,7 @@ from PyQt4 import QtCore, QtGui
 
 #: ( (:obj:`str`,:obj:`str`,:obj:`str`) )
 #:         pg major version, pg minor verion, pg patch version
-VMAJOR, VMINOR, VPATCH = _pg.__version__.split(".") \
+_VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
     if _pg.__version__ else ("0", "9", "0")
 
 _pg.graphicsItems.GradientEditorItem.Gradients['reversegrey'] = {
@@ -143,7 +143,7 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
 
         #: (:class:`numpy.ndarray`) look up table
         self.lut = None
-        if VMAJOR == '0' and int(VMINOR) < 10 and int(VPATCH) < 9:
+        if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
             #: (:class:`weakref.ref` or :class:`pyqtgraph.ImageItem`)
             #: weakref to image item or image item itself  (for < 0.9.8)
             self.imageItem = None

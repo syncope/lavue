@@ -141,7 +141,7 @@ class ROIToolWidget(ToolWidget):
     """ roi tool widget
     """
     #: (:class:`PyQt4.QtCore.pyqtSignal`) apply ROI pressed signal
-    applyROIPressed = QtCore.pyqtSignal(str)
+    applyROIPressed = QtCore.pyqtSignal(str, int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) fetch ROI pressed signal
     fetchROIPressed = QtCore.pyqtSignal(str)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) roi info Changed signal
@@ -181,13 +181,15 @@ class ROIToolWidget(ToolWidget):
             ["roiLineEditChanged", self.updateApplyButton],
             ["roiAliasesChanged", self.updateROILineEdit],
             ["roiValueChanged", self.updateROIDisplayText],
+            ["roiNumberChanged", self.onROINumberChanged],
             ["sardanaEnabled", self.updateROIButton]
         ]
 
     @QtCore.pyqtSlot()
     def _onApplyROI(self):
         text = str(self.__ui.labelROILineEdit.text())
-        self.applyROIPressed.emit(text)
+        roispin = int(self.__ui.roiSpinBox.value())
+        self.applyROIPressed.emit(text, roispin)
 
     @QtCore.pyqtSlot()
     def _onFetchROI(self):
@@ -203,7 +205,7 @@ class ROIToolWidget(ToolWidget):
 
     @QtCore.pyqtSlot(str)
     def updateROILineEdit(self, text):
-        self.labelROILineEdit.setText(text)
+        self.__ui.labelROILineEdit.setText(text)
 
     @QtCore.pyqtSlot(bool)
     def updateROIButton(self, enabled):
@@ -239,6 +241,10 @@ class ROIToolWidget(ToolWidget):
             )
         self.roiInfoChanged.emit("%s, %s = %s" % (text, roilabel, roiVal))
 
+    @QtCore.pyqtSlot(int)
+    def onROINumberChanged(self, rid):
+        self.__ui.roiSpinBox.setValue(rid)
+        
 
 class LineCutToolWidget(ToolWidget):
     """ line-cut tool widget

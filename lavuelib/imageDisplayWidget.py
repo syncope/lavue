@@ -31,7 +31,7 @@ import math
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI
 from PyQt4 import QtCore, QtGui
 
-VMAJOR, VMINOR, VPATCH = _pg.__version__.split(".") \
+_VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
     if _pg.__version__ else ("0", "9", "0")
 
 
@@ -125,14 +125,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.setaspectlocked = QtGui.QAction(
             "Set Aspect Locked", self.__viewbox.menu)
         self.setaspectlocked.setCheckable(True)
-        if VMAJOR == '0' and int(VMINOR) < 10 and int(VPATCH) < 9:
+        if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
             self.__viewbox.menu.axes.insert(0, self.setaspectlocked)
         self.__viewbox.menu.addAction(self.setaspectlocked)
 
         self.__viewonetoone = QtGui.QAction(
             "View 1:1 pixels", self.__viewbox.menu)
         self.__viewonetoone.triggered.connect(self.oneToOneRange)
-        if VMAJOR == '0' and int(VMINOR) < 10 and int(VPATCH) < 9:
+        if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
             self.__viewbox.menu.axes.insert(0, self.__viewonetoone)
         self.__viewbox.menu.addAction(self.__viewonetoone)
 
@@ -220,6 +220,26 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         else:
             for roi in self.__roi:
                 roi.hide()
+
+    def addROICoords(self, coords):
+        if coords:
+            for i, crd in enumerate(self.__roi):
+                if i < len(coords):
+                    self.roicoords[i] = coords[i]
+                    crd.setPos([coords[i][0], coords[i][1]])
+                    crd.setSize(
+                        [coords[i][2] - coords[i][0],
+                         coords[i][3] - coords[i][1]])
+        
+    def addCutCoords(self, coords):
+        if coords:
+            for i, crd in enumerate(self.__cut):
+                if i < len(coords):
+                    self.cutcoords[i] = coords[i]
+                    crd.setPos([coords[i][0], coords[i][1]])
+                    crd.setSize(
+                        [coords[i][2] - coords[i][0],
+                         coords[i][3] - coords[i][1]])
 
     def addCut(self, coords=None):
         if not coords or not isinstance(coords, list) or len(coords) != 4:

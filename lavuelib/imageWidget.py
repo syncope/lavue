@@ -43,6 +43,10 @@ from . import messageBox
 from . import imageSource as isr
 from . import toolWidget
 
+
+_VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
+    if _pg.__version__ else ("0", "9", "0")
+
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "ImageWidget.ui"))
@@ -126,6 +130,8 @@ class ImageWidget(QtGui.QWidget):
             self.__displaywidget.sizePolicy().hasHeightForWidth())
         self.__displaywidget.setSizePolicy(sizePolicy)
         # self.__cutPlot.setMinimumSize(QtCore.QSize(0, 180))
+        if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
+            self.__cutPlot.setMinimumSize(QtCore.QSize(0, 170))
 
         self.__addToolWidgets()
 
@@ -287,14 +293,7 @@ class ImageWidget(QtGui.QWidget):
     @QtCore.pyqtSlot(int)
     def roiNrChanged(self, rid, coords=None):
         self.applyTipsChanged.emit(rid)
-        if coords:
-            for i, crd in enumerate(self.__displaywidget.roi):
-                if i < len(coords):
-                    self.__displaywidget.roicoords[i] = coords[i]
-                    crd.setPos([coords[i][0], coords[i][1]])
-                    crd.setSize(
-                        [coords[i][2] - coords[i][0],
-                         coords[i][3] - coords[i][1]])
+        self.__displaywidget.addROICoords(coords)
         while rid > self.__displaywidget.countROIs():
             if coords and len(coords) >= self.__displaywidget.countROIs():
                 self.__displaywidget.addROI(
@@ -327,14 +326,7 @@ class ImageWidget(QtGui.QWidget):
 
     @QtCore.pyqtSlot(int)
     def cutNrChanged(self, cid, coords=None):
-        if coords:
-            for i, crd in enumerate(self.__displaywidget.cut):
-                if i < len(coords):
-                    self.__displaywidget.cutcoords[i] = coords[i]
-                    crd.setPos([coords[i][0], coords[i][1]])
-                    crd.setSize(
-                        [coords[i][2] - coords[i][0],
-                         coords[i][3] - coords[i][1]])
+        self.__displaywidget.addCutCoords(coords)
         while cid > self.__displaywidget.countCuts():
             if coords and len(coords) >= self.__displaywidget.countCuts():
                 self.__displaywidget.addCut(
@@ -580,8 +572,8 @@ class ImageWidget(QtGui.QWidget):
             self.sardanaEnabled.emit(False)
         self.__sardana = sardana
 
-    @QtCore.pyqtSlot(str)
-    def onapplyrois(self, rlabel):
+    @QtCore.pyqtSlot(str, int)
+    def onapplyrois(self, rlabel, roispin):
         if isr.PYTANGO:
             if not self.__settings.doorname:
                 self.__settings.doorname = self.__sardana.getDeviceName("Door")
@@ -599,8 +591,6 @@ class ImageWidget(QtGui.QWidget):
                 return
 
             roicoords = self.__displaywidget.roicoords
-            roispin = self.roiSpinBox.value()
-            # rlabel = str(self.labelROILineEdit.text())
             slabel = re.split(';|,| |\n', rlabel)
             slabel = [lb for lb in slabel if lb]
             rid = 0
@@ -692,7 +682,6 @@ class ImageWidget(QtGui.QWidget):
                     self, "lavue: Error in connecting to Door or MacroServer",
                     text, str(value))
                 return
-            # rlabel = str(self.labelROILineEdit.text())
             slabel = re.split(';|,| |\n', rlabel)
             slabel = [lb for lb in set(slabel) if lb]
             detrois = {}
@@ -717,9 +706,9 @@ class ImageWidget(QtGui.QWidget):
                     break
                 else:
                     slabel.append(al)
-            # self.labelROILineEdit.setText(" ".join(slabel))
             self.roiAliasesChanged.emit(" ".join(slabel))
             self.roiLineEditChanged.emit()
+            
             self.roiNrChanged(len(coords), coords)
         else:
             print("Connection error")

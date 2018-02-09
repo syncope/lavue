@@ -235,7 +235,7 @@ class LiveViewer(QtGui.QMainWindow):
         #:    data fetch thread
         self.__dataFetcher = dataFetchThread.DataFetchThread(
             self.__datasource, self.__exchangelist)
-        self.__dataFetcher.newDataName.connect(self._getNewData)
+        self.__dataFetcher.newDataNameFetched.connect(self._getNewData)
         # ugly !!! sent current state to the data fetcher...
         self._updateStateSignal.connect(self.__dataFetcher.changeStatus)
         self.__sourcewg.sourceStateSignal.connect(self._updateSource)
@@ -326,7 +326,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__storeSettings()
         self.__settings.secstream = False
         try:
-            self.__dataFetcher.newDataName.disconnect(self._getNewData)
+            self.__dataFetcher.newDataNameFetched.disconnect(self._getNewData)
         except:
             pass
         # except Exception as e:
@@ -480,7 +480,7 @@ class LiveViewer(QtGui.QMainWindow):
     def _updateSource(self, status):
         if status:
             self.__datasource.setTimeOut(self.__settings.timeout)
-            self.__dataFetcher.datasource = self.__datasource
+            self.__dataFetcher.setDataSource(self.__datasource)
             if self.__sourceconfiguration:
                 self.__datasource.setConfiguration(self.__sourceconfiguration)
             self.__sourcewg.updateMetaData(**self.__datasource.getMetaData())

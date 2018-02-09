@@ -80,7 +80,7 @@ class ExchangeList(object):
 class DataFetchThread(QtCore.QThread):
 
     #: (:class:`PyQt4.QtCore.pyqtSignal`) new data name signal
-    newDataName = QtCore.pyqtSignal(str, str)
+    newDataNameFetched = QtCore.pyqtSignal(str, str)
 
     def __init__(self, datasource, alist):
         """ constructor
@@ -91,10 +91,12 @@ class DataFetchThread(QtCore.QThread):
         :type alist: :class:`ExchangeList`
         """
         QtCore.QThread.__init__(self)
-        self.datasource = datasource
+        self.__datasource = datasource
         self.__list = alist
         self.__isConnected = False
         self.__loop = True
+        #: (:class:`PyQt4.QtCore.QMutex`) zmq bind address
+        self.__mutex = QtCore.QMutex()
 
     def run(self):
         """ runner of the fetching thread
@@ -104,14 +106,15 @@ class DataFetchThread(QtCore.QThread):
                 time.sleep(GLOBALREFRESHRATE)
             if self.__isConnected:
                 try:
-                    img, name, metadata = self.datasource.getData()
+                    with QtCore.QMutexLocker(self.__mutex):
+                        img, name, metadata = self.__datasource.getData()
                 except Exception as e:
                     name = "__ERROR__"
                     img = str(e)
                     metadata = ""
                 if name is not None:
                     self.__list.addData(name, img, metadata)
-                    self.newDataName.emit(name, metadata)
+                    self.newDataNameFetched.emit(name, metadata)
             else:
                 pass
 
@@ -124,6 +127,11 @@ class DataFetchThread(QtCore.QThread):
         """
         self.__isConnected = status
 
+    def setDataSource(self, datasource):
+        with QtCore.QMutexLocker(self.__mutex):
+            self.__datasource = datasource
+                        
+        
     def stop(self):
         """ stop the thread
         """
