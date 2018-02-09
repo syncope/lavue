@@ -102,12 +102,12 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.autozmqtopicsCheckBox.setChecked(self.autozmqtopics)
         self.__ui.dirtransLineEdit.setText(self.dirtrans)
 
-        self.autoportChanged(self.secautoport)
+        self._updateSecPortLineEdit(self.secautoport)
         self.__ui.secautoportCheckBox.stateChanged.connect(
-            self.autoportChanged)
+            self._updateSecPortLineEdit)
 
     @QtCore.pyqtSlot(int)
-    def autoportChanged(self, value):
+    def _updateSecPortLineEdit(self, value):
         """ updates zmq security port lineedit widget
 
         :param value: if False or 0 set widget enable otherwise disable

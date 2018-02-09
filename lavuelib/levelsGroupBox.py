@@ -358,7 +358,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
             else:
                 print("Error %s" % name)
 
-    def imageChanged(self, autoLevel=None):
+    def updateHistoImage(self, autoLevel=None):
         """ executes imageChanged of histogram with the givel autoLevel
 
         :param autoLevel: if automatics levels to be set

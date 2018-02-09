@@ -135,7 +135,7 @@ class LiveViewer(QtGui.QMainWindow):
             parent=self, tooltypes=self.__tooltypes, settings=self.__settings)
 
         self.__levelswg.setImageItem(self.__imagewg.image())
-        self.__levelswg.imageChanged(autoLevel=True)
+        self.__levelswg.updateHistoImage(autoLevel=True)
 
         #: (:class:`lavuelib.maskWidget.MaskWidget`) mask widget
         self.__maskwg = self.__prepwg.maskWidget
@@ -513,7 +513,7 @@ class LiveViewer(QtGui.QMainWindow):
             self.__displayimage
             if self.__settings.statswoscaling else self.__scaledimage)
         if self.__updatehisto:
-            self.__levelswg.imageChanged()
+            self.__levelswg.updateHistoImage()
             self.__updatehisto = False
 
     @QtCore.pyqtSlot()
