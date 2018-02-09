@@ -58,11 +58,11 @@ class BaseSourceWidget(QtGui.QWidget):
     """ general source widget """
 
     #: (:class:`PyQt4.QtCore.pyqtSignal`) push button enabled signal
-    buttonEnabledSignal = QtCore.pyqtSignal(bool)
+    buttonEnabled = QtCore.pyqtSignal(bool)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source state signal
-    sourceStateSignal = QtCore.pyqtSignal(int)
+    sourceStateChanged = QtCore.pyqtSignal(int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source server name signal
-    configurationSignal = QtCore.pyqtSignal(str)
+    configurationChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         """ constructor
@@ -95,7 +95,7 @@ class BaseSourceWidget(QtGui.QWidget):
         """
         if not self.active:
             return
-        self.buttonEnabledSignal.emit(True)
+        self.buttonEnabled.emit(True)
 
     def updateMetaData(self, **kargs):
         """ update source input parameters
@@ -186,10 +186,10 @@ class HTTPSourceWidget(BaseSourceWidget):
             else:
                 url = None
         if not url:
-            self.buttonEnabledSignal.emit(False)
+            self.buttonEnabled.emit(False)
         else:
-            self.buttonEnabledSignal.emit(True)
-            self.configurationSignal.emit(url)
+            self.buttonEnabled.emit(True)
+            self.configurationChanged.emit(url)
 
     def updateMetaData(self, **kargs):
         """ update source input parameters
@@ -241,11 +241,11 @@ class HidraSourceWidget(BaseSourceWidget):
         if not self.active:
             return
         if self._ui.serverComboBox.currentText() == "Pick a server":
-            self.buttonEnabledSignal.emit(False)
+            self.buttonEnabled.emit(False)
         else:
-            self.configurationSignal.emit(
+            self.configurationChanged.emit(
                 str(self._ui.serverComboBox.currentText()))
-            self.buttonEnabledSignal.emit(True)
+            self.buttonEnabled.emit(True)
 
     def updateMetaData(self, serverdict=None, targetname=None, **kargs):
         """ update source input parameters
@@ -331,10 +331,10 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         if not self.active:
             return
         if not str(self._ui.attrLineEdit.text()).strip():
-            self.buttonEnabledSignal.emit(False)
+            self.buttonEnabled.emit(False)
         else:
-            self.buttonEnabledSignal.emit(True)
-            self.configurationSignal.emit(
+            self.buttonEnabled.emit(True)
+            self.configurationChanged.emit(
                 str(self._ui.attrLineEdit.text()).strip())
 
     def updateMetaData(self, **kargs):
@@ -392,13 +392,13 @@ class TangoFileSourceWidget(BaseSourceWidget):
             return
         fattr = str(self._ui.fileLineEdit.text()).strip()
         if not str(self._ui.fileLineEdit.text()).strip():
-            self.buttonEnabledSignal.emit(False)
+            self.buttonEnabled.emit(False)
         else:
-            self.buttonEnabledSignal.emit(True)
+            self.buttonEnabled.emit(True)
             dattr = str(self._ui.dirLineEdit.text()).strip()
             dt = self.__dirtrans
             sourcename = "%s,%s,%s" % (fattr, dattr, dt)
-            self.configurationSignal.emit(sourcename)
+            self.configurationChanged.emit(sourcename)
 
     def updateMetaData(self, dirtrans=None, **kargs):
         """ update source input parameters
@@ -463,7 +463,7 @@ class ZMQSourceWidget(BaseSourceWidget):
                     self._updateZMQComboBox)
             if not str(self._ui.pickleLineEdit.text()).strip() \
                or ":" not in str(self._ui.pickleLineEdit.text()):
-                self.buttonEnabledSignal.emit(False)
+                self.buttonEnabled.emit(False)
             else:
                 try:
                     _, sport = str(self._ui.pickleLineEdit.text())\
@@ -471,7 +471,7 @@ class ZMQSourceWidget(BaseSourceWidget):
                     port = int(sport)
                     if port > 65535 or port < 0:
                         raise Exception("Wrong port")
-                    self.buttonEnabledSignal.emit(True)
+                    self.buttonEnabled.emit(True)
                     hosturl = str(self._ui.pickleLineEdit.text()).strip()
                     if self._ui.pickleTopicComboBox.currentIndex() >= 0:
                         text = self._ui.pickleTopicComboBox.currentText()
@@ -483,9 +483,9 @@ class ZMQSourceWidget(BaseSourceWidget):
                         else:
                             shost.append(str(text))
                         hosturl = "/".join(shost)
-                    self.configurationSignal.emit(hosturl)
+                    self.configurationChanged.emit(hosturl)
                 except:
-                    self.buttonEnabledSignal.emit(False)
+                    self.buttonEnabled.emit(False)
             if disconnect:
                 self._ui.pickleTopicComboBox.currentIndexChanged.connect(
                     self._updateZMQComboBox)
@@ -497,10 +497,10 @@ class ZMQSourceWidget(BaseSourceWidget):
         disconnected = False
         if self._connected:
             disconnected = True
-            self.sourceStateSignal.emit(0)
+            self.sourceStateChanged.emit(0)
         self.updateButton()
         if disconnected:
-            self.sourceStateSignal.emit(-1)
+            self.sourceStateChanged.emit(-1)
 
     def updateMetaData(
             self,

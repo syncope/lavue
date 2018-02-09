@@ -64,7 +64,7 @@ class LiveViewer(QtGui.QMainWindow):
 
     '''The master class for the dialog, contains all other
     widget and handles communication.'''
-    _updateStateSignal = QtCore.pyqtSignal(int)
+    _stateUpdated = QtCore.pyqtSignal(int)
 
     def __init__(self, umode=None, parent=None):
         QtGui.QDialog.__init__(self, parent)
@@ -216,11 +216,11 @@ class LiveViewer(QtGui.QMainWindow):
         self.__imagewg.currentToolChanged.connect(
             self._onToolChanged)
         # connecting signals from source widget:
-        self.__sourcewg.sourceConnectSignal.connect(self._connectSource)
-        self.__sourcewg.sourceConnectSignal.connect(self._startPlotting)
+        self.__sourcewg.sourceConnected.connect(self._connectSource)
+        self.__sourcewg.sourceConnected.connect(self._startPlotting)
 
-        self.__sourcewg.sourceDisconnectSignal.connect(self._stopPlotting)
-        self.__sourcewg.sourceDisconnectSignal.connect(self._disconnectSource)
+        self.__sourcewg.sourceDisconnected.connect(self._stopPlotting)
+        self.__sourcewg.sourceDisconnected.connect(self._disconnectSource)
 
         # gradient selector
         self.__levelswg.channelChanged.connect(self._plot)
@@ -237,9 +237,9 @@ class LiveViewer(QtGui.QMainWindow):
             self.__datasource, self.__exchangelist)
         self.__dataFetcher.newDataNameFetched.connect(self._getNewData)
         # ugly !!! sent current state to the data fetcher...
-        self._updateStateSignal.connect(self.__dataFetcher.changeStatus)
-        self.__sourcewg.sourceStateSignal.connect(self._updateSource)
-        self.__sourcewg.sourceChangedSignal.connect(self._onSourceChanged)
+        self._stateUpdated.connect(self.__dataFetcher.changeStatus)
+        self.__sourcewg.sourceStateChanged.connect(self._updateSource)
+        self.__sourcewg.sourceChanged.connect(self._onSourceChanged)
 
         self.__bkgSubwg.bkgFileSelected.connect(self._prepareBkgSubtraction)
         self.__bkgSubwg.useCurrentImageAsBkg.connect(
@@ -255,11 +255,11 @@ class LiveViewer(QtGui.QMainWindow):
 
         # set the right target name for the source display at initialization
 
-        self.__sourcewg.configurationSignal.connect(
+        self.__sourcewg.configurationChanged.connect(
             self._setSourceConfiguration)
 
         self.__sourcewg.updateLayout()
-        self.__sourcewg.emitSourceChangedSignal()
+        self.__sourcewg.emitSourceChanged()
         self.__imagewg.onToolChanged()
 
         self.__loadSettings()
@@ -484,7 +484,7 @@ class LiveViewer(QtGui.QMainWindow):
             if self.__sourceconfiguration:
                 self.__datasource.setConfiguration(self.__sourceconfiguration)
             self.__sourcewg.updateMetaData(**self.__datasource.getMetaData())
-        self._updateStateSignal.emit(status)
+        self._stateUpdated.emit(status)
 
     @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot()

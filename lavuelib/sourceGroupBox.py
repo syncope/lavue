@@ -40,15 +40,15 @@ class SourceGroupBox(QtGui.QGroupBox):
     """
 
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source disconnected signal
-    sourceDisconnectSignal = QtCore.pyqtSignal()
+    sourceDisconnected = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source connected signal
-    sourceConnectSignal = QtCore.pyqtSignal()
+    sourceConnected = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source state signal
-    sourceStateSignal = QtCore.pyqtSignal(int)
+    sourceStateChanged = QtCore.pyqtSignal(int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source state signal
-    sourceChangedSignal = QtCore.pyqtSignal(int)
+    sourceChanged = QtCore.pyqtSignal(int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source server name signal
-    configurationSignal = QtCore.pyqtSignal(str)
+    configurationChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None, sourcetypes=None):
         """ constructor
@@ -164,50 +164,55 @@ class SourceGroupBox(QtGui.QGroupBox):
         :type disconnect: :obj:`bool`
         """
         if disconnect and self.__currentSource is not None:
-            self.__currentSource.buttonEnabledSignal.disconnect(
+            self.__currentSource.buttonEnabled.disconnect(
                 self.updateButton)
-            self.__currentSource.configurationSignal.disconnect(
-                self._emitConfigurationSignal)
-            self.__currentSource.sourceStateSignal.disconnect(
-                self._emitSourceStateSignal)
+            self.__currentSource.configurationChanged.disconnect(
+                self._emitConfigurationChanged)
+            self.__currentSource.sourceStateChanged.disconnect(
+                self._emitSourceStateChanged)
             self.__currentSource.active = False
             self.__currentSource.disconnectWidget()
         if name is not None and name in self.__sourcewidgets.keys():
             self.__currentSource = self.__sourcewidgets[name]
             self.__currentSource.active = True
-            self.__currentSource.buttonEnabledSignal.connect(
+            self.__currentSource.buttonEnabled.connect(
                 self.updateButton)
-            self.__currentSource.configurationSignal.connect(
-                self._emitConfigurationSignal)
-            self.__currentSource.sourceStateSignal.connect(
-                self._emitSourceStateSignal)
+            self.__currentSource.configurationChanged.connect(
+                self._emitConfigurationChanged)
+            self.__currentSource.sourceStateChanged.connect(
+                self._emitSourceStateChanged)
         self.updateLayout()
         self.updateMetaData(disconnect=disconnect)
-        self.emitSourceChangedSignal()
+        self.emitSourceChanged()
 
-    def emitSourceChangedSignal(self):
-        """ emits sourceChangeSignal signal
+    def emitSourceChanged(self):
+        """ emits sourceChanged signal
         """
         status = self.__ui.sourceTypeComboBox.currentIndex() + 1
-        self.sourceChangedSignal.emit(status)
+        self.sourceChanged.emit(status)
 
     @QtCore.pyqtSlot(str)
-    def _emitConfigurationSignal(self,  name):
-        """ emits configurationSignal signal with the given name
+    def _emitConfigurationChanged(self,  name):
+        """ emits configurationChanged signal with the given name
 
         :param name: configuration string
         :type name: :obj:`str`
         """
-        self.configurationSignal.emit(name)
+        self.configurationChanged.emit(name)
 
     @QtCore.pyqtSlot(int)
-    def _emitSourceStateSignal(self, status):
+    def _emitSourceStateChanged(self, status):
+        """ emits sourceStateChanged signal with the current source id
+
+        :param name: source id. -1 for take the current source
+        :type name: :obj:`int`
+        """
         if status == -1:
             status = self.__ui.sourceTypeComboBox.currentIndex() + 1
-            self.sourceStateSignal.emit(status)
-            self.sourceConnectSignal.emit()
+            self.sourceStateChanged.emit(status)
+            self.sourceConnected.emit()
         else:
-            self.sourceStateSignal.emit(status)
+            self.sourceStateChanged.emit(status)
 
     @QtCore.pyqtSlot(bool)
     def updateButton(self, status):
@@ -245,14 +250,14 @@ class SourceGroupBox(QtGui.QGroupBox):
         """
         # if it is connected then it's easy:
         if self.__connected:
-            self.sourceDisconnectSignal.emit()
+            self.sourceDisconnected.emit()
             self.__ui.cStatusLineEdit.setStyleSheet(
                 "color: yellow;"
                 "background-color: red;")
             self.__ui.cStatusLineEdit.setText("Disconnected")
             self.__ui.pushButton.setText("&Start")
             self.__connected = False
-            self.sourceStateSignal.emit(0)
+            self.sourceStateChanged.emit(0)
 
             self.__ui.sourceTypeComboBox.setEnabled(True)
             if self.__currentSource is not None:
@@ -263,9 +268,9 @@ class SourceGroupBox(QtGui.QGroupBox):
             if self.__currentSource is not None:
                 self.__currentSource.connectWidget()
 
-            self.sourceStateSignal.emit(
+            self.sourceStateChanged.emit(
                 self.__ui.sourceTypeComboBox.currentIndex() + 1)
-            self.sourceConnectSignal.emit()
+            self.sourceConnected.emit()
 
     def connectSuccess(self, port=None):
         """ set connection status on and display connection status
@@ -295,7 +300,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         """ set connection status off and display connection status
         """
         self.__connected = False
-        self.sourceStateSignal.emit(0)
+        self.sourceStateChanged.emit(0)
         self.__ui.cStatusLineEdit.setText("Trouble connecting")
 
         self.__ui.sourceTypeComboBox.setEnabled(True)

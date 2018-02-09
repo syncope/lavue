@@ -103,7 +103,7 @@ class GradientEditorItemWS(
     """ gradient editor item with a signal on loadPreset """
 
     #: (:class:`PyQt4.QtCore.pyqtSignal`) minimum level changed signal
-    sigNameChanged = QtCore.Signal(str)
+    sigNameChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, *args, **kargs):
         """ constructor
