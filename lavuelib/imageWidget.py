@@ -137,11 +137,11 @@ class ImageWidget(QtGui.QWidget):
 
         self.cutCoordsChanged.connect(self._plotCut)
         self.__ui.toolComboBox.currentIndexChanged.connect(
-            self.onToolChanged)
+            self.showCurrentTool)
         self.__displaywidget.angleCenterChanged.connect(
             self._updateGeometry)
         self.__displaywidget.aspectLockedToggled.connect(
-            self._toggleAspectLocked)
+            self.emitAspectLockedToggled)
         self.__displaywidget.mousePositionChanged.connect(
             self._setDisplayedText)
 
@@ -164,43 +164,77 @@ class ImageWidget(QtGui.QWidget):
                 signal.connect(slot)
 
     @QtCore.pyqtSlot(int)
-    def onAngleQChanged(self, gindex):
-        self.__displaywidget.geometry.gspaceindex = gindex
+    def setGSpaceIndex(self, gindex):
+        """ set gspace index
+
+        :param gspace: g-space index, i.e. angle or q-space
+        :type gspace: :obj:`int`
+        """
+        self.__displaywidget.setGSpaceIndex(gindex)
 
     @QtCore.pyqtSlot()
-    def geometry(self):
+    def setGeometry(self):
+        """ launches geometry widget
+        """
         if self.__displaywidget.setGeomerty():
             self.__updateGeometryTip()
 
     @QtCore.pyqtSlot()
     def _updateGeometry(self):
+        """ update geometry tips and resets info displayed text
+        """
         self._setDisplayedText("")
         self.__updateGeometryTip()
 
     def __updateGeometryTip(self):
+        """ update geometry tips
+        """
         message = self.__displaywidget.geometryMessage()
         self.__ui.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer\n%s" % message)
         self.geometryTipsChanged.emit(message)
 
     def updateMetaData(self, axisscales=None, axislabels=None):
+        """ update Metadata informations
+
+        :param axisscales: [xstart, ystart, xscale, yscale]
+        :type axisscales: [float, float, float, float]
+        :param axislabels: [xtext, ytext, xunits, yunits]
+        :type axislabels: [float, float, float, float]
+        """
         self.__displaywidget.updateMetaData(axisscales, axislabels)
 
     @QtCore.pyqtSlot(int)
-    def roiNrChanged(self, rid, coords=None):
+    def updateROIs(self, rid, coords=None):
+        """ update ROIs
+
+        :param rid: roi id
+        :type rid: :obj:`int`
+        :param coords: roi coordinates
+        :type coords: :obj:`list` < [float, float, float, float] >
+        """
         self.applyTipsChanged.emit(rid)
-        self.__displaywidget.roiNrChanged(rid, coords)
+        self.__displaywidget.updateROIs(rid, coords)
         self.roiCoordsChanged.emit()
         self.roiNumberChanged.emit(rid)
 
     @QtCore.pyqtSlot(int)
-    def cutNrChanged(self, cid, coords=None):
-        self.__displaywidget.cutNrChanged(cid, coords)
+    def updateCuts(self, cid, coords=None):
+        """ update Cuts
+
+        :param cid: cut id
+        :type cid: :obj:`int`
+        :param coords: cut coordinates
+        :type coords: :obj:`list` < [float, float, float, float] >
+        """
+        self.__displaywidget.updateCuts(cid, coords)
         self.cutCoordsChanged.emit()
         self.cutNumberChanged.emit(cid)
 
     @QtCore.pyqtSlot(int)
-    def onToolChanged(self):
+    def showCurrentTool(self):
+        """ shows the current tool
+        """
         text = self.__ui.toolComboBox.currentText()
         stwg = None
         for nm, twg in self.__toolwidgets.items():
@@ -251,19 +285,28 @@ class ImageWidget(QtGui.QWidget):
             self.__cutPlot.hide()
 
     def plot(self, array, rawarray=None):
+        """ plots the image
+
+        :param array: 2d image array
+        :type array: :class:`numpy.ndarray`
+        :param rawarray: 2d raw image array
+        :type rawarray: :class:`numpy.ndarray`
+        """
         if array is None:
             return
         if rawarray is None:
             rawarray = array
 
         self.__displaywidget.updateImage(array, rawarray)
-        if self.__displaywidget.cuts.enabled:
+        if self.__displaywidget.isCutsEnabled():
             self._plotCut()
-        if self.__displaywidget.rois.enabled:
+        if self.__displaywidget.isROIsEnabled():
             self._setDisplayedText()
 
     @QtCore.pyqtSlot()
     def _plotCut(self):
+        """ plots the current 1d Cut
+        """
         dt = self.__displaywidget.cutData()
         if dt is not None:
             self.__cutCurve.setData(y=dt)
@@ -273,19 +316,39 @@ class ImageWidget(QtGui.QWidget):
             self.__cutCurve.setVisible(False)
 
     @QtCore.pyqtSlot(int)
-    def setAutoLevels(self, autoLvls):
-        self.__displaywidget.setAutoLevels(autoLvls)
+    def setAutoLevels(self, autolevels):
+        """ sets auto levels
+
+        :param autolevels: auto levels enabled
+        :type autolevels: :obj:`bool`
+        """
+        self.__displaywidget.setAutoLevels(autolevels)
 
     @QtCore.pyqtSlot(float)
     def setMinLevel(self, level=None):
+        """ sets minimum intensity level
+
+        :param level: minimum intensity
+        :type level: :obj:`float`
+        """
         self.__displaywidget.setDisplayMinLevel(level)
 
     @QtCore.pyqtSlot(float)
     def setMaxLevel(self, level=None):
+        """ sets maximum intensity level
+
+        :param level: maximum intensity
+        :type level: :obj:`float`
+        """
         self.__displaywidget.setDisplayMaxLevel(level)
 
     @QtCore.pyqtSlot(str)
     def _setDisplayedText(self, text=None):
+        """ sets displayed info text and recalculates the current roi sum
+
+        :param text: text to display
+        :type text: :obj:`str`
+        """
         if text is not None:
             self.__lasttext = text
         else:
@@ -298,35 +361,77 @@ class ImageWidget(QtGui.QWidget):
 
     @QtCore.pyqtSlot(str)
     def updateDisplayedText(self, text):
+        """ sets displayed info text
+
+        :param text: text to display
+        :type text: :obj:`str`
+        """
         self.__ui.infoLineEdit.setText(text)
 
     @QtCore.pyqtSlot()
     def setTicks(self):
+        """ launch axes widget
+
+        :returns: apply status
+        :rtype: :obj:`bool`
+        """
         return self.__displaywidget.setTicks()
 
     def image(self):
-        return self.__displaywidget.image
+        """ provides imageItem object
+
+        :returns: image object
+        :rtype: :class:`pyqtgraph.imageItem.ImageItem`
+        """
+        return self.__displaywidget.image()
 
     @QtCore.pyqtSlot(bool)
-    def _toggleAspectLocked(self, status):
+    def emitAspectLockedToggled(self, status):
+        """emits aspectLockedToggled
+
+        :param status: current state
+        :type status: :obj:`bool`
+        """
         self.aspectLockedToggled.emit(status)
 
     def setAspectLocked(self, status):
+        """sets aspectLocked
+
+        :param status: state to set
+        :type status: :obj:`bool`
+        """
         self.__displaywidget.setAspectLocked(status)
 
     def setStatsWOScaling(self, status):
-        if self.__displaywidget.intensity.statswoscaling != status:
-            self.__displaywidget.intensity.statswoscaling = status
-            return True
-        return False
+        """ sets statistics without scaling flag
+
+        :param status: statistics without scaling flag
+        :type status: :obj:`bool`
+        """
+        return self.__displaywidget.setStatsWOScaling(status)
 
     def setScalingType(self, scalingtype):
-        self.__displaywidget.intensity.scaling = scalingtype
+        """ sets intensity scaling types
+
+        :param scalingtype: intensity scaling type
+        :type scalingtype: :obj:`str`
+        """
+        self.__displaywidget.setScalingType(scalingtype)
 
     def setDoBkgSubtraction(self, state):
-        self.__displaywidget.intensity.dobkgsubtraction = state
+        """ sets do background subtraction flag
+
+        :param status: do background subtraction flag
+        :type status: :obj:`bool`
+        """
+        self.__displaywidget.setDoBkgSubtraction(state)
 
     def setSardanaUtils(self, sardana):
+        """ sets sardana utils
+
+        :param sardana: sardana utils
+        :type sardana: :class:`lavuelib.sardanaUtils.SardanaUtils`
+        """
         if sardana:
             self.sardanaEnabled.emit(True)
         else:
@@ -334,7 +439,15 @@ class ImageWidget(QtGui.QWidget):
         self.__sardana = sardana
 
     @QtCore.pyqtSlot(str, int)
-    def onapplyrois(self, rlabel, roispin):
+    def applyROIs(self, rlabel, roispin):
+        """ saves ROIs in sardana and add them to the measurement group
+
+        :param rlabel: rois aliases separated by space
+        :type rlabel: :obj:`str`
+        :param roispin: the current number of rois
+        :type roispin: :obj:`int`
+        """
+
         if isr.PYTANGO:
             if not self.__settings.doorname:
                 self.__settings.doorname = self.__sardana.getDeviceName("Door")
@@ -351,7 +464,6 @@ class ImageWidget(QtGui.QWidget):
                     text, str(value))
                 return
 
-            roicoords = self.__displaywidget.rois.coords
             slabel = re.split(';|,| |\n', str(rlabel))
             slabel = [lb for lb in slabel if lb]
             rid = 0
@@ -362,6 +474,8 @@ class ImageWidget(QtGui.QWidget):
                     rois["DetectorROIs"], dict):
                 rois["DetectorROIs"] = {}
             lastalias = None
+
+            roicoords = self.__displaywidget.roiCoords()
             for alias in slabel:
                 if alias not in toadd:
                     rois["DetectorROIs"][alias] = []
@@ -391,7 +505,6 @@ class ImageWidget(QtGui.QWidget):
                     else:
                         toremove.append(lastalias)
 
-            print("ROIS %s" % str(rois))
             self.__sardana.setScanEnv(
                 str(self.__settings.doorname), json.dumps(rois))
             warns = []
@@ -428,7 +541,12 @@ class ImageWidget(QtGui.QWidget):
             print("Connection error")
 
     @QtCore.pyqtSlot(str)
-    def onfetchrois(self, rlabel):
+    def fetchROIs(self, rlabel):
+        """ loads ROIs from sardana
+
+        :param rlabel: rois aliases separated by space
+        :type rlabel: :obj:`str`
+        """
         if isr.PYTANGO:
             if not self.__settings.doorname:
                 self.__settings.doorname = self.__sardana.getDeviceName("Door")
@@ -471,14 +589,6 @@ class ImageWidget(QtGui.QWidget):
             self.roiAliasesChanged.emit(" ".join(slabel))
             self.roiLineEditChanged.emit()
 
-            self.roiNrChanged(len(coords), coords)
+            self.updateROIs(len(coords), coords)
         else:
             print("Connection error")
-
-    @QtCore.pyqtSlot()
-    def onCutCoordsChanged(self):
-        self.cutCoordsChanged.emit()
-
-    @QtCore.pyqtSlot()
-    def onROICoordsChanged(self):
-        self.roiCoordsChanged.emit()

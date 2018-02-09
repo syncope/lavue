@@ -224,7 +224,7 @@ class LiveViewer(QtGui.QMainWindow):
 
         # gradient selector
         self.__levelswg.channelChanged.connect(self._plot)
-        self.__imagewg.aspectLockedToggled.connect(self._toggleAspectLocked)
+        self.__imagewg.aspectLockedToggled.connect(self._setAspectLocked)
 
         # simple mutable caching object for data exchange with thread
         #: (:class:`lavuelib.dataFetchTread.ExchangeList`)
@@ -260,7 +260,7 @@ class LiveViewer(QtGui.QMainWindow):
 
         self.__sourcewg.updateLayout()
         self.__sourcewg.emitSourceChanged()
-        self.__imagewg.onToolChanged()
+        self.__imagewg.showCurrentTool()
 
         self.__loadSettings()
 
@@ -306,7 +306,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__settings.store(settings)
 
     @QtCore.pyqtSlot(bool)
-    def _toggleAspectLocked(self, status):
+    def _setAspectLocked(self, status):
         self.__settings.aspectlocked = status
         self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
 

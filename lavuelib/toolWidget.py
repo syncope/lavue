@@ -174,14 +174,14 @@ class ROIToolWidget(ToolWidget):
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
-            [self.applyROIPressed, "onapplyrois"],
-            [self.fetchROIPressed, "onfetchrois"],
+            [self.applyROIPressed, "applyROIs"],
+            [self.fetchROIPressed, "fetchROIs"],
             [self.roiInfoChanged, "updateDisplayedText"],
-            [self.__ui.roiSpinBox.valueChanged, "roiNrChanged"],
+            [self.__ui.roiSpinBox.valueChanged, "updateROIs"],
             ["roiLineEditChanged", self.updateApplyButton],
             ["roiAliasesChanged", self.updateROILineEdit],
             ["roiValueChanged", self.updateROIDisplayText],
-            ["roiNumberChanged", self.onROINumberChanged],
+            ["roiNumberChanged", self.setROIsNumber],
             ["sardanaEnabled", self.updateROIButton]
         ]
 
@@ -242,7 +242,7 @@ class ROIToolWidget(ToolWidget):
         self.roiInfoChanged.emit("%s, %s = %s" % (text, roilabel, roiVal))
 
     @QtCore.pyqtSlot(int)
-    def onROINumberChanged(self, rid):
+    def setROIsNumber(self, rid):
         self.__ui.roiSpinBox.setValue(rid)
 
 
@@ -274,12 +274,12 @@ class LineCutToolWidget(ToolWidget):
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
-            [self.__ui.cutSpinBox.valueChanged, "cutNrChanged"],
-            ["cutNumberChanged", self.onCutNumberChanged]
+            [self.__ui.cutSpinBox.valueChanged, "updateCuts"],
+            ["cutNumberChanged", self._setCutsNumber]
         ]
 
     @QtCore.pyqtSlot(int)
-    def onCutNumberChanged(self, cid):
+    def _setCutsNumber(self, cid):
         self.__ui.cutSpinBox.setValue(cid)
 
 
@@ -310,8 +310,8 @@ class AngleQToolWidget(ToolWidget):
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
-            [self.__ui.angleqPushButton.clicked, "geometry"],
-            [self.__ui.angleqComboBox.currentIndexChanged, "onAngleQChanged"],
+            [self.__ui.angleqPushButton.clicked, "setGeometry"],
+            [self.__ui.angleqComboBox.currentIndexChanged, "setGSpaceIndex"],
             ["geometryTipsChanged", self.updateTips]
         ]
 
