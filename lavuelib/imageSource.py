@@ -168,12 +168,7 @@ class TangoFileSource(BaseSource):
         :param timeout: timeout for setting connection in ms
         :type timeout: :obj:`int`
         """
-        #: (:obj:`str`) configuration string
-        self._configuration = None
-        #: (:obj:`int`) timeout in ms
-        self._timeout = timeout
-        #: (:obj:`bool`) connection initiated  flag
-        self._initiated = False
+        BaseSource.__init__(self, timeout)
         #: (:class`PyTango.AttributeProxy`:)
         #:       device proxy for the image file name
         self.__fproxy = None
@@ -327,12 +322,7 @@ class TangoAttrSource(BaseSource):
         :param timeout: timeout for setting connection in ms
         :type timeout: :obj:`int`
         """
-        #: (:obj:`int`) timeout in ms
-        self._timeout = timeout
-        #: (:obj:`str`) configuration string
-        self._configuration = None
-        #: (:obj:`bool`) connection initiated  flag
-        self._initiated = False
+        BaseSource.__init__(self, timeout)
         #: (:class`PyTango.AttributeProxy`:)
         #:      device proxy for the image attribute
         self.__aproxy = None
@@ -409,12 +399,7 @@ class HTTPSource(BaseSource):
         :param timeout: timeout for setting connection in ms
         :type timeout: :obj:`int`
         """
-        #: (:obj:`str`) configuration string
-        self._configuration = None
-        #: (:obj:`int`) timeout in ms
-        self._timeout = timeout
-        #: (:obj:`bool`) connection initiated  flag
-        self._initiated = False
+        BaseSource.__init__(self, timeout)
 
     def getData(self):
         """ provides image name, image data and metadata
@@ -471,12 +456,7 @@ class ZMQSource(BaseSource):
         :param timeout: timeout for setting connection in ms
         :type timeout: :obj:`int`
         """
-        #: (:obj:`str`) configuration string
-        self._configuration = None
-        #: (:obj:`int`) timeout in ms
-        self._timeout = timeout
-        #: (:obj:`bool`) connection initiated  flag
-        self._initiated = False
+        BaseSource.__init__(self, timeout)
 
         #: (:class:`zmq.Context`) zmq context
         self.__context = zmq.Context()
@@ -664,13 +644,8 @@ class HiDRASource(BaseSource):
         :param timeout: timeout for setting connection in ms
         :type timeout: :obj:`int`
         """
-        #: (:obj:`str`) configuration string
-        self._configuration = None
-        #: (:obj:`int`) timeout in ms
-        self._timeout = timeout
-        #: (:obj:`bool`) connection initiated  flag
-        self._initiated = False
 
+        BaseSource.__init__(self, timeout)
         #: (:obj:`str`) hidra port number
         self.__portnumber = "50001"
         #: (:obj:`list` < :obj:`str`, :obj:`str`,
