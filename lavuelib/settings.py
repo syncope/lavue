@@ -49,6 +49,8 @@ class Settings(object):
         self.showhisto = True
         #: (:obj:`bool`) show mask widget
         self.showmask = False
+        #: (:obj:`bool`) show mask widget
+        self.showstats = True
         #: (:obj:`bool`) image aspect ratio locked
         self.aspectlocked = False
         #: (:obj:`str`) security stream port
@@ -107,6 +109,9 @@ class Settings(object):
         qstval = str(settings.value("Configuration/ShowMaskWidget").toString())
         if qstval.lower() == "true":
             self.showmask = True
+        qstval = str(settings.value("Configuration/ShowStatistics").toString())
+        if qstval.lower() == "false":
+            self.showstats = False
         qstval = str(settings.value("Configuration/AspectLocked").toString())
         if qstval.lower() == "true":
             self.aspectlocked = True
@@ -193,6 +198,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ShowMaskWidget",
             QtCore.QVariant(self.showmask))
+        settings.setValue(
+            "Configuration/ShowStatistics",
+            QtCore.QVariant(self.showstats))
         settings.setValue(
             "Configuration/RefreshRate",
             QtCore.QVariant(self.refreshrate))

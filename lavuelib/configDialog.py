@@ -67,6 +67,8 @@ class ConfigDialog(QtGui.QDialog):
         self.showhisto = True
         #: (:obj:`bool`) show mask widget
         self.showmask = False
+        #: (:obj:`bool`) show statistics widget
+        self.showstats = True
         #: (:obj:`int`) image source timeout in ms
         self.timeout = 3000
         #: (:obj:`bool`) aspect ratio locked
@@ -97,6 +99,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.secportLineEdit.setText(self.secport)
         self.__ui.showhistoCheckBox.setChecked(self.showhisto)
         self.__ui.showmaskCheckBox.setChecked(self.showmask)
+        self.__ui.showstatsCheckBox.setChecked(self.showstats)
         self.__ui.timeoutLineEdit.setText(str(self.timeout))
         self.__ui.zmqtopicsLineEdit.setText(" ".join(self.zmqtopics))
         self.__ui.autozmqtopicsCheckBox.setChecked(self.autozmqtopics)
@@ -132,6 +135,7 @@ class ConfigDialog(QtGui.QDialog):
         self.refreshrate = float(self.__ui.rateDoubleSpinBox.value())
         self.showhisto = self.__ui.showhistoCheckBox.isChecked()
         self.showmask = self.__ui.showmaskCheckBox.isChecked()
+        self.showstats = self.__ui.showstatsCheckBox.isChecked()
         self.aspectlocked = self.__ui.aspectlockedCheckBox.isChecked()
         self.statswoscaling = not self.__ui.statsscaleCheckBox.isChecked()
         zmqtopics = str(self.__ui.zmqtopicsLineEdit.text()).strip().split(" ")

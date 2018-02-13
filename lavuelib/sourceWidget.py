@@ -75,7 +75,8 @@ class BaseSourceWidget(QtGui.QWidget):
         #: (:obj:`str`) source name
         self.name = "Test"
         #: (:obj:`str`) datasource class name
-        self.datasource = "BaseSource"
+        # self.datasource = "BaseSource"
+        self.datasource = "FixTestSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = []
         #: (:obj:`list` <:class:`PyQt4.QtGui.QWidget`>) subwidget objects

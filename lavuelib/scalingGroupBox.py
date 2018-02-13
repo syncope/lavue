@@ -40,6 +40,8 @@ class ScalingGroupBox(QtGui.QGroupBox):
     """
     #: (:class:`PyQt4.QtCore.pyqtSignal`) scaling changed signal
     scalingChanged = QtCore.pyqtSignal(str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) simple scaling changed signal
+    simpleScalingChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         """ constructor
@@ -79,3 +81,4 @@ class ScalingGroupBox(QtGui.QGroupBox):
         else:
             self.__current = "sqrt"
         self.scalingChanged.emit(self.__current)
+        self.simpleScalingChanged.emit()

@@ -156,7 +156,58 @@ class BaseSource(object):
         except:
             pass
 
+class FixTestSource(BaseSource):
 
+    """ image source as Tango attributes describing
+        an image file name and its directory"""
+
+    def __init__(self, timeout=None):
+        """ constructor
+
+        :param timeout: timeout for setting connection in ms
+        :type timeout: :obj:`int`
+        """
+        BaseSource.__init__(self, timeout)
+        #: (:obj:`int`) internal counter
+        self.__counter = 0
+
+        #: ([:obj:`int`, :obj:`int`]) image shape
+        # self.__shape = [256, 512]
+        #self.__shape = [1024, 2048]
+        self.__shape = [2048, 4096]
+        
+        #: (:class:`numpy,ndarray`) index object
+        self.__image = np.transpose(
+            [
+                [random.randint(0, 1000) for _ in range(self.__shape[0])]
+                for _ in range(self.__shape[1])
+            ])
+        
+    def getData(self):
+        """ provides image name, image data and metadata
+
+        :returns:  image name, image data, json dictionary with metadata
+        :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
+        """
+        self.__counter += 1
+        return (self.__image,
+            '__random_%s__' % self.__counter, "")
+
+    def connect(self):
+        """ connects the source
+        """
+        self._initiated = True
+        self.__counter = 0
+        return True
+
+    def disconnect(self):
+        """ disconnects the source
+        """
+        try:
+            pass
+        except:
+            pass
+    
 class TangoFileSource(BaseSource):
 
     """ image source as Tango attributes describing

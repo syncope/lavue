@@ -249,6 +249,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         """ toggles server connection
         """
         # if it is connected then it's easy:
+        print("toggle")
         if self.__connected:
             self.sourceDisconnected.emit()
             self.__ui.cStatusLineEdit.setStyleSheet(

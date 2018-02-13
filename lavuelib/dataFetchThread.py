@@ -60,10 +60,12 @@ class ExchangeList(object):
         :param metadata: json dictionary with image metadata
         :type metadata: :obj:`str`
         """
+        # print("ADD START %s" % name)
         with QtCore.QMutexLocker(self.__mutex):
             self.__elist[0] = name
             self.__elist[1] = data
             self.__elist[2] = metadata
+        # print("ADD END")
 
     def readData(self):
         """ write data into exchange object
@@ -71,8 +73,10 @@ class ExchangeList(object):
         :returns: tuple of exchange object (name, data, metadata)
         :rtype: :obj:`list` <:obj:`str`, :class:`numpy.ndarray`, :obj:`str` >
         """
+        # print("READ START")
         with QtCore.QMutexLocker(self.__mutex):
             a, b, c = self.__elist[0], self.__elist[1], self.__elist[2]
+        print("READ end %s" % a)
         return a, b, c
 
 
@@ -94,17 +98,20 @@ class DataFetchThread(QtCore.QThread):
         self.__datasource = datasource
         self.__list = alist
         self.__isConnected = False
-        self.__loop = True
+        self.__loop = False
+        self.__stopped = False
+        self.__notwait = True
         #: (:class:`PyQt4.QtCore.QMutex`) zmq bind address
         self.__mutex = QtCore.QMutex()
 
     def run(self):
         """ runner of the fetching thread
         """
+        print("START THREAD")
+        self.__loop = True
         while self.__loop:
-            if time:
-                time.sleep(GLOBALREFRESHRATE)
-            if self.__isConnected:
+            time.sleep(GLOBALREFRESHRATE)
+            if self.__isConnected and not self.__stopped:
                 try:
                     with QtCore.QMutexLocker(self.__mutex):
                         img, name, metadata = self.__datasource.getData()
@@ -114,25 +121,41 @@ class DataFetchThread(QtCore.QThread):
                     metadata = ""
                 if name is not None:
                     self.__list.addData(name, img, metadata)
+                    print("NAME %s" % name)
                     self.newDataNameFetched.emit(name, metadata)
             else:
                 pass
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot(bool)
     def changeStatus(self, status):
         """ change connection status
 
         :param status: connection status
         :type status: :obj:`bool`
         """
+        print("STATUS %s" % status)
         self.__isConnected = status
 
     def setDataSource(self, datasource):
         with QtCore.QMutexLocker(self.__mutex):
             self.__datasource = datasource
 
+    def restart(self):
+        """ stop the thread
+        """
+        self.__stopped = False
+
     def stop(self):
         """ stop the thread
         """
-        self.__loop = False
+        print ("STOP THREAD")
+        self.__stopped = True
         self.__isConnected = False
+
+    def isRunning(self):
+        """ is datasource source connected
+
+        :returns: if datasource source connected
+        :rtype: :obj:`bool`
+        """
+        return self.__loop

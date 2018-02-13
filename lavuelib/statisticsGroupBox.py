@@ -68,3 +68,15 @@ class StatisticsGroupBox(QtGui.QGroupBox):
         self.__ui.meanLineEdit.setText(mean)
         self.__ui.maxLineEdit.setText(maximum)
         self.__ui.varianceLineEdit.setText(variance)
+
+    def changeView(self, showstats=False):
+        """ shows or hides the histogram widget
+
+        :param showhistogram: if histogram should be shown
+        :type showhistogram: :obj:`bool`
+        """
+        if showstats:
+            self.show()
+        else:
+            self.hide()
+

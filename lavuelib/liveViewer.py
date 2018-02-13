@@ -64,7 +64,7 @@ class LiveViewer(QtGui.QMainWindow):
 
     '''The master class for the dialog, contains all other
     widget and handles communication.'''
-    _stateUpdated = QtCore.pyqtSignal(int)
+    _stateUpdated = QtCore.pyqtSignal(bool)
 
     def __init__(self, umode=None, parent=None):
         QtGui.QDialog.__init__(self, parent)
@@ -154,6 +154,8 @@ class LiveViewer(QtGui.QMainWindow):
         self.__rawgreyimage = None
         #: (:obj:`str`) image name
         self.__imagename = None
+        #: (:obj:`str`) last image name
+        self.__lastimagename = None
         #: (:obj:`str`) metadata JSON dictionary
         self.__metadata = ""
         #: (:class:`numpy.ndarray`) displayed image after preparation
@@ -191,6 +193,12 @@ class LiveViewer(QtGui.QMainWindow):
         self.__ui.confVerticalLayout.addWidget(self.__levelswg)
         self.__ui.confVerticalLayout.addWidget(self.__statswg)
         self.__ui.imageVerticalLayout.addWidget(self.__imagewg)
+        spacer = QtGui.QSpacerItem(
+            0, 0,
+            QtGui.QSizePolicy.Minimum,
+            QtGui.QSizePolicy.Expanding
+        )
+        self.__ui.confVerticalLayout.addItem(spacer)
         self.__ui.splitter.setStretchFactor(0, 1)
         self.__ui.splitter.setStretchFactor(1, 10)
 
@@ -198,7 +206,7 @@ class LiveViewer(QtGui.QMainWindow):
 
         # signal from intensity scaling widget:
         # self.__scalingwg.scalingChanged.connect(self.scale)
-        self.__scalingwg.scalingChanged.connect(self._plot)
+        self.__scalingwg.simpleScalingChanged.connect(self._plot)
         self.__scalingwg.scalingChanged.connect(
             self.__levelswg.setScalingLabel)
 
@@ -207,7 +215,6 @@ class LiveViewer(QtGui.QMainWindow):
         self.__levelswg.maxLevelChanged.connect(self.__imagewg.setMaxLevel)
         self.__levelswg.autoLevelsChanged.connect(self.__imagewg.setAutoLevels)
         self.__levelswg.levelsChanged.connect(self._plot)
-        self.__levelswg.changeView(self.__settings.showhisto)
         self.__ui.cnfPushButton.clicked.connect(self._configuration)
         self.__ui.quitPushButton.clicked.connect(self.close)
         self.__ui.loadPushButton.clicked.connect(self._loadfile)
@@ -291,6 +298,7 @@ class LiveViewer(QtGui.QMainWindow):
             dirtrans=self.__settings.dirtrans,
             autozmqtopics=self.__settings.autozmqtopics)
 
+        self.__statswg.changeView(self.__settings.showstats)
         self.__levelswg.changeView(self.__settings.showhisto)
         self.__prepwg.changeView(self.__settings.showmask)
 
@@ -384,6 +392,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.addrois = self.__settings.addrois
         cnfdlg.showhisto = self.__settings.showhisto
         cnfdlg.showmask = self.__settings.showmask
+        cnfdlg.showstats = self.__settings.showstats
         cnfdlg.secautoport = self.__settings.secautoport
         cnfdlg.secport = self.__settings.secport
         cnfdlg.secstream = self.__settings.secstream
@@ -413,6 +422,9 @@ class LiveViewer(QtGui.QMainWindow):
         if self.__settings.showmask != dialog.showmask:
             self.__prepwg.changeView(dialog.showmask)
             self.__settings.showmask = dialog.showmask
+        if self.__settings.showstats != dialog.showstats:
+            self.__statswg.changeView(dialog.showstats)
+            self.__settings.showstats = dialog.showstats
         dataFetchThread.GLOBALREFRESHRATE = dialog.refreshrate
         self.__settings.refreshrate = dialog.refreshrate
         if self.__settings.secstream != dialog.secstream or (
@@ -503,13 +515,16 @@ class LiveViewer(QtGui.QMainWindow):
             if self.__sourceconfiguration:
                 self.__datasource.setConfiguration(self.__sourceconfiguration)
             self.__sourcewg.updateMetaData(**self.__datasource.getMetaData())
-        self._stateUpdated.emit(status)
+        self._stateUpdated.emit(bool(status))
 
-    @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot()
-    def _plot(self):
+    def _plot(self, onlynew=False):
         """ The main command of the live viewer class:
-        draw a numpy array with the given name."""
+        draw a numpy array with the given name.
+
+        :param onlynew: plot only new image
+        :type onlynew: :obj:`bool`
+        """
         # prepare or preprocess the raw image if present:
         self.__prepareImage()
 
@@ -546,17 +561,33 @@ class LiveViewer(QtGui.QMainWindow):
         :type secstream: :obj:`bool`
         """
         # calculate the stats for this
-        maxVal, meanVal, varVal, minVal, maxRawVal, maxSVal = \
-            self.__calcStats()
+
+        auto = self.__levelswg.isAutoLevel()
+        stream = secstream and self.__settings.secstream and \
+           self.__scaledimage is not None
+        display = self.__settings.showstats
+        maxval, meanval, varval, minval, maxrawval, maxsval = \
+            self.__calcStats(
+                (stream or display,
+                 stream or display,
+                 display,
+                 stream or auto,
+                 stream,
+                 auto))
+        smaxval = "%.4f" % maxval
+        smeanval = "%.4f" % meanval
+        svarval = "%.4f" % varval
+        sminval = "%.3f" % minval
+        smaxrawval = "%.4f" % maxrawval
+        smaxsval = "%.3f" % maxsval
         calctime = time.time()
         currentscaling = self.__scalingwg.currentScaling()
         # update the statistics display
-        if secstream and self.__settings.secstream and \
-           self.__scaledimage is not None:
+        if stream:
             messagedata = {
-                'command': 'alive', 'calctime': calctime, 'maxval': maxVal,
-                'maxrawval': maxRawVal,
-                'minval': minVal, 'meanval': meanVal, 'pid': self.__apppid,
+                'command': 'alive', 'calctime': calctime, 'maxval': smaxval,
+                'maxrawval': smaxrawval,
+                'minval': sminval, 'meanval': smeanval, 'pid': self.__apppid,
                 'scaling': (
                     'linear'
                     if self.__settings.statswoscaling
@@ -567,12 +598,12 @@ class LiveViewer(QtGui.QMainWindow):
             self.__settings.secsocket.send_string(str(message))
 
         self.__statswg.updateStatistics(
-            meanVal, maxVal, varVal,
+            smeanval, smaxval, svarval,
             'linear' if self.__settings.statswoscaling else currentscaling)
 
         # if needed, update the level display
-        if self.__levelswg.isAutoLevel():
-            self.__levelswg.updateLevels(float(minVal), float(maxSVal))
+        if auto:
+            self.__levelswg.updateLevels(minval, maxsval)
 
     @QtCore.pyqtSlot()
     def _startPlotting(self):
@@ -582,14 +613,22 @@ class LiveViewer(QtGui.QMainWindow):
         #
         if not self.__sourcewg.isConnected():
             return
-        self.__dataFetcher.start()
+        self.__dataFetcher.changeStatus(True)
+        print("START %s" % (not self.__dataFetcher.isRunning()))
+        if not self.__dataFetcher.isRunning():
+            self.__dataFetcher.start()
+        else:
+            self.__dataFetcher.restart()
 
     @QtCore.pyqtSlot()
     def _stopPlotting(self):
         """ mode changer: stop plotting mode
         """
-
+        
         if self.__dataFetcher is not None:
+            print("STOP PLOTTING")
+            # self.__dataFetcher.stop()
+            self.__dataFetcher.changeStatus(False)
             pass
 
     @QtCore.pyqtSlot()
@@ -648,21 +687,29 @@ class LiveViewer(QtGui.QMainWindow):
         :param metadata: JSON dictionary with metadata
         :type metadata: :obj:`str`
         """
+
+        name, rawimage, metadata = self.__exchangelist.readData()
+
+        print("GETNEWDATA %s %s %s %s" % (str(self.__imagename).strip() == str(name).strip(), bool(not metadata), str(self.__imagename).strip(), str(name).strip()))
+        if str(self.__imagename).strip() == str(name).strip() and not metadata:
+            return
+        self.__dataFetcher.changeStatus(False)
         if name == "__ERROR__":
             if self.__settings.interruptonerror:
                 if self.__sourcewg.isConnected():
                     self.__sourcewg.toggleServerConnection()
-                _, errortext, _ = self.__exchangelist.readData()
+                errortext = rawimage
                 messageBox.MessageBox.warning(
                     self, "lavue: Error in reading data",
                     "Viewing will be interrupted", str(errortext))
+            self.__dataFetcher.changeStatus(True)
             return
         if name is None:
+            self.__dataFetcher.changeStatus(True)
             return
         # first time:
         if str(self.__metadata) != str(metadata) and str(metadata).strip():
-            imagename, rawimage, self.__metadata = \
-                self.__exchangelist.readData()
+            imagename, self.__metadata = name, metadata
             if str(imagename).strip() and \
                not isinstance(rawimage, (str, unicode)):
                 self.__imagename = imagename
@@ -682,11 +729,12 @@ class LiveViewer(QtGui.QMainWindow):
                 print(str(e))
         elif str(name).strip():
             if self.__imagename is None or str(self.__imagename) != str(name):
-                self.__imagename, rawimage, self.__metadata \
-                    = self.__exchangelist.readData()
+                self.__imagename, self.__metadata \
+                    = name, metadata
                 if not isinstance(rawimage, (str, unicode)):
                     self.__rawimage = rawimage
-        self._plot()
+        self._plot(onlynew=True)
+        self.__dataFetcher.changeStatus(True)
 
     def __prepareImage(self):
         """applies: make image gray, substracke the background image and
@@ -808,42 +856,44 @@ class LiveViewer(QtGui.QMainWindow):
             self.__scaledimage = np.clip(self.__displayimage, 10e-3, np.inf)
             self.__scaledimage = np.log10(self.__scaledimage)
 
-    def __calcStats(self):
+    def __calcStats(self, flag):
         """ calcualtes scaled limits for intesity levels
 
+        :param flag: (max value, mean value, variance value,
+                  min scaled value, max raw value, max scaled value)
+                  to calculate
+        :type flag: [:obj:`bool`, :obj:`bool`, :obj:`bool`,
+                       :obj:`bool`, :obj:`bool`, :obj:`bool`]
         :returns: max value, mean value, variance value,
                   min scaled value, max raw value, max scaled value
         :rtype: [:obj:`str`, :obj:`str`, :obj:`str`, :obj:`str`,
                     :obj:`str`, :obj:`str`]
         """
         if self.__settings.statswoscaling and self.__displayimage is not None:
-            maxval = np.amax(self.__displayimage)
-            meanval = np.mean(self.__displayimage)
-            varval = np.var(self.__displayimage)
-            maxsval = np.amax(self.__scaledimage)
+            maxval = np.amax(self.__displayimage) if flag[0] else 0.0
+            meanval = np.mean(self.__displayimage) if flag[1] else 0.0
+            varval = np.var(self.__displayimage) if flag[2] else 0.0
+            maxsval = np.amax(self.__scaledimage) if flag[5] else 0.0
         elif (not self.__settings.statswoscaling
               and self.__scaledimage is not None):
-            maxval = np.amax(self.__scaledimage)
-            meanval = np.mean(self.__scaledimage)
-            varval = np.var(self.__scaledimage)
+            maxval = np.amax(self.__scaledimage) if flag[0] else 0.0
+            meanval = np.mean(self.__scaledimage) if flag[1] else 0.0
+            varval = np.var(self.__scaledimage) if flag[2] else 0.0
             maxsval = maxval
         else:
-            return "0.", "0.", "0.", "0.", "0.", "0."
-        maxrawval = np.amax(self.__rawgreyimage)
+            return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+        maxrawval = np.amax(self.__rawgreyimage) if flag[4] else 0.0
         # automatic maximum clipping to hardcoded value
         try:
-            checkval = meanval + 10 * np.sqrt(varval)
-            if maxval > checkval:
-                maxval = checkval
+            if flag[0] and flag[1] and flag[2]:
+                checkval = meanval + 10 * np.sqrt(varval)
+                if maxval > checkval:
+                    maxval = checkval
         except:
             print("Warning in calculating checkval from:"
                   " meanval = %s,  varval = %s" % (meanval, varval))
-        return (str("%.4f" % maxval),
-                str("%.4f" % meanval),
-                str("%.4f" % varval),
-                str("%.3f" % np.amin(self.__scaledimage)),
-                str("%.4f" % maxrawval),
-                str("%.3f" % maxsval))
+        minval = np.amin(self.__scaledimage) if flag[3] else 0.0
+        return (maxval, meanval, varval, minval, maxrawval,  maxsval)
 
     @QtCore.pyqtSlot(int)
     def _checkMasking(self, state):
