@@ -29,8 +29,10 @@
 import sys
 try:
     import PyTango
+    #: (:obj:`bool`) PyTango imported
     PYTANGO = True
 except ImportError:
+    #: (:obj:`bool`) PyTango imported
     PYTANGO = False
 
 from PyQt4 import QtCore, QtGui

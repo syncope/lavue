@@ -74,7 +74,8 @@ class LiveViewer(QtGui.QMainWindow):
         self.__sourcetypes = []
         if isr.HIDRA:
             self.__sourcetypes.append("HidraSourceWidget")
-        self.__sourcetypes.append("HTTPSourceWidget")
+        if isr.REQUESTS:
+            self.__sourcetypes.append("HTTPSourceWidget")
         if isr.PYTANGO:
             self.__sourcetypes.append("TangoAttrSourceWidget")
             self.__sourcetypes.append("TangoFileSourceWidget")
@@ -344,6 +345,9 @@ class LiveViewer(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot()
     def _loadfile(self):
+        """ loads the image file
+        """
+
         fileDialog = QtGui.QFileDialog()
         imagename = str(
             fileDialog.getOpenFileName(
@@ -370,6 +374,8 @@ class LiveViewer(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot()
     def _configuration(self):
+        """ launches the configuration dialog
+        """
         cnfdlg = configDialog.ConfigDialog(self)
         if not self.__settings.doorname and self.__sardana is not None:
             self.__settings.doorname = self.__sardana.getDeviceName("Door")
@@ -393,6 +399,8 @@ class LiveViewer(QtGui.QMainWindow):
             self.__updateConfig(cnfdlg)
 
     def __updateConfig(self, dialog):
+        """ updates the configuration
+        """
         self.__settings.doorname = dialog.door
         if dialog.sardana != (True if self.__sardana is not None else False):
             self.__setSardana(dialog.sardana)
@@ -460,10 +468,14 @@ class LiveViewer(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot(str)
     def _setSourceConfiguration(self, sourceConfiguration):
+        """ sets the source configuration
+        """
         self.__sourceconfiguration = sourceConfiguration
         self.__datasource.setConfiguration(self.__sourceconfiguration)
 
     def __setSardana(self, status):
+        """ sets the sardana utils
+        """
         if status is False:
             self.__sardana = None
         else:
@@ -480,6 +492,11 @@ class LiveViewer(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot(int)
     def _updateSource(self, status):
+        """ update tyhe current source
+
+        :param status: current source status id
+        :type status: :obj:`int`
+        """
         if status:
             self.__datasource.setTimeOut(self.__settings.timeout)
             self.__dataFetcher.setDataSource(self.__datasource)
@@ -518,9 +535,16 @@ class LiveViewer(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot()
     def _calcUpdateStatsSec(self):
+        """ calcuates statistics without  sending security stream
+        """
         self.__calcUpdateStats(secstream=False)
 
     def __calcUpdateStats(self, secstream=True):
+        """ calcuates statistics
+
+        :param secstream: send security stream flag
+        :type secstream: :obj:`bool`
+        """
         # calculate the stats for this
         maxVal, meanVal, varVal, minVal, maxRawVal, maxSVal = \
             self.__calcStats()
@@ -550,23 +574,28 @@ class LiveViewer(QtGui.QMainWindow):
         if self.__levelswg.isAutoLevel():
             self.__levelswg.updateLevels(float(minVal), float(maxSVal))
 
-    # mode changer: start plotting mode
     @QtCore.pyqtSlot()
     def _startPlotting(self):
-        # only start plotting if the connection is really established
+        """ mode changer: start plotting mode.
+        It starts plotting if the connection is really established.
+        """
+        #
         if not self.__sourcewg.isConnected():
             return
         self.__dataFetcher.start()
 
-    # mode changer: stop plotting mode
     @QtCore.pyqtSlot()
     def _stopPlotting(self):
+        """ mode changer: stop plotting mode
+        """
+
         if self.__dataFetcher is not None:
             pass
 
-    # call the connect function of the source interface
     @QtCore.pyqtSlot()
     def _connectSource(self):
+        """ calls the connect function of the source interface
+        """
         if self.__datasource is None:
             messageBox.MessageBox.warning(
                 self, "lavue: No data source is defined",
@@ -595,9 +624,10 @@ class LiveViewer(QtGui.QMainWindow):
                 topic, str(json.dumps(messagedata)).encode("ascii")))
         self.__updatehisto = True
 
-    # call the disconnect function of the hidra interface
     @QtCore.pyqtSlot()
     def _disconnectSource(self):
+        """ calls the disconnect function of the source interface
+        """
         self.__datasource.disconnect()
         if self.__settings.secstream:
             calctime = time.time()
@@ -611,7 +641,13 @@ class LiveViewer(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot(str, str)
     def _getNewData(self, name, metadata=None):
-        # check if data is there at all
+        """ checks if data is there at all
+
+        :param name: image name
+        :type name: :obj:`str`
+        :param metadata: JSON dictionary with metadata
+        :type metadata: :obj:`str`
+        """
         if name == "__ERROR__":
             if self.__settings.interruptonerror:
                 if self.__sourcewg.isConnected():
@@ -653,6 +689,9 @@ class LiveViewer(QtGui.QMainWindow):
         self._plot()
 
     def __prepareImage(self):
+        """applies: make image gray, substracke the background image and
+           apply the mask
+        """
         if self.__rawimage is None:
             return
 
@@ -726,7 +765,8 @@ class LiveViewer(QtGui.QMainWindow):
                     text, str(value))
 
     def __transform(self):
-        '''Do the image transformation on the given numpy array.'''
+        """ does the image transformation on the given numpy array.
+        """
         if self.__displayimage is None or self.__trafoname is "none":
             return
 
@@ -752,6 +792,11 @@ class LiveViewer(QtGui.QMainWindow):
                 np.fliplr(np.flipud(self.__displayimage)))
 
     def __scale(self, scalingtype):
+        """ sets scaletype on the image
+
+        :param scalingtype: scaling type
+        :type scalingtype: :obj:`str`
+        """
         self.__scaledimage = self.__displayimage
         self.__imagewg.setScalingType(scalingtype)
         if self.__displayimage is None:
@@ -764,6 +809,13 @@ class LiveViewer(QtGui.QMainWindow):
             self.__scaledimage = np.log10(self.__scaledimage)
 
     def __calcStats(self):
+        """ calcualtes scaled limits for intesity levels
+
+        :returns: max value, mean value, variance value,
+                  min scaled value, max raw value, max scaled value
+        :rtype: [:obj:`str`, :obj:`str`, :obj:`str`, :obj:`str`,
+                    :obj:`str`, :obj:`str`]
+        """
         if self.__settings.statswoscaling and self.__displayimage is not None:
             maxval = np.amax(self.__displayimage)
             meanval = np.mean(self.__displayimage)
@@ -795,6 +847,8 @@ class LiveViewer(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot(int)
     def _checkMasking(self, state):
+        """ replots the image with mask if mask exists
+        """
         self.__applymask = state
         if self.__applymask and self.__maskimage is None:
             self.__maskwg.noImage()
@@ -802,8 +856,8 @@ class LiveViewer(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot(str)
     def _prepareMasking(self, imagename):
-        '''Get the mask image, select non-zero elements
-        and store the indices.'''
+        """ reads the mask image, select non-zero elements and store the indices
+        """
         if imagename:
             self.__maskimage = np.transpose(
                 imageFileHandler.ImageFileHandler(
@@ -815,6 +869,8 @@ class LiveViewer(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot(int)
     def _checkBkgSubtraction(self, state):
+        """ replots the image with subtranction if background image exists
+        """
         self.__dobkgsubtraction = state
         if self.__dobkgsubtraction and self.__backgroundimage is None:
             self.__bkgSubwg.setDisplayedName("")
@@ -825,12 +881,16 @@ class LiveViewer(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot(str)
     def _prepareBkgSubtraction(self, imagename):
+        """ reads the background image
+        """
         self.__backgroundimage = np.transpose(
             imageFileHandler.ImageFileHandler(
                 str(imagename)).getImage())
 
     @QtCore.pyqtSlot()
     def _setCurrentImageAsBkg(self):
+        """ sets the chrrent image as the background image
+        """
         if self.__rawgreyimage is not None:
             self.__backgroundimage = self.__rawgreyimage
             self.__bkgSubwg.setDisplayedName(str(self.__imagename))
@@ -839,5 +899,7 @@ class LiveViewer(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot(str)
     def _assessTransformation(self, trafoname):
+        """ assesses the transformation and replot it
+        """
         self.__trafoname = trafoname
         self._plot()

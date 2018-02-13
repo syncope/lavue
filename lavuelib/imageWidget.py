@@ -289,8 +289,10 @@ class ImageWidget(QtGui.QWidget):
             self.__ui.infoLineEdit.show()
         if parameters.cutplot is True:
             self.__cutPlot.show()
+            self.__ui.oneDWidget.show()
         elif parameters.cutplot is False:
             self.__cutPlot.hide()
+            self.__ui.oneDWidget.hide()
 
     def plot(self, array, rawarray=None):
         """ plots the image

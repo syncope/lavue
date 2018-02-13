@@ -27,9 +27,16 @@
 """ set of image sources """
 
 from PyQt4 import QtCore
-import requests
 import json
 import struct
+
+try:
+    import requests
+    #: (:obj:`bool`) requests imported
+    REQUESTS = True
+except ImportError:
+    #: (:obj:`bool`) requests imported
+    REQUESTS = False
 
 try:
     import hidra

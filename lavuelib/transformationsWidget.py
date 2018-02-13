@@ -35,7 +35,6 @@ _formclass, _baseclass = uic.loadUiType(
 
 
 class TransformationsWidget(QtGui.QWidget):
-    # still pending implemntation -> needs scipy, probably
     """
     Select how an image should be transformed.
     """

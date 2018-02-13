@@ -167,9 +167,8 @@ class ROIToolWidget(ToolWidget):
         self.parameters.infolabel = "[x1, y1, x2, y2], sum: "
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
-        self.__ui.labelROILineEdit.textEdited.connect(self.updateROIButton)
-        self.__ui.applyROIPushButton.clicked.connect(self._onApplyROI)
-        self.__ui.fetchROIPushButton.clicked.connect(self._onFetchROI)
+        self.__ui.applyROIPushButton.clicked.connect(self._emitApplyROIPressed)
+        self.__ui.fetchROIPushButton.clicked.connect(self._emitFetchROIPressed)
 
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
@@ -178,7 +177,7 @@ class ROIToolWidget(ToolWidget):
             [self.fetchROIPressed, "fetchROIs"],
             [self.roiInfoChanged, "updateDisplayedText"],
             [self.__ui.roiSpinBox.valueChanged, "updateROIs"],
-            ["roiLineEditChanged", self.updateApplyButton],
+            ["roiLineEditChanged", self._updateApplyButton],
             ["roiAliasesChanged", self.updateROILineEdit],
             ["roiValueChanged", self.updateROIDisplayText],
             ["roiNumberChanged", self.setROIsNumber],
@@ -186,18 +185,22 @@ class ROIToolWidget(ToolWidget):
         ]
 
     @QtCore.pyqtSlot()
-    def _onApplyROI(self):
+    def _emitApplyROIPressed(self):
+        """ emits applyROIPressed signal"""
+
         text = str(self.__ui.labelROILineEdit.text())
         roispin = int(self.__ui.roiSpinBox.value())
         self.applyROIPressed.emit(text, roispin)
 
     @QtCore.pyqtSlot()
-    def _onFetchROI(self):
+    def _emitFetchROIPressed(self):
+        """ emits fetchROIPressed signal"""
         text = str(self.__ui.labelROILineEdit.text())
         self.fetchROIPressed.emit(text)
 
     @QtCore.pyqtSlot()
-    def updateApplyButton(self):
+    def _updateApplyButton(self):
+        """ updates applied button"""
         if not str(self.__ui.labelROILineEdit.text()).strip():
             self.__ui.applyROIPushButton.setEnabled(False)
         else:
@@ -205,15 +208,30 @@ class ROIToolWidget(ToolWidget):
 
     @QtCore.pyqtSlot(str)
     def updateROILineEdit(self, text):
+        """ updates ROI line edit text
+
+        :param text: text to update
+        :type text: :obj:`str`
+        """
         self.__ui.labelROILineEdit.setText(text)
 
     @QtCore.pyqtSlot(bool)
     def updateROIButton(self, enabled):
+        """ enables/disables ROI buttons
+
+        :param enable: buttons enabled
+        :type enable: :obj:`bool`
+        """
         self.__ui.applyROIPushButton.setEnabled(enabled)
         self.__ui.fetchROIPushButton.setEnabled(enabled)
 
     @QtCore.pyqtSlot(int)
     def updateApplyTips(self, rid):
+        """ updates apply tips
+
+        :param rid: current roi id
+        :type rid: :obj:`int`
+        """
         if rid < 0:
             self.__ui.applyROIPushButton.setToolTip(
                 "remove ROI aliases from the Door environment"
@@ -225,6 +243,15 @@ class ROIToolWidget(ToolWidget):
 
     @QtCore.pyqtSlot(str, int, str)
     def updateROIDisplayText(self, text, currentroi, roiVal):
+        """ updates ROI display text
+
+        :param text: standard display text
+        :type text: :obj:`str`
+        :param currentroi: current roi label
+        :type currentroi: :obj:`str`
+        :param text: roi sum value
+        :type text: :obj:`str`
+        """
 
         roilabel = "roi [%s]" % (currentroi + 1)
         slabel = []
@@ -243,6 +270,11 @@ class ROIToolWidget(ToolWidget):
 
     @QtCore.pyqtSlot(int)
     def setROIsNumber(self, rid):
+        """sets a number of rois
+
+        :param rid: number of rois
+        :type rid: :obj:`int`
+        """
         self.__ui.roiSpinBox.setValue(rid)
 
 
@@ -280,6 +312,11 @@ class LineCutToolWidget(ToolWidget):
 
     @QtCore.pyqtSlot(int)
     def _setCutsNumber(self, cid):
+        """sets a number of cuts
+
+        :param cid: number of cuts
+        :type cid: :obj:`int`
+        """
         self.__ui.cutSpinBox.setValue(cid)
 
 
@@ -317,6 +354,11 @@ class AngleQToolWidget(ToolWidget):
 
     @QtCore.pyqtSlot(str)
     def updateTips(self, message):
+        """ updates tips
+
+        :param message: message to add
+        :type message: :obj:`str`
+        """
         self.__ui.angleqPushButton.setToolTip(
             "Input physical parameters\n%s" % message)
         self.__ui.angleqComboBox.setToolTip(
