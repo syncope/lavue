@@ -19,8 +19,8 @@
 # Boston, MA  02110-1301, USA.
 #
 # Authors:
-#     Christoph Rosemann <christoph.rosemann@desy.de>
 #     Jan Kotanski <jan.kotanski@desy.de>
+#     Christoph Rosemann <christoph.rosemann@desy.de>
 #
 
 """ image widget """
