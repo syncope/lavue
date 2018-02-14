@@ -225,9 +225,9 @@ class LiveViewer(QtGui.QMainWindow):
             self._onToolChanged)
         # connecting signals from source widget:
         self.__sourcewg.sourceConnected.connect(self._connectSource)
-        self.__sourcewg.sourceConnected.connect(self._startPlotting)
+#        self.__sourcewg.sourceConnected.connect(self._startPlotting)
 
-        self.__sourcewg.sourceDisconnected.connect(self._stopPlotting)
+#        self.__sourcewg.sourceDisconnected.connect(self._stopPlotting)
         self.__sourcewg.sourceDisconnected.connect(self._disconnectSource)
 
         # gradient selector
@@ -518,12 +518,9 @@ class LiveViewer(QtGui.QMainWindow):
         self._stateUpdated.emit(bool(status))
 
     @QtCore.pyqtSlot()
-    def _plot(self, onlynew=False):
+    def _plot(self):
         """ The main command of the live viewer class:
         draw a numpy array with the given name.
-
-        :param onlynew: plot only new image
-        :type onlynew: :obj:`bool`
         """
         # prepare or preprocess the raw image if present:
         self.__prepareImage()
@@ -617,8 +614,6 @@ class LiveViewer(QtGui.QMainWindow):
         print("START %s" % (not self.__dataFetcher.isRunning()))
         if not self.__dataFetcher.isRunning():
             self.__dataFetcher.start()
-        else:
-            self.__dataFetcher.restart()
 
     @QtCore.pyqtSlot()
     def _stopPlotting(self):
@@ -662,11 +657,13 @@ class LiveViewer(QtGui.QMainWindow):
             self.__settings.secsocket.send_string("%d %s" % (
                 topic, str(json.dumps(messagedata)).encode("ascii")))
         self.__updatehisto = True
+        self._startPlotting()
 
     @QtCore.pyqtSlot()
     def _disconnectSource(self):
         """ calls the disconnect function of the source interface
         """
+        self._stopPlotting()
         self.__datasource.disconnect()
         if self.__settings.secstream:
             calctime = time.time()
@@ -693,7 +690,6 @@ class LiveViewer(QtGui.QMainWindow):
         print("GETNEWDATA %s %s %s %s" % (str(self.__imagename).strip() == str(name).strip(), bool(not metadata), str(self.__imagename).strip(), str(name).strip()))
         if str(self.__imagename).strip() == str(name).strip() and not metadata:
             return
-        self.__dataFetcher.changeStatus(False)
         if name == "__ERROR__":
             if self.__settings.interruptonerror:
                 if self.__sourcewg.isConnected():
@@ -702,10 +698,10 @@ class LiveViewer(QtGui.QMainWindow):
                 messageBox.MessageBox.warning(
                     self, "lavue: Error in reading data",
                     "Viewing will be interrupted", str(errortext))
-            self.__dataFetcher.changeStatus(True)
+            self.__dataFetcher.ready()
             return
         if name is None:
-            self.__dataFetcher.changeStatus(True)
+            self.__dataFetcher.ready()
             return
         # first time:
         if str(self.__metadata) != str(metadata) and str(metadata).strip():
@@ -733,8 +729,8 @@ class LiveViewer(QtGui.QMainWindow):
                     = name, metadata
                 if not isinstance(rawimage, (str, unicode)):
                     self.__rawimage = rawimage
-        self._plot(onlynew=True)
-        self.__dataFetcher.changeStatus(True)
+        self._plot()
+        self.__dataFetcher.ready()
 
     def __prepareImage(self):
         """applies: make image gray, substracke the background image and

@@ -251,6 +251,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         # if it is connected then it's easy:
         print("toggle")
         if self.__connected:
+            print("STOP SOURCE")
             self.sourceDisconnected.emit()
             self.__ui.cStatusLineEdit.setStyleSheet(
                 "color: yellow;"

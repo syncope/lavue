@@ -99,7 +99,7 @@ class DataFetchThread(QtCore.QThread):
         self.__list = alist
         self.__isConnected = False
         self.__loop = False
-        self.__stopped = False
+        self.__ready = True
         self.__notwait = True
         #: (:class:`PyQt4.QtCore.QMutex`) zmq bind address
         self.__mutex = QtCore.QMutex()
@@ -111,7 +111,7 @@ class DataFetchThread(QtCore.QThread):
         self.__loop = True
         while self.__loop:
             time.sleep(GLOBALREFRESHRATE)
-            if self.__isConnected and not self.__stopped:
+            if self.__isConnected and self.__ready:
                 try:
                     with QtCore.QMutexLocker(self.__mutex):
                         img, name, metadata = self.__datasource.getData()
@@ -122,6 +122,7 @@ class DataFetchThread(QtCore.QThread):
                 if name is not None:
                     self.__list.addData(name, img, metadata)
                     print("NAME %s" % name)
+                    self.__ready = False
                     self.newDataNameFetched.emit(name, metadata)
             else:
                 pass
@@ -140,16 +141,16 @@ class DataFetchThread(QtCore.QThread):
         with QtCore.QMutexLocker(self.__mutex):
             self.__datasource = datasource
 
-    def restart(self):
+    def ready(self):
         """ stop the thread
         """
-        self.__stopped = False
+        print ("READY T")
+        self.__ready = True
 
     def stop(self):
         """ stop the thread
         """
         print ("STOP THREAD")
-        self.__stopped = True
         self.__isConnected = False
 
     def isRunning(self):
