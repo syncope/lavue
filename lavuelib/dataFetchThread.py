@@ -134,7 +134,7 @@ class DataFetchThread(QtCore.QThread):
         :param status: connection status
         :type status: :obj:`bool`
         """
-        print("STATUS %s" % status)
+        # print("STATUS %s" % status)
         self.__isConnected = status
 
     def setDataSource(self, datasource):
@@ -144,13 +144,13 @@ class DataFetchThread(QtCore.QThread):
     def ready(self):
         """ stop the thread
         """
-        print ("READY T")
+        # print ("READY T")
         self.__ready = True
 
     def stop(self):
         """ stop the thread
         """
-        print ("STOP THREAD")
+        # print ("STOP THREAD")
         self.__isConnected = False
 
     def isRunning(self):
