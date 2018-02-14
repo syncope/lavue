@@ -859,9 +859,8 @@ class LiveViewer(QtGui.QMainWindow):
         elif scalingtype == "log":
             self.__scaledimage = np.clip(self.__displayimage, 10e-3, np.inf)
             self.__scaledimage = np.log10(self.__scaledimage)
-        elif _VMAJOR == '0' and \
-           (int(_VMINOR) > 9 or (_VMINOR  == '9' and int(_VPATCH) > 7)):
-            # (for 0.9.8 <= version  < 1.0.0) 
+        elif _VMAJOR == '0' and _VMINOR  == '9' and int(_VPATCH) > 7:
+            # (for 0.9.8 <= version  < 0.10.0)
             self.__scaledimage = self.__displayimage.astype("float")
             print("CASE")
         else:
