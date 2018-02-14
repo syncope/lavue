@@ -81,7 +81,7 @@ class LiveViewer(QtGui.QMainWindow):
             self.__sourcetypes.append("TangoFileSourceWidget")
         self.__sourcetypes.append("ZMQSourceWidget")
         self.__sourcetypes.append("TestSourceWidget")
-        self.__sourcetypes.append("FixTestSourceWidget")
+        # self.__sourcetypes.append("FixTestSourceWidget")
 
         #: (:obj:`list` < :obj:`str` > ) tool class names
         self.__tooltypes = []

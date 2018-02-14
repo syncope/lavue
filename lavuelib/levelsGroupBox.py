@@ -86,9 +86,18 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self.__ui.maxDoubleSpinBox.setMaximum(10e20)
 
         #: (:class: `lavuelib.histogramWidget.HistogramHLUTWidget`)
-        #  intensity histogram widget
-        self.__histogram = HistogramHLUTWidget()
-        self.__ui.histogramLayout.addWidget(self.__histogram)
+        #:      intensity histogram widget
+        self.__histogram = None
+
+        #: (:obj:`str`) gradient name of the histogram
+        self.__histogradient = None
+
+        #: (:obj:`str`) auto levels of the histogram
+        self.__histoauto = None
+
+        #: (:class:`pyqtgraph.graphicsItems.ImageItem.ImageItem`)
+        #:      image item of the histogram
+        self.__histoimage = None
 
         self.__ui.gradientComboBox.currentIndexChanged.connect(
             self._updateGradient)
@@ -98,10 +107,33 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self.__hideControls()
         self.__ui.autoLevelsCheckBox.stateChanged.connect(
             self._onAutoLevelsChanged)
-        self.__histogram.item.sigLevelsChanged.connect(self._onLevelsChanged)
+        self.__createHistogram()
         self.updateLevels(self.__minval, self.__maxval)
         self.__connectMinMax()
+
+    def __createHistogram(self):
+        """ create histogram object and connect its signals
+        """
+        self.__histogram = HistogramHLUTWidget()
+        self.__ui.histogramLayout.addWidget(self.__histogram)
+        if self.__histogradient is not None:
+            self.__histogram.setGradientByName(self.__histogradient)
+        if self.__histoimage is not None:
+            self.__histogram.setImageItem(self.__histoimage)
+        if self.__histoauto is not None:
+            self.__histogram.imageChanged(autoLevel=self.__histoauto)
+        self.__histogram.item.sigLevelsChanged.connect(self._onLevelsChanged)
         self.__histogram.gradient.sigNameChanged.connect(self._changeGradient)
+
+    def __removeHistogram(self):
+        """ remove histogram object and disconnect its signals
+        """
+        self.__histogram.item.sigLevelsChanged.disconnect(
+            self._onLevelsChanged)
+        self.__histogram.gradient.sigNameChanged.disconnect(
+            self._changeGradient)
+        self.__ui.histogramLayout.removeWidget(self.__histogram)
+        self.__histogram = None
 
     def __connectMinMax(self):
         """ connects mix/max spinboxes
@@ -138,14 +170,16 @@ class LevelsGroupBox(QtGui.QGroupBox):
         :param showhistogram: if histogram should be shown
         :type showhistogram: :obj:`bool`
         """
-        if showhistogram:
+        if showhistogram and self.__histo is False:
             self.__histo = True
+            self.__createHistogram()
             self.__histogram.show()
             self.__histogram.fillHistogram(True)
-        else:
+        elif not showhistogram and self.__histo is True:
             self.__histo = False
             self.__histogram.hide()
             self.__histogram.fillHistogram(False)
+            self.__removeHistogram()
 
     def isAutoLevel(self):
         """ returns if automatics levels are enabled
@@ -340,8 +374,9 @@ class LevelsGroupBox(QtGui.QGroupBox):
         :param index: gradient index
         :type index: :obj:`int`
         """
-        self.__histogram.setGradientByName(
-            self.__ui.gradientComboBox.itemText(index))
+        self.__histogradient = str(self.__ui.gradientComboBox.itemText(index))
+        if self.__histo:
+            self.__histogram.setGradientByName(self.__histogradient)
 
     @QtCore.pyqtSlot(str)
     def _changeGradient(self, name):
@@ -364,8 +399,9 @@ class LevelsGroupBox(QtGui.QGroupBox):
         :param autoLevel: if automatics levels to be set
         :type autoLevel: :obj:`bool`
         """
-        auto = autoLevel if autoLevel is not None else self.__auto
-        self.__histogram.imageChanged(autoLevel=auto)
+        self.__histoauto = autoLevel if autoLevel is not None else self.__auto
+        if self.__histo:
+            self.__histogram.imageChanged(autoLevel=self.__histoauto)
 
     def setImageItem(self, image):
         """ sets histogram image
@@ -373,4 +409,6 @@ class LevelsGroupBox(QtGui.QGroupBox):
         :param image: histogram image
         :type image: :class:`pyqtgraph.graphicsItems.ImageItem.ImageItem`
         """
-        self.__histogram.setImageItem(image)
+        self.__histoimage = image
+        if self.__histo:
+            self.__histogram.setImageItem(image)

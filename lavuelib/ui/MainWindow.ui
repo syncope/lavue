@@ -34,16 +34,7 @@
        <layout class="QVBoxLayout" name="imageVerticalLayout">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout">
-          <property name="leftMargin">
-           <number>9</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>9</number>
-          </property>
-          <property name="bottomMargin">
+          <property name="margin">
            <number>0</number>
           </property>
           <item>
