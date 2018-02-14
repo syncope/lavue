@@ -611,7 +611,7 @@ class LiveViewer(QtGui.QMainWindow):
         if not self.__sourcewg.isConnected():
             return
         self.__dataFetcher.changeStatus(True)
-        print("START %s" % (not self.__dataFetcher.isRunning()))
+        # print("START %s" % (not self.__dataFetcher.isRunning()))
         if not self.__dataFetcher.isRunning():
             self.__dataFetcher.start()
 
@@ -621,15 +621,19 @@ class LiveViewer(QtGui.QMainWindow):
         """
         
         if self.__dataFetcher is not None:
-            print("STOP PLOTTING")
+            # print("STOP PLOTTING")
             # self.__dataFetcher.stop()
             self.__dataFetcher.changeStatus(False)
             pass
 
-    @QtCore.pyqtSlot()
-    def _connectSource(self):
-        """ calls the connect function of the source interface
+    @QtCore.pyqtSlot(int)
+    def _connectSource(self, status):
+        """  calls the connect function of the source interface
+
+        :param status: current source status id
+        :type status: :obj:`int`
         """
+        self._updateSource(status)
         if self.__datasource is None:
             messageBox.MessageBox.warning(
                 self, "lavue: No data source is defined",
@@ -673,6 +677,7 @@ class LiveViewer(QtGui.QMainWindow):
             topic = 10001
             self.__settings.secsocket.send_string("%d %s" % (
                 topic, str(json.dumps(messagedata)).encode("ascii")))
+        self._updateSource(0)
         # self.__datasource = None
 
     @QtCore.pyqtSlot(str, str)
@@ -687,7 +692,7 @@ class LiveViewer(QtGui.QMainWindow):
 
         name, rawimage, metadata = self.__exchangelist.readData()
 
-        print("GETNEWDATA %s %s %s %s" % (str(self.__imagename).strip() == str(name).strip(), bool(not metadata), str(self.__imagename).strip(), str(name).strip()))
+        # print("GETNEWDATA %s %s %s %s" % (str(self.__imagename).strip() == str(name).strip(), bool(not metadata), str(self.__imagename).strip(), str(name).strip()))
         if str(self.__imagename).strip() == str(name).strip() and not metadata:
             return
         if name == "__ERROR__":

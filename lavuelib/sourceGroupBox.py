@@ -42,7 +42,7 @@ class SourceGroupBox(QtGui.QGroupBox):
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source disconnected signal
     sourceDisconnected = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source connected signal
-    sourceConnected = QtCore.pyqtSignal()
+    sourceConnected = QtCore.pyqtSignal(int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source state signal
     sourceStateChanged = QtCore.pyqtSignal(int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source state signal
@@ -209,8 +209,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         """
         if status == -1:
             status = self.__ui.sourceTypeComboBox.currentIndex() + 1
-            self.sourceStateChanged.emit(status)
-            self.sourceConnected.emit()
+            self.sourceConnected.emit(status)
         else:
             self.sourceStateChanged.emit(status)
 
@@ -249,17 +248,17 @@ class SourceGroupBox(QtGui.QGroupBox):
         """ toggles server connection
         """
         # if it is connected then it's easy:
-        print("toggle")
+        # print("toggle")
         if self.__connected:
-            print("STOP SOURCE")
-            self.sourceDisconnected.emit()
+            # print("STOP SOURCE")
             self.__ui.cStatusLineEdit.setStyleSheet(
                 "color: yellow;"
                 "background-color: red;")
             self.__ui.cStatusLineEdit.setText("Disconnected")
             self.__ui.pushButton.setText("&Start")
             self.__connected = False
-            self.sourceStateChanged.emit(0)
+            self.sourceDisconnected.emit()
+            # self.sourceStateChanged.emit(0)
 
             self.__ui.sourceTypeComboBox.setEnabled(True)
             if self.__currentSource is not None:
@@ -270,9 +269,10 @@ class SourceGroupBox(QtGui.QGroupBox):
             if self.__currentSource is not None:
                 self.__currentSource.connectWidget()
 
-            self.sourceStateChanged.emit(
+            #self.sourceStateChanged.emit(
+            #    self.__ui.sourceTypeComboBox.currentIndex() + 1)
+            self.sourceConnected.emit(
                 self.__ui.sourceTypeComboBox.currentIndex() + 1)
-            self.sourceConnected.emit()
 
     def connectSuccess(self, port=None):
         """ set connection status on and display connection status

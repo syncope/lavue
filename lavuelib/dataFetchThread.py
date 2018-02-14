@@ -76,7 +76,7 @@ class ExchangeList(object):
         # print("READ START")
         with QtCore.QMutexLocker(self.__mutex):
             a, b, c = self.__elist[0], self.__elist[1], self.__elist[2]
-        print("READ end %s" % a)
+        # print("READ end %s" % a)
         return a, b, c
 
 
@@ -107,7 +107,7 @@ class DataFetchThread(QtCore.QThread):
     def run(self):
         """ runner of the fetching thread
         """
-        print("START THREAD")
+        # print("START THREAD")
         self.__loop = True
         while self.__loop:
             time.sleep(GLOBALREFRESHRATE)
@@ -121,7 +121,7 @@ class DataFetchThread(QtCore.QThread):
                     metadata = ""
                 if name is not None:
                     self.__list.addData(name, img, metadata)
-                    print("NAME %s" % name)
+                    # print("NAME %s" % name)
                     self.__ready = False
                     self.newDataNameFetched.emit(name, metadata)
             else:
