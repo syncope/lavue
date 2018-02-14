@@ -75,8 +75,7 @@ class BaseSourceWidget(QtGui.QWidget):
         #: (:obj:`str`) source name
         self.name = "Test"
         #: (:obj:`str`) datasource class name
-        # self.datasource = "BaseSource"
-        self.datasource = "FixTestSource"
+        self.datasource = "BaseSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = []
         #: (:obj:`list` <:class:`PyQt4.QtGui.QWidget`>) subwidget objects
@@ -139,6 +138,28 @@ class TestSourceWidget(BaseSourceWidget):
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
+
+        self._ui = _testformclass()
+        self._ui.setupUi(self)
+
+        self._detachWidgets()
+
+
+class FixTestSourceWidget(BaseSourceWidget):
+
+    """ test source widget """
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
+        BaseSourceWidget.__init__(self, parent)
+        #: (:obj:`str`) source name
+        self.name = "Fix Test"
+        #: (:obj:`str`) datasource class name
+        self.datasource = "FixTestSource"
 
         self._ui = _testformclass()
         self._ui.setupUi(self)
