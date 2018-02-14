@@ -79,4 +79,3 @@ class StatisticsGroupBox(QtGui.QGroupBox):
             self.show()
         else:
             self.hide()
-

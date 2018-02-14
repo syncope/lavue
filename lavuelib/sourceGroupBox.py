@@ -248,9 +248,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         """ toggles server connection
         """
         # if it is connected then it's easy:
-        # print("toggle")
         if self.__connected:
-            # print("STOP SOURCE")
             self.__ui.cStatusLineEdit.setStyleSheet(
                 "color: yellow;"
                 "background-color: red;")
@@ -258,7 +256,6 @@ class SourceGroupBox(QtGui.QGroupBox):
             self.__ui.pushButton.setText("&Start")
             self.__connected = False
             self.sourceDisconnected.emit()
-            # self.sourceStateChanged.emit(0)
 
             self.__ui.sourceTypeComboBox.setEnabled(True)
             if self.__currentSource is not None:
@@ -269,8 +266,6 @@ class SourceGroupBox(QtGui.QGroupBox):
             if self.__currentSource is not None:
                 self.__currentSource.connectWidget()
 
-            #self.sourceStateChanged.emit(
-            #    self.__ui.sourceTypeComboBox.currentIndex() + 1)
             self.sourceConnected.emit(
                 self.__ui.sourceTypeComboBox.currentIndex() + 1)
 

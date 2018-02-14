@@ -541,7 +541,7 @@ class LiveViewer(QtGui.QMainWindow):
             self.__scaledimage,
             self.__displayimage
             if self.__settings.statswoscaling else self.__scaledimage)
-        if self.__updatehisto:
+        if self.__settings.showhisto and self.__updatehisto:
             self.__levelswg.updateHistoImage()
             self.__updatehisto = False
 
@@ -561,7 +561,7 @@ class LiveViewer(QtGui.QMainWindow):
 
         auto = self.__levelswg.isAutoLevel()
         stream = secstream and self.__settings.secstream and \
-           self.__scaledimage is not None
+            self.__scaledimage is not None
         display = self.__settings.showstats
         maxval, meanval, varval, minval, maxrawval, maxsval = \
             self.__calcStats(
@@ -570,13 +570,13 @@ class LiveViewer(QtGui.QMainWindow):
                  display,
                  stream or auto,
                  stream,
-                 auto))
+                 auto)
+            )
         smaxval = "%.4f" % maxval
         smeanval = "%.4f" % meanval
         svarval = "%.4f" % varval
         sminval = "%.3f" % minval
         smaxrawval = "%.4f" % maxrawval
-        smaxsval = "%.3f" % maxsval
         calctime = time.time()
         currentscaling = self.__scalingwg.currentScaling()
         # update the statistics display
@@ -611,7 +611,6 @@ class LiveViewer(QtGui.QMainWindow):
         if not self.__sourcewg.isConnected():
             return
         self.__dataFetcher.changeStatus(True)
-        # print("START %s" % (not self.__dataFetcher.isRunning()))
         if not self.__dataFetcher.isRunning():
             self.__dataFetcher.start()
 
@@ -619,9 +618,8 @@ class LiveViewer(QtGui.QMainWindow):
     def _stopPlotting(self):
         """ mode changer: stop plotting mode
         """
-        
+
         if self.__dataFetcher is not None:
-            # print("STOP PLOTTING")
             # self.__dataFetcher.stop()
             self.__dataFetcher.changeStatus(False)
             pass
@@ -692,7 +690,6 @@ class LiveViewer(QtGui.QMainWindow):
 
         name, rawimage, metadata = self.__exchangelist.readData()
 
-        # print("GETNEWDATA %s %s %s %s" % (str(self.__imagename).strip() == str(name).strip(), bool(not metadata), str(self.__imagename).strip(), str(name).strip()))
         if str(self.__imagename).strip() == str(name).strip() and not metadata:
             return
         if name == "__ERROR__":

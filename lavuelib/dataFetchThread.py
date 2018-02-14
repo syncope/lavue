@@ -60,12 +60,10 @@ class ExchangeList(object):
         :param metadata: json dictionary with image metadata
         :type metadata: :obj:`str`
         """
-        # print("ADD START %s" % name)
         with QtCore.QMutexLocker(self.__mutex):
             self.__elist[0] = name
             self.__elist[1] = data
             self.__elist[2] = metadata
-        # print("ADD END")
 
     def readData(self):
         """ write data into exchange object
@@ -73,10 +71,8 @@ class ExchangeList(object):
         :returns: tuple of exchange object (name, data, metadata)
         :rtype: :obj:`list` <:obj:`str`, :class:`numpy.ndarray`, :obj:`str` >
         """
-        # print("READ START")
         with QtCore.QMutexLocker(self.__mutex):
             a, b, c = self.__elist[0], self.__elist[1], self.__elist[2]
-        # print("READ end %s" % a)
         return a, b, c
 
 
@@ -107,7 +103,6 @@ class DataFetchThread(QtCore.QThread):
     def run(self):
         """ runner of the fetching thread
         """
-        # print("START THREAD")
         self.__loop = True
         while self.__loop:
             time.sleep(GLOBALREFRESHRATE)
@@ -121,7 +116,6 @@ class DataFetchThread(QtCore.QThread):
                     metadata = ""
                 if name is not None:
                     self.__list.addData(name, img, metadata)
-                    # print("NAME %s" % name)
                     self.__ready = False
                     self.newDataNameFetched.emit(name, metadata)
             else:
@@ -134,7 +128,6 @@ class DataFetchThread(QtCore.QThread):
         :param status: connection status
         :type status: :obj:`bool`
         """
-        # print("STATUS %s" % status)
         self.__isConnected = status
 
     def setDataSource(self, datasource):
@@ -144,13 +137,11 @@ class DataFetchThread(QtCore.QThread):
     def ready(self):
         """ stop the thread
         """
-        # print ("READY T")
         self.__ready = True
 
     def stop(self):
         """ stop the thread
         """
-        # print ("STOP THREAD")
         self.__isConnected = False
 
     def isRunning(self):

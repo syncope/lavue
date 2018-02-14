@@ -156,6 +156,7 @@ class BaseSource(object):
         except:
             pass
 
+
 class FixTestSource(BaseSource):
 
     """ image source as Tango attributes describing
@@ -172,17 +173,17 @@ class FixTestSource(BaseSource):
         self.__counter = 0
 
         #: ([:obj:`int`, :obj:`int`]) image shape
-        # self.__shape = [256, 512]
-        #self.__shape = [1024, 2048]
         self.__shape = [2048, 4096]
-        
+        # self.__shape = [256, 512]
+        # self.__shape = [1024, 2048]
+
         #: (:class:`numpy,ndarray`) index object
         self.__image = np.transpose(
             [
                 [random.randint(0, 1000) for _ in range(self.__shape[0])]
                 for _ in range(self.__shape[1])
             ])
-        
+
     def getData(self):
         """ provides image name, image data and metadata
 
@@ -191,7 +192,7 @@ class FixTestSource(BaseSource):
         """
         self.__counter += 1
         return (self.__image,
-            '__random_%s__' % self.__counter, "")
+                '__random_%s__' % self.__counter, "")
 
     def connect(self):
         """ connects the source
@@ -207,7 +208,8 @@ class FixTestSource(BaseSource):
             pass
         except:
             pass
-    
+
+
 class TangoFileSource(BaseSource):
 
     """ image source as Tango attributes describing
