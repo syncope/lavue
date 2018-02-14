@@ -844,16 +844,18 @@ class LiveViewer(QtGui.QMainWindow):
         :param scalingtype: scaling type
         :type scalingtype: :obj:`str`
         """
-        self.__scaledimage = self.__displayimage
         self.__imagewg.setScalingType(scalingtype)
         if self.__displayimage is None:
-            return
-        if scalingtype == "sqrt":
+            self.__scaledimage = None
+        elif scalingtype == "sqrt":
             self.__scaledimage = np.clip(self.__displayimage, 0, np.inf)
             self.__scaledimage = np.sqrt(self.__scaledimage)
         elif scalingtype == "log":
             self.__scaledimage = np.clip(self.__displayimage, 10e-3, np.inf)
             self.__scaledimage = np.log10(self.__scaledimage)
+        else:
+            self.__scaledimage = self.__displayimage.astype("float")
+
 
     def __calcStats(self, flag):
         """ calcualtes scaled limits for intesity levels
