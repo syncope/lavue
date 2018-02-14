@@ -32,6 +32,7 @@ from __future__ import unicode_literals
 import time
 import json
 import numpy as np
+import pyqtgraph as _pg
 import os
 import zmq
 
@@ -54,6 +55,11 @@ from . import dataFetchThread
 from . import settings
 
 from .hidraServerList import HIDRASERVERLIST
+
+#: ( (:obj:`str`,:obj:`str`,:obj:`str`) )
+#:         pg major version, pg minor verion, pg patch version
+_VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
+    if _pg.__version__ else ("0", "9", "0")
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -81,7 +87,7 @@ class LiveViewer(QtGui.QMainWindow):
             self.__sourcetypes.append("TangoFileSourceWidget")
         self.__sourcetypes.append("ZMQSourceWidget")
         self.__sourcetypes.append("TestSourceWidget")
-        # self.__sourcetypes.append("FixTestSourceWidget")
+        self.__sourcetypes.append("FixTestSourceWidget")
 
         #: (:obj:`list` < :obj:`str` > ) tool class names
         self.__tooltypes = []
@@ -346,8 +352,8 @@ class LiveViewer(QtGui.QMainWindow):
         if self.__sourcewg.isConnected():
             self.__sourcewg.toggleServerConnection()
         self._disconnectSource()
-        time.sleep(min(dataFetchThread.GLOBALREFRESHRATE * 5, 2))
         self.__dataFetcher.stop()
+        time.sleep(min(dataFetchThread.GLOBALREFRESHRATE * 5, 2))
         self.__settings.seccontext.destroy()
         QtGui.QApplication.closeAllWindows()
         event.accept()
@@ -853,8 +859,14 @@ class LiveViewer(QtGui.QMainWindow):
         elif scalingtype == "log":
             self.__scaledimage = np.clip(self.__displayimage, 10e-3, np.inf)
             self.__scaledimage = np.log10(self.__scaledimage)
-        else:
+        elif _VMAJOR == '0' and \
+           (int(_VMINOR) > 9 or (_VMINOR  == '9' and int(_VPATCH) > 7)):
+            # (for 0.9.8 <= version  < 1.0.0) 
             self.__scaledimage = self.__displayimage.astype("float")
+            print("CASE")
+        else:
+            print("COPY")
+            self.__scaledimage = self.__displayimage
 
 
     def __calcStats(self, flag):
