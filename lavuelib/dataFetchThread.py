@@ -105,7 +105,8 @@ class DataFetchThread(QtCore.QThread):
         """
         self.__loop = True
         while self.__loop:
-            time.sleep(GLOBALREFRESHRATE)
+            if time:
+                time.sleep(GLOBALREFRESHRATE)
             if self.__isConnected and self.__ready:
                 try:
                     with QtCore.QMutexLocker(self.__mutex):
