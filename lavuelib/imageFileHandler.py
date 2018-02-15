@@ -203,20 +203,27 @@ class NexusFieldHandler(object):
                 return node[...]
             elif len(shape) == 3:
                 if growing == 0:
-                    return node[frame, :, :]
+                    if frame < 0 or shape[0] > frame:
+                        return node[frame, :, :]
                 elif growing == 1:
-                    return node[:, frame, :]
+                    if frame < 0 or shape[1] > frame:
+                        return node[:, frame, :]
                 else:
-                    return node[:, :, frame]
+                    if frame < 0 or shape[3] > frame:
+                        return node[:, :, frame]
             elif len(shape) == 4:
                 if growing == 0:
-                    return node[frame, :, :, :]
+                    if frame < 0 or shape[0] > frame:
+                        return node[frame, :, :, :]
                 elif growing == 1:
-                    return node[:, frame, :, :]
+                    if frame < 0 or shape[1] > frame:
+                        return node[:, frame, :, :]
                 elif growing == 2:
-                    return node[:, :, frame, :]
+                    if frame < 0 or shape[2] > frame:
+                        return node[:, :, frame, :]
                 else:
-                    return node[:, :, :, frame]
+                    if frame < 0 or shape[3] > frame:
+                        return node[:, :, :, frame]
 
 
 class ImageFileHandler(object):

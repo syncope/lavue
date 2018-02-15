@@ -299,14 +299,31 @@ class LiveViewer(QtGui.QMainWindow):
         :param fid: frame id
         :type fid: :obj:`int`
         """
+        self.__ui.frameSpinBox.valueChanged.disconnect(self._replotFrame)
+        newimage = None
         if self.__currentfield is not None:
             self.__frame = int(fid)
-            newimage = imageFileHandler.NexusFieldHandler("").getImage(
-                self.__currentfield["node"],
-                self.__frame, self.__growing)
+            try:
+                newimage = imageFileHandler.NexusFieldHandler("").getImage(
+                    self.__currentfield["node"],
+                    self.__frame, self.__growing)
+                while newimage is None and self.__frame > 0:
+                    self.__frame -= 1
+                    self.__updateframeview(True)
+                    newimage = imageFileHandler.NexusFieldHandler("").getImage(
+                        self.__currentfield["node"],
+                        self.__frame, self.__growing)
+            except Exception as e:
+                import traceback
+                value = traceback.format_exc()
+                messageBox.MessageBox.warning(
+                    self, "lavue: problems in reading the Nexus frame",
+                    "%s" % str(e),
+                    "%s" % value)
             if newimage is not None:
                 self.__rawimage = np.transpose(newimage)
                 self._plot()
+        self.__ui.frameSpinBox.valueChanged.connect(self._replotFrame)
 
     def __loadSettings(self):
         """ loads settings from QSettings object
@@ -414,6 +431,16 @@ class LiveViewer(QtGui.QMainWindow):
                             newimage = handler.getImage(
                                 self.__currentfield["node"],
                                 self.__frame, self.__growing)
+                            self.__ui.frameSpinBox.valueChanged.disconnect(
+                                self._replotFrame)
+                            while newimage is None and self.__frame > 0:
+                                self.__frame -= 1
+                                self.__updateframeview(True)
+                                newimage = handler.getImage(
+                                    self.__currentfield["node"],
+                                    self.__frame, self.__growing)
+                            self.__ui.frameSpinBox.valueChanged.connect(
+                                self._replotFrame)
                         else:
                             return
                     else:

@@ -77,6 +77,9 @@ class ImageField(QtGui.QDialog):
             item.setData(QtCore.Qt.UserRole, QtCore.QVariant("%s" % name))
             if selected is None:
                 selected = item
+            field = self.fields[name]
+            item.setToolTip("shape = %s, dtype = %s"
+                            % (field["shape"], field["dtype"]))
             self.__ui.imageListWidget.addItem(item)
 
         if selected is not None:
