@@ -47,6 +47,7 @@ from . import scalingGroupBox
 from . import levelsGroupBox
 from . import statisticsGroupBox
 from . import imageWidget
+from . import imageField
 from . import configDialog
 
 from . import imageFileHandler
@@ -121,6 +122,15 @@ class LiveViewer(QtGui.QMainWindow):
 
         #: (:class:`lavuelib.settings.Settings`) settings
         self.__settings = settings.Settings()
+
+        #: (:obj:`dict` <:obj:`str`, :obj:`any`>) the current field dictionary
+        self.__currentfield = None
+        #: (:obj:`int`) stacking dimension
+        self.__growing = None
+        #: (:obj:`int`) current frame id
+        self.__frame = None
+        #: (:obj:`bool`) histogram should be updated
+        self.__frameshow = False
 
         # WIDGET DEFINITIONS
         #: (:class:`lavuelib.sourceGroupBox.SourceGroupBox`) source groupbox
@@ -272,14 +282,31 @@ class LiveViewer(QtGui.QMainWindow):
 
         self.__sourcewg.configurationChanged.connect(
             self._setSourceConfiguration)
-
+        self.__ui.frameSpinBox.valueChanged.connect(self._replotFrame)
         self.__sourcewg.updateLayout()
         self.__sourcewg.emitSourceChanged()
         self.__imagewg.showCurrentTool()
 
         self.__loadSettings()
 
+        self.__updateframeview()
         self._plot()
+
+    @QtCore.pyqtSlot(int)
+    def _replotFrame(self, fid):
+        """ update ROIs
+
+        :param fid: frame id
+        :type fid: :obj:`int`
+        """
+        if self.__currentfield is not None:
+            self.__frame = int(fid)
+            newimage = imageFileHandler.NexusFieldHandler("").getImage(
+                self.__currentfield["node"],
+                self.__frame, self.__growing)
+            if newimage is not None:
+                self.__rawimage = np.transpose(newimage)
+                self._plot()
 
     def __loadSettings(self):
         """ loads settings from QSettings object
@@ -364,15 +391,45 @@ class LiveViewer(QtGui.QMainWindow):
         """
 
         fileDialog = QtGui.QFileDialog()
+        newimage = None
         imagename = str(
             fileDialog.getOpenFileName(
                 self, 'Load file', self.__settings.imagename or '.'))
         if imagename:
-            self.__settings.imagename = imagename
-            newimage = imageFileHandler.ImageFileHandler(
-                str(self.__settings.imagename)).getImage()
+            if imagename.endswith(".nxs") or imagename.endswith(".h5") \
+               or imagename.endswith(".nx") or imagename.endswith(".ndf"):
+                self.__settings.imagename = imagename
+                handler = imageFileHandler.NexusFieldHandler(
+                    str(self.__settings.imagename))
+                fields = handler.findImageFields()
+                if fields:
+                    imgfield = imageField.ImageField(self)
+                    imgfield.fields = fields
+                    imgfield.createGUI()
+                    if imgfield.exec_():
+                        if imgfield.field:
+                            self.__currentfield = fields[imgfield.field]
+                            self.__growing = imgfield.growing
+                            self.__frame = imgfield.frame
+                            newimage = handler.getImage(
+                                self.__currentfield["node"],
+                                self.__frame, self.__growing)
+                        else:
+                            return
+                    else:
+                        return
+                    if imagename:
+                        imagename = "%s:/%s" % (
+                            self.__settings.imagename,
+                            self.__currentfield["nexus_path"])
+                    self.__updateframeview(True)
+            else:
+                self.__settings.imagename = imagename
+                newimage = imageFileHandler.ImageFileHandler(
+                    str(self.__settings.imagename)).getImage()
+                self.__updateframeview()
             if newimage is not None:
-                self.__imagename = self.__settings.imagename
+                self.__imagename = imagename
                 self.__rawimage = np.transpose(newimage)
                 self._plot()
             else:
@@ -738,8 +795,18 @@ class LiveViewer(QtGui.QMainWindow):
                     = name, metadata
                 if not isinstance(rawimage, (str, unicode)):
                     self.__rawimage = rawimage
+        self.__updateframeview()
         self._plot()
         self.__dataFetcher.ready()
+
+    def __updateframeview(self, status=False):
+        if status:
+            if self.__frame is not None:
+                self.__ui.frameSpinBox.setValue(self.__frame)
+            self.__ui.frameSpinBox.show()
+        else:
+            self.__currentfield = None
+            self.__ui.frameSpinBox.hide()
 
     def __prepareImage(self):
         """applies: make image gray, substracke the background image and

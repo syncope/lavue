@@ -51,10 +51,26 @@ lavuelib.displayParameters module
     :undoc-members:
     :show-inheritance:
 
+lavuelib.filewriter module
+--------------------------
+
+.. automodule:: lavuelib.filewriter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lavuelib.geometryDialog module
 ------------------------------
 
 .. automodule:: lavuelib.geometryDialog
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lavuelib.h5pywriter
+-------------------
+
+.. automodule:: lavuelib.h5pywriter
     :members:
     :undoc-members:
     :show-inheritance:
@@ -79,6 +95,14 @@ lavuelib.imageDisplayWidget module
 ----------------------------------
 
 .. automodule:: lavuelib.imageDisplayWidget
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lavuelib.imageField
+-------------------
+
+.. automodule:: lavuelib.imageField
     :members:
     :undoc-members:
     :show-inheritance:
@@ -135,6 +159,14 @@ lavuelib.messageBox module
 --------------------------
 
 .. automodule:: lavuelib.messageBox
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lavuelib.pniwriter
+------------------
+
+.. automodule:: lavuelib.pniwriter
     :members:
     :undoc-members:
     :show-inheritance:

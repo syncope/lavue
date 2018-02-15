@@ -140,6 +140,7 @@ class ImageWidget(QtGui.QWidget):
         self.__ui.toolSplitter.setStretchFactor(1, 1)
 
         self.cutCoordsChanged.connect(self._plotCut)
+        self.__displaywidget.cutCoordsChanged.connect(self._plotCut)
         self.__ui.toolComboBox.currentIndexChanged.connect(
             self.showCurrentTool)
         self.__displaywidget.angleCenterChanged.connect(

@@ -1,3 +1,8 @@
+2018-02-15 Jan Kotanski <jan.kotanski@desy.de>
+	* add loader for nexus files
+	* fix signal for linecut coordinate change
+	* tagged as 1.1.0
+
 2018-02-14 Jan Kotanski <jan.kotanski@desy.de>
 	* workaround for pyqtgraph problems in ubuntu 16.04
 	* tagged as 1.0.5

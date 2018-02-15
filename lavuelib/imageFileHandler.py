@@ -30,6 +30,8 @@
 import struct
 import numpy as np
 
+from . import filewriter
+
 try:
     import fabio
     #: (:obj:`bool`) fabio can be imported
@@ -42,6 +44,179 @@ try:
     PILLOW = True
 except ImportError:
     PILLOW = False
+
+
+WRITERS = {}
+try:
+    from . import pniwriter
+    WRITERS["pni"] = pniwriter
+except:
+    pass
+try:
+    from . import h5pywriter
+    WRITERS["h5py"] = h5pywriter
+except:
+    pass
+
+
+class NexusFieldHandler(object):
+
+    """Nexus file handler class.
+       Reads image from file and returns the numpy array."""
+
+    def __init__(self, fname=None, writer=None):
+        """ constructor
+
+        :param fname: file name
+        :type fname: :obj:`str`
+        :param writer: h5 writer module: "pni" or "h5py"
+        :type writer: :obj:`str`
+        """
+        #: (:obj:`any`) module image object
+        self.__image = None
+        #: (:obj:`numpy.ndarray`) image data
+        self.__data = None
+        #: (:obj:`str`) file name
+        self.__fname = fname
+        #: (:obj:`dict` <:obj:`str`,  :obj:`dict` <:obj:`str`, :obj:`any`>>)
+        #: image field dictionary
+        self.__fields = {}
+        # (:class:`lavuelib.filewriter.root`) nexus file root
+        self.__root = None
+
+        if not writer:
+            writer = "pni" if "pni" in WRITERS.keys() else "h5py"
+        if writer not in WRITERS.keys():
+            raise Exception("Writer '%s' cannot be opened" % writer)
+        wrmodule = WRITERS[writer.lower()]
+        if fname:
+            try:
+                fl = filewriter.open_file(fname, writer=wrmodule)
+            except:
+                raise Exception("File '%s' cannot be opened\n" % fname)
+
+            self.__root = fl.root()
+
+    def findImageFields(self):
+        """ provides a dictionary with of all image fields
+
+        :returns: dictionary of the field names and the field objects
+        :rtype: :obj:`dict` <:obj:`str`,  :obj:`dict` <:obj:`str`, :obj:`any`>>
+        """
+        #: (:obj:`dict` <:obj:`str`,  :obj:`dict` <:obj:`str`, :obj:`any`>>)
+        #: image field dictionary
+        self.__fields = {}
+        self.__parseimages(self.__root)
+        return self.__fields
+
+    @classmethod
+    def __getpath(cls, path):
+        """ converts full_path with NX_classes into nexus_path
+
+        :param path: nexus full_path
+        :type path: :obj:`str`
+        """
+        spath = path.split("/")
+        return "/".join(
+            [(dr if ":" not in dr else dr.split(":")[0])
+             for dr in spath])
+
+    def __addimage(self, node, tgpath):
+        """adds the node into the description list
+
+        :param node: nexus node
+        :type node: :class:`pni.io.nx.h5.nxfield` or \
+                    :class:`pni.io.nx.h5.nxgroup` or \
+                    :class:`pni.io.nx.h5.nxlink` or \
+                    :class:`pni.io.nx.h5.nxattribute` or \
+                    :class:`pni.io.nx.h5.nxroot`
+        :param path: path of the link target or `None`
+        :type path: :obj:`str`
+        """
+        desc = {}
+        path = filewriter.first(node.path)
+        desc["full_path"] = str(path)
+        desc["nexus_path"] = str(self.__getpath(path))
+        if hasattr(node, "shape"):
+            desc["shape"] = list(node.shape or [])
+        else:
+            return
+        if len(desc["shape"]) < 2:
+            return
+        if hasattr(node, "dtype"):
+            desc["dtype"] = str(node.dtype)
+        else:
+            return
+        if node.is_valid:
+            desc["node"] = node
+        else:
+            return
+
+        self.__fields[desc["nexus_path"]] = desc
+
+    def __parseimages(self, node, tgpath=None):
+        """parses the node and add it into the description list
+
+        :param node: nexus node
+        :type node: :class:`pni.io.nx.h5.nxfield` or \
+                    :class:`pni.io.nx.h5.nxgroup` or \
+                    :class:`pni.io.nx.h5.nxlink` or \
+                    :class:`pni.io.nx.h5.nxattribute` or \
+                    :class:`pni.io.nx.h5.nxroot`
+        :param path: path of the link target or `None`
+        :type path: :obj:`str`
+        """
+        self.__addimage(node, tgpath)
+        names = []
+        if isinstance(node, filewriter.FTGroup):
+            names = [
+                (ch.name,
+                 str(ch.target_path) if hasattr(ch, "target_path") else None)
+                for ch in filewriter.get_links(node)]
+        for nm in names:
+            try:
+                ch = node.open(nm[0])
+                self.__parseimages(ch, nm[1])
+#            except:
+#                pass
+            finally:
+                pass
+
+    @classmethod
+    def getImage(cls, node, frame=-1, growing=0):
+        """parses the node and add it into the description list
+
+        :param node: nexus node
+        :type node: :class:`pni.io.nx.h5.nxfield` or \
+                    :class:`pni.io.nx.h5.nxgroup` or \
+                    :class:`pni.io.nx.h5.nxlink` or \
+                    :class:`pni.io.nx.h5.nxattribute` or \
+                    :class:`pni.io.nx.h5.nxroot`
+        :param frame: frame to take, the last one is -1
+        :type frame: frame to take
+        :param growing: growing dimension
+        :type growing: growing dimension
+        """
+        shape = node.shape
+        if shape:
+            if len(shape) == 2:
+                return node[...]
+            elif len(shape) == 3:
+                if growing == 0:
+                    return node[frame, :, :]
+                elif growing == 1:
+                    return node[:, frame, :]
+                else:
+                    return node[:, :, frame]
+            elif len(shape) == 4:
+                if growing == 0:
+                    return node[frame, :, :, :]
+                elif growing == 1:
+                    return node[:, frame, :, :]
+                elif growing == 2:
+                    return node[:, :, frame, :]
+                else:
+                    return node[:, :, :, frame]
 
 
 class ImageFileHandler(object):
