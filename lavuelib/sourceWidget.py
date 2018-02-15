@@ -217,12 +217,17 @@ class HTTPSourceWidget(BaseSourceWidget):
             self.buttonEnabled.emit(True)
             self.configurationChanged.emit(url)
 
-    def updateMetaData(self, **kargs):
-        """ update source input parameters
-
-        :param kargs:  source widget input parameter dictionary
-        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
+    def connectWidget(self):
+        """ connects widget
         """
+        self._connected = True
+        self._ui.httpLineEdit.setReadOnly(True)
+
+    def disconnectWidget(self):
+        """ disconnects widget
+        """
+        self._connected = False
+        self._ui.httpLineEdit.setReadOnly(False)
 
 
 class HidraSourceWidget(BaseSourceWidget):
@@ -371,9 +376,17 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         """ disconnects widget
         """
         self._connected = False
+        self._ui.attrLineEdit.setReadOnly(False)
         if ":" in self._ui.attrLineEdit.text():
             self._ui.attrLineEdit.setText(u'')
             self.updateButton()
+
+    def connectWidget(self):
+        """ connects widget
+        """
+        self._connected = True
+        self._ui.attrLineEdit.setReadOnly(True)
+
 
 
 class TangoFileSourceWidget(BaseSourceWidget):
@@ -438,6 +451,20 @@ class TangoFileSourceWidget(BaseSourceWidget):
         if dirtrans is not None:
             self.__dirtrans = dirtrans
 
+    def connectWidget(self):
+        """ connects widget
+        """
+        self._connected = True
+        self._ui.fileLineEdit.setReadOnly(True)
+        self._ui.dirLineEdit.setReadOnly(True)
+
+    def disconnectWidget(self):
+        """ disconnects widget
+        """
+        self._connected = False
+        self._ui.fileLineEdit.setReadOnly(False)
+        self._ui.dirLineEdit.setReadOnly(False)
+
 
 class NXSFileSourceWidget(BaseSourceWidget):
 
@@ -487,6 +514,21 @@ class NXSFileSourceWidget(BaseSourceWidget):
             sourcename = "%s,%s,%s" % (nfl, nfd, nsb)
             self.configurationChanged.emit(sourcename)
 
+    def connectWidget(self):
+        """ connects widget
+        """
+        self._connected = True
+        self._ui.nxsFileLineEdit.setReadOnly(True)
+        self._ui.nxsFieldLineEdit.setReadOnly(True)
+        self._ui.nxsDimSpinBox.setEnabled(False)
+
+    def disconnectWidget(self):
+        """ disconnects widget
+        """
+        self._connected = False
+        self._ui.nxsFileLineEdit.setReadOnly(False)
+        self._ui.nxsFieldLineEdit.setReadOnly(False)
+        self._ui.nxsDimSpinBox.setEnabled(True)
 
 class ZMQSourceWidget(BaseSourceWidget):
 

@@ -217,7 +217,7 @@ class NexusFieldHandler(object):
                     if frame < 0 or shape[1] > frame:
                         return node[:, frame, :]
                 else:
-                    if frame < 0 or shape[3] > frame:
+                    if frame < 0 or shape[2] > frame:
                         return node[:, :, frame]
             elif len(shape) == 4:
                 if growing == 0:
