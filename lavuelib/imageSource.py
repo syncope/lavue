@@ -240,12 +240,16 @@ class NXSFileSource(BaseSource):
         """
 
         try:
-            handler = imageFileHandler.NexusFieldHandler(
-                str(self.__nxsfile))
-            image = handler.getImage(
-                field=self.__nxsfield,
-                frame=self.__frame,
-                growing=self.__gdim)
+            image = None
+            try:
+                handler = imageFileHandler.NexusFieldHandler(
+                    str(self.__nxsfile))
+                image = handler.getImage(
+                    field=self.__nxsfield,
+                    frame=self.__frame,
+                    growing=self.__gdim)
+            except:
+                pass
             if image is not None:
                 filename = "%s/%s:%s" % (
                     self.__nxsfile, self.__nxsfield, self.__frame)
