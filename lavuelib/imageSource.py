@@ -261,6 +261,7 @@ class NXSFileSource(BaseSource):
         """ connects the source
         """
         try:
+            self.__frame = 0
             self.__nxsfile, self.__nxsfield, self.__growdim = str(
                 self._configuration).strip().split(",", 2)
             try:
