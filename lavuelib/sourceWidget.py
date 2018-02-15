@@ -388,7 +388,6 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         self._ui.attrLineEdit.setReadOnly(True)
 
 
-
 class TangoFileSourceWidget(BaseSourceWidget):
 
     """ test source widget """
@@ -529,6 +528,7 @@ class NXSFileSourceWidget(BaseSourceWidget):
         self._ui.nxsFileLineEdit.setReadOnly(False)
         self._ui.nxsFieldLineEdit.setReadOnly(False)
         self._ui.nxsDimSpinBox.setEnabled(True)
+
 
 class ZMQSourceWidget(BaseSourceWidget):
 
