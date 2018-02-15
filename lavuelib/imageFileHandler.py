@@ -182,12 +182,11 @@ class NexusFieldHandler(object):
             finally:
                 pass
 
-    @classmethod
-    def getImage(cls, node, frame=-1, growing=0):
-        """parses the node and add it into the description list
+    def getImage(self, node=None, frame=-1, growing=0, field=None):
+        """parses the field and add it into the description list
 
-        :param node: nexus node
-        :type node: :class:`pni.io.nx.h5.nxfield` or \
+        :param field: nexus field
+        :type field: :class:`pni.io.nx.h5.nxfield` or \
                     :class:`pni.io.nx.h5.nxgroup` or \
                     :class:`pni.io.nx.h5.nxlink` or \
                     :class:`pni.io.nx.h5.nxattribute` or \
@@ -196,8 +195,17 @@ class NexusFieldHandler(object):
         :type frame: frame to take
         :param growing: growing dimension
         :type growing: growing dimension
+        :param field: field path
+        :type field: :obj:`str`
         """
-        shape = node.shape
+        if field is not None:
+            sfield = str(field).split("/")
+            node = self.__root
+            for name in sfield:
+                if name:
+                    node = node.open(name)
+        if node:
+            shape = node.shape
         if shape:
             if len(shape) == 2:
                 return node[...]

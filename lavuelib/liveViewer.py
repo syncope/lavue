@@ -87,6 +87,7 @@ class LiveViewer(QtGui.QMainWindow):
             self.__sourcetypes.append("TangoAttrSourceWidget")
             self.__sourcetypes.append("TangoFileSourceWidget")
         self.__sourcetypes.append("ZMQSourceWidget")
+        self.__sourcetypes.append("NXSFileSourceWidget")
         self.__sourcetypes.append("TestSourceWidget")
         # self.__sourcetypes.append("FixTestSourceWidget")
 

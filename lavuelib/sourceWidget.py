@@ -48,6 +48,10 @@ _tangofileformclass, _tangofilebaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "TangoFileSourceWidget.ui"))
 
+_nxsfileformclass, _nxsfilebaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "NXSFileSourceWidget.ui"))
+
 _zmqformclass, _zmqbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "ZMQSourceWidget.ui"))
@@ -433,6 +437,55 @@ class TangoFileSourceWidget(BaseSourceWidget):
         """
         if dirtrans is not None:
             self.__dirtrans = dirtrans
+
+
+class NXSFileSourceWidget(BaseSourceWidget):
+
+    """ test source widget """
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
+        BaseSourceWidget.__init__(self, parent)
+
+        self._ui = _nxsfileformclass()
+        self._ui.setupUi(self)
+
+        #: (:obj:`str`) source name
+        self.name = "Nexus File"
+        #: (:obj:`str`) datasource class name
+        self.datasource = "NXSFileSource"
+        #: (:obj:`list` <:obj:`str`>) subwidget object names
+        self.widgetnames = [
+            "nxsFileLabel", "nxsFileLineEdit",
+            "nxsFieldLabel", "nxsFieldLineEdit",
+            "nxsDimLabel", "nxsDimSpinBox"
+        ]
+
+        self._detachWidgets()
+
+        self._ui.nxsFileLineEdit.textEdited.connect(self.updateButton)
+        self._ui.nxsFieldLineEdit.textEdited.connect(self.updateButton)
+        self._ui.nxsDimSpinBox.valueChanged.connect(self.updateButton)
+
+    @QtCore.pyqtSlot()
+    def updateButton(self):
+        """ update slot for Tango file source
+        """
+        if not self.active:
+            return
+        nfl = str(self._ui.nxsFileLineEdit.text()).strip()
+        nfd = str(self._ui.nxsFieldLineEdit.text()).strip()
+        nsb = int(self._ui.nxsDimSpinBox.value())
+        if not nfl or not nfd:
+            self.buttonEnabled.emit(False)
+        else:
+            self.buttonEnabled.emit(True)
+            sourcename = "%s,%s,%s" % (nfl, nfd, nsb)
+            self.configurationChanged.emit(sourcename)
 
 
 class ZMQSourceWidget(BaseSourceWidget):

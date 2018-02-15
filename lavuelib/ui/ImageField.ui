@@ -56,6 +56,9 @@
          <property name="toolTip">
           <string>first growing dimension is 0, i.e. Nexus default</string>
          </property>
+         <property name="maximum">
+          <number>5</number>
+         </property>
         </widget>
        </item>
        <item row="1" column="0">

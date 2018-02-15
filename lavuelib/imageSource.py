@@ -210,6 +210,69 @@ class FixTestSource(BaseSource):
             pass
 
 
+class NXSFileSource(BaseSource):
+
+    """ image source as Tango attributes describing
+        an image file name and its directory"""
+
+    def __init__(self, timeout=None):
+        """ constructor
+
+        :param timeout: timeout for setting connection in ms
+        :type timeout: :obj:`int`
+        """
+        BaseSource.__init__(self, timeout)
+
+        #: :obj:`str` nexus file name with the full path
+        self.__nxsfile = None
+        #: :obj:`str` nexus field path
+        self.__nxsfield = None
+        #: :obj:`int` stacking dimension
+        self.__gdim = 0
+        #: :obj:`int` the current frame
+        self.__frame = 0
+
+    def getData(self):
+        """ provides image name, image data and metadata
+
+        :returns:  image name, image data, json dictionary with metadata
+        :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
+        """
+
+        try:
+            handler = imageFileHandler.NexusFieldHandler(
+                str(self.__nxsfile))
+            image = handler.getImage(
+                field=self.__nxsfield,
+                frame=self.__frame,
+                growing=self.__gdim)
+            if image is not None:
+                filename = "%s/%s:%s" % (
+                    self.__nxsfile, self.__nxsfield, self.__frame)
+                self.__frame += 1
+                return (np.transpose(image), '%s' % (filename), "")
+        except Exception as e:
+            print(str(e))
+            return str(e), "__ERROR__", ""
+            pass  # this needs a bit more care
+        return None, None, None
+
+    def connect(self):
+        """ connects the source
+        """
+        try:
+            self.__nxsfile, self.__nxsfield, self.__growdim = str(
+                self._configuration).strip().split(",", 2)
+            try:
+                self.__gdim = int(self.__growdim)
+            except:
+                self.__gdim = 0
+            return True
+        except Exception as e:
+            print(str(e))
+            return False
+
+
 class TangoFileSource(BaseSource):
 
     """ image source as Tango attributes describing
