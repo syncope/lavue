@@ -15,7 +15,8 @@ for i in range(50):
     new_shape = ((i+1), 2, 3)
     dset.resize(new_shape)
     dset[i,:,:] = arr + i
-    dset.flush()
+    if hasattr(dset, "flush"):
+        dset.flush()
     time.sleep(1)
 dset.attrs.create("units","mm")
 dset = f.create_dataset(
