@@ -51,6 +51,14 @@ class Settings(object):
         self.showmask = False
         #: (:obj:`bool`) show mask widget
         self.showstats = True
+        #: (:obj:`bool`) show bakcground subtraction widget
+        self.showsub = True
+        #: (:obj:`bool`) show transformation widget
+        self.showtrans = True
+        #: (:obj:`bool`) show intensity scale widget
+        self.showscale = True
+        #: (:obj:`bool`) show intensity levels widget
+        self.showlevels = True
         #: (:obj:`bool`) image aspect ratio locked
         self.aspectlocked = False
         #: (:obj:`str`) security stream port
@@ -102,7 +110,18 @@ class Settings(object):
         qstval = str(settings.value("Configuration/SecAutoPort").toString())
         if qstval.lower() == "false":
             self.secautoport = False
-
+        qstval = str(settings.value("Configuration/ShowSubtraction").toString())
+        if qstval.lower() == "false":
+            self.showsub = False
+        qstval = str(settings.value("Configuration/ShowTransformations").toString())
+        if qstval.lower() == "false":
+            self.showtrans = False
+        qstval = str(settings.value("Configuration/ShowIntensityScaling").toString())
+        if qstval.lower() == "false":
+            self.showscale = False
+        qstval = str(settings.value("Configuration/ShowIntensityLevels").toString())
+        if qstval.lower() == "false":
+            self.showlevels = False
         qstval = str(settings.value("Configuration/ShowHistogram").toString())
         if qstval.lower() == "false":
             self.showhisto = False
@@ -192,6 +211,18 @@ class Settings(object):
         settings.setValue(
             "Configuration/AddROIs",
             QtCore.QVariant(self.addrois))
+        settings.setValue(
+            "Configuration/ShowSubtraction",
+            QtCore.QVariant(self.showsub))
+        settings.setValue(
+            "Configuration/ShowTransformations",
+            QtCore.QVariant(self.showtrans))
+        settings.setValue(
+            "Configuration/ShowIntensityScaling",
+            QtCore.QVariant(self.showscale))
+        settings.setValue(
+            "Configuration/ShowIntensityLevels",
+            QtCore.QVariant(self.showlevels))
         settings.setValue(
             "Configuration/ShowHistogram",
             QtCore.QVariant(self.showhisto))

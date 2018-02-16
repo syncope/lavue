@@ -351,8 +351,12 @@ class LiveViewer(QtGui.QMainWindow):
             autozmqtopics=self.__settings.autozmqtopics)
 
         self.__statswg.changeView(self.__settings.showstats)
-        self.__levelswg.changeView(self.__settings.showhisto)
+        self.__levelswg.changeView(
+            self.__settings.showhisto,
+            self.__settings.showlevels)
         self.__prepwg.changeView(self.__settings.showmask)
+        self.__scalingwg.changeView(self.__settings.showscale)
+        self.__levelswg.changeView()
 
     def __storeSettings(self):
         """ stores settings in QSettings object
@@ -488,6 +492,10 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.sardana = True if self.__sardana is not None else False
         cnfdlg.door = self.__settings.doorname
         cnfdlg.addrois = self.__settings.addrois
+        cnfdlg.showsub = self.__settings.showsub
+        cnfdlg.showtrans = self.__settings.showtrans
+        cnfdlg.showscale = self.__settings.showscale
+        cnfdlg.showlevels = self.__settings.showlevels
         cnfdlg.showhisto = self.__settings.showhisto
         cnfdlg.showmask = self.__settings.showmask
         cnfdlg.showstats = self.__settings.showstats
@@ -513,6 +521,21 @@ class LiveViewer(QtGui.QMainWindow):
             self.__setSardana(dialog.sardana)
             self.__settings.sardana = dialog.sardana
         self.__settings.addrois = dialog.addrois
+
+        if self.__settings.showsub != dialog.showsub:
+            # self.__prepwg.changeView(dialog.showsub)
+            self.__settings.showsub = dialog.showsub
+        if self.__settings.showtrans != dialog.showtrans:
+            # self.__prepwg.changeView(dialog.showtrans)
+            self.__settings.showtrans = dialog.showtrans
+
+        if self.__settings.showscale != dialog.showscale:
+            self.__scalingwg.changeView(dialog.showscale)
+            self.__settings.showscale = dialog.showscale
+            
+        if self.__settings.showlevels != dialog.showlevels:
+            self.__levelswg.changeView(showlevels=dialog.showlevels)
+            self.__settings.showlevels = dialog.showlevels
 
         if self.__settings.showhisto != dialog.showhisto:
             self.__levelswg.changeView(dialog.showhisto)

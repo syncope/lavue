@@ -69,6 +69,16 @@ class ConfigDialog(QtGui.QDialog):
         self.showmask = False
         #: (:obj:`bool`) show statistics widget
         self.showstats = True
+
+        #: (:obj:`bool`) show bakcground subtraction widget
+        self.showsub = True
+        #: (:obj:`bool`) show transformation widget
+        self.showtrans = True
+        #: (:obj:`bool`) show intensity scale widget
+        self.showscale = True
+        #: (:obj:`bool`) show intensity levels widget
+        self.showlevels = True
+        
         #: (:obj:`int`) image source timeout in ms
         self.timeout = 3000
         #: (:obj:`bool`) aspect ratio locked
@@ -100,6 +110,10 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.showhistoCheckBox.setChecked(self.showhisto)
         self.__ui.showmaskCheckBox.setChecked(self.showmask)
         self.__ui.showstatsCheckBox.setChecked(self.showstats)
+        self.__ui.showsubCheckBox.setChecked(self.showsub)
+        self.__ui.showtransCheckBox.setChecked(self.showtrans)
+        self.__ui.showscaleCheckBox.setChecked(self.showscale)
+        self.__ui.showlevelsCheckBox.setChecked(self.showlevels)
         self.__ui.timeoutLineEdit.setText(str(self.timeout))
         self.__ui.zmqtopicsLineEdit.setText(" ".join(self.zmqtopics))
         self.__ui.autozmqtopicsCheckBox.setChecked(self.autozmqtopics)
@@ -133,6 +147,10 @@ class ConfigDialog(QtGui.QDialog):
         self.secstream = self.__ui.secstreamCheckBox.isChecked()
         self.secautoport = self.__ui.secautoportCheckBox.isChecked()
         self.refreshrate = float(self.__ui.rateDoubleSpinBox.value())
+        self.showsub = self.__ui.showsubCheckBox.isChecked()
+        self.showtrans = self.__ui.showtransCheckBox.isChecked()
+        self.showscale = self.__ui.showscaleCheckBox.isChecked()
+        self.showlevels = self.__ui.showlevelsCheckBox.isChecked()
         self.showhisto = self.__ui.showhistoCheckBox.isChecked()
         self.showmask = self.__ui.showmaskCheckBox.isChecked()
         self.showstats = self.__ui.showstatsCheckBox.isChecked()

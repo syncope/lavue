@@ -64,10 +64,14 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self.__ui = _formclass()
         self.__ui.setupUi(self)
 
+        #: (:obj: `bool`) colors to be shown
+        self.__colors = True
         #: (:obj: `bool`) auto levels enebled
         self.__auto = True
         #: (:obj: `bool`) histogram shown
         self.__histo = True
+        #: (:obj: `bool`) levels shown
+        self.__levels = True
         #: (:obj: `str`) scale label
         self.__scaling = ""
         #: (:obj: `int`) current color channel
@@ -145,22 +149,65 @@ class LevelsGroupBox(QtGui.QGroupBox):
             finally:
                 self.__connectMinMax()
 
-    def changeView(self, showhistogram=False):
+    def changeView(self, showhistogram=None, showlevels=None):
         """ shows or hides the histogram widget
 
         :param showhistogram: if histogram should be shown
         :type showhistogram: :obj:`bool`
+        :param showlevels: if levels should be shown
+        :type showlevels: :obj:`bool`
         """
-        if showhistogram and self.__histo is False:
-            self.__histo = True
+            
+        if showhistogram is True and self.__histo is False:
             self.__connectHistogram()
             self.__histogram.show()
             self.__histogram.fillHistogram(True)
-        elif not showhistogram and self.__histo is True:
-            self.__histo = False
+        elif showhistogram is False and self.__histo is True:
             self.__histogram.hide()
             self.__histogram.fillHistogram(False)
             self.__disconnectHistogram()
+
+
+        if showlevels is True and self.__levels is False:
+            if self.__colors:
+                self.__ui.channelLabel.show()
+                self.__ui.channelComboBox.show()
+            else:
+                self.__ui.channelLabel.hide()
+                self.__ui.channelComboBox.hide()
+            self.__ui.gradientLabel.show()
+            self.__ui.gradientComboBox.show()
+            self.__ui.scalingLabel.show()
+            self.__ui.autoLevelsCheckBox.show()
+            self.__ui.maxDoubleSpinBox.show()
+            self.__ui.maxLabel.show()
+            self.__ui.minDoubleSpinBox.show()
+            self.__ui.minLabel.show()
+            self.__ui.scalingLabel.show()
+        elif showlevels is False and self.__levels is True:
+            self.__ui.channelLabel.hide()
+            self.__ui.channelComboBox.hide()
+            self.__ui.gradientLabel.hide()
+            self.__ui.gradientComboBox.hide()
+
+            self.__ui.scalingLabel.hide()
+            self.__ui.autoLevelsCheckBox.hide()
+            self.__ui.maxDoubleSpinBox.hide()
+            self.__ui.maxLabel.hide()
+            self.__ui.minDoubleSpinBox.hide()
+            self.__ui.minLabel.hide()
+            self.__ui.scalingLabel.hide()
+            
+
+        if showhistogram is not None:
+            self.__histo = showhistogram
+        if showlevels is not None:
+            self.__levels = showlevels
+
+        if not self.__histo and not self.__levels:
+            self.hide()
+        else:
+            self.show()
 
     def isAutoLevel(self):
         """ returns if automatics levels are enabled
@@ -344,9 +391,11 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 self.__ui.channelComboBox.addItem("mean")
                 self.__ui.channelLabel.show()
                 self.__ui.channelComboBox.show()
+                self.__colors = True
             else:
                 self.__ui.channelLabel.hide()
                 self.__ui.channelComboBox.hide()
+                self.__colors = False
 
     @QtCore.pyqtSlot(int)
     def _updateGradient(self, index):

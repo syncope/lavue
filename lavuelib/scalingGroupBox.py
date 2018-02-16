@@ -82,3 +82,14 @@ class ScalingGroupBox(QtGui.QGroupBox):
             self.__current = "sqrt"
         self.scalingChanged.emit(self.__current)
         self.simpleScalingChanged.emit()
+
+    def changeView(self, showscale=False):
+        """ shows or hides the histogram widget
+
+        :param showhistogram: if histogram should be shown
+        :type showhistogram: :obj:`bool`
+        """
+        if showscale:
+            self.show()
+        else:
+            self.hide()

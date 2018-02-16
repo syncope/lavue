@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>678</width>
-    <height>490</height>
+    <width>540</width>
+    <height>596</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
          <item>
           <widget class="QGroupBox" name="imageGroupBox">
            <property name="title">
-            <string>Image</string>
+            <string>Image display</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_2">
             <item row="0" column="0">
@@ -102,102 +102,6 @@
            </layout>
           </widget>
          </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox_2">
-           <property name="title">
-            <string>View</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_3">
-            <item row="0" column="0">
-             <layout class="QGridLayout" name="viewGridLayout">
-              <item row="0" column="0">
-               <widget class="QLabel" name="showhistoLabel">
-                <property name="toolTip">
-                 <string>show histogram to set range and color distribution</string>
-                </property>
-                <property name="text">
-                 <string>Show histogram:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showhistoCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QCheckBox" name="showhistoCheckBox">
-                <property name="toolTip">
-                 <string>show histogram to set range and color distribution</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="showmaskLabel">
-                <property name="toolTip">
-                 <string>show widgets to select the image mask</string>
-                </property>
-                <property name="text">
-                 <string>Show mask widget:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showmaskCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QCheckBox" name="showmaskCheckBox">
-                <property name="toolTip">
-                 <string>show widgets to select the image mask</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QCheckBox" name="showstatsCheckBox">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="showstatsLabel">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string>Show statistics:</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="QGroupBox" name="secGroupBox">
            <property name="title">
@@ -278,73 +182,182 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBox">
-           <property name="title">
-            <string>Sardana</string>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
            </property>
-           <layout class="QGridLayout" name="gridLayout">
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="title">
+            <string>Show widget</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_3">
             <item row="0" column="0">
-             <layout class="QGridLayout" name="sardanaGridLayout">
+             <layout class="QGridLayout" name="viewGridLayout">
               <item row="0" column="0">
-               <widget class="QLabel" name="sardanalabel">
+               <widget class="QLabel" name="showtransLabel">
                 <property name="toolTip">
-                 <string>enable sardana features</string>
+                 <string>show widgets to select the image transformations</string>
                 </property>
                 <property name="text">
-                 <string>Enabled:</string>
+                 <string>Transformations:</string>
                 </property>
                 <property name="buddy">
-                 <cstring>sardanaCheckBox</cstring>
+                 <cstring>showtransCheckBox</cstring>
                 </property>
                </widget>
               </item>
-              <item row="0" column="1">
-               <widget class="QCheckBox" name="sardanaCheckBox">
+              <item row="5" column="1">
+               <widget class="QCheckBox" name="showhistoCheckBox">
                 <property name="toolTip">
-                 <string>enable sardana features</string>
+                 <string>show histogram to set range and color distribution</string>
                 </property>
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="doorLabel">
+              <item row="2" column="1">
+               <widget class="QCheckBox" name="showmaskCheckBox">
                 <property name="toolTip">
-                 <string>tango server device name of the Sarana Door</string>
+                 <string>show widgets to select the image mask</string>
                 </property>
                 <property name="text">
-                 <string>Door:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>doorLineEdit</cstring>
+                 <string/>
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="doorLineEdit">
+              <item row="0" column="1">
+               <widget class="QCheckBox" name="showtransCheckBox">
                 <property name="toolTip">
-                 <string>tango server device name of the Sarana Door</string>
+                 <string>show widgets to select the image transformations</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QCheckBox" name="showlevelsCheckBox">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1">
+               <widget class="QCheckBox" name="showstatsCheckBox">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0">
+               <widget class="QLabel" name="showstatsLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Statistics:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showstatsCheckBox</cstring>
                 </property>
                </widget>
               </item>
               <item row="2" column="0">
-               <widget class="QLabel" name="addroisLabel">
+               <widget class="QLabel" name="showmaskLabel">
                 <property name="toolTip">
-                 <string>add ROI aliases to the Active Measurement Group</string>
+                 <string>show widgets to select the image mask</string>
                 </property>
                 <property name="text">
-                 <string>Add ROIs to MG:</string>
+                 <string>Mask:</string>
                 </property>
                 <property name="buddy">
-                 <cstring>addroisCheckBox</cstring>
+                 <cstring>showmaskCheckBox</cstring>
                 </property>
                </widget>
               </item>
-              <item row="2" column="1">
-               <widget class="QCheckBox" name="addroisCheckBox">
+              <item row="5" column="0">
+               <widget class="QLabel" name="showhistoLabel">
                 <property name="toolTip">
-                 <string>add ROI aliases to the Active Measurement Group</string>
+                 <string>show histogram to set range and color distribution</string>
+                </property>
+                <property name="text">
+                 <string>Histogram:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showhistoCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="showsubLabel">
+                <property name="toolTip">
+                 <string>show widgets to select the image backgroud subtraction</string>
+                </property>
+                <property name="text">
+                 <string>Subtraction:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showsubCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QCheckBox" name="showsubCheckBox">
+                <property name="toolTip">
+                 <string>show widgets to select the image backgroud subtraction</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="showlevelsLabel">
+                <property name="toolTip">
+                 <string>show widgets to select the image intensity levels</string>
+                </property>
+                <property name="text">
+                 <string>Intensity levels:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showlevelsCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="showscaleLabel">
+                <property name="toolTip">
+                 <string>show widgets to select the image intensity scale</string>
+                </property>
+                <property name="text">
+                 <string>Intensity scale:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showscaleCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QCheckBox" name="showscaleCheckBox">
+                <property name="toolTip">
+                 <string>show widgets to select the image intensity scale</string>
                 </property>
                 <property name="text">
                  <string/>
@@ -374,9 +387,88 @@
       </layout>
      </item>
      <item>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>Sardana</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="sardanaGridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="sardanalabel">
+            <property name="toolTip">
+             <string>enable sardana features</string>
+            </property>
+            <property name="text">
+             <string>Enabled:</string>
+            </property>
+            <property name="buddy">
+             <cstring>sardanaCheckBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="sardanaCheckBox">
+            <property name="toolTip">
+             <string>enable sardana features</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="doorLabel">
+            <property name="toolTip">
+             <string>tango server device name of the Sarana Door</string>
+            </property>
+            <property name="text">
+             <string>Door:</string>
+            </property>
+            <property name="buddy">
+             <cstring>doorLineEdit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="doorLineEdit">
+            <property name="toolTip">
+             <string>tango server device name of the Sarana Door</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="addroisLabel">
+            <property name="toolTip">
+             <string>add ROI aliases to the Active Measurement Group</string>
+            </property>
+            <property name="text">
+             <string>Add ROIs to MG:</string>
+            </property>
+            <property name="buddy">
+             <cstring>addroisCheckBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="addroisCheckBox">
+            <property name="toolTip">
+             <string>add ROI aliases to the Active Measurement Group</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
       <widget class="QGroupBox" name="sourcesGroupBox">
        <property name="title">
-        <string>Image Sources</string>
+        <string>Image sources</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_6">
         <item row="0" column="0">
@@ -511,6 +603,29 @@ in the file name and the file directory for Tango File Source</string>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>rateDoubleSpinBox</tabstop>
+  <tabstop>aspectlockedCheckBox</tabstop>
+  <tabstop>statsscaleCheckBox</tabstop>
+  <tabstop>showtransCheckBox</tabstop>
+  <tabstop>showsubCheckBox</tabstop>
+  <tabstop>showmaskCheckBox</tabstop>
+  <tabstop>showscaleCheckBox</tabstop>
+  <tabstop>showlevelsCheckBox</tabstop>
+  <tabstop>showhistoCheckBox</tabstop>
+  <tabstop>showstatsCheckBox</tabstop>
+  <tabstop>secstreamCheckBox</tabstop>
+  <tabstop>secautoportCheckBox</tabstop>
+  <tabstop>secportLineEdit</tabstop>
+  <tabstop>sardanaCheckBox</tabstop>
+  <tabstop>doorLineEdit</tabstop>
+  <tabstop>addroisCheckBox</tabstop>
+  <tabstop>timeoutLineEdit</tabstop>
+  <tabstop>autozmqtopicsCheckBox</tabstop>
+  <tabstop>zmqtopicsLineEdit</tabstop>
+  <tabstop>dirtransLineEdit</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
