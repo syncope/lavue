@@ -204,7 +204,7 @@ class H5PYFile(filewriter.FTFile):
             filewriter.FTFile.reopen(self)
         if hasattr(self._h5object, "swmr_mode") and swmr:
             self._h5object.swmr_mode = swmr
-        if swmr:
+        elif swmr:
             raise Exception("SWMR not supported")
 
 
@@ -466,6 +466,18 @@ class H5PYField(filewriter.FTField):
         self._h5object = self._tparent.h5object.get(self.name)
         filewriter.FTField.reopen(self)
 
+    def refresh(self):
+        """ refresh the field
+
+        :returns: refreshed
+        :rtype: :obj:`bool`
+        """
+        if hasattr(self._h5object, "id"):
+            if hasattr(self._h5object.id, "refresh"):
+                self._h5object.id.refresh()
+                return True
+        return False
+
     def grow(self, dim=0, ext=1):
         """ grow the field
 
@@ -618,6 +630,18 @@ class H5PYLink(filewriter.FTLink):
             return True
         except:
             return False
+
+    def refresh(self):
+        """ refresh the field
+
+        :returns: refreshed
+        :rtype: :obj:`bool`
+        """
+        if hasattr(self._h5object, "id"):
+            if hasattr(self._h5object.id, "refresh"):
+                self._h5object.id.refresh()
+                return True
+        return False
 
     def read(self):
         """ read object value

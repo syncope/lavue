@@ -204,10 +204,10 @@ class FTObject(object):
         """ removes weakref in parent object
         """
         if self._tparent:
-            self._tparent.refresh()
+            self._tparent.reload()
 
-    def refresh(self):
-        """ refresh a list of valid children
+    def reload(self):
+        """ reload a list of valid children
         """
         if self.__tchildren:
             self.__tchildren = [
@@ -462,6 +462,13 @@ class FTField(FTObject):
         :type dim: :obj:`int`
         """
 
+    def refresh(self):
+        """ refresh the field
+
+        :returns: refreshed
+        :rtype: :obj:`bool`
+        """
+
     def read(self):
         """ read the field value
 
@@ -545,6 +552,13 @@ class FTLink(FTObject):
 
         :returns: target path
         :rtype: :obj:`str`
+        """
+
+    def refresh(self):
+        """ refresh the link
+
+        :returns: refreshed
+        :rtype: :obj:`bool`
         """
 
     def reopen(self):

@@ -46,6 +46,7 @@ except ImportError:
     PILLOW = False
 
 
+#: (:obj:`dict` <:obj:`str`, :obj:`module`> ) nexus writer modules
 WRITERS = {}
 try:
     from . import pniwriter
@@ -55,6 +56,7 @@ except:
 try:
     from . import h5pywriter
     WRITERS["h5py"] = h5pywriter
+    SWMR = h5pywriter.SWMR
 except:
     pass
 
@@ -85,15 +87,26 @@ class NexusFieldHandler(object):
         self.__root = None
 
         if not writer:
-            writer = "pni" if "pni" in WRITERS.keys() else "h5py"
+            writer = "h5py" if "h5py" in WRITERS.keys() else "pni"
         if writer not in WRITERS.keys():
             raise Exception("Writer '%s' cannot be opened" % writer)
         wrmodule = WRITERS[writer.lower()]
         if fname:
             try:
-                fl = filewriter.open_file(fname, writer=wrmodule)
+                fl = filewriter.open_file(
+                    fname, writer=wrmodule, readonly=True,
+                    libver='latest',
+                    swmr=(True if writer == "h5py" else False)
+                )
             except:
-                raise Exception("File '%s' cannot be opened\n" % fname)
+                try:
+                    fl = filewriter.open_file(
+                        fname, writer=wrmodule, readonly=True)
+                except:
+                    raise Exception("File '%s' cannot be opened \n" % (fname))
+                # except Exception as e:
+                #     raise Exception("File '%s' cannot be opened %s\n"
+                #                % (fname, str(e)))
 
             self.__root = fl.root()
 
@@ -182,11 +195,31 @@ class NexusFieldHandler(object):
             finally:
                 pass
 
-    def getImage(self, node=None, frame=-1, growing=0, field=None):
+    def getNode(self, field):
+        """ get node
+        :param field: field path
+        :type field: :obj:`str`
+        :returns: nexus field node
+        :rtype: :class:`pni.io.nx.h5.nxfield` or \
+                :class:`pni.io.nx.h5.nxgroup` or \
+                :class:`pni.io.nx.h5.nxlink` or \
+                :class:`pni.io.nx.h5.nxattribute` or \
+                :class:`pni.io.nx.h5.nxroot`
+        """
+        node = None
+        if field is not None:
+            sfield = str(field).split("/")
+            node = self.__root
+            for name in sfield:
+                if name:
+                    node = node.open(name)
+        return node
+
+    def getImage(self, node, frame=-1, growing=0):
         """parses the field and add it into the description list
 
-        :param field: nexus field
-        :type field: :class:`pni.io.nx.h5.nxfield` or \
+        :param node: nexus field node
+        :type node: :class:`pni.io.nx.h5.nxfield` or \
                     :class:`pni.io.nx.h5.nxgroup` or \
                     :class:`pni.io.nx.h5.nxlink` or \
                     :class:`pni.io.nx.h5.nxattribute` or \
@@ -198,12 +231,7 @@ class NexusFieldHandler(object):
         :param field: field path
         :type field: :obj:`str`
         """
-        if field is not None:
-            sfield = str(field).split("/")
-            node = self.__root
-            for name in sfield:
-                if name:
-                    node = node.open(name)
+        node.refresh()
         if node:
             shape = node.shape
         if shape:

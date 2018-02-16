@@ -392,6 +392,14 @@ class PNIField(filewriter.FTField):
         self._h5object = self._tparent.h5object.open(self.name)
         filewriter.FTField.reopen(self)
 
+    def refresh(self):
+        """ refresh the field
+
+        :returns: refreshed
+        :rtype: :obj:`bool`
+        """
+        return False
+
     def grow(self, dim=0, ext=1):
         """ grow the field
 
@@ -506,6 +514,14 @@ class PNILink(filewriter.FTLink):
         :rtype: :obj:`bool`
         """
         return self._h5object is not None and self._h5object.is_valid
+
+    def refresh(self):
+        """ refresh the field
+
+        :returns: refreshed
+        :rtype: :obj:`bool`
+        """
+        return False
 
     @property
     def target_path(self):

@@ -223,14 +223,19 @@ class NXSFileSource(BaseSource):
         """
         BaseSource.__init__(self, timeout)
 
-        #: :obj:`str` nexus file name with the full path
+        #: (:obj:`str`) nexus file name with the full path
         self.__nxsfile = None
-        #: :obj:`str` nexus field path
+        #: (:obj:`str`) nexus field path
         self.__nxsfield = None
-        #: :obj:`int` stacking dimension
+        #: (:obj:`int`) stacking dimension
         self.__gdim = 0
-        #: :obj:`int` the current frame
+        #: (:obj:`int`) the current frame
         self.__frame = 0
+        #: (:class:`lavuelib.imageFileHandler.NexusFieldHandler`)
+        #: the nexus file handler
+        self.__handler = None
+        #: (:class:`lavuelib.filewriter.FTField`) field object
+        self.__node = None
 
     def getData(self):
         """ provides image name, image data and metadata
@@ -242,14 +247,23 @@ class NXSFileSource(BaseSource):
         try:
             image = None
             try:
-                handler = imageFileHandler.NexusFieldHandler(
-                    str(self.__nxsfile))
-                image = handler.getImage(
-                    field=self.__nxsfield,
-                    frame=self.__frame,
-                    growing=self.__gdim)
+                if self.__handler is None:
+                    self.__handler = imageFileHandler.NexusFieldHandler(
+                        str(self.__nxsfile))
+                if self.__node is None:
+                    self.__node = self.__handler.getNode(self.__nxsfield)
+                image = self.__handler.getImage(
+                    self.__node, self.__frame, self.__gdim)
             except:
-                pass
+                try:
+                    self.__handler = imageFileHandler.NexusFieldHandler(
+                        str(self.__nxsfile))
+                    self.__node = self.__handler.getNode(self.__nxsfield)
+                    image = self.__handler.getImage(
+                        self.__node, self.__frame, self.__gdim)
+                except Exception as e:
+                    print(str(e))
+                    pass
             if image is not None:
                 filename = "%s/%s:%s" % (
                     self.__nxsfile, self.__nxsfield, self.__frame)
@@ -265,6 +279,8 @@ class NXSFileSource(BaseSource):
         """ connects the source
         """
         try:
+            self.__handler = None
+            self.__node = None
             self.__frame = 0
             self.__nxsfile, self.__nxsfield, self.__growdim = str(
                 self._configuration).strip().split(",", 2)
@@ -276,6 +292,12 @@ class NXSFileSource(BaseSource):
         except Exception as e:
             print(str(e))
             return False
+
+    def disconnect(self):
+        """ disconnects the source
+        """
+        self.__handler = None
+        self.__node = None
 
 
 class TangoFileSource(BaseSource):

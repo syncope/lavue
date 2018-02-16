@@ -124,14 +124,14 @@ class LiveViewer(QtGui.QMainWindow):
         #: (:class:`lavuelib.settings.Settings`) settings
         self.__settings = settings.Settings()
 
-        #: (:obj:`dict` <:obj:`str`, :obj:`any`>) the current field dictionary
-        self.__currentfield = None
         #: (:obj:`int`) stacking dimension
         self.__growing = None
         #: (:obj:`int`) current frame id
         self.__frame = None
         #: (:obj:`bool`) histogram should be updated
         self.__frameshow = False
+        #: (:obj:`str`) nexus field path
+        self.__fieldpath = None
 
         # WIDGET DEFINITIONS
         #: (:class:`lavuelib.sourceGroupBox.SourceGroupBox`) source groupbox
@@ -283,7 +283,7 @@ class LiveViewer(QtGui.QMainWindow):
 
         self.__sourcewg.configurationChanged.connect(
             self._setSourceConfiguration)
-        self.__ui.frameSpinBox.valueChanged.connect(self._replotFrame)
+        self.__ui.frameSpinBox.valueChanged.connect(self._loadfile)
         self.__sourcewg.updateLayout()
         self.__sourcewg.emitSourceChanged()
         self.__imagewg.showCurrentTool()
@@ -403,16 +403,20 @@ class LiveViewer(QtGui.QMainWindow):
         QtGui.QApplication.closeAllWindows()
         event.accept()
 
+    @QtCore.pyqtSlot(int)
     @QtCore.pyqtSlot()
-    def _loadfile(self):
+    def _loadfile(self, fid=None):
         """ loads the image file
         """
-
-        fileDialog = QtGui.QFileDialog()
         newimage = None
-        imagename = str(
-            fileDialog.getOpenFileName(
-                self, 'Load file', self.__settings.imagename or '.'))
+        if fid is None:
+            fileDialog = QtGui.QFileDialog()
+            imagename = str(
+                fileDialog.getOpenFileName(
+                    self, 'Load file', self.__settings.imagename or '.'))
+        else:
+            self.__frame = int(fid)
+            imagename = self.__settings.imagename
         if imagename:
             if imagename.endswith(".nxs") or imagename.endswith(".h5") \
                or imagename.endswith(".nx") or imagename.endswith(".ndf"):
@@ -421,37 +425,39 @@ class LiveViewer(QtGui.QMainWindow):
                     str(self.__settings.imagename))
                 fields = handler.findImageFields()
                 if fields:
-                    imgfield = imageField.ImageField(self)
-                    imgfield.fields = fields
-                    imgfield.createGUI()
-                    if imgfield.exec_():
-                        if imgfield.field:
-                            self.__currentfield = fields[imgfield.field]
+                    if fid is None or self.__fieldpath is None:
+                        imgfield = imageField.ImageField(self)
+                        imgfield.fields = fields
+                        imgfield.createGUI()
+                        if imgfield.exec_():
+                            self.__fieldpath = imgfield.field
                             self.__growing = imgfield.growing
                             self.__frame = imgfield.frame
-                            newimage = handler.getImage(
-                                self.__currentfield["node"],
-                                self.__frame, self.__growing)
-                            self.__ui.frameSpinBox.valueChanged.disconnect(
-                                self._replotFrame)
-                            while newimage is None and self.__frame > 0:
-                                self.__frame -= 1
-                                self.__updateframeview(True)
-                                newimage = handler.getImage(
-                                    self.__currentfield["node"],
-                                    self.__frame, self.__growing)
-                            self.__ui.frameSpinBox.valueChanged.connect(
-                                self._replotFrame)
                         else:
                             return
-                    else:
-                        return
-                    if imagename:
-                        imagename = "%s:/%s" % (
-                            self.__settings.imagename,
-                            self.__currentfield["nexus_path"])
+                    currentfield = fields[self.__fieldpath]
+                    newimage = handler.getImage(
+                        currentfield["node"],
+                        self.__frame, self.__growing)
+                    self.__ui.frameSpinBox.valueChanged.disconnect(
+                        self._loadfile)
+                    while newimage is None and self.__frame > 0:
+                        self.__frame -= 1
+                        self.__updateframeview(True)
+                        newimage = handler.getImage(
+                            currentfield["node"],
+                            self.__frame, self.__growing)
+                    self.__ui.frameSpinBox.valueChanged.connect(
+                        self._loadfile)
+                else:
+                    return
+                if imagename:
+                    imagename = "%s:/%s" % (
+                        self.__settings.imagename,
+                        currentfield["nexus_path"])
                     self.__updateframeview(True)
             else:
+                self.__fieldpath = None
                 self.__settings.imagename = imagename
                 newimage = imageFileHandler.ImageFileHandler(
                     str(self.__settings.imagename)).getImage()
@@ -833,7 +839,7 @@ class LiveViewer(QtGui.QMainWindow):
                 self.__ui.frameSpinBox.setValue(self.__frame)
             self.__ui.frameSpinBox.show()
         else:
-            self.__currentfield = None
+            self.__fieldpath = None
             self.__ui.frameSpinBox.hide()
 
     def __prepareImage(self):
