@@ -110,16 +110,20 @@ class Settings(object):
         qstval = str(settings.value("Configuration/SecAutoPort").toString())
         if qstval.lower() == "false":
             self.secautoport = False
-        qstval = str(settings.value("Configuration/ShowSubtraction").toString())
+        qstval = str(settings.value(
+            "Configuration/ShowSubtraction").toString())
         if qstval.lower() == "false":
             self.showsub = False
-        qstval = str(settings.value("Configuration/ShowTransformations").toString())
+        qstval = str(settings.value(
+            "Configuration/ShowTransformations").toString())
         if qstval.lower() == "false":
             self.showtrans = False
-        qstval = str(settings.value("Configuration/ShowIntensityScaling").toString())
+        qstval = str(settings.value(
+            "Configuration/ShowIntensityScaling").toString())
         if qstval.lower() == "false":
             self.showscale = False
-        qstval = str(settings.value("Configuration/ShowIntensityLevels").toString())
+        qstval = str(settings.value(
+            "Configuration/ShowIntensityLevels").toString())
         if qstval.lower() == "false":
             self.showlevels = False
         qstval = str(settings.value("Configuration/ShowHistogram").toString())

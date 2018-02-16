@@ -58,8 +58,12 @@ class PreparationGroupBox(QtGui.QGroupBox):
         QtGui.QGroupBox.__init__(self, parent)
         self.setTitle("Image preparation")
 
-        #: (:obj:`bool`) show mask
+        #: (:obj:`bool`) show mask widget
         self.__mask = True
+        #: (:obj:`bool`) show background subtraction widget
+        self.__bkgsub = True
+        #: (:obj:`bool`) show transformations widget
+        self.__trans = True
 
         #: (:class:`lavuelib.maskWidget.Maskwidget`) mask widget
         self.maskWidget = maskWidget.MaskWidget(parent=self)
@@ -81,16 +85,44 @@ class PreparationGroupBox(QtGui.QGroupBox):
 
         self.setLayout(vlayout)
 
-    def changeView(self, showmask=False):
+    def changeView(self, showmask=None, showsub=None, showtrans=None):
         """ show or hide widgets in the preparation colection
 
-        :param showmask: is mask shown
+        :param showmask: mask widget shown
         :type showmask: :obj:`bool`
+        :param showsub: subtraction widget shown
+        :type showsub: :obj:`bool`
+        :param showtrans: transformation widget shown
+        :type showtrans: :obj:`bool`
         """
 
-        if showmask:
+        if showmask is True:
             self.__mask = True
             self.maskWidget.show()
-        else:
+        elif showmask is False:
             self.__mask = False
             self.maskWidget.hide()
+
+        if showsub is True:
+            self.__bkgsub = True
+            self.bkgSubWidget.show()
+        elif showsub is False:
+            self.__bkgsub = False
+            self.bkgSubWidget.hide()
+
+        if showtrans is True:
+            self.__trans = True
+            self.trafoWidget.show()
+        elif showtrans is False:
+            self.__trans = False
+            self.trafoWidget.hide()
+
+        if self.__trans and (self.__bkgsub or self.__mask):
+            self.__hline.show()
+        else:
+            self.__hline.hide()
+
+        if self.__trans or self.__bkgsub or self.__mask:
+            self.show()
+        else:
+            self.hide()

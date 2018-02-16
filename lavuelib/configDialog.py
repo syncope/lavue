@@ -78,7 +78,7 @@ class ConfigDialog(QtGui.QDialog):
         self.showscale = True
         #: (:obj:`bool`) show intensity levels widget
         self.showlevels = True
-        
+
         #: (:obj:`int`) image source timeout in ms
         self.timeout = 3000
         #: (:obj:`bool`) aspect ratio locked

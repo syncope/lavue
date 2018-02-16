@@ -157,7 +157,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
         :param showlevels: if levels should be shown
         :type showlevels: :obj:`bool`
         """
-            
+
         if showhistogram is True and self.__histo is False:
             self.__connectHistogram()
             self.__histogram.show()
@@ -166,7 +166,6 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.__histogram.hide()
             self.__histogram.fillHistogram(False)
             self.__disconnectHistogram()
-
 
         if showlevels is True and self.__levels is False:
             if self.__colors:
@@ -197,7 +196,6 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.__ui.minDoubleSpinBox.hide()
             self.__ui.minLabel.hide()
             self.__ui.scalingLabel.hide()
-            
 
         if showhistogram is not None:
             self.__histo = showhistogram

@@ -354,7 +354,10 @@ class LiveViewer(QtGui.QMainWindow):
         self.__levelswg.changeView(
             self.__settings.showhisto,
             self.__settings.showlevels)
-        self.__prepwg.changeView(self.__settings.showmask)
+        self.__prepwg.changeView(
+            self.__settings.showmask,
+            self.__settings.showsub,
+            self.__settings.showtrans)
         self.__scalingwg.changeView(self.__settings.showscale)
         self.__levelswg.changeView()
 
@@ -523,16 +526,19 @@ class LiveViewer(QtGui.QMainWindow):
         self.__settings.addrois = dialog.addrois
 
         if self.__settings.showsub != dialog.showsub:
-            # self.__prepwg.changeView(dialog.showsub)
+            self.__prepwg.changeView(showsub=dialog.showsub)
             self.__settings.showsub = dialog.showsub
         if self.__settings.showtrans != dialog.showtrans:
-            # self.__prepwg.changeView(dialog.showtrans)
+            self.__prepwg.changeView(showtrans=dialog.showtrans)
             self.__settings.showtrans = dialog.showtrans
+        if self.__settings.showmask != dialog.showmask:
+            self.__settings.showmask = dialog.showmask
+            self.__prepwg.changeView(dialog.showmask)
 
         if self.__settings.showscale != dialog.showscale:
             self.__scalingwg.changeView(dialog.showscale)
             self.__settings.showscale = dialog.showscale
-            
+
         if self.__settings.showlevels != dialog.showlevels:
             self.__levelswg.changeView(showlevels=dialog.showlevels)
             self.__settings.showlevels = dialog.showlevels
@@ -540,9 +546,6 @@ class LiveViewer(QtGui.QMainWindow):
         if self.__settings.showhisto != dialog.showhisto:
             self.__levelswg.changeView(dialog.showhisto)
             self.__settings.showhisto = dialog.showhisto
-        if self.__settings.showmask != dialog.showmask:
-            self.__prepwg.changeView(dialog.showmask)
-            self.__settings.showmask = dialog.showmask
         if self.__settings.showstats != dialog.showstats:
             self.__statswg.changeView(dialog.showstats)
             self.__settings.showstats = dialog.showstats
