@@ -348,7 +348,10 @@ class LiveViewer(QtGui.QMainWindow):
         self.__sourcewg.updateMetaData(
             zmqtopics=self.__settings.zmqtopics,
             dirtrans=self.__settings.dirtrans,
-            autozmqtopics=self.__settings.autozmqtopics)
+            autozmqtopics=self.__settings.autozmqtopics,
+            nxslast=self.__settings.nxslast,
+            nxsopen=self.__settings.nxsopen
+        )
 
         self.__statswg.changeView(self.__settings.showstats)
         self.__levelswg.changeView(

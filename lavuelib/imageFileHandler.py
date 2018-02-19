@@ -234,7 +234,7 @@ class NexusFieldHandler(object):
         if node:
             shape = node.shape
         if shape:
-            if len(shape) < growing and growing > -1:
+            if len(shape) > growing and growing > -1:
                 return shape[growing]
         return 0    
 

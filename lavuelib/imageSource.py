@@ -249,6 +249,7 @@ class NXSFileSource(BaseSource):
         """
 
         try:
+            print("getIMAge")
             image = None
             try:
                 if self.__handler is None:
@@ -257,9 +258,11 @@ class NXSFileSource(BaseSource):
                 if self.__node is None:
                     self.__node = self.__handler.getNode(self.__nxsfield)
                 if self.__nxslast:
-                    fid = self.__handler.getImage(self.__node, self.__gdim)
-                    if fid > self.__frame:
+                    fid = self.__handler.getLastFrame(self.__node, self.__gdim)
+                    print("FID1 %s" % fid)
+                    if fid > self.__frame or fid < self.__frame:
                         self.__frame = fid - 1
+                print("FRAME %s" % self.__frame)        
                 image = self.__handler.getImage(
                     self.__node, self.__frame, self.__gdim)
             except:
@@ -268,8 +271,9 @@ class NXSFileSource(BaseSource):
                         str(self.__nxsfile))
                     self.__node = self.__handler.getNode(self.__nxsfield)
                     if self.__nxslast:
-                        fid = self.__handler.getImage(self.__node, self.__gdim)
-                        if fid > self.__frame:
+                        fid = self.__handler.getLastFrame(self.__node, self.__gdim)
+                        print("FID2 %s" % fid)
+                        if fid > self.__frame or fid < self.__frame:
                             self.__frame = fid - 1
                     image = self.__handler.getImage(
                         self.__node, self.__frame, self.__gdim)
@@ -299,6 +303,7 @@ class NXSFileSource(BaseSource):
     def connect(self):
         """ connects the source
         """
+        print("CONNECT")
         try:
             self.__handler = None
             self.__node = None
