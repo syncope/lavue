@@ -100,7 +100,7 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`bool`) nexus file source starts from the last image
         self.nxslast = False
 
-        
+
     def createGUI(self):
         """ create GUI
         """

@@ -236,7 +236,7 @@ class NexusFieldHandler(object):
         if shape:
             if len(shape) > growing and growing > -1:
                 return shape[growing]
-        return 0    
+        return 0
 
     @classmethod
     def getImage(cls, node, frame=-1, growing=0):

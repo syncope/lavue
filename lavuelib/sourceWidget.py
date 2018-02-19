@@ -490,7 +490,7 @@ class NXSFileSourceWidget(BaseSourceWidget):
         self.__nxsopen = True
         #: (:obj:`bool`) nexus file source starts from the last image
         self.__nxslast = False
-        
+
         self._detachWidgets()
 
         self._ui.nxsFileLineEdit.textEdited.connect(self.updateButton)
@@ -533,7 +533,7 @@ class NXSFileSourceWidget(BaseSourceWidget):
     def updateMetaData(self, nxsopen=None, nxslast=None,  **kargs):
         """ update source input parameters
 
-        :param nxsopen: nexus file source keeps the file open 
+        :param nxsopen: nexus file source keeps the file open
         :type nxsopen: :obj:`bool`
         :param nxslast: nexus file source starts from the last image
         :type nxslast: :obj:`bool`

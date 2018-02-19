@@ -107,7 +107,7 @@ class DataFetchThread(QtCore.QThread):
         while self.__loop:
             if time:
                 time.sleep(GLOBALREFRESHRATE)
-            print("CON %s READy %s" %(self.__isConnected,self.__ready) )    
+            print("CON %s READy %s" %(self.__isConnected, self.__ready) )
             if self.__isConnected and self.__ready:
                 try:
                     with QtCore.QMutexLocker(self.__mutex):
@@ -134,7 +134,6 @@ class DataFetchThread(QtCore.QThread):
         """
         self.__isConnected = status
         self.__ready = True
-        
 
     def setDataSource(self, datasource):
         with QtCore.QMutexLocker(self.__mutex):
