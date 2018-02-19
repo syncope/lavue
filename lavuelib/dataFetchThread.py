@@ -120,6 +120,8 @@ class DataFetchThread(QtCore.QThread):
                     self.__list.addData(name, img, metadata)
                     self.__ready = False
                     self.newDataNameFetched.emit(name, metadata)
+                else:
+                    self.__ready = True
             else:
                 pass
 
@@ -131,6 +133,8 @@ class DataFetchThread(QtCore.QThread):
         :type status: :obj:`bool`
         """
         self.__isConnected = status
+        self.__ready = True
+        
 
     def setDataSource(self, datasource):
         with QtCore.QMutexLocker(self.__mutex):
@@ -145,6 +149,7 @@ class DataFetchThread(QtCore.QThread):
         """ stop the thread
         """
         self.__isConnected = False
+        self.__ready = True
 
     def isRunning(self):
         """ is datasource source connected
