@@ -89,6 +89,10 @@ class Settings(object):
         self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
         #: (:obj:`str`) door device name
         self.doorname = ""
+        #: (:obj:`bool`) nexus file source keeps the file open
+        self.nxsopen = True
+        #: (:obj:`bool`) nexus file source starts from the last image
+        self.nxslast = False
 
     def load(self, settings):
         """ load settings
@@ -138,6 +142,12 @@ class Settings(object):
         qstval = str(settings.value("Configuration/AspectLocked").toString())
         if qstval.lower() == "true":
             self.aspectlocked = True
+        qstval = str(settings.value("Configuration/NXSFileOpen").toString())
+        if qstval.lower() == "false":
+            self.nxsopen = False
+        qstval = str(settings.value("Configuration/NXSLastImage").toString())
+        if qstval.lower() == "true":
+            self.nxslast = True
         qstval = str(settings.value("Configuration/SecPort").toString())
         try:
             int(qstval)
@@ -275,3 +285,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/DirectoryTranslation",
             QtCore.QVariant(self.dirtrans))
+        settings.setValue(
+            "Configuration/NXSLastImage",
+            QtCore.QVariant(self.nxslast))
+        settings.setValue(
+            "Configuration/NXSFileOpen",
+            QtCore.QVariant(self.nxsopen))

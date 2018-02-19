@@ -95,6 +95,12 @@ class ConfigDialog(QtGui.QDialog):
         #  for Tango file source
         self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
 
+        #: (:obj:`bool`) nexus file source keeps the file open
+        self.nxsopen = True
+        #: (:obj:`bool`) nexus file source starts from the last image
+        self.nxslast = False
+
+        
     def createGUI(self):
         """ create GUI
         """
@@ -118,6 +124,8 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.zmqtopicsLineEdit.setText(" ".join(self.zmqtopics))
         self.__ui.autozmqtopicsCheckBox.setChecked(self.autozmqtopics)
         self.__ui.dirtransLineEdit.setText(self.dirtrans)
+        self.__ui.nxsopenCheckBox.setChecked(self.nxsopen)
+        self.__ui.nxslastCheckBox.setChecked(self.nxslast)
 
         self._updateSecPortLineEdit(self.secautoport)
         self.__ui.secautoportCheckBox.stateChanged.connect(
@@ -156,6 +164,8 @@ class ConfigDialog(QtGui.QDialog):
         self.showstats = self.__ui.showstatsCheckBox.isChecked()
         self.aspectlocked = self.__ui.aspectlockedCheckBox.isChecked()
         self.statswoscaling = not self.__ui.statsscaleCheckBox.isChecked()
+        self.nxsopen = self.__ui.nxsopenCheckBox.isChecked()
+        self.nxslast = self.__ui.nxslastCheckBox.isChecked()
         zmqtopics = str(self.__ui.zmqtopicsLineEdit.text()).strip().split(" ")
         try:
             dirtrans = str(self.__ui.dirtransLineEdit.text()).strip()

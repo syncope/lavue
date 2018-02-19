@@ -512,6 +512,8 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.zmqtopics = self.__settings.zmqtopics
         cnfdlg.autozmqtopics = self.__settings.autozmqtopics
         cnfdlg.dirtrans = self.__settings.dirtrans
+        cnfdlg.nxslast = self.__settings.nxslast
+        cnfdlg.nxsopen = self.__settings.nxsopen
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
@@ -591,11 +593,20 @@ class LiveViewer(QtGui.QMainWindow):
         if self.__settings.autozmqtopics != dialog.autozmqtopics:
             self.__settings.autozmqtopics = dialog.autozmqtopics
             setsrc = True
+        if self.__settings.nxsopen != dialog.nxsopen:
+            self.__settings.nxsopen = dialog.nxsopen
+            setsrc = True
+        if self.__settings.nxslast != dialog.nxslast:
+            self.__settings.nxslast = dialog.nxslast
+            setsrc = True
         if setsrc:
             self.__sourcewg.updateMetaData(
                 zmqtopics=self.__settings.zmqtopics,
                 dirtrans=self.__settings.dirtrans,
-                autozmqtopics=self.__settings.autozmqtopics)
+                autozmqtopics=self.__settings.autozmqtopics,
+                nxslast=self.__settings.nxslast,
+                nxsopen=self.__settings.nxsopen
+            )
             self.__sourcewg.updateLayout()
 
         self.__settings.statswoscaling = dialog.statswoscaling

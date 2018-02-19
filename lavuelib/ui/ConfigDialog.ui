@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>540</width>
-    <height>596</height>
+    <width>553</width>
+    <height>650</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -473,74 +473,6 @@
        <layout class="QGridLayout" name="gridLayout_6">
         <item row="0" column="0">
          <layout class="QGridLayout" name="sourcesGridLayout">
-          <item row="3" column="1" colspan="4">
-           <widget class="QLineEdit" name="dirtransLineEdit">
-            <property name="toolTip">
-             <string>JSON dictionary denoting what to replace
-in the file name and the file directory for Tango File Source</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="zmqtopicsLabel">
-            <property name="toolTip">
-             <string>ZMQ source datasources separated by spaces</string>
-            </property>
-            <property name="text">
-             <string>ZMQ Source datasources:</string>
-            </property>
-            <property name="buddy">
-             <cstring>zmqtopicsLineEdit</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" colspan="4">
-           <widget class="QLineEdit" name="zmqtopicsLineEdit">
-            <property name="toolTip">
-             <string>ZMQ source datasources separated by spaces</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="autozmqtopicsLabel">
-            <property name="toolTip">
-             <string>load possible ZMQ source datasources from the stream</string>
-            </property>
-            <property name="text">
-             <string>ZMQ Source automatic:</string>
-            </property>
-            <property name="buddy">
-             <cstring>autozmqtopicsCheckBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="dirtransLabel">
-            <property name="toolTip">
-             <string>JSON dictionary denoting what to replace
-in the file name and the file directory for Tango File Source</string>
-            </property>
-            <property name="text">
-             <string>File/Dir translation:</string>
-            </property>
-            <property name="buddy">
-             <cstring>dirtransLineEdit</cstring>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="1">
            <widget class="QCheckBox" name="autozmqtopicsCheckBox">
             <property name="toolTip">
@@ -548,6 +480,19 @@ in the file name and the file directory for Tango File Source</string>
             </property>
             <property name="text">
              <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <widget class="QLabel" name="nxsopenLabel">
+            <property name="toolTip">
+             <string>nexus source keeps the file open</string>
+            </property>
+            <property name="text">
+             <string>Nexus source keeps the file open:</string>
+            </property>
+            <property name="buddy">
+             <cstring>nxsopenCheckBox</cstring>
             </property>
            </widget>
           </item>
@@ -564,10 +509,111 @@ in the file name and the file directory for Tango File Source</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="2" column="1" colspan="2">
+           <widget class="QLineEdit" name="zmqtopicsLineEdit">
+            <property name="toolTip">
+             <string>ZMQ source datasources separated by spaces</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="2">
+           <widget class="QCheckBox" name="nxsopenCheckBox">
+            <property name="toolTip">
+             <string>nexus source keeps the file open</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="2">
+           <widget class="QLineEdit" name="dirtransLineEdit">
+            <property name="toolTip">
+             <string>JSON dictionary denoting what to replace
+in the file name and the file directory for Tango File Source</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="dirtransLabel">
+            <property name="toolTip">
+             <string>JSON dictionary denoting what to replace
+in the file name and the file directory for Tango File Source</string>
+            </property>
+            <property name="text">
+             <string>File/Dir translation:</string>
+            </property>
+            <property name="buddy">
+             <cstring>dirtransLineEdit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="autozmqtopicsLabel">
+            <property name="toolTip">
+             <string>load possible ZMQ source datasources from the stream</string>
+            </property>
+            <property name="text">
+             <string>ZMQ Source automatic:</string>
+            </property>
+            <property name="buddy">
+             <cstring>autozmqtopicsCheckBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="zmqtopicsLabel">
+            <property name="toolTip">
+             <string>ZMQ source datasources separated by spaces</string>
+            </property>
+            <property name="text">
+             <string>ZMQ Source datasources:</string>
+            </property>
+            <property name="buddy">
+             <cstring>zmqtopicsLineEdit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="2">
            <widget class="QLineEdit" name="timeoutLineEdit">
             <property name="toolTip">
              <string>source timeout in ms</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="5" column="0" colspan="2">
+           <widget class="QLabel" name="nxslastLabel">
+            <property name="toolTip">
+             <string>nexus source starts from the last image</string>
+            </property>
+            <property name="text">
+             <string>Nexus source starts from the last image:</string>
+            </property>
+            <property name="buddy">
+             <cstring>nxslastCheckBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="2">
+           <widget class="QCheckBox" name="nxslastCheckBox">
+            <property name="toolTip">
+             <string>nexus source starts from the last image</string>
+            </property>
+            <property name="text">
+             <string/>
             </property>
            </widget>
           </item>
@@ -607,6 +653,9 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>rateDoubleSpinBox</tabstop>
   <tabstop>aspectlockedCheckBox</tabstop>
   <tabstop>statsscaleCheckBox</tabstop>
+  <tabstop>secstreamCheckBox</tabstop>
+  <tabstop>secautoportCheckBox</tabstop>
+  <tabstop>secportLineEdit</tabstop>
   <tabstop>showtransCheckBox</tabstop>
   <tabstop>showsubCheckBox</tabstop>
   <tabstop>showmaskCheckBox</tabstop>
@@ -614,9 +663,6 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>showlevelsCheckBox</tabstop>
   <tabstop>showhistoCheckBox</tabstop>
   <tabstop>showstatsCheckBox</tabstop>
-  <tabstop>secstreamCheckBox</tabstop>
-  <tabstop>secautoportCheckBox</tabstop>
-  <tabstop>secportLineEdit</tabstop>
   <tabstop>sardanaCheckBox</tabstop>
   <tabstop>doorLineEdit</tabstop>
   <tabstop>addroisCheckBox</tabstop>
@@ -624,6 +670,8 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>autozmqtopicsCheckBox</tabstop>
   <tabstop>zmqtopicsLineEdit</tabstop>
   <tabstop>dirtransLineEdit</tabstop>
+  <tabstop>nxsopenCheckBox</tabstop>
+  <tabstop>nxslastCheckBox</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
@@ -635,8 +683,8 @@ in the file name and the file directory for Tango File Source</string>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>228</x>
-     <y>424</y>
+     <x>238</x>
+     <y>639</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -651,8 +699,8 @@ in the file name and the file directory for Tango File Source</string>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>296</x>
-     <y>430</y>
+     <x>306</x>
+     <y>639</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

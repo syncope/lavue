@@ -215,7 +215,31 @@ class NexusFieldHandler(object):
                     node = node.open(name)
         return node
 
-    def getImage(self, node, frame=-1, growing=0):
+    @classmethod
+    def getLastFrame(cls, node, growing=0):
+        """ provides the last frame number
+
+        :param node: nexus field node
+        :type node: :class:`pni.io.nx.h5.nxfield` or \
+                    :class:`pni.io.nx.h5.nxgroup` or \
+                    :class:`pni.io.nx.h5.nxlink` or \
+                    :class:`pni.io.nx.h5.nxattribute` or \
+                    :class:`pni.io.nx.h5.nxroot`
+        :param growing: growing dimension
+        :type growing: growing dimension
+        :returns: a number of frames
+        :rtype: :obj:`int`
+        """
+        node.refresh()
+        if node:
+            shape = node.shape
+        if shape:
+            if len(shape) < growing and growing > -1:
+                return shape[growing]
+        return 0    
+
+    @classmethod
+    def getImage(cls, node, frame=-1, growing=0):
         """parses the field and add it into the description list
 
         :param node: nexus field node
@@ -228,8 +252,8 @@ class NexusFieldHandler(object):
         :type frame: frame to take
         :param growing: growing dimension
         :type growing: growing dimension
-        :param field: field path
-        :type field: :obj:`str`
+        :returns: get the image
+        :rtype: :class:`numpy.ndarray`
         """
         node.refresh()
         if node:

@@ -236,6 +236,10 @@ class NXSFileSource(BaseSource):
         self.__handler = None
         #: (:class:`lavuelib.filewriter.FTField`) field object
         self.__node = None
+        #: (:obj:`bool`) nexus file source keeps the file open
+        self.__nxsopen = True
+        #: (:obj:`bool`) nexus file source starts from the last image
+        self.__nxslast = False
 
     def getData(self):
         """ provides image name, image data and metadata
@@ -252,6 +256,10 @@ class NXSFileSource(BaseSource):
                         str(self.__nxsfile))
                 if self.__node is None:
                     self.__node = self.__handler.getNode(self.__nxsfield)
+                if self.__nxslast:
+                    fid = self.__handler.getImage(self.__node, self.__gdim)
+                    if fid > self.__frame:
+                        self.__frame = fid - 1
                 image = self.__handler.getImage(
                     self.__node, self.__frame, self.__gdim)
             except:
@@ -259,17 +267,30 @@ class NXSFileSource(BaseSource):
                     self.__handler = imageFileHandler.NexusFieldHandler(
                         str(self.__nxsfile))
                     self.__node = self.__handler.getNode(self.__nxsfield)
+                    if self.__nxslast:
+                        fid = self.__handler.getImage(self.__node, self.__gdim)
+                        if fid > self.__frame:
+                            self.__frame = fid - 1
                     image = self.__handler.getImage(
                         self.__node, self.__frame, self.__gdim)
                 except Exception as e:
                     print(str(e))
                     pass
+            if not self.__nxsopen:
+                self.__handler = None
+                if hasattr(self.__node, "close"):
+                    self.__node.close()
+                self.__node = None
             if image is not None:
                 filename = "%s/%s:%s" % (
                     self.__nxsfile, self.__nxsfield, self.__frame)
                 self.__frame += 1
                 return (np.transpose(image), '%s' % (filename), "")
         except Exception as e:
+            self.__handler = None
+            if hasattr(self.__node, "close"):
+                self.__node.close()
+            self.__node = None
             print(str(e))
             return str(e), "__ERROR__", ""
             pass  # this needs a bit more care
@@ -282,12 +303,21 @@ class NXSFileSource(BaseSource):
             self.__handler = None
             self.__node = None
             self.__frame = 0
-            self.__nxsfile, self.__nxsfield, self.__growdim = str(
-                self._configuration).strip().split(",", 2)
+            self.__nxsfile, self.__nxsfield, growdim, \
+                nxsopen, nxslast = str(
+                self._configuration).strip().split(",", 4)
             try:
-                self.__gdim = int(self.__growdim)
+                self.__gdim = int(growdim)
             except:
                 self.__gdim = 0
+            if nxsopen.lower() == "false":
+                self.__nxsopen = False
+            else:
+                self.__nxsopen = True
+            if nxslast.lower() == "false":
+                self.__nxslast = False
+            else:
+                self.__nxslast = True
             return True
         except Exception as e:
             print(str(e))

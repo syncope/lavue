@@ -368,10 +368,6 @@ class TangoAttrSourceWidget(BaseSourceWidget):
             self.configurationChanged.emit(
                 str(self._ui.attrLineEdit.text()).strip())
 
-    def updateMetaData(self, **kargs):
-        """ update source input parameters
-        """
-
     def disconnectWidget(self):
         """ disconnects widget
         """
@@ -490,7 +486,11 @@ class NXSFileSourceWidget(BaseSourceWidget):
             "nxsFieldLabel", "nxsFieldLineEdit",
             "nxsDimLabel", "nxsDimSpinBox"
         ]
-
+        #: (:obj:`bool`) nexus file source keeps the file open
+        self.__nxsopen = True
+        #: (:obj:`bool`) nexus file source starts from the last image
+        self.__nxslast = False
+        
         self._detachWidgets()
 
         self._ui.nxsFileLineEdit.textEdited.connect(self.updateButton)
@@ -510,7 +510,8 @@ class NXSFileSourceWidget(BaseSourceWidget):
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
-            sourcename = "%s,%s,%s" % (nfl, nfd, nsb)
+            sourcename = "%s,%s,%s,%s,%s" % (
+                nfl, nfd, nsb, self.__nxsopen, self.__nxslast)
             self.configurationChanged.emit(sourcename)
 
     def connectWidget(self):
@@ -529,6 +530,20 @@ class NXSFileSourceWidget(BaseSourceWidget):
         self._ui.nxsFieldLineEdit.setReadOnly(False)
         self._ui.nxsDimSpinBox.setEnabled(True)
 
+    def updateMetaData(self, nxsopen=None, nxslast=None,  **kargs):
+        """ update source input parameters
+
+        :param nxsopen: nexus file source keeps the file open 
+        :type nxsopen: :obj:`bool`
+        :param nxslast: nexus file source starts from the last image
+        :type nxslast: :obj:`bool`
+        :param kargs:  source widget input parameter dictionary
+        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        if nxsopen is not None:
+            self.__nxsopen = nxsopen
+        if nxslast is not None:
+            self.__nxslast = nxslast
 
 class ZMQSourceWidget(BaseSourceWidget):
 
