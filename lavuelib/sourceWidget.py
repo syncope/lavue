@@ -487,7 +487,7 @@ class NXSFileSourceWidget(BaseSourceWidget):
             "nxsDimLabel", "nxsDimSpinBox"
         ]
         #: (:obj:`bool`) nexus file source keeps the file open
-        self.__nxsopen = True
+        self.__nxsopen = False
         #: (:obj:`bool`) nexus file source starts from the last image
         self.__nxslast = False
 
@@ -544,6 +544,7 @@ class NXSFileSourceWidget(BaseSourceWidget):
             self.__nxsopen = nxsopen
         if nxslast is not None:
             self.__nxslast = nxslast
+
 
 class ZMQSourceWidget(BaseSourceWidget):
 

@@ -90,7 +90,7 @@ class Settings(object):
         #: (:obj:`str`) door device name
         self.doorname = ""
         #: (:obj:`bool`) nexus file source keeps the file open
-        self.nxsopen = True
+        self.nxsopen = False
         #: (:obj:`bool`) nexus file source starts from the last image
         self.nxslast = False
 
@@ -143,8 +143,8 @@ class Settings(object):
         if qstval.lower() == "true":
             self.aspectlocked = True
         qstval = str(settings.value("Configuration/NXSFileOpen").toString())
-        if qstval.lower() == "false":
-            self.nxsopen = False
+        if qstval.lower() == "true":
+            self.nxsopen = True
         qstval = str(settings.value("Configuration/NXSLastImage").toString())
         if qstval.lower() == "true":
             self.nxslast = True

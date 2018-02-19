@@ -237,7 +237,7 @@ class NXSFileSource(BaseSource):
         #: (:class:`lavuelib.filewriter.FTField`) field object
         self.__node = None
         #: (:obj:`bool`) nexus file source keeps the file open
-        self.__nxsopen = True
+        self.__nxsopen = False
         #: (:obj:`bool`) nexus file source starts from the last image
         self.__nxslast = False
 
@@ -249,7 +249,6 @@ class NXSFileSource(BaseSource):
         """
 
         try:
-            print("getIMAge")
             image = None
             try:
                 if self.__handler is None:
@@ -259,10 +258,8 @@ class NXSFileSource(BaseSource):
                     self.__node = self.__handler.getNode(self.__nxsfield)
                 if self.__nxslast:
                     fid = self.__handler.getLastFrame(self.__node, self.__gdim)
-                    print("FID1 %s" % fid)
                     if fid > self.__frame or fid < self.__frame:
                         self.__frame = fid - 1
-                print("FRAME %s" % self.__frame)        
                 image = self.__handler.getImage(
                     self.__node, self.__frame, self.__gdim)
             except:
@@ -271,8 +268,8 @@ class NXSFileSource(BaseSource):
                         str(self.__nxsfile))
                     self.__node = self.__handler.getNode(self.__nxsfield)
                     if self.__nxslast:
-                        fid = self.__handler.getLastFrame(self.__node, self.__gdim)
-                        print("FID2 %s" % fid)
+                        fid = self.__handler.getLastFrame(
+                            self.__node, self.__gdim)
                         if fid > self.__frame or fid < self.__frame:
                             self.__frame = fid - 1
                     image = self.__handler.getImage(
@@ -303,14 +300,13 @@ class NXSFileSource(BaseSource):
     def connect(self):
         """ connects the source
         """
-        print("CONNECT")
         try:
             self.__handler = None
             self.__node = None
             self.__frame = 0
             self.__nxsfile, self.__nxsfield, growdim, \
                 nxsopen, nxslast = str(
-                self._configuration).strip().split(",", 4)
+                    self._configuration).strip().split(",", 4)
             try:
                 self.__gdim = int(growdim)
             except:

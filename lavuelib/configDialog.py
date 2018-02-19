@@ -96,10 +96,9 @@ class ConfigDialog(QtGui.QDialog):
         self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
 
         #: (:obj:`bool`) nexus file source keeps the file open
-        self.nxsopen = True
+        self.nxsopen = False
         #: (:obj:`bool`) nexus file source starts from the last image
         self.nxslast = False
-
 
     def createGUI(self):
         """ create GUI

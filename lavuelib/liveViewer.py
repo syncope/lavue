@@ -805,6 +805,8 @@ class LiveViewer(QtGui.QMainWindow):
         """
         self._stopPlotting()
         self.__datasource.disconnect()
+        self.__imagename = None
+        self.__imagename = None
         if self.__settings.secstream:
             calctime = time.time()
             messagedata = {
