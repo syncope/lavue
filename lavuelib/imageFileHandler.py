@@ -216,7 +216,7 @@ class NexusFieldHandler(object):
         return node
 
     @classmethod
-    def getLastFrame(cls, node, growing=0):
+    def getLastFrame(cls, node, growing=0, refresh=True):
         """ provides the last frame number
 
         :param node: nexus field node
@@ -226,11 +226,14 @@ class NexusFieldHandler(object):
                     :class:`pni.io.nx.h5.nxattribute` or \
                     :class:`pni.io.nx.h5.nxroot`
         :param growing: growing dimension
-        :type growing: growing dimension
+        :type growing: :obj:`int`
+        :param refresh: refresh image node
+        :type refresh: :obj:`bool`
         :returns: a number of frames
         :rtype: :obj:`int`
         """
-        node.refresh()
+        if refresh:
+            node.refresh()
         if node:
             shape = node.shape
         if shape:
@@ -239,7 +242,7 @@ class NexusFieldHandler(object):
         return 0
 
     @classmethod
-    def getImage(cls, node, frame=-1, growing=0):
+    def getImage(cls, node, frame=-1, growing=0, refresh=True):
         """parses the field and add it into the description list
 
         :param node: nexus field node
@@ -249,13 +252,16 @@ class NexusFieldHandler(object):
                     :class:`pni.io.nx.h5.nxattribute` or \
                     :class:`pni.io.nx.h5.nxroot`
         :param frame: frame to take, the last one is -1
-        :type frame: frame to take
+        :type frame: :obj:`int`
         :param growing: growing dimension
-        :type growing: growing dimension
+        :type growing: :obj:`int`
+        :param refresh: refresh image node
+        :type refresh: :obj:`bool`
         :returns: get the image
         :rtype: :class:`numpy.ndarray`
         """
-        node.refresh()
+        if refresh:
+            node.refresh()
         if node:
             shape = node.shape
         if shape:

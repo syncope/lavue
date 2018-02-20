@@ -448,7 +448,8 @@ class LiveViewer(QtGui.QMainWindow):
                     currentfield = fields[self.__fieldpath]
                     newimage = handler.getImage(
                         currentfield["node"],
-                        self.__frame, self.__growing)
+                        self.__frame, self.__growing, refresh=False)
+
                     self.__ui.frameSpinBox.valueChanged.disconnect(
                         self._loadfile)
                     while newimage is None and self.__frame > 0:
@@ -456,7 +457,7 @@ class LiveViewer(QtGui.QMainWindow):
                         self.__updateframeview(True)
                         newimage = handler.getImage(
                             currentfield["node"],
-                            self.__frame, self.__growing)
+                            self.__frame, self.__growing, refresh=False)
                     self.__ui.frameSpinBox.valueChanged.connect(
                         self._loadfile)
                 else:

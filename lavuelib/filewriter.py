@@ -309,6 +309,14 @@ class FTFile(FTObject):
         :rtype: :obj:`bool`
         """
 
+    def hasswmr(self):
+        """ if has swmr_mode
+
+        :returns: has swmr_mode
+        :rtype: :obj:`bool`
+        """
+        return False
+
     def reopen(self, readonly=False, swmr=False, libver=None):
         """ reopen attribute
 

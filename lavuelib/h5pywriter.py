@@ -207,6 +207,14 @@ class H5PYFile(filewriter.FTFile):
         elif swmr:
             raise Exception("SWMR not supported")
 
+    def hasswmr(self):
+        """ if has swmr_mode
+
+        :returns: has swmr_mode
+        :rtype: :obj:`bool`
+        """
+        return hasattr(self._h5object, "swmr_mode")
+
 
 class H5PYGroup(filewriter.FTGroup):
 
