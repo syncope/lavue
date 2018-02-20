@@ -262,7 +262,9 @@ class NXSFileSource(BaseSource):
                         self.__frame = fid - 1
                 image = self.__handler.getImage(
                     self.__node, self.__frame, self.__gdim)
-            except:
+            # except:
+            except Exception as e:
+                print(str(e))
                 try:
                     self.__handler = imageFileHandler.NexusFieldHandler(
                         str(self.__nxsfile))

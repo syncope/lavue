@@ -1,3 +1,7 @@
+2018-02-20 Jan Kotanski <jan.kotanski@desy.de>
+	* make workaround for h5py 2.7.0 by no refresh() (fixed in h5py 2.7.1)
+	* tagged as 1.2.1
+
 2018-02-16 Jan Kotanski <jan.kotanski@desy.de>
 	* add support for SWMR (from h5py)
 	* add nexus file source
