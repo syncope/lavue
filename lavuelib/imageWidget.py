@@ -156,7 +156,7 @@ class ImageWidget(QtGui.QWidget):
         """ add tool subwidgets into grid layout
         """
         for tt in self.__tooltypes:
-            twg = getattr(toolWidget, tt)()
+            twg = getattr(toolWidget, tt)(self)
             self.__toolwidgets[twg.name] = twg
             self.__toolnames.append(twg.name)
             self.__ui.toolComboBox.addItem(twg.name)

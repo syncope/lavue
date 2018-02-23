@@ -522,6 +522,25 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     ilabel = "%s(intensity)" % scaling
         return ilabel
 
+    def __scaledxy(self):
+        """ provides scaled x,y positions
+
+        :returns: scaled x,y position
+        :rtype: (:obj:`float`, :obj:`float`)
+        """
+        txdata = None
+        tydata = None
+        if self.__axes.scale is not None:
+            txdata = self.__xdata * self.__axes.scale[0]
+            tydata = self.__ydata * self.__axes.scale[1]
+            if self.__axes.position is not None:
+                txdata = txdata + self.__axes.position[0]
+                tydata = tydata + self.__axes.position[1]
+        elif self.__axes.position is not None:
+            txdata = self.__xdata + self.__axes.position[0]
+            tydata = self.__ydata + self.__axes.position[1]
+        return (txdata, tydata)
+
     def __intensityMessage(self):
         """ provides intensity message
 
@@ -530,12 +549,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         intensity = self.__currentIntensity()
         ilabel = self.__scalingLabel()
-        if self.__axes.scale is not None:
-            txdata = self.__xdata * self.__axes.scale[0]
-            tydata = self.__ydata * self.__axes.scale[1]
-            if self.__axes.position is not None:
-                txdata = txdata + self.__axes.position[0]
-                tydata = tydata + self.__axes.position[1]
+        txdata, tydata = self.__scaledxy()
+        if txdata is not None:
             message = "x = %f%s, y = %f%s, %s = %.2f" % (
                 txdata,
                 (" %s" % self.__axes.xunits) if self.__axes.xunits else "",
@@ -544,18 +559,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 ilabel,
                 intensity
             )
-        elif self.__axes.position is not None:
-            txdata = self.__xdata + self.__axes.position[0]
-            tydata = self.__ydata + self.__axes.position[1]
-            message = "x = %f%s, y = %f%s, %s = %.2f" % (
-                txdata,
-                (" %s" % self.__axes.xunits) if self.__axes.xunits else "",
-                tydata,
-                (" %s" % self.__axes.yunits) if self.__axes.yunits else "",
-                ilabel, intensity)
         else:
-            message = "x = %i, y = %i, %s = %.2f" % (
-                self.__xdata, self.__ydata, ilabel, intensity)
+            message = "x = %i%s, y = %i%s, %s = %.2f" % (
+                self.__xdata,
+                (" %s" % self.__axes.xunits) if self.__axes.xunits else "",
+                self.__ydata,
+                (" %s" % self.__axes.yunits) if self.__axes.yunits else "",
+                ilabel,
+                intensity)
         return message
 
     def __roiMessage(self):

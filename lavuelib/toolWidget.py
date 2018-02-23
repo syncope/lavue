@@ -89,6 +89,8 @@ class ToolWidget(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         #: (:obj:`str`) tool name
         self.name = "None"
+        #: (:class:`PyQt4.QtCore.QObject`) mainwidget
+        self._mainwidget = parent
         #: (:class:`Ui_ToolWidget')
         #:     ui_toolwidget object from qtdesigner
         self._ui = None
