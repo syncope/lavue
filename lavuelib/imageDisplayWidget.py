@@ -466,6 +466,148 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__rawdata = rawimg
         self.mouse_position()
 
+    def __setLines(self):
+        """  sets vLine and hLine positions
+        """
+        if self.__axes.scale is not None and \
+           self.__axes.position is not None:
+            self.__vLine.setPos(
+                (self.__xdata + .5) * self.__axes.scale[0]
+                + self.__axes.position[0])
+            self.__hLine.setPos(
+                (self.__ydata + .5) * self.__axes.scale[1]
+                + self.__axes.position[1])
+        else:
+            self.__vLine.setPos(self.__xdata + .5)
+            self.__hLine.setPos(self.__ydata + .5)
+
+    def __currentIntensity(self):
+        """ provides intensity for current mouse position
+
+        :returns: pixel intensity
+        :rtype: `obj`:float:
+        """
+        if self.__rawdata is not None:
+            try:
+                xf = int(math.floor(self.__xdata))
+                yf = int(math.floor(self.__ydata))
+                if xf >= 0 and yf >= 0 and xf < self.__rawdata.shape[0] \
+                   and yf < self.__rawdata.shape[1]:
+                    intensity = self.__rawdata[xf, yf]
+                else:
+                    intensity = 0.
+            except Exception:
+                intensity = 0.
+        else:
+            intensity = 0.
+        return intensity
+
+    def __scalingLabel(self):
+        """ provides scaling label
+
+        :returns:  scaling label
+        :rtype: `obj`:str:
+        """
+        ilabel = "intensity"
+        scaling = self.__intensity.scaling \
+            if not self.__intensity.statswoscaling else "linear"
+        if not self.__rois.enabled:
+            if self.__intensity.dobkgsubtraction:
+                ilabel = "%s(intensity-background)" % (
+                    scaling if scaling != "linear" else "")
+            else:
+                if scaling == "linear":
+                    ilabel = "intensity"
+                else:
+                    ilabel = "%s(intensity)" % scaling
+        return ilabel
+
+    def __intensityMessage(self):
+        """ provides intensity message
+
+        :returns: intensity message
+        :rtype: `obj`:str:
+        """
+        intensity = self.__currentIntensity()
+        ilabel = self.__scalingLabel()
+        if self.__axes.scale is not None:
+            txdata = self.__xdata * self.__axes.scale[0]
+            tydata = self.__ydata * self.__axes.scale[1]
+            if self.__axes.position is not None:
+                txdata = txdata + self.__axes.position[0]
+                tydata = tydata + self.__axes.position[1]
+            message = "x = %f%s, y = %f%s, %s = %.2f" % (
+                txdata,
+                (" %s" % self.__axes.xunits) if self.__axes.xunits else "",
+                tydata,
+                (" %s" % self.__axes.yunits) if self.__axes.yunits else "",
+                ilabel,
+                intensity
+            )
+        elif self.__axes.position is not None:
+            txdata = self.__xdata + self.__axes.position[0]
+            tydata = self.__ydata + self.__axes.position[1]
+            message = "x = %f%s, y = %f%s, %s = %.2f" % (
+                txdata,
+                (" %s" % self.__axes.xunits) if self.__axes.xunits else "",
+                tydata,
+                (" %s" % self.__axes.yunits) if self.__axes.yunits else "",
+                ilabel, intensity)
+        else:
+            message = "x = %i, y = %i, %s = %.2f" % (
+                self.__xdata, self.__ydata, ilabel, intensity)
+        return message
+
+    def __roiMessage(self):
+        """ provides roi message
+
+        :returns: roi message
+        :rtype: `obj`:str:
+        """
+        return "%s" % self.__rois.coords[self.__rois.current]
+
+    def __cutMessage(self):
+        """ provides cut message
+
+        :returns: cut message
+        :rtype: `obj`:str:
+        """
+        intensity = self.__currentIntensity()
+        ilabel = self.__scalingLabel()
+        if self.__cuts.current > -1:
+            crds = self.__cuts.coords[self.__cuts.current]
+            crds = "[[%.2f, %.2f], [%.2f, %.2f]]" % tuple(crds)
+        else:
+            crds = "[[0, 0], [0, 0]]"
+        return "%s, x = %i, y = %i, %s = %.2f" % (
+            crds, self.__xdata, self.__ydata, ilabel,
+            intensity)
+
+    def __geometryMessage(self):
+        """ provides geometry message
+
+        :returns: geometry message
+        :rtype: `obj`:str: or  `obj`:unicode:
+        """
+        message = ""
+        if self.__geometry.energy > 0 and self.__geometry.detdistance > 0:
+            intensity = self.__currentIntensity()
+            ilabel = self.__scalingLabel()
+            if self.__geometry.gspaceindex == 0:
+                thetax, thetay, thetatotal = self.__geometry.pixel2theta(
+                    self.__xdata, self.__ydata)
+                message = "th_x = %f deg, th_y = %f deg," \
+                          " th_tot = %f deg, %s = %.2f" \
+                          % (thetax, thetay, thetatotal, ilabel, intensity)
+            else:
+                qx, qz, q = self.__geometry.pixel2q(
+                    self.__xdata, self.__ydata)
+                message = u"q_x = %f 1/\u212B, q_z = %f 1/\u212B, " \
+                          u"q = %f 1/\u212B, %s = %.2f" \
+                          % (qx, qz, q, ilabel, intensity)
+
+        return message
+
     @QtCore.pyqtSlot(object)
     def mouse_position(self, event=None):
         """ updates image widget after mouse position change
@@ -480,111 +622,20 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 self.__ydata = math.floor(mousePoint.y())
             if not self.__rois.enabled and not self.__cuts.enabled:
                 if not self.__crosshairlocked:
-                    if self.__axes.scale is not None and \
-                       self.__axes.position is not None:
-                        self.__vLine.setPos(
-                            (self.__xdata + .5) * self.__axes.scale[0]
-                            + self.__axes.position[0])
-                        self.__hLine.setPos(
-                            (self.__ydata + .5) * self.__axes.scale[1]
-                            + self.__axes.position[1])
-                    else:
-                        self.__vLine.setPos(self.__xdata + .5)
-                        self.__hLine.setPos(self.__ydata + .5)
-
-            if self.__rawdata is not None:
-                try:
-                    xf = int(math.floor(self.__xdata))
-                    yf = int(math.floor(self.__ydata))
-                    if xf >= 0 and yf >= 0 and xf < self.__rawdata.shape[0] \
-                       and yf < self.__rawdata.shape[1]:
-                        intensity = self.__rawdata[xf, yf]
-                    else:
-                        intensity = 0.
-                except Exception:
-                    intensity = 0.
-            else:
-                intensity = 0.
-            scaling = self.__intensity.scaling \
-                if not self.__intensity.statswoscaling else "linear"
-            ilabel = "intensity"
-            if not self.__rois.enabled:
-                if self.__intensity.dobkgsubtraction:
-                    ilabel = "%s(intensity-background)" % (
-                        scaling if scaling != "linear" else "")
-                else:
-                    if scaling == "linear":
-                        ilabel = "intensity"
-                    else:
-                        ilabel = "%s(intensity)" % scaling
+                    self.__setLines()
             if not self.__rois.enabled and not self.__cuts.enabled and \
                not self.__geometry.enabled:
-                if self.__axes.scale is not None:
-                    txdata = self.__xdata * self.__axes.scale[0]
-                    tydata = self.__ydata * self.__axes.scale[1]
-                    if self.__axes.position is not None:
-                        txdata = txdata + self.__axes.position[0]
-                        tydata = tydata + self.__axes.position[1]
-                    self.mousePositionChanged.emit(
-                        "x = %f%s, y = %f%s, %s = %.2f" % (
-                            txdata,
-                            (" %s" % self.__axes.xunits)
-                            if self.__axes.xunits else "",
-                            tydata,
-                            (" %s" % self.__axes.yunits)
-                            if self.__axes.yunits else "",
-                            ilabel, intensity))
-                elif self.__axes.position is not None:
-                    txdata = self.__xdata + self.__axes.position[0]
-                    tydata = self.__ydata + self.__axes.position[1]
-                    self.mousePositionChanged.emit(
-                        "x = %f%s, y = %f%s, %s = %.2f" % (
-                            txdata,
-                            (" %s" % self.__axes.xunits)
-                            if self.__axes.xunits else "",
-                            tydata,
-                            (" %s" % self.__axes.yunits)
-                            if self.__axes.yunits else "",
-                            ilabel, intensity))
-                else:
-                    self.mousePositionChanged.emit(
-                        "x = %i, y = %i, %s = %.2f" % (
-                            self.__xdata, self.__ydata, ilabel,
-                            intensity))
+                infomessage = self.__intensityMessage()
             elif self.__rois.enabled and self.__rois.current > -1:
-                if event:
-                    self.mousePositionChanged.emit(
-                        "%s" % self.__rois.coords[self.__rois.current])
+                infomessage = self.__roiMessage()
             elif self.__cuts.enabled:
-                if self.__cuts.current > -1:
-                    crds = self.__cuts.coords[self.__cuts.current]
-                    crds = "[[%.2f, %.2f], [%.2f, %.2f]]" % tuple(crds)
-                else:
-                    crds = "[[0, 0], [0, 0]]"
-                self.mousePositionChanged.emit(
-                    "%s, x = %i, y = %i, %s = %.2f" % (
-                        crds, self.__xdata, self.__ydata, ilabel,
-                        intensity))
-            elif (self.__geometry.enabled and
-                  self.__geometry.energy > 0 and
-                  self.__geometry.detdistance > 0):
-                if self.__geometry.gspaceindex == 0:
-                    thetax, thetay, thetatotal = self.__geometry.pixel2theta(
-                        self.__xdata, self.__ydata)
-                    self.mousePositionChanged.emit(
-                        "th_x = %f deg, th_y = %f deg,"
-                        " th_tot = %f deg, %s = %.2f"
-                        % (thetax, thetay, thetatotal, ilabel, intensity))
-                else:
-                    qx, qz, q = self.__geometry.pixel2q(
-                        self.__xdata, self.__ydata)
-                    self.mousePositionChanged.emit(
-                        u"q_x = %f 1/\u212B, q_z = %f 1/\u212B, "
-                        u"q = %f 1/\u212B, %s = %.2f"
-                        % (qx, qz, q, ilabel, intensity))
-
+                infomessage = self.__cutMessage()
+            elif self.__geometry.enabled:
+                infomessage = self.__geometryMessage()
             else:
-                self.mousePositionChanged.emit("")
+                infomessage = ""
+            if event is not None:
+                self.mousePositionChanged.emit(infomessage)
 
         except Exception:
             # print("Warning: %s" % str(e))
