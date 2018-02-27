@@ -668,9 +668,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
         if parameters.lines is not None:
             self.__showLines(parameters.lines)
-            self.__lines.enabled  = parameters.lines
+            self.__lines.enabled = parameters.lines
         if parameters.crosshairlocker is not None:
-            self.__lines.locker  = parameters.crosshairlocker
+            self.__lines.locker = parameters.crosshairlocker
         if parameters.rois is not None:
             self.__showROIs(parameters.rois)
             self.__rois.enabled = parameters.rois

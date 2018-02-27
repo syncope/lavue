@@ -207,10 +207,13 @@ class ROIToolWidget(ToolWidget):
 
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
+        self._updateApplyButton()
         self.signal2slot = [
             [self.applyROIPressed, self._mainwidget.applyROIs],
             [self.fetchROIPressed, self._mainwidget.fetchROIs],
             [self.roiInfoChanged, self._mainwidget.updateDisplayedText],
+            [self.__ui.labelROILineEdit.textChanged,
+             self._updateApplyButton],
             [self.__ui.roiSpinBox.valueChanged, self._mainwidget.updateROIs],
             [self._mainwidget.roiLineEditChanged, self._updateApplyButton],
             [self._mainwidget.roiAliasesChanged, self.updateROILineEdit],
@@ -245,6 +248,7 @@ class ROIToolWidget(ToolWidget):
         text = str(self.__ui.labelROILineEdit.text())
         self.fetchROIPressed.emit(text)
 
+    @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot()
     def _updateApplyButton(self):
         """ updates applied button"""
@@ -261,6 +265,7 @@ class ROIToolWidget(ToolWidget):
         :type text: :obj:`str`
         """
         self.__ui.labelROILineEdit.setText(text)
+        self._updateApplyButton()
 
     @QtCore.pyqtSlot(bool)
     def updateROIButton(self, enabled):
