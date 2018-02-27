@@ -88,7 +88,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
     #: (:class:`PyQt4.QtCore.pyqtSignal`) aspect locked toggled signal
     aspectLockedToggled = QtCore.pyqtSignal(bool)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse position changed signal
-    mousePositionChanged = QtCore.pyqtSignal(QtCore.QString)
+    mouseImagePositionChanged = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) angle chenter changed signal
     angleCenterChanged = QtCore.pyqtSignal()
 
@@ -392,8 +392,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
            not self.__rois.enabled and not self.__cuts.enabled and \
            not self.__geometry.enabled:
             self.__viewbox.setRange(
-                QtCore.QRectF(self.__axes.position[0], self.__axes.position[1],
-                              xrg * ps[0], yrg * ps[1]),
+                QtCore.QRectF(
+                    self.__axes.position[0], self.__axes.position[1],
+                    xrg * ps[0], yrg * ps[1]),
                 padding=0)
         else:
             self.__viewbox.setRange(
@@ -481,11 +482,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__vLine.setPos(self.__xdata + .5)
             self.__hLine.setPos(self.__ydata + .5)
 
-    def __currentIntensity(self):
+    def currentIntensity(self):
         """ provides intensity for current mouse position
 
-        :returns: pixel intensity
-        :rtype: `obj`:float:
+        :returns: x position, y position, pixel intensity
+        :rtype: (`obj`:float:, `obj`:float:, `obj`:float:)
         """
         if self.__rawdata is not None:
             try:
@@ -500,9 +501,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 intensity = 0.
         else:
             intensity = 0.
-        return intensity
+        return self.__xdata, self.__ydata, intensity
 
-    def __scalingLabel(self):
+    def scalingLabel(self):
         """ provides scaling label
 
         :returns:  scaling label
@@ -522,102 +523,35 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     ilabel = "%s(intensity)" % scaling
         return ilabel
 
-    def __scaledxy(self):
+    def axesunits(self):
+        """ return axes units
+        :returns: x,y units
+        :rtype: (:obj:`str`, :obj:`str`)
+        """
+        return (self.__axes.xunits, self.__axes.yunits)
+
+    def scaledxy(self, x, y):
         """ provides scaled x,y positions
 
+        :param x: x pixel coordinate
+        :type x: :obj:`float`
+        :param y: y pixel coordinate
+        :type y: :obj:`float`
         :returns: scaled x,y position
         :rtype: (:obj:`float`, :obj:`float`)
         """
         txdata = None
         tydata = None
         if self.__axes.scale is not None:
-            txdata = self.__xdata * self.__axes.scale[0]
-            tydata = self.__ydata * self.__axes.scale[1]
+            txdata = x * self.__axes.scale[0]
+            tydata = y * self.__axes.scale[1]
             if self.__axes.position is not None:
                 txdata = txdata + self.__axes.position[0]
                 tydata = tydata + self.__axes.position[1]
         elif self.__axes.position is not None:
-            txdata = self.__xdata + self.__axes.position[0]
-            tydata = self.__ydata + self.__axes.position[1]
+            txdata = x + self.__axes.position[0]
+            tydata = y + self.__axes.position[1]
         return (txdata, tydata)
-
-    def __intensityMessage(self):
-        """ provides intensity message
-
-        :returns: intensity message
-        :rtype: `obj`:str:
-        """
-        intensity = self.__currentIntensity()
-        ilabel = self.__scalingLabel()
-        txdata, tydata = self.__scaledxy()
-        if txdata is not None:
-            message = "x = %f%s, y = %f%s, %s = %.2f" % (
-                txdata,
-                (" %s" % self.__axes.xunits) if self.__axes.xunits else "",
-                tydata,
-                (" %s" % self.__axes.yunits) if self.__axes.yunits else "",
-                ilabel,
-                intensity
-            )
-        else:
-            message = "x = %i%s, y = %i%s, %s = %.2f" % (
-                self.__xdata,
-                (" %s" % self.__axes.xunits) if self.__axes.xunits else "",
-                self.__ydata,
-                (" %s" % self.__axes.yunits) if self.__axes.yunits else "",
-                ilabel,
-                intensity)
-        return message
-
-    def __roiMessage(self):
-        """ provides roi message
-
-        :returns: roi message
-        :rtype: `obj`:str:
-        """
-        return "%s" % self.__rois.coords[self.__rois.current]
-
-    def __cutMessage(self):
-        """ provides cut message
-
-        :returns: cut message
-        :rtype: `obj`:str:
-        """
-        intensity = self.__currentIntensity()
-        ilabel = self.__scalingLabel()
-        if self.__cuts.current > -1:
-            crds = self.__cuts.coords[self.__cuts.current]
-            crds = "[[%.2f, %.2f], [%.2f, %.2f]]" % tuple(crds)
-        else:
-            crds = "[[0, 0], [0, 0]]"
-        return "%s, x = %i, y = %i, %s = %.2f" % (
-            crds, self.__xdata, self.__ydata, ilabel,
-            intensity)
-
-    def __geometryMessage(self):
-        """ provides geometry message
-
-        :returns: geometry message
-        :rtype: `obj`:str: or  `obj`:unicode:
-        """
-        message = ""
-        if self.__geometry.energy > 0 and self.__geometry.detdistance > 0:
-            intensity = self.__currentIntensity()
-            ilabel = self.__scalingLabel()
-            if self.__geometry.gspaceindex == 0:
-                thetax, thetay, thetatotal = self.__geometry.pixel2theta(
-                    self.__xdata, self.__ydata)
-                message = "th_x = %f deg, th_y = %f deg," \
-                          " th_tot = %f deg, %s = %.2f" \
-                          % (thetax, thetay, thetatotal, ilabel, intensity)
-            else:
-                qx, qz, q = self.__geometry.pixel2q(
-                    self.__xdata, self.__ydata)
-                message = u"q_x = %f 1/\u212B, q_z = %f 1/\u212B, " \
-                          u"q = %f 1/\u212B, %s = %.2f" \
-                          % (qx, qz, q, ilabel, intensity)
-
-        return message
 
     @QtCore.pyqtSlot(object)
     def mouse_position(self, event=None):
@@ -634,19 +568,20 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             if not self.__rois.enabled and not self.__cuts.enabled:
                 if not self.__crosshairlocked:
                     self.__setLines()
-            if not self.__rois.enabled and not self.__cuts.enabled and \
-               not self.__geometry.enabled:
-                infomessage = self.__intensityMessage()
-            elif self.__rois.enabled and self.__rois.current > -1:
-                infomessage = self.__roiMessage()
-            elif self.__cuts.enabled:
-                infomessage = self.__cutMessage()
-            elif self.__geometry.enabled:
-                infomessage = self.__geometryMessage()
-            else:
-                infomessage = ""
             if event is not None:
-                self.mousePositionChanged.emit(infomessage)
+                self.mouseImagePositionChanged.emit()
+
+            # if not self.__rois.enabled and not self.__cuts.enabled and \
+            #    not self.__geometry.enabled:
+            #     infomessage = self.__intensityMessage()
+            # elif self.__rois.enabled and self.__rois.current > -1:
+            #     infomessage = self.__roiMessage()
+            # elif self.__cuts.enabled:
+            #     infomessage = self.__cutMessage()
+            # elif self.__geometry.enabled:
+            #     infomessage = self.__geometryMessage()
+            # else:
+            #     infomessage = ""
 
         except Exception:
             # print("Warning: %s" % str(e))
@@ -770,6 +705,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type gspace: :obj:`int`
         """
         self.__geometry.gspaceindex = gindex
+
+    def gspaceIndex(self):
+        """ provides gspace index
+
+        :returns gspace: g-space index, i.e. angle or q-space
+        :rtype: :obj:`int`
+        """
+        return self.__geometry.gspaceindex
 
     @QtCore.pyqtSlot(bool)
     def emitAspectLockedToggled(self, status):
@@ -899,8 +842,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             cut = self._getCut(cid)
             if self.__rawdata is not None:
                 dt = cut.getArrayRegion(
-                    self.__rawdata,
-                    self.__image, axes=(0, 1))
+                    self.__rawdata, self.__image, axes=(0, 1))
                 while dt.ndim > 1:
                     dt = dt.mean(axis=1)
                 return dt
@@ -941,8 +883,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         try:
             cid = self.__cuts.current
-            self.__cuts.coords[cid] = \
-                self._getCut(cid).getCoordinates()
+            self.__cuts.coords[cid] = self._getCut(cid).getCoordinates()
             self.cutCoordsChanged.emit()
         except Exception as e:
             print("Warning: %s" % str(e))
@@ -971,29 +912,22 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__addROICoords(coords)
         while rid > len(self.__roi):
             if coords and len(coords) >= len(self.__roi):
-                self.__addROI(
-                    coords[len(self.__roi)])
+                self.__addROI(coords[len(self.__roi)])
             else:
                 self.__addROI()
-            self._getROI().sigHoverEvent.connect(
-                self.__currentroimapper.map)
-            self._getROI().sigRegionChanged.connect(
-                self.__roiregionmapper.map)
+            self._getROI().sigHoverEvent.connect(self.__currentroimapper.map)
+            self._getROI().sigRegionChanged.connect(self.__roiregionmapper.map)
             self.__currentroimapper.setMapping(
-                self._getROI(),
-                len(self.__roi) - 1)
+                self._getROI(), len(self.__roi) - 1)
             self.__roiregionmapper.setMapping(
-                self._getROI(),
-                len(self.__roi) - 1)
+                self._getROI(), len(self.__roi) - 1)
         if rid <= 0:
             self.__rois.current = -1
         elif self.__rois.current >= rid:
             self.__rois.current = 0
         while self._getROI(max(rid, 0)) is not None:
-            self.__currentroimapper.removeMappings(
-                self._getROI())
-            self.__roiregionmapper.removeMappings(
-                self._getROI())
+            self.__currentroimapper.removeMappings(self._getROI())
+            self.__roiregionmapper.removeMappings(self._getROI())
             self.__removeROI()
 
     def updateCuts(self, cid, coords):
@@ -1008,29 +942,22 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__addCutCoords(coords)
         while cid > len(self.__cut):
             if coords and len(coords) >= len(self.__cut):
-                self.__addCut(
-                    coords[len(self.__cut)])
+                self.__addCut(coords[len(self.__cut)])
             else:
                 self.__addCut()
-            self._getCut().sigHoverEvent.connect(
-                self.__currentcutmapper.map)
-            self._getCut().sigRegionChanged.connect(
-                self.__cutregionmapper.map)
+            self._getCut().sigHoverEvent.connect(self.__currentcutmapper.map)
+            self._getCut().sigRegionChanged.connect(self.__cutregionmapper.map)
             self.__currentcutmapper.setMapping(
-                self._getCut(),
-                len(self.__cut) - 1)
+                self._getCut(), len(self.__cut) - 1)
             self.__cutregionmapper.setMapping(
-                self._getCut(),
-                len(self.__cut) - 1)
+                self._getCut(), len(self.__cut) - 1)
         if cid <= 0:
             self.__cuts.current = -1
         elif self.__cuts.current >= cid:
             self.__cuts.current = 0
         while max(cid, 0) < len(self.__cut):
-            self.__currentcutmapper.removeMappings(
-                self._getCut())
-            self.__cutregionmapper.removeMappings(
-                self._getCut())
+            self.__currentcutmapper.removeMappings(self._getCut())
+            self.__cutregionmapper.removeMappings(self._getCut())
             self.__removeCut()
 
     def updateMetaData(self, axisscales=None, axislabels=None):
@@ -1114,11 +1041,36 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
     def roiCoords(self):
         """ provides rois coordinates
 
-        :return: roi coordinates
+        :return: rois coordinates
         :rtype: :obj:`list`
                < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
         """
         return self.__rois.coords
+
+    def cutCoords(self):
+        """ provides cuts coordinates
+
+        :return: cuts coordinates
+        :rtype: :obj:`list`
+               < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
+        return self.__cuts.coords
+
+    def currentROI(self):
+        """ provides current roi id
+
+        :return: roi id
+        :rtype: :obj:`int`
+        """
+        return self.__rois.current
+
+    def currentCut(self):
+        """ provides current cut id
+
+        :return: cut id
+        :rtype: :obj:`int`
+        """
+        return self.__cuts.current
 
     def image(self):
         """ provides imageItem object
@@ -1135,3 +1087,33 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :rtype: :obj:`unicode`
         """
         return self.__geometry.geometryMessage()
+
+    def pixel2q(self, xdata, ydata):
+        """ converts coordinates from pixel positions to q-space coordinates
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        :returns: q_x, q_y, q_total
+        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
+        """
+        if self.__geometry.energy > 0 and self.__geometry.detdistance > 0:
+            return self.__geometry.pixel2theta(xdata, ydata)
+        else:
+            return None, None, None
+
+    def pixel2theta(self, xdata, ydata):
+        """ converts coordinates from pixel positions to theta angles
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        :returns: x-theta, y-theta, total-theta
+        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
+        """
+        if self.__geometry.energy > 0 and self.__geometry.detdistance > 0:
+            return self.__geometry.pixel2q(xdata, ydata)
+        else:
+            return None, None, None

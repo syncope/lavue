@@ -135,7 +135,9 @@ class IntensityToolWidget(ToolWidget):
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
-            [self.__ui.axesPushButton.clicked, "setTicks"]
+            [self.__ui.axesPushButton.clicked, self._mainwidget.setTicks],
+            [self._mainwidget.mouseImagePositionChanged,
+             self._mainwidget.intensityMessage]
         ]
 
 
@@ -175,15 +177,17 @@ class ROIToolWidget(ToolWidget):
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
-            [self.applyROIPressed, "applyROIs"],
-            [self.fetchROIPressed, "fetchROIs"],
-            [self.roiInfoChanged, "updateDisplayedText"],
-            [self.__ui.roiSpinBox.valueChanged, "updateROIs"],
-            ["roiLineEditChanged", self._updateApplyButton],
-            ["roiAliasesChanged", self.updateROILineEdit],
-            ["roiValueChanged", self.updateROIDisplayText],
-            ["roiNumberChanged", self.setROIsNumber],
-            ["sardanaEnabled", self.updateROIButton]
+            [self.applyROIPressed, self._mainwidget.applyROIs],
+            [self.fetchROIPressed, self._mainwidget.fetchROIs],
+            [self.roiInfoChanged, self._mainwidget.updateDisplayedText],
+            [self.__ui.roiSpinBox.valueChanged, self._mainwidget.updateROIs],
+            [self._mainwidget.roiLineEditChanged, self._updateApplyButton],
+            [self._mainwidget.roiAliasesChanged, self.updateROILineEdit],
+            [self._mainwidget.roiValueChanged, self.updateROIDisplayText],
+            [self._mainwidget.roiNumberChanged, self.setROIsNumber],
+            [self._mainwidget.sardanaEnabled, self.updateROIButton],
+            [self._mainwidget.mouseImagePositionChanged,
+             self._mainwidget.roiMessage]
         ]
 
     @QtCore.pyqtSlot()
@@ -308,8 +312,10 @@ class LineCutToolWidget(ToolWidget):
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
-            [self.__ui.cutSpinBox.valueChanged, "updateCuts"],
-            ["cutNumberChanged", self._setCutsNumber]
+            [self.__ui.cutSpinBox.valueChanged, self._mainwidget.updateCuts],
+            [self._mainwidget.cutNumberChanged, self._setCutsNumber],
+            [self._mainwidget.mouseImagePositionChanged,
+             self._mainwidget.cutMessage]
         ]
 
     @QtCore.pyqtSlot(int)
@@ -349,9 +355,12 @@ class AngleQToolWidget(ToolWidget):
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
-            [self.__ui.angleqPushButton.clicked, "setGeometry"],
-            [self.__ui.angleqComboBox.currentIndexChanged, "setGSpaceIndex"],
-            ["geometryTipsChanged", self.updateTips]
+            [self.__ui.angleqPushButton.clicked, self._mainwidget.setGeometry],
+            [self.__ui.angleqComboBox.currentIndexChanged,
+             self._mainwidget.setGSpaceIndex],
+            [self._mainwidget.geometryTipsChanged, self.updateTips],
+            [self._mainwidget.mouseImagePositionChanged,
+             self._mainwidget.geometryMessage]
         ]
 
     @QtCore.pyqtSlot(str)

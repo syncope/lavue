@@ -77,6 +77,8 @@ class ImageWidget(QtGui.QWidget):
     roiAliasesChanged = QtCore.pyqtSignal(str)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) roi value changed signal
     roiValueChanged = QtCore.pyqtSignal(str, int, str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse image position changed signal
+    mouseImagePositionChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, tooltypes=None, settings=None):
         """ constructor
@@ -101,8 +103,10 @@ class ImageWidget(QtGui.QWidget):
         self.__toolwidgets = {}
         #: (:class:`lavuelib.settings.Settings`) settings
         self.__settings = settings
-
+        #: (obj`str`) last text
         self.__lasttext = ""
+        #: (:class:`lavuelib.toolWidget.BaseToolWidget`) current tool
+        self.__currenttool = None
 
         #: (:class:`Ui_ImageWidget') ui_imagewidget object from qtdesigner
         self.__ui = _formclass()
@@ -147,8 +151,10 @@ class ImageWidget(QtGui.QWidget):
             self._updateGeometry)
         self.__displaywidget.aspectLockedToggled.connect(
             self.emitAspectLockedToggled)
-        self.__displaywidget.mousePositionChanged.connect(
-            self._setDisplayedText)
+        # self.__displaywidget.mousePositionChanged.connect(
+        #     self.setDisplayedText)
+        self.__displaywidget.mouseImagePositionChanged.connect(
+            self._emitMouseImagePositionChanged)
 
         self.roiLineEditChanged.emit()
 
@@ -161,7 +167,23 @@ class ImageWidget(QtGui.QWidget):
             self.__toolnames.append(twg.name)
             self.__ui.toolComboBox.addItem(twg.name)
             self.__ui.toolVerticalLayout.addWidget(twg)
-            for signal, slot in twg.signal2slot:
+
+    def __connecttool(self):
+        """ connect current tool widget
+        """
+        if self.__currenttool:
+            for signal, slot in self.__currenttool.signal2slot:
+                if isinstance(signal, str):
+                    signal = getattr(self, signal)
+                if isinstance(slot, str):
+                    slot = getattr(self, slot)
+                signal.connect(slot)
+
+    def __disconnecttool(self):
+        """ disconnect current tool widget
+        """
+        if self.__currenttool:
+            for signal, slot in self.__currenttool.signal2slot:
                 if isinstance(signal, str):
                     signal = getattr(self, signal)
                 if isinstance(slot, str):
@@ -188,7 +210,7 @@ class ImageWidget(QtGui.QWidget):
     def _updateGeometry(self):
         """ update geometry tips and resets info displayed text
         """
-        self._setDisplayedText("")
+        self.setDisplayedText("")
         self.__updateGeometryTip()
 
     def __updateGeometryTip(self):
@@ -251,11 +273,14 @@ class ImageWidget(QtGui.QWidget):
                 stwg = twg
             else:
                 twg.hide()
+        self.__disconnecttool()
+        self.__currenttool = stwg
         if stwg is not None:
             stwg.show()
             self.__displaywidget.setSubWidgets(stwg.parameters)
             self.__updateinfowidgets(stwg.parameters)
 
+        self.__connecttool()
         if text == "ROI":
             self.__displaywidget.changeROIRegion()
         elif text == "LineCut":
@@ -311,8 +336,7 @@ class ImageWidget(QtGui.QWidget):
         self.__displaywidget.updateImage(array, rawarray)
         if self.__displaywidget.isCutsEnabled():
             self._plotCut()
-        if self.__displaywidget.isROIsEnabled():
-            self._setDisplayedText()
+        self._emitMouseImagePositionChanged()
 
     @QtCore.pyqtSlot()
     def _plotCut(self):
@@ -354,7 +378,7 @@ class ImageWidget(QtGui.QWidget):
         self.__displaywidget.setDisplayMaxLevel(level)
 
     @QtCore.pyqtSlot(str)
-    def _setDisplayedText(self, text=None):
+    def setDisplayedText(self, text=None):
         """ sets displayed info text and recalculates the current roi sum
 
         :param text: text to display
@@ -404,6 +428,17 @@ class ImageWidget(QtGui.QWidget):
         :type status: :obj:`bool`
         """
         self.aspectLockedToggled.emit(status)
+
+    @QtCore.pyqtSlot()
+    def _emitMouseImagePositionChanged(self):
+        """emits mousePositionChanged
+
+        :param x: x pixel coordinate
+        :type x: :obj:`float`
+        :param y: y pixel coordinate
+        :type y: :obj:`float`
+        """
+        self.mouseImagePositionChanged.emit()
 
     def setAspectLocked(self, status):
         """sets aspectLocked
@@ -603,3 +638,76 @@ class ImageWidget(QtGui.QWidget):
             self.updateROIs(len(coords), coords)
         else:
             print("Connection error")
+
+    @QtCore.pyqtSlot()
+    def intensityMessage(self):
+        """ provides intensity message
+        """
+        x, y, intensity = self.__displaywidget.currentIntensity()
+        ilabel = self.__displaywidget.scalingLabel()
+        txdata, tydata = self.__displaywidget.scaledxy(x, y)
+        xunits, yunits = self.__displaywidget.axesunits()
+        if txdata is not None:
+            message = "x = %f%s, y = %f%s, %s = %.2f" % (
+                txdata,
+                (" %s" % xunits) if xunits else "",
+                tydata,
+                (" %s" % yunits) if yunits else "",
+                ilabel,
+                intensity
+            )
+        else:
+            message = "x = %i%s, y = %i%s, %s = %.2f" % (
+                x,
+                (" %s" % xunits) if xunits else "",
+                y,
+                (" %s" % yunits) if yunits else "",
+                ilabel,
+                intensity)
+        self.setDisplayedText(message)
+
+    @QtCore.pyqtSlot()
+    def roiMessage(self):
+        """ provides roi message
+        """
+        message = "%s" % self.__displaywidget.roiCoords()[
+            self.__displaywidget.currentROI()]
+        self.setDisplayedText(message)
+
+    @QtCore.pyqtSlot()
+    def cutMessage(self):
+        """ provides cut message
+        """
+        x, y, intensity = self.__displaywidget.currentIntensity()
+        ilabel = self.__displaywidget.scalingLabel()
+        if self.__displaywidget.currentCut() > -1:
+            crds = self.__displaywidget.cutCoords()[
+                self.__displaywidget.currentCut()]
+            crds = "[[%.2f, %.2f], [%.2f, %.2f]]" % tuple(crds)
+        else:
+            crds = "[[0, 0], [0, 0]]"
+        message = "%s, x = %i, y = %i, %s = %.2f" % (
+            crds, x, y, ilabel, intensity)
+        self.setDisplayedText(message)
+
+    @QtCore.pyqtSlot()
+    def geometryMessage(self):
+        """ provides geometry message
+        """
+        message = ""
+        x, y, intensity = self.__displaywidget.currentIntensity()
+        ilabel = self.__displaywidget.scalingLabel()
+        if self.__displaywidget.gspaceIndex() == 0:
+            thetax, thetay, thetatotal = self.__displaywidget.pixel2theta(x, y)
+            if thetax is not None:
+                message = "th_x = %f deg, th_y = %f deg," \
+                          " th_tot = %f deg, %s = %.2f" \
+                          % (thetax, thetay, thetatotal, ilabel, intensity)
+        else:
+            qx, qz, q = self.__displaywidget.pixel2q(x, y)
+            if qx is not None:
+                message = u"q_x = %f 1/\u212B, q_z = %f 1/\u212B, " \
+                          u"q = %f 1/\u212B, %s = %.2f" \
+                          % (qx, qz, q, ilabel, intensity)
+
+        self.setDisplayedText(message)
