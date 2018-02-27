@@ -64,12 +64,12 @@ class ToolParameters(object):
         self.rois = False
         #: (:obj:`bool`) cuts enabled
         self.cuts = False
-        #: (:obj:`bool`) qscape enabled
-        self.qspace = False
         #: (:obj:`bool`) axes scaling enabled
         self.scale = False
         #: (:obj:`bool`) cut plot enabled
         self.cutplot = False
+        #: (:obj:`bool`) cross hair locker enabled
+        self.crosshairlocker = False
         #: (:obj:`str`) infolineedit text
         self.infolineedit = None
         #: (:obj:`str`) infolabel text
@@ -129,6 +129,8 @@ class IntensityToolWidget(ToolWidget):
         self.parameters.lines = True
         #: (:obj:`bool`) axes scaling enabled
         self.parameters.scale = True
+        #: (:obj:`bool`) cross hair locker enabled
+        self.crosshairlocker = True
         #: (:obj:`str`) infolineedit text
         self.parameters.infolineedit = ""
         #: (:obj:`str`) infolabel text
@@ -222,8 +224,11 @@ class ROIToolWidget(ToolWidget):
     def _message(self):
         """ provides roi message
         """
-        message = "%s" % self._mainwidget.roiCoords()[
-            self._mainwidget.currentROI()]
+        message = ""
+        current = self._mainwidget.currentROI()
+        coords = self._mainwidget.roiCoords()
+        if current > -1 and current < len(coords):
+            message = "%s" % coords[current]
         self._mainwidget.setDisplayedText(message)
 
     @QtCore.pyqtSlot()
@@ -402,9 +407,9 @@ class AngleQToolWidget(ToolWidget):
         #: (:obj:`float`) energy in eV
         self.__energy = 0.0
         #: (:obj:`float`) pixel x-size in um
-        self.____pixelsizex = 0.0
+        self.__pixelsizex = 0.0
         #: (:obj:`float`) pixel y-size in um
-        self.____pixelsizey = 0.0
+        self.__pixelsizey = 0.0
         #: (:obj:`float`) detector distance in mm
         self.__detdistance = 0.0
         #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
@@ -414,7 +419,6 @@ class AngleQToolWidget(ToolWidget):
         self.__ui.setupUi(self)
 
         self.parameters.lines = True
-        self.parameters.qspace = True
         self.parameters.infolineedit = ""
         self.parameters.infotips = ""
 

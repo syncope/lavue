@@ -389,7 +389,7 @@ class ImageWidget(QtGui.QWidget):
         :returns: apply status
         :rtype: :obj:`bool`
         """
-        return self.__displaywidget.setTicks()
+        self.__displaywidget.setTicks()
 
     def image(self):
         """ provides imageItem object

@@ -105,6 +105,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
         #: (:class:`lavuelib.displayParameters.AxesParameters`)
         #:            axes parameters
+        self.__lines = displayParameters.CrossLinesParameters()
+        #: (:class:`lavuelib.displayParameters.AxesParameters`)
+        #:            axes parameters
         self.__axes = displayParameters.AxesParameters()
         #: (:class:`lavuelib.displayParameters.ROIsParameters`)
         #:                rois parameters
@@ -112,9 +115,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         #: (:class:`lavuelib.displayParameters.CutsParameters`)
         #:                 cuts parameters
         self.__cuts = displayParameters.CutsParameters()
-        #: (:class:`lavuelib.displayParameters.GeometryParameters`)
-        #:         geometry parameters
-        self.__geometry = displayParameters.GeometryParameters()
         #: (:class:`lavuelib.displayParameters.IntensityParameters`)
         #:                  intensity parameters
         self.__intensity = displayParameters.IntensityParameters()
@@ -389,9 +389,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         currange = self.__viewbox.viewRange()
         xrg = currange[0][1] - currange[0][0]
         yrg = currange[1][1] - currange[1][0]
-        if self.__axes.position is not None and \
-           not self.__rois.enabled and not self.__cuts.enabled and \
-           not self.__geometry.enabled:
+        if self.__axes.position is not None and self.__axes.enabled:
             self.__viewbox.setRange(
                 QtCore.QRectF(
                     self.__axes.position[0], self.__axes.position[1],
@@ -615,14 +613,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         # if double click: fix mouse crosshair
         # another double click releases the crosshair again
         if event.double():
-            if not self.__rois.enabled and \
-               not self.__cuts.enabled and \
-               not self.__geometry.enabled:
+            if self.__lines.locker:
                 self.__crosshairlocked = not self.__crosshairlocked
                 if not self.__crosshairlocked:
                     self.__vLine.setPos(xdata + .5)
                     self.__hLine.setPos(ydata + .5)
-            if self.__geometry.enabled:
+            elif self.__lines.enabled:
                 self.__crosshairlocked = False
             self.mouseImageDoubleClicked.emit(xdata, ydata)
         else:
@@ -664,23 +660,24 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type parameters: :class:`lavuelib.toolWidget.ToolParameters`
         """
 
-        if parameters.scale is False:
-            doreset = not (self.__cuts.enabled or
-                           self.__rois.enabled or
-                           self.__geometry.enabled)
+        doreset = False
+        if parameters.scale is not None:
+            if parameters.scale is False:
+                doreset = self.__axes.enabled
+            self.__axes.enabled = parameters.scale
 
         if parameters.lines is not None:
             self.__showLines(parameters.lines)
+            self.__lines.enabled  = parameters.lines
+        if parameters.crosshairlocker is not None:
+            self.__lines.locker  = parameters.crosshairlocker
         if parameters.rois is not None:
             self.__showROIs(parameters.rois)
             self.__rois.enabled = parameters.rois
         if parameters.cuts is not None:
             self.__showCuts(parameters.cuts)
             self.__cuts.enabled = parameters.cuts
-        if parameters.qspace is not None:
-            self.__geometry.enabled = parameters.qspace
-
-        if parameters.scale is False and doreset:
+        if doreset:
             self.__resetScale()
         if parameters.scale is True:
             self.__setScale(self.__axes.position, self.__axes.scale)
@@ -937,10 +934,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 scale = (float(axisscales[2]), float(axisscales[3]))
             except:
                 scale = None
-        self.__setScale(position, scale,
-                        not self.__rois.enabled
-                        and not self.__cuts.enabled
-                        and not self.__geometry.enabled)
+        self.__setScale(position, scale, self.__axes.enabled)
 
     def setStatsWOScaling(self, status):
         """ sets statistics without scaling flag

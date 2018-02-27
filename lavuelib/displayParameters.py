@@ -39,6 +39,8 @@ class AxesParameters(object):
         """ constructor
         """
 
+        #: (:obj:`bool`) enabled flag
+        self.enabled = False
         #: (:obj:`tuple` <:obj:`float`, :obj:`float`> ) image scale (x,y)
         self.scale = None
         #: (:obj:`tuple` <:obj:`float`, :obj:`float`> )
@@ -54,7 +56,7 @@ class AxesParameters(object):
         self.yunits = None
 
 
-class GeometryParameters(object):
+class CrossLinesParameters(object):
     """ axes parameters
     """
 
@@ -62,8 +64,10 @@ class GeometryParameters(object):
         """ constructor
         """
 
-        #: (:obj:`bool`) enabled flag
+        #: (:obj:`bool`) cross lines enabled flag
         self.enabled = False
+        #: (:obj:`bool`) locker enabled flag
+        self.locker = False
 
 
 class ROIsParameters(object):
