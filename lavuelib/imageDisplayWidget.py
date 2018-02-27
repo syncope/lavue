@@ -32,7 +32,6 @@ from pyqtgraph.graphicsItems.ROI import ROI, LineROI
 from PyQt4 import QtCore, QtGui
 
 from . import axesDialog
-from . import geometryDialog
 from . import displayParameters
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
@@ -625,8 +624,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     self.__hLine.setPos(ydata + .5)
             if self.__geometry.enabled:
                 self.__crosshairlocked = False
-                self.__geometry.centerx = float(xdata)
-                self.__geometry.centery = float(ydata)
             self.mouseImageDoubleClicked.emit(xdata, ydata)
         else:
             self.mouseImageSingleClicked.emit(xdata, ydata)
@@ -688,22 +685,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if parameters.scale is True:
             self.__setScale(self.__axes.position, self.__axes.scale)
 
-    def setGSpaceIndex(self, gindex):
-        """ set gspace index
-
-        :param gspace: g-space index, i.e. angle or q-space
-        :type gspace: :obj:`int`
-        """
-        self.__geometry.gspaceindex = gindex
-
-    def gspaceIndex(self):
-        """ provides gspace index
-
-        :returns gspace: g-space index, i.e. angle or q-space
-        :rtype: :obj:`int`
-        """
-        return self.__geometry.gspaceindex
-
     @QtCore.pyqtSlot(bool)
     def emitAspectLockedToggled(self, status):
         """ emits aspectLockedToggled
@@ -756,30 +737,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__axes.yunits = cnfdlg.yunits or None
             self.__setScale(position, scale)
             self.updateImage(self.__data, self.__rawdata)
-            return True
-        return False
-
-    def setGeometry(self):
-        """ launches geometry widget
-
-        :returns: apply status
-        :rtype: :obj:`bool`
-        """
-        cnfdlg = geometryDialog.GeometryDialog(self)
-        cnfdlg.centerx = self.__geometry.centerx
-        cnfdlg.centery = self.__geometry.centery
-        cnfdlg.energy = self.__geometry.energy
-        cnfdlg.pixelsizex = self.__geometry.pixelsizex
-        cnfdlg.pixelsizey = self.__geometry.pixelsizey
-        cnfdlg.detdistance = self.__geometry.detdistance
-        cnfdlg.createGUI()
-        if cnfdlg.exec_():
-            self.__geometry.centerx = cnfdlg.centerx
-            self.__geometry.centery = cnfdlg.centery
-            self.__geometry.energy = cnfdlg.energy
-            self.__geometry.pixelsizex = cnfdlg.pixelsizex
-            self.__geometry.pixelsizey = cnfdlg.pixelsizey
-            self.__geometry.detdistance = cnfdlg.detdistance
             return True
         return False
 
@@ -1069,41 +1026,3 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :rtype: :class:`pyqtgraph.imageItem.ImageItem`
         """
         return self.__image
-
-    def geometryTip(self):
-        """ provides geometry messate
-
-        :returns: geometry text
-        :rtype: :obj:`unicode`
-        """
-        return self.__geometry.info()
-
-    def pixel2q(self, xdata, ydata):
-        """ converts coordinates from pixel positions to q-space coordinates
-
-        :param xdata: x pixel position
-        :type xdata: :obj:`float`
-        :param ydata: y-pixel position
-        :type ydata: :obj:`float`
-        :returns: q_x, q_y, q_total
-        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
-        """
-        if self.__geometry.energy > 0 and self.__geometry.detdistance > 0:
-            return self.__geometry.pixel2theta(xdata, ydata)
-        else:
-            return None, None, None
-
-    def pixel2theta(self, xdata, ydata):
-        """ converts coordinates from pixel positions to theta angles
-
-        :param xdata: x pixel position
-        :type xdata: :obj:`float`
-        :param ydata: y-pixel position
-        :type ydata: :obj:`float`
-        :returns: x-theta, y-theta, total-theta
-        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
-        """
-        if self.__geometry.energy > 0 and self.__geometry.detdistance > 0:
-            return self.__geometry.pixel2q(xdata, ydata)
-        else:
-            return None, None, None

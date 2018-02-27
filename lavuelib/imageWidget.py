@@ -55,8 +55,6 @@ class ImageWidget(QtGui.QWidget):
 
     #: (:class:`PyQt4.QtCore.pyqtSignal`) current tool changed signal
     currentToolChanged = QtCore.pyqtSignal(int)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) geometry tips changed signal
-    geometryTipsChanged = QtCore.pyqtSignal(str)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) cut number changed signal
     cutNumberChanged = QtCore.pyqtSignal(int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) roi number changed signal
@@ -194,38 +192,6 @@ class ImageWidget(QtGui.QWidget):
                     slot = getattr(self, slot)
                 signal.connect(slot)
 
-    @QtCore.pyqtSlot(int)
-    def setGSpaceIndex(self, gindex):
-        """ set gspace index
-
-        :param gspace: g-space index, i.e. angle or q-space
-        :type gspace: :obj:`int`
-        """
-        self.__displaywidget.setGSpaceIndex(gindex)
-
-    @QtCore.pyqtSlot()
-    def setGeometry(self):
-        """ launches geometry widget
-        """
-        if self.__displaywidget.setGeometry():
-            self.__updateGeometryTip()
-
-    @QtCore.pyqtSlot(float, float)
-    @QtCore.pyqtSlot()
-    def updateGeometry(self):
-        """ update geometry tips and resets info displayed text
-        """
-        self.setDisplayedText("")
-        self.__updateGeometryTip()
-
-    def __updateGeometryTip(self):
-        """ update geometry tips
-        """
-        message = self.__displaywidget.geometryTip()
-        self.__ui.infoLineEdit.setToolTip(
-            "coordinate info display for the mouse pointer\n%s" % message)
-        self.geometryTipsChanged.emit(message)
-
     def updateMetaData(self, axisscales=None, axislabels=None):
         """ update Metadata informations
 
@@ -291,7 +257,7 @@ class ImageWidget(QtGui.QWidget):
         elif text == "LineCut":
             self.roiCoordsChanged.emit()
         elif text == "Angle/Q":
-            self.__updateGeometryTip()
+            stwg.updateGeometryTip()
             self.roiCoordsChanged.emit()
         else:
             self.roiCoordsChanged.emit()
@@ -406,6 +372,15 @@ class ImageWidget(QtGui.QWidget):
         :type text: :obj:`str`
         """
         self.__ui.infoLineEdit.setText(text)
+
+    @QtCore.pyqtSlot(str)
+    def updateDisplayedTextTip(self, text):
+        """ sets displayed info text tup
+
+        :param text: tip text to display
+        :type text: :obj:`str`
+        """
+        self.__ui.infoLineEdit.setToolTip(text)
 
     @QtCore.pyqtSlot()
     def setTicks(self):
@@ -728,35 +703,3 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :obj:`int`
         """
         return self.__displaywidget.currentCut()
-
-    def gspaceIndex(self):
-        """ provides gspace index
-
-        :returns gspace: g-space index, i.e. angle or q-space
-        :rtype: :obj:`int`
-        """
-        return self.__displaywidget.gspaceIndex()
-
-    def pixel2q(self, xdata, ydata):
-        """ converts coordinates from pixel positions to q-space coordinates
-
-        :param xdata: x pixel position
-        :type xdata: :obj:`float`
-        :param ydata: y-pixel position
-        :type ydata: :obj:`float`
-        :returns: q_x, q_y, q_total
-        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
-        """
-        return self.__displaywidget.pixel2theta(xdata, ydata)
-
-    def pixel2theta(self, xdata, ydata):
-        """ converts coordinates from pixel positions to theta angles
-
-        :param xdata: x pixel position
-        :type xdata: :obj:`float`
-        :param ydata: y-pixel position
-        :type ydata: :obj:`float`
-        :returns: x-theta, y-theta, total-theta
-        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
-        """
-        return self.__displaywidget.pixel2q(xdata, ydata)

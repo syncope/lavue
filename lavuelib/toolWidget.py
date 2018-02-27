@@ -30,6 +30,9 @@ from PyQt4 import QtCore, QtGui, uic
 
 import os
 import re
+import math
+
+from . import geometryDialog
 
 _intensityformclass, _intensitybaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -392,6 +395,21 @@ class AngleQToolWidget(ToolWidget):
         self.name = "Angle/Q"
 
         #: (:class:`Ui_ROIToolWidget') ui_toolwidget object from qtdesigner
+        #: (:obj:`float`) x-coordinates of the center of the image
+        self.__centerx = 0.0
+        #: (:obj:`float`) y-coordinates of the center of the image
+        self.__centery = 0.0
+        #: (:obj:`float`) energy in eV
+        self.__energy = 0.0
+        #: (:obj:`float`) pixel x-size in um
+        self.____pixelsizex = 0.0
+        #: (:obj:`float`) pixel y-size in um
+        self.____pixelsizey = 0.0
+        #: (:obj:`float`) detector distance in mm
+        self.__detdistance = 0.0
+        #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
+        self.__gspaceindex = 0
+
         self.__ui = _angleqformclass()
         self.__ui.setupUi(self)
 
@@ -403,28 +421,27 @@ class AngleQToolWidget(ToolWidget):
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
-            [self.__ui.angleqPushButton.clicked, self._mainwidget.setGeometry],
+            [self.__ui.angleqPushButton.clicked, self._setGeometry],
             [self.__ui.angleqComboBox.currentIndexChanged,
-             self._mainwidget.setGSpaceIndex],
-            [self._mainwidget.geometryTipsChanged, self.updateTips],
+             self._setGSpaceIndex],
             [self._mainwidget.mouseImageDoubleClicked,
-             self._mainwidget.updateGeometry],
+             self._updateCenter],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
-    @QtCore.pyqtSlot(str)
-    def updateTips(self, message):
-        """ updates tips
+    @QtCore.pyqtSlot(float, float)
+    def _updateCenter(self, xdata, ydata):
+        """ updates the image center
 
-        :param message: message to add
-        :type message: :obj:`str`
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
         """
-        self.__ui.angleqPushButton.setToolTip(
-            "Input physical parameters\n%s" % message)
-        self.__ui.angleqComboBox.setToolTip(
-            "Select the display space\n%s" % message)
-        self.__ui.toolLabel.setToolTip(
-            "coordinate info display for the mouse pointer\n%s" % message)
+        self.centerx = float(xdata)
+        self.__centery = float(ydata)
+        self._message()
+        self.updateGeometryTip()
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -433,17 +450,131 @@ class AngleQToolWidget(ToolWidget):
         message = ""
         x, y, intensity = self._mainwidget.currentIntensity()
         ilabel = self._mainwidget.scalingLabel()
-        if self._mainwidget.gspaceIndex() == 0:
-            thetax, thetay, thetatotal = self._mainwidget.pixel2theta(x, y)
+        if self.__gspaceindex == 0:
+            thetax, thetay, thetatotal = self.__pixel2theta(x, y)
             if thetax is not None:
                 message = "th_x = %f deg, th_y = %f deg," \
                           " th_tot = %f deg, %s = %.2f" \
                           % (thetax, thetay, thetatotal, ilabel, intensity)
         else:
-            qx, qz, q = self._mainwidget.pixel2q(x, y)
+            qx, qz, q = self.__pixel2q(x, y)
             if qx is not None:
                 message = u"q_x = %f 1/\u212B, q_z = %f 1/\u212B, " \
                           u"q = %f 1/\u212B, %s = %.2f" \
                           % (qx, qz, q, ilabel, intensity)
 
         self._mainwidget.setDisplayedText(message)
+
+    def __pixel2theta(self, xdata, ydata):
+        """ converts coordinates from pixel positions to theta angles
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        :returns: x-theta, y-theta, total-theta
+        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
+        """
+        thetax = None
+        thetay = None
+        thetatotal = None
+        if self.__energy > 0 and self.__detdistance > 0:
+            xcentered = xdata - self.__centerx
+            ycentered = ydata - self.__centery
+            thetax = math.atan(
+                xcentered * self.__pixelsizex/1000. / self.__detdistance)
+            thetay = math.atan(
+                ycentered * self.__pixelsizey/1000. / self.__detdistance)
+            r = math.sqrt((xcentered * self.__pixelsizex / 1000.) ** 2
+                          + (ycentered * self.__pixelsizex / 1000.) ** 2)
+            thetatotal = math.atan(r/self.__detdistance)*180/math.pi
+        return thetax, thetay, thetatotal
+
+    def __pixel2q(self, xdata, ydata):
+        """ converts coordinates from pixel positions to q-space coordinates
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        :returns: q_x, q_y, q_total
+        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
+        """
+        qx = None
+        qz = None
+        q = None
+        if self.__energy > 0 and self.__detdistance > 0:
+            thetax, thetay, thetatotal = self.__pixel2theta(
+                xdata, ydata)
+            wavelength = 12400./self.__energy
+            qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
+            qz = 4 * math.pi / wavelength * math.sin(thetay/2.)
+            q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)
+        return qx, qz, q
+
+    def __tipmessage(self):
+        """ provides geometry messate
+
+        :returns: geometry text
+        :rtype: :obj:`unicode`
+        """
+
+        return u"geometry:\n" \
+            u"  center = (%s, %s) pixels\n" \
+            u"  pixel_size = (%s, %s) \u00B5m\n" \
+            u"  detector_distance = %s mm\n" \
+            u"  energy = %s eV" % (
+                self.__centerx,
+                self.__centery,
+                self.__pixelsizex,
+                self.__pixelsizey,
+                self.__detdistance,
+                self.__energy
+            )
+
+    @QtCore.pyqtSlot()
+    def _setGeometry(self):
+        """ launches geometry widget
+
+        :returns: apply status
+        :rtype: :obj:`bool`
+        """
+        cnfdlg = geometryDialog.GeometryDialog(self)
+        cnfdlg.centerx = self.__centerx
+        cnfdlg.centery = self.__centery
+        cnfdlg.energy = self.__energy
+        cnfdlg.pixelsizex = self.__pixelsizex
+        cnfdlg.pixelsizey = self.__pixelsizey
+        cnfdlg.detdistance = self.__detdistance
+        cnfdlg.createGUI()
+        if cnfdlg.exec_():
+            self.__centerx = cnfdlg.centerx
+            self.__centery = cnfdlg.centery
+            self.__energy = cnfdlg.energy
+            self.__pixelsizex = cnfdlg.pixelsizex
+            self.__pixelsizey = cnfdlg.pixelsizey
+            self.__detdistance = cnfdlg.detdistance
+            self.updateGeometryTip()
+
+    @QtCore.pyqtSlot(int)
+    def _setGSpaceIndex(self, gindex):
+        """ set gspace index
+
+        :param gspace: g-space index, i.e. angle or q-space
+        :type gspace: :obj:`int`
+        """
+        self.__gspaceindex = gindex
+
+    def updateGeometryTip(self):
+        """ update geometry tips
+        """
+        message = self.__tipmessage()
+        self._mainwidget.updateDisplayedTextTip(
+            "coordinate info display for the mouse pointer\n%s"
+            % message)
+        self.__ui.angleqPushButton.setToolTip(
+            "Input physical parameters\n%s" % message)
+        self.__ui.angleqComboBox.setToolTip(
+            "Select the display space\n%s" % message)
+        self.__ui.toolLabel.setToolTip(
+            "coordinate info display for the mouse pointer\n%s" % message)
