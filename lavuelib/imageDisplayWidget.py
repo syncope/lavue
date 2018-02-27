@@ -1067,13 +1067,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         return self.__image
 
-    def geometryTipMessage(self):
+    def geometryTip(self):
         """ provides geometry messate
 
         :returns: geometry text
         :rtype: :obj:`unicode`
         """
-        return self.__geometry.geometryMessage()
+        return self.__geometry.info()
 
     def pixel2q(self, xdata, ydata):
         """ converts coordinates from pixel positions to q-space coordinates

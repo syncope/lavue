@@ -216,7 +216,7 @@ class ImageWidget(QtGui.QWidget):
     def __updateGeometryTip(self):
         """ update geometry tips
         """
-        message = self.__displaywidget.geometryTipMessage()
+        message = self.__displaywidget.geometryTip()
         self.__ui.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer\n%s" % message)
         self.geometryTipsChanged.emit(message)

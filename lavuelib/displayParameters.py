@@ -120,7 +120,7 @@ class GeometryParameters(object):
         q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)
         return qx, qz, q
 
-    def geometryMessage(self):
+    def info(self):
         """ provides geometry messate
 
         :returns: geometry text
