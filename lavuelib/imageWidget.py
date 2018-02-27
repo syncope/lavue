@@ -79,6 +79,10 @@ class ImageWidget(QtGui.QWidget):
     roiValueChanged = QtCore.pyqtSignal(str, int, str)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse image position changed signal
     mouseImagePositionChanged = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse double clicked
+    mouseImageDoubleClicked = QtCore.pyqtSignal(float, float)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse single clicked
+    mouseImageSingleClicked = QtCore.pyqtSignal(float, float)
 
     def __init__(self, parent=None, tooltypes=None, settings=None):
         """ constructor
@@ -147,14 +151,14 @@ class ImageWidget(QtGui.QWidget):
         self.__displaywidget.cutCoordsChanged.connect(self._plotCut)
         self.__ui.toolComboBox.currentIndexChanged.connect(
             self.showCurrentTool)
-        self.__displaywidget.angleCenterChanged.connect(
-            self._updateGeometry)
         self.__displaywidget.aspectLockedToggled.connect(
             self.emitAspectLockedToggled)
-        # self.__displaywidget.mousePositionChanged.connect(
-        #     self.setDisplayedText)
         self.__displaywidget.mouseImagePositionChanged.connect(
             self._emitMouseImagePositionChanged)
+        self.__displaywidget.mouseImageDoubleClicked.connect(
+            self._emitMouseImageDoubleClicked)
+        self.__displaywidget.mouseImageSingleClicked.connect(
+            self._emitMouseImageSingleClicked)
 
         self.roiLineEditChanged.emit()
 
@@ -206,8 +210,9 @@ class ImageWidget(QtGui.QWidget):
         if self.__displaywidget.setGeometry():
             self.__updateGeometryTip()
 
+    @QtCore.pyqtSlot(float, float)
     @QtCore.pyqtSlot()
-    def _updateGeometry(self):
+    def updateGeometry(self):
         """ update geometry tips and resets info displayed text
         """
         self.setDisplayedText("")
@@ -430,14 +435,31 @@ class ImageWidget(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def _emitMouseImagePositionChanged(self):
-        """emits mousePositionChanged
+        """emits mouseImagePositionChanged
+        """
+        self.mouseImagePositionChanged.emit()
+
+    @QtCore.pyqtSlot(float, float)
+    def _emitMouseImageDoubleClicked(self, x, y):
+        """emits mouseImageDoubleClicked
 
         :param x: x pixel coordinate
         :type x: :obj:`float`
         :param y: y pixel coordinate
         :type y: :obj:`float`
         """
-        self.mouseImagePositionChanged.emit()
+        self.mouseImageDoubleClicked.emit(x, y)
+
+    @QtCore.pyqtSlot(float, float)
+    def _emitMouseImageSingleClicked(self, x, y):
+        """emits mouseImageSingleClicked
+
+        :param x: x pixel coordinate
+        :type x: :obj:`float`
+        :param y: y pixel coordinate
+        :type y: :obj:`float`
+        """
+        self.mouseImageSingleClicked.emit(x, y)
 
     def setAspectLocked(self, status):
         """sets aspectLocked

@@ -407,6 +407,8 @@ class AngleQToolWidget(ToolWidget):
             [self.__ui.angleqComboBox.currentIndexChanged,
              self._mainwidget.setGSpaceIndex],
             [self._mainwidget.geometryTipsChanged, self.updateTips],
+            [self._mainwidget.mouseImageDoubleClicked,
+             self._mainwidget.updateGeometry],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 

@@ -89,8 +89,10 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
     aspectLockedToggled = QtCore.pyqtSignal(bool)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse position changed signal
     mouseImagePositionChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) angle chenter changed signal
-    angleCenterChanged = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse double clicked
+    mouseImageDoubleClicked = QtCore.pyqtSignal(float, float)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse single clicked
+    mouseImageSingleClicked = QtCore.pyqtSignal(float, float)
 
     def __init__(self, parent=None):
         """ constructor
@@ -625,7 +627,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 self.__crosshairlocked = False
                 self.__geometry.centerx = float(xdata)
                 self.__geometry.centery = float(ydata)
-                self.angleCenterChanged.emit()
+            self.mouseImageDoubleClicked.emit(xdata, ydata)
+        else:
+            self.mouseImageSingleClicked.emit(xdata, ydata)
 
     def setAutoLevels(self, autolevels):
         """ sets auto levels
