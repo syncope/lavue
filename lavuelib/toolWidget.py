@@ -136,9 +136,35 @@ class IntensityToolWidget(ToolWidget):
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.axesPushButton.clicked, self._mainwidget.setTicks],
-            [self._mainwidget.mouseImagePositionChanged,
-             self._mainwidget.intensityMessage]
+            [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    @QtCore.pyqtSlot()
+    def _message(self):
+        """ provides intensity message
+        """
+        x, y, intensity = self._mainwidget.currentIntensity()
+        ilabel = self._mainwidget.scalingLabel()
+        txdata, tydata = self._mainwidget.scaledxy(x, y)
+        xunits, yunits = self._mainwidget.axesunits()
+        if txdata is not None:
+            message = "x = %f%s, y = %f%s, %s = %.2f" % (
+                txdata,
+                (" %s" % xunits) if xunits else "",
+                tydata,
+                (" %s" % yunits) if yunits else "",
+                ilabel,
+                intensity
+            )
+        else:
+            message = "x = %i%s, y = %i%s, %s = %.2f" % (
+                x,
+                (" %s" % xunits) if xunits else "",
+                y,
+                (" %s" % yunits) if yunits else "",
+                ilabel,
+                intensity)
+        self._mainwidget.setDisplayedText(message)
 
 
 class ROIToolWidget(ToolWidget):
@@ -186,9 +212,16 @@ class ROIToolWidget(ToolWidget):
             [self._mainwidget.roiValueChanged, self.updateROIDisplayText],
             [self._mainwidget.roiNumberChanged, self.setROIsNumber],
             [self._mainwidget.sardanaEnabled, self.updateROIButton],
-            [self._mainwidget.mouseImagePositionChanged,
-             self._mainwidget.roiMessage]
+            [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    @QtCore.pyqtSlot()
+    def _message(self):
+        """ provides roi message
+        """
+        message = "%s" % self._mainwidget.roiCoords()[
+            self._mainwidget.currentROI()]
+        self._mainwidget.setDisplayedText(message)
 
     @QtCore.pyqtSlot()
     def _emitApplyROIPressed(self):
@@ -314,8 +347,7 @@ class LineCutToolWidget(ToolWidget):
         self.signal2slot = [
             [self.__ui.cutSpinBox.valueChanged, self._mainwidget.updateCuts],
             [self._mainwidget.cutNumberChanged, self._setCutsNumber],
-            [self._mainwidget.mouseImagePositionChanged,
-             self._mainwidget.cutMessage]
+            [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
     @QtCore.pyqtSlot(int)
@@ -326,6 +358,22 @@ class LineCutToolWidget(ToolWidget):
         :type cid: :obj:`int`
         """
         self.__ui.cutSpinBox.setValue(cid)
+
+    @QtCore.pyqtSlot()
+    def _message(self):
+        """ provides cut message
+        """
+        x, y, intensity = self._mainwidget.currentIntensity()
+        ilabel = self._mainwidget.scalingLabel()
+        if self._mainwidget.currentCut() > -1:
+            crds = self._mainwidget.cutCoords()[
+                self._mainwidget.currentCut()]
+            crds = "[[%.2f, %.2f], [%.2f, %.2f]]" % tuple(crds)
+        else:
+            crds = "[[0, 0], [0, 0]]"
+        message = "%s, x = %i, y = %i, %s = %.2f" % (
+            crds, x, y, ilabel, intensity)
+        self._mainwidget.setDisplayedText(message)
 
 
 class AngleQToolWidget(ToolWidget):
@@ -359,8 +407,7 @@ class AngleQToolWidget(ToolWidget):
             [self.__ui.angleqComboBox.currentIndexChanged,
              self._mainwidget.setGSpaceIndex],
             [self._mainwidget.geometryTipsChanged, self.updateTips],
-            [self._mainwidget.mouseImagePositionChanged,
-             self._mainwidget.geometryMessage]
+            [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
     @QtCore.pyqtSlot(str)
@@ -376,3 +423,25 @@ class AngleQToolWidget(ToolWidget):
             "Select the display space\n%s" % message)
         self.__ui.toolLabel.setToolTip(
             "coordinate info display for the mouse pointer\n%s" % message)
+
+    @QtCore.pyqtSlot()
+    def _message(self):
+        """ provides geometry message
+        """
+        message = ""
+        x, y, intensity = self._mainwidget.currentIntensity()
+        ilabel = self._mainwidget.scalingLabel()
+        if self._mainwidget.gspaceIndex() == 0:
+            thetax, thetay, thetatotal = self._mainwidget.pixel2theta(x, y)
+            if thetax is not None:
+                message = "th_x = %f deg, th_y = %f deg," \
+                          " th_tot = %f deg, %s = %.2f" \
+                          % (thetax, thetay, thetatotal, ilabel, intensity)
+        else:
+            qx, qz, q = self._mainwidget.pixel2q(x, y)
+            if qx is not None:
+                message = u"q_x = %f 1/\u212B, q_z = %f 1/\u212B, " \
+                          u"q = %f 1/\u212B, %s = %.2f" \
+                          % (qx, qz, q, ilabel, intensity)
+
+        self._mainwidget.setDisplayedText(message)

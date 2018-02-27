@@ -570,19 +570,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     self.__setLines()
             if event is not None:
                 self.mouseImagePositionChanged.emit()
-
-            # if not self.__rois.enabled and not self.__cuts.enabled and \
-            #    not self.__geometry.enabled:
-            #     infomessage = self.__intensityMessage()
-            # elif self.__rois.enabled and self.__rois.current > -1:
-            #     infomessage = self.__roiMessage()
-            # elif self.__cuts.enabled:
-            #     infomessage = self.__cutMessage()
-            # elif self.__geometry.enabled:
-            #     infomessage = self.__geometryMessage()
-            # else:
-            #     infomessage = ""
-
         except Exception:
             # print("Warning: %s" % str(e))
             pass
@@ -1080,7 +1067,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         return self.__image
 
-    def geometryMessage(self):
+    def geometryTipMessage(self):
         """ provides geometry messate
 
         :returns: geometry text

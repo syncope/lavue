@@ -216,7 +216,7 @@ class ImageWidget(QtGui.QWidget):
     def __updateGeometryTip(self):
         """ update geometry tips
         """
-        message = self.__displaywidget.geometryMessage()
+        message = self.__displaywidget.geometryTipMessage()
         self.__ui.infoLineEdit.setToolTip(
             "coordinate info display for the mouse pointer\n%s" % message)
         self.geometryTipsChanged.emit(message)
@@ -639,75 +639,103 @@ class ImageWidget(QtGui.QWidget):
         else:
             print("Connection error")
 
-    @QtCore.pyqtSlot()
-    def intensityMessage(self):
-        """ provides intensity message
-        """
-        x, y, intensity = self.__displaywidget.currentIntensity()
-        ilabel = self.__displaywidget.scalingLabel()
-        txdata, tydata = self.__displaywidget.scaledxy(x, y)
-        xunits, yunits = self.__displaywidget.axesunits()
-        if txdata is not None:
-            message = "x = %f%s, y = %f%s, %s = %.2f" % (
-                txdata,
-                (" %s" % xunits) if xunits else "",
-                tydata,
-                (" %s" % yunits) if yunits else "",
-                ilabel,
-                intensity
-            )
-        else:
-            message = "x = %i%s, y = %i%s, %s = %.2f" % (
-                x,
-                (" %s" % xunits) if xunits else "",
-                y,
-                (" %s" % yunits) if yunits else "",
-                ilabel,
-                intensity)
-        self.setDisplayedText(message)
+    def currentIntensity(self):
+        """ provides intensity for current mouse position
 
-    @QtCore.pyqtSlot()
-    def roiMessage(self):
-        """ provides roi message
+        :returns: x position, y position, pixel intensity
+        :rtype: (`obj`:float:, `obj`:float:, `obj`:float:)
         """
-        message = "%s" % self.__displaywidget.roiCoords()[
-            self.__displaywidget.currentROI()]
-        self.setDisplayedText(message)
+        return self.__displaywidget.currentIntensity()
 
-    @QtCore.pyqtSlot()
-    def cutMessage(self):
-        """ provides cut message
+    def scalingLabel(self):
+        """ provides scaling label
+
+        :returns:  scaling label
+        :rtype: `obj`:str:
         """
-        x, y, intensity = self.__displaywidget.currentIntensity()
-        ilabel = self.__displaywidget.scalingLabel()
-        if self.__displaywidget.currentCut() > -1:
-            crds = self.__displaywidget.cutCoords()[
-                self.__displaywidget.currentCut()]
-            crds = "[[%.2f, %.2f], [%.2f, %.2f]]" % tuple(crds)
-        else:
-            crds = "[[0, 0], [0, 0]]"
-        message = "%s, x = %i, y = %i, %s = %.2f" % (
-            crds, x, y, ilabel, intensity)
-        self.setDisplayedText(message)
+        return self.__displaywidget.scalingLabel()
 
-    @QtCore.pyqtSlot()
-    def geometryMessage(self):
-        """ provides geometry message
+    def scaledxy(self, x, y):
+        """ provides scaled x,y positions
+
+        :param x: x pixel coordinate
+        :type x: :obj:`float`
+        :param y: y pixel coordinate
+        :type y: :obj:`float`
+        :returns: scaled x,y position
+        :rtype: (:obj:`float`, :obj:`float`)
         """
-        message = ""
-        x, y, intensity = self.__displaywidget.currentIntensity()
-        ilabel = self.__displaywidget.scalingLabel()
-        if self.__displaywidget.gspaceIndex() == 0:
-            thetax, thetay, thetatotal = self.__displaywidget.pixel2theta(x, y)
-            if thetax is not None:
-                message = "th_x = %f deg, th_y = %f deg," \
-                          " th_tot = %f deg, %s = %.2f" \
-                          % (thetax, thetay, thetatotal, ilabel, intensity)
-        else:
-            qx, qz, q = self.__displaywidget.pixel2q(x, y)
-            if qx is not None:
-                message = u"q_x = %f 1/\u212B, q_z = %f 1/\u212B, " \
-                          u"q = %f 1/\u212B, %s = %.2f" \
-                          % (qx, qz, q, ilabel, intensity)
+        return self.__displaywidget.scaledxy(x, y)
 
-        self.setDisplayedText(message)
+    def axesunits(self):
+        """ return axes units
+        :returns: x,y units
+        :rtype: (:obj:`str`, :obj:`str`)
+        """
+        return self.__displaywidget.axesunits()
+
+    def roiCoords(self):
+        """ provides rois coordinates
+
+        :return: rois coordinates
+        :rtype: :obj:`list`
+               < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
+        return self.__displaywidget.roiCoords()
+
+    def cutCoords(self):
+        """ provides cuts coordinates
+
+        :return: cuts coordinates
+        :rtype: :obj:`list`
+               < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
+        return self.__displaywidget.cutCoords()
+
+    def currentROI(self):
+        """ provides current roi id
+
+        :return: roi id
+        :rtype: :obj:`int`
+        """
+        return self.__displaywidget.currentROI()
+
+    def currentCut(self):
+        """ provides current cut id
+
+        :return: cut id
+        :rtype: :obj:`int`
+        """
+        return self.__displaywidget.currentCut()
+
+    def gspaceIndex(self):
+        """ provides gspace index
+
+        :returns gspace: g-space index, i.e. angle or q-space
+        :rtype: :obj:`int`
+        """
+        return self.__displaywidget.gspaceIndex()
+
+    def pixel2q(self, xdata, ydata):
+        """ converts coordinates from pixel positions to q-space coordinates
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        :returns: q_x, q_y, q_total
+        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
+        """
+        return self.__displaywidget.pixel2theta(xdata, ydata)
+
+    def pixel2theta(self, xdata, ydata):
+        """ converts coordinates from pixel positions to theta angles
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        :returns: x-theta, y-theta, total-theta
+        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
+        """
+        return self.__displaywidget.pixel2q(xdata, ydata)
