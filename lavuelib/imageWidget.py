@@ -336,7 +336,6 @@ class ImageWidget(QtGui.QWidget):
         self.__displaywidget.updateImage(array, rawarray)
         if self.__displaywidget.isCutsEnabled():
             self._plotCut()
-        self._emitMouseImagePositionChanged()
 
     @QtCore.pyqtSlot()
     def _plotCut(self):

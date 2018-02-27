@@ -568,8 +568,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             if not self.__rois.enabled and not self.__cuts.enabled:
                 if not self.__crosshairlocked:
                     self.__setLines()
-            if event is not None:
-                self.mouseImagePositionChanged.emit()
+            self.mouseImagePositionChanged.emit()
         except Exception:
             # print("Warning: %s" % str(e))
             pass
