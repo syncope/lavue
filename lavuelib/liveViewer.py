@@ -97,6 +97,8 @@ class LiveViewer(QtGui.QMainWindow):
         self.__tooltypes.append("ROIToolWidget")
         self.__tooltypes.append("LineCutToolWidget")
         self.__tooltypes.append("AngleQToolWidget")
+        if isr.PYTANGO:
+            self.__tooltypes.append("MotorsToolWidget")
 
         if umode and umode.lower() in ["expert"]:
             #: (:obj:`str`) execution mode: expert or user

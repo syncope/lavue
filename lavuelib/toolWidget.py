@@ -50,6 +50,10 @@ _angleqformclass, _angleqbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "AngleQToolWidget.ui"))
 
+_motorsformclass, _motorsbaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "MotorsToolWidget.ui"))
+
 
 class ToolParameters(object):
     """ tool parameters
@@ -141,6 +145,71 @@ class IntensityToolWidget(ToolWidget):
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.axesPushButton.clicked, self._mainwidget.setTicks],
+            [self._mainwidget.mouseImagePositionChanged, self._message]
+        ]
+
+    @QtCore.pyqtSlot()
+    def _message(self):
+        """ provides intensity message
+        """
+        x, y, intensity = self._mainwidget.currentIntensity()
+        ilabel = self._mainwidget.scalingLabel()
+        txdata, tydata = self._mainwidget.scaledxy(x, y)
+        xunits, yunits = self._mainwidget.axesunits()
+        if txdata is not None:
+            message = "x = %f%s, y = %f%s, %s = %.2f" % (
+                txdata,
+                (" %s" % xunits) if xunits else "",
+                tydata,
+                (" %s" % yunits) if yunits else "",
+                ilabel,
+                intensity
+            )
+        else:
+            message = "x = %i%s, y = %i%s, %s = %.2f" % (
+                x,
+                (" %s" % xunits) if xunits else "",
+                y,
+                (" %s" % yunits) if yunits else "",
+                ilabel,
+                intensity)
+        self._mainwidget.setDisplayedText(message)
+
+
+class MotorsToolWidget(ToolWidget):
+    """ motors tool widget
+    """
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
+        ToolWidget.__init__(self, parent)
+
+        #: (:obj:`str`) tool name
+        self.name = "MoveMotors"
+
+        #: (:class:`Ui_MotorsToolWidget')
+        #:        ui_toolwidget object from qtdesigner
+        self.__ui = _motorsformclass()
+        self.__ui.setupUi(self)
+
+        #: (:obj:`bool`) lines enabled
+        self.parameters.lines = True
+        #: (:obj:`bool`) cross hair locker enabled
+        # self.parameters.crosshairlocker = True
+        #: (:obj:`str`) infolineedit text
+        self.parameters.infolineedit = ""
+        #: (:obj:`str`) infolabel text
+        self.parameters.infotips = \
+            "coordinate info display for the mouse pointer"
+
+        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: list of [signal, slot] object to connect
+        self.signal2slot = [
+#            [self.__ui.axesPushButton.clicked, self._mainwidget.setTicks],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
