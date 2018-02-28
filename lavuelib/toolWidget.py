@@ -447,7 +447,7 @@ class AngleQToolWidget(ToolWidget):
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
         """
-        self.centerx = float(xdata)
+        self.__centerx = float(xdata)
         self.__centery = float(ydata)
         self._message()
         self.updateGeometryTip()
