@@ -130,7 +130,7 @@ class IntensityToolWidget(ToolWidget):
         #: (:obj:`bool`) axes scaling enabled
         self.parameters.scale = True
         #: (:obj:`bool`) cross hair locker enabled
-        self.crosshairlocker = True
+        self.parameters.crosshairlocker = True
         #: (:obj:`str`) infolineedit text
         self.parameters.infolineedit = ""
         #: (:obj:`str`) infolabel text
