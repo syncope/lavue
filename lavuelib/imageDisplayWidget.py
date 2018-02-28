@@ -564,7 +564,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 mousePoint = self.__image.mapFromScene(event)
                 self.__xdata = math.floor(mousePoint.x())
                 self.__ydata = math.floor(mousePoint.y())
-            if not self.__rois.enabled and not self.__cuts.enabled:
+            if self.__lines.enabled:
                 if not self.__crosshairlocked:
                     self.__setLines()
             self.mouseImagePositionChanged.emit()
