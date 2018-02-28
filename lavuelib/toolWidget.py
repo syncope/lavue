@@ -33,6 +33,7 @@ import re
 import math
 
 from . import geometryDialog
+from . import takeMotorsDialog
 
 _intensityformclass, _intensitybaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -191,6 +192,19 @@ class MotorsToolWidget(ToolWidget):
         #: (:obj:`str`) tool name
         self.name = "MoveMotors"
 
+        #: (:obj:`str`) horizontal motor name
+        self.__hmotorname = ""
+        #: (:obj:`str`) vertical motor name
+        self.__vmotorname = ""
+        #: (:obj:`str`) horizontal final position
+        self.__hfinal = None
+        #: (:obj:`str`) vertical final position
+        self.__vfinal = None
+        #: (:class:`PyTango.DeviceProxy`) horizontal motor device
+        self.__hmotordevice = None
+        #: (:class:`PyTango.DeviceProxy`) vertical motor device
+        self.__vmotordevice = None
+
         #: (:class:`Ui_MotorsToolWidget')
         #:        ui_toolwidget object from qtdesigner
         self.__ui = _motorsformclass()
@@ -210,9 +224,66 @@ class MotorsToolWidget(ToolWidget):
         #: list of [signal, slot] object to connect
         self.signal2slot = [
 #            [self.__ui.axesPushButton.clicked, self._mainwidget.setTicks],
+            [self.__ui.takePushButton.clicked, self._setMotors],
+            [self.__ui.movePushButton.clicked, self._moveMotors],
+            [self._mainwidget.mouseImageDoubleClicked, self._updateFinal],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
+    @QtCore.pyqtSlot(float, float)
+    def _updateFinal(self, xdata, ydata):
+        """ updates the final motors position
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        """
+        self.__hfinal = float(xdata)
+        self.__vfinal = float(ydata)
+        self.__ui.hLineEdit.setText(str(self.__hfinal))
+        self.__ui.vLineEdit.setText(str(self.__vfinal))
+        self.__ui.movePushButton.setToolTip(
+            "Move to horizontal and vertical motors to (%s, %s)"
+            % (self.__hfinal, self.__vfinal))
+
+    @QtCore.pyqtSlot()
+    def _moveMotors(self):
+        """ move motors
+        """
+        try:
+            self.__hfinal = float(self.__ui.hLineEdit.text())
+        except:
+            self.__ui.hLineEdit.setFocus()
+            return
+        try:
+            self.__vfinal = float(self.__ui.vLineEdit.text())
+        except:
+            self.__ui.vLineEdit.setFocus()
+            return
+            
+        print("%s %s" % (self.__hfinal, self.__vfinal))
+
+    @QtCore.pyqtSlot()
+    def _setMotors(self):
+        """ launches motors widget
+
+        :returns: apply status
+        :rtype: :obj:`bool`
+        """
+        cnfdlg = takeMotorsDialog.TakeMotorsDialog(self)
+        cnfdlg.hmotorname = self.__hmotorname
+        cnfdlg.vmotorname = self.__vmotorname
+        cnfdlg.createGUI()
+        if cnfdlg.exec_():
+            self.__hmotorname = cnfdlg.hmotorname
+            self.__vmotorname = cnfdlg.vmotorname
+            self.__hmotordevice = cnfdlg.hmotordevice
+            self.__vmotordevice = cnfdlg.vmotordevice
+            self.__ui.takePushButton.setToolTip(
+                "Horizontal: %s\nVertical: %s" % (self.__hmotorname, self.__vmotorname))
+            #self.updateGeometryTip()
+            
     @QtCore.pyqtSlot()
     def _message(self):
         """ provides intensity message

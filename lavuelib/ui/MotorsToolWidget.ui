@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>564</width>
-    <height>30</height>
+    <width>735</width>
+    <height>34</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,33 +21,59 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLabel" name="hLabel">
+       <property name="toolTip">
+        <string>horizontal motor position</string>
+       </property>
        <property name="text">
-        <string>H:</string>
+        <string>Horizontal:</string>
+       </property>
+       <property name="buddy">
+        <cstring>hLineEdit</cstring>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="hLineEdit"/>
+      <widget class="QLineEdit" name="hLineEdit">
+       <property name="toolTip">
+        <string>horizontal motor position</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QLabel" name="vLabel">
+       <property name="toolTip">
+        <string>vertical motor position</string>
+       </property>
        <property name="text">
-        <string>V:</string>
+        <string>Vertical:</string>
+       </property>
+       <property name="buddy">
+        <cstring>vLineEdit</cstring>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="vLineEdit"/>
+      <widget class="QLineEdit" name="vLineEdit">
+       <property name="toolTip">
+        <string>vertical motor position</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="takePushButton">
+       <property name="toolTip">
+        <string>select horizontal and vertical motors</string>
+       </property>
        <property name="text">
-        <string>Take Motors ...</string>
+        <string>Motors ...</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="movePushButton">
+       <property name="toolTip">
+        <string>move horizontal and vertical motors to the selected position</string>
+       </property>
        <property name="text">
         <string>Move</string>
        </property>
@@ -57,6 +83,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>hLineEdit</tabstop>
+  <tabstop>vLineEdit</tabstop>
+  <tabstop>takePushButton</tabstop>
+  <tabstop>movePushButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
