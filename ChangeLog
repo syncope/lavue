@@ -1,6 +1,7 @@
 2018-02-XX Jan Kotanski <jan.kotanski@desy.de>
 	* fix for auto level range
 	* move info messages to tool widgets
+	* move q-geometry to tool widgets
 	* tagged as 1.4.0
 
 2018-02-20 Jan Kotanski <jan.kotanski@desy.de>
