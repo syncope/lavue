@@ -20,49 +20,49 @@
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="hLabel">
+      <widget class="QLabel" name="xLabel">
        <property name="toolTip">
-        <string>horizontal motor position</string>
+        <string>x-motor position</string>
        </property>
        <property name="text">
-        <string>Horizontal:</string>
+        <string>X:</string>
        </property>
        <property name="buddy">
-        <cstring>hLineEdit</cstring>
+        <cstring>xLineEdit</cstring>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="hLineEdit">
+      <widget class="QLineEdit" name="xLineEdit">
        <property name="toolTip">
-        <string>horizontal motor position</string>
+        <string>x-motor position</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="vLabel">
+      <widget class="QLabel" name="yLabel">
        <property name="toolTip">
-        <string>vertical motor position</string>
+        <string>y-motor position</string>
        </property>
        <property name="text">
-        <string>Vertical:</string>
+        <string>Y:</string>
        </property>
        <property name="buddy">
-        <cstring>vLineEdit</cstring>
+        <cstring>yLineEdit</cstring>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="vLineEdit">
+      <widget class="QLineEdit" name="yLineEdit">
        <property name="toolTip">
-        <string>vertical motor position</string>
+        <string>y-motor position</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="takePushButton">
        <property name="toolTip">
-        <string>select horizontal and vertical motors</string>
+        <string>select x- and y-motor</string>
        </property>
        <property name="text">
         <string>Motors ...</string>
@@ -72,7 +72,7 @@
      <item>
       <widget class="QPushButton" name="movePushButton">
        <property name="toolTip">
-        <string>move horizontal and vertical motors to the selected position</string>
+        <string>move x and y-motor to the selected position</string>
        </property>
        <property name="text">
         <string>Move</string>
@@ -84,8 +84,8 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>hLineEdit</tabstop>
-  <tabstop>vLineEdit</tabstop>
+  <tabstop>xLineEdit</tabstop>
+  <tabstop>yLineEdit</tabstop>
   <tabstop>takePushButton</tabstop>
   <tabstop>movePushButton</tabstop>
  </tabstops>

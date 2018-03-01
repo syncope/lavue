@@ -192,18 +192,18 @@ class MotorsToolWidget(ToolWidget):
         #: (:obj:`str`) tool name
         self.name = "MoveMotors"
 
-        #: (:obj:`str`) horizontal motor name
-        self.__hmotorname = ""
-        #: (:obj:`str`) vertical motor name
-        self.__vmotorname = ""
-        #: (:obj:`str`) horizontal final position
-        self.__hfinal = None
-        #: (:obj:`str`) vertical final position
-        self.__vfinal = None
-        #: (:class:`PyTango.DeviceProxy`) horizontal motor device
-        self.__hmotordevice = None
-        #: (:class:`PyTango.DeviceProxy`) vertical motor device
-        self.__vmotordevice = None
+        #: (:obj:`str`) x-motor name
+        self.__xmotorname = ""
+        #: (:obj:`str`) y-motor name
+        self.__ymotorname = ""
+        #: (:obj:`str`) x final position
+        self.__xfinal = None
+        #: (:obj:`str`) y final position
+        self.__yfinal = None
+        #: (:class:`PyTango.DeviceProxy`) x-motor device
+        self.__xmotordevice = None
+        #: (:class:`PyTango.DeviceProxy`) y-motor device
+        self.__ymotordevice = None
 
         #: (:class:`Ui_MotorsToolWidget')
         #:        ui_toolwidget object from qtdesigner
@@ -239,30 +239,33 @@ class MotorsToolWidget(ToolWidget):
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
         """
-        self.__hfinal = float(xdata)
-        self.__vfinal = float(ydata)
-        self.__ui.hLineEdit.setText(str(self.__hfinal))
-        self.__ui.vLineEdit.setText(str(self.__vfinal))
+        self.__xfinal = float(xdata)
+        self.__yfinal = float(ydata)
+        self.__ui.xLineEdit.setText(str(self.__xfinal))
+        self.__ui.yLineEdit.setText(str(self.__yfinal))
         self.__ui.movePushButton.setToolTip(
-            "Move to horizontal and vertical motors to (%s, %s)"
-            % (self.__hfinal, self.__vfinal))
+            "Move to x- and y-motors to (%s, %s)"
+            % (self.__xfinal, self.__yfinal))
 
     @QtCore.pyqtSlot()
     def _moveMotors(self):
         """ move motors
         """
         try:
-            self.__hfinal = float(self.__ui.hLineEdit.text())
+            self.__xfinal = float(self.__ui.xLineEdit.text())
         except:
-            self.__ui.hLineEdit.setFocus()
+            self.__ui.xLineEdit.setFocus()
             return
         try:
-            self.__vfinal = float(self.__ui.vLineEdit.text())
+            self.__yfinal = float(self.__ui.yLineEdit.text())
         except:
-            self.__ui.vLineEdit.setFocus()
+            self.__ui.yLineEdit.setFocus()
             return
-            
-        print("%s %s" % (self.__hfinal, self.__vfinal))
+        
+        if self.__xmotordevice is None or self.__ymotordevice is None:
+            if not self._setMotors():
+                return
+        print("%s %s" % (self.__xfinal, self.__yfinal))
 
     @QtCore.pyqtSlot()
     def _setMotors(self):
@@ -272,17 +275,20 @@ class MotorsToolWidget(ToolWidget):
         :rtype: :obj:`bool`
         """
         cnfdlg = takeMotorsDialog.TakeMotorsDialog(self)
-        cnfdlg.hmotorname = self.__hmotorname
-        cnfdlg.vmotorname = self.__vmotorname
+        cnfdlg.xmotorname = self.__xmotorname
+        cnfdlg.ymotorname = self.__ymotorname
         cnfdlg.createGUI()
         if cnfdlg.exec_():
-            self.__hmotorname = cnfdlg.hmotorname
-            self.__vmotorname = cnfdlg.vmotorname
-            self.__hmotordevice = cnfdlg.hmotordevice
-            self.__vmotordevice = cnfdlg.vmotordevice
+            self.__xmotorname = cnfdlg.xmotorname
+            self.__ymotorname = cnfdlg.ymotorname
+            self.__xmotordevice = cnfdlg.xmotordevice
+            self.__ymotordevice = cnfdlg.ymotordevice
             self.__ui.takePushButton.setToolTip(
-                "Horizontal: %s\nVertical: %s" % (self.__hmotorname, self.__vmotorname))
+                "x-motor: %s\ny-motor: %s" % (
+                    self.__xmotorname, self.__ymotorname))
             #self.updateGeometryTip()
+            return True
+        return False
             
     @QtCore.pyqtSlot()
     def _message(self):

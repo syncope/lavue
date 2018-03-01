@@ -58,36 +58,42 @@ class TakeMotorsDialog(QtGui.QDialog):
         self.__ui = _formclass()
         self.__ui.setupUi(self)
 
-        #: (:obj:`str`) horizontal motor name
-        self.hmotorname = ""
-        #: (:obj:`str`) vertical motor name
-        self.vmotorname = ""
-        #: (:class:`PyTango.DeviceProxy`) horizontal motor device
-        self.hmotordevice = None
-        #: (:class:`PyTango.DeviceProxy`) vertical motor device
-        self.vmotordevice = None
+        #: (:obj:`str`) x motor name
+        self.xmotorname = ""
+        #: (:obj:`str`) y motor name
+        self.ymotorname = ""
+        #: (:class:`PyTango.DeviceProxy`) x motor device
+        self.xmotordevice = None
+        #: (:class:`PyTango.DeviceProxy`) y motor device
+        self.ymotordevice = None
         
     def createGUI(self):
         """ create GUI
         """
-        self.__ui.horizontalLineEdit.setText(str(self.hmotorname))
-        self.__ui.verticalLineEdit.setText(str(self.vmotorname))
+        self.__ui.xLineEdit.setText(str(self.xmotorname))
+        self.__ui.yLineEdit.setText(str(self.ymotorname))
 
     @QtCore.pyqtSlot()
     def accept(self):
         """ updates class variables with the form content
         """
         try:
-            self.hmotorname = str(self.__ui.horizontalLineEdit.text())
-            self.hmotordevice = PyTango.DeviceProxy(self.hmotorname)
+            self.xmotorname = str(self.__ui.xLineEdit.text())
+            self.xmotordevice = PyTango.DeviceProxy(self.xmotorname)
+            for attr in ["state", "position"]:
+                if not hasattr(self.xmotordevice, attr):
+                    raise Exception("Missing %s" % attr)
         except:
-            self.__ui.horizontalLineEdit.setFocus()
+            self.__ui.xLineEdit.setFocus()
             return
         try:
-            self.vmotorname = str(self.__ui.verticalLineEdit.text())
-            self.vmotordevice = PyTango.DeviceProxy(self.vmotorname)
+            self.ymotorname = str(self.__ui.yLineEdit.text())
+            self.ymotordevice = PyTango.DeviceProxy(self.ymotorname)
+            for attr in ["state", "position"]:
+                if not hasattr(self.ymotordevice, attr):
+                    raise Exception("Missing %s" % attr)
         except:
-            self.__ui.verticalLineEdit.setFocus()
+            self.__ui.yLineEdit.setFocus()
             return
 
 

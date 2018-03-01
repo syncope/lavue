@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>410</width>
+    <width>282</width>
     <height>160</height>
    </rect>
   </property>
@@ -25,42 +25,42 @@
         <item row="0" column="0">
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
-           <widget class="QLabel" name="horizontalLabel">
+           <widget class="QLabel" name="xLabel">
             <property name="toolTip">
-             <string>Tango device or alias of horizontal motor</string>
+             <string>Tango device or alias of x-motor</string>
             </property>
             <property name="text">
-             <string>Horizontal:</string>
+             <string>X:</string>
             </property>
             <property name="buddy">
-             <cstring>horizontalLineEdit</cstring>
+             <cstring>xLineEdit</cstring>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="horizontalLineEdit">
+           <widget class="QLineEdit" name="xLineEdit">
             <property name="toolTip">
-             <string>Tango device or alias of horizontal motor</string>
+             <string>Tango device or alias of x-motor</string>
             </property>
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="verticalLabel">
+           <widget class="QLabel" name="yLabel">
             <property name="toolTip">
-             <string>Tango device or alias of vertical motor</string>
+             <string>Tango device or alias of y-motor</string>
             </property>
             <property name="text">
-             <string>Vertical:</string>
+             <string>Y:</string>
             </property>
             <property name="buddy">
-             <cstring>verticalLineEdit</cstring>
+             <cstring>yLineEdit</cstring>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLineEdit" name="verticalLineEdit">
+           <widget class="QLineEdit" name="yLineEdit">
             <property name="toolTip">
-             <string>Tango device or alias of vertical motor</string>
+             <string>Tango device or alias of y-motor</string>
             </property>
            </widget>
           </item>
@@ -97,9 +97,8 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>horizontalLineEdit</tabstop>
-  <tabstop>verticalLineEdit</tabstop>
-  <tabstop>buttonBox</tabstop>
+  <tabstop>xLineEdit</tabstop>
+  <tabstop>yLineEdit</tabstop>
  </tabstops>
  <resources/>
  <connections>
