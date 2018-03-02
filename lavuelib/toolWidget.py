@@ -225,7 +225,7 @@ class MotorsToolWidget(ToolWidget):
         self.signal2slot = [
 #            [self.__ui.axesPushButton.clicked, self._mainwidget.setTicks],
             [self.__ui.takePushButton.clicked, self._setMotors],
-            [self.__ui.movePushButton.clicked, self._moveMotors],
+            [self.__ui.movePushButton.clicked, self._moveStopMotors],
             [self._mainwidget.mouseImageDoubleClicked, self._updateFinal],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
@@ -248,24 +248,71 @@ class MotorsToolWidget(ToolWidget):
             % (self.__xfinal, self.__yfinal))
 
     @QtCore.pyqtSlot()
-    def _moveMotors(self):
+    def _moveStopMotors(self):
+        if str(self.__ui.movePushButton.text()) == "Move":
+            if self.__moveMotors():
+                self.__ui.movePushButton.setText("Stop")
+        else:
+            if self.__stopMotors():
+                self.__ui.movePushButton.setText("Move")
+
+    def __stopMotors(self):
         """ move motors
+
+        :returns: motors stopped
+        :rtype: :obj:`bool`
+        """
+        try:
+            if hasattr(self.__xmotordevice, "stop"):
+                self.__xmotordevice.stop()
+            elif hasattr(self.__xmotordevice, "StopMove"):
+                self.__xmotordevice.StopMove()
+            else:
+                return False
+            if hasattr(self.__ymotordevice, "stop"):
+                self.__ymotordevice.stop()
+            elif hasattr(self.__ymotordevice, "StopMove"):
+                self.__ymotordevice.StopMove()
+            else:
+                return False
+            print("STOP")
+        except Exception as e:
+            print(str(e))
+            
+        return True
+    
+    def __moveMotors(self):
+        """ move motors
+
+        :returns: motors started
+        :rtype: :obj:`bool`
         """
         try:
             self.__xfinal = float(self.__ui.xLineEdit.text())
         except:
             self.__ui.xLineEdit.setFocus()
-            return
+            return False
         try:
             self.__yfinal = float(self.__ui.yLineEdit.text())
         except:
             self.__ui.yLineEdit.setFocus()
-            return
+            return False
         
         if self.__xmotordevice is None or self.__ymotordevice is None:
             if not self._setMotors():
-                return
+                return False
+        if str(self.__xmotordevice.state) != "ON" \
+           and str(self.__ymotordevice.state) != "ON":
+            try:
+                self.__xmotordevice.position = self.__xfinal
+                self.__ymotordevice.position = self.__yfinal
+            except Exception as e:
+                print(str(e))
+                return False
+        else:
+            return False
         print("%s %s" % (self.__xfinal, self.__yfinal))
+        return True    
 
     @QtCore.pyqtSlot()
     def _setMotors(self):
