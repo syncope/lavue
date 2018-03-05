@@ -33,7 +33,7 @@ import time
 from PyQt4 import QtCore
 
 
-#: (:obj:`float`) refresh rate if the data source is running in seconds
+#: (:obj:`float`) refresh rate in seconds
 GLOBALREFRESHRATE = .1
 
 
