@@ -101,7 +101,7 @@ class DataFetchThread(QtCore.QThread):
         self.__loop = False
         #: (:obj:`bool`) ready flag
         self.__ready = True
-        #: (:class:`PyQt4.QtCore.QMutex`) zmq bind address
+        #: (:class:`PyQt4.QtCore.QMutex`) thread mutex
         self.__mutex = QtCore.QMutex()
 
     def run(self):
