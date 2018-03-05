@@ -1,0 +1,102 @@
+# Copyright (C) 2017  DESY, Christoph Rosemann, Notkestr. 85, D-22607 Hamburg
+#
+# lavue is an image viewing program for photon science imaging detectors.
+# Its usual application is as a live viewer using hidra as data source.
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation in  version 2
+# of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301, USA.
+#
+# Authors:
+#     Christoph Rosemann <christoph.rosemann@desy.de>
+#     Jan Kotanski <jan.kotanski@desy.de>
+#
+
+""" motor watch thread """
+
+from __future__ import print_function
+from __future__ import unicode_literals
+
+import time
+
+from PyQt4 import QtCore
+
+#: (:obj:`float`) refresh rate in seconds
+GLOBALREFRESHRATE = .1
+
+
+# subclass for threading
+class MotorWatchThread(QtCore.QThread):
+
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) signal with motor status
+    motorStatusSignal = QtCore.pyqtSignal(float, str, float, str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) watching finished
+    wachingFinished = QtCore.pyqtSignal()
+
+    def __init__(self, motor1, motor2, mserver=None):
+        """ constructor
+
+        :param motor1: first motor device proxy
+        :type motor1: :class:`PyTango.DeviceProxy`
+        :param motor2: second motor device proxy
+        :type motor2: :class:`PyTango.DeviceProxy`
+        :param mserver: macro server device proxy
+        :type mserver: :class:`PyTango.DeviceProxy`
+        """
+        QtCore.QThread.__init__(self)
+        #: (:obj:`bool`) execute loop flag
+        self.__loop = False
+        #: (:class:`PyTango.DeviceProxy`) first motor device proxy
+        self.__motor1 = motor1
+        #: (:class:`PyTango.DeviceProxy`) second motor device proxy
+        self.__motor2 = motor2
+        #: (:class:`PyTango.DeviceProxy`) macro server device proxy
+        self.__mserver = mserver
+
+    def run(self):
+        """ runner of the fetching thread
+        """
+        self.__loop = True
+        while self.__loop:
+            if time:
+                time.sleep(GLOBALREFRESHRATE)
+            try:
+                state1 = str(self.__motor1.state())
+                pos1 = float(self.__motor1.position)
+                state2 = str(self.__motor2.state())
+                pos2 = float(self.__motor2.position)
+                motorStatusSignal.emit(pos1, state1, pos2, state2)
+                if self.__mserver is not None:
+                    mstate = str(self.__mserver.state())
+                else:
+                    if state1 == "MOVING" or state2 == "MOVING":
+                        mstate = "MOVING"
+                    elif state1 == "RUNNING" or state2 == "RUNNING":
+                        mstate = "RUNNING"
+                    else:
+                        mstate = "ON"
+                if mstate not in ["RUNNING", "MOVING"]:
+                    watchFinished.emit()
+                    self.__loop = False
+            except Exception as e:
+                print(str(e))
+
+
+    def isRunning(self):
+        """ is datasource source connected
+
+        :returns: if datasource source connected
+        :rtype: :obj:`bool`
+        """
+        return self.__loop

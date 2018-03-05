@@ -204,6 +204,8 @@ class MotorsToolWidget(ToolWidget):
         self.__xmotordevice = None
         #: (:class:`PyTango.DeviceProxy`) y-motor device
         self.__ymotordevice = None
+        #: (:class:`lavuelib.motorWatchThread.motorWatchThread`) motor watcher
+        self.__motorWatcher = None
 
         #: (:class:`Ui_MotorsToolWidget')
         #:        ui_toolwidget object from qtdesigner
@@ -312,6 +314,7 @@ class MotorsToolWidget(ToolWidget):
         else:
             return False
         print("%s %s" % (self.__xfinal, self.__yfinal))
+        
         return True    
 
     @QtCore.pyqtSlot()
