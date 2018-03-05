@@ -85,18 +85,22 @@ class DataFetchThread(QtCore.QThread):
     def __init__(self, datasource, alist):
         """ constructor
 
-        :param datasource: image datasource
+        :param datasource: image source
         :type datasource: :class:`lavuelib.imageSource.BaseSource`
         :param alist: exchange object
         :type alist: :class:`ExchangeList`
         """
         QtCore.QThread.__init__(self)
+        #: (:class:`lavuelib.imageSource.BaseSource`) image source
         self.__datasource = datasource
+        #: (:class:`ExchangeList`) exchange list
         self.__list = alist
+        #: (:obj:`bool`) connection flag
         self.__isConnected = False
+        #: (:obj:`bool`) execute loop flag
         self.__loop = False
+        #: (:obj:`bool`) ready flag
         self.__ready = True
-        self.__notwait = True
         #: (:class:`PyQt4.QtCore.QMutex`) zmq bind address
         self.__mutex = QtCore.QMutex()
 
@@ -135,11 +139,15 @@ class DataFetchThread(QtCore.QThread):
         self.__ready = True
 
     def setDataSource(self, datasource):
+        """ sets datasource
+        :param datasource: datasource object
+        :type datasource: :class:`lavuelib.imageSource.BaseSource`
+        """
         with QtCore.QMutexLocker(self.__mutex):
             self.__datasource = datasource
 
     def ready(self):
-        """ stop the thread
+        """ continue acquisition
         """
         self.__ready = True
 
