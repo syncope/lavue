@@ -34,6 +34,7 @@ import math
 
 from . import geometryDialog
 from . import takeMotorsDialog
+from . import motorWatchThread
 
 _intensityformclass, _intensitybaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -225,7 +226,6 @@ class MotorsToolWidget(ToolWidget):
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
-#            [self.__ui.axesPushButton.clicked, self._mainwidget.setTicks],
             [self.__ui.takePushButton.clicked, self._setMotors],
             [self.__ui.movePushButton.clicked, self._moveStopMotors],
             [self._mainwidget.mouseImageDoubleClicked, self._updateFinal],
@@ -258,6 +258,10 @@ class MotorsToolWidget(ToolWidget):
             if self.__stopMotors():
                 self.__ui.movePushButton.setText("Move")
 
+    @QtCore.pyqtSlot()
+    def _finished(self):
+        self.__stopMotors()
+
     def __stopMotors(self):
         """ move motors
 
@@ -280,9 +284,13 @@ class MotorsToolWidget(ToolWidget):
             print("STOP")
         except Exception as e:
             print(str(e))
-            
+
+        if self.__motorWatcher:
+            self.__motorWatcher.motorStatusSignal.disconnect(self._showMotors)
+            self.__motorWatcher.watchingFinish.disconnect(self._finished)
+            self.__motorWatcher = None
         return True
-    
+
     def __moveMotors(self):
         """ move motors
 
@@ -299,7 +307,7 @@ class MotorsToolWidget(ToolWidget):
         except:
             self.__ui.yLineEdit.setFocus()
             return False
-        
+
         if self.__xmotordevice is None or self.__ymotordevice is None:
             if not self._setMotors():
                 return False
@@ -314,8 +322,17 @@ class MotorsToolWidget(ToolWidget):
         else:
             return False
         print("%s %s" % (self.__xfinal, self.__yfinal))
-        
-        return True    
+        self.__motorWatcher = motorWatchThread.MotorWatchThread(
+            self.__xmotordevice, self.__ymotordevice)
+        self.__motorWatcher.motorStatusSignal.connect(self._showMotors)
+        self.__motorWatcher.watchingFinish.connect(self._finished)
+        return True
+
+    @QtCore.pyqtSlot(float, str, float, str)
+    def _showMotors(self, position1, state1, position2, state2):
+        """ shows motors positions and states
+        """
+        print("%s %s %s %s" % (position1, state1, position2, state2))
 
     @QtCore.pyqtSlot()
     def _setMotors(self):
@@ -336,10 +353,10 @@ class MotorsToolWidget(ToolWidget):
             self.__ui.takePushButton.setToolTip(
                 "x-motor: %s\ny-motor: %s" % (
                     self.__xmotorname, self.__ymotorname))
-            #self.updateGeometryTip()
+            # self.updateGeometryTip()
             return True
         return False
-            
+
     @QtCore.pyqtSlot()
     def _message(self):
         """ provides intensity message

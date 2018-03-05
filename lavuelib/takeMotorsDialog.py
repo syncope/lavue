@@ -66,7 +66,7 @@ class TakeMotorsDialog(QtGui.QDialog):
         self.xmotordevice = None
         #: (:class:`PyTango.DeviceProxy`) y motor device
         self.ymotordevice = None
-        
+
     def createGUI(self):
         """ create GUI
         """
@@ -95,6 +95,5 @@ class TakeMotorsDialog(QtGui.QDialog):
         except:
             self.__ui.yLineEdit.setFocus()
             return
-
 
         QtGui.QDialog.accept(self)

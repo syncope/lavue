@@ -76,7 +76,7 @@ class MotorWatchThread(QtCore.QThread):
                 pos1 = float(self.__motor1.position)
                 state2 = str(self.__motor2.state())
                 pos2 = float(self.__motor2.position)
-                motorStatusSignal.emit(pos1, state1, pos2, state2)
+                self.motorStatusSignal.emit(pos1, state1, pos2, state2)
                 if self.__mserver is not None:
                     mstate = str(self.__mserver.state())
                 else:
@@ -87,11 +87,9 @@ class MotorWatchThread(QtCore.QThread):
                     else:
                         mstate = "ON"
                 if mstate not in ["RUNNING", "MOVING"]:
-                    watchFinished.emit()
-                    self.__loop = False
+                    self.watchFinished.emit()
             except Exception as e:
                 print(str(e))
-
 
     def isRunning(self):
         """ is datasource source connected
@@ -100,3 +98,9 @@ class MotorWatchThread(QtCore.QThread):
         :rtype: :obj:`bool`
         """
         return self.__loop
+
+    def stop(self):
+        """ stops loop
+
+        """
+        self.__loop = False
