@@ -669,12 +669,33 @@ class ZMQSource(BaseSource):
                     self.__topic = topic
                     self.__socket.connect(self.__bindaddress)
 
+    def __loads(self, message, encoding=None):
+        """ loads json or pickle string
+
+        :param message: message to encode
+        :type message: :obj:`str`
+        :param encoding: JSON or PICKLE
+        :type encoding: :obj:`str`
+        :returns: encoded message object
+        :rtype: :obj:`any`
+        """
+
+        if encoding == "JSON":
+            metadata = json.loads(message)
+        else:
+            try:
+                metadata = cPickle.loads(message)
+            except:
+                metadata = json.loads(message)
+        return metadata
+
     def getData(self):
         """ provides image name, image data and metadata
 
         :returns:  image name, image data, json dictionary with metadata
         :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
         """
+        encoding = None
         try:
             with QtCore.QMutexLocker(self.__mutex):
                 message = self.__socket.recv_multipart(flags=zmq.NOBLOCK)
@@ -689,10 +710,19 @@ class ZMQSource(BaseSource):
             if isinstance(message, tuple) or isinstance(message, list):
                 lmsg = len(message)
                 topic = message[0]
+            if message[-1] == "JSON":
+                encoding = "JSON"
+                lmsg -= 1
+                message.pop()
+            elif message[-1] == "PICKLE":
+                encoding = "PICKLE"
+                lmsg -= 1
+                message.pop()
+
             # print("topic %s %s" % (topic, self.__topic))
             if topic == "datasources" and lmsg == 2:
                 (topic, _metadata) = message
-                metadata = cPickle.loads(_metadata)
+                metadata = self.__loads(_metadata, encoding)
                 if "shape" in metadata:
                     metadata.pop("shape")
                 if "dtype" in metadata:
@@ -703,7 +733,7 @@ class ZMQSource(BaseSource):
                 return ("", "", jmetadata)
             elif topic == "datasources" and lmsg == 3:
                 (topic, _, _metadata) = message
-                metadata = cPickle.loads(_metadata)
+                metadata = self.__loads(_metadata, encoding)
                 if "shape" in metadata:
                     metadata.pop("shape")
                 if "dtype" in metadata:
@@ -715,7 +745,7 @@ class ZMQSource(BaseSource):
             elif self.__topic == "" or topic == self.__topic:
                 if lmsg == 3:
                     (topic, _array, _metadata) = message
-                    metadata = cPickle.loads(_metadata)
+                    metadata = self.__loads(_metadata, encoding)
                     shape = metadata["shape"]
                     dtype = metadata["dtype"]
                     if "name" in metadata:
@@ -730,8 +760,8 @@ class ZMQSource(BaseSource):
                             self.__bindaddress, topic, self.__counter)
                     elif lmsg == 5:
                         (topic, _array, _shape, _dtype, name) = message
-                    dtype = cPickle.loads(_dtype)
-                    shape = cPickle.loads(_shape)
+                    dtype = self.__loads(_dtype, encoding)
+                    shape = self.__loads(_shape, encoding)
 
             if _array:
                 array = np.frombuffer(buffer(_array), dtype=dtype)
