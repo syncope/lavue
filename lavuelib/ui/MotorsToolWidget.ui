@@ -35,7 +35,17 @@
      <item>
       <widget class="QLineEdit" name="xLineEdit">
        <property name="toolTip">
-        <string>x-motor position</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;final x-motor position&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="xcurLineEdit">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;current x-motor position&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -55,7 +65,17 @@
      <item>
       <widget class="QLineEdit" name="yLineEdit">
        <property name="toolTip">
-        <string>y-motor position</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;final y-motor position&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="ycurLineEdit">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;current y-motor position&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -85,7 +105,9 @@
  </widget>
  <tabstops>
   <tabstop>xLineEdit</tabstop>
+  <tabstop>xcurLineEdit</tabstop>
   <tabstop>yLineEdit</tabstop>
+  <tabstop>ycurLineEdit</tabstop>
   <tabstop>takePushButton</tabstop>
   <tabstop>movePushButton</tabstop>
  </tabstops>

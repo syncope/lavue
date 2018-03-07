@@ -201,17 +201,25 @@ class MotorsToolWidget(ToolWidget):
         self.__xfinal = None
         #: (:obj:`str`) y final position
         self.__yfinal = None
+        #: (:obj:`str`) state of x-motor
+        self.__statex = None
+        #: (:obj:`str`) state of y-motor
+        self.__statey = None
         #: (:class:`PyTango.DeviceProxy`) x-motor device
         self.__xmotordevice = None
         #: (:class:`PyTango.DeviceProxy`) y-motor device
         self.__ymotordevice = None
         #: (:class:`lavuelib.motorWatchThread.motorWatchThread`) motor watcher
         self.__motorWatcher = None
+        #: (:obj:`bool`) is moving
+        self.__moving = False
 
         #: (:class:`Ui_MotorsToolWidget')
         #:        ui_toolwidget object from qtdesigner
         self.__ui = _motorsformclass()
         self.__ui.setupUi(self)
+        self.__ui.xcurLineEdit.hide()
+        self.__ui.ycurLineEdit.hide()
 
         #: (:obj:`bool`) lines enabled
         self.parameters.lines = True
@@ -241,22 +249,21 @@ class MotorsToolWidget(ToolWidget):
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
         """
-        self.__xfinal = float(xdata)
-        self.__yfinal = float(ydata)
-        self.__ui.xLineEdit.setText(str(self.__xfinal))
-        self.__ui.yLineEdit.setText(str(self.__yfinal))
-        self.__ui.movePushButton.setToolTip(
-            "Move to x- and y-motors to (%s, %s)"
-            % (self.__xfinal, self.__yfinal))
+        if not self.__moving:
+            self.__xfinal = float(xdata)
+            self.__yfinal = float(ydata)
+            self.__ui.xLineEdit.setText(str(self.__xfinal))
+            self.__ui.yLineEdit.setText(str(self.__yfinal))
+            self.__ui.movePushButton.setToolTip(
+                "Move to x- and y-motors to (%s, %s)"
+                % (self.__xfinal, self.__yfinal))
 
     @QtCore.pyqtSlot()
     def _moveStopMotors(self):
         if str(self.__ui.movePushButton.text()) == "Move":
-            if self.__moveMotors():
-                self.__ui.movePushButton.setText("Stop")
+            self.__moveMotors()
         else:
-            if self.__stopMotors():
-                self.__ui.movePushButton.setText("Move")
+            self.__stopMotors()
 
     @QtCore.pyqtSlot()
     def _finished(self):
@@ -287,8 +294,19 @@ class MotorsToolWidget(ToolWidget):
         if self.__motorWatcher:
             self.__motorWatcher.motorStatusSignal.disconnect(self._showMotors)
             self.__motorWatcher.watchingFinished.disconnect(self._finished)
+            self.__motorWatcher.stop()
+            self.__motorWatcher.wait()
             self.__motorWatcher = None
         self.__ui.movePushButton.setText("Move")
+        self.__ui.xcurLineEdit.hide()
+        self.__ui.ycurLineEdit.hide()
+        self.__moving = False
+        self.__ui.xLineEdit.setReadOnly(False)
+        self.__ui.yLineEdit.setReadOnly(False)
+        self.__ui.xcurLineEdit.setStyleSheet(
+            "color: black; background-color: #90EE90;")
+        self.__ui.ycurLineEdit.setStyleSheet(
+            "color: black; background-color: #90EE90;")
         return True
 
     def __moveMotors(self):
@@ -321,19 +339,46 @@ class MotorsToolWidget(ToolWidget):
                 return False
         else:
             return False
-        print("%s %s" % (self.__xfinal, self.__yfinal))
+        # print("%s %s" % (self.__xfinal, self.__yfinal))
         self.__motorWatcher = motorWatchThread.MotorWatchThread(
             self.__xmotordevice, self.__ymotordevice)
         self.__motorWatcher.motorStatusSignal.connect(self._showMotors)
         self.__motorWatcher.watchingFinished.connect(self._finished)
         self.__motorWatcher.start()
+        self.__ui.movePushButton.setText("Stop")
+        self.__ui.xcurLineEdit.show()
+        self.__ui.ycurLineEdit.show()
+        self.__ui.xLineEdit.setReadOnly(True)
+        self.__ui.yLineEdit.setReadOnly(True)
+        self.__moving = True
+        self.__statex = None
+        self.__statey = None
         return True
 
     @QtCore.pyqtSlot(float, str, float, str)
-    def _showMotors(self, position1, state1, position2, state2):
+    def _showMotors(self, positionx, statex, positiony, statey):
         """ shows motors positions and states
         """
-        print("%s %s %s %s" % (position1, state1, position2, state2))
+        # print("%s %s %s %s" % (positionx, statex, positiony, statey))
+        self.__ui.xcurLineEdit.setText(str(positionx))
+        self.__ui.ycurLineEdit.setText(str(positiony))
+        if self.__statex != statex:
+            self.__statex = statex
+            if statex == "MOVING":
+                self.__ui.xcurLineEdit.setStyleSheet(
+                    "color: black; background-color: #ADD8E6;")
+            else:
+                self.__ui.xcurLineEdit.setStyleSheet(
+                    "color: black; background-color: #90EE90;")
+        if self.__statey != statey:
+            self.__statey = statey
+            if statey == "MOVING":
+                self.__ui.ycurLineEdit.setStyleSheet(
+                    "color: black; background-color: #ADD8E6;")
+            else:
+                self.__ui.ycurLineEdit.setStyleSheet(
+                    "color: black; background-color: #90EE90;")
+
 
     @QtCore.pyqtSlot()
     def _setMotors(self):
@@ -354,7 +399,18 @@ class MotorsToolWidget(ToolWidget):
             self.__ui.takePushButton.setToolTip(
                 "x-motor: %s\ny-motor: %s" % (
                     self.__xmotorname, self.__ymotorname))
-            # self.updateGeometryTip()
+            self.__ui.xLabel.setToolTip(
+                "x-motor position (%s)" % self.__xmotorname)
+            self.__ui.xLineEdit.setToolTip(
+                "final x-motor position (%s)" % self.__xmotorname)
+            self.__ui.xcurLineEdit.setToolTip(
+                "current x-motor position (%s)" % self.__xmotorname)
+            self.__ui.yLabel.setToolTip(
+                "y-motor position (%s)" % self.__ymotorname)
+            self.__ui.yLineEdit.setToolTip(
+                "final y-motor position (%s)" % self.__ymotorname)
+            self.__ui.ycurLineEdit.setToolTip(
+                "current y-motor position (%s)" % self.__ymotorname)
             return True
         return False
 

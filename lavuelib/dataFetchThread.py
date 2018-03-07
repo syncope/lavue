@@ -156,6 +156,7 @@ class DataFetchThread(QtCore.QThread):
         """
         self.__isConnected = False
         self.__ready = True
+        self.__loop = False
 
     def isRunning(self):
         """ is datasource source connected

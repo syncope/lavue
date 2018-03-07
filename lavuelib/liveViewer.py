@@ -410,7 +410,7 @@ class LiveViewer(QtGui.QMainWindow):
             self.__sourcewg.toggleServerConnection()
         self._disconnectSource()
         self.__dataFetcher.stop()
-        time.sleep(min(dataFetchThread.GLOBALREFRESHRATE * 5, 2))
+        self.__dataFetcher.wait()
         self.__settings.seccontext.destroy()
         QtGui.QApplication.closeAllWindows()
         event.accept()
@@ -761,7 +761,6 @@ class LiveViewer(QtGui.QMainWindow):
         """
 
         if self.__dataFetcher is not None:
-            # self.__dataFetcher.stop()
             self.__dataFetcher.changeStatus(False)
             pass
 
