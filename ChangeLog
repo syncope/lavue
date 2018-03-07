@@ -1,4 +1,8 @@
-2018-02-XX Jan Kotanski <jan.kotanski@desy.de>
+2018-03-07 Jan Kotanski <jan.kotanski@desy.de>
+	* add support for json encoding in ZMQ stream source
+	* tagged as 1.5.0
+
+2018-02-28 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for auto level range
 	* move info messages to tool widgets
 	* move q-geometry to tool widgets
