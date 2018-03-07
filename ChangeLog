@@ -1,4 +1,8 @@
 2018-03-07 Jan Kotanski <jan.kotanski@desy.de>
+	* add move motors tool
+	* tagged as 1.6.0
+
+2018-03-07 Jan Kotanski <jan.kotanski@desy.de>
 	* add support for json encoding in ZMQ stream source
 	* tagged as 1.5.0
 
