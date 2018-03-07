@@ -42,7 +42,7 @@ class MotorWatchThread(QtCore.QThread):
     #: (:class:`PyQt4.QtCore.pyqtSignal`) signal with motor status
     motorStatusSignal = QtCore.pyqtSignal(float, str, float, str)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) watching finished
-    wachingFinished = QtCore.pyqtSignal()
+    watchingFinished = QtCore.pyqtSignal()
 
     def __init__(self, motor1, motor2, mserver=None):
         """ constructor
@@ -87,7 +87,7 @@ class MotorWatchThread(QtCore.QThread):
                     else:
                         mstate = "ON"
                 if mstate not in ["RUNNING", "MOVING"]:
-                    self.watchFinished.emit()
+                    self.watchingFinished.emit()
             except Exception as e:
                 print(str(e))
 

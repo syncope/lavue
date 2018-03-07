@@ -281,14 +281,14 @@ class MotorsToolWidget(ToolWidget):
                 self.__ymotordevice.StopMove()
             else:
                 return False
-            print("STOP")
         except Exception as e:
             print(str(e))
 
         if self.__motorWatcher:
             self.__motorWatcher.motorStatusSignal.disconnect(self._showMotors)
-            self.__motorWatcher.watchingFinish.disconnect(self._finished)
+            self.__motorWatcher.watchingFinished.disconnect(self._finished)
             self.__motorWatcher = None
+        self.__ui.movePushButton.setText("Move")
         return True
 
     def __moveMotors(self):
@@ -325,7 +325,8 @@ class MotorsToolWidget(ToolWidget):
         self.__motorWatcher = motorWatchThread.MotorWatchThread(
             self.__xmotordevice, self.__ymotordevice)
         self.__motorWatcher.motorStatusSignal.connect(self._showMotors)
-        self.__motorWatcher.watchingFinish.connect(self._finished)
+        self.__motorWatcher.watchingFinished.connect(self._finished)
+        self.__motorWatcher.start()
         return True
 
     @QtCore.pyqtSlot(float, str, float, str)
