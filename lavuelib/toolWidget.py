@@ -379,7 +379,6 @@ class MotorsToolWidget(ToolWidget):
                 self.__ui.ycurLineEdit.setStyleSheet(
                     "color: black; background-color: #90EE90;")
 
-
     @QtCore.pyqtSlot()
     def _setMotors(self):
         """ launches motors widget

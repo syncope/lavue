@@ -343,6 +343,7 @@ class LiveViewer(QtGui.QMainWindow):
 
         self.__setSardana(self.__settings.sardana)
         self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
+        self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
         self.__datasource.setTimeOut(self.__settings.timeout)
         dataFetchThread.GLOBALREFRESHRATE = self.__settings.refreshrate
         self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling)
@@ -514,6 +515,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.refreshrate = dataFetchThread.GLOBALREFRESHRATE
         cnfdlg.timeout = self.__settings.timeout
         cnfdlg.aspectlocked = self.__settings.aspectlocked
+        cnfdlg.autodownsample = self.__settings.autodownsample
         cnfdlg.statswoscaling = self.__settings.statswoscaling
         cnfdlg.zmqtopics = self.__settings.zmqtopics
         cnfdlg.autozmqtopics = self.__settings.autozmqtopics
@@ -588,6 +590,8 @@ class LiveViewer(QtGui.QMainWindow):
         self.__datasource.setTimeOut(self.__settings.timeout)
         self.__settings.aspectlocked = dialog.aspectlocked
         self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
+        self.__settings.autodownsample = dialog.autodownsample
+        self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
         self.__settings.secstream = dialog.secstream
         setsrc = False
         if self.__settings.dirtrans != dialog.dirtrans:

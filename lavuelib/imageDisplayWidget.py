@@ -138,6 +138,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__ydata = 0
         #: (:obj:`bool`) auto display level flag
         self.__autodisplaylevels = True
+        #: (:obj:`bool`) auto down sample
+        self.__autodownsample = True
         #: ([:obj:`float`, :obj:`float`]) minimum and maximum intensity levels
         self.__displaylevels = [None, None]
 
@@ -458,10 +460,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type rawimg: :class:`numpy.ndarray`
         """
         if self.__autodisplaylevels:
-            self.__image.setImage(img, autoLevels=True)
+            self.__image.setImage(
+                img, autoLevels=True,
+                autoDownsample=self.__autodownsample)
         else:
             self.__image.setImage(
-                img, autoLevels=False, levels=self.__displaylevels)
+                img, autoLevels=False,
+                levels=self.__displaylevels,
+                autoDownsample=self.__autodownsample)
         self.__data = img
         self.__rawdata = rawimg
         self.mouse_position()
@@ -634,6 +640,17 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__autodisplaylevels = True
         else:
             self.__autodisplaylevels = False
+
+    def setAutoDownSample(self, autodownsample):
+        """ sets auto levels
+
+        :param autolevels: auto down sample enabled
+        :type autolevels: :obj:`bool`
+        """
+        if autodownsample:
+            self.__autodownsample = True
+        else:
+            self.__autodownsample = False
 
     def setDisplayMinLevel(self, level=None):
         """ sets minimum intensity level

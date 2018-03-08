@@ -329,6 +329,15 @@ class ImageWidget(QtGui.QWidget):
         """
         self.__displaywidget.setAutoLevels(autolevels)
 
+    @QtCore.pyqtSlot(int)
+    def setAutoDownSample(self, autodownsample):
+        """ sets auto down sample
+
+        :param autolevels: auto down sample enabled
+        :type autolevels: :obj:`bool`
+        """
+        self.__displaywidget.setAutoDownSample(autodownsample)
+
     @QtCore.pyqtSlot(float)
     def setMinLevel(self, level=None):
         """ sets minimum intensity level

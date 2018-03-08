@@ -61,6 +61,8 @@ class Settings(object):
         self.showlevels = True
         #: (:obj:`bool`) image aspect ratio locked
         self.aspectlocked = False
+        #: (:obj:`bool`) auto down sample
+        self.autodownsample = False
         #: (:obj:`str`) security stream port
         self.secport = "5657"
         #: (:obj:`int`) image source timeout for connection
@@ -142,6 +144,9 @@ class Settings(object):
         qstval = str(settings.value("Configuration/AspectLocked").toString())
         if qstval.lower() == "true":
             self.aspectlocked = True
+        qstval = str(settings.value("Configuration/AutoDownSample").toString())
+        if qstval.lower() == "true":
+            self.autodownsample = True
         qstval = str(settings.value("Configuration/NXSFileOpen").toString())
         if qstval.lower() == "true":
             self.nxsopen = True
@@ -270,6 +275,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/AspectLocked",
             QtCore.QVariant(self.aspectlocked))
+        settings.setValue(
+            "Configuration/AutoDownSample",
+            QtCore.QVariant(self.autodownsample))
         settings.setValue(
             "Configuration/LastImageFileName",
             QtCore.QVariant(self.imagename))

@@ -85,6 +85,8 @@ class ConfigDialog(QtGui.QDialog):
         self.aspectlocked = False
         #: (:obj:`bool`) statistics without intensity scaling
         self.statswoscaling = False
+        #: (:obj:`bool`) auto down sample
+        self.autodownsample = False
 
         #: (:obj:`list` < :obj:`str`>) list of topics for ZMQ stream source
         self.zmqtopics = []
@@ -105,6 +107,7 @@ class ConfigDialog(QtGui.QDialog):
         """
         self.__ui.rateDoubleSpinBox.setValue(self.refreshrate)
         self.__ui.aspectlockedCheckBox.setChecked(self.aspectlocked)
+        self.__ui.downsampleCheckBox.setChecked(self.autodownsample)
         self.__ui.statsscaleCheckBox.setChecked(not self.statswoscaling)
         self.__ui.sardanaCheckBox.setChecked(self.sardana)
         self.__ui.doorLineEdit.setText(self.door)
@@ -162,6 +165,7 @@ class ConfigDialog(QtGui.QDialog):
         self.showmask = self.__ui.showmaskCheckBox.isChecked()
         self.showstats = self.__ui.showstatsCheckBox.isChecked()
         self.aspectlocked = self.__ui.aspectlockedCheckBox.isChecked()
+        self.autodownsample = self.__ui.downsampleCheckBox.isChecked()
         self.statswoscaling = not self.__ui.statsscaleCheckBox.isChecked()
         self.nxsopen = self.__ui.nxsopenCheckBox.isChecked()
         self.nxslast = self.__ui.nxslastCheckBox.isChecked()
