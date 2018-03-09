@@ -34,6 +34,7 @@ import math
 
 from . import geometryDialog
 from . import takeMotorsDialog
+from . import intervalsDialog
 from . import motorWatchThread
 
 _intensityformclass, _intensitybaseclass = uic.loadUiType(
@@ -55,6 +56,10 @@ _angleqformclass, _angleqbaseclass = uic.loadUiType(
 _motorsformclass, _motorsbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "MotorsToolWidget.ui"))
+
+_meshformclass, _meshbaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "MeshToolWidget.ui"))
 
 
 class ToolParameters(object):
@@ -110,6 +115,13 @@ class ToolWidget(QtGui.QWidget):
         #: list of [signal, slot] object to connect
         self.signal2slot = []
 
+    def activate(self):
+        """ activates tool widget
+        """
+
+    def disactivate(self):
+        """ disactivates tool widget
+        """            
 
 class IntensityToolWidget(ToolWidget):
     """ intensity tool widget
@@ -443,6 +455,300 @@ class MotorsToolWidget(ToolWidget):
         self._mainwidget.setDisplayedText(message)
 
 
+class MeshToolWidget(ToolWidget):
+    """ mesh tool widget
+    """
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi info Changed signal
+    roiInfoChanged = QtCore.pyqtSignal(str)
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
+        ToolWidget.__init__(self, parent)
+
+        #: (:obj:`str`) tool name
+        self.name = "MeshScan"
+
+        #: (:obj:`str`) x-motor name
+        self.__xmotorname = ""
+        #: (:obj:`str`) y-motor name
+        self.__ymotorname = ""
+        #: (:obj:`str`) x final position
+        self.__xfinal = None
+        #: (:obj:`str`) y final position
+        self.__yfinal = None
+        #: (:obj:`str`) state of x-motor
+        self.__statex = None
+        #: (:obj:`str`) state of y-motor
+        self.__statey = None
+        #: (:class:`PyTango.DeviceProxy`) x-motor device
+        self.__xmotordevice = None
+        #: (:class:`PyTango.DeviceProxy`) y-motor device
+        self.__ymotordevice = None
+        #: (:class:`lavuelib.motorWatchThread.motorWatchThread`) motor watcher
+        self.__motorWatcher = None
+        #: (:obj:`bool`) is moving
+        self.__moving = False
+
+        #: (:obj:`int`) number of x intervals
+        self.__xintervals = 1
+        #: (:obj:`int`) number of y intervals
+        self.__yintervals = 1
+        #: (:obj:`float`) integration time in seconds
+        self.__itime = 1.0
+
+
+        #: (:class:`Ui_MotorsToolWidget')
+        #:        ui_toolwidget object from qtdesigner
+        self.__ui = _meshformclass()
+        self.__ui.setupUi(self)
+        self.__ui.xcurLineEdit.hide()
+        self.__ui.ycurLineEdit.hide()
+
+        self.parameters.rois = True
+        self.parameters.infolineedit = ""
+        self.parameters.infolabel = "[x1, y1, x2, y2], sum: "
+        self.parameters.infotips = \
+            "coordinate info display for the mouse pointer"
+
+
+        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: list of [signal, slot] object to connect
+        self.signal2slot = [
+            [self.__ui.takePushButton.clicked, self._setMotors],
+            [self.__ui.intervalsPushButton.clicked, self._setIntervals],
+            [self.__ui.scanPushButton.clicked, self._scanStopMotors],
+            [self.roiInfoChanged, self._mainwidget.updateDisplayedText],
+            [self._mainwidget.roiValueChanged, self.updateROIDisplayText],
+            [self._mainwidget.mouseImagePositionChanged, self._message]
+        ]
+
+    @QtCore.pyqtSlot(str, int, str)
+    def updateROIDisplayText(self, text, currentroi, roiVal):
+        """ updates ROI display text
+
+        :param text: standard display text
+        :type text: :obj:`str`
+        :param currentroi: current roi label
+        :type currentroi: :obj:`str`
+        :param text: roi sum value
+        :type text: :obj:`str`
+        """
+
+        roilabel = "roi [%s]" % (currentroi + 1)
+
+        self.roiInfoChanged.emit("%s, %s = %s" % (text, roilabel, roiVal))
+
+    @QtCore.pyqtSlot(float, float)
+    def _updateFinal(self, xdata, ydata):
+        """ updates the final motors position
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        """
+        if not self.__moving:
+            self.__xfinal = float(xdata)
+            self.__yfinal = float(ydata)
+            self.__ui.xLineEdit.setText(str(self.__xfinal))
+            self.__ui.yLineEdit.setText(str(self.__yfinal))
+            self.__ui.movePushButton.setToolTip(
+                "Move to x- and y-motors to (%s, %s)"
+                % (self.__xfinal, self.__yfinal))
+
+    @QtCore.pyqtSlot()
+    def _scanStopMotors(self):
+    if str(self.__ui.movePushButton.text()) == "Scan":
+        self.__startScan()
+    else:
+        self.__stopScan()
+
+    @QtCore.pyqtSlot()
+    def _finished(self):
+        pass
+        # self.__stopScan()
+
+    def __stopScan(self):
+        """ move motors
+
+        :returns: motors stopped
+        :rtype: :obj:`bool`
+        """
+        return
+        try:
+            if hasattr(self.__xmotordevice, "stop"):
+                self.__xmotordevice.stop()
+            elif hasattr(self.__xmotordevice, "StopMove"):
+                self.__xmotordevice.StopMove()
+            else:
+                return False
+            if hasattr(self.__ymotordevice, "stop"):
+                self.__ymotordevice.stop()
+            elif hasattr(self.__ymotordevice, "StopMove"):
+                self.__ymotordevice.StopMove()
+            else:
+                return False
+        except Exception as e:
+            print(str(e))
+
+        if self.__motorWatcher:
+            self.__motorWatcher.motorStatusSignal.disconnect(self._showMotors)
+            self.__motorWatcher.watchingFinished.disconnect(self._finished)
+            self.__motorWatcher.stop()
+            self.__motorWatcher.wait()
+            self.__motorWatcher = None
+        self.__ui.movePushButton.setText("Move")
+        self.__ui.xcurLineEdit.hide()
+        self.__ui.ycurLineEdit.hide()
+        self.__ui.takePushButton.show()
+        self.__moving = False
+        self.__ui.xLineEdit.setReadOnly(False)
+        self.__ui.yLineEdit.setReadOnly(False)
+        self.__ui.xcurLineEdit.setStyleSheet(
+            "color: black; background-color: #90EE90;")
+        self.__ui.ycurLineEdit.setStyleSheet(
+            "color: black; background-color: #90EE90;")
+        return True
+
+    def __startScan(self):
+        """ start scan
+
+        :returns: motors started
+        :rtype: :obj:`bool`
+        """
+        try:
+            self.__xfinal = float(self.__ui.xLineEdit.text())
+        except:
+            self.__ui.xLineEdit.setFocus()
+            return False
+        try:
+            self.__yfinal = float(self.__ui.yLineEdit.text())
+        except:
+            self.__ui.yLineEdit.setFocus()
+            return False
+
+        if self.__xmotordevice is None or self.__ymotordevice is None:
+            if not self._setMotors():
+                return False
+        if str(self.__xmotordevice.state) != "ON" \
+           and str(self.__ymotordevice.state) != "ON":
+            try:
+                self.__xmotordevice.position = self.__xfinal
+                self.__ymotordevice.position = self.__yfinal
+            except Exception as e:
+                print(str(e))
+                return False
+        else:
+            return False
+        # print("%s %s" % (self.__xfinal, self.__yfinal))
+        self.__motorWatcher = motorWatchThread.MotorWatchThread(
+            self.__xmotordevice, self.__ymotordevice)
+        self.__motorWatcher.motorStatusSignal.connect(self._showMotors)
+        self.__motorWatcher.watchingFinished.connect(self._finished)
+        self.__motorWatcher.start()
+        self.__ui.movePushButton.setText("Stop")
+        self.__ui.xcurLineEdit.show()
+        self.__ui.ycurLineEdit.show()
+        self.__ui.takePushButton.hide()
+        self.__ui.xLineEdit.setReadOnly(True)
+        self.__ui.yLineEdit.setReadOnly(True)
+        self.__moving = True
+        self.__statex = None
+        self.__statey = None
+        return True
+
+    @QtCore.pyqtSlot(float, str, float, str)
+    def _showMotors(self, positionx, statex, positiony, statey):
+        """ shows motors positions and states
+        """
+        # print("%s %s %s %s" % (positionx, statex, positiony, statey))
+        self.__ui.xcurLineEdit.setText(str(positionx))
+        self.__ui.ycurLineEdit.setText(str(positiony))
+        if self.__statex != statex:
+            self.__statex = statex
+            if statex == "MOVING":
+                self.__ui.xcurLineEdit.setStyleSheet(
+                    "color: black; background-color: #ADD8E6;")
+            else:
+                self.__ui.xcurLineEdit.setStyleSheet(
+                    "color: black; background-color: #90EE90;")
+        if self.__statey != statey:
+            self.__statey = statey
+            if statey == "MOVING":
+                self.__ui.ycurLineEdit.setStyleSheet(
+                    "color: black; background-color: #ADD8E6;")
+            else:
+                self.__ui.ycurLineEdit.setStyleSheet(
+                    "color: black; background-color: #90EE90;")
+
+    @QtCore.pyqtSlot()
+    def _setMotors(self):
+        """ launches motors widget
+
+        :returns: apply status
+        :rtype: :obj:`bool`
+        """
+        cnfdlg = takeMotorsDialog.TakeMotorsDialog(self)
+        cnfdlg.xmotorname = self.__xmotorname
+        cnfdlg.ymotorname = self.__ymotorname
+        cnfdlg.createGUI()
+        if cnfdlg.exec_():
+            self.__xmotorname = cnfdlg.xmotorname
+            self.__ymotorname = cnfdlg.ymotorname
+            self.__xmotordevice = cnfdlg.xmotordevice
+            self.__ymotordevice = cnfdlg.ymotordevice
+            self.__ui.takePushButton.setToolTip(
+                "x-motor: %s\ny-motor: %s" % (
+                    self.__xmotorname, self.__ymotorname))
+            self.__ui.xLabel.setToolTip(
+                "x-motor position (%s)" % self.__xmotorname)
+            self.__ui.xcurLineEdit.setToolTip(
+                "current x-motor position (%s)" % self.__xmotorname)
+            self.__ui.yLabel.setToolTip(
+                "y-motor position (%s)" % self.__ymotorname)
+            self.__ui.ycurLineEdit.setToolTip(
+                "current y-motor position (%s)" % self.__ymotorname)
+            return True
+        return False
+
+    @QtCore.pyqtSlot()
+    def _setIntervals(self):
+        """ launches motors widget
+
+        :returns: apply status
+        :rtype: :obj:`bool`
+        """
+        cnfdlg = intervalsDialog.IntervalsDialog(self)
+        cnfdlg.xintervals = self.__xintervals
+        cnfdlg.yintervals = self.__yintervals
+        cnfdlg.itime = self.__itime
+        cnfdlg.createGUI()
+        if cnfdlg.exec_():
+            self.__xintervals = cnfdlg.xintervals
+            self.__yintervals = cnfdlg.yintervals
+            self.__itime = cnfdlg.itime
+            self.__ui.intervalsPushButton.setToolTip(
+                "x-intervals:%s\ny-intervals:%s\nintegration time:%s" % (
+                    self.__xintervals, self.__yintervals, self.__itime))
+            return True
+        return False
+
+    @QtCore.pyqtSlot()
+    def _message(self):
+        """ provides roi message
+        """
+        message = ""
+        current = self._mainwidget.currentROI()
+        coords = self._mainwidget.roiCoords()
+        if current > -1 and current < len(coords):
+            message = "%s" % coords[current]
+        self._mainwidget.setDisplayedText(message)
+
+
 class ROIToolWidget(ToolWidget):
     """ roi tool widget
     """
@@ -493,6 +799,16 @@ class ROIToolWidget(ToolWidget):
             [self._mainwidget.sardanaEnabled, self.updateROIButton],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    def activate(self):
+        """ activates tool widget
+        """
+        self._mainwidget.changeROIRegion()
+
+    def disactivate(self):
+        """ disactivates tool widget
+        """            
+        self._mainwidget.roiCoordsChanged.emit()
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -708,6 +1024,11 @@ class AngleQToolWidget(ToolWidget):
              self._updateCenter],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    def activate(self):
+        """ activates tool widget
+        """
+        self.updateGeometryTip()
 
     @QtCore.pyqtSlot(float, float)
     def _updateCenter(self, xdata, ydata):

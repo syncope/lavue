@@ -180,6 +180,7 @@ class ImageWidget(QtGui.QWidget):
                 if isinstance(slot, str):
                     slot = getattr(self, slot)
                 signal.connect(slot)
+            self.__currenttool.activate()
 
     def __disconnecttool(self):
         """ disconnect current tool widget
@@ -191,6 +192,7 @@ class ImageWidget(QtGui.QWidget):
                 if isinstance(slot, str):
                     slot = getattr(self, slot)
                 signal.connect(slot)
+            self.__currenttool.disactivate()
 
     def updateMetaData(self, axisscales=None, axislabels=None):
         """ update Metadata informations
@@ -252,15 +254,6 @@ class ImageWidget(QtGui.QWidget):
             self.__updateinfowidgets(stwg.parameters)
 
         self.__connecttool()
-        if text == "ROI":
-            self.__displaywidget.changeROIRegion()
-        elif text == "LineCut":
-            self.roiCoordsChanged.emit()
-        elif text == "Angle/Q":
-            stwg.updateGeometryTip()
-            self.roiCoordsChanged.emit()
-        else:
-            self.roiCoordsChanged.emit()
         self.currentToolChanged.emit(text)
 
     def __updateinfowidgets(self, parameters):
@@ -712,3 +705,8 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :obj:`int`
         """
         return self.__displaywidget.currentCut()
+
+    def changeROIRegion(self):
+        """ changes the current roi region
+        """
+        return self.__displaywidget.changeROIRegion()
