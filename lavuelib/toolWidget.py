@@ -300,6 +300,7 @@ class MotorsToolWidget(ToolWidget):
         self.__ui.movePushButton.setText("Move")
         self.__ui.xcurLineEdit.hide()
         self.__ui.ycurLineEdit.hide()
+        self.__ui.takePushButton.show()
         self.__moving = False
         self.__ui.xLineEdit.setReadOnly(False)
         self.__ui.yLineEdit.setReadOnly(False)
@@ -348,6 +349,7 @@ class MotorsToolWidget(ToolWidget):
         self.__ui.movePushButton.setText("Stop")
         self.__ui.xcurLineEdit.show()
         self.__ui.ycurLineEdit.show()
+        self.__ui.takePushButton.hide()
         self.__ui.xLineEdit.setReadOnly(True)
         self.__ui.yLineEdit.setReadOnly(True)
         self.__moving = True
