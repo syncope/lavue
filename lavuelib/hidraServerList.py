@@ -29,7 +29,8 @@
 #:  server dictionary
 HIDRASERVERLIST = {
     "p03": ['haspp03pilatus.desy.de'],
-    "p08": ['haspp08pil100.desy.de'],
+    "p08": ['haspp08pil100.desy.de',
+            'haspp08perk01.desy.de'],
     "p09": ['haspp09pilatus.desy.de'],
     "p10": ['haspp10pilatus.desy.de'],
     "p11": ['haspp11pilatus.desy.de'],
