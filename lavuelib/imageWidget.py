@@ -482,6 +482,58 @@ class ImageWidget(QtGui.QWidget):
             self.sardanaEnabled.emit(False)
         self.__sardana = sardana
 
+    def getDoor(self):
+        """ runs macro
+
+        :param command: command list
+        :type command: :obj:`list` <:obj:`str`>
+        :return: macro runned
+        :rtype: :obj:`bool`
+        """
+        dp = None
+        if isr.PYTANGO:
+            if not self.__settings.doorname:
+                self.__settings.doorname = self.__sardana.getDeviceName("Door")
+            try:
+                dp = self.__sardana.openProxy(str(self.__settings.doorname))
+                dp.ping()
+            except Exception as e:
+                print(str(e))
+                dp = None
+        return dp                
+
+    def runMacro(self, command):
+        """ runs macro
+
+        :param command: command list
+        :type command: :obj:`list` <:obj:`str`>
+        :return: macro runned
+        :rtype: :obj:`bool`
+        """
+        if isr.PYTANGO:
+            if not self.__settings.doorname:
+                self.__settings.doorname = self.__sardana.getDeviceName("Door")
+            try:
+                _, warn = self.__sardana.runMacro(
+                    str(self.__settings.doorname), command)
+                if warn:
+                    print("Warning: %s" % warn)
+                    msg = str(warn)
+                    messageBox.MessageBox.warning(
+                        self, "lavue: Errors in running macro: %s" % command,
+                        msg, str(warn))
+            except Exception:
+                import traceback
+                value = traceback.format_exc()
+                text = messageBox.MessageBox.getText(
+                    "lavue: Errors in running macro: %s" % command)
+                messageBox.MessageBox.warning(
+                    self, "lavue: Errors in running macro: %s" % command,
+                    text, str(value))
+                return False
+            return True
+        return False
+
     @QtCore.pyqtSlot(str, int)
     def applyROIs(self, rlabel, roispin):
         """ saves ROIs in sardana and add them to the measurement group
