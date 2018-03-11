@@ -302,7 +302,6 @@ class MotorsToolWidget(ToolWidget):
                 return False
         except Exception as e:
             print(str(e))
-
         if self.__motorWatcher:
             self.__motorWatcher.motorStatusSignal.disconnect(self._showMotors)
             self.__motorWatcher.watchingFinished.disconnect(self._finished)
@@ -484,17 +483,20 @@ class MeshToolWidget(ToolWidget):
         self.__xmotordevice = None
         #: (:class:`PyTango.DeviceProxy`) y-motor device
         self.__ymotordevice = None
+        #: (:class:`PyTango.DeviceProxy`) door server
+        self.__door = None
         #: (:class:`lavuelib.motorWatchThread.motorWatchThread`) motor watcher
         self.__motorWatcher = None
         #: (:obj:`bool`) is moving
         self.__moving = False
 
+        
         #: (:obj:`int`) number of x intervals
-        self.__xintervals = 1
+        self.__xintervals = 2
         #: (:obj:`int`) number of y intervals
-        self.__yintervals = 1
+        self.__yintervals = 3
         #: (:obj:`float`) integration time in seconds
-        self.__itime = 1.0
+        self.__itime = 0.1
 
 
         #: (:class:`Ui_MotorsToolWidget')
@@ -522,6 +524,16 @@ class MeshToolWidget(ToolWidget):
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
+    def activate(self):
+        """ activates tool widget
+        """
+        self._mainwidget.changeROIRegion()
+
+    def disactivate(self):
+        """ disactivates tool widget
+        """            
+        self._mainwidget.roiCoordsChanged.emit()
+
     @QtCore.pyqtSlot(str, int, str)
     def updateROIDisplayText(self, text, currentroi, roiVal):
         """ updates ROI display text
@@ -538,24 +550,6 @@ class MeshToolWidget(ToolWidget):
 
         self.roiInfoChanged.emit("%s, %s = %s" % (text, roilabel, roiVal))
 
-    @QtCore.pyqtSlot(float, float)
-    def _updateFinal(self, xdata, ydata):
-        """ updates the final motors position
-
-        :param xdata: x pixel position
-        :type xdata: :obj:`float`
-        :param ydata: y-pixel position
-        :type ydata: :obj:`float`
-        """
-        if not self.__moving:
-            pass
-            # self.__xfinal = float(xdata)
-            # self.__yfinal = float(ydata)
-            # self.__ui.xLineEdit.setText(str(self.__xfinal))
-            # self.__ui.yLineEdit.setText(str(self.__yfinal))
-            # self.__ui.movePushButton.setToolTip(
-            #     "Move to x- and y-motors to (%s, %s)"
-            #     % (self.__xfinal, self.__yfinal))
 
     @QtCore.pyqtSlot()
     def _scanStopMotors(self):
@@ -566,8 +560,8 @@ class MeshToolWidget(ToolWidget):
 
     @QtCore.pyqtSlot()
     def _finished(self):
-        pass
-        # self.__stopScan()
+        self.__stopScan()
+
 
     def __stopScan(self):
         """ move motors
@@ -575,36 +569,23 @@ class MeshToolWidget(ToolWidget):
         :returns: motors stopped
         :rtype: :obj:`bool`
         """
-        return
+
         try:
-            if hasattr(self.__xmotordevice, "stop"):
-                self.__xmotordevice.stop()
-            elif hasattr(self.__xmotordevice, "StopMove"):
-                self.__xmotordevice.StopMove()
-            else:
-                return False
-            if hasattr(self.__ymotordevice, "stop"):
-                self.__ymotordevice.stop()
-            elif hasattr(self.__ymotordevice, "StopMove"):
-                self.__ymotordevice.StopMove()
-            else:
-                return False
+            self.__door.StopMacro()
         except Exception as e:
             print(str(e))
-
+            
         if self.__motorWatcher:
             self.__motorWatcher.motorStatusSignal.disconnect(self._showMotors)
             self.__motorWatcher.watchingFinished.disconnect(self._finished)
             self.__motorWatcher.stop()
             self.__motorWatcher.wait()
             self.__motorWatcher = None
-        self.__ui.movePushButton.setText("Move")
+        self.__ui.scanPushButton.setText("Scan")
         self.__ui.xcurLineEdit.hide()
         self.__ui.ycurLineEdit.hide()
         self.__ui.takePushButton.show()
         self.__moving = False
-        # self.__ui.xLineEdit.setReadOnly(False)
-        # self.__ui.yLineEdit.setReadOnly(False)
         self.__ui.xcurLineEdit.setStyleSheet(
             "color: black; background-color: #90EE90;")
         self.__ui.ycurLineEdit.setStyleSheet(
@@ -617,16 +598,6 @@ class MeshToolWidget(ToolWidget):
         :returns: motors started
         :rtype: :obj:`bool`
         """
-        # try:
-        #     self.__xfinal = float(self.__ui.xLineEdit.text())
-        # except:
-        #     self.__ui.xLineEdit.setFocus()
-        #     return False
-        # try:
-        #     self.__yfinal = float(self.__ui.yLineEdit.text())
-        # except:
-        #     self.__ui.yLineEdit.setFocus()
-        #     return False
         current = self._mainwidget.currentROI()
         coords = self._mainwidget.roiCoords()
         if current > -1 and current < len(coords):
@@ -640,29 +611,29 @@ class MeshToolWidget(ToolWidget):
 
         macrocommand = []
         macrocommand.append("mesh")
-        macrocommand.append(str(self.__xmotordevice))
+        macrocommand.append(str(self.__xmotorname))
         macrocommand.append(str(float(curcoords[0])))
         macrocommand.append(str(float(curcoords[2])))
         macrocommand.append(str(self.__xintervals))
-        macrocommand.append(str(self.__xmotordevice))
+        macrocommand.append(str(self.__ymotorname))
         macrocommand.append(str(float(curcoords[1])))
         macrocommand.append(str(float(curcoords[3])))
         macrocommand.append(str(self.__yintervals))
         macrocommand.append(str(self.__itime))
         macrocommand.append("True")
-        door = self._mainwidget.getDoor()
-        if door is None:
+        self.__door = self._mainwidget.getDoor()
+        if self.__door is None:
             print("Error: Cannot access Door device")
             return False
 
-        
+        print("%s" % macrocommand)
         if not self._mainwidget.runMacro(macrocommand):
-            print("Error: Cannot in running %s " % command )
+            print("Error: Cannot in running %s " % macrocommand)
             return False
 
 
         self.__motorWatcher = motorWatchThread.MotorWatchThread(
-            self.__xmotordevice, self.__ymotordevice, door)
+            self.__xmotordevice, self.__ymotordevice, self.__door)
         self.__motorWatcher.motorStatusSignal.connect(self._showMotors)
         self.__motorWatcher.watchingFinished.connect(self._finished)
         self.__motorWatcher.start()
@@ -679,7 +650,7 @@ class MeshToolWidget(ToolWidget):
     def _showMotors(self, positionx, statex, positiony, statey):
         """ shows motors positions and states
         """
-        # print("%s %s %s %s" % (positionx, statex, positiony, statey))
+        print("%s %s %s %s" % (positionx, statex, positiony, statey))
         self.__ui.xcurLineEdit.setText(str(positionx))
         self.__ui.ycurLineEdit.setText(str(positiony))
         if self.__statex != statex:
