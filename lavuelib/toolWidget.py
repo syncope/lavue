@@ -585,6 +585,7 @@ class MeshToolWidget(ToolWidget):
         self.__ui.xcurLineEdit.hide()
         self.__ui.ycurLineEdit.hide()
         self.__ui.takePushButton.show()
+        self.__ui.intervalsPushButton.show()
         self.__moving = False
         self.__ui.xcurLineEdit.setStyleSheet(
             "color: black; background-color: #90EE90;")
@@ -641,6 +642,7 @@ class MeshToolWidget(ToolWidget):
         self.__ui.xcurLineEdit.show()
         self.__ui.ycurLineEdit.show()
         self.__ui.takePushButton.hide()
+        self.__ui.intervalsPushButton.hide()
         self.__moving = True
         self.__statex = None
         self.__statey = None
