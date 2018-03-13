@@ -235,8 +235,6 @@ class MotorsToolWidget(ToolWidget):
 
         #: (:obj:`bool`) lines enabled
         self.parameters.lines = True
-        #: (:obj:`bool`) cross hair locker enabled
-        # self.parameters.crosshairlocker = True
         #: (:obj:`str`) infolineedit text
         self.parameters.infolineedit = ""
         #: (:obj:`str`) infolabel text
@@ -560,20 +558,24 @@ class MeshToolWidget(ToolWidget):
 
     @QtCore.pyqtSlot()
     def _finished(self):
-        self.__stopScan()
+        """ stops mesh scan without stopping the macro
+        """
+        self.__stopScan(stopmacro=False)
 
 
-    def __stopScan(self):
-        """ move motors
-
+    def __stopScan(self, stopmacro=True):
+        """ stops mesh scan
+        :param stopmacro: call stopmacro
+        :type stopmacro: :obj:`bool`
         :returns: motors stopped
         :rtype: :obj:`bool`
         """
 
-        try:
-            self.__door.StopMacro()
-        except Exception as e:
-            print(str(e))
+        if stopmacro:
+            try:
+                self.__door.StopMacro()
+            except Exception as e:
+                print(str(e))
             
         if self.__motorWatcher:
             self.__motorWatcher.motorStatusSignal.disconnect(self._showMotors)
@@ -627,7 +629,7 @@ class MeshToolWidget(ToolWidget):
             print("Error: Cannot access Door device")
             return False
 
-        print("%s" % macrocommand)
+        # print("%s" % macrocommand)
         if not self._mainwidget.runMacro(macrocommand):
             print("Error: Cannot in running %s " % macrocommand)
             return False
@@ -652,7 +654,7 @@ class MeshToolWidget(ToolWidget):
     def _showMotors(self, positionx, statex, positiony, statey):
         """ shows motors positions and states
         """
-        print("%s %s %s %s" % (positionx, statex, positiony, statey))
+        # print("%s %s %s %s" % (positionx, statex, positiony, statey))
         self.__ui.xcurLineEdit.setText(str(positionx))
         self.__ui.ycurLineEdit.setText(str(positiony))
         if self.__statex != statex:
