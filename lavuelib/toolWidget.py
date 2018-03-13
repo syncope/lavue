@@ -595,7 +595,7 @@ class MeshToolWidget(ToolWidget):
         self.__ui.intervalsPushButton.show()
         self.__ui.xLabel.setText("X: %s" % (self.__xintervals))
         self.__ui.yLabel.setText("Y: %s" % (self.__yintervals))
-        self.__ui.timeLabel.setText("T: %ss" % str(self.__itime))
+        self.__ui.timeLabel.setText("dT: %ss" % str(self.__itime))
         self.__ui.timeLabel.show()
 
     def __hideLabels(self):
@@ -606,9 +606,8 @@ class MeshToolWidget(ToolWidget):
         self.__ui.intervalsPushButton.hide()
         self.__ui.xLabel.setText("X: %s" % (self.__xintervals))
         self.__ui.yLabel.setText("Y: %s" % (self.__yintervals))
-#        self.__ui.xLabel.setText("X:")
-#        self.__ui.yLabel.setText("Y:")
-        self.__ui.timeLabel.hide()
+        self.__ui.timeLabel.setText("dT: %ss" % str(self.__itime))
+        self.__ui.timeLabel.show()
 
     def __startScan(self):
         """ start scan
