@@ -27,6 +27,7 @@
 
 from PyQt4 import QtCore, QtGui, uic
 import os
+import socket
 
 _testformclass, _testbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -257,14 +258,22 @@ class HidraSourceWidget(BaseSourceWidget):
         #: (:obj:`dict` < :obj:`str`, :obj:`list` <:obj:`str`> >)
         #:  server dictionary
         self.__serverdict = {}
+        #: (:obj:`str`) hidra port number
+        self.__portnumber = "50001"
+        #: (:obj:`str`) hidra client server
+        self.__targetname = socket.getfqdn()
 
         #: (:obj:`list` <:obj:`str`> >) sorted server list
         self.__sortedserverlist = []
 
         self._detachWidgets()
 
+        self._ui.currenthostLabel.setText(
+            "%s:%s" % (self.__targetname, self.__portnumber))
+            
         self._ui.serverComboBox.currentIndexChanged.connect(
             self.updateButton)
+
 
     def updateButton(self):
         """ update slot for Hidra source
@@ -275,28 +284,50 @@ class HidraSourceWidget(BaseSourceWidget):
             self.buttonEnabled.emit(False)
         else:
             self.configurationChanged.emit(
-                str(self._ui.serverComboBox.currentText()))
+                "%s %s %s" % (
+                    str(self._ui.serverComboBox.currentText()),
+                    self.__targetname,
+                    self.__portnumber
+                )
+            )
             self.buttonEnabled.emit(True)
 
-    def updateMetaData(self, serverdict=None, targetname=None, **kargs):
+    def updateMetaData(self, serverdict=None, hidraport=None, **kargs):
         """ update source input parameters
 
         :param serverdict: server dictionary
         :type serverdict: :obj:`dict` < :obj:`str`, :obj:`list` <:obj:`str`> >
-        :param targetname: source targetname
-        :type targetname: :obj:`str`
         :param kargs:  source widget input parameter dictionary
         :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
         """
+        update = False
         if isinstance(serverdict, dict):
+            self._ui.serverComboBox.currentIndexChanged.disconnect(
+                self.updateButton)
+
             self.__serverdict = serverdict
-        if targetname is not None:
-            self._ui.currenthostLabel.setText(str(targetname))
-            self.__sortServerList(targetname)
+            self.__sortServerList(self.__targetname)
             for i in reversed(range(0, self._ui.serverComboBox.count())):
                 self._ui.serverComboBox.removeItem(i)
             self._ui.serverComboBox.addItems(self.__sortedserverlist)
-
+            self._ui.serverComboBox.currentIndexChanged.connect(
+                self.updateButton)
+            self._ui.serverComboBox.setCurrentIndex(0)
+            update = True
+        if hidraport:
+            self.__portnumber = hidraport
+            self._ui.currenthostLabel.setText(
+                "%s:%s" % (self.__targetname, self.__portnumber))
+            update = True
+        if update:
+            self.configurationChanged.emit(
+                "%s %s %s" % (
+                    str(self._ui.serverComboBox.currentText()),
+                    self.__targetname,
+                    self.__portnumber
+                )
+            )
+            
     def __sortServerList(self, name):
         """ small function to sort out the server list details.
         It searches the hostname for a

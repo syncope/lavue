@@ -59,6 +59,8 @@ class ConfigDialog(QtGui.QDialog):
         self.secstream = False
         #: (:obj:`str`) security stream port
         self.secport = "5657"
+        #: (:obj:`str`) hidra data port
+        self.hidraport = "50001"
         #: (:obj:`bool`) find security stream port automatically
         self.secautoport = True
         #: (:obj:`float`) refresh rate
@@ -88,6 +90,9 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`bool`) auto down sample
         self.autodownsample = False
 
+        #: (:obj:`list` < :obj:`str`>) hidra detector server list
+        self.detservers = []
+
         #: (:obj:`list` < :obj:`str`>) list of topics for ZMQ stream source
         self.zmqtopics = []
         #: (:obj:`bool`) topics for ZMQ stream source fetched from the stream
@@ -115,6 +120,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.secstreamCheckBox.setChecked(self.secstream)
         self.__ui.secautoportCheckBox.setChecked(self.secautoport)
         self.__ui.secportLineEdit.setText(self.secport)
+        self.__ui.hidraportLineEdit.setText(self.hidraport)
         self.__ui.showhistoCheckBox.setChecked(self.showhisto)
         self.__ui.showmaskCheckBox.setChecked(self.showmask)
         self.__ui.showstatsCheckBox.setChecked(self.showstats)
@@ -124,6 +130,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.showlevelsCheckBox.setChecked(self.showlevels)
         self.__ui.timeoutLineEdit.setText(str(self.timeout))
         self.__ui.zmqtopicsLineEdit.setText(" ".join(self.zmqtopics))
+        self.__ui.detserversLineEdit.setText(" ".join(self.detservers))
         self.__ui.autozmqtopicsCheckBox.setChecked(self.autozmqtopics)
         self.__ui.dirtransLineEdit.setText(self.dirtrans)
         self.__ui.nxsopenCheckBox.setChecked(self.nxsopen)
@@ -153,7 +160,7 @@ class ConfigDialog(QtGui.QDialog):
         self.sardana = self.__ui.sardanaCheckBox.isChecked()
         self.door = str(self.__ui.doorLineEdit.text()).strip()
         self.addrois = self.__ui.addroisCheckBox.isChecked()
-        self.secport = str(self.__ui.secportLineEdit.text()).strip()
+        self.hidraport = str(self.__ui.hidraportLineEdit.text()).strip()
         self.secstream = self.__ui.secstreamCheckBox.isChecked()
         self.secautoport = self.__ui.secautoportCheckBox.isChecked()
         self.refreshrate = float(self.__ui.rateDoubleSpinBox.value())
@@ -169,7 +176,6 @@ class ConfigDialog(QtGui.QDialog):
         self.statswoscaling = not self.__ui.statsscaleCheckBox.isChecked()
         self.nxsopen = self.__ui.nxsopenCheckBox.isChecked()
         self.nxslast = self.__ui.nxslastCheckBox.isChecked()
-        zmqtopics = str(self.__ui.zmqtopicsLineEdit.text()).strip().split(" ")
         try:
             dirtrans = str(self.__ui.dirtransLineEdit.text()).strip()
             mytr = json.loads(dirtrans)
@@ -177,10 +183,28 @@ class ConfigDialog(QtGui.QDialog):
                 self.dirtrans = dirtrans
         except Exception as e:
             print(str(e))
+            self.__ui.dirtransLineEdit.setFocus(True)
+            return
+        zmqtopics = str(self.__ui.zmqtopicsLineEdit.text()).strip().split(" ")
         self.zmqtopics = [tp for tp in zmqtopics if tp]
+        detservers = str(self.__ui.detserversLineEdit.text()).strip().split(" ")
         self.autozmqtopics = self.__ui.autozmqtopicsCheckBox.isChecked()
+        self.detservers = [ds for ds in detservers if ds]
         try:
             self.timeout = int(self.__ui.timeoutLineEdit.text())
         except:
-            pass
+            self.__ui.timeoutLineEdit.setFocus(True)
+            return
+        try:
+            self.secport = str(self.__ui.secportLineEdit.text()).strip()
+            _ = int(self.secport)
+        except:
+            self.__ui.secportLineEdit.setFocus(True)
+            return
+        try:
+            self.hidraport = str(self.__ui.hidraportLineEdit.text()).strip()
+            _ = int(self.hidraport)
+        except:
+            self.__ui.hidraportLineEdit.setFocus(True)
+            return
         QtGui.QDialog.accept(self)

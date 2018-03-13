@@ -99,6 +99,8 @@ class BaseSource(object):
         self._initiated = False
         #: (:obj:`int`) internal counter
         self.__counter = 0
+        #: (:obj:`str`) errormessage
+        self.errormessage = ""
 
     def getMetaData(self):
         """ get metadata
@@ -156,6 +158,11 @@ class BaseSource(object):
         except:
             pass
 
+    def _updaterror(self):
+        """ updates error  message
+        """
+        import traceback
+        self.errormessage = str(traceback.format_exc())
 
 class FixTestSource(BaseSource):
 
@@ -324,6 +331,7 @@ class NXSFileSource(BaseSource):
             return True
         except Exception as e:
             print(str(e))
+            self._updaterror()
             return False
 
     def disconnect(self):
@@ -394,6 +402,7 @@ class TangoFileSource(BaseSource):
                     self.__dproxy = None
             return True
         except Exception as e:
+            self._updaterror()
             print(str(e))
             return False
 
@@ -561,6 +570,7 @@ class TangoAttrSource(BaseSource):
             return True
         except Exception as e:
             print(str(e))
+            self._updaterror()
             return False
 
 
@@ -616,9 +626,11 @@ class HTTPSource(BaseSource):
                 response = requests.get(self._configuration)
                 if response.ok:
                     return True
+            self._updaterror()
             return False
         except Exception as e:
             print(str(e))
+            self._updaterror()
             return False
 
 
@@ -815,6 +827,7 @@ class ZMQSource(BaseSource):
         except Exception as e:
             self.disconnect()
             print(str(e))
+            self._updaterror()
             return False
 
     def disconnect(self):
@@ -854,23 +867,19 @@ class HiDRASource(BaseSource):
         BaseSource.__init__(self, timeout)
         #: (:obj:`str`) hidra port number
         self.__portnumber = "50001"
+        #: (:obj:`str`) hidra client server
+        self.__targetname = socket.getfqdn()
+        #: (:obj:`str`) server host
+        self.__shost = None
         #: (:obj:`list` < :obj:`str`, :obj:`str`,
         #:   :obj:`int` :obj:`list` < :obj:`str`> >) hidra target:
         #:   [host name, portnumber, priority, a list of extensions]
-        self.__target = [socket.getfqdn(), self.__portnumber, 19,
+        self.__target = [self.__targetname, self.__portnumber, 19,
                          [".cbf", ".tif", ".tiff"]]
         #: (:class:`hidra.transfer.Transfer`) hidra query
         self.__query = None
         #: (:class:`PyQt4.QtCore.QMutex`) zmq bind address
         self.__mutex = QtCore.QMutex()
-
-    def getMetaData(self):
-        """ get metadata
-
-        :returns: dictionary with metadata
-        :rtype: :obj:`dict` <:obj:`str`, :obj:`any`>
-        """
-        return {"targetname": self.__target[0] + ":" + self.__portnumber}
 
     @QtCore.pyqtSlot(str)
     def setConfiguration(self, configuration):
@@ -881,9 +890,14 @@ class HiDRASource(BaseSource):
         """
         if self._configuration != configuration:
             self._configuration = configuration
+            self.__shost, self.__targetname, self.__portnumber \
+                = str(self._configuration).split()
+            self.__target = [
+                self.__targetname, self.__portnumber, 19,
+                [".cbf", ".tif", ".tiff"]]
             with QtCore.QMutexLocker(self.__mutex):
                 self.__query = hidra.Transfer(
-                    "QUERY_NEXT", self._configuration)
+                    "QUERY_NEXT", self.__shost)
             self._initiated = False
 
     def connect(self):
@@ -901,6 +915,7 @@ class HiDRASource(BaseSource):
             if self.__query is not None:
                 with QtCore.QMutexLocker(self.__mutex):
                     self.__query.stop()
+            self._updaterror()
             return False
 
     def disconnect(self):
@@ -911,7 +926,7 @@ class HiDRASource(BaseSource):
                 with QtCore.QMutexLocker(self.__mutex):
                     self.__query.stop()
         except:
-            pass
+            self._updaterror()
 
     def getData(self):
         """ provides image name, image data and metadata

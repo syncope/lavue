@@ -140,7 +140,6 @@ class LiveViewer(QtGui.QMainWindow):
         #: (:class:`lavuelib.sourceGroupBox.SourceGroupBox`) source groupbox
         self.__sourcewg = sourceGroupBox.SourceGroupBox(
             parent=self, sourcetypes=self.__sourcetypes)
-        self.__sourcewg.updateMetaData(serverdict=HIDRASERVERLIST)
 
         #: (:class:`lavuelib.preparationGroupBox.PreparationGroupBox`)
         #: preparation groupbox
@@ -349,12 +348,18 @@ class LiveViewer(QtGui.QMainWindow):
         dataFetchThread.GLOBALREFRESHRATE = self.__settings.refreshrate
         self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling)
 
+        if self.__settings.detservers:
+            serverdict = {"pool" : list(self.__settings.detservers)}
+        else:
+            serverdict = HIDRASERVERLIST
         self.__sourcewg.updateMetaData(
             zmqtopics=self.__settings.zmqtopics,
             dirtrans=self.__settings.dirtrans,
             autozmqtopics=self.__settings.autozmqtopics,
             nxslast=self.__settings.nxslast,
-            nxsopen=self.__settings.nxsopen
+            nxsopen=self.__settings.nxsopen,
+            serverdict=serverdict,
+            hidraport=self.__settings.hidraport
         )
 
         self.__statswg.changeView(self.__settings.showstats)
@@ -512,6 +517,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.showstats = self.__settings.showstats
         cnfdlg.secautoport = self.__settings.secautoport
         cnfdlg.secport = self.__settings.secport
+        cnfdlg.hidraport = self.__settings.hidraport
         cnfdlg.secstream = self.__settings.secstream
         cnfdlg.refreshrate = dataFetchThread.GLOBALREFRESHRATE
         cnfdlg.timeout = self.__settings.timeout
@@ -519,6 +525,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.autodownsample = self.__settings.autodownsample
         cnfdlg.statswoscaling = self.__settings.statswoscaling
         cnfdlg.zmqtopics = self.__settings.zmqtopics
+        cnfdlg.detservers = self.__settings.detservers
         cnfdlg.autozmqtopics = self.__settings.autozmqtopics
         cnfdlg.dirtrans = self.__settings.dirtrans
         cnfdlg.nxslast = self.__settings.nxslast
@@ -595,11 +602,17 @@ class LiveViewer(QtGui.QMainWindow):
         self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
         self.__settings.secstream = dialog.secstream
         setsrc = False
+        if self.__settings.hidraport != dialog.hidraport:
+            self.__settings.hidraport = dialog.hidraport
+            setsrc = True
         if self.__settings.dirtrans != dialog.dirtrans:
             self.__settings.dirtrans = dialog.dirtrans
             setsrc = True
         if self.__settings.zmqtopics != dialog.zmqtopics:
             self.__settings.zmqtopics = dialog.zmqtopics
+            setsrc = True
+        if self.__settings.detservers != dialog.detservers:
+            self.__settings.detservers = dialog.detservers
             setsrc = True
         if self.__settings.autozmqtopics != dialog.autozmqtopics:
             self.__settings.autozmqtopics = dialog.autozmqtopics
@@ -611,12 +624,18 @@ class LiveViewer(QtGui.QMainWindow):
             self.__settings.nxslast = dialog.nxslast
             setsrc = True
         if setsrc:
+            if self.__settings.detservers:
+                serverdict = {"pool" : list(self.__settings.detservers)}
+            else:
+                serverdict = HIDRASERVERLIST
             self.__sourcewg.updateMetaData(
                 zmqtopics=self.__settings.zmqtopics,
                 dirtrans=self.__settings.dirtrans,
                 autozmqtopics=self.__settings.autozmqtopics,
                 nxslast=self.__settings.nxslast,
-                nxsopen=self.__settings.nxsopen
+                nxsopen=self.__settings.nxsopen,
+                serverdict=serverdict,
+                hidraport=self.__settings.hidraport
             )
             self.__sourcewg.updateLayout()
 
@@ -790,8 +809,7 @@ class LiveViewer(QtGui.QMainWindow):
                 % type(self.__datasource).__name__,
                 "The %s connection could not be established"
                 % type(self.__datasource).__name__,
-                "<WARNING> The %s connection could not be established. "
-                "Check the settings." % type(self.__datasource))
+                str(self.__datasource.errormessage))
         else:
             self.__sourcewg.connectSuccess(
                 self.__settings.secport if self.__settings.secstream else None)

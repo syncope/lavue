@@ -65,6 +65,8 @@ class Settings(object):
         self.autodownsample = False
         #: (:obj:`str`) security stream port
         self.secport = "5657"
+        #: (:obj:`str`) hidra data port
+        self.hidraport = "50001"
         #: (:obj:`int`) image source timeout for connection
         self.timeout = 3000
         #: (:class:`zmq.Context`) zmq context
@@ -95,6 +97,8 @@ class Settings(object):
         self.nxsopen = False
         #: (:obj:`bool`) nexus file source starts from the last image
         self.nxslast = False
+        #: (:obj:`list` < :obj:`str`>) hidra detector server list
+        self.detservers = []
 
     def load(self, settings):
         """ load settings
@@ -159,6 +163,12 @@ class Settings(object):
             self.secport = str(qstval)
         except:
             pass
+        qstval = str(settings.value("Configuration/HidraDataPort").toString())
+        try:
+            int(qstval)
+            self.hidraport = str(qstval)
+        except:
+            pass
         qstval = str(settings.value("Configuration/SourceTimeout").toString())
         try:
             int(qstval)
@@ -211,6 +221,11 @@ class Settings(object):
         if qstval:
             self.zmqtopics = [str(tp.toString()) for tp in qstval]
 
+        qstval = \
+            settings.value("Configuration/HidraDetectorServers").toList()
+        if qstval:
+            self.detservers = [str(tp.toString()) for tp in qstval]
+
         qstval = str(settings.value(
             "Configuration/AutoZMQStreamTopics").toString())
         if qstval.lower() == "true":
@@ -258,6 +273,9 @@ class Settings(object):
             "Configuration/SecPort",
             QtCore.QVariant(self.secport))
         settings.setValue(
+            "Configuration/HidraDataPort",
+            QtCore.QVariant(self.hidraport))
+        settings.setValue(
             "Configuration/SecAutoPort",
             QtCore.QVariant(self.secautoport))
         settings.setValue(
@@ -287,6 +305,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ZMQStreamTopics",
             QtCore.QVariant(self.zmqtopics))
+        settings.setValue(
+            "Configuration/HidraDetectorServers",
+            QtCore.QVariant(self.detservers))
         settings.setValue(
             "Configuration/AutoZMQStreamTopics",
             QtCore.QVariant(self.autozmqtopics))
