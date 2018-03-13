@@ -34,7 +34,7 @@
                  <string>refresh rate of the image in seconds</string>
                 </property>
                 <property name="text">
-                 <string>Refresh rate:</string>
+                 <string>Refresh rate in s:</string>
                 </property>
                 <property name="buddy">
                  <cstring>rateDoubleSpinBox</cstring>
