@@ -515,6 +515,8 @@ class MeshToolWidget(ToolWidget):
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.takePushButton.clicked, self._setMotors],
+            [self.__ui.roiSpinBox.valueChanged, self._mainwidget.updateROIs],
+            [self._mainwidget.roiNumberChanged, self.setROIsNumber],
             [self.__ui.intervalsPushButton.clicked, self._setIntervals],
             [self.__ui.scanPushButton.clicked, self._scanStopMotors],
             [self.roiInfoChanged, self._mainwidget.updateDisplayedText],
@@ -737,6 +739,16 @@ class MeshToolWidget(ToolWidget):
             message = "%s" % coords[current]
         self._mainwidget.setDisplayedText(message)
 
+    @QtCore.pyqtSlot(int)
+    def setROIsNumber(self, rid):
+        """sets a number of rois
+
+        :param rid: number of rois
+        :type rid: :obj:`int`
+        """
+        print("SET MESH %s" % rid)
+        self.__ui.roiSpinBox.setValue(rid)
+
 
 class ROIToolWidget(ToolWidget):
     """ roi tool widget
@@ -903,6 +915,7 @@ class ROIToolWidget(ToolWidget):
         :param rid: number of rois
         :type rid: :obj:`int`
         """
+        print("SET ROI %s" % rid)
         self.__ui.roiSpinBox.setValue(rid)
 
 
