@@ -187,7 +187,8 @@ class ConfigDialog(QtGui.QDialog):
             return
         zmqtopics = str(self.__ui.zmqtopicsLineEdit.text()).strip().split(" ")
         self.zmqtopics = [tp for tp in zmqtopics if tp]
-        detservers = str(self.__ui.detserversLineEdit.text()).strip().split(" ")
+        detservers = str(
+            self.__ui.detserversLineEdit.text()).strip().split(" ")
         self.autozmqtopics = self.__ui.autozmqtopicsCheckBox.isChecked()
         self.detservers = [ds for ds in detservers if ds]
         try:
@@ -197,13 +198,13 @@ class ConfigDialog(QtGui.QDialog):
             return
         try:
             self.secport = str(self.__ui.secportLineEdit.text()).strip()
-            _ = int(self.secport)
+            int(self.secport)
         except:
             self.__ui.secportLineEdit.setFocus(True)
             return
         try:
             self.hidraport = str(self.__ui.hidraportLineEdit.text()).strip()
-            _ = int(self.hidraport)
+            int(self.hidraport)
         except:
             self.__ui.hidraportLineEdit.setFocus(True)
             return

@@ -270,10 +270,9 @@ class HidraSourceWidget(BaseSourceWidget):
 
         self._ui.currenthostLabel.setText(
             "%s:%s" % (self.__targetname, self.__portnumber))
-            
+
         self._ui.serverComboBox.currentIndexChanged.connect(
             self.updateButton)
-
 
     def updateButton(self):
         """ update slot for Hidra source
@@ -327,7 +326,7 @@ class HidraSourceWidget(BaseSourceWidget):
                     self.__portnumber
                 )
             )
-            
+
     def __sortServerList(self, name):
         """ small function to sort out the server list details.
         It searches the hostname for a

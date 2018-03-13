@@ -164,6 +164,7 @@ class BaseSource(object):
         import traceback
         self.errormessage = str(traceback.format_exc())
 
+
 class FixTestSource(BaseSource):
 
     """ image source as Tango attributes describing
