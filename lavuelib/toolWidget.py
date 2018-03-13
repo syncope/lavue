@@ -121,7 +121,8 @@ class ToolWidget(QtGui.QWidget):
 
     def disactivate(self):
         """ disactivates tool widget
-        """            
+        """
+
 
 class IntensityToolWidget(ToolWidget):
     """ intensity tool widget
@@ -488,7 +489,6 @@ class MeshToolWidget(ToolWidget):
         #: (:obj:`bool`) is moving
         self.__moving = False
 
-        
         #: (:obj:`int`) number of x intervals
         self.__xintervals = 2
         #: (:obj:`int`) number of y intervals
@@ -496,13 +496,11 @@ class MeshToolWidget(ToolWidget):
         #: (:obj:`float`) integration time in seconds
         self.__itime = 0.1
 
-
         #: (:class:`Ui_MotorsToolWidget')
         #:        ui_toolwidget object from qtdesigner
         self.__ui = _meshformclass()
         self.__ui.setupUi(self)
-        self.__ui.xcurLineEdit.hide()
-        self.__ui.ycurLineEdit.hide()
+        self.__showLabels()
 
         self.parameters.rois = True
         self.parameters.infolineedit = ""
@@ -510,13 +508,10 @@ class MeshToolWidget(ToolWidget):
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
 
-
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.takePushButton.clicked, self._setMotors],
-            [self.__ui.roiSpinBox.valueChanged, self._mainwidget.updateROIs],
-            [self._mainwidget.roiNumberChanged, self.setROIsNumber],
             [self.__ui.intervalsPushButton.clicked, self._setIntervals],
             [self.__ui.scanPushButton.clicked, self._scanStopMotors],
             [self.roiInfoChanged, self._mainwidget.updateDisplayedText],
@@ -528,10 +523,11 @@ class MeshToolWidget(ToolWidget):
         """ activates tool widget
         """
         self._mainwidget.changeROIRegion()
+        self._mainwidget.updateROIs(1)
 
     def disactivate(self):
         """ disactivates tool widget
-        """            
+        """
         self._mainwidget.roiCoordsChanged.emit()
 
     @QtCore.pyqtSlot(str, int, str)
@@ -550,7 +546,6 @@ class MeshToolWidget(ToolWidget):
 
         self.roiInfoChanged.emit("%s, %s = %s" % (text, roilabel, roiVal))
 
-
     @QtCore.pyqtSlot()
     def _scanStopMotors(self):
         if str(self.__ui.scanPushButton.text()) == "Scan":
@@ -563,7 +558,6 @@ class MeshToolWidget(ToolWidget):
         """ stops mesh scan without stopping the macro
         """
         self.__stopScan(stopmacro=False)
-
 
     def __stopScan(self, stopmacro=True):
         """ stops mesh scan
@@ -578,24 +572,43 @@ class MeshToolWidget(ToolWidget):
                 self.__door.StopMacro()
             except Exception as e:
                 print(str(e))
-            
+
         if self.__motorWatcher:
             self.__motorWatcher.motorStatusSignal.disconnect(self._showMotors)
             self.__motorWatcher.watchingFinished.disconnect(self._finished)
             self.__motorWatcher.stop()
             self.__motorWatcher.wait()
             self.__motorWatcher = None
-        self.__ui.scanPushButton.setText("Scan")
-        self.__ui.xcurLineEdit.hide()
-        self.__ui.ycurLineEdit.hide()
-        self.__ui.takePushButton.show()
-        self.__ui.intervalsPushButton.show()
+        self.__showLabels()
         self.__moving = False
         self.__ui.xcurLineEdit.setStyleSheet(
             "color: black; background-color: #90EE90;")
         self.__ui.ycurLineEdit.setStyleSheet(
             "color: black; background-color: #90EE90;")
         return True
+
+    def __showLabels(self):
+        self.__ui.scanPushButton.setText("Scan")
+        self.__ui.xcurLineEdit.hide()
+        self.__ui.ycurLineEdit.hide()
+        self.__ui.takePushButton.show()
+        self.__ui.intervalsPushButton.show()
+        self.__ui.xLabel.setText("X: %s" % (self.__xintervals))
+        self.__ui.yLabel.setText("Y: %s" % (self.__yintervals))
+        self.__ui.timeLabel.setText("T: %ss" % str(self.__itime))
+        self.__ui.timeLabel.show()
+
+    def __hideLabels(self):
+        self.__ui.scanPushButton.setText("Stop")
+        self.__ui.xcurLineEdit.show()
+        self.__ui.ycurLineEdit.show()
+        self.__ui.takePushButton.hide()
+        self.__ui.intervalsPushButton.hide()
+        self.__ui.xLabel.setText("X: %s" % (self.__xintervals))
+        self.__ui.yLabel.setText("Y: %s" % (self.__yintervals))
+#        self.__ui.xLabel.setText("X:")
+#        self.__ui.yLabel.setText("Y:")
+        self.__ui.timeLabel.hide()
 
     def __startScan(self):
         """ start scan
@@ -631,22 +644,16 @@ class MeshToolWidget(ToolWidget):
             print("Error: Cannot access Door device")
             return False
 
-        # print("%s" % macrocommand)
         if not self._mainwidget.runMacro(macrocommand):
             print("Error: Cannot in running %s " % macrocommand)
             return False
-
 
         self.__motorWatcher = motorWatchThread.MotorWatchThread(
             self.__xmotordevice, self.__ymotordevice, self.__door)
         self.__motorWatcher.motorStatusSignal.connect(self._showMotors)
         self.__motorWatcher.watchingFinished.connect(self._finished)
         self.__motorWatcher.start()
-        self.__ui.scanPushButton.setText("Stop")
-        self.__ui.xcurLineEdit.show()
-        self.__ui.ycurLineEdit.show()
-        self.__ui.takePushButton.hide()
-        self.__ui.intervalsPushButton.hide()
+        self.__hideLabels()
         self.__moving = True
         self.__statex = None
         self.__statey = None
@@ -696,13 +703,14 @@ class MeshToolWidget(ToolWidget):
                 "x-motor: %s\ny-motor: %s" % (
                     self.__xmotorname, self.__ymotorname))
             self.__ui.xLabel.setToolTip(
-                "x-motor position (%s)" % self.__xmotorname)
+                "x-motor interval number (%s)" % self.__xmotorname)
             self.__ui.xcurLineEdit.setToolTip(
                 "current x-motor position (%s)" % self.__xmotorname)
             self.__ui.yLabel.setToolTip(
-                "y-motor position (%s)" % self.__ymotorname)
+                "y-motor interval number (%s)" % self.__ymotorname)
             self.__ui.ycurLineEdit.setToolTip(
                 "current y-motor position (%s)" % self.__ymotorname)
+            self.__showLabels()
             return True
         return False
 
@@ -725,6 +733,7 @@ class MeshToolWidget(ToolWidget):
             self.__ui.intervalsPushButton.setToolTip(
                 "x-intervals:%s\ny-intervals:%s\nintegration time:%s" % (
                     self.__xintervals, self.__yintervals, self.__itime))
+            self.__showLabels()
             return True
         return False
 
@@ -738,16 +747,6 @@ class MeshToolWidget(ToolWidget):
         if current > -1 and current < len(coords):
             message = "%s" % coords[current]
         self._mainwidget.setDisplayedText(message)
-
-    @QtCore.pyqtSlot(int)
-    def setROIsNumber(self, rid):
-        """sets a number of rois
-
-        :param rid: number of rois
-        :type rid: :obj:`int`
-        """
-        print("SET MESH %s" % rid)
-        self.__ui.roiSpinBox.setValue(rid)
 
 
 class ROIToolWidget(ToolWidget):
@@ -805,10 +804,11 @@ class ROIToolWidget(ToolWidget):
         """ activates tool widget
         """
         self._mainwidget.changeROIRegion()
+        self.setROIsNumber(len(self._mainwidget.roiCoords()))
 
     def disactivate(self):
         """ disactivates tool widget
-        """            
+        """
         self._mainwidget.roiCoordsChanged.emit()
 
     @QtCore.pyqtSlot()
@@ -915,7 +915,6 @@ class ROIToolWidget(ToolWidget):
         :param rid: number of rois
         :type rid: :obj:`int`
         """
-        print("SET ROI %s" % rid)
         self.__ui.roiSpinBox.setValue(rid)
 
 

@@ -500,7 +500,7 @@ class ImageWidget(QtGui.QWidget):
             except Exception as e:
                 print(str(e))
                 dp = None
-        return dp                
+        return dp
 
     def runMacro(self, command):
         """ runs macro
@@ -515,7 +515,7 @@ class ImageWidget(QtGui.QWidget):
                 self.__settings.doorname = self.__sardana.getDeviceName("Door")
             try:
                 _, warn = self.__sardana.runMacro(
-                    str(self.__settings.doorname), command)
+                    str(self.__settings.doorname), command, wait=False)
                 if warn:
                     print("Warning: %s" % warn)
                     msg = str(warn)

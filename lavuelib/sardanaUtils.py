@@ -225,6 +225,10 @@ class SardanaUtils(object):
             raise Exception("Macro %s not found" % str(command))
         elif command[0] not in ml:
             raise Exception("Macro '%s' not found" % str(command[0]))
+        state = str(doorproxy.state())
+        if state != "ON":
+            raise Exception("Door in state '%s'" % str(state))
+
         try:
             doorproxy.RunMacro(command)
         except PyTango.DevFailed as e:

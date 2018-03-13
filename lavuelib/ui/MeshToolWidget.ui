@@ -22,7 +22,7 @@
      <item>
       <widget class="QLabel" name="xLabel">
        <property name="toolTip">
-        <string>x-motor position</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;x-motor interaval number&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string>X:</string>
@@ -45,7 +45,7 @@
      <item>
       <widget class="QLabel" name="yLabel">
        <property name="toolTip">
-        <string>y-motor position</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;y-motor interval number&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string>Y:</string>
@@ -67,6 +67,9 @@
      </item>
      <item>
       <widget class="QLabel" name="timeLabel">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;time interval&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string>T:</string>
        </property>
@@ -79,19 +82,6 @@
        </property>
        <property name="text">
         <string>Intervals ...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSpinBox" name="roiSpinBox">
-       <property name="toolTip">
-        <string>number of ROIs to add, -1 means remove ROI aliases from sardana</string>
-       </property>
-       <property name="minimum">
-        <number>-1</number>
-       </property>
-       <property name="value">
-        <number>1</number>
        </property>
       </widget>
      </item>
@@ -123,7 +113,6 @@
   <tabstop>xcurLineEdit</tabstop>
   <tabstop>ycurLineEdit</tabstop>
   <tabstop>intervalsPushButton</tabstop>
-  <tabstop>roiSpinBox</tabstop>
   <tabstop>takePushButton</tabstop>
   <tabstop>scanPushButton</tabstop>
  </tabstops>

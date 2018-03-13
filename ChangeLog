@@ -1,3 +1,8 @@
+2018-03-13 Jan Kotanski <jan.kotanski@desy.de>
+	* add mesh scan
+	* fix disconnect tools
+	* tagged as 1.8.0
+
 2018-03-09 Jan Kotanski <jan.kotanski@desy.de>
 	* add auto down sample switch
 	* hide take motor button on move

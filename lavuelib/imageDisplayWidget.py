@@ -815,14 +815,16 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         try:
             rid = self.__rois.current
-            state = self._getROI(rid).state
-            ptx = int(math.floor(state['pos'].x()))
-            pty = int(math.floor(state['pos'].y()))
-            szx = int(math.floor(state['size'].x()))
-            szy = int(math.floor(state['size'].y()))
-            self.__rois.coords[rid] = [
-                ptx, pty, ptx + szx, pty + szy]
-            self.roiCoordsChanged.emit()
+            roi = self._getROI(rid)
+            if roi is not None:
+                state = roi.state
+                ptx = int(math.floor(state['pos'].x()))
+                pty = int(math.floor(state['pos'].y()))
+                szx = int(math.floor(state['size'].x()))
+                szy = int(math.floor(state['size'].y()))
+                self.__rois.coords[rid] = [
+                    ptx, pty, ptx + szx, pty + szy]
+                self.roiCoordsChanged.emit()
         except Exception as e:
             print("Warning: %s" % str(e))
 

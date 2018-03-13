@@ -28,15 +28,6 @@
 from PyQt4 import QtGui, QtCore, uic
 import os
 
-try:
-    import PyTango
-    #: (:obj:`bool`) PyTango imported
-    PYTANGO = True
-except ImportError:
-    #: (:obj:`bool`) PyTango imported
-    PYTANGO = False
-
-
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "IntervalsDialog.ui"))
@@ -76,7 +67,7 @@ class IntervalsDialog(QtGui.QDialog):
     def accept(self):
         """ updates class variables with the form content
         """
-        self.xintervals = int( self.__ui.xSpinBox.value())
-        self.yintervals = int( self.__ui.ySpinBox.value())
+        self.xintervals = int(self.__ui.xSpinBox.value())
+        self.yintervals = int(self.__ui.ySpinBox.value())
         self.itime = float(self.__ui.timeDoubleSpinBox.value())
         QtGui.QDialog.accept(self)
