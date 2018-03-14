@@ -1,3 +1,7 @@
+2018-03-14 Jan Kotanski <jan.kotanski@desy.de>
+	* remove clipping to hardcode value
+	* tagged as 1.8.1
+
 2018-03-13 Jan Kotanski <jan.kotanski@desy.de>
 	* add mesh scan
 	* add hidra data port to configuration

@@ -737,6 +737,7 @@ class LiveViewer(QtGui.QMainWindow):
                  stream,
                  auto)
             )
+        print("MAX %s" % maxval)
         smaxval = "%.4f" % maxval
         smeanval = "%.4f" % meanval
         svarval = "%.4f" % varval
@@ -1046,6 +1047,12 @@ class LiveViewer(QtGui.QMainWindow):
         :rtype: [:obj:`str`, :obj:`str`, :obj:`str`, :obj:`str`,
                     :obj:`str`, :obj:`str`]
         """
+        if self.__displayimage is not None:
+            print("DIS %s" % np.amax(self.__displayimage))
+        if self.__scaledimage is not None:
+            print("SCAL %s" % np.amax(self.__displayimage))
+        if self.__rawgreyimage is not None:
+            print("RAW %s" % np.amax(self.__rawgreyimage))
         if self.__settings.statswoscaling and self.__displayimage is not None:
             maxval = np.amax(self.__displayimage) if flag[0] else 0.0
             meanval = np.mean(self.__displayimage) if flag[1] else 0.0
@@ -1060,15 +1067,6 @@ class LiveViewer(QtGui.QMainWindow):
         else:
             return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
         maxrawval = np.amax(self.__rawgreyimage) if flag[4] else 0.0
-        # automatic maximum clipping to hardcoded value
-        try:
-            if flag[0] and flag[1] and flag[2]:
-                checkval = meanval + 10 * np.sqrt(varval)
-                if maxval > checkval:
-                    maxval = checkval
-        except:
-            print("Warning in calculating checkval from:"
-                  " meanval = %s,  varval = %s" % (meanval, varval))
         minval = np.amin(self.__scaledimage) if flag[3] else 0.0
         return (maxval, meanval, varval, minval, maxrawval,  maxsval)
 
