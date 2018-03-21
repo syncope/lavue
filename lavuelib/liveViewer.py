@@ -943,7 +943,10 @@ class LiveViewer(QtGui.QMainWindow):
                     self.__levelswg.setChannel(0)
                     self.__rawgreyimage = np.sum(self.__rawimage, 0)
         else:
-            self.__rawgreyimage = self.__rawimage
+            if self.__applymask:
+                self.__rawgreyimage = np.array(self.__rawimage)
+            else:
+                self.__rawgreyimage = self.__rawimage
             self.__levelswg.setNumberOfChannels(0)
 
         self.__displayimage = self.__rawgreyimage

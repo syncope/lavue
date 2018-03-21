@@ -321,7 +321,7 @@ class ImageFileHandler(object):
                     self.__data = np.array(self.__image)
             except Exception:
                 try:
-                    self.__image = np.fromfile(filename, dtype='uint8')
+                    self.__image = np.fromfile(str(fname), dtype='uint8')
                     if fname.endswith(".cbf"):
                         self.__data = CBFLoader().load(self.__image)
                     else:
@@ -439,7 +439,7 @@ class CBFLoader(object):
                     flbuffer[idstart:idstop + 1], vals)
             else:
                 image = np.array([0])
-        return image
+        return np.transpose(image)
 
     @classmethod
     def _decompress_cbf_c(cls, stream, vals):
@@ -711,9 +711,9 @@ class TIFLoader(object):
                              + strip_byte_counts + 1]))
 
         try:
-            return image.reshape(width, length, order='F')
+            return np.transpose(image.reshape(width, length, order='F'))
         except:
-            return image
+            return np.transpose(image)
 
 
 if __name__ == "__main__":

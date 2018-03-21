@@ -92,7 +92,7 @@ class BkgSubtractionWidget(QtGui.QWidget):
         if fileName:
             self.__fileName = fileName
             self.setDisplayedName(self.__fileName)
-            self.bkgFileSelection.emit(self.__fileName)
+            self.bkgFileSelected.emit(self.__fileName)
             self.__hideImageSelection()
 
     @QtCore.pyqtSlot()
