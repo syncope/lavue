@@ -100,6 +100,7 @@ class LiveViewer(QtGui.QMainWindow):
         if isr.PYTANGO:
             self.__tooltypes.append("MotorsToolWidget")
             self.__tooltypes.append("MeshToolWidget")
+        self.__tooltypes.append("OneDToolWidget")
 
         if umode and umode.lower() in ["expert"]:
             #: (:obj:`str`) execution mode: expert or user

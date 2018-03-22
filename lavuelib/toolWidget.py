@@ -31,6 +31,7 @@ from PyQt4 import QtCore, QtGui, uic
 import os
 import re
 import math
+import pyqtgraph as _pg
 
 from . import geometryDialog
 from . import takeMotorsDialog
@@ -60,6 +61,10 @@ _motorsformclass, _motorsbaseclass = uic.loadUiType(
 _meshformclass, _meshbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "MeshToolWidget.ui"))
+
+_onedformclass, _onedbaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "OneDToolWidget.ui"))
 
 
 class ToolParameters(object):
@@ -982,13 +987,39 @@ class LineCutToolWidget(ToolWidget):
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
 
+        #: (:class:`pyqtgraph.PlotDataItem`) 1D plot
+        self.__cutCurve = self._mainwidget.onedplot()
+
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.cutSpinBox.valueChanged, self._mainwidget.updateCuts],
             [self._mainwidget.cutNumberChanged, self._setCutsNumber],
+            [self._mainwidget.cutCoordsChanged, self._plotCut],
+            [self._mainwidget.imagePlotted, self._plotCut],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    @QtCore.pyqtSlot()
+    def _plotCut(self):
+        """ plots the current 1d Cut
+        """
+        dt = self._mainwidget.cutData()
+        if dt is not None:
+            self.__cutCurve.setData(y=dt)
+            self.__cutCurve.setVisible(True)
+        else:
+            self.__cutCurve.setVisible(False)
+
+    def activate(self):
+        """ activates tool widget
+        """
+        self.__cutCurve.show()
+
+    def disactivate(self):
+        """ activates tool widget
+        """
+        self.__cutCurve.hide()
 
     @QtCore.pyqtSlot(int)
     def _setCutsNumber(self, cid):
@@ -1013,6 +1044,154 @@ class LineCutToolWidget(ToolWidget):
             crds = "[[0, 0], [0, 0]]"
         message = "%s, x = %i, y = %i, %s = %.2f" % (
             crds, x, y, ilabel, intensity)
+        self._mainwidget.setDisplayedText(message)
+
+
+class OneDToolWidget(ToolWidget):
+    """ 1d plot tool widget
+    """
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
+        ToolWidget.__init__(self, parent)
+
+        #: (:obj:`str`) tool name
+        self.name = "1d-Plot"
+
+        #: (:class:`Ui_OneDToolWidget') ui_toolwidget object from qtdesigner
+        self.__ui = _onedformclass()
+        self.__ui.setupUi(self)
+
+        #: (:obj:`list`<:class:`pyqtgraph.PlotDataItem`>) 1D plot
+        self.__curves = []
+        #: (:obj:`int`) current plot number
+        self.__nrplots = 0
+
+        #: ((:obj:`list`<:obj:`int`>) selected rows
+        self.__rows = [0]
+
+        self.__ui.rowsLineEdit.setText("0")
+        self.__ui.xLabel.hide()
+        self.__ui.xCheckBox.hide()
+        # self.parameters.cuts = True
+        self.parameters.cutplot = True
+        self.parameters.infolineedit = ""
+        self.parameters.infotips = \
+            "coordinate info display for the mouse pointer"
+
+        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: list of [signal, slot] object to connect
+        self.signal2slot = [
+            [self._mainwidget.imagePlotted, self._plotCurves],
+            [self.__ui.rowsLineEdit.textChanged, self._updateRows],
+            [self._mainwidget.mouseImagePositionChanged, self._message]
+        ]
+
+    def activate(self):
+        """ activates tool widget
+        """
+        self._updateRows()
+
+    @QtCore.pyqtSlot(str)
+    @QtCore.pyqtSlot()
+    def _updateRows(self):
+        """ updates applied button"""
+        text = str(self.__ui.rowsLineEdit.text()).strip()
+        rows = []
+        if text:
+            if text == "ALL":
+                rows = [None]
+            else:
+                stext = [rw for rw in re.split(",| ", text) if rw]
+                for rw in stext:
+                    if ":" in rw:
+                        slices = rw.split(":")
+                        s0 = int(slices[0]) if slices[0].strip() else 0
+                        s1 = int(slices[1]) if slices[1].strip() else 0
+                        if len(slices) > 2:
+                            s3 = int(slices[1]) if slices[1].strip() else 1
+                            rows.extend(range(s0, s1, s3))
+                        else:
+                            rows.extend(range(s0, s1))
+                    else:
+                        try:
+                            rows.append(int(rw))
+                        except:
+                            pass
+        self.__rows = rows
+        self._plotCurves()
+
+    @QtCore.pyqtSlot()
+    def _plotCurves(self):
+        """ plots the current image in 1d plots
+        """
+        dts = self._mainwidget.rawData()
+        if dts is not None:
+            dtnrplots = dts.shape[1]
+            if self.__rows:
+                if self.__rows[0] is None:
+                    nrplots = dtnrplots
+                else:
+                    nrplots = len(self.__rows)
+            else:
+                nrplots = 0
+            if self.__nrplots != nrplots:
+                while nrplots > len(self.__curves):
+                    self.__curves.append(self._mainwidget.onedplot())
+                for i in range(nrplots):
+                    self.__curves[i].show()
+                for i in range(nrplots, len(self.__curves)):
+                    self.__curves[i].hide()
+                self.__nrplots = nrplots
+                if nrplots:
+                    for i, cr in enumerate(self.__curves):
+                        if i < nrplots:
+                            cr.setPen(_pg.hsvColor(i/float(nrplots)))
+            for i in range(nrplots):
+                if self.__rows:
+                    if self.__rows[0] is None:
+                        self.__curves[i].setData(dts[:, i])
+                        self.__curves[i].setVisible(True)
+                    elif self.__rows[i] >= 0 and self.__rows[i] < dtnrplots:
+                        self.__curves[i].setData(dts[:, self.__rows[i]])
+                        self.__curves[i].setVisible(True)
+                    else:
+                        self.__curves[i].setVisible(False)
+                else:
+                    self.__curves[i].setVisible(False)
+        else:
+            for cr in self.__curves:
+                cr.setVisible(False)
+
+    @QtCore.pyqtSlot()
+    def _message(self):
+        """ provides intensity message
+        """
+        x, y, intensity = self._mainwidget.currentIntensity()
+        ilabel = self._mainwidget.scalingLabel()
+        txdata, tydata = self._mainwidget.scaledxy(x, y)
+        xunits, yunits = self._mainwidget.axesunits()
+        if txdata is not None:
+            message = "x = %f%s, y = %f%s, %s = %.2f" % (
+                txdata,
+                (" %s" % xunits) if xunits else "",
+                tydata,
+                (" %s" % yunits) if yunits else "",
+                ilabel,
+                intensity
+            )
+        else:
+            message = "x = %i%s, y = %i%s, %s = %.2f" % (
+                x,
+                (" %s" % xunits) if xunits else "",
+                y,
+                (" %s" % yunits) if yunits else "",
+                ilabel,
+                intensity)
         self._mainwidget.setDisplayedText(message)
 
 

@@ -105,7 +105,6 @@ class TakeMotorsDialog(QtGui.QDialog):
 
         QtGui.QDialog.accept(self)
 
-
     def __updateComboBox(self, combobox, motorname):
         """ updates a value of motor combo box
         """

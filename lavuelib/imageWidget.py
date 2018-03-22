@@ -63,6 +63,8 @@ class ImageWidget(QtGui.QWidget):
     roiCoordsChanged = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) cut coordinate changed signal
     cutCoordsChanged = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) iamge plotted signal
+    imagePlotted = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) roi Line Edit changed signal
     roiLineEditChanged = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) sardana enabled signal
@@ -121,8 +123,6 @@ class ImageWidget(QtGui.QWidget):
 
         #: (:class:`pyqtgraph.PlotWidget`) 1D plot widget
         self.__cutPlot = _pg.PlotWidget(self)
-        #: (:class:`pyqtgraph.PlotDataItem`) 1D plot
-        self.__cutCurve = self.__cutPlot.plot()
 
         self.__ui.twoDVerticalLayout.addWidget(self.__displaywidget)
         self.__ui.oneDVerticalLayout.addWidget(self.__cutPlot)
@@ -145,8 +145,8 @@ class ImageWidget(QtGui.QWidget):
         self.__ui.toolSplitter.setStretchFactor(0, 100)
         self.__ui.toolSplitter.setStretchFactor(1, 1)
 
-        self.cutCoordsChanged.connect(self._plotCut)
-        self.__displaywidget.cutCoordsChanged.connect(self._plotCut)
+        self.__displaywidget.cutCoordsChanged.connect(
+            self.emitCutCoordsChanged)
         self.__ui.toolComboBox.currentIndexChanged.connect(
             self.showCurrentTool)
         self.__displaywidget.aspectLockedToggled.connect(
@@ -159,6 +159,9 @@ class ImageWidget(QtGui.QWidget):
             self._emitMouseImageSingleClicked)
 
         self.roiLineEditChanged.emit()
+
+    def onedplot(self):
+        return self.__cutPlot.plot()
 
     def __addToolWidgets(self):
         """ add tool subwidgets into grid layout
@@ -298,20 +301,7 @@ class ImageWidget(QtGui.QWidget):
             rawarray = array
 
         self.__displaywidget.updateImage(array, rawarray)
-        if self.__displaywidget.isCutsEnabled():
-            self._plotCut()
-
-    @QtCore.pyqtSlot()
-    def _plotCut(self):
-        """ plots the current 1d Cut
-        """
-        dt = self.__displaywidget.cutData()
-        if dt is not None:
-            self.__cutCurve.setData(y=dt)
-            self.__cutPlot.setVisible(True)
-            self.__cutCurve.setVisible(True)
-        else:
-            self.__cutCurve.setVisible(False)
+        self.imagePlotted.emit()
 
     @QtCore.pyqtSlot(int)
     def setAutoLevels(self, autolevels):
@@ -400,6 +390,12 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :class:`pyqtgraph.ImageItem`
         """
         return self.__displaywidget.image()
+
+    @QtCore.pyqtSlot()
+    def emitCutCoordsChanged(self):
+        """emits cutCoordsChanged
+        """
+        self.cutCoordsChanged.emit()
 
     @QtCore.pyqtSlot(bool)
     def emitAspectLockedToggled(self, status):
@@ -784,3 +780,19 @@ class ImageWidget(QtGui.QWidget):
         """ changes the current roi region
         """
         return self.__displaywidget.changeROIRegion()
+
+    def cutData(self):
+        """ provides the current cut data
+
+        :returns: current cut data
+        :rtype: :class:`numpy.ndarray`
+        """
+        return self.__displaywidget.cutData()
+
+    def rawData(self):
+        """ provides the current raw data
+
+        :returns: current raw data
+        :rtype: :class:`numpy.ndarray`
+        """
+        return self.__displaywidget.rawData()
