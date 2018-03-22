@@ -1096,6 +1096,12 @@ class OneDToolWidget(ToolWidget):
         """
         self._updateRows()
 
+    def disactivate(self):
+        """ activates tool widget
+        """
+        for cr in self.__curves:
+            cr.hide()
+
     @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot()
     def _updateRows(self):
@@ -1113,8 +1119,8 @@ class OneDToolWidget(ToolWidget):
                         s0 = int(slices[0]) if slices[0].strip() else 0
                         s1 = int(slices[1]) if slices[1].strip() else 0
                         if len(slices) > 2:
-                            s3 = int(slices[1]) if slices[1].strip() else 1
-                            rows.extend(range(s0, s1, s3))
+                            s2 = int(slices[2]) if slices[2].strip() else 1
+                            rows.extend(range(s0, s1, s2))
                         else:
                             rows.extend(range(s0, s1))
                     else:
