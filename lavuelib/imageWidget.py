@@ -502,6 +502,28 @@ class ImageWidget(QtGui.QWidget):
                 dp = None
         return dp
 
+    def getElementNames(self, listattr, typefilter=None):
+        """ provides experimental Channels
+
+        :param listattr: pool attribute with list
+        :type listattr: :obj:`str`
+        :param typefilter: pool attribute with list
+        :type typefilter: :obj:`list` <:obj:`str`>
+        :returns: names from given pool listattr
+        :rtype: :obj:`list` <:obj:`str`>
+        """
+        elements = None
+        if isr.PYTANGO and self.__sardana:
+            if not self.__settings.doorname:
+                self.__settings.doorname = self.__sardana.getDeviceName("Door")
+            try:
+                elements = self.__sardana.getElementNames(
+                    self.__settings.doorname,
+                    listattr, typefilter)
+            except Exception as e:
+                print(str(e))
+        return elements
+
     def runMacro(self, command):
         """ runs macro
 

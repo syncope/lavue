@@ -398,7 +398,11 @@ class MotorsToolWidget(ToolWidget):
         :returns: apply status
         :rtype: :obj:`bool`
         """
+
+        motors = self._mainwidget.getElementNames("MotorList")
         cnfdlg = takeMotorsDialog.TakeMotorsDialog(self)
+        if motors is not None:
+            cnfdlg.motortips = motors
         cnfdlg.xmotorname = self.__xmotorname
         cnfdlg.ymotorname = self.__ymotorname
         cnfdlg.createGUI()
@@ -689,7 +693,11 @@ class MeshToolWidget(ToolWidget):
         :returns: apply status
         :rtype: :obj:`bool`
         """
+        motors = self._mainwidget.getElementNames("MotorList")
         cnfdlg = takeMotorsDialog.TakeMotorsDialog(self)
+        if motors is not None:
+            cnfdlg.motortips = motors
+        cnfdlg.title = "Motor aliases"
         cnfdlg.xmotorname = self.__xmotorname
         cnfdlg.ymotorname = self.__ymotorname
         cnfdlg.createGUI()
@@ -773,6 +781,11 @@ class ROIToolWidget(ToolWidget):
         self.__ui = _roiformclass()
         self.__ui.setupUi(self)
 
+        #: (:obj:`list`< :obj:`str`>) sardana aliases
+        self.__aliases = []
+        #: (:obj:`int`) ROI label length
+        self.__textlength = 0
+
         self.parameters.rois = True
         self.parameters.infolineedit = ""
         self.parameters.infolabel = "[x1, y1, x2, y2], sum: "
@@ -804,6 +817,27 @@ class ROIToolWidget(ToolWidget):
         """
         self._mainwidget.changeROIRegion()
         self.setROIsNumber(len(self._mainwidget.roiCoords()))
+        self.__aliases = self._mainwidget.getElementNames("ExpChannelList")
+        self.__updateCompleter()
+
+    def __updateCompleter(self):
+        """ updates the labelROI help
+        """
+        text = str(self.__ui.labelROILineEdit.text())
+        sttext = text.strip()
+        sptext = sttext.split()
+        stext = ""
+        if text.endswith(" "):
+            stext = sttext
+        elif len(sptext) > 1:
+            stext = " ".join(sptext[:-1])
+
+        if stext:
+            hints = ["%s %s" % (stext, al) for al in self.__aliases]
+        else:
+            hints = self.__aliases
+        completer = QtGui.QCompleter(hints, self)
+        self.__ui.labelROILineEdit.setCompleter(completer)
 
     def disactivate(self):
         """ disactivates tool widget
@@ -839,10 +873,16 @@ class ROIToolWidget(ToolWidget):
     @QtCore.pyqtSlot()
     def _updateApplyButton(self):
         """ updates applied button"""
-        if not str(self.__ui.labelROILineEdit.text()).strip():
+        stext = str(self.__ui.labelROILineEdit.text())
+        currentlength = len(stext)
+        if not stext.strip():
             self.__ui.applyROIPushButton.setEnabled(False)
+            self.__updateCompleter()
         else:
             self.__ui.applyROIPushButton.setEnabled(True)
+        if stext.endswith(" ") or currentlength < self.__textlength:
+            self.__updateCompleter()
+        self.__textlength = currentlength
 
     @QtCore.pyqtSlot(str)
     def updateROILineEdit(self, text):

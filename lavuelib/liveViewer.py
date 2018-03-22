@@ -349,7 +349,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling)
 
         if self.__settings.detservers:
-            serverdict = {"pool" : list(self.__settings.detservers)}
+            serverdict = {"pool": list(self.__settings.detservers)}
         else:
             serverdict = HIDRASERVERLIST
         self.__sourcewg.updateMetaData(
@@ -625,7 +625,7 @@ class LiveViewer(QtGui.QMainWindow):
             setsrc = True
         if setsrc:
             if self.__settings.detservers:
-                serverdict = {"pool" : list(self.__settings.detservers)}
+                serverdict = {"pool": list(self.__settings.detservers)}
             else:
                 serverdict = HIDRASERVERLIST
             self.__sourcewg.updateMetaData(

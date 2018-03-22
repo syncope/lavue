@@ -44,8 +44,11 @@ class SardanaUtils(object):
 
     def __init__(self):
         """ constructor """
-        #: (:class:`PyTango.Database`) tango database
+
+        #: (:obj:`list` <:class:`PyTango.DeviceProxy`>) pool tango servers
+        self.__pools = []
         try:
+            #: (:class:`PyTango.Database`) tango database
             self.__db = PyTango.Database()
         except Exception as e:
             print(str(e))
@@ -263,3 +266,77 @@ class SardanaUtils(object):
                          for key, value in obj.iteritems()])
         else:
             return obj
+
+    def getElementNames(self, door, listattr, typefilter=None):
+        """ provides experimental Channels
+
+        :param door: door device name
+        :type door: :obj:`str`
+        :param listattr: pool attribute with list
+        :type listattr: :obj:`str`
+        :param typefilter: pool attribute with list
+        :type typefilter: :obj:`list` <:obj:`str`>
+        :returns: names from given pool listattr
+        :rtype: :obj:`list` <:obj:`str`>
+        """
+        lst = []
+        elements = []
+        if not self.__pools:
+            self.getPools(door)
+        for pool in self.__pools:
+            if hasattr(pool, listattr):
+                ellist = getattr(pool, listattr)
+                if ellist:
+                    lst += ellist
+        for elm in lst:
+            if elm:
+                chan = json.loads(elm)
+                if chan and isinstance(chan, dict):
+                    if typefilter:
+                        if chan['type'] not in typefilter:
+                            continue
+                    elements.append(chan['name'])
+        return elements
+
+    def getPools(self, door):
+        """ provides pool devices
+
+        :param door: door device name
+        :type door: :obj:`str`
+        """
+        self.__pools = []
+        host = None
+        port = None
+        if not door:
+            raise Exception("Door '%s' cannot be found" % door)
+        if ":" in door.split("/")[0] and len(door.split("/")) > 1:
+            host, port = door.split("/")[0].split(":")
+        msp = self.getMacroServer(door)
+        poolNames = msp.get_property("PoolNames")["PoolNames"]
+        if not poolNames:
+            poolNames = []
+        poolNames = ["%s/%s" % (door.split("/")[0], pn)
+                     if (host and ":" not in pn)
+                     else pn
+                     for pn in poolNames]
+        self.__pools = self.getProxies(poolNames)
+        return self.__pools
+
+    @classmethod
+    def getProxies(cls, names):
+        """ provides proxies of given device names
+
+        :param names: given device names
+        :type names: :obj:`list` <:obj:`str`>
+        :returns: list of device DeviceProxies
+        :rtype: :obj:`list` <:class:`PyTango.DeviceProxy`>
+        """
+        dps = []
+        for name in names:
+            dp = PyTango.DeviceProxy(str(name))
+            try:
+                dp.ping()
+                dps.append(dp)
+            except (PyTango.DevFailed, PyTango.Except, PyTango.DevError):
+                pass
+        return dps
