@@ -301,7 +301,8 @@ class ImageWidget(QtGui.QWidget):
             rawarray = array
 
         self.__displaywidget.updateImage(array, rawarray)
-        self.imagePlotted.emit()
+        if self.__currenttool:
+            self.__currenttool.afterplot() 
 
     @QtCore.pyqtSlot(int)
     def setAutoLevels(self, autolevels):

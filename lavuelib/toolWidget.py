@@ -127,6 +127,10 @@ class ToolWidget(QtGui.QWidget):
     def disactivate(self):
         """ disactivates tool widget
         """
+        
+    def afterplot(self):
+        """ command after plot 
+        """
 
 
 class IntensityToolWidget(ToolWidget):
@@ -996,9 +1000,13 @@ class LineCutToolWidget(ToolWidget):
             [self.__ui.cutSpinBox.valueChanged, self._mainwidget.updateCuts],
             [self._mainwidget.cutNumberChanged, self._setCutsNumber],
             [self._mainwidget.cutCoordsChanged, self._plotCut],
-            [self._mainwidget.imagePlotted, self._plotCut],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    def afterplot(self):
+        """ command after plot 
+        """
+        self._plotCut()
 
     @QtCore.pyqtSlot()
     def _plotCut(self):
@@ -1085,11 +1093,15 @@ class OneDToolWidget(ToolWidget):
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
-            [self._mainwidget.imagePlotted, self._plotCurves],
             [self.__ui.rowsLineEdit.textChanged, self._updateRows],
             [self.__ui.xCheckBox.stateChanged, self._updateXRow],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    def afterplot(self):
+        """ command after plot 
+        """
+        self._plotCurves()
 
     def activate(self):
         """ activates tool widget
