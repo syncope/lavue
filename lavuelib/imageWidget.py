@@ -129,10 +129,10 @@ class ImageWidget(QtGui.QWidget):
 
         #: (:class:`pyqtgraph.PlotWidget`) right 1D plot widget
         self.__rightplot = _pg.PlotWidget()
-        
+
         self.__ui.twoDVerticalLayout.addWidget(self.__displaywidget)
         self.__ui.oneDBottomVerticalLayout.addWidget(self.__bottomplot)
-        
+
         self.__ui.oneDRightHorizontalLayout.addWidget(self.__rightplot)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
@@ -199,6 +199,12 @@ class ImageWidget(QtGui.QWidget):
 
     def onedrightplot(self):
         return self.__rightplot.plot()
+
+    def removebottomplot(self, plot):
+        self.__bottomplot.removeItem(plot)
+
+    def removerightplot(self, plot):
+        self.__rightplot.removeItem(plot)
 
     def __addToolWidgets(self):
         """ add tool subwidgets into grid layout
@@ -282,39 +288,28 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :obj:`str`
         """
         return str(self.__ui.toolComboBox.currentText())
-        
+
     @QtCore.pyqtSlot(int)
     def showCurrentTool(self):
         """ shows the current tool
         """
         with QtCore.QMutexLocker(self.__mutex):
             text = self.__ui.toolComboBox.currentText()
-            print("SHOW %s" % text)
             stwg = None
             for nm, twg in self.__toolwidgets.items():
                 if text == nm:
                     stwg = twg
                 else:
                     twg.hide()
-            print("S1")
             self.__disconnecttool()
-            print("S2")        
             self.__currenttool = stwg
-        import time
-        time.sleep(3)
         if stwg is not None:
-            print("S3")        
             stwg.show()
-            print("S4")        
             self.__displaywidget.setSubWidgets(stwg.parameters)
-            print("S5")        
             self.__updateinfowidgets(stwg.parameters)
-            print("S6")        
 
         self.__connecttool()
-        print("S7")        
         self.currentToolChanged.emit(text)
-        print("SHOW END %s" % text)
 
     def __updateinfowidgets(self, parameters):
         """ update info widgets

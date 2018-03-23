@@ -1034,25 +1034,27 @@ class LineCutToolWidget(ToolWidget):
         """
         with QtCore.QMutexLocker(self._mutex):
             if self._mainwidget.currentTool() == self.name:
-                print("PLOT CUT")
                 dt = self._mainwidget.cutData()
                 if dt is not None:
                     self.__cutCurve.setData(y=dt)
                     self.__cutCurve.setVisible(True)
                 else:
                     self.__cutCurve.setVisible(False)
-
-                print("PLOT END")
-        
+<
     def activate(self):
         """ activates tool widget
         """
+
+        if self.__cutCurve is None:
+            self.__cutCurve = self._mainwidget.onedbottomplot()
         self.__cutCurve.show()
 
     def disactivate(self):
         """ activates tool widget
         """
         self.__cutCurve.hide()
+        self._mainwidget.removebottomplot(self.__cutCurve)
+        self.__cutCurve = None
 
     @QtCore.pyqtSlot(int)
     def _setCutsNumber(self, cid):
@@ -1142,6 +1144,12 @@ class ProjectionToolWidget(ToolWidget):
     def activate(self):
         """ activates tool widget
         """
+        if self.__bottomplot is None:
+            self.__bottomplot = self._mainwidget.onedbottomplot()
+
+        if self.__rightplot is None:
+            self.__rightplot = self._mainwidget.onedrightplot()
+
         self.__bottomplot.show()
         self.__rightplot.show()
         self.__bottomplot.setVisible(True)
@@ -1155,6 +1163,10 @@ class ProjectionToolWidget(ToolWidget):
         self.__rightplot.hide()
         self.__bottomplot.setVisible(False)
         self.__rightplot.setVisible(False)
+        self._mainwidget.removebottomplot(self.__bottomplot)
+        self.__bottomplot = None
+        self._mainwidget.removerightplot(self.__bottomplot)
+        self.__rightplot = None
 
     @QtCore.pyqtSlot(int)
     def _updateXRow(self, value):
@@ -1201,7 +1213,6 @@ class ProjectionToolWidget(ToolWidget):
         """
         with QtCore.QMutexLocker(self._mutex):
             if self._mainwidget.currentTool() == self.name:
-                print("PLOT PROJ")
                 dts = self._mainwidget.rawData()
                 if dts is not None:
                     if self.__funindex:
@@ -1212,7 +1223,6 @@ class ProjectionToolWidget(ToolWidget):
                         sy = np.sum(dts, axis=0)
                     self.__bottomplot.setData(sx)
                     self.__rightplot.setData(x=sy,y=range(len(sy)))
-                print("PLOT PROJ END")
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -1302,6 +1312,8 @@ class OneDToolWidget(ToolWidget):
         for cr in self.__curves:
             cr.hide()
             cr.setVisible(False)
+            self._mainwidget.removebottomplot(cr)
+        self.__curves = []
 
     @QtCore.pyqtSlot(int)
     def _updateXRow(self, value):
@@ -1348,7 +1360,6 @@ class OneDToolWidget(ToolWidget):
         """
         with QtCore.QMutexLocker(self._mutex):
             if self._mainwidget.currentTool() == self.name:
-                print("PLOT CURVES")
                 dts = self._mainwidget.rawData()
                 if dts is not None:
                     dtnrplots = dts.shape[1]
@@ -1397,7 +1408,6 @@ class OneDToolWidget(ToolWidget):
                 else:
                     for cr in self.__curves:
                         cr.setVisible(False)
-                print("PLOT CURVES END")
 
     @QtCore.pyqtSlot()
     def _message(self):
