@@ -122,10 +122,10 @@ class ImageWidget(QtGui.QWidget):
             parent=self)
 
         #: (:class:`pyqtgraph.PlotWidget`) 1D plot widget
-        self.__cutPlot = _pg.PlotWidget(self)
+        self.__horizontalPlot = _pg.PlotWidget(self)
 
         self.__ui.twoDVerticalLayout.addWidget(self.__displaywidget)
-        self.__ui.oneDVerticalLayout.addWidget(self.__cutPlot)
+        self.__ui.oneDVerticalLayout.addWidget(self.__horizontalPlot)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
                                        QtGui.QSizePolicy.Preferred)
@@ -136,7 +136,7 @@ class ImageWidget(QtGui.QWidget):
         self.__displaywidget.setSizePolicy(sizePolicy)
 
         if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
-            self.__cutPlot.setMinimumSize(QtCore.QSize(0, 170))
+            self.__horizontalPlot.setMinimumSize(QtCore.QSize(0, 170))
 
         self.__addToolWidgets()
 
@@ -161,7 +161,7 @@ class ImageWidget(QtGui.QWidget):
         self.roiLineEditChanged.emit()
 
     def onedplot(self):
-        return self.__cutPlot.plot()
+        return self.__horizontalPlot.plot()
 
     def __addToolWidgets(self):
         """ add tool subwidgets into grid layout
@@ -280,11 +280,11 @@ class ImageWidget(QtGui.QWidget):
             if parameters.infotips is not None:
                 self.__ui.infoLineEdit.setToolTip(parameters.infotips)
             self.__ui.infoLineEdit.show()
-        if parameters.cutplot is True:
-            self.__cutPlot.show()
+        if parameters.horizontalplot is True:
+            self.__horizontalPlot.show()
             self.__ui.oneDWidget.show()
-        elif parameters.cutplot is False:
-            self.__cutPlot.hide()
+        elif parameters.horizontalplot is False:
+            self.__horizontalPlot.hide()
             self.__ui.oneDWidget.hide()
 
     def plot(self, array, rawarray=None):

@@ -83,7 +83,7 @@ class ToolParameters(object):
         #: (:obj:`bool`) axes scaling enabled
         self.scale = False
         #: (:obj:`bool`) cut plot enabled
-        self.cutplot = False
+        self.horizontalplot = False
         #: (:obj:`bool`) cross hair locker enabled
         self.crosshairlocker = False
         #: (:obj:`str`) infolineedit text
@@ -982,7 +982,7 @@ class LineCutToolWidget(ToolWidget):
         self.__ui.setupUi(self)
 
         self.parameters.cuts = True
-        self.parameters.cutplot = True
+        self.parameters.horizontalplot = True
         self.parameters.infolineedit = ""
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
@@ -1073,12 +1073,11 @@ class OneDToolWidget(ToolWidget):
 
         #: ((:obj:`list`<:obj:`int`>) selected rows
         self.__rows = [0]
+        #: ((:obj:`bool`) x in first row
+        self.__xinfirstrow = False
 
         self.__ui.rowsLineEdit.setText("0")
-        self.__ui.xLabel.hide()
-        self.__ui.xCheckBox.hide()
-        # self.parameters.cuts = True
-        self.parameters.cutplot = True
+        self.parameters.horizontalplot = True
         self.parameters.infolineedit = ""
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
@@ -1088,6 +1087,7 @@ class OneDToolWidget(ToolWidget):
         self.signal2slot = [
             [self._mainwidget.imagePlotted, self._plotCurves],
             [self.__ui.rowsLineEdit.textChanged, self._updateRows],
+            [self.__ui.xCheckBox.stateChanged, self._updateXRow],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
@@ -1101,6 +1101,16 @@ class OneDToolWidget(ToolWidget):
         """
         for cr in self.__curves:
             cr.hide()
+
+    @QtCore.pyqtSlot(int)
+    def _updateXRow(self, value):
+        """ updates X row status
+
+        :param value: if True or not 0 x-cooridnates taken from the first row
+        :param value: :obj:`int` or  :obj:`bool`
+        """
+        self.__xinfirstrow = True if value else False
+        self._updateRows()
 
     @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot()
@@ -1140,7 +1150,11 @@ class OneDToolWidget(ToolWidget):
             dtnrplots = dts.shape[1]
             if self.__rows:
                 if self.__rows[0] is None:
-                    nrplots = dtnrplots
+                    if self.__xinfirstrow:
+                        nrplots = dtnrplots - 1
+                    else:
+                        nrplots = dtnrplots
+
                 else:
                     nrplots = len(self.__rows)
             else:
@@ -1160,10 +1174,17 @@ class OneDToolWidget(ToolWidget):
             for i in range(nrplots):
                 if self.__rows:
                     if self.__rows[0] is None:
-                        self.__curves[i].setData(dts[:, i])
+                        if self.__xinfirstrow and i:
+                            self.__curves[i].setData(x=dts[:, 0], y=dts[:, i])
+                        else:
+                            self.__curves[i].setData(dts[:, i])
                         self.__curves[i].setVisible(True)
                     elif self.__rows[i] >= 0 and self.__rows[i] < dtnrplots:
-                        self.__curves[i].setData(dts[:, self.__rows[i]])
+                        if self.__xinfirstrow:
+                            self.__curves[i].setData(
+                                x=dts[:, 0], y=dts[:, self.__rows[i]])
+                        else:
+                            self.__curves[i].setData(dts[:, self.__rows[i]])
                         self.__curves[i].setVisible(True)
                     else:
                         self.__curves[i].setVisible(False)
