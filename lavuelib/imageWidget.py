@@ -126,11 +126,19 @@ class ImageWidget(QtGui.QWidget):
 
         #: (:class:`pyqtgraph.PlotWidget`) right 1D plot widget
         self.__rightplot = _pg.PlotWidget(self)
-        self.__rightwidget(self.__rightplot)
+        
         self.__ui.twoDVerticalLayout.addWidget(self.__displaywidget)
         self.__ui.oneDBottomVerticalLayout.addWidget(self.__bottomplot)
-        self.__ui.oneDRightHorizontalLayout.addWidget(self.__rightplot)
+        
+        #self.__rightwidget(self.__rightplot)
+        #self.__ui.oneDRightHorizontalLayout.addWidget(self.__rightplot)
 
+        scene = QtGui.QGraphicsScene(self)
+        proxywidget = scene.addWidget(self__rightplot)
+        proxywidget.setRotation(270)
+        gview = QtGui.QGraphicsView(self)
+        self.__ui.oneDRightHorizontalLayout.addWidget(gview)
+        gview.setScene(scene)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
                                        QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
