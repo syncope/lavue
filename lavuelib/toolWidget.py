@@ -1188,7 +1188,7 @@ class ProjectionToolWidget(ToolWidget):
                 sx = np.sum(dts, axis=1)
                 sy = np.sum(dts, axis=0)
             self.__bottomplot.setData(sx)
-            self.__rightplot.setData(sy)
+            self.__rightplot.setData(x=sy,y=range(len(sy)))
 
     @QtCore.pyqtSlot()
     def _message(self):

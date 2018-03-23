@@ -34,6 +34,7 @@ import os
 import json
 
 from . import imageDisplayWidget
+from . import rightPlotWidget
 from . import messageBox
 from . import imageSource as isr
 from . import toolWidget
@@ -125,20 +126,13 @@ class ImageWidget(QtGui.QWidget):
         self.__bottomplot = _pg.PlotWidget(self)
 
         #: (:class:`pyqtgraph.PlotWidget`) right 1D plot widget
-        self.__rightplot = _pg.PlotWidget(self)
+        self.__rightplot = _pg.PlotWidget()
         
         self.__ui.twoDVerticalLayout.addWidget(self.__displaywidget)
         self.__ui.oneDBottomVerticalLayout.addWidget(self.__bottomplot)
         
-        #self.__rightwidget(self.__rightplot)
-        #self.__ui.oneDRightHorizontalLayout.addWidget(self.__rightplot)
+        self.__ui.oneDRightHorizontalLayout.addWidget(self.__rightplot)
 
-        scene = QtGui.QGraphicsScene(self)
-        proxywidget = scene.addWidget(self__rightplot)
-        proxywidget.setRotation(270)
-        gview = QtGui.QGraphicsView(self)
-        self.__ui.oneDRightHorizontalLayout.addWidget(gview)
-        gview.setScene(scene)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
                                        QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -340,13 +334,6 @@ class ImageWidget(QtGui.QWidget):
             self.__rightplot.hide()
             self.__ui.cornerWidget.hide()
             self.__ui.oneDRightWidget.hide()
-
-    def __rightwidget(self, plotwidget):
-        transform = QtGui.QTransform()
-        transform.rotate(270)
-        transform.translate(-plotwidget.height(), 0)
-        plotwidget.setTransform(transform)
-        #plotwidget.translate(plotwidget.tickSize/2., 0)
 
     def plot(self, array, rawarray=None):
         """ plots the image
