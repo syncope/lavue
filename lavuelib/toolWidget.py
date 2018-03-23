@@ -1040,7 +1040,7 @@ class LineCutToolWidget(ToolWidget):
                     self.__cutCurve.setVisible(True)
                 else:
                     self.__cutCurve.setVisible(False)
-<
+
     def activate(self):
         """ activates tool widget
         """
