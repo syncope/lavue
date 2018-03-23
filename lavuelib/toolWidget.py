@@ -127,9 +127,9 @@ class ToolWidget(QtGui.QWidget):
     def disactivate(self):
         """ disactivates tool widget
         """
-        
+
     def afterplot(self):
-        """ command after plot 
+        """ command after plot
         """
 
 
@@ -1004,7 +1004,7 @@ class LineCutToolWidget(ToolWidget):
         ]
 
     def afterplot(self):
-        """ command after plot 
+        """ command after plot
         """
         self._plotCut()
 
@@ -1099,7 +1099,7 @@ class OneDToolWidget(ToolWidget):
         ]
 
     def afterplot(self):
-        """ command after plot 
+        """ command after plot
         """
         self._plotCurves()
 

@@ -302,7 +302,7 @@ class ImageWidget(QtGui.QWidget):
 
         self.__displaywidget.updateImage(array, rawarray)
         if self.__currenttool:
-            self.__currenttool.afterplot() 
+            self.__currenttool.afterplot()
 
     @QtCore.pyqtSlot(int)
     def setAutoLevels(self, autolevels):
