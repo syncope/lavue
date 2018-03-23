@@ -34,7 +34,6 @@ import os
 import json
 
 from . import imageDisplayWidget
-from . import rightPlotWidget
 from . import messageBox
 from . import imageSource as isr
 from . import toolWidget
@@ -112,6 +111,9 @@ class ImageWidget(QtGui.QWidget):
         self.__lasttext = ""
         #: (:class:`lavuelib.toolWidget.BaseToolWidget`) current tool
         self.__currenttool = None
+
+        #: (:obj:`PyQt4.QtCore.QMutex`) mutex lock
+        self.__mutex = QtCore.QMutex()
 
         #: (:class:`Ui_ImageWidget') ui_imagewidget object from qtdesigner
         self.__ui = _formclass()
@@ -202,7 +204,7 @@ class ImageWidget(QtGui.QWidget):
         """ add tool subwidgets into grid layout
         """
         for tt in self.__tooltypes:
-            twg = getattr(toolWidget, tt)(self)
+            twg = getattr(toolWidget, tt)(self.__mutex, self)
             self.__toolwidgets[twg.name] = twg
             self.__toolnames.append(twg.name)
             self.__ui.toolComboBox.addItem(twg.name)
@@ -273,26 +275,46 @@ class ImageWidget(QtGui.QWidget):
         self.cutCoordsChanged.emit()
         self.cutNumberChanged.emit(cid)
 
+    def currentTool(self):
+        """ provides the current tool
+
+        :returns: current tool name
+        :rtype: :obj:`str`
+        """
+        return str(self.__ui.toolComboBox.currentText())
+        
     @QtCore.pyqtSlot(int)
     def showCurrentTool(self):
         """ shows the current tool
         """
-        text = self.__ui.toolComboBox.currentText()
-        stwg = None
-        for nm, twg in self.__toolwidgets.items():
-            if text == nm:
-                stwg = twg
-            else:
-                twg.hide()
-        self.__disconnecttool()
-        self.__currenttool = stwg
+        with QtCore.QMutexLocker(self.__mutex):
+            text = self.__ui.toolComboBox.currentText()
+            print("SHOW %s" % text)
+            stwg = None
+            for nm, twg in self.__toolwidgets.items():
+                if text == nm:
+                    stwg = twg
+                else:
+                    twg.hide()
+            print("S1")
+            self.__disconnecttool()
+            print("S2")        
+            self.__currenttool = stwg
+        import time
+        time.sleep(3)
         if stwg is not None:
+            print("S3")        
             stwg.show()
+            print("S4")        
             self.__displaywidget.setSubWidgets(stwg.parameters)
+            print("S5")        
             self.__updateinfowidgets(stwg.parameters)
+            print("S6")        
 
         self.__connecttool()
+        print("S7")        
         self.currentToolChanged.emit(text)
+        print("SHOW END %s" % text)
 
     def __updateinfowidgets(self, parameters):
         """ update info widgets
