@@ -31,6 +31,7 @@ from PyQt4 import QtCore, QtGui, uic
 import os
 import re
 import math
+import numpy as np
 import pyqtgraph as _pg
 
 from . import geometryDialog
@@ -66,6 +67,10 @@ _onedformclass, _onedbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "OneDToolWidget.ui"))
 
+_projectionformclass, _projectionbaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "ProjectionToolWidget.ui"))
+
 
 class ToolParameters(object):
     """ tool parameters
@@ -82,8 +87,10 @@ class ToolParameters(object):
         self.cuts = False
         #: (:obj:`bool`) axes scaling enabled
         self.scale = False
-        #: (:obj:`bool`) cut plot enabled
-        self.horizontalplot = False
+        #: (:obj:`bool`) bottom 1d plot enabled
+        self.bottomplot = False
+        #: (:obj:`bool`) right 1d plot enabled
+        self.rightplot = False
         #: (:obj:`bool`) cross hair locker enabled
         self.crosshairlocker = False
         #: (:obj:`str`) infolineedit text
@@ -986,13 +993,13 @@ class LineCutToolWidget(ToolWidget):
         self.__ui.setupUi(self)
 
         self.parameters.cuts = True
-        self.parameters.horizontalplot = True
+        self.parameters.bottomplot = True
         self.parameters.infolineedit = ""
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
 
         #: (:class:`pyqtgraph.PlotDataItem`) 1D plot
-        self.__cutCurve = self._mainwidget.onedplot()
+        self.__cutCurve = self._mainwidget.onedbottomplot()
 
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
@@ -1055,6 +1062,161 @@ class LineCutToolWidget(ToolWidget):
         self._mainwidget.setDisplayedText(message)
 
 
+class ProjectionToolWidget(ToolWidget):
+    """ 1d plot tool widget
+    """
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
+        ToolWidget.__init__(self, parent)
+
+        #: (:obj:`str`) tool name
+        self.name = "Projections"
+
+        #: (:class:`Ui_OneDToolWidget') ui_toolwidget object from qtdesigner
+        self.__ui = _projectionformclass()
+        self.__ui.setupUi(self)
+
+        #: (:class:`pyqtgraph.PlotDataItem`) 1D bottom plot
+        self.__bottomplot = self._mainwidget.onedbottomplot()
+        #: (:class:`pyqtgraph.PlotDataItem`) 1D bottom plot
+        self.__rightplot = self._mainwidget.onedrightplot()
+        #: (:obj:`int`) function index
+        self.__funindex = 0
+
+        self.__ui.synchLabel.hide()
+        self.__ui.synchCheckBox.hide()
+        self.parameters.bottomplot = True
+        self.parameters.rightplot = True
+        self.parameters.infolineedit = ""
+        self.parameters.infotips = \
+            "coordinate info display for the mouse pointer"
+
+        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: list of [signal, slot] object to connect
+        self.signal2slot = [
+            [self.__ui.funComboBox.currentIndexChanged,
+             self._setFunction],
+            [self._mainwidget.mouseImagePositionChanged, self._message]
+        ]
+
+    @QtCore.pyqtSlot(int)
+    def _setFunction(self, findex):
+        """ set sum or mean function
+
+        :param gspace: g-space index, i.e. angle or q-space
+        :type gspace: :obj:`int`
+        """
+        self.__funindex = findex
+        self._plotCurves()
+
+    def afterplot(self):
+        """ command after plot
+        """
+        self._plotCurves()
+
+    def activate(self):
+        """ activates tool widget
+        """
+        self.__bottomplot.show()
+        self.__rightplot.show()
+        self.__bottomplot.setVisible(True)
+        self.__rightplot.setVisible(True)
+        self._plotCurves()
+
+    def disactivate(self):
+        """ activates tool widget
+        """
+        self.__bottomplot.hide()
+        self.__rightplot.hide()
+        self.__bottomplot.setVisible(False)
+        self.__rightplot.setVisible(False)
+
+    @QtCore.pyqtSlot(int)
+    def _updateXRow(self, value):
+        """ updates X row status
+
+        :param value: if True or not 0 x-cooridnates taken from the first row
+        :param value: :obj:`int` or  :obj:`bool`
+        """
+        self.__xinfirstrow = True if value else False
+        self._updateRows()
+
+    @QtCore.pyqtSlot(str)
+    @QtCore.pyqtSlot()
+    def _updateRows(self):
+        """ updates applied button"""
+        text = str(self.__ui.rowsLineEdit.text()).strip()
+        rows = []
+        if text:
+            if text == "ALL":
+                rows = [None]
+            else:
+                stext = [rw for rw in re.split(",| ", text) if rw]
+                for rw in stext:
+                    if ":" in rw:
+                        slices = rw.split(":")
+                        s0 = int(slices[0]) if slices[0].strip() else 0
+                        s1 = int(slices[1]) if slices[1].strip() else 0
+                        if len(slices) > 2:
+                            s2 = int(slices[2]) if slices[2].strip() else 1
+                            rows.extend(range(s0, s1, s2))
+                        else:
+                            rows.extend(range(s0, s1))
+                    else:
+                        try:
+                            rows.append(int(rw))
+                        except:
+                            pass
+        self.__rows = rows
+        self._plotCurves()
+
+    @QtCore.pyqtSlot()
+    def _plotCurves(self):
+        """ plots the current image in 1d plots
+        """
+        dts = self._mainwidget.rawData()
+        if dts is not None:
+            if self.__funindex:
+                sx = np.mean(dts, axis=1)
+                sy = np.mean(dts, axis=0)
+            else:
+                sx = np.sum(dts, axis=1)
+                sy = np.sum(dts, axis=0)
+            self.__bottomplot.setData(sx)
+            self.__rightplot.setData(sy)
+
+    @QtCore.pyqtSlot()
+    def _message(self):
+        """ provides intensity message
+        """
+        x, y, intensity = self._mainwidget.currentIntensity()
+        ilabel = self._mainwidget.scalingLabel()
+        txdata, tydata = self._mainwidget.scaledxy(x, y)
+        xunits, yunits = self._mainwidget.axesunits()
+        if txdata is not None:
+            message = "x = %f%s, y = %f%s, %s = %.2f" % (
+                txdata,
+                (" %s" % xunits) if xunits else "",
+                tydata,
+                (" %s" % yunits) if yunits else "",
+                ilabel,
+                intensity
+            )
+        else:
+            message = "x = %i%s, y = %i%s, %s = %.2f" % (
+                x,
+                (" %s" % xunits) if xunits else "",
+                y,
+                (" %s" % yunits) if yunits else "",
+                ilabel,
+                intensity)
+        self._mainwidget.setDisplayedText(message)
+
 class OneDToolWidget(ToolWidget):
     """ 1d plot tool widget
     """
@@ -1085,7 +1247,7 @@ class OneDToolWidget(ToolWidget):
         self.__xinfirstrow = False
 
         self.__ui.rowsLineEdit.setText("0")
-        self.parameters.horizontalplot = True
+        self.parameters.bottomplot = True
         self.parameters.infolineedit = ""
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
@@ -1173,7 +1335,7 @@ class OneDToolWidget(ToolWidget):
                 nrplots = 0
             if self.__nrplots != nrplots:
                 while nrplots > len(self.__curves):
-                    self.__curves.append(self._mainwidget.onedplot())
+                    self.__curves.append(self._mainwidget.onedbottomplot())
                 for i in range(nrplots):
                     self.__curves[i].show()
                 for i in range(nrplots, len(self.__curves)):

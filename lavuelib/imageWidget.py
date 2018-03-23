@@ -121,11 +121,15 @@ class ImageWidget(QtGui.QWidget):
         self.__displaywidget = imageDisplayWidget.ImageDisplayWidget(
             parent=self)
 
-        #: (:class:`pyqtgraph.PlotWidget`) 1D plot widget
-        self.__horizontalPlot = _pg.PlotWidget(self)
+        #: (:class:`pyqtgraph.PlotWidget`) bottom 1D plot widget
+        self.__bottomplot = _pg.PlotWidget(self)
 
+        #: (:class:`pyqtgraph.PlotWidget`) right 1D plot widget
+        self.__rightplot = _pg.PlotWidget(self)
+        self.__rightwidget(self.__rightplot)
         self.__ui.twoDVerticalLayout.addWidget(self.__displaywidget)
-        self.__ui.oneDVerticalLayout.addWidget(self.__horizontalPlot)
+        self.__ui.oneDBottomVerticalLayout.addWidget(self.__bottomplot)
+        self.__ui.oneDRightHorizontalLayout.addWidget(self.__rightplot)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
                                        QtGui.QSizePolicy.Preferred)
@@ -134,15 +138,16 @@ class ImageWidget(QtGui.QWidget):
         sizePolicy.setHeightForWidth(
             self.__displaywidget.sizePolicy().hasHeightForWidth())
         self.__displaywidget.setSizePolicy(sizePolicy)
+        self.__ui.upperPlotWidget.setSizePolicy(sizePolicy)
 
         if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
-            self.__horizontalPlot.setMinimumSize(QtCore.QSize(0, 170))
+            self.__bottomplot.setMinimumSize(QtCore.QSize(0, 170))
 
         self.__addToolWidgets()
 
-        self.__ui.plotSplitter.setStretchFactor(0, 20)
+        self.__ui.plotSplitter.setStretchFactor(0, 50)
         self.__ui.plotSplitter.setStretchFactor(1, 1)
-        self.__ui.toolSplitter.setStretchFactor(0, 100)
+        self.__ui.toolSplitter.setStretchFactor(0, 2000)
         self.__ui.toolSplitter.setStretchFactor(1, 1)
 
         self.__displaywidget.cutCoordsChanged.connect(
@@ -158,10 +163,38 @@ class ImageWidget(QtGui.QWidget):
         self.__displaywidget.mouseImageSingleClicked.connect(
             self._emitMouseImageSingleClicked)
 
+        self.__connectsplitters()
         self.roiLineEditChanged.emit()
 
-    def onedplot(self):
-        return self.__horizontalPlot.plot()
+    def __connectsplitters(self):
+        self.__ui.lowerPlotSplitter.splitterMoved.connect(
+            self._moveUpperPlotSplitter)
+        self.__ui.upperPlotSplitter.splitterMoved.connect(
+            self._moveLowerPlotSplitter)
+
+    def __disconnectsplitters(self):
+        self.__ui.lowerPlotSplitter.splitterMoved.disconnect(
+            self._moveUpperPlotSplitter)
+        self.__ui.upperPlotSplitter.splitterMoved.disconnect(
+            self._moveLowerPlotSplitter)
+
+    @QtCore.pyqtSlot(int, int)
+    def _moveLowerPlotSplitter(self, pos, index):
+        self.__disconnectsplitters()
+        self.__ui.lowerPlotSplitter.moveSplitter(pos,index)
+        self.__connectsplitters()
+
+    @QtCore.pyqtSlot(int, int)
+    def _moveUpperPlotSplitter(self, pos, index):
+        self.__disconnectsplitters()
+        self.__ui.upperPlotSplitter.moveSplitter(pos,index)
+        self.__connectsplitters()
+
+    def onedbottomplot(self):
+        return self.__bottomplot.plot()
+
+    def onedrightplot(self):
+        return self.__rightplot.plot()
 
     def __addToolWidgets(self):
         """ add tool subwidgets into grid layout
@@ -280,12 +313,32 @@ class ImageWidget(QtGui.QWidget):
             if parameters.infotips is not None:
                 self.__ui.infoLineEdit.setToolTip(parameters.infotips)
             self.__ui.infoLineEdit.show()
-        if parameters.horizontalplot is True:
-            self.__horizontalPlot.show()
-            self.__ui.oneDWidget.show()
-        elif parameters.horizontalplot is False:
-            self.__horizontalPlot.hide()
-            self.__ui.oneDWidget.hide()
+        if parameters.bottomplot is True:
+            self.__bottomplot.show()
+            self.__ui.oneDBottomWidget.show()
+            self.__ui.lowerPlotWidget.show()
+        elif parameters.bottomplot is False:
+            self.__bottomplot.hide()
+            self.__ui.oneDBottomWidget.hide()
+            self.__ui.lowerPlotWidget.hide()
+        if parameters.rightplot is True:
+            self.__rightplot.show()
+            self.__ui.cornerWidget.show()
+            self.__ui.oneDRightWidget.show()
+            smin, smax = self.__ui.upperPlotSplitter.getRange(1)
+            self._moveUpperPlotSplitter((smax-smin)*4/5., 1)
+            self._moveLowerPlotSplitter((smax-smin)*4/5., 1)
+        elif parameters.rightplot is False:
+            self.__rightplot.hide()
+            self.__ui.cornerWidget.hide()
+            self.__ui.oneDRightWidget.hide()
+
+    def __rightwidget(self, plotwidget):
+        transform = QtGui.QTransform()
+        transform.rotate(270)
+        transform.translate(-plotwidget.height(), 0)
+        plotwidget.setTransform(transform)
+        #plotwidget.translate(plotwidget.tickSize/2., 0)
 
     def plot(self, array, rawarray=None):
         """ plots the image

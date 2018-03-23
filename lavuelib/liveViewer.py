@@ -101,6 +101,7 @@ class LiveViewer(QtGui.QMainWindow):
             self.__tooltypes.append("MotorsToolWidget")
             self.__tooltypes.append("MeshToolWidget")
         self.__tooltypes.append("OneDToolWidget")
+        self.__tooltypes.append("ProjectionToolWidget")
 
         if umode and umode.lower() in ["expert"]:
             #: (:obj:`str`) execution mode: expert or user
