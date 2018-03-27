@@ -198,13 +198,13 @@ class ImageWidget(QtGui.QWidget):
         return self.__rightplot.plot()
 
     def onedbarbottomplot(self):
-        bg = _pg.BarGraphItem(width=0.3, brush='b')
+        bg = _pg.BarGraphItem(x=[0], y0=[0], y1=[0], width=1., brush='b')
         self.__bottomplot.addItem(bg)
         return bg
 
     def onedbarrightplot(self):
-        bg = _pg.BarGraphItem(width=0.3, brush='b')
-        self.__bottomplot.addItem(bg)
+        bg = _pg.BarGraphItem(x0=[0], x1=[0], y=[0], height=1, brush='b')
+        self.__rightplot.addItem(bg)
         return bg
 
     def removebottomplot(self, plot):

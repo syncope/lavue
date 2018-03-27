@@ -1032,6 +1032,7 @@ class LineCutToolWidget(ToolWidget):
         if self.__cutCurve is None:
             self.__cutCurve = self._mainwidget.onedbottomplot()
         self.__cutCurve.show()
+        self._plotCut()
 
     def disactivate(self):
         """ activates tool widget
@@ -1081,7 +1082,8 @@ class ProjectionToolWidget(ToolWidget):
         #: (:obj:`str`) tool name
         self.name = "Projections"
 
-        #: (:class:`Ui_ProjectionToolWidget') ui_toolwidget object from qtdesigner
+        #: (:class:`Ui_ProjectionToolWidget')
+        #:      ui_toolwidget object from qtdesigner
         self.__ui = _projectionformclass()
         self.__ui.setupUi(self)
 
@@ -1202,8 +1204,12 @@ class ProjectionToolWidget(ToolWidget):
                 else:
                     sx = np.sum(dts, axis=1)
                     sy = np.sum(dts, axis=0)
-                self.__bottomplot.setData(sx)
-                self.__rightplot.setData(x=sy,y=range(len(sy)))
+                self.__bottomplot.setOpts(
+                    y0=[0]*len(sx), y1=sx, x=range(len(sx)), width=1)
+                self.__bottomplot.drawPicture()
+                self.__rightplot.setOpts(
+                    x0=[0]*len(sy), x1=sy, y=range(len(sy)), height=1)
+                self.__rightplot.drawPicture()
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -1231,6 +1237,7 @@ class ProjectionToolWidget(ToolWidget):
                 ilabel,
                 intensity)
         self._mainwidget.setDisplayedText(message)
+
 
 class OneDToolWidget(ToolWidget):
     """ 1d plot tool widget
@@ -1341,13 +1348,13 @@ class OneDToolWidget(ToolWidget):
         if self._mainwidget.currentTool() == self.name:
             dts = self._mainwidget.rawData()
             if dts is not None:
-                dtnrplots = dts.shape[1]
+                dtnrpts = dts.shape[1]
                 if self.__rows:
                     if self.__rows[0] is None:
                         if self.__xinfirstrow:
-                            nrplots = dtnrplots - 1
+                            nrplots = dtnrpts - 1
                         else:
-                            nrplots = dtnrplots
+                            nrplots = dtnrpts
 
                     else:
                         nrplots = len(self.__rows)
@@ -1369,16 +1376,18 @@ class OneDToolWidget(ToolWidget):
                     if self.__rows:
                         if self.__rows[0] is None:
                             if self.__xinfirstrow and i:
-                                self.__curves[i].setData(x=dts[:, 0], y=dts[:, i])
+                                self.__curves[i].setData(
+                                    x=dts[:, 0], y=dts[:, i])
                             else:
                                 self.__curves[i].setData(dts[:, i])
                             self.__curves[i].setVisible(True)
-                        elif self.__rows[i] >= 0 and self.__rows[i] < dtnrplots:
+                        elif self.__rows[i] >= 0 and self.__rows[i] < dtnrpts:
                             if self.__xinfirstrow:
                                 self.__curves[i].setData(
                                     x=dts[:, 0], y=dts[:, self.__rows[i]])
                             else:
-                                self.__curves[i].setData(dts[:, self.__rows[i]])
+                                self.__curves[i].setData(
+                                    dts[:, self.__rows[i]])
                             self.__curves[i].setVisible(True)
                         else:
                             self.__curves[i].setVisible(False)
