@@ -900,6 +900,7 @@ class LiveViewer(QtGui.QMainWindow):
                     self.__rawimage = rawimage
         self.__updateframeview()
         self._plot()
+        QtCore.QCoreApplication.processEvents()
         self.__dataFetcher.ready()
 
     def __updateframeview(self, status=False):

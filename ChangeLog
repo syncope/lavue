@@ -1,5 +1,6 @@
-2018-03-XX Jan Kotanski <jan.kotanski@desy.de>
+2018-03-27 Jan Kotanski <jan.kotanski@desy.de>
 	* add projections
+	* fix issue with hanging qt events
 	* tagged as 1.11.0
 
 2018-03-23 Jan Kotanski <jan.kotanski@desy.de>
