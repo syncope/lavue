@@ -1,4 +1,8 @@
 2018-03-27 Jan Kotanski <jan.kotanski@desy.de>
+	* add row and column slices in projections
+	* tagged as 1.12.0
+
+2018-03-27 Jan Kotanski <jan.kotanski@desy.de>
 	* add projections
 	* fix issue with hanging qt events
 	* tagged as 1.11.0

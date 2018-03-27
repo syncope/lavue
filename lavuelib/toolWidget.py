@@ -1094,8 +1094,11 @@ class ProjectionToolWidget(ToolWidget):
         #: (:obj:`int`) function index
         self.__funindex = 0
 
-        self.__ui.synchLabel.hide()
-        self.__ui.synchCheckBox.hide()
+        #: (:obj:`slice`) selected rows
+        self.__rows = None
+        #: (:obj:`slice`) selected columns
+        self.__columns = None
+
         self.parameters.bottomplot = True
         self.parameters.rightplot = True
         self.parameters.infolineedit = ""
@@ -1107,8 +1110,57 @@ class ProjectionToolWidget(ToolWidget):
         self.signal2slot = [
             [self.__ui.funComboBox.currentIndexChanged,
              self._setFunction],
+            [self.__ui.rowsliceLineEdit.textChanged, self._updateRows],
+            [self.__ui.columnsliceLineEdit.textChanged, self._updateColumns],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    def __updateslice(self, text):
+        """ create slices from the text
+        """
+        rows = None
+        if text:
+            try:
+                if ":" in text:
+                    slices = text.split(":")
+                    s0 = int(slices[0]) if slices[0].strip() else 0
+                    s1 = int(slices[1]) if slices[1].strip() else None
+                    if len(slices) > 2:
+                        s2 = int(slices[2]) if slices[2].strip() else None
+                        rows = slice(s0, s1, s2)
+                    else:
+                        rows = slice(s0, s1)
+                else:
+                    rows = int(text)
+            except:
+                pass
+        return rows
+        
+    @QtCore.pyqtSlot(str)
+    @QtCore.pyqtSlot()
+    def _updateSlices(self):
+        """ updates applied button"""
+        rtext = str(self.__ui.rowsliceLineEdit.text()).strip()
+        self.__rows = self.__updateslice(rtext)
+        ctext = str(self.__ui.columnsliceLineEdit.text()).strip()
+        self.__columns = self.__updateslice(ctext)
+        self._plotCurves()
+
+    @QtCore.pyqtSlot(str)
+    @QtCore.pyqtSlot()
+    def _updateRows(self):
+        """ updates applied button"""
+        rtext = str(self.__ui.rowsliceLineEdit.text()).strip()
+        self.__rows = self.__updateslice(rtext)
+        self._plotCurves()
+
+    @QtCore.pyqtSlot(str)
+    @QtCore.pyqtSlot()
+    def _updateColumns(self):
+        """ updates applied button"""
+        text = str(self.__ui.columnsliceLineEdit.text()).strip()
+        self.__columns = self.__updateslice(text)
+        self._plotCurves()
 
     @QtCore.pyqtSlot(int)
     def _setFunction(self, findex):
@@ -1138,6 +1190,7 @@ class ProjectionToolWidget(ToolWidget):
         self.__rightplot.show()
         self.__bottomplot.setVisible(True)
         self.__rightplot.setVisible(True)
+        self._updateSlices()
         self._plotCurves()
 
     def disactivate(self):
@@ -1152,44 +1205,6 @@ class ProjectionToolWidget(ToolWidget):
         self._mainwidget.removerightplot(self.__rightplot)
         self.__rightplot = None
 
-    @QtCore.pyqtSlot(int)
-    def _updateXRow(self, value):
-        """ updates X row status
-
-        :param value: if True or not 0 x-cooridnates taken from the first row
-        :param value: :obj:`int` or  :obj:`bool`
-        """
-        self.__xinfirstrow = True if value else False
-        self._updateRows()
-
-    @QtCore.pyqtSlot(str)
-    @QtCore.pyqtSlot()
-    def _updateRows(self):
-        """ updates applied button"""
-        text = str(self.__ui.rowsLineEdit.text()).strip()
-        rows = []
-        if text:
-            if text == "ALL":
-                rows = [None]
-            else:
-                stext = [rw for rw in re.split(",| ", text) if rw]
-                for rw in stext:
-                    if ":" in rw:
-                        slices = rw.split(":")
-                        s0 = int(slices[0]) if slices[0].strip() else 0
-                        s1 = int(slices[1]) if slices[1].strip() else 0
-                        if len(slices) > 2:
-                            s2 = int(slices[2]) if slices[2].strip() else 1
-                            rows.extend(range(s0, s1, s2))
-                        else:
-                            rows.extend(range(s0, s1))
-                    else:
-                        try:
-                            rows.append(int(rw))
-                        except:
-                            pass
-        self.__rows = rows
-        self._plotCurves()
 
     @QtCore.pyqtSlot()
     def _plotCurves(self):
@@ -1199,11 +1214,33 @@ class ProjectionToolWidget(ToolWidget):
             dts = self._mainwidget.rawData()
             if dts is not None:
                 if self.__funindex:
-                    sx = np.mean(dts, axis=1)
-                    sy = np.mean(dts, axis=0)
+                    npfun = np.sum
                 else:
-                    sx = np.sum(dts, axis=1)
-                    sy = np.sum(dts, axis=0)
+                    npfun = np.mean
+                                        
+                if self.__rows is not None:
+                    try:
+                        if isinstance(self.__rows, slice):
+                            sx = npfun(dts[:, self.__rows], axis=1)
+                        else:
+                            sx = dts[:, self.__rows]
+                    except:
+                        sx = npfun(dts, axis=1)
+                    
+                else:
+                    sx = npfun(dts, axis=1)
+
+                if self.__columns is not None:
+                    try:
+                        if isinstance(self.__columns, slice):
+                            sy = npfun(dts[self.__columns,:], axis=0)
+                        else:
+                            sy = dts[self.__columns,:]
+                    except:
+                        sy = npfun(dts, axis=0)
+                else:
+                    sy = npfun(dts, axis=0)
+        
                 self.__bottomplot.setOpts(
                     y0=[0]*len(sx), y1=sx, x=range(len(sx)),
                     width=[1.0]*len(sx))
@@ -1247,7 +1284,7 @@ class OneDToolWidget(ToolWidget):
 
     def __init__(self, parent=None):
         """ constructor
-
+<
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>604</width>
+    <width>632</width>
     <height>30</height>
    </rect>
   </property>
@@ -26,12 +26,42 @@
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="toolLabel">
+      <widget class="QLabel" name="rowsliceLabel">
        <property name="toolTip">
-        <string>coordinate info display for the mouse pointer</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;row range in the python slice notation,&lt;/p&gt;&lt;p&gt;e.g. 0:100 or 100:200:2&lt;/p&gt;&lt;p&gt;empty means ALL&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
-        <string>Pixel position and intensity: </string>
+        <string>Row slice:</string>
+       </property>
+       <property name="buddy">
+        <cstring>rowsliceLineEdit</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="rowsliceLineEdit">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;row range in the python slice notation,&lt;/p&gt;&lt;p&gt;e.g. 0:100 or 100:200:2&lt;/p&gt;&lt;p&gt;empty means ALL&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="columnsliceLabel">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;column range in the python slice notation,&lt;/p&gt;&lt;p&gt;e.g. 0:100 or 100:200:2&lt;/p&gt;&lt;p&gt;empty means ALL&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Column slice:</string>
+       </property>
+       <property name="buddy">
+        <cstring>columnsliceLineEdit</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="columnsliceLineEdit">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;column range in the python slice notation,&lt;/p&gt;&lt;p&gt;e.g. 0:100 or 100:200:2&lt;/p&gt;&lt;p&gt;empty means ALL&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
@@ -39,39 +69,6 @@
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QLabel" name="synchLabel">
-       <property name="text">
-        <string>Synch Axes:</string>
-       </property>
-       <property name="buddy">
-        <cstring>synchCheckBox</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="synchCheckBox">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Minimum</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -92,12 +89,12 @@
       <widget class="QComboBox" name="funComboBox">
        <item>
         <property name="text">
-         <string>sum</string>
+         <string>mean</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>mean</string>
+         <string>sum</string>
         </property>
        </item>
       </widget>
@@ -107,7 +104,8 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>synchCheckBox</tabstop>
+  <tabstop>rowsliceLineEdit</tabstop>
+  <tabstop>columnsliceLineEdit</tabstop>
   <tabstop>funComboBox</tabstop>
  </tabstops>
  <resources/>
