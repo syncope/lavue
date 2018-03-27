@@ -1,4 +1,8 @@
 2018-03-27 Jan Kotanski <jan.kotanski@desy.de>
+	* interpete warnings in projections
+	* tagged as 1.12.2
+
+2018-03-27 Jan Kotanski <jan.kotanski@desy.de>
 	* add missing sphinx docs
 	* change size of bottom plot widget
 	* tagged as 1.12.1

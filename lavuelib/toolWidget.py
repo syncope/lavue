@@ -33,6 +33,7 @@ import re
 import math
 import numpy as np
 import pyqtgraph as _pg
+import warnings
 
 from . import geometryDialog
 from . import takeMotorsDialog
@@ -1229,24 +1230,30 @@ class ProjectionToolWidget(ToolWidget):
 
                 if self.__rows is not None:
                     try:
-                        if isinstance(self.__rows, slice):
-                            sx = npfun(dts[:, self.__rows], axis=1)
-                        else:
-                            sx = dts[:, self.__rows]
+                        with warnings.catch_warnings():
+                            warnings.simplefilter(
+                                "error", category=RuntimeWarning)
+                            if isinstance(self.__rows, slice):
+                                sx = npfun(dts[:, self.__rows], axis=1)
+                            else:
+                                sx = dts[:, self.__rows]
                     except:
-                        sx = npfun(dts, axis=1)
+                        sx = []
 
                 else:
                     sx = npfun(dts, axis=1)
 
                 if self.__columns is not None:
                     try:
-                        if isinstance(self.__columns, slice):
-                            sy = npfun(dts[self.__columns, :], axis=0)
-                        else:
-                            sy = dts[self.__columns, :]
+                        with warnings.catch_warnings():
+                            warnings.simplefilter(
+                                "error", category=RuntimeWarning)
+                            if isinstance(self.__columns, slice):
+                                sy = npfun(dts[self.__columns, :], axis=0)
+                            else:
+                                sy = dts[self.__columns, :]
                     except:
-                        sy = npfun(dts, axis=0)
+                        sy = []
                 else:
                     sy = npfun(dts, axis=0)
 
