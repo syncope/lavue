@@ -112,9 +112,6 @@ class ImageWidget(QtGui.QWidget):
         #: (:class:`lavuelib.toolWidget.BaseToolWidget`) current tool
         self.__currenttool = None
 
-        #: (:obj:`PyQt4.QtCore.QMutex`) mutex lock
-        self.__mutex = QtCore.QMutex()
-
         #: (:class:`Ui_ImageWidget') ui_imagewidget object from qtdesigner
         self.__ui = _formclass()
         self.__ui.setupUi(self)
@@ -210,7 +207,7 @@ class ImageWidget(QtGui.QWidget):
         """ add tool subwidgets into grid layout
         """
         for tt in self.__tooltypes:
-            twg = getattr(toolWidget, tt)(self.__mutex, self)
+            twg = getattr(toolWidget, tt)(self)
             self.__toolwidgets[twg.name] = twg
             self.__toolnames.append(twg.name)
             self.__ui.toolComboBox.addItem(twg.name)
@@ -293,16 +290,15 @@ class ImageWidget(QtGui.QWidget):
     def showCurrentTool(self):
         """ shows the current tool
         """
-        with QtCore.QMutexLocker(self.__mutex):
-            text = self.__ui.toolComboBox.currentText()
-            stwg = None
-            for nm, twg in self.__toolwidgets.items():
-                if text == nm:
-                    stwg = twg
-                else:
-                    twg.hide()
-            self.__disconnecttool()
-            self.__currenttool = stwg
+        text = self.__ui.toolComboBox.currentText()
+        stwg = None
+        for nm, twg in self.__toolwidgets.items():
+            if text == nm:
+                stwg = twg
+            else:
+                twg.hide()
+        self.__disconnecttool()
+        self.__currenttool = stwg
         if stwg is not None:
             stwg.show()
             self.__displaywidget.setSubWidgets(stwg.parameters)

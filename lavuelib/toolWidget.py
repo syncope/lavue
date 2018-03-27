@@ -104,11 +104,9 @@ class ToolParameters(object):
 class ToolWidget(QtGui.QWidget):
     """ tool widget
     """
-    def __init__(self, mutex, parent=None):
+    def __init__(self, parent=None):
         """ constructor
 
-        :param mutex: image widget mutex
-        :type mutex: :class:`PyQt4.QtCore.QMutex`
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
@@ -122,9 +120,6 @@ class ToolWidget(QtGui.QWidget):
         self._ui = None
         #: (:class:`ToolParameters`) tool parameters
         self.parameters = ToolParameters()
-
-        #: (:class:`PyQt4.QtCore.QMutex`) mutex lock
-        self._mutex = mutex
 
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
@@ -147,15 +142,13 @@ class IntensityToolWidget(ToolWidget):
     """ intensity tool widget
     """
 
-    def __init__(self, mutex, parent=None):
+    def __init__(self, parent=None):
         """ constructor
 
-        :param mutex: image widget mutex
-        :type mutex: :class:`PyQt4.QtCore.QMutex`
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        ToolWidget.__init__(self, mutex, parent)
+        ToolWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "Intensity"
@@ -216,15 +209,13 @@ class MotorsToolWidget(ToolWidget):
     """ motors tool widget
     """
 
-    def __init__(self, mutex, parent=None):
+    def __init__(self, parent=None):
         """ constructor
 
-        :param mutex: image widget mutex
-        :type mutex: :class:`PyQt4.QtCore.QMutex`
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        ToolWidget.__init__(self, mutex, parent)
+        ToolWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "MoveMotors"
@@ -486,15 +477,13 @@ class MeshToolWidget(ToolWidget):
     #: (:class:`PyQt4.QtCore.pyqtSignal`) roi info Changed signal
     roiInfoChanged = QtCore.pyqtSignal(str)
 
-    def __init__(self, mutex, parent=None):
+    def __init__(self, parent=None):
         """ constructor
 
-        :param mutex: image widget mutex
-        :type mutex: :class:`PyQt4.QtCore.QMutex`
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        ToolWidget.__init__(self, mutex, parent)
+        ToolWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "MeshScan"
@@ -791,15 +780,13 @@ class ROIToolWidget(ToolWidget):
     #: (:class:`PyQt4.QtCore.pyqtSignal`) roi info Changed signal
     roiInfoChanged = QtCore.pyqtSignal(str)
 
-    def __init__(self, mutex, parent=None):
+    def __init__(self, parent=None):
         """ constructor
 
-        :param mutex: image widget mutex
-        :type mutex: :class:`PyQt4.QtCore.QMutex`
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        ToolWidget.__init__(self, mutex, parent)
+        ToolWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "ROI"
@@ -988,15 +975,13 @@ class LineCutToolWidget(ToolWidget):
     """ line-cut tool widget
     """
 
-    def __init__(self, mutex, parent=None):
+    def __init__(self, parent=None):
         """ constructor
 
-        :param mutex: image widget mutex
-        :type mutex: :class:`PyQt4.QtCore.QMutex`
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        ToolWidget.__init__(self, mutex, parent)
+        ToolWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "LineCut"
@@ -1032,14 +1017,13 @@ class LineCutToolWidget(ToolWidget):
     def _plotCut(self):
         """ plots the current 1d Cut
         """
-        with QtCore.QMutexLocker(self._mutex):
-            if self._mainwidget.currentTool() == self.name:
-                dt = self._mainwidget.cutData()
-                if dt is not None:
-                    self.__cutCurve.setData(y=dt)
-                    self.__cutCurve.setVisible(True)
-                else:
-                    self.__cutCurve.setVisible(False)
+        if self._mainwidget.currentTool() == self.name:
+            dt = self._mainwidget.cutData()
+            if dt is not None:
+                self.__cutCurve.setData(y=dt)
+                self.__cutCurve.setVisible(True)
+            else:
+                self.__cutCurve.setVisible(False)
 
     def activate(self):
         """ activates tool widget
@@ -1086,15 +1070,13 @@ class ProjectionToolWidget(ToolWidget):
     """ 1d plot tool widget
     """
 
-    def __init__(self, mutex, parent=None):
+    def __init__(self, parent=None):
         """ constructor
 
-        :param mutex: image widget mutex
-        :type mutex: :class:`PyQt4.QtCore.QMutex`
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        ToolWidget.__init__(self, mutex, parent)
+        ToolWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "Projections"
@@ -1211,18 +1193,17 @@ class ProjectionToolWidget(ToolWidget):
     def _plotCurves(self):
         """ plots the current image in 1d plots
         """
-        with QtCore.QMutexLocker(self._mutex):
-            if self._mainwidget.currentTool() == self.name:
-                dts = self._mainwidget.rawData()
-                if dts is not None:
-                    if self.__funindex:
-                        sx = np.mean(dts, axis=1)
-                        sy = np.mean(dts, axis=0)
-                    else:
-                        sx = np.sum(dts, axis=1)
-                        sy = np.sum(dts, axis=0)
-                    self.__bottomplot.setData(sx)
-                    self.__rightplot.setData(x=sy,y=range(len(sy)))
+        if self._mainwidget.currentTool() == self.name:
+            dts = self._mainwidget.rawData()
+            if dts is not None:
+                if self.__funindex:
+                    sx = np.mean(dts, axis=1)
+                    sy = np.mean(dts, axis=0)
+                else:
+                    sx = np.sum(dts, axis=1)
+                    sy = np.sum(dts, axis=0)
+                self.__bottomplot.setData(sx)
+                self.__rightplot.setData(x=sy,y=range(len(sy)))
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -1255,15 +1236,13 @@ class OneDToolWidget(ToolWidget):
     """ 1d plot tool widget
     """
 
-    def __init__(self, mutex, parent=None):
+    def __init__(self, parent=None):
         """ constructor
 
-        :param mutex: image widget mutex
-        :type mutex: :class:`PyQt4.QtCore.QMutex`
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        ToolWidget.__init__(self, mutex, parent)
+        ToolWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "1d-Plot"
@@ -1358,56 +1337,55 @@ class OneDToolWidget(ToolWidget):
     def _plotCurves(self):
         """ plots the current image in 1d plots
         """
-        with QtCore.QMutexLocker(self._mutex):
-            if self._mainwidget.currentTool() == self.name:
-                dts = self._mainwidget.rawData()
-                if dts is not None:
-                    dtnrplots = dts.shape[1]
+        if self._mainwidget.currentTool() == self.name:
+            dts = self._mainwidget.rawData()
+            if dts is not None:
+                dtnrplots = dts.shape[1]
+                if self.__rows:
+                    if self.__rows[0] is None:
+                        if self.__xinfirstrow:
+                            nrplots = dtnrplots - 1
+                        else:
+                            nrplots = dtnrplots
+
+                    else:
+                        nrplots = len(self.__rows)
+                else:
+                    nrplots = 0
+                if self.__nrplots != nrplots:
+                    while nrplots > len(self.__curves):
+                        self.__curves.append(self._mainwidget.onedbottomplot())
+                    for i in range(nrplots):
+                        self.__curves[i].show()
+                    for i in range(nrplots, len(self.__curves)):
+                        self.__curves[i].hide()
+                    self.__nrplots = nrplots
+                    if nrplots:
+                        for i, cr in enumerate(self.__curves):
+                            if i < nrplots:
+                                cr.setPen(_pg.hsvColor(i/float(nrplots)))
+                for i in range(nrplots):
                     if self.__rows:
                         if self.__rows[0] is None:
+                            if self.__xinfirstrow and i:
+                                self.__curves[i].setData(x=dts[:, 0], y=dts[:, i])
+                            else:
+                                self.__curves[i].setData(dts[:, i])
+                            self.__curves[i].setVisible(True)
+                        elif self.__rows[i] >= 0 and self.__rows[i] < dtnrplots:
                             if self.__xinfirstrow:
-                                nrplots = dtnrplots - 1
+                                self.__curves[i].setData(
+                                    x=dts[:, 0], y=dts[:, self.__rows[i]])
                             else:
-                                nrplots = dtnrplots
-
-                        else:
-                            nrplots = len(self.__rows)
-                    else:
-                        nrplots = 0
-                    if self.__nrplots != nrplots:
-                        while nrplots > len(self.__curves):
-                            self.__curves.append(self._mainwidget.onedbottomplot())
-                        for i in range(nrplots):
-                            self.__curves[i].show()
-                        for i in range(nrplots, len(self.__curves)):
-                            self.__curves[i].hide()
-                        self.__nrplots = nrplots
-                        if nrplots:
-                            for i, cr in enumerate(self.__curves):
-                                if i < nrplots:
-                                    cr.setPen(_pg.hsvColor(i/float(nrplots)))
-                    for i in range(nrplots):
-                        if self.__rows:
-                            if self.__rows[0] is None:
-                                if self.__xinfirstrow and i:
-                                    self.__curves[i].setData(x=dts[:, 0], y=dts[:, i])
-                                else:
-                                    self.__curves[i].setData(dts[:, i])
-                                self.__curves[i].setVisible(True)
-                            elif self.__rows[i] >= 0 and self.__rows[i] < dtnrplots:
-                                if self.__xinfirstrow:
-                                    self.__curves[i].setData(
-                                        x=dts[:, 0], y=dts[:, self.__rows[i]])
-                                else:
-                                    self.__curves[i].setData(dts[:, self.__rows[i]])
-                                self.__curves[i].setVisible(True)
-                            else:
-                                self.__curves[i].setVisible(False)
+                                self.__curves[i].setData(dts[:, self.__rows[i]])
+                            self.__curves[i].setVisible(True)
                         else:
                             self.__curves[i].setVisible(False)
-                else:
-                    for cr in self.__curves:
-                        cr.setVisible(False)
+                    else:
+                        self.__curves[i].setVisible(False)
+            else:
+                for cr in self.__curves:
+                    cr.setVisible(False)
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -1441,15 +1419,13 @@ class AngleQToolWidget(ToolWidget):
     """ angle/q tool widget
     """
 
-    def __init__(self, mutex, parent=None):
+    def __init__(self, parent=None):
         """ constructor
 
-        :param mutex: image widget mutex
-        :type mutex: :class:`PyQt4.QtCore.QMutex`
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        ToolWidget.__init__(self, mutex, parent)
+        ToolWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "Angle/Q"
