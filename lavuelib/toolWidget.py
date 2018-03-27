@@ -1086,9 +1086,9 @@ class ProjectionToolWidget(ToolWidget):
         self.__ui.setupUi(self)
 
         #: (:class:`pyqtgraph.PlotDataItem`) 1D bottom plot
-        self.__bottomplot = self._mainwidget.onedbottomplot()
+        self.__bottomplot = self._mainwidget.onedbarbottomplot()
         #: (:class:`pyqtgraph.PlotDataItem`) 1D bottom plot
-        self.__rightplot = self._mainwidget.onedrightplot()
+        self.__rightplot = self._mainwidget.onedbarrightplot()
         #: (:obj:`int`) function index
         self.__funindex = 0
 
@@ -1127,10 +1127,10 @@ class ProjectionToolWidget(ToolWidget):
         """ activates tool widget
         """
         if self.__bottomplot is None:
-            self.__bottomplot = self._mainwidget.onedbottomplot()
+            self.__bottomplot = self._mainwidget.onedbarbottomplot()
 
         if self.__rightplot is None:
-            self.__rightplot = self._mainwidget.onedrightplot()
+            self.__rightplot = self._mainwidget.onedbarrightplot()
 
         self.__bottomplot.show()
         self.__rightplot.show()
