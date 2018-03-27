@@ -1147,7 +1147,7 @@ class ProjectionToolWidget(ToolWidget):
         self.__rightplot.setVisible(False)
         self._mainwidget.removebottomplot(self.__bottomplot)
         self.__bottomplot = None
-        self._mainwidget.removerightplot(self.__bottomplot)
+        self._mainwidget.removerightplot(self.__rightplot)
         self.__rightplot = None
 
     @QtCore.pyqtSlot(int)
@@ -1293,6 +1293,7 @@ class OneDToolWidget(ToolWidget):
             cr.setVisible(False)
             self._mainwidget.removebottomplot(cr)
         self.__curves = []
+        self.__nrplots = 0
 
     @QtCore.pyqtSlot(int)
     def _updateXRow(self, value):
