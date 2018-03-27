@@ -285,6 +285,8 @@ class MotorsToolWidget(ToolWidget):
 
     @QtCore.pyqtSlot()
     def _moveStopMotors(self):
+        """ move or stop motors depending on movePushButton
+        """
         if str(self.__ui.movePushButton.text()) == "Move":
             self.__moveMotors()
         else:
@@ -292,6 +294,8 @@ class MotorsToolWidget(ToolWidget):
 
     @QtCore.pyqtSlot()
     def _finished(self):
+        """ stop motors
+        """
         self.__stopMotors()
 
     def __stopMotors(self):
@@ -566,6 +570,8 @@ class MeshToolWidget(ToolWidget):
 
     @QtCore.pyqtSlot()
     def _scanStopMotors(self):
+        """ starts or stops scan
+        """
         if str(self.__ui.scanPushButton.text()) == "Scan":
             self.__startScan()
         else:
@@ -606,6 +612,8 @@ class MeshToolWidget(ToolWidget):
         return True
 
     def __showLabels(self):
+        """ shows GUI labels
+        """
         self.__ui.scanPushButton.setText("Scan")
         self.__ui.xcurLineEdit.hide()
         self.__ui.ycurLineEdit.hide()
@@ -617,6 +625,8 @@ class MeshToolWidget(ToolWidget):
         self.__ui.timeLabel.show()
 
     def __hideLabels(self):
+        """ hides GUI labels
+        """
         self.__ui.scanPushButton.setText("Stop")
         self.__ui.xcurLineEdit.show()
         self.__ui.ycurLineEdit.show()
@@ -1135,7 +1145,7 @@ class ProjectionToolWidget(ToolWidget):
             except:
                 pass
         return rows
-        
+
     @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot()
     def _updateSlices(self):
@@ -1205,7 +1215,6 @@ class ProjectionToolWidget(ToolWidget):
         self._mainwidget.removerightplot(self.__rightplot)
         self.__rightplot = None
 
-
     @QtCore.pyqtSlot()
     def _plotCurves(self):
         """ plots the current image in 1d plots
@@ -1217,7 +1226,7 @@ class ProjectionToolWidget(ToolWidget):
                     npfun = np.sum
                 else:
                     npfun = np.mean
-                                        
+
                 if self.__rows is not None:
                     try:
                         if isinstance(self.__rows, slice):
@@ -1226,21 +1235,21 @@ class ProjectionToolWidget(ToolWidget):
                             sx = dts[:, self.__rows]
                     except:
                         sx = npfun(dts, axis=1)
-                    
+
                 else:
                     sx = npfun(dts, axis=1)
 
                 if self.__columns is not None:
                     try:
                         if isinstance(self.__columns, slice):
-                            sy = npfun(dts[self.__columns,:], axis=0)
+                            sy = npfun(dts[self.__columns, :], axis=0)
                         else:
-                            sy = dts[self.__columns,:]
+                            sy = dts[self.__columns, :]
                     except:
                         sy = npfun(dts, axis=0)
                 else:
                     sy = npfun(dts, axis=0)
-        
+
                 self.__bottomplot.setOpts(
                     y0=[0]*len(sx), y1=sx, x=range(len(sx)),
                     width=[1.0]*len(sx))

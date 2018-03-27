@@ -1,4 +1,9 @@
 2018-03-27 Jan Kotanski <jan.kotanski@desy.de>
+	* add missing sphinx docs
+	* change size of bottom plot widget
+	* tagged as 1.12.1
+
+2018-03-27 Jan Kotanski <jan.kotanski@desy.de>
 	* add row and column slices in projections
 	* tagged as 1.12.0
 

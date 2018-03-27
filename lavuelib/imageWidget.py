@@ -39,8 +39,8 @@ from . import imageSource as isr
 from . import toolWidget
 
 
-_VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
-    if _pg.__version__ else ("0", "9", "0")
+# _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
+#     if _pg.__version__ else ("0", "9", "0")
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -141,8 +141,8 @@ class ImageWidget(QtGui.QWidget):
         self.__displaywidget.setSizePolicy(sizePolicy)
         self.__ui.upperPlotWidget.setSizePolicy(sizePolicy)
 
-        if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
-            self.__bottomplot.setMinimumSize(QtCore.QSize(0, 170))
+        # if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
+        #     self.__bottomplot.setMinimumSize(QtCore.QSize(0, 170))
 
         self.__addToolWidgets()
 
@@ -168,12 +168,16 @@ class ImageWidget(QtGui.QWidget):
         self.roiLineEditChanged.emit()
 
     def __connectsplitters(self):
+        """ connects splitters  signals
+        """
         self.__ui.lowerPlotSplitter.splitterMoved.connect(
             self._moveUpperPlotSplitter)
         self.__ui.upperPlotSplitter.splitterMoved.connect(
             self._moveLowerPlotSplitter)
 
     def __disconnectsplitters(self):
+        """ disconnects splitters  signals
+        """
         self.__ui.lowerPlotSplitter.splitterMoved.disconnect(
             self._moveUpperPlotSplitter)
         self.__ui.upperPlotSplitter.splitterMoved.disconnect(
@@ -181,36 +185,70 @@ class ImageWidget(QtGui.QWidget):
 
     @QtCore.pyqtSlot(int, int)
     def _moveLowerPlotSplitter(self, pos, index):
+        """ moves the lower plot splitter
+        """
         self.__disconnectsplitters()
         self.__ui.lowerPlotSplitter.moveSplitter(pos, index)
         self.__connectsplitters()
 
     @QtCore.pyqtSlot(int, int)
     def _moveUpperPlotSplitter(self, pos, index):
+        """ moves the upper plot splitter
+        """
         self.__disconnectsplitters()
         self.__ui.upperPlotSplitter.moveSplitter(pos, index)
         self.__connectsplitters()
 
     def onedbottomplot(self):
+        """ creates 1d bottom plot
+
+        :returns: 1d bottom plot
+        :rtype: :class:`pyqtgraph.PlotDataItem`
+        """
         return self.__bottomplot.plot()
 
     def onedrightplot(self):
+        """ creates 1d right plot
+
+        :returns: 1d right plot
+        :rtype: :class:`pyqtgraph.PlotDataItem`
+        """
         return self.__rightplot.plot()
 
     def onedbarbottomplot(self):
+        """ creates 1d bottom bar plot
+
+        :returns: 1d bottom bar plot
+        :rtype: :class:`pyqtgraph.BarGraphItem`
+        """
         bg = _pg.BarGraphItem(x=[0], y0=[0.], y1=[0.], width=[1.], brush='b')
         self.__bottomplot.addItem(bg)
         return bg
 
     def onedbarrightplot(self):
+        """ creates 1d right bar plot
+
+        :returns: 1d right bar plot
+        :rtype: :class:`pyqtgraph.BarGraphItem`
+        """
         bg = _pg.BarGraphItem(x0=[0.], x1=[0.], y=[0.], height=[1.], brush='b')
         self.__rightplot.addItem(bg)
         return bg
 
     def removebottomplot(self, plot):
+        """ removes bottom plot
+
+        :param plot: right plot item
+        :type plot: :class:`pyqtgraph.PlotItem`
+        """
         self.__bottomplot.removeItem(plot)
 
     def removerightplot(self, plot):
+        """ removes right plot
+
+        :param plot: right plot item
+        :type plot: :class:`pyqtgraph.PlotItem`
+        """
         self.__rightplot.removeItem(plot)
 
     def __addToolWidgets(self):
