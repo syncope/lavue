@@ -1205,10 +1205,12 @@ class ProjectionToolWidget(ToolWidget):
                     sx = np.sum(dts, axis=1)
                     sy = np.sum(dts, axis=0)
                 self.__bottomplot.setOpts(
-                    y0=[0]*len(sx), y1=sx, x=range(len(sx)), width=1)
+                    y0=[0]*len(sx), y1=sx, x=range(len(sx)),
+                    width=[1.0]*len(sx))
                 self.__bottomplot.drawPicture()
                 self.__rightplot.setOpts(
-                    x0=[0]*len(sy), x1=sy, y=range(len(sy)), height=1)
+                    x0=[0]*len(sy), x1=sy, y=range(len(sy)),
+                    height=[1.]*len(sy))
                 self.__rightplot.drawPicture()
 
     @QtCore.pyqtSlot()

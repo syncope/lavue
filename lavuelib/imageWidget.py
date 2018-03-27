@@ -182,13 +182,13 @@ class ImageWidget(QtGui.QWidget):
     @QtCore.pyqtSlot(int, int)
     def _moveLowerPlotSplitter(self, pos, index):
         self.__disconnectsplitters()
-        self.__ui.lowerPlotSplitter.moveSplitter(pos,index)
+        self.__ui.lowerPlotSplitter.moveSplitter(pos, index)
         self.__connectsplitters()
 
     @QtCore.pyqtSlot(int, int)
     def _moveUpperPlotSplitter(self, pos, index):
         self.__disconnectsplitters()
-        self.__ui.upperPlotSplitter.moveSplitter(pos,index)
+        self.__ui.upperPlotSplitter.moveSplitter(pos, index)
         self.__connectsplitters()
 
     def onedbottomplot(self):
@@ -198,12 +198,12 @@ class ImageWidget(QtGui.QWidget):
         return self.__rightplot.plot()
 
     def onedbarbottomplot(self):
-        bg = _pg.BarGraphItem(x=[0], y0=[0], y1=[0], width=1., brush='b')
+        bg = _pg.BarGraphItem(x=[0], y0=[0.], y1=[0.], width=[1.], brush='b')
         self.__bottomplot.addItem(bg)
         return bg
 
     def onedbarrightplot(self):
-        bg = _pg.BarGraphItem(x0=[0], x1=[0], y=[0], height=1, brush='b')
+        bg = _pg.BarGraphItem(x0=[0.], x1=[0.], y=[0.], height=[1.], brush='b')
         self.__rightplot.addItem(bg)
         return bg
 
