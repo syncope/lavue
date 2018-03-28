@@ -28,7 +28,7 @@
 import pyqtgraph as _pg
 import numpy as np
 import math
-from pyqtgraph.graphicsItems.ROI import ROI, LineROI
+from pyqtgraph.graphicsItems.ROI import ROI, LineROI, Handle
 from PyQt4 import QtCore, QtGui
 
 from . import axesDialog
@@ -36,6 +36,43 @@ from . import displayParameters
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
     if _pg.__version__ else ("0", "9", "0")
+
+
+class HandleWithSignals(Handle):
+    """ handle with signals
+
+    """
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) hover event emitted
+    hovered = QtCore.pyqtSignal()
+
+    def __init__(self, pos, center, parent):
+        """ constructor
+
+        :param pos: position of handle
+        :type pos: [float, float]
+        :param pos: center of handle
+        :type pos: [float, float]
+        :param parent: roi object
+        :type parent: :class:`pyqtgraph.graphicsItems.ROI.ROI`
+        """
+        pos = _pg.Point(pos)
+        center = _pg.Point(center)
+        if pos[0] != center[0] and pos[1] != center[1]:
+            raise Exception(
+                "Scale/rotate handles must have either the same x or y "
+                "coordinate as their center point.")
+        Handle.__init__(self, parent.handleSize, typ='sr',
+                        pen=parent.handlePen, parent=parent)
+        self.setPos(pos * parent.state['size'])
+
+    def hoverEvent(self, ev):
+        """ hover event
+
+        :param ev: close event
+        :type ev: :class:`PyQt4.QtCore.QEvent`:
+        """
+        Handle.hoverEvent(self, ev)
+        self.hovered.emit()
 
 
 class SimpleLineROI(LineROI):
@@ -58,9 +95,21 @@ class SimpleLineROI(LineROI):
         l = d.length()
         ang = _pg.Point(1, 0).angle(d)
 
-        ROI.__init__(self, pos1, size=_pg.Point(l, 1), angle=ang, **args)
-        self.addScaleRotateHandle([0, 0.5], [1, 0.5])
-        self.addScaleRotateHandle([1, 0.5], [0, 0.5])
+        ROI.__init__(self, pos1, size=_pg.Point(l, 0.00001), angle=ang, **args)
+        h1pos = [0, 0.5]
+        h1center = [1, 0.5]
+        h2pos = [1, 0.5]
+        h2center = [0, 0.5]
+        self.handle1 = HandleWithSignals(h1pos, h1center, self)
+        self.handle2 = HandleWithSignals(h2pos, h2center, self)
+        self.addHandle(
+            {'name': 'handle1', 'type': 'sr', 'center': h1center,
+             'pos': h1pos, 'item': self.handle1})
+        self.addHandle(
+            {'name': 'handle2', 'type': 'sr', 'center': h2center,
+             'pos': h2pos, 'item': self.handle2})
+        # self.handle1 = self.addScaleRotateHandle([0, 0.5], [1, 0.5])
+        # self.handle2 = self.addScaleRotateHandle([1, 0.5], [0, 0.5])
 
     def getCoordinates(self):
         """ provides the roi coordinates
@@ -225,6 +274,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__currentcutmapper.map)
         self._getCut().sigRegionChanged.connect(
             self.__cutregionmapper.map)
+        self._getCut().handle1.hovered.connect(
+            self.__currentcutmapper.map)
+        self._getCut().handle2.hovered.connect(
+            self.__currentcutmapper.map)
+        self.__currentcutmapper.setMapping(self._getCut().handle1, 0)
+        self.__currentcutmapper.setMapping(self._getCut().handle2, 0)
         self.__currentcutmapper.setMapping(self._getCut(), 0)
         self.__cutregionmapper.setMapping(self._getCut(), 0)
 
@@ -918,8 +973,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 self.__addCut()
             self._getCut().sigHoverEvent.connect(self.__currentcutmapper.map)
             self._getCut().sigRegionChanged.connect(self.__cutregionmapper.map)
+            self._getCut().handle1.hovered.connect(self.__currentcutmapper.map)
+            self._getCut().handle2.hovered.connect(self.__currentcutmapper.map)
             self.__currentcutmapper.setMapping(
                 self._getCut(), len(self.__cut) - 1)
+            self.__currentcutmapper.setMapping(
+                self._getCut().handle1, len(self.__cut) - 1)
+            self.__currentcutmapper.setMapping(
+                self._getCut().handle2, len(self.__cut) - 1)
             self.__cutregionmapper.setMapping(
                 self._getCut(), len(self.__cut) - 1)
         if cid <= 0:
@@ -928,6 +989,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__cuts.current = 0
         while max(cid, 0) < len(self.__cut):
             self.__currentcutmapper.removeMappings(self._getCut())
+            self.__currentcutmapper.removeMappings(self._getCut().handle1)
+            self.__currentcutmapper.removeMappings(self._getCut().handle2)
             self.__cutregionmapper.removeMappings(self._getCut())
             self.__removeCut()
 

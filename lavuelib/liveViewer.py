@@ -406,6 +406,9 @@ class LiveViewer(QtGui.QMainWindow):
 
     def closeEvent(self, event):
         """ stores the setting before finishing the application
+
+        :param event: close event
+        :type event:  :class:`PyQt4.QtCore.QEvent`:
         """
         self.__storeSettings()
         self.__settings.secstream = False
