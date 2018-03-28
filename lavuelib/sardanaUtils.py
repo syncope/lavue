@@ -218,6 +218,8 @@ class SardanaUtils(object):
         :type command: :obj:`list` <:obj:`str`>
         :param wait: wait till macro is finished
         :type wait: :obj:`bool`
+        :returns: result, error or warning
+        :rtype: [:obj:`str`, :obj:`str`]
         """
         doorproxy = self.openProxy(door)
         msp = self.getMacroServer(door)
@@ -229,7 +231,7 @@ class SardanaUtils(object):
         elif command[0] not in ml:
             raise Exception("Macro '%s' not found" % str(command[0]))
         state = str(doorproxy.state())
-        if state != "ON":
+        if state not in ["ON", "ALARM"]:
             raise Exception("Door in state '%s'" % str(state))
 
         try:
@@ -243,10 +245,24 @@ class SardanaUtils(object):
         if wait:
             self.wait(proxy=doorproxy)
             warn = doorproxy.warning
+            error = doorproxy.error
             res = doorproxy.result
-            return res, warn
+            return res, error or warn
         else:
             return None, None
+
+    def getError(self, door):
+        """ stores Scan Environment Data
+
+        :param door: door device
+        :type door: :obj:`str`
+        :returns: error or warning
+        :rtype: :obj:`str`
+        """
+        doorproxy = self.openProxy(door)
+        warn = doorproxy.warning
+        error = doorproxy.error
+        return error or warn
 
     @classmethod
     def toString(cls, obj):

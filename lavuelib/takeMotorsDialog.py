@@ -109,7 +109,7 @@ class TakeMotorsDialog(QtGui.QDialog):
         """ updates a value of motor combo box
         """
         combobox.clear()
-        for mt in self.motortips:
+        for mt in sorted(self.motortips):
             combobox.addItem(mt)
         if motorname not in self.motortips:
             combobox.addItem(motorname)

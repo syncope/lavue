@@ -610,6 +610,7 @@ class MeshToolWidget(ToolWidget):
             "color: black; background-color: #90EE90;")
         self.__ui.ycurLineEdit.setStyleSheet(
             "color: black; background-color: #90EE90;")
+        self._mainwidget.showDoorError()
         return True
 
     def __showLabels(self):
@@ -1012,7 +1013,7 @@ class LineCutToolWidget(ToolWidget):
         self.__xindex = 0
 
         #: (:class:`pyqtgraph.PlotDataItem`) 1D plot
-        self.__cutCurve = self._mainwidget.onedbottomplot()
+        self.__cutCurve = None
 
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
@@ -1029,6 +1030,24 @@ class LineCutToolWidget(ToolWidget):
         """ command after plot
         """
         self._plotCut()
+
+    def activate(self):
+        """ activates tool widget
+        """
+
+        if self.__cutCurve is None:
+            self.__cutCurve = self._mainwidget.onedbottomplot()
+        self.__cutCurve.show()
+        self.__cutCurve.setVisible(True)
+        self._plotCut()
+
+    def disactivate(self):
+        """ activates tool widget
+        """
+        self.__cutCurve.hide()
+        self.__cutCurve.setVisible(False)
+        self._mainwidget.removebottomplot(self.__cutCurve)
+        self.__cutCurve = None
 
     @QtCore.pyqtSlot(int)
     def _setXCoords(self, xindex):
@@ -1062,22 +1081,6 @@ class LineCutToolWidget(ToolWidget):
                 self.__cutCurve.setVisible(True)
             else:
                 self.__cutCurve.setVisible(False)
-
-    def activate(self):
-        """ activates tool widget
-        """
-
-        if self.__cutCurve is None:
-            self.__cutCurve = self._mainwidget.onedbottomplot()
-        self.__cutCurve.show()
-        self._plotCut()
-
-    def disactivate(self):
-        """ activates tool widget
-        """
-        self.__cutCurve.hide()
-        self._mainwidget.removebottomplot(self.__cutCurve)
-        self.__cutCurve = None
 
     @QtCore.pyqtSlot(int)
     def _setCutsNumber(self, cid):

@@ -662,6 +662,29 @@ class ImageWidget(QtGui.QWidget):
             return True
         return False
 
+    def showDoorError(self):
+        """ show door error
+        """
+        if isr.PYTANGO:
+            if not self.__settings.doorname:
+                self.__settings.doorname = self.__sardana.getDeviceName("Door")
+            try:
+                warn = self.__sardana.getError(str(self.__settings.doorname))
+                if warn:
+                    print("Warning: %s" % warn)
+                    msg = str(warn)
+                    messageBox.MessageBox.warning(
+                        self, "lavue: Errors in running macro ",
+                        msg, str(warn))
+            except Exception:
+                import traceback
+                value = traceback.format_exc()
+                text = messageBox.MessageBox.getText(
+                    "lavue: Errors in running macro")
+                messageBox.MessageBox.warning(
+                    self, "lavue: Errors in running macro",
+                    text, str(value))
+
     @QtCore.pyqtSlot(str, int)
     def applyROIs(self, rlabel, roispin):
         """ saves ROIs in sardana and add them to the measurement group
