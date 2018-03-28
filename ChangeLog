@@ -1,3 +1,8 @@
+2018-03-28 Jan Kotanski <jan.kotanski@desy.de>
+	* add signals from LineCut handles
+	* add ComboBox for 1D x coorinate in LineCut
+	* tagged as 1.13.0
+
 2018-03-27 Jan Kotanski <jan.kotanski@desy.de>
 	* interpete warnings in projections
 	* tagged as 1.12.2

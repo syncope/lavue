@@ -1007,6 +1007,10 @@ class LineCutToolWidget(ToolWidget):
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
 
+        #: (:obj:`int`) 1d x-coorindate index,
+        #:          i.e. {0:Points, 1:"X-Pixels", 2:"Y-Pixels"}
+        self.__xindex = 0
+
         #: (:class:`pyqtgraph.PlotDataItem`) 1D plot
         self.__cutCurve = self._mainwidget.onedbottomplot()
 
@@ -1016,12 +1020,24 @@ class LineCutToolWidget(ToolWidget):
             [self.__ui.cutSpinBox.valueChanged, self._mainwidget.updateCuts],
             [self._mainwidget.cutNumberChanged, self._setCutsNumber],
             [self._mainwidget.cutCoordsChanged, self._plotCut],
+            [self.__ui.xcoordsComboBox.currentIndexChanged,
+             self._setXCoords],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
     def afterplot(self):
         """ command after plot
         """
+        self._plotCut()
+
+    @QtCore.pyqtSlot(int)
+    def _setXCoords(self, xindex):
+        """ sets x-coodinates for 1d plot
+
+        :param xindex: 1d x-coorindate index,
+        :type xindex: :obj:`int`
+        """
+        self.__xindex = xindex
         self._plotCut()
 
     @QtCore.pyqtSlot()
@@ -1031,7 +1047,18 @@ class LineCutToolWidget(ToolWidget):
         if self._mainwidget.currentTool() == self.name:
             dt = self._mainwidget.cutData()
             if dt is not None:
-                self.__cutCurve.setData(y=dt)
+                if self.__xindex:
+                    crds = [0, 0, 1, 1]
+                    if self._mainwidget.currentCut() > -1:
+                        crds = self._mainwidget.cutCoords()[
+                            self._mainwidget.currentCut()]
+                    if self.__xindex == 2:
+                        dx = np.linspace(crds[1], crds[3], len(dt))
+                    else:
+                        dx = np.linspace(crds[0], crds[2], len(dt))
+                    self.__cutCurve.setData(x=dx, y=dt)
+                else:
+                    self.__cutCurve.setData(y=dt)
                 self.__cutCurve.setVisible(True)
             else:
                 self.__cutCurve.setVisible(False)
@@ -1177,8 +1204,8 @@ class ProjectionToolWidget(ToolWidget):
     def _setFunction(self, findex):
         """ set sum or mean function
 
-        :param gspace: g-space index, i.e. angle or q-space
-        :type gspace: :obj:`int`
+        :param findex: function index, i.e. 0:mean, 1:sum
+        :type findex: :obj:`int`
         """
         self.__funindex = findex
         self._plotCurves()
