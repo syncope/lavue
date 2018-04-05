@@ -1159,7 +1159,7 @@ class ProjectionToolWidget(ToolWidget):
     def __updateslice(self, text):
         """ create slices from the text
         """
-        rows = None
+        rows = "ERROR"
         if text:
             try:
                 if ":" in text:
@@ -1175,6 +1175,8 @@ class ProjectionToolWidget(ToolWidget):
                     rows = int(text)
             except:
                 pass
+        else:
+            rows = None
         return rows
 
     @QtCore.pyqtSlot(str)
@@ -1258,7 +1260,9 @@ class ProjectionToolWidget(ToolWidget):
                 else:
                     npfun = np.mean
 
-                if self.__rows is not None:
+                if self.__rows == "ERROR":
+                    sx = []
+                elif self.__rows is not None:
                     try:
                         with warnings.catch_warnings():
                             warnings.simplefilter(
@@ -1273,6 +1277,8 @@ class ProjectionToolWidget(ToolWidget):
                 else:
                     sx = npfun(dts, axis=1)
 
+                if self.__columns == "ERROR":
+                    sy = []
                 if self.__columns is not None:
                     try:
                         with warnings.catch_warnings():
