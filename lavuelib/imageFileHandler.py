@@ -309,7 +309,7 @@ class ImageFileHandler(object):
         #: (:obj:`numpy.ndarray`) image data
         self.__data = None
         try:
-            if FABIO and False:
+            if FABIO:
                 self.__image = fabio.open(fname)
                 self.__data = self.__image.data
             elif PILLOW:
