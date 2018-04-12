@@ -588,6 +588,13 @@ class HTTPSource(BaseSource):
         :type timeout: :obj:`int`
         """
         BaseSource.__init__(self, timeout)
+        #: (:obj:`bool`) use tiff loader
+        self.__tiffloader = True
+
+    def connect(self):
+        """ connects the source
+        """
+        self.__tiffloader = False
 
     def getData(self):
         """ provides image name, image data and metadata
@@ -608,13 +615,14 @@ class HTTPSource(BaseSource):
                         return np.transpose(img), name, ""
                     else:
                         # print("[tif source module]::metadata", name)
-                        if PILLOW:
+                        if PILLOW and not self.__tiffloader:
                             try:
                                 img = np.array(
                                     PIL.Image.open(BytesIO(str(data))))
                             except:
                                 img = imageFileHandler.TIFLoader().load(
                                     np.fromstring(data[:], dtype=np.uint8))
+                                self.__tiffloader = True
                             return np.transpose(img), name, ""
                         else:
                             img = imageFileHandler.TIFLoader().load(
@@ -887,6 +895,8 @@ class HiDRASource(BaseSource):
         self.__query = None
         #: (:class:`PyQt4.QtCore.QMutex`) zmq bind address
         self.__mutex = QtCore.QMutex()
+        #: (:obj:`bool`) use tiff loader
+        self.__tiffloader = False
 
     @QtCore.pyqtSlot(str)
     def setConfiguration(self, configuration):
@@ -910,6 +920,7 @@ class HiDRASource(BaseSource):
     def connect(self):
         """ connects the source
         """
+        self.__tiffloader = False
         try:
             if not self._initiated:
                 with QtCore.QMutexLocker(self.__mutex):
@@ -961,12 +972,14 @@ class HiDRASource(BaseSource):
             else:
                 # elif data[:2] in ["II\x2A\x00", "MM\x00\x2A"]:
                 print("[tif source module]::metadata", metadata["filename"])
-                if PILLOW:
+                if PILLOW and not self.__tiffloader:
                     try:
                         img = np.array(PIL.Image.open(BytesIO(str(data))))
                     except:
                         img = imageFileHandler.TIFLoader().load(
                             np.fromstring(data[:], dtype=np.uint8))
+                        self.__tiffloader = True
+
                     return np.transpose(img), metadata["filename"], ""
                 else:
                     img = imageFileHandler.TIFLoader().load(
