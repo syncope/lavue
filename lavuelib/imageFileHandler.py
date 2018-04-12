@@ -40,6 +40,7 @@ except ImportError:
     FABIO = False
 try:
     import PIL
+    import PIL.Image
     #: (:obj:`bool`) PIL can be imported
     PILLOW = True
 except ImportError:
@@ -308,7 +309,7 @@ class ImageFileHandler(object):
         #: (:obj:`numpy.ndarray`) image data
         self.__data = None
         try:
-            if FABIO:
+            if FABIO and False:
                 self.__image = fabio.open(fname)
                 self.__data = self.__image.data
             elif PILLOW:
@@ -631,11 +632,11 @@ class TIFLoader(object):
 
             # eval (hopefully) tags needed to allow for getting an image
             if field_tag == 256:
-                width = val_or_off
+                width = int(val_or_off)
             if field_tag == 257:
-                length = val_or_off
+                length = int(val_or_off)
             if field_tag == 258:
-                bit_per_sample = val_or_off
+                bit_per_sample = int(val_or_off)
             # compression scheme - return invalid if NOT none,
             # i.e. only uncompressed data is supported (forever!?)
             if field_tag == 259:
@@ -663,8 +664,8 @@ class TIFLoader(object):
                         ifd_off + 15 + (num_of_ifd + 1) * 12:ifd_off + 19
                         + (num_of_ifd + 1) * 12])[0])
             if next_idf != 0:
-                print('another ifd exists ... NOT read')
-
+                # print('another ifd exists ... NOT read')
+                pass
         if width * length * bit_per_sample / 8 != strip_byte_counts:
             return image
 

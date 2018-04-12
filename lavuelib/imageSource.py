@@ -56,6 +56,7 @@ except ImportError:
 
 try:
     import PIL
+    import PIL.Image
     #: (:obj:`bool`) PIL imported
     PILLOW = True
 except ImportError:
@@ -608,7 +609,12 @@ class HTTPSource(BaseSource):
                     else:
                         # print("[tif source module]::metadata", name)
                         if PILLOW:
-                            img = np.array(PIL.Image.open(BytesIO(str(data))))
+                            try:
+                                img = np.array(
+                                    PIL.Image.open(BytesIO(str(data))))
+                            except:
+                                img = imageFileHandler.TIFLoader().load(
+                                    np.fromstring(data[:], dtype=np.uint8))
                             return np.transpose(img), name, ""
                         else:
                             img = imageFileHandler.TIFLoader().load(
@@ -956,7 +962,11 @@ class HiDRASource(BaseSource):
                 # elif data[:2] in ["II\x2A\x00", "MM\x00\x2A"]:
                 print("[tif source module]::metadata", metadata["filename"])
                 if PILLOW:
-                    img = np.array(PIL.Image.open(BytesIO(str(data))))
+                    try:
+                        img = np.array(PIL.Image.open(BytesIO(str(data))))
+                    except:
+                        img = imageFileHandler.TIFLoader().load(
+                            np.fromstring(data[:], dtype=np.uint8))
                     return np.transpose(img), metadata["filename"], ""
                 else:
                     img = imageFileHandler.TIFLoader().load(
