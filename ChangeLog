@@ -1,3 +1,7 @@
+2018-04-16 Jan Kotanski <jan.kotanski@desy.de>
+	* fix 1d plot slices
+	* tagged as 1.13.4
+
 2018-04-12 Jan Kotanski <jan.kotanski@desy.de>
 	* fix commenting the FABIO
 	* tagged as 1.13.3

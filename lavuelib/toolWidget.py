@@ -1413,22 +1413,22 @@ class OneDToolWidget(ToolWidget):
             if text == "ALL":
                 rows = [None]
             else:
-                stext = [rw for rw in re.split(",| ", text) if rw]
-                for rw in stext:
-                    if ":" in rw:
-                        slices = rw.split(":")
-                        s0 = int(slices[0]) if slices[0].strip() else 0
-                        s1 = int(slices[1]) if slices[1].strip() else 0
-                        if len(slices) > 2:
-                            s2 = int(slices[2]) if slices[2].strip() else 1
-                            rows.extend(range(s0, s1, s2))
+                try:
+                    stext = [rw for rw in re.split(",| ", text) if rw]
+                    for rw in stext:
+                        if ":" in rw:
+                            slices = rw.split(":")
+                            s0 = int(slices[0]) if slices[0].strip() else 0
+                            s1 = int(slices[1]) if slices[1].strip() else 0
+                            if len(slices) > 2:
+                                s2 = int(slices[2]) if slices[2].strip() else 1
+                                rows.extend(range(s0, s1, s2))
+                            else:
+                                rows.extend(range(s0, s1))
                         else:
-                            rows.extend(range(s0, s1))
-                    else:
-                        try:
                             rows.append(int(rw))
-                        except:
-                            pass
+                except:
+                    rows = []
         self.__rows = rows
         self._plotCurves()
 
