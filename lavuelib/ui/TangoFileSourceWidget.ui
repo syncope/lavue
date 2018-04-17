@@ -19,7 +19,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="fileLabel">
        <property name="toolTip">
-        <string>tango device attribute with its filename, e.g. p00/pilatus/1/LastImageTake</string>
+        <string>tango device attribute with its filename, e.g. p00/pilatus/1/LastImageTaken</string>
        </property>
        <property name="text">
         <string>File Attr:</string>
@@ -32,7 +32,7 @@
      <item row="0" column="1">
       <widget class="QLineEdit" name="fileLineEdit">
        <property name="toolTip">
-        <string>tango device attribute with its filename, e.g. p00/pilatus/1/LastImageTake</string>
+        <string>tango device attribute with its filename, e.g. p00/pilatus/1/LastImageTaken</string>
        </property>
       </widget>
      </item>
