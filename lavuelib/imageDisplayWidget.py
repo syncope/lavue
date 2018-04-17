@@ -531,13 +531,17 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """  sets vLine and hLine positions
         """
         if self.__axes.scale is not None and \
-           self.__axes.position is not None:
+           self.__axes.enabled is True:
+            position = [0, 0] \
+                if self.__axes.position is None \
+                else self.__axes.position
+
             self.__vLine.setPos(
                 (self.__xdata + .5) * self.__axes.scale[0]
-                + self.__axes.position[0])
+                + position[0])
             self.__hLine.setPos(
                 (self.__ydata + .5) * self.__axes.scale[1]
-                + self.__axes.position[1])
+                + position[1])
         else:
             self.__vLine.setPos(self.__xdata + .5)
             self.__hLine.setPos(self.__ydata + .5)

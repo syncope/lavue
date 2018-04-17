@@ -591,11 +591,6 @@ class HTTPSource(BaseSource):
         #: (:obj:`bool`) use tiff loader
         self.__tiffloader = True
 
-    def connect(self):
-        """ connects the source
-        """
-        self.__tiffloader = False
-
     def getData(self):
         """ provides image name, image data and metadata
 
@@ -636,6 +631,7 @@ class HTTPSource(BaseSource):
     def connect(self):
         """ connects the source
         """
+        self.__tiffloader = False
         try:
             if self._configuration:
                 response = requests.get(self._configuration)

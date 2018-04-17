@@ -454,25 +454,8 @@ class MotorsToolWidget(ToolWidget):
         """
         x, y, intensity = self._mainwidget.currentIntensity()
         ilabel = self._mainwidget.scalingLabel()
-        txdata, tydata = self._mainwidget.scaledxy(x, y)
-        xunits, yunits = self._mainwidget.axesunits()
-        if txdata is not None:
-            message = "x = %f%s, y = %f%s, %s = %.2f" % (
-                txdata,
-                (" %s" % xunits) if xunits else "",
-                tydata,
-                (" %s" % yunits) if yunits else "",
-                ilabel,
-                intensity
-            )
-        else:
-            message = "x = %i%s, y = %i%s, %s = %.2f" % (
-                x,
-                (" %s" % xunits) if xunits else "",
-                y,
-                (" %s" % yunits) if yunits else "",
-                ilabel,
-                intensity)
+        message = "x = %i, y = %i, %s = %.2f" % (
+            x, y, ilabel, intensity)
         self._mainwidget.setDisplayedText(message)
 
 
@@ -1308,25 +1291,8 @@ class ProjectionToolWidget(ToolWidget):
         """
         x, y, intensity = self._mainwidget.currentIntensity()
         ilabel = self._mainwidget.scalingLabel()
-        txdata, tydata = self._mainwidget.scaledxy(x, y)
-        xunits, yunits = self._mainwidget.axesunits()
-        if txdata is not None:
-            message = "x = %f%s, y = %f%s, %s = %.2f" % (
-                txdata,
-                (" %s" % xunits) if xunits else "",
-                tydata,
-                (" %s" % yunits) if yunits else "",
-                ilabel,
-                intensity
-            )
-        else:
-            message = "x = %i%s, y = %i%s, %s = %.2f" % (
-                x,
-                (" %s" % xunits) if xunits else "",
-                y,
-                (" %s" % yunits) if yunits else "",
-                ilabel,
-                intensity)
+        message = "x = %i, y = %i, %s = %.2f" % (
+            x, y, ilabel, intensity)
         self._mainwidget.setDisplayedText(message)
 
 
@@ -1494,25 +1460,8 @@ class OneDToolWidget(ToolWidget):
         """
         x, y, intensity = self._mainwidget.currentIntensity()
         ilabel = self._mainwidget.scalingLabel()
-        txdata, tydata = self._mainwidget.scaledxy(x, y)
-        xunits, yunits = self._mainwidget.axesunits()
-        if txdata is not None:
-            message = "x = %f%s, y = %f%s, %s = %.2f" % (
-                txdata,
-                (" %s" % xunits) if xunits else "",
-                tydata,
-                (" %s" % yunits) if yunits else "",
-                ilabel,
-                intensity
-            )
-        else:
-            message = "x = %i%s, y = %i%s, %s = %.2f" % (
-                x,
-                (" %s" % xunits) if xunits else "",
-                y,
-                (" %s" % yunits) if yunits else "",
-                ilabel,
-                intensity)
+        message = "x = %i, y = %i, %s = %.2f" % (
+            x, y, ilabel, intensity)
         self._mainwidget.setDisplayedText(message)
 
 
