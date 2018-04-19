@@ -96,10 +96,10 @@ class SimpleLineROI(LineROI):
         ang = _pg.Point(1, 0).angle(d)
 
         ROI.__init__(self, pos1, size=_pg.Point(l, width), angle=ang, **args)
-        h1pos = [0, 0.5]
-        h1center = [1, 0.5]
-        h2pos = [1, 0.5]
-        h2center = [0, 0.5]
+        h1pos = [0, 0.0]
+        h1center = [1, 0.0]
+        h2pos = [1, 0.0]
+        h2center = [0, 0.0]
         vpos = [0.5, 1]
         vcenter = [0.5, 0]
         self.handle1 = HandleWithSignals(h1pos, h1center, self)
