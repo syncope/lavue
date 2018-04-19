@@ -26,4 +26,4 @@
 """ Live Viewer widgets """
 
 #: (:obj:`str`) the live viewer version
-__version__ = "1.13.4"
+__version__ = "1.14.0"

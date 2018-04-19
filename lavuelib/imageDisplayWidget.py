@@ -100,14 +100,26 @@ class SimpleLineROI(LineROI):
         h1center = [1, 0.5]
         h2pos = [1, 0.5]
         h2center = [0, 0.5]
+        v1pos = [0.5, 0]
+        v1center = [0.5, 1]
+        v2pos = [0.5, 1]
+        v2center = [0.5, 0]
         self.handle1 = HandleWithSignals(h1pos, h1center, self)
         self.handle2 = HandleWithSignals(h2pos, h2center, self)
+        self.vhandle1 = HandleWithSignals(v1center, v1pos, self)
+        self.vhandle2 = HandleWithSignals(v2center, v2pos, self)
         self.addHandle(
             {'name': 'handle1', 'type': 'sr', 'center': h1center,
              'pos': h1pos, 'item': self.handle1})
         self.addHandle(
             {'name': 'handle2', 'type': 'sr', 'center': h2center,
              'pos': h2pos, 'item': self.handle2})
+        self.addHandle(
+            {'name': 'vhandle1', 'type': 'sr', 'center': v1center,
+             'pos': v1pos, 'item': self.vhandle1})
+        self.addHandle(
+            {'name': 'vhandle2', 'type': 'sr', 'center': v2center,
+             'pos': v2pos, 'item': self.vhandle2})
         # self.handle1 = self.addScaleRotateHandle([0, 0.5], [1, 0.5])
         # self.handle2 = self.addScaleRotateHandle([1, 0.5], [0, 0.5])
 
