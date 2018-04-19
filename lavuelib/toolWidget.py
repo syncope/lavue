@@ -1050,7 +1050,7 @@ class LineCutToolWidget(ToolWidget):
             dt = self._mainwidget.cutData()
             if dt is not None:
                 if self.__xindex:
-                    crds = [0, 0, 1, 1]
+                    crds = [0, 0, 1, 1, 0.00001]
                     if self._mainwidget.currentCut() > -1:
                         crds = self._mainwidget.cutCoords()[
                             self._mainwidget.currentCut()]
@@ -1083,9 +1083,9 @@ class LineCutToolWidget(ToolWidget):
         if self._mainwidget.currentCut() > -1:
             crds = self._mainwidget.cutCoords()[
                 self._mainwidget.currentCut()]
-            crds = "[[%.2f, %.2f], [%.2f, %.2f]]" % tuple(crds)
+            crds = "[[%.2f, %.2f], [%.2f, %.2f], width=%.2f]" % tuple(crds)
         else:
-            crds = "[[0, 0], [0, 0]]"
+            crds = "[[0, 0], [0, 0], width=0]"
         message = "%s, x = %i, y = %i, %s = %.2f" % (
             crds, x, y, ilabel, intensity)
         self._mainwidget.setDisplayedText(message)

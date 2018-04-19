@@ -98,8 +98,8 @@ class CutsParameters(object):
         #: (:obj:`int`) current cut id
         self.current = 0
         #: (:obj:`list` < [int, int, int, int] > )
-        #: x1,y1,x2,y2 rois coordinates
-        self.coords = [[10, 10, 60, 10]]
+        #: x1,y1,x2,y2, width rois coordinates
+        self.coords = [[10, 10, 60, 10, 0.00001]]
 
 
 class IntensityParameters(object):
