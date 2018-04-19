@@ -99,6 +99,21 @@ class Settings(object):
         self.nxslast = False
         #: (:obj:`list` < :obj:`str`>) hidra detector server list
         self.detservers = []
+        #: (:obj:`bool`) store detector geometry
+        self.storegeometry = False
+
+        #: (:obj:`float`) x-coordinates of the center of the image
+        self.centerx = 0.0
+        #: (:obj:`float`) y-coordinates of the center of the image
+        self.centery = 0.0
+        #: (:obj:`float`) energy in eV
+        self.energy = 0.0
+        #: (:obj:`float`) pixel x-size in um
+        self.pixelsizex = 0.0
+        #: (:obj:`float`) pixel y-size in um
+        self.pixelsizey = 0.0
+        #: (:obj:`float`) detector distance in mm
+        self.detdistance = 0.0
 
     def load(self, settings):
         """ load settings
@@ -234,6 +249,43 @@ class Settings(object):
             settings.value("Configuration/DirectoryTranslation").toString())
         if qstval:
             self.dirtrans = qstval
+
+        qstval = str(
+            settings.value("Configuration/StoreGeometry").toString())
+        if qstval.lower() == "true":
+            self.storegeometry = True
+
+        try:
+            self.centerx = float(
+                settings.value("Tools/CenterX").toString())
+        except:
+            pass
+        try:
+            self.centery = float(
+                settings.value("Tools/CenterY").toString())
+        except:
+            pass
+        try:
+            self.energy = float(
+                settings.value("Tools/Energy").toString())
+        except:
+            pass
+
+        try:
+            self.pixelsizex = float(
+                settings.value("Tools/PixelSizeX").toString())
+        except:
+            pass
+        try:
+            self.pixelsizey = float(
+                settings.value("Tools/PixelSizeY").toString())
+        except:
+            pass
+        try:
+            self.detdistance = float(
+                settings.value("Tools/DetectorDistance").toString())
+        except:
+            pass
         return status
 
     def store(self, settings):
@@ -320,3 +372,33 @@ class Settings(object):
         settings.setValue(
             "Configuration/NXSFileOpen",
             QtCore.QVariant(self.nxsopen))
+        settings.setValue(
+            "Configuration/StoreGeometry",
+            QtCore.QVariant(self.storegeometry))
+
+        if not self.storegeometry:
+            self.centerx = 0.0
+            self.centery = 0.0
+            self.energy = 0.0
+            self.pixelsizex = 0.0
+            self.pixelsizey = 0.0
+            self.detdistance = 0.0
+
+        settings.setValue(
+            "Tools/CenterX",
+            QtCore.QVariant(self.centerx))
+        settings.setValue(
+            "Tools/CenterY",
+            QtCore.QVariant(self.centery))
+        settings.setValue(
+            "Tools/Energy",
+            QtCore.QVariant(self.energy))
+        settings.setValue(
+            "Tools/PixelSizeX",
+            QtCore.QVariant(self.pixelsizex))
+        settings.setValue(
+            "Tools/PixelSizeY",
+            QtCore.QVariant(self.pixelsizey))
+        settings.setValue(
+            "Tools/DetectorDistance",
+            QtCore.QVariant(self.detdistance))

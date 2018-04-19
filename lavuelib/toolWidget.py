@@ -1480,28 +1480,19 @@ class AngleQToolWidget(ToolWidget):
         #: (:obj:`str`) tool name
         self.name = "Angle/Q"
 
-        #: (:class:`Ui_ROIToolWidget') ui_toolwidget object from qtdesigner
-        #: (:obj:`float`) x-coordinates of the center of the image
-        self.__centerx = 0.0
-        #: (:obj:`float`) y-coordinates of the center of the image
-        self.__centery = 0.0
-        #: (:obj:`float`) energy in eV
-        self.__energy = 0.0
-        #: (:obj:`float`) pixel x-size in um
-        self.__pixelsizex = 0.0
-        #: (:obj:`float`) pixel y-size in um
-        self.__pixelsizey = 0.0
-        #: (:obj:`float`) detector distance in mm
-        self.__detdistance = 0.0
         #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
         self.__gspaceindex = 0
 
+        #: (:class:`Ui_ROIToolWidget') ui_toolwidget object from qtdesigner
         self.__ui = _angleqformclass()
         self.__ui.setupUi(self)
 
         self.parameters.lines = True
         self.parameters.infolineedit = ""
         self.parameters.infotips = ""
+
+        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        self.__settings = self._mainwidget.settings()
 
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
@@ -1528,8 +1519,8 @@ class AngleQToolWidget(ToolWidget):
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
         """
-        self.__centerx = float(xdata)
-        self.__centery = float(ydata)
+        self.__settings.centerx = float(xdata)
+        self.__settings.centery = float(ydata)
         self._message()
         self.updateGeometryTip()
 
@@ -1568,16 +1559,19 @@ class AngleQToolWidget(ToolWidget):
         thetax = None
         thetay = None
         thetatotal = None
-        if self.__energy > 0 and self.__detdistance > 0:
-            xcentered = xdata - self.__centerx
-            ycentered = ydata - self.__centery
+        if self.__settings.energy > 0 and self.__settings.detdistance > 0:
+            xcentered = xdata - self.__settings.centerx
+            ycentered = ydata - self.__settings.centery
             thetax = math.atan(
-                xcentered * self.__pixelsizex/1000. / self.__detdistance)
+                xcentered * self.__settings.pixelsizex/1000.
+                / self.__settings.detdistance)
             thetay = math.atan(
-                ycentered * self.__pixelsizey/1000. / self.__detdistance)
-            r = math.sqrt((xcentered * self.__pixelsizex / 1000.) ** 2
-                          + (ycentered * self.__pixelsizex / 1000.) ** 2)
-            thetatotal = math.atan(r/self.__detdistance)*180/math.pi
+                ycentered * self.__settings.pixelsizey/1000.
+                / self.__settings.detdistance)
+            r = math.sqrt(
+                (xcentered * self.__settings.pixelsizex / 1000.) ** 2
+                + (ycentered * self.__settings.pixelsizex / 1000.) ** 2)
+            thetatotal = math.atan(r/self.__settings.detdistance)*180/math.pi
         return thetax, thetay, thetatotal
 
     def __pixel2q(self, xdata, ydata):
@@ -1593,7 +1587,7 @@ class AngleQToolWidget(ToolWidget):
         qx = None
         qz = None
         q = None
-        if self.__energy > 0 and self.__detdistance > 0:
+        if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             thetax, thetay, thetatotal = self.__pixel2theta(
                 xdata, ydata)
             wavelength = 12400./self.__energy
@@ -1614,12 +1608,12 @@ class AngleQToolWidget(ToolWidget):
             u"  pixel_size = (%s, %s) \u00B5m\n" \
             u"  detector_distance = %s mm\n" \
             u"  energy = %s eV" % (
-                self.__centerx,
-                self.__centery,
-                self.__pixelsizex,
-                self.__pixelsizey,
-                self.__detdistance,
-                self.__energy
+                self.__settings.centerx,
+                self.__settings.centery,
+                self.__settings.pixelsizex,
+                self.__settings.pixelsizey,
+                self.__settings.detdistance,
+                self.__settings.energy
             )
 
     @QtCore.pyqtSlot()
@@ -1630,20 +1624,20 @@ class AngleQToolWidget(ToolWidget):
         :rtype: :obj:`bool`
         """
         cnfdlg = geometryDialog.GeometryDialog(self)
-        cnfdlg.centerx = self.__centerx
-        cnfdlg.centery = self.__centery
-        cnfdlg.energy = self.__energy
-        cnfdlg.pixelsizex = self.__pixelsizex
-        cnfdlg.pixelsizey = self.__pixelsizey
-        cnfdlg.detdistance = self.__detdistance
+        cnfdlg.centerx = self.__settings.centerx
+        cnfdlg.centery = self.__settings.centery
+        cnfdlg.energy = self.__settings.energy
+        cnfdlg.pixelsizex = self.__settings.pixelsizex
+        cnfdlg.pixelsizey = self.__settings.pixelsizey
+        cnfdlg.detdistance = self.__settings.detdistance
         cnfdlg.createGUI()
         if cnfdlg.exec_():
-            self.__centerx = cnfdlg.centerx
-            self.__centery = cnfdlg.centery
-            self.__energy = cnfdlg.energy
-            self.__pixelsizex = cnfdlg.pixelsizex
-            self.__pixelsizey = cnfdlg.pixelsizey
-            self.__detdistance = cnfdlg.detdistance
+            self.__settings.centerx = cnfdlg.centerx
+            self.__settings.centery = cnfdlg.centery
+            self.__settings.energy = cnfdlg.energy
+            self.__settings.pixelsizex = cnfdlg.pixelsizex
+            self.__settings.pixelsizey = cnfdlg.pixelsizey
+            self.__settings.detdistance = cnfdlg.detdistance
             self.updateGeometryTip()
 
     @QtCore.pyqtSlot(int)

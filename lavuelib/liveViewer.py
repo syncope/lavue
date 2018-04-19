@@ -535,6 +535,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.dirtrans = self.__settings.dirtrans
         cnfdlg.nxslast = self.__settings.nxslast
         cnfdlg.nxsopen = self.__settings.nxsopen
+        cnfdlg.storegeometry = self.__settings.storegeometry
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
@@ -606,6 +607,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__settings.autodownsample = dialog.autodownsample
         self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
         self.__settings.secstream = dialog.secstream
+        self.__settings.storegeometry = dialog.storegeometry
         setsrc = False
         if self.__settings.hidraport != dialog.hidraport:
             self.__settings.hidraport = dialog.hidraport

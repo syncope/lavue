@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>635</width>
-    <height>713</height>
+    <height>802</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -173,6 +173,33 @@
                <widget class="QLineEdit" name="secportLineEdit">
                 <property name="toolTip">
                  <string>port for the zmq security stream</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="toolsGroupBox">
+           <property name="title">
+            <string>Tools</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_10">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_9">
+              <item row="0" column="0">
+               <widget class="QLabel" name="storegeometryLabel">
+                <property name="text">
+                 <string>Store detector geometry for Angle/Q:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QCheckBox" name="storegeometryCheckBox">
+                <property name="text">
+                 <string/>
                 </property>
                </widget>
               </item>
@@ -423,7 +450,7 @@
       </layout>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox">
+      <widget class="QGroupBox" name="sardanaGroupBox">
        <property name="title">
         <string>Sardana</string>
        </property>

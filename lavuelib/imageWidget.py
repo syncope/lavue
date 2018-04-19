@@ -261,6 +261,14 @@ class ImageWidget(QtGui.QWidget):
             self.__ui.toolComboBox.addItem(twg.name)
             self.__ui.toolVerticalLayout.addWidget(twg)
 
+    def settings(self):
+        """ provides settings
+
+        :returns: setting object
+        :rtype :class:`lavuelib.settings.Settings`
+        """
+        return self.__settings
+
     def __connecttool(self):
         """ connect current tool widget
         """

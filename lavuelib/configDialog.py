@@ -106,6 +106,8 @@ class ConfigDialog(QtGui.QDialog):
         self.nxsopen = False
         #: (:obj:`bool`) nexus file source starts from the last image
         self.nxslast = False
+        #: (:obj:`bool`) store detector geometry
+        self.storegeometry = False
 
     def createGUI(self):
         """ create GUI
@@ -135,6 +137,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.dirtransLineEdit.setText(self.dirtrans)
         self.__ui.nxsopenCheckBox.setChecked(self.nxsopen)
         self.__ui.nxslastCheckBox.setChecked(self.nxslast)
+        self.__ui.storegeometryCheckBox.setChecked(self.storegeometry)
 
         self._updateSecPortLineEdit(self.secautoport)
         self.__ui.secautoportCheckBox.stateChanged.connect(
@@ -176,6 +179,8 @@ class ConfigDialog(QtGui.QDialog):
         self.statswoscaling = not self.__ui.statsscaleCheckBox.isChecked()
         self.nxsopen = self.__ui.nxsopenCheckBox.isChecked()
         self.nxslast = self.__ui.nxslastCheckBox.isChecked()
+        self.storegeometry = self.__ui.storegeometryCheckBox.isChecked()
+
         try:
             dirtrans = str(self.__ui.dirtransLineEdit.text()).strip()
             mytr = json.loads(dirtrans)
