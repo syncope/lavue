@@ -404,7 +404,7 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         self._connected = False
         self._ui.attrLineEdit.setReadOnly(False)
         if ":" in self._ui.attrLineEdit.text():
-            self._ui.attrLineEdit.setText(u'')
+            # self._ui.attrLineEdit.setText(u'')
             self.updateButton()
 
     def connectWidget(self):
