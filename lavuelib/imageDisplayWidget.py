@@ -78,7 +78,7 @@ class HandleWithSignals(Handle):
 class SimpleLineROI(LineROI):
     """ simple line roi """
 
-    def __init__(self, pos1, pos2, **args):
+    def __init__(self, pos1, pos2, width=0.00001, **args):
         """ constructor
 
         :param pos1: start position
@@ -95,31 +95,25 @@ class SimpleLineROI(LineROI):
         l = d.length()
         ang = _pg.Point(1, 0).angle(d)
 
-        ROI.__init__(self, pos1, size=_pg.Point(l, 0.00001), angle=ang, **args)
+        ROI.__init__(self, pos1, size=_pg.Point(l, width), angle=ang, **args)
         h1pos = [0, 0.5]
         h1center = [1, 0.5]
         h2pos = [1, 0.5]
         h2center = [0, 0.5]
-        v1pos = [0.5, 0]
-        v1center = [0.5, 1]
-        v2pos = [0.5, 1]
-        v2center = [0.5, 0]
+        vpos = [0.5, 1]
+        vcenter = [0.5, 0]
         self.handle1 = HandleWithSignals(h1pos, h1center, self)
         self.handle2 = HandleWithSignals(h2pos, h2center, self)
-        # self.vhandle1 = HandleWithSignals(v1center, v1pos, self)
-        self.vhandle2 = HandleWithSignals(v2center, v2pos, self)
+        self.vhandle = HandleWithSignals(vcenter, vpos, self)
         self.addHandle(
             {'name': 'handle1', 'type': 'sr', 'center': h1center,
              'pos': h1pos, 'item': self.handle1})
         self.addHandle(
             {'name': 'handle2', 'type': 'sr', 'center': h2center,
              'pos': h2pos, 'item': self.handle2})
-        #self.addHandle(
-        #    {'name': 'vhandle1', 'type': 'sr', 'center': v1center,
-        #     'pos': v1pos, 'item': self.vhandle1})
         self.addHandle(
-            {'name': 'vhandle2', 'type': 'sr', 'center': v2center,
-             'pos': v2pos, 'item': self.vhandle2})
+            {'name': 'vhandle', 'type': 'sr', 'center': vcenter,
+             'pos': vpos, 'item': self.vhandle})
         # self.handle1 = self.addScaleRotateHandle([0, 0.5], [1, 0.5])
         # self.handle2 = self.addScaleRotateHandle([1, 0.5], [0, 0.5])
 
@@ -290,8 +284,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__currentcutmapper.map)
         self._getCut().handle2.hovered.connect(
             self.__currentcutmapper.map)
+        self._getCut().vhandle.hovered.connect(
+            self.__currentcutmapper.map)
         self.__currentcutmapper.setMapping(self._getCut().handle1, 0)
         self.__currentcutmapper.setMapping(self._getCut().handle2, 0)
+        self.__currentcutmapper.setMapping(self._getCut().vhandle, 0)
         self.__currentcutmapper.setMapping(self._getCut(), 0)
         self.__cutregionmapper.setMapping(self._getCut(), 0)
 
@@ -411,11 +408,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type coords: :obj:`list`
                   < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
         """
-        if not coords or not isinstance(coords, list) or len(coords) != 4:
+        if not coords or not isinstance(coords, list) or len(coords) != 5:
             pnt = 10 * (len(self.__cut) + 1)
             sz = 50
-            coords = [pnt, pnt, pnt + sz, pnt]
-        self.__cut.append(SimpleLineROI(coords[:2], coords[2:], pen='r'))
+            coords = [pnt, pnt, pnt + sz, pnt, 0.00001]
+        self.__cut.append(SimpleLineROI(
+            coords[:2], coords[2:4], width=coords[4], pen='r'))
         self.__viewbox.addItem(self.__cut[-1])
         self.__cuts.coords.append(coords)
 
@@ -991,12 +989,15 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self._getCut().sigRegionChanged.connect(self.__cutregionmapper.map)
             self._getCut().handle1.hovered.connect(self.__currentcutmapper.map)
             self._getCut().handle2.hovered.connect(self.__currentcutmapper.map)
+            self._getCut().vhandle.hovered.connect(self.__currentcutmapper.map)
             self.__currentcutmapper.setMapping(
                 self._getCut(), len(self.__cut) - 1)
             self.__currentcutmapper.setMapping(
                 self._getCut().handle1, len(self.__cut) - 1)
             self.__currentcutmapper.setMapping(
                 self._getCut().handle2, len(self.__cut) - 1)
+            self.__currentcutmapper.setMapping(
+                self._getCut().vhandle, len(self.__cut) - 1)
             self.__cutregionmapper.setMapping(
                 self._getCut(), len(self.__cut) - 1)
         if cid <= 0:

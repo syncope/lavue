@@ -328,7 +328,8 @@ class ImageWidget(QtGui.QWidget):
         :type cid: :obj:`int`
         :param coords: cut coordinates and width
         :type coords: :obj:`list`
-                  < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+                  < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`,
+                     :obj:`float`] >
         """
         self.__displaywidget.updateCuts(cid, coords)
         self.cutCoordsChanged.emit()
