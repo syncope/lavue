@@ -106,7 +106,7 @@ class SimpleLineROI(LineROI):
         v2center = [0.5, 0]
         self.handle1 = HandleWithSignals(h1pos, h1center, self)
         self.handle2 = HandleWithSignals(h2pos, h2center, self)
-        self.vhandle1 = HandleWithSignals(v1center, v1pos, self)
+        # self.vhandle1 = HandleWithSignals(v1center, v1pos, self)
         self.vhandle2 = HandleWithSignals(v2center, v2pos, self)
         self.addHandle(
             {'name': 'handle1', 'type': 'sr', 'center': h1center,
@@ -114,9 +114,9 @@ class SimpleLineROI(LineROI):
         self.addHandle(
             {'name': 'handle2', 'type': 'sr', 'center': h2center,
              'pos': h2pos, 'item': self.handle2})
-        self.addHandle(
-            {'name': 'vhandle1', 'type': 'sr', 'center': v1center,
-             'pos': v1pos, 'item': self.vhandle1})
+        #self.addHandle(
+        #    {'name': 'vhandle1', 'type': 'sr', 'center': v1center,
+        #     'pos': v1pos, 'item': self.vhandle1})
         self.addHandle(
             {'name': 'vhandle2', 'type': 'sr', 'center': v2center,
              'pos': v2pos, 'item': self.vhandle2})
@@ -136,7 +136,7 @@ class SimpleLineROI(LineROI):
         pos2 = pos1 + _pg.Point(
             size.x() * math.cos(ra),
             size.x() * math.sin(ra))
-        return [pos1.x(), pos1.y(), pos2.x(), pos2.y()]
+        return [pos1.x(), pos1.y(), pos2.x(), pos2.y(), size.y()]
 
 
 class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
