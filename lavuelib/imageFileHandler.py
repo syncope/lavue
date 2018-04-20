@@ -309,6 +309,7 @@ class ImageFileHandler(object):
         #: (:obj:`numpy.ndarray`) image data
         self.__data = None
         try:
+            w = 1/0
             if FABIO:
                 self.__image = fabio.open(fname)
                 self.__data = self.__image.data
@@ -317,17 +318,22 @@ class ImageFileHandler(object):
                 self.__data = np.array(self.__image)
         except Exception:
             try:
+                w =1/0
                 if FABIO and PILLOW:
                     self.__image = PIL.Image.open(fname)
                     self.__data = np.array(self.__image)
             except Exception:
                 try:
+                    print("AND")
                     self.__image = np.fromfile(str(fname), dtype='uint8')
                     if fname.endswith(".cbf"):
                         self.__data = CBFLoader().load(self.__image)
                     else:
                         self.__data = TIFLoader().load(self.__image)
-                except Exception:
+                except Exception as e:
+                    print(str(e))
+                    import traceback
+                    print(str(traceback.format_exc()))
                     pass
 
     def getImage(self):

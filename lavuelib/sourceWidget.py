@@ -205,7 +205,7 @@ class HTTPSourceWidget(BaseSourceWidget):
         if not self.active:
             return
         url = str(self._ui.httpLineEdit.text()).strip()
-        if not url.startswith("http://") or not url.startswith("https://"):
+        if not url.startswith("http://") and not url.startswith("https://"):
             surl = url.split("/")
             if len(surl) == 2 and surl[0] and surl[1]:
                 url = "http://%s/monitor/api/%s/images/monitor" \

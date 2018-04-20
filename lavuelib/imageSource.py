@@ -600,9 +600,15 @@ class HTTPSource(BaseSource):
         if self._configuration:
             try:
                 response = requests.get(self._configuration)
-                if response.ok:
+                if not response.ok:
+                    print("HTTP %s" % str(response.content))
+                else:
                     name = self._configuration
                     data = response.content
+                    print("LEN %s" % len(data))
+                    # f =open("/tmp/eiger.tiff", "wb")
+                    # f.write(data)
+                    # f.close()
                     if data[:10] == "###CBF: VE":
                         # print("[cbf source module]::metadata", name)
                         img = imageFileHandler.CBFLoader().load(
@@ -635,10 +641,7 @@ class HTTPSource(BaseSource):
         try:
             if self._configuration:
                 response = requests.get(self._configuration)
-                if response.ok:
-                    return True
-            self._updaterror()
-            return False
+            return True
         except Exception as e:
             print(str(e))
             self._updaterror()
