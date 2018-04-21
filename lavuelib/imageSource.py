@@ -600,15 +600,9 @@ class HTTPSource(BaseSource):
         if self._configuration:
             try:
                 response = requests.get(self._configuration)
-                if not response.ok:
-                    print("HTTP %s" % str(response.content))
-                else:
+                if response.ok:
                     name = self._configuration
                     data = response.content
-                    print("LEN %s" % len(data))
-                    # f =open("/tmp/eiger.tiff", "wb")
-                    # f.write(data)
-                    # f.close()
                     if data[:10] == "###CBF: VE":
                         # print("[cbf source module]::metadata", name)
                         img = imageFileHandler.CBFLoader().load(
@@ -629,6 +623,9 @@ class HTTPSource(BaseSource):
                             img = imageFileHandler.TIFLoader().load(
                                 np.fromstring(data[:], dtype=np.uint8))
                             return np.transpose(img), name, ""
+                else:
+                    # print("HTTP %s" % str(response.content))
+                    pass
             except Exception as e:
                 print(str(e))
                 return str(e), "__ERROR__", ""
@@ -640,7 +637,7 @@ class HTTPSource(BaseSource):
         self.__tiffloader = False
         try:
             if self._configuration:
-                response = requests.get(self._configuration)
+                requests.get(self._configuration)
             return True
         except Exception as e:
             print(str(e))
