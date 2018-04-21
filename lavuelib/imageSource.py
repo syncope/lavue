@@ -623,6 +623,9 @@ class HTTPSource(BaseSource):
                             img = imageFileHandler.TIFLoader().load(
                                 np.fromstring(data[:], dtype=np.uint8))
                             return np.transpose(img), name, ""
+                else:
+                    # print("HTTP %s" % str(response.content))
+                    pass
             except Exception as e:
                 print(str(e))
                 return str(e), "__ERROR__", ""
@@ -634,11 +637,8 @@ class HTTPSource(BaseSource):
         self.__tiffloader = False
         try:
             if self._configuration:
-                response = requests.get(self._configuration)
-                if response.ok:
-                    return True
-            self._updaterror()
-            return False
+                requests.get(self._configuration)
+            return True
         except Exception as e:
             print(str(e))
             self._updaterror()
