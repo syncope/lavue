@@ -327,8 +327,8 @@ class ImageFileHandler(object):
                         self.__data = CBFLoader().load(self.__image)
                     else:
                         self.__data = TIFLoader().load(self.__image)
-                except Exception:
-                    pass
+                except Exception as e:
+                    print(str(e))
 
     def getImage(self):
         """  provides the image data
@@ -657,15 +657,15 @@ class TIFLoader(object):
             if field_tag == 339:
                 sample_format = val_or_off
 
-            next_idf = np.uint32(
-                struct.unpack_from(
-                    flbuffer_endian + "I",
-                    flbuffer[
-                        ifd_off + 15 + (num_of_ifd + 1) * 12:ifd_off + 19
-                        + (num_of_ifd + 1) * 12])[0])
-            if next_idf != 0:
-                # print('another ifd exists ... NOT read')
-                pass
+        next_idf = np.uint32(
+            struct.unpack_from(
+                flbuffer_endian + "I",
+                flbuffer[ifd_off + 2 + (ifd_entry + 1) * 12:
+                         ifd_off + 6 + (ifd_entry + 1) * 12]
+            )[0])
+        if next_idf != 0:
+            # print('another ifd exists ... NOT read')
+            pass
         if width * length * bit_per_sample / 8 != strip_byte_counts:
             return image
 
