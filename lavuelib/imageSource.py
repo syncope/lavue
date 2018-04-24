@@ -607,7 +607,8 @@ class HTTPSource(BaseSource):
                         # print("[cbf source module]::metadata", name)
                         img = imageFileHandler.CBFLoader().load(
                             np.fromstring(data[:], dtype=np.uint8))
-                        return np.transpose(img), name, ""
+                        return (np.transpose(img),
+                                "%s (%s)" % (name, time.ctime()), "")
                     else:
                         # print("[tif source module]::metadata", name)
                         if PILLOW and not self.__tiffloader:
@@ -618,13 +619,15 @@ class HTTPSource(BaseSource):
                                 img = imageFileHandler.TIFLoader().load(
                                     np.fromstring(data[:], dtype=np.uint8))
                                 self.__tiffloader = True
-                            return np.transpose(img), name, ""
+                            return (np.transpose(img),
+                                    "%s (%s)" % (name, time.ctime()), "")
                         else:
                             img = imageFileHandler.TIFLoader().load(
                                 np.fromstring(data[:], dtype=np.uint8))
-                            return np.transpose(img), name, ""
+                            return (np.transpose(img),
+                                    "%s (%s)" % (name, time.ctime()), "")
                 else:
-                    # print("HTTP %s" % str(response.content))
+                    print("HTTP Source: %s" % str(response.content))
                     pass
             except Exception as e:
                 print(str(e))
