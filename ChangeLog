@@ -1,3 +1,7 @@
+2018-04-27 Jan Kotanski <jan.kotanski@desy.de>
+	* fix setting imagesource configuration
+	* tagged as 1.14.5
+
 2018-04-24 Jan Kotanski <jan.kotanski@desy.de>
 	* change image name for HTTP source
 	* tagged as 1.14.4

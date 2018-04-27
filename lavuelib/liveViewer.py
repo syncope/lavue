@@ -655,7 +655,9 @@ class LiveViewer(QtGui.QMainWindow):
         """ sets the source configuration
         """
         self.__sourceconfiguration = sourceConfiguration
-        self.__datasource.setConfiguration(self.__sourceconfiguration)
+        if self.__sourcewg.currentDataSource() == \
+           str(type(self.__datasource).__name__):
+            self.__datasource.setConfiguration(self.__sourceconfiguration)
 
     def __setSardana(self, status):
         """ sets the sardana utils
@@ -676,7 +678,7 @@ class LiveViewer(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot(int)
     def _updateSource(self, status):
-        """ update tyhe current source
+        """ update the current source
 
         :param status: current source status id
         :type status: :obj:`int`
