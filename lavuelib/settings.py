@@ -91,6 +91,9 @@ class Settings(object):
         self.autozmqtopics = False
         #: (:obj:`str`) file name translation json dictionary
         self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
+        #: (:obj:`str`) JSON dictionary with {label: tango attribute}
+        #  for Tango Attribute source
+        self.tangoattrs = '{}'
         #: (:obj:`str`) door device name
         self.doorname = ""
         #: (:obj:`bool`) nexus file source keeps the file open
@@ -251,6 +254,11 @@ class Settings(object):
             self.dirtrans = qstval
 
         qstval = str(
+            settings.value("Configuration/TangoAttributes").toString())
+        if qstval:
+            self.tangoattrs = qstval
+
+        qstval = str(
             settings.value("Configuration/StoreGeometry").toString())
         if qstval.lower() == "true":
             self.storegeometry = True
@@ -366,6 +374,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/DirectoryTranslation",
             QtCore.QVariant(self.dirtrans))
+        settings.setValue(
+            "Configuration/TangoAttributes",
+            QtCore.QVariant(self.tangoattrs))
         settings.setValue(
             "Configuration/NXSLastImage",
             QtCore.QVariant(self.nxslast))
