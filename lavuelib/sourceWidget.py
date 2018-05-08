@@ -28,6 +28,7 @@
 from PyQt4 import QtCore, QtGui, uic
 import os
 import socket
+import json
 
 _testformclass, _testbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -378,12 +379,47 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         self.datasource = "TangoAttrSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
-            "attrLabel", "attrLineEdit"
+            "attrLabel", "attrComboBox"
         ]
+
+        #: (:obj:`dict` <:obj:`str`, :obj:`str`>) dictionary with
+        #:                     (label, tango attribute) items
+        self.__tangoattrs = {}
+        #: (:obj:`list` <:obj:`str`>) user tango attributes
+        self.__userattrs = []
 
         self._detachWidgets()
 
-        self._ui.attrLineEdit.textEdited.connect(self.updateButton)
+        self.__connectComboBox()
+
+    def __connectComboBox(self):
+        self._ui.attrComboBox.lineEdit().textEdited.connect(
+            self.updateButton)
+        self._ui.attrComboBox.currentIndexChanged.connect(
+            self.updateButton)
+
+    def __disconnectComboBox(self):
+        self._ui.attrComboBox.lineEdit().textEdited.disconnect(
+            self.updateButton)
+        self._ui.attrComboBox.currentIndexChanged.disconnect(
+            self.updateButton)
+
+    def __updateComboBox(self):
+        """ updates a value of attr combo box
+        """
+        self.__disconnectComboBox()
+        currentattr = str(self._ui.attrComboBox.currentText()).strip()
+        self._ui.attrComboBox.clear()
+        attrs = sorted(self.__tangoattrs.keys())
+        for mt in attrs:
+            self._ui.attrComboBox.addItem(mt)
+        for mt in self.__userattrs:
+            self._ui.attrComboBox.addItem(mt)
+        if currentattr not in attrs and currentattr not in self.__userattrs:
+            self._ui.attrComboBox.addItem(currentattr)
+        ind = self._ui.attrComboBox.findText(currentattr)
+        self._ui.attrComboBox.setCurrentIndex(ind)
+        self.__connectComboBox()
 
     @QtCore.pyqtSlot()
     def updateButton(self):
@@ -391,27 +427,49 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         """
         if not self.active:
             return
-        if not str(self._ui.attrLineEdit.text()).strip():
+        currentattr = str(self._ui.attrComboBox.currentText()).strip()
+        if not currentattr:
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
-            self.configurationChanged.emit(
-                str(self._ui.attrLineEdit.text()).strip())
+            if currentattr in self.__tangoattrs.keys():
+                currentattr = str(self.__tangoattrs[currentattr]).strip()
+            self.configurationChanged.emit(currentattr)
+
+    def updateMetaData(self, tangoattrs=None, **kargs):
+        """ update source input parameters
+
+        :param tangoattrs: json dictionary with
+                           (label, tango attribute) items
+        :type tangoattrs: :obj:`str`
+        :param kargs:  source widget input parameter dictionary
+        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        if tangoattrs is not None:
+            self.__tangoattrs = json.loads(tangoattrs)
+            self.__updateComboBox()
 
     def disconnectWidget(self):
         """ disconnects widget
         """
         self._connected = False
-        self._ui.attrLineEdit.setReadOnly(False)
-        if ":" in self._ui.attrLineEdit.text():
-            # self._ui.attrLineEdit.setText(u'')
-            self.updateButton()
+        self._ui.attrComboBox.lineEdit().setReadOnly(False)
+        self._ui.attrComboBox.setEnabled(True)
+        # if ":" in self._ui.attrLineEdit.text():
+        #     self._ui.attrLineEdit.setText(u'')
+        #     self.updateButton()
 
     def connectWidget(self):
         """ connects widget
         """
         self._connected = True
-        self._ui.attrLineEdit.setReadOnly(True)
+        self._ui.attrComboBox.lineEdit().setReadOnly(True)
+        self._ui.attrComboBox.setEnabled(False)
+        currentattr = str(self._ui.attrComboBox.currentText()).strip()
+        attrs = self.__tangoattrs.keys()
+        if currentattr not in attrs and currentattr not in self.__userattrs:
+            self.__userattrs.append(currentattr)
+            self.__updateComboBox()
 
 
 class TangoFileSourceWidget(BaseSourceWidget):

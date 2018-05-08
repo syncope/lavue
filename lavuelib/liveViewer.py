@@ -357,6 +357,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__sourcewg.updateMetaData(
             zmqtopics=self.__settings.zmqtopics,
             dirtrans=self.__settings.dirtrans,
+            tangoattrs=self.__settings.tangoattrs,
             autozmqtopics=self.__settings.autozmqtopics,
             nxslast=self.__settings.nxslast,
             nxsopen=self.__settings.nxsopen,
@@ -533,6 +534,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.detservers = self.__settings.detservers
         cnfdlg.autozmqtopics = self.__settings.autozmqtopics
         cnfdlg.dirtrans = self.__settings.dirtrans
+        cnfdlg.tangoattrs = self.__settings.tangoattrs
         cnfdlg.nxslast = self.__settings.nxslast
         cnfdlg.nxsopen = self.__settings.nxsopen
         cnfdlg.storegeometry = self.__settings.storegeometry
@@ -615,6 +617,9 @@ class LiveViewer(QtGui.QMainWindow):
         if self.__settings.dirtrans != dialog.dirtrans:
             self.__settings.dirtrans = dialog.dirtrans
             setsrc = True
+        if self.__settings.tangoattrs != dialog.tangoattrs:
+            self.__settings.tangoattrs = dialog.tangoattrs
+            setsrc = True
         if self.__settings.zmqtopics != dialog.zmqtopics:
             self.__settings.zmqtopics = dialog.zmqtopics
             setsrc = True
@@ -638,6 +643,7 @@ class LiveViewer(QtGui.QMainWindow):
             self.__sourcewg.updateMetaData(
                 zmqtopics=self.__settings.zmqtopics,
                 dirtrans=self.__settings.dirtrans,
+                tangoattrs=self.__settings.tangoattrs,
                 autozmqtopics=self.__settings.autozmqtopics,
                 nxslast=self.__settings.nxslast,
                 nxsopen=self.__settings.nxsopen,
