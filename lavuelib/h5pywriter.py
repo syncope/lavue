@@ -22,8 +22,12 @@
 import h5py
 import numpy as np
 import os
+import sys
 
 from . import filewriter
+
+if sys.version_info > (3,):
+    unicode = str
 
 
 def open_file(filename, readonly=False, **pars):

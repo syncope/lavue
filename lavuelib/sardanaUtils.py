@@ -28,6 +28,7 @@
 import pickle
 import json
 import time
+import sys
 
 try:
     import PyTango
@@ -36,6 +37,9 @@ try:
 except ImportError:
     #: (:obj:`bool`) PyTango imported
     PYTANGO = False
+
+if sys.version_info > (3,):
+    basestring = str
 
 
 class SardanaUtils(object):
@@ -273,7 +277,7 @@ class SardanaUtils(object):
         :returns: string object
         :rtype: :obj:`str`
         """
-        if isinstance(obj, unicode):
+        if isinstance(obj, basestring):
             return str(obj)
         elif isinstance(obj, list):
             return [cls.toString(el) for el in obj]

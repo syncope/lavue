@@ -35,6 +35,7 @@ import numpy as np
 import pyqtgraph as _pg
 import os
 import zmq
+import sys
 
 from PyQt4 import QtCore, QtGui, uic
 
@@ -56,6 +57,11 @@ from . import dataFetchThread
 from . import settings
 
 from .hidraServerList import HIDRASERVERLIST
+
+
+if sys.version_info > (3,):
+    basestring = str
+
 
 #: ( (:obj:`str`,:obj:`str`,:obj:`str`) )
 #:         pg major version, pg minor verion, pg patch version
@@ -888,7 +894,7 @@ class LiveViewer(QtGui.QMainWindow):
         if str(self.__metadata) != str(metadata) and str(metadata).strip():
             imagename, self.__metadata = name, metadata
             if str(imagename).strip() and \
-               not isinstance(rawimage, (str, unicode)):
+               not isinstance(rawimage, basestring):
                 self.__imagename = imagename
                 self.__rawimage = rawimage
             try:
@@ -908,7 +914,7 @@ class LiveViewer(QtGui.QMainWindow):
             if self.__imagename is None or str(self.__imagename) != str(name):
                 self.__imagename, self.__metadata \
                     = name, metadata
-                if not isinstance(rawimage, (str, unicode)):
+                if not isinstance(rawimage, basestring):
                     self.__rawimage = rawimage
         self.__updateframeview()
         self._plot()
