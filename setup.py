@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Copyright (C) 2017  DESY, Christoph Rosemann, Notkestr. 85, D-22607 Hamburg
 #
 # lavue is an image viewing program for photon science imaging detectors.
