@@ -29,8 +29,13 @@
 
 import struct
 import numpy as np
+import sys
 
 from . import filewriter
+
+if sys.version_info > (3,):
+    long = int
+
 
 try:
     import fabio

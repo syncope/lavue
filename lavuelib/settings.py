@@ -27,7 +27,6 @@
 """ live viewer image display base it on a qt dialog """
 
 
-from PyQt4 import QtCore
 import zmq
 
 
@@ -127,73 +126,73 @@ class Settings(object):
         :rtype: :obj:`list` < (:obj:`str`, :obj:`str`) >
         """
         status = []
-        qstval = str(settings.value("Configuration/Sardana").toString())
+        qstval = str(settings.value("Configuration/Sardana", type=str))
         if qstval.lower() == "false":
             self.sardana = False
         else:
             self.sardana = True
-        qstval = str(settings.value("Configuration/AddROIs").toString())
+        qstval = str(settings.value("Configuration/AddROIs", type=str))
         if qstval.lower() == "false":
             self.addrois = False
-        qstval = str(settings.value("Configuration/SecAutoPort").toString())
+        qstval = str(settings.value("Configuration/SecAutoPort", type=str))
         if qstval.lower() == "false":
             self.secautoport = False
         qstval = str(settings.value(
-            "Configuration/ShowSubtraction").toString())
+            "Configuration/ShowSubtraction", type=str))
         if qstval.lower() == "false":
             self.showsub = False
         qstval = str(settings.value(
-            "Configuration/ShowTransformations").toString())
+            "Configuration/ShowTransformations", type=str))
         if qstval.lower() == "false":
             self.showtrans = False
         qstval = str(settings.value(
-            "Configuration/ShowIntensityScaling").toString())
+            "Configuration/ShowIntensityScaling", type=str))
         if qstval.lower() == "false":
             self.showscale = False
         qstval = str(settings.value(
-            "Configuration/ShowIntensityLevels").toString())
+            "Configuration/ShowIntensityLevels", type=str))
         if qstval.lower() == "false":
             self.showlevels = False
-        qstval = str(settings.value("Configuration/ShowHistogram").toString())
+        qstval = str(settings.value("Configuration/ShowHistogram", type=str))
         if qstval.lower() == "false":
             self.showhisto = False
-        qstval = str(settings.value("Configuration/ShowMaskWidget").toString())
+        qstval = str(settings.value("Configuration/ShowMaskWidget", type=str))
         if qstval.lower() == "true":
             self.showmask = True
-        qstval = str(settings.value("Configuration/ShowStatistics").toString())
+        qstval = str(settings.value("Configuration/ShowStatistics", type=str))
         if qstval.lower() == "false":
             self.showstats = False
-        qstval = str(settings.value("Configuration/AspectLocked").toString())
+        qstval = str(settings.value("Configuration/AspectLocked", type=str))
         if qstval.lower() == "true":
             self.aspectlocked = True
-        qstval = str(settings.value("Configuration/AutoDownSample").toString())
+        qstval = str(settings.value("Configuration/AutoDownSample", type=str))
         if qstval.lower() == "true":
             self.autodownsample = True
-        qstval = str(settings.value("Configuration/NXSFileOpen").toString())
+        qstval = str(settings.value("Configuration/NXSFileOpen", type=str))
         if qstval.lower() == "true":
             self.nxsopen = True
-        qstval = str(settings.value("Configuration/NXSLastImage").toString())
+        qstval = str(settings.value("Configuration/NXSLastImage", type=str))
         if qstval.lower() == "true":
             self.nxslast = True
-        qstval = str(settings.value("Configuration/SecPort").toString())
+        qstval = str(settings.value("Configuration/SecPort", type=str))
         try:
             int(qstval)
             self.secport = str(qstval)
         except:
             pass
-        qstval = str(settings.value("Configuration/HidraDataPort").toString())
+        qstval = str(settings.value("Configuration/HidraDataPort", type=str))
         try:
             int(qstval)
             self.hidraport = str(qstval)
         except:
             pass
-        qstval = str(settings.value("Configuration/SourceTimeout").toString())
+        qstval = str(settings.value("Configuration/SourceTimeout", type=str))
         try:
             int(qstval)
             self.timeout = int(qstval)
         except:
             pass
-        qstval = str(settings.value("Configuration/SecStream").toString())
+        qstval = str(settings.value("Configuration/SecStream", type=str))
         if qstval.lower() == "true":
             try:
                 if self.secautoport:
@@ -214,84 +213,86 @@ class Settings(object):
 
         try:
             self.refreshrate = float(
-                settings.value("Configuration/RefreshRate").toString())
+                settings.value("Configuration/RefreshRate", type=str))
         except:
             pass
 
         qstval = str(
-            settings.value("Configuration/InterruptOnError").toString())
+            settings.value("Configuration/InterruptOnError", type=str))
         if qstval.lower() == "false":
             self.interruptonerror = False
         elif qstval.lower() == "true":
             self.interruptonerror = True
         qstval = str(
-            settings.value("Configuration/LastImageFileName").toString())
+            settings.value("Configuration/LastImageFileName", type=str))
         if qstval:
             self.imagename = qstval
         qstval = str(
             settings.value(
-                "Configuration/StatisticsWithoutScaling").toString())
+                "Configuration/StatisticsWithoutScaling", type=str))
         if qstval.lower() == "true":
             self.statswoscaling = True
 
         qstval = \
-            settings.value("Configuration/ZMQStreamTopics").toList()
+            settings.value(
+                "Configuration/ZMQStreamTopics", type=list)
         if qstval:
-            self.zmqtopics = [str(tp.toString()) for tp in qstval]
+            self.zmqtopics = [str(tp) for tp in qstval]
 
         qstval = \
-            settings.value("Configuration/HidraDetectorServers").toList()
+            settings.value(
+                "Configuration/HidraDetectorServers", type=list)
         if qstval:
-            self.detservers = [str(tp.toString()) for tp in qstval]
+            self.detservers = [str(tp) for tp in qstval]
 
         qstval = str(settings.value(
-            "Configuration/AutoZMQStreamTopics").toString())
+            "Configuration/AutoZMQStreamTopics", type=str))
         if qstval.lower() == "true":
             self.autozmqtopics = True
         qstval = str(
-            settings.value("Configuration/DirectoryTranslation").toString())
+            settings.value("Configuration/DirectoryTranslation", type=str))
         if qstval:
             self.dirtrans = qstval
 
         qstval = str(
-            settings.value("Configuration/TangoAttributes").toString())
+            settings.value("Configuration/TangoAttributes", type=str))
         if qstval:
             self.tangoattrs = qstval
 
         qstval = str(
-            settings.value("Configuration/StoreGeometry").toString())
+            settings.value("Configuration/StoreGeometry", type=str))
         if qstval.lower() == "true":
             self.storegeometry = True
 
         try:
             self.centerx = float(
-                settings.value("Tools/CenterX").toString())
+                settings.value("Tools/CenterX", type=str))
         except:
             pass
         try:
             self.centery = float(
-                settings.value("Tools/CenterY").toString())
+                settings.value("Tools/CenterY", type=str))
         except:
             pass
         try:
             self.energy = float(
-                settings.value("Tools/Energy").toString())
+                settings.value("Tools/Energy", type=str))
         except:
             pass
 
         try:
             self.pixelsizex = float(
-                settings.value("Tools/PixelSizeX").toString())
+                settings.value("Tools/PixelSizeX", type=str))
         except:
             pass
         try:
             self.pixelsizey = float(
-                settings.value("Tools/PixelSizeY").toString())
+                settings.value("Tools/PixelSizeY", type=str))
         except:
             pass
         try:
             self.detdistance = float(
-                settings.value("Tools/DetectorDistance").toString())
+                settings.value("Tools/DetectorDistance", type=str))
         except:
             pass
         return status
@@ -304,88 +305,88 @@ class Settings(object):
         """
         settings.setValue(
             "Configuration/AddROIs",
-            QtCore.QVariant(self.addrois))
+            self.addrois)
         settings.setValue(
             "Configuration/ShowSubtraction",
-            QtCore.QVariant(self.showsub))
+            self.showsub)
         settings.setValue(
             "Configuration/ShowTransformations",
-            QtCore.QVariant(self.showtrans))
+            self.showtrans)
         settings.setValue(
             "Configuration/ShowIntensityScaling",
-            QtCore.QVariant(self.showscale))
+            self.showscale)
         settings.setValue(
             "Configuration/ShowIntensityLevels",
-            QtCore.QVariant(self.showlevels))
+            self.showlevels)
         settings.setValue(
             "Configuration/ShowHistogram",
-            QtCore.QVariant(self.showhisto))
+            self.showhisto)
         settings.setValue(
             "Configuration/ShowMaskWidget",
-            QtCore.QVariant(self.showmask))
+            self.showmask)
         settings.setValue(
             "Configuration/ShowStatistics",
-            QtCore.QVariant(self.showstats))
+            self.showstats)
         settings.setValue(
             "Configuration/RefreshRate",
-            QtCore.QVariant(self.refreshrate))
+            self.refreshrate)
         settings.setValue(
             "Configuration/SecPort",
-            QtCore.QVariant(self.secport))
+            self.secport)
         settings.setValue(
             "Configuration/HidraDataPort",
-            QtCore.QVariant(self.hidraport))
+            self.hidraport)
         settings.setValue(
             "Configuration/SecAutoPort",
-            QtCore.QVariant(self.secautoport))
+            self.secautoport)
         settings.setValue(
             "Configuration/SecStream",
-            QtCore.QVariant(self.secstream))
+            self.secstream)
         settings.setValue(
             "Configuration/Sardana",
-            QtCore.QVariant(self.sardana))
+            self.sardana)
         settings.setValue(
             "Configuration/InterruptOnError",
-            QtCore.QVariant(self.interruptonerror))
+            self.interruptonerror)
         settings.setValue(
             "Configuration/SourceTimeout",
-            QtCore.QVariant(self.timeout))
+            self.timeout)
         settings.setValue(
             "Configuration/AspectLocked",
-            QtCore.QVariant(self.aspectlocked))
+            self.aspectlocked)
         settings.setValue(
             "Configuration/AutoDownSample",
-            QtCore.QVariant(self.autodownsample))
+            self.autodownsample)
         settings.setValue(
             "Configuration/LastImageFileName",
-            QtCore.QVariant(self.imagename))
+            self.imagename)
         settings.setValue(
             "Configuration/StatisticsWithoutScaling",
-            QtCore.QVariant(self.statswoscaling))
+            self.statswoscaling)
         settings.setValue(
             "Configuration/ZMQStreamTopics",
-            QtCore.QVariant(self.zmqtopics))
+            self.zmqtopics)
         settings.setValue(
             "Configuration/HidraDetectorServers",
-            QtCore.QVariant(self.detservers))
+            self.detservers)
         settings.setValue(
             "Configuration/AutoZMQStreamTopics",
-            QtCore.QVariant(self.autozmqtopics))
+            self.autozmqtopics)
         settings.setValue(
             "Configuration/DirectoryTranslation",
-            QtCore.QVariant(self.dirtrans))
+            self.dirtrans)
         settings.setValue(
             "Configuration/TangoAttributes",
-            QtCore.QVariant(self.tangoattrs))
+            self.tangoattrs)
         settings.setValue(
             "Configuration/NXSLastImage",
-            QtCore.QVariant(self.nxslast))
+            self.nxslast)
         settings.setValue(
             "Configuration/NXSFileOpen",
-            QtCore.QVariant(self.nxsopen))
+            self.nxsopen)
         settings.setValue(
             "Configuration/StoreGeometry",
-            QtCore.QVariant(self.storegeometry))
+            self.storegeometry)
 
         if not self.storegeometry:
             self.centerx = 0.0
@@ -397,19 +398,19 @@ class Settings(object):
 
         settings.setValue(
             "Tools/CenterX",
-            QtCore.QVariant(self.centerx))
+            self.centerx)
         settings.setValue(
             "Tools/CenterY",
-            QtCore.QVariant(self.centery))
+            self.centery)
         settings.setValue(
             "Tools/Energy",
-            QtCore.QVariant(self.energy))
+            self.energy)
         settings.setValue(
             "Tools/PixelSizeX",
-            QtCore.QVariant(self.pixelsizex))
+            self.pixelsizex)
         settings.setValue(
             "Tools/PixelSizeY",
-            QtCore.QVariant(self.pixelsizey))
+            self.pixelsizey)
         settings.setValue(
             "Tools/DetectorDistance",
-            QtCore.QVariant(self.detdistance))
+            self.detdistance)

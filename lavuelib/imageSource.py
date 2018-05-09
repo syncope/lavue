@@ -62,7 +62,6 @@ try:
 except ImportError:
     #: (:obj:`bool`) PIL imported
     PILLOW = False
-
 try:
     import zmq
     #: (:obj:`str`,:obj:`str`) zmq major version, zmq minor version
@@ -76,10 +75,17 @@ import socket
 import numpy as np
 import random
 import time
-import cPickle
+try:
+    import cPickle
+except:
+    import _pickle as cPickle
+import sys
 
 from io import BytesIO
 from . import imageFileHandler
+
+if sys.version_info > (3,):
+    buffer = memoryview
 
 
 class BaseSource(object):
