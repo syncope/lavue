@@ -1,4 +1,8 @@
 2018-05-08 Jan Kotanski <jan.kotanski@desy.de>
+	* retrieve support for python3
+	* tagged as 1.16.0
+
+2018-05-08 Jan Kotanski <jan.kotanski@desy.de>
 	* add preselected attributes to tango attribute source
 	* change the configuration layout
 	* tagged as 1.15.0
