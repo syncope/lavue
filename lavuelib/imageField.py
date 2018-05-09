@@ -73,8 +73,8 @@ class ImageField(QtGui.QDialog):
         self.__ui.imageListWidget.clear()
 
         for name in sorted(self.fields.keys()):
-            item = QtGui.QListWidgetItem(QtCore.QString("%s" % name))
-            item.setData(QtCore.Qt.UserRole, QtCore.QVariant("%s" % name))
+            item = QtGui.QListWidgetItem("%s" % name)
+            item.setData(QtCore.Qt.UserRole, "%s" % name)
             if selected is None:
                 selected = item
             field = self.fields[name]

@@ -334,9 +334,8 @@ class LiveViewer(QtGui.QMainWindow):
         """ loads settings from QSettings object
         """
         settings = QtCore.QSettings()
-        self.restoreGeometry(
-            settings.value("Layout/Geometry").toByteArray())
-
+        self.restoreGeometry(settings.value(
+            "Layout/Geometry", type=QtCore.QByteArray))
         status = self.__settings.load(settings)
 
         for topic, value in status:
@@ -382,7 +381,7 @@ class LiveViewer(QtGui.QMainWindow):
         settings = QtCore.QSettings()
         settings.setValue(
             "Layout/Geometry",
-            QtCore.QVariant(self.saveGeometry()))
+            QtCore.QByteArray(self.saveGeometry()))
 
         self.__settings.refreshrate = dataFetchThread.GLOBALREFRESHRATE
         self.__settings.sardana = True if self.__sardana is not None else False
