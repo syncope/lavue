@@ -671,7 +671,7 @@ class TIFLoader(object):
         if next_idf != 0:
             # print('another ifd exists ... NOT read')
             pass
-        if width * length * bit_per_sample / 8 != strip_byte_counts:
+        if width * length * bit_per_sample // 8 != strip_byte_counts:
             return image
 
         if sample_format == 1 and bit_per_sample == 8:

@@ -841,13 +841,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                             for i in [0, 2]:
                                 if rcrds[i] > image.shape[0]:
                                     rcrds[i] = image.shape[0]
-                                elif rcrds[i] < -i / 2:
-                                    rcrds[i] = -i / 2
+                                elif rcrds[i] < -i // 2:
+                                    rcrds[i] = -i // 2
                             for i in [1, 3]:
                                 if rcrds[i] > image.shape[1]:
                                     rcrds[i] = image.shape[1]
-                                elif rcrds[i] < - (i - 1) / 2:
-                                    rcrds[i] = - (i - 1) / 2
+                                elif rcrds[i] < - (i - 1) // 2:
+                                    rcrds[i] = - (i - 1) // 2
                             roival = np.sum(image[
                                 int(rcrds[0]):(int(rcrds[2]) + 1),
                                 int(rcrds[1]):(int(rcrds[3]) + 1)
