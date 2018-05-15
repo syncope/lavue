@@ -1,4 +1,4 @@
-2018-05-08 Jan Kotanski <jan.kotanski@desy.de>
+2018-05-15 Jan Kotanski <jan.kotanski@desy.de>
 	* fix issue with reading h5 files
 	* fix qspace info
 	* tagged as 1.16.1

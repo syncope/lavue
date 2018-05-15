@@ -71,6 +71,8 @@ SCRIPTS = ['lavuemonitor', 'lavuezmqstreamfromtango']
 #: (:obj:`list` < :obj:`str` >) executable GUI scripts
 GUISCRIPTS = ['lavue']
 
+needs_pytest = set(['test']).intersection(sys.argv)
+pytest_runner = ['pytest-runner'] if needs_pytest else []
 
 class toolBuild(build_py):
     """ ui and qrc builder for python
@@ -200,7 +202,7 @@ SETUPDATA = dict(
     # include_package_data=True, # do not include image an qrc files
     scripts=(get_scripts(GUISCRIPTS) + SCRIPTS),
     zip_safe=False,
-    setup_requires=['pytest-runner'],
+    setup_requires=pytest_runner,
     tests_require=['pytest'],
     cmdclass={
         "build_py": toolBuild,
