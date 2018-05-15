@@ -1590,7 +1590,7 @@ class AngleQToolWidget(ToolWidget):
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             thetax, thetay, thetatotal = self.__pixel2theta(
                 xdata, ydata)
-            wavelength = 12400./self.__energy
+            wavelength = 12400./self.__settings.energy
             qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
             qz = 4 * math.pi / wavelength * math.sin(thetay/2.)
             q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)
