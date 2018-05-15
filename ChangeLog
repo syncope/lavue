@@ -1,4 +1,9 @@
 2018-05-08 Jan Kotanski <jan.kotanski@desy.de>
+	* fix issue with reading h5 files
+	* fix qspace info
+	* tagged as 1.16.1
+
+2018-05-08 Jan Kotanski <jan.kotanski@desy.de>
 	* retrieve support for python3
 	* tagged as 1.16.0
 
