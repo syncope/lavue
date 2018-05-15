@@ -360,7 +360,7 @@ class H5PYGroup(filewriter.FTGroup):
         """
         shape = shape or [1]
         mshape = [None for _ in shape] or (None,)
-        if type_code in ["string", "str"]:
+        if type_code == "string":
             type_code = h5py.special_dtype(vlen=unicode)
             # type_code = h5py.special_dtype(vlen=bytes)
         if dfilter:
@@ -806,7 +806,7 @@ class H5PYAttributeManager(filewriter.FTAttributeManager):
         if shape:
             if isinstance(shape, list):
                 shape = tuple(shape)
-            if dtype in ['string', 'str']:
+            if dtype == 'string':
                 dtype = h5py.special_dtype(vlen=bytes)
                 self._h5object.create(
                     name, np.empty(shape, dtype=dtype), shape, dtype)
@@ -814,7 +814,7 @@ class H5PYAttributeManager(filewriter.FTAttributeManager):
                 self._h5object.create(
                     name, np.zeros(shape, dtype=dtype), shape, dtype)
         else:
-            if dtype in ['string', 'str']:
+            if dtype == "string":
                 self._h5object.create(name, np.string_(""))
             else:
                 self._h5object.create(
@@ -932,7 +932,6 @@ class H5PYAttribute(filewriter.FTAttribute):
         else:
             return at
 
-
     def write(self, o):
         """ write attribute value
 
@@ -960,7 +959,7 @@ class H5PYAttribute(filewriter.FTAttribute):
             self._h5object[0][self.name] = np.array(o, dtype=self.dtype)
         elif isinstance(t, slice):
             var = self._h5object[0][self.name]
-            if self.dtype not in ['string', 'str']:
+            if self.dtype is not 'string':
                 var[t] = np.array(o, dtype=self.dtype)
             else:
                 if hasattr(var, "tolist"):
@@ -969,7 +968,7 @@ class H5PYAttribute(filewriter.FTAttribute):
             self._h5object[0][self.name] = var
         elif isinstance(t, tuple):
             var = self._h5object[0][self.name]
-            if self.dtype in ['string', 'str']:
+            if self.dtype is not 'string':
                 var[t] = np.array(o, dtype=self.dtype)
             else:
                 if hasattr(var, "flatten"):
