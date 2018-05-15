@@ -940,7 +940,10 @@ class H5PYAttribute(filewriter.FTAttribute):
         """
         if isinstance(o, str) and not o.endswith("\0"):
             o += "\0"
-        self._h5object[0][self.name] = np.array(o, dtype=self.dtype)
+        if self.dtype == "string":    
+            self._h5object[0][self.name] = np.array(o, dtype='str')
+        else:
+            self._h5object[0][self.name] = np.array(o, dtype=self.dtype)
 
     def __setitem__(self, t, o):
         """ write attribute value
