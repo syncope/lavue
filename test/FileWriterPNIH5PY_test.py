@@ -415,6 +415,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             self.assertEqual(
                 f.attributes["file_name"][...],
                 self._fname)
+
             self.assertTrue(f.attributes["NX_class"][...], "NXroot")
             self.assertEqual(f.size, 0)
             f.close()
@@ -5127,7 +5128,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             self.assertEqual(atstrscalar.parent, entry)
             self.assertEqual(atstrscalar.name, 'atstrscalar')
             self.assertEqual(atstrscalar.path, '/entry12345:NXentry@atstrscalar')
-            self.assertEqual(atstrscalar.dtype, 'string')
+            self.assertEqual(atstrscalar.dtype ,'string')
             self.assertEqual(atstrscalar.shape, (1,))
             self.assertEqual(atstrscalar.is_valid, True)
             self.assertEqual(atstrscalar.read(), '')
