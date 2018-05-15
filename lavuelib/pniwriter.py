@@ -19,6 +19,8 @@
 
 """ Provides pni file writer """
 
+from builtins import object
+
 import pni.io.nx.h5 as nx
 
 from . import filewriter
@@ -311,7 +313,7 @@ class PNIGroup(filewriter.FTGroup):
             self.__group = group
             self.__names = [kid.name for kid in self.__group.h5object]
 
-        def next(self):
+        def __next__(self):
             """ the next attribute
 
             :returns: attribute object

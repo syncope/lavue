@@ -23,6 +23,8 @@ import h5py
 import numpy as np
 import os
 import sys
+# from future.utils import implements_iterator
+from builtins import object
 
 from . import filewriter
 
@@ -61,12 +63,12 @@ def create_file(filename, overwrite=False, **pars):
     :rtype: :class:`H5PYFile`
     """
     fl = h5py.File(filename, "a" if overwrite else "w-", **pars)
-    fl.attrs.create("file_time", H5PYFile.currenttime() + "\0")
-    fl.attrs.create("HDF5_version", "\0")
-    fl.attrs.create("NX_class", "NXroot" + "\0")
-    fl.attrs.create("NeXus_version", "4.3.0\0")
-    fl.attrs.create("file_name", filename + "\0")
-    fl.attrs.create("file_update_time", H5PYFile.currenttime() + "\0")
+    fl.attrs.create("file_time", np.string_(H5PYFile.currenttime() + "\0"))
+    fl.attrs.create("HDF5_version", np.string_("\0"))
+    fl.attrs.create("NX_class", np.string_("NXroot" + "\0"))
+    fl.attrs.create("NeXus_version", np.string_("4.3.0\0"))
+    fl.attrs.create("file_name", np.string_(filename + "\0"))
+    fl.attrs.create("file_update_time", np.string_(H5PYFile.currenttime() + "\0"))
     return H5PYFile(fl, filename)
 
 
@@ -154,7 +156,8 @@ class H5PYFile(filewriter.FTFile):
         """
         if self._h5object.mode in ["r+"]:
             self._h5object.attrs.create(
-                "file_update_time", self.currenttime() + "\0")
+                "file_update_time",
+                np.string_(self.currenttime() + "\0"))
         return self._h5object.flush()
 
     def close(self):
@@ -163,7 +166,8 @@ class H5PYFile(filewriter.FTFile):
         filewriter.FTFile.close(self)
         if self._h5object.mode in ["r+"]:
             self._h5object.attrs.create(
-                "file_update_time", self.currenttime() + "\0")
+                "file_update_time",
+                np.string_(self.currenttime() + "\0"))
         return self._h5object.close()
 
     @property
@@ -288,7 +292,8 @@ class H5PYGroup(filewriter.FTGroup):
             self.__group = group
             self.__names = sorted(self.__group._h5object.keys()) or []
 
-        def next(self):
+        # @implements_iterator
+        def __next__(self):
             """ the next attribute
 
             :returns: attribute object
@@ -837,13 +842,13 @@ class H5PYAttributeManager(filewriter.FTAttributeManager):
             self.__manager = manager
             self.__iter = self.__manager._h5object.__iter__()
 
-        def next(self):
+        def __next__(self):
             """ the next attribute
 
             :returns: attribute object
             :rtype: :class:`FTAtribute`
             """
-            name = self.__iter.next()
+            name = next(self.__iter)
             if name is None:
                 return None
             return H5PYAttribute((self.__manager._h5object, name),

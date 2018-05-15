@@ -200,6 +200,8 @@ SETUPDATA = dict(
     # include_package_data=True, # do not include image an qrc files
     scripts=(get_scripts(GUISCRIPTS) + SCRIPTS),
     zip_safe=False,
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
     cmdclass={
         "build_py": toolBuild,
         "clean": toolClean,
