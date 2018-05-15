@@ -286,7 +286,7 @@ class H5PYGroup(filewriter.FTGroup):
             """
 
             self.__group = group
-            self.__names = self.__group._h5object.keys() or []
+            self.__names = sorted(self.__group._h5object.keys()) or []
 
         def next(self):
             """ the next attribute
