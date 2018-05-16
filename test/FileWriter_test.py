@@ -592,7 +592,8 @@ class FileWriterTest(unittest.TestCase):
             fl2.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -1041,7 +1042,8 @@ class FileWriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
     # default createfile test
     # \brief It tests default settings
@@ -1609,7 +1611,8 @@ class FileWriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -1881,7 +1884,8 @@ class FileWriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -2142,7 +2146,8 @@ class FileWriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -2421,7 +2426,8 @@ class FileWriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
 
@@ -2720,7 +2726,8 @@ class FileWriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -2780,7 +2787,8 @@ class FileWriterTest(unittest.TestCase):
             self.assertEqual(df2.parent, None)
             self.assertTrue(isinstance(df2.h5object, nx._nxh5.deflate_filter))
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
 
@@ -3379,7 +3387,8 @@ class FileWriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
 
@@ -3713,7 +3722,8 @@ class FileWriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -4097,7 +4107,8 @@ class FileWriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -4481,7 +4492,8 @@ class FileWriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
 

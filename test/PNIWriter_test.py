@@ -235,7 +235,8 @@ class pniwriterTest(unittest.TestCase):
             fl2 = pniwriter.create_file(self._fname, overwrite=True)
             fl2.close()
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
     # default createfile test
     # \brief It tests default settings
@@ -322,7 +323,8 @@ class pniwriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
     # default createfile test
     # \brief It tests default settings
@@ -889,7 +891,8 @@ class pniwriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -1160,7 +1163,8 @@ class pniwriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -1420,7 +1424,8 @@ class pniwriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -1698,7 +1703,8 @@ class pniwriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
 
@@ -1996,7 +2002,8 @@ class pniwriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
     # default createfile test
     # \brief It tests default settings
@@ -2053,7 +2060,8 @@ class pniwriterTest(unittest.TestCase):
             self.assertEqual(df2.parent, None)
             self.assertTrue(isinstance(df2.h5object, nx._nxh5.deflate_filter))
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
     # default createfile test
     # \brief It tests default settings
@@ -2110,7 +2118,8 @@ class pniwriterTest(unittest.TestCase):
             self.assertEqual(df2.parent, None)
             self.assertTrue(isinstance(df2.h5object, nx._nxh5.deflate_filter))
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -2322,7 +2331,8 @@ class pniwriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
     # default createfile test
     # \brief It tests default settings
@@ -2918,7 +2928,8 @@ class pniwriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
 
@@ -3251,7 +3262,8 @@ class pniwriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -3634,7 +3646,8 @@ class pniwriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -4017,7 +4030,8 @@ class pniwriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
 

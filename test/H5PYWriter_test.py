@@ -237,7 +237,8 @@ class h5pywriterTest(unittest.TestCase):
             fl2.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -865,7 +866,8 @@ class h5pywriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
     # default createfile test
     # \brief It tests default settings
@@ -1121,7 +1123,8 @@ class h5pywriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -1370,7 +1373,8 @@ class h5pywriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -1637,7 +1641,8 @@ class h5pywriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
 
@@ -1927,7 +1932,8 @@ class h5pywriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
     # default createfile test
     # \brief It tests default settings
@@ -1984,7 +1990,8 @@ class h5pywriterTest(unittest.TestCase):
             self.assertEqual(df2.parent, None)
             self.assertEqual(df2.h5object, None)
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -2043,7 +2050,8 @@ class h5pywriterTest(unittest.TestCase):
             self.assertEqual(df2.parent, None)
             self.assertEqual(df2.h5object, None)
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -2244,7 +2252,8 @@ class h5pywriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
     # default createfile test
     # \brief It tests default settings
@@ -2705,7 +2714,8 @@ class h5pywriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
     # default createfile test
     # \brief It tests default settings
@@ -2986,7 +2996,8 @@ class h5pywriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -3312,7 +3323,8 @@ class h5pywriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
     # default createfile test
@@ -3645,7 +3657,8 @@ class h5pywriterTest(unittest.TestCase):
             fl.close()
 
         finally:
-            os.remove(self._fname)
+            pass
+            # os.remove(self._fname)
 
 
 if __name__ == '__main__':
