@@ -65,7 +65,7 @@ except ImportError:
 try:
     import zmq
     #: (:obj:`str`,:obj:`str`) zmq major version, zmq minor version
-    ZMQMAJOR, ZMQMINOR = map(int, zmq.zmq_version().split(".")[:2])
+    ZMQMAJOR, ZMQMINOR = list(map(int, zmq.zmq_version().split(".")))[:2]
 except:
     #: (:obj:`str`,:obj:`str`) zmq major version, zmq minor version
     ZMQMAJOR, ZMQMINOR = 0, 0

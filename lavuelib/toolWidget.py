@@ -1277,11 +1277,11 @@ class ProjectionToolWidget(ToolWidget):
                     sy = npfun(dts, axis=0)
 
                 self.__bottomplot.setOpts(
-                    y0=[0]*len(sx), y1=sx, x=range(len(sx)),
+                    y0=[0]*len(sx), y1=sx, x=list(range(len(sx))),
                     width=[1.0]*len(sx))
                 self.__bottomplot.drawPicture()
                 self.__rightplot.setOpts(
-                    x0=[0]*len(sy), x1=sy, y=range(len(sy)),
+                    x0=[0]*len(sy), x1=sy, y=list(range(len(sy))),
                     height=[1.]*len(sy))
                 self.__rightplot.drawPicture()
 
@@ -1388,9 +1388,9 @@ class OneDToolWidget(ToolWidget):
                             s1 = int(slices[1]) if slices[1].strip() else 0
                             if len(slices) > 2:
                                 s2 = int(slices[2]) if slices[2].strip() else 1
-                                rows.extend(range(s0, s1, s2))
+                                rows.extend(list(range(s0, s1, s2)))
                             else:
-                                rows.extend(range(s0, s1))
+                                rows.extend(list(range(s0, s1)))
                         else:
                             rows.append(int(rw))
                 except:
