@@ -24,7 +24,10 @@ import numpy as np
 import os
 import sys
 # from future.utils import implements_iterator
-from builtins import object
+try:
+    from builtins import object
+except:
+    from __builtin__ import object
 
 from . import filewriter
 
