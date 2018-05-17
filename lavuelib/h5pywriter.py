@@ -361,7 +361,7 @@ class H5PYGroup(filewriter.FTGroup):
         shape = shape or [1]
         mshape = [None for _ in shape] or (None,)
         if type_code == "string":
-            type_code = h5py.special_dtype(vlen=str)
+            type_code = h5py.special_dtype(vlen=unicode)
             # type_code = h5py.special_dtype(vlen=unicode)
             # type_code = h5py.special_dtype(vlen=bytes)
         if dfilter:
@@ -584,7 +584,6 @@ class H5PYField(filewriter.FTField):
 
         if self._h5object.dtype.kind == 'O':
             return "string"
-
         return str(self._h5object.dtype)
 
     @property
