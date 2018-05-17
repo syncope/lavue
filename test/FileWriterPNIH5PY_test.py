@@ -2628,8 +2628,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             fl.close()
 
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
 
     # default createfile test
@@ -2908,8 +2907,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             fl.close()
 
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
 
 
@@ -3208,8 +3206,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             fl.close()
 
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
     # default createfile test
     # \brief It tests default settings
@@ -3466,8 +3463,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             fl.close()
 
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
 
     # default createfile test
@@ -3717,8 +3713,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             fl.close()
 
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
 
     # default createfile test
@@ -3986,8 +3981,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             fl.close()
 
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
 
 
@@ -4278,8 +4272,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             fl.close()
 
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
     # default createfile test
     # \brief It tests default settings
@@ -4338,8 +4331,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             self.assertEqual(df2.parent, None)
             self.assertTrue(isinstance(df2.h5object, nx._nxh5.deflate_filter))
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
 
     # default createfile test
@@ -4398,8 +4390,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             self.assertEqual(df2.parent, None)
             self.assertEqual(df2.h5object, None)
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
     # default createfile test
     # \brief It tests default settings
@@ -4996,8 +4987,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             fl.close()
 
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
 
     # default createfile test
@@ -5460,8 +5450,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             fl.close()
 
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
 
 
@@ -5795,8 +5784,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             fl.close()
 
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
 
     # default createfile test
@@ -6180,8 +6168,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             fl.close()
 
         finally:
-            # os.remove(self._fname)
-            pass
+            os.remove(self._fname)
 
 
     # default createfile test
@@ -6565,8 +6552,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             fl.close()
 
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
 
     # default createfile test
@@ -6849,8 +6835,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             fl.close()
 
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
 
     # default createfile test
@@ -7177,8 +7162,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             fl.close()
 
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
 
     # default createfile test
@@ -7512,8 +7496,7 @@ class filewriterPNIH5PYTest(unittest.TestCase):
             fl.close()
 
         finally:
-            pass
-            # os.remove(self._fname)
+            os.remove(self._fname)
 
 
 
