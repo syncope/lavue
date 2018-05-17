@@ -1,3 +1,7 @@
+2018-05-17 Jan Kotanski <jan.kotanski@desy.de>
+	* fix the utf-8 issue with h5py
+	* tagged as 1.16.2
+
 2018-05-15 Jan Kotanski <jan.kotanski@desy.de>
 	* fix issue with reading h5 files
 	* fix qspace info
