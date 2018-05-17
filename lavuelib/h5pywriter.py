@@ -554,7 +554,11 @@ class H5PYField(filewriter.FTField):
         :returns: pni object
         :rtype: :obj:`any`
         """
-        return self._h5object.__getitem__(t)
+        fl = self._h5object.__getitem__(t)
+        if hasattr(fl, "decode"):
+            return fl.decode(encoding="utf-8")
+        else:
+            return fl        
 
     @property
     def is_valid(self):
@@ -666,7 +670,11 @@ class H5PYLink(filewriter.FTLink):
         :returns: valid flag
         :rtype: :obj:`bool`
         """
-        return self.parent.h5object[self.name][...]
+        fl = self.parent.h5object[self.name][...]
+        if hasattr(fl, "decode"):
+            return fl.decode(encoding="utf-8")
+        else:
+            return fl        
 
     @classmethod
     def getfilename(cls, obj):
@@ -930,7 +938,7 @@ class H5PYAttribute(filewriter.FTAttribute):
         """
         at = self._h5object[0][self.name]
         if hasattr(at, "decode"):
-            return at.decode()
+            return at.decode(encoding="utf-8")
         else:
             return at
 
@@ -1016,7 +1024,7 @@ class H5PYAttribute(filewriter.FTAttribute):
         else:
             at = self._h5object[0][self.name].__getitem__(t)
         if hasattr(at, "decode"):
-            return at.decode()
+            return at.decode(encoding="utf-8")
         else:
             return at
 
