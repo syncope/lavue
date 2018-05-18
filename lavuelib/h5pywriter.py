@@ -23,11 +23,7 @@ import h5py
 import numpy as np
 import os
 import sys
-# from future.utils import implements_iterator
-try:
-    from builtins import object
-except:
-    from __builtin__ import object
+
 
 from . import filewriter
 
@@ -35,7 +31,7 @@ if sys.version_info > (3,):
     unicode = str
 else:
     bytes = str
-    
+
 
 def open_file(filename, readonly=False, **pars):
     """ open the new file
@@ -307,6 +303,8 @@ class H5PYGroup(filewriter.FTGroup):
             else:
                 raise StopIteration()
 
+        next = __next__
+
         def __iter__(self):
             """ attribute iterator
 
@@ -561,7 +559,7 @@ class H5PYField(filewriter.FTField):
         if hasattr(fl, "decode"):
             return fl.decode(encoding="utf-8")
         else:
-            return fl        
+            return fl
 
     @property
     def is_valid(self):
@@ -677,7 +675,7 @@ class H5PYLink(filewriter.FTLink):
         if hasattr(fl, "decode"):
             return fl.decode(encoding="utf-8")
         else:
-            return fl        
+            return fl
 
     @classmethod
     def getfilename(cls, obj):
@@ -866,6 +864,8 @@ class H5PYAttributeManager(filewriter.FTAttributeManager):
                 return None
             return H5PYAttribute((self.__manager._h5object, name),
                                  self.__manager.parent)
+
+        next = __next__
 
         def __iter__(self):
             """ attribute iterator

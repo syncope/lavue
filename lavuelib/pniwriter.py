@@ -19,10 +19,7 @@
 
 """ Provides pni file writer """
 
-try:
-    from builtins import object
-except:
-    from __builtin__ import object
+# from builtins import object
 
 import pni.io.nx.h5 as nx
 
@@ -326,6 +323,8 @@ class PNIGroup(filewriter.FTGroup):
                 return self.__group.open(self.__names.pop(0))
             else:
                 raise StopIteration()
+
+        next = __next__
 
         def __iter__(self):
             """ attribute iterator
