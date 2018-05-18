@@ -19,7 +19,6 @@
 
 """ Provides pni file writer """
 
-# from builtins import object
 
 import pni.io.nx.h5 as nx
 

@@ -291,7 +291,6 @@ class H5PYGroup(filewriter.FTGroup):
             self.__group = group
             self.__names = sorted(self.__group._h5object.keys()) or []
 
-        # @implements_iterator
         def __next__(self):
             """ the next attribute
 
@@ -515,7 +514,11 @@ class H5PYField(filewriter.FTField):
         :returns: pni object
         :rtype: :obj:`any`
         """
-        return self._h5object[...]
+        fl = self._h5object[...]
+        if hasattr(fl, "decode") and not isinstance(fl, unicode):
+            return fl.decode(encoding="utf-8")
+        else:
+            return fl
 
     def write(self, o):
         """ write the field value
@@ -556,7 +559,7 @@ class H5PYField(filewriter.FTField):
         :rtype: :obj:`any`
         """
         fl = self._h5object.__getitem__(t)
-        if hasattr(fl, "decode"):
+        if hasattr(fl, "decode") and not isinstance(fl, unicode):
             return fl.decode(encoding="utf-8")
         else:
             return fl
@@ -672,7 +675,7 @@ class H5PYLink(filewriter.FTLink):
         :rtype: :obj:`bool`
         """
         fl = self.parent.h5object[self.name][...]
-        if hasattr(fl, "decode"):
+        if hasattr(fl, "decode") and not isinstance(fl, unicode):
             return fl.decode(encoding="utf-8")
         else:
             return fl
@@ -940,7 +943,7 @@ class H5PYAttribute(filewriter.FTAttribute):
         :rtype: :obj:`any`
         """
         at = self._h5object[0][self.name]
-        if hasattr(at, "decode"):
+        if hasattr(at, "decode") and not isinstance(at, unicode):
             return at.decode(encoding="utf-8")
         else:
             return at
@@ -952,7 +955,7 @@ class H5PYAttribute(filewriter.FTAttribute):
         :type o: :obj:`any`
         """
         if self.dtype == "string":
-            if isinstance(o, str):
+            if isinstance(o, str) or isinstance(o, unicode):
                 self._h5object[0][self.name] = unicode(o)
             else:
                 dtype = h5py.special_dtype(vlen=unicode)
@@ -972,7 +975,7 @@ class H5PYAttribute(filewriter.FTAttribute):
            t == (slice(None, None, None), slice(None, None, None)) or \
            (hasattr(o, "__len__") and t == slice(0, len(o), None)):
             if self.dtype == "string":
-                if isinstance(o, str):
+                if isinstance(o, str) or isinstance(o, unicode):
                     self._h5object[0][self.name] = unicode(o)
                 else:
                     dtype = h5py.special_dtype(vlen=unicode)
@@ -986,7 +989,13 @@ class H5PYAttribute(filewriter.FTAttribute):
             else:
                 dtype = h5py.special_dtype(vlen=unicode)
                 var[t] = np.array(o, dtype=dtype)
-            self._h5object[0][self.name] = var
+                var = var.astype(dtype)
+            try:
+                self._h5object[0][self.name] = var
+            except:
+                dtype = h5py.special_dtype(vlen=unicode)
+                tvar = np.array(var, dtype=dtype)
+                self._h5object[0][self.name] = tvar
         elif isinstance(t, tuple):
             var = self._h5object[0][self.name]
             if self.dtype is not 'string':
@@ -1004,9 +1013,10 @@ class H5PYAttribute(filewriter.FTAttribute):
                     var[t] = np.array(o, dtype=self.dtype).tolist()
                 else:
                     var[t] = np.array(o, dtype=self.dtype).tolist()
+                var = var.astype(dtype)
             self._h5object[0][self.name] = var
         else:
-            if isinstance(o, str):
+            if isinstance(o, str) or isinstance(o, unicode):
                 self._h5object[0][self.name] = unicode(o)
             else:
                 self._h5object[0][self.name] = np.array(o, dtype=self.dtype)
@@ -1026,7 +1036,7 @@ class H5PYAttribute(filewriter.FTAttribute):
                 at = self._h5object[0][self.name][t]
         else:
             at = self._h5object[0][self.name].__getitem__(t)
-        if hasattr(at, "decode"):
+        if hasattr(at, "decode") and not isinstance(at, unicode):
             return at.decode(encoding="utf-8")
         else:
             return at
