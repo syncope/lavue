@@ -72,6 +72,10 @@ _projectionformclass, _projectionbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "ProjectionToolWidget.ui"))
 
+_qroiprojformclass, _qroiprojbaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "QROIProjToolWidget.ui"))
+
 
 class ToolParameters(object):
     """ tool parameters
@@ -806,9 +810,9 @@ class ROIToolWidget(ToolWidget):
         self.__ui.applyROIPushButton.clicked.connect(self._emitApplyROIPressed)
         self.__ui.fetchROIPushButton.clicked.connect(self._emitFetchROIPressed)
 
+        self._updateApplyButton()
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
-        self._updateApplyButton()
         self.signal2slot = [
             [self.applyROIPressed, self._mainwidget.applyROIs],
             [self.fetchROIPressed, self._mainwidget.fetchROIs],
@@ -1095,7 +1099,7 @@ class LineCutToolWidget(ToolWidget):
 
 
 class ProjectionToolWidget(ToolWidget):
-    """ 1d plot tool widget
+    """ Projections tool widget
     """
 
     def __init__(self, parent=None):
@@ -1552,6 +1556,554 @@ class AngleQToolWidget(ToolWidget):
                           % (qx, qz, q, ilabel, intensity)
 
         self._mainwidget.setDisplayedText(message)
+
+    def __pixel2theta(self, xdata, ydata):
+        """ converts coordinates from pixel positions to theta angles
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        :returns: x-theta, y-theta, total-theta
+        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
+        """
+        thetax = None
+        thetay = None
+        thetatotal = None
+        if self.__settings.energy > 0 and self.__settings.detdistance > 0:
+            xcentered = xdata - self.__settings.centerx
+            ycentered = ydata - self.__settings.centery
+            thetax = math.atan(
+                xcentered * self.__settings.pixelsizex/1000.
+                / self.__settings.detdistance)
+            thetay = math.atan(
+                ycentered * self.__settings.pixelsizey/1000.
+                / self.__settings.detdistance)
+            r = math.sqrt(
+                (xcentered * self.__settings.pixelsizex / 1000.) ** 2
+                + (ycentered * self.__settings.pixelsizex / 1000.) ** 2)
+            thetatotal = math.atan(r/self.__settings.detdistance)*180/math.pi
+        return thetax, thetay, thetatotal
+
+    def __pixel2q(self, xdata, ydata):
+        """ converts coordinates from pixel positions to q-space coordinates
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        :returns: q_x, q_y, q_total
+        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
+        """
+        qx = None
+        qz = None
+        q = None
+        if self.__settings.energy > 0 and self.__settings.detdistance > 0:
+            thetax, thetay, thetatotal = self.__pixel2theta(
+                xdata, ydata)
+            wavelength = 12400./self.__settings.energy
+            qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
+            qz = 4 * math.pi / wavelength * math.sin(thetay/2.)
+            q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)
+        return qx, qz, q
+
+    def __tipmessage(self):
+        """ provides geometry messate
+
+        :returns: geometry text
+        :rtype: :obj:`unicode`
+        """
+
+        return u"geometry:\n" \
+            u"  center = (%s, %s) pixels\n" \
+            u"  pixel_size = (%s, %s) \u00B5m\n" \
+            u"  detector_distance = %s mm\n" \
+            u"  energy = %s eV" % (
+                self.__settings.centerx,
+                self.__settings.centery,
+                self.__settings.pixelsizex,
+                self.__settings.pixelsizey,
+                self.__settings.detdistance,
+                self.__settings.energy
+            )
+
+    @QtCore.pyqtSlot()
+    def _setGeometry(self):
+        """ launches geometry widget
+
+        :returns: apply status
+        :rtype: :obj:`bool`
+        """
+        cnfdlg = geometryDialog.GeometryDialog(self)
+        cnfdlg.centerx = self.__settings.centerx
+        cnfdlg.centery = self.__settings.centery
+        cnfdlg.energy = self.__settings.energy
+        cnfdlg.pixelsizex = self.__settings.pixelsizex
+        cnfdlg.pixelsizey = self.__settings.pixelsizey
+        cnfdlg.detdistance = self.__settings.detdistance
+        cnfdlg.createGUI()
+        if cnfdlg.exec_():
+            self.__settings.centerx = cnfdlg.centerx
+            self.__settings.centery = cnfdlg.centery
+            self.__settings.energy = cnfdlg.energy
+            self.__settings.pixelsizex = cnfdlg.pixelsizex
+            self.__settings.pixelsizey = cnfdlg.pixelsizey
+            self.__settings.detdistance = cnfdlg.detdistance
+            self.updateGeometryTip()
+
+    @QtCore.pyqtSlot(int)
+    def _setGSpaceIndex(self, gindex):
+        """ set gspace index
+
+        :param gspace: g-space index, i.e. angle or q-space
+        :type gspace: :obj:`int`
+        """
+        self.__gspaceindex = gindex
+
+    def updateGeometryTip(self):
+        """ update geometry tips
+        """
+        message = self.__tipmessage()
+        self._mainwidget.updateDisplayedTextTip(
+            "coordinate info display for the mouse pointer\n%s"
+            % message)
+        self.__ui.angleqPushButton.setToolTip(
+            "Input physical parameters\n%s" % message)
+        self.__ui.angleqComboBox.setToolTip(
+            "Select the display space\n%s" % message)
+        self.__ui.toolLabel.setToolTip(
+            "coordinate info display for the mouse pointer\n%s" % message)
+
+
+class QROIProjToolWidget(ToolWidget):
+    """ angle/q +roi + projections tool widget
+    """
+
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) apply ROI pressed signal
+    applyROIPressed = QtCore.pyqtSignal(str, int)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) fetch ROI pressed signal
+    fetchROIPressed = QtCore.pyqtSignal(str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi info Changed signal
+    roiInfoChanged = QtCore.pyqtSignal(str)
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
+        ToolWidget.__init__(self, parent)
+
+        #: (:obj:`str`) tool name
+        self.name = "Q+ROI+Proj"
+
+        #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
+        self.__gspaceindex = 0
+
+        #: (:class:`Ui_ROIToolWidget') ui_toolwidget object from qtdesigner
+        self.__ui = _qroiprojformclass()
+        self.__ui.setupUi(self)
+
+        #: (:class:`pyqtgraph.PlotDataItem`) 1D bottom plot
+        self.__bottomplot = self._mainwidget.onedbarbottomplot()
+        #: (:class:`pyqtgraph.PlotDataItem`) 1D bottom plot
+        self.__rightplot = self._mainwidget.onedbarrightplot()
+        #: (:obj:`int`) function index
+        self.__funindex = 0
+
+        #: (:obj:`slice`) selected rows
+        self.__rows = None
+        #: (:obj:`slice`) selected columns
+        self.__columns = None
+
+        #: (:obj:`list`< :obj:`str`>) sardana aliases
+        self.__aliases = []
+        #: (:obj:`int`) ROI label length
+        self.__textlength = 0
+
+        self.parameters.bottomplot = True
+        self.parameters.rightplot = True
+        self.parameters.rois = True
+        self.parameters.infolineedit = ""
+        self.parameters.infotips = ""
+        self.parameters.centerlines = True
+
+        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        self.__settings = self._mainwidget.settings()
+
+        self.__ui.applyROIPushButton.clicked.connect(self._emitApplyROIPressed)
+        self.__ui.fetchROIPushButton.clicked.connect(self._emitFetchROIPressed)
+
+        self._updateApplyButton()
+        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: list of [signal, slot] object to connect
+        self.signal2slot = [
+            [self.__ui.angleqPushButton.clicked, self._setGeometry],
+            [self.__ui.angleqComboBox.currentIndexChanged,
+             self._setGSpaceIndex],
+            [self._mainwidget.mouseImageDoubleClicked,
+             self._updateCenter],
+            [self._mainwidget.mouseImagePositionChanged, self._message],
+
+            [self.applyROIPressed, self._mainwidget.applyROIs],
+            [self.fetchROIPressed, self._mainwidget.fetchROIs],
+            [self.roiInfoChanged, self._mainwidget.updateDisplayedText],
+            [self.__ui.labelROILineEdit.textChanged,
+             self._updateApplyButton],
+            [self.__ui.roiSpinBox.valueChanged, self._mainwidget.updateROIs],
+            [self._mainwidget.roiLineEditChanged, self._updateApplyButton],
+            [self._mainwidget.roiAliasesChanged, self.updateROILineEdit],
+            [self._mainwidget.roiValueChanged, self.updateROIDisplayText],
+            [self._mainwidget.roiNumberChanged, self.setROIsNumber],
+            [self._mainwidget.sardanaEnabled, self.updateROIButton],
+            [self._mainwidget.mouseImagePositionChanged, self._roimessage],
+
+            [self.__ui.funComboBox.currentIndexChanged,
+             self._setFunction],
+            [self.__ui.rowsliceLineEdit.textChanged, self._updateRows],
+            [self.__ui.columnsliceLineEdit.textChanged, self._updateColumns]
+
+        ]
+
+    def activate(self):
+        """ activates tool widget
+        """
+        self.updateGeometryTip()
+        self._mainwidget.updateCenter(
+            self.__settings.centerx, self.__settings.centery)
+        self._mainwidget.changeROIRegion()
+        self.setROIsNumber(len(self._mainwidget.roiCoords()))
+        self.__aliases = self._mainwidget.getElementNames("ExpChannelList")
+        self.__updateCompleter()
+
+        if self.__bottomplot is None:
+            self.__bottomplot = self._mainwidget.onedbarbottomplot()
+
+        if self.__rightplot is None:
+            self.__rightplot = self._mainwidget.onedbarrightplot()
+
+        self.__bottomplot.show()
+        self.__rightplot.show()
+        self.__bottomplot.setVisible(True)
+        self.__rightplot.setVisible(True)
+        self._updateSlices()
+        self._plotCurves()
+
+    def disactivate(self):
+        """ disactivates tool widget
+        """
+        self._mainwidget.roiCoordsChanged.emit()
+
+        self.__bottomplot.hide()
+        self.__rightplot.hide()
+        self.__bottomplot.setVisible(False)
+        self.__rightplot.setVisible(False)
+        self._mainwidget.removebottomplot(self.__bottomplot)
+        self.__bottomplot = None
+        self._mainwidget.removerightplot(self.__rightplot)
+        self.__rightplot = None
+
+    def __updateslice(self, text):
+        """ create slices from the text
+        """
+        rows = "ERROR"
+        if text:
+            try:
+                if ":" in text:
+                    slices = text.split(":")
+                    s0 = int(slices[0]) if slices[0].strip() else 0
+                    s1 = int(slices[1]) if slices[1].strip() else None
+                    if len(slices) > 2:
+                        s2 = int(slices[2]) if slices[2].strip() else None
+                        rows = slice(s0, s1, s2)
+                    else:
+                        rows = slice(s0, s1)
+                else:
+                    rows = int(text)
+            except:
+                pass
+        else:
+            rows = None
+        return rows
+
+    @QtCore.pyqtSlot(str)
+    @QtCore.pyqtSlot()
+    def _updateSlices(self):
+        """ updates applied button"""
+        rtext = str(self.__ui.rowsliceLineEdit.text()).strip()
+        self.__rows = self.__updateslice(rtext)
+        ctext = str(self.__ui.columnsliceLineEdit.text()).strip()
+        self.__columns = self.__updateslice(ctext)
+        self._plotCurves()
+
+    @QtCore.pyqtSlot(str)
+    @QtCore.pyqtSlot()
+    def _updateRows(self):
+        """ updates applied button"""
+        rtext = str(self.__ui.rowsliceLineEdit.text()).strip()
+        self.__rows = self.__updateslice(rtext)
+        self._plotCurves()
+
+    @QtCore.pyqtSlot(str)
+    @QtCore.pyqtSlot()
+    def _updateColumns(self):
+        """ updates applied button"""
+        text = str(self.__ui.columnsliceLineEdit.text()).strip()
+        self.__columns = self.__updateslice(text)
+        self._plotCurves()
+
+    @QtCore.pyqtSlot(int)
+    def _setFunction(self, findex):
+        """ set sum or mean function
+
+        :param findex: function index, i.e. 0:mean, 1:sum
+        :type findex: :obj:`int`
+        """
+        self.__funindex = findex
+        self._plotCurves()
+
+    def afterplot(self):
+        """ command after plot
+        """
+        self._plotCurves()
+
+    @QtCore.pyqtSlot()
+    def _plotCurves(self):
+        """ plots the current image in 1d plots
+        """
+        if self._mainwidget.currentTool() == self.name:
+            dts = self._mainwidget.rawData()
+            if dts is not None:
+                if self.__funindex:
+                    npfun = np.sum
+                else:
+                    npfun = np.mean
+
+                if self.__rows == "ERROR":
+                    sx = []
+                elif self.__rows is not None:
+                    try:
+                        with warnings.catch_warnings():
+                            warnings.simplefilter(
+                                "error", category=RuntimeWarning)
+                            if isinstance(self.__rows, slice):
+                                sx = npfun(dts[:, self.__rows], axis=1)
+                            else:
+                                sx = dts[:, self.__rows]
+                    except:
+                        sx = []
+
+                else:
+                    sx = npfun(dts, axis=1)
+
+                if self.__columns == "ERROR":
+                    sy = []
+                if self.__columns is not None:
+                    try:
+                        with warnings.catch_warnings():
+                            warnings.simplefilter(
+                                "error", category=RuntimeWarning)
+                            if isinstance(self.__columns, slice):
+                                sy = npfun(dts[self.__columns, :], axis=0)
+                            else:
+                                sy = dts[self.__columns, :]
+                    except:
+                        sy = []
+                else:
+                    sy = npfun(dts, axis=0)
+
+                self.__bottomplot.setOpts(
+                    y0=[0]*len(sx), y1=sx, x=list(range(len(sx))),
+                    width=[1.0]*len(sx))
+                self.__bottomplot.drawPicture()
+                self.__rightplot.setOpts(
+                    x0=[0]*len(sy), x1=sy, y=list(range(len(sy))),
+                    height=[1.]*len(sy))
+                self.__rightplot.drawPicture()
+
+    def __updateCompleter(self):
+        """ updates the labelROI help
+        """
+        text = str(self.__ui.labelROILineEdit.text())
+        sttext = text.strip()
+        sptext = sttext.split()
+        stext = ""
+        if text.endswith(" "):
+            stext = sttext
+        elif len(sptext) > 1:
+            stext = " ".join(sptext[:-1])
+
+        if stext:
+            hints = ["%s %s" % (stext, al) for al in self.__aliases]
+        else:
+            hints = self.__aliases
+        completer = QtGui.QCompleter(hints, self)
+        self.__ui.labelROILineEdit.setCompleter(completer)
+
+    @QtCore.pyqtSlot()
+    def _roimessage(self):
+        """ provides roi message
+        """
+        message = ""
+        current = self._mainwidget.currentROI()
+        coords = self._mainwidget.roiCoords()
+        if current > -1 and current < len(coords):
+            message = "%s" % coords[current]
+        self.__setDisplayedText(message)
+
+    def __setDisplayedText(self, text=None):
+        """ sets displayed info text and recalculates the current roi sum
+
+        :param text: text to display
+        :type text: :obj:`str`
+        """
+        if text is not None:
+            self.__lasttext = text
+        else:
+            text = self.__lasttext
+        roiVal, currentroi = self._mainwidget.calcROIsum()
+        if currentroi is not None:
+            self.updateROIDisplayText(text, currentroi, roiVal)
+        else:
+            self.__ui.roiinfoLineEdit.setText(text)
+
+    @QtCore.pyqtSlot()
+    def _emitApplyROIPressed(self):
+        """ emits applyROIPressed signal"""
+
+        text = str(self.__ui.labelROILineEdit.text())
+        roispin = int(self.__ui.roiSpinBox.value())
+        self.applyROIPressed.emit(text, roispin)
+
+    @QtCore.pyqtSlot()
+    def _emitFetchROIPressed(self):
+        """ emits fetchROIPressed signal"""
+        text = str(self.__ui.labelROILineEdit.text())
+        self.fetchROIPressed.emit(text)
+
+    @QtCore.pyqtSlot(str)
+    @QtCore.pyqtSlot()
+    def _updateApplyButton(self):
+        """ updates applied button"""
+        stext = str(self.__ui.labelROILineEdit.text())
+        currentlength = len(stext)
+        if not stext.strip():
+            self.__ui.applyROIPushButton.setEnabled(False)
+            self.__updateCompleter()
+        else:
+            self.__ui.applyROIPushButton.setEnabled(True)
+        if stext.endswith(" ") or currentlength < self.__textlength:
+            self.__updateCompleter()
+        self.__textlength = currentlength
+
+    @QtCore.pyqtSlot(str)
+    def updateROILineEdit(self, text):
+        """ updates ROI line edit text
+
+        :param text: text to update
+        :type text: :obj:`str`
+        """
+        self.__ui.labelROILineEdit.setText(text)
+        self._updateApplyButton()
+
+    @QtCore.pyqtSlot(bool)
+    def updateROIButton(self, enabled):
+        """ enables/disables ROI buttons
+
+        :param enable: buttons enabled
+        :type enable: :obj:`bool`
+        """
+        self.__ui.applyROIPushButton.setEnabled(enabled)
+        self.__ui.fetchROIPushButton.setEnabled(enabled)
+
+    @QtCore.pyqtSlot(int)
+    def updateApplyTips(self, rid):
+        """ updates apply tips
+
+        :param rid: current roi id
+        :type rid: :obj:`int`
+        """
+        if rid < 0:
+            self.__ui.applyROIPushButton.setToolTip(
+                "remove ROI aliases from the Door environment"
+                " as well as from Active MntGrp")
+        else:
+            self.__ui.applyROIPushButton.setToolTip(
+                "add ROI aliases to the Door environment "
+                "as well as to Active MntGrp")
+
+    @QtCore.pyqtSlot(str, int, str)
+    def updateROIDisplayText(self, text, currentroi, roiVal):
+        """ updates ROI display text
+
+        :param text: standard display text
+        :type text: :obj:`str`
+        :param currentroi: current roi label
+        :type currentroi: :obj:`str`
+        :param text: roi sum value
+        :type text: :obj:`str`
+        """
+
+        roilabel = "roi [%s]" % (currentroi + 1)
+        slabel = []
+
+        rlabel = str(self.__ui.labelROILineEdit.text())
+        if rlabel:
+            slabel = re.split(';|,| |\n', rlabel)
+            slabel = [lb for lb in slabel if lb]
+        if slabel:
+            roilabel = "%s [%s]" % (
+                slabel[currentroi]
+                if currentroi < len(slabel) else slabel[-1],
+                (currentroi + 1)
+            )
+        self.__ui.roiinfoLineEdit.setText(
+            "%s, %s = %s" % (text, roilabel, roiVal))
+
+    @QtCore.pyqtSlot(int)
+    def setROIsNumber(self, rid):
+        """sets a number of rois
+
+        :param rid: number of rois
+        :type rid: :obj:`int`
+        """
+        self.__ui.roiSpinBox.setValue(rid)
+
+    @QtCore.pyqtSlot(float, float)
+    def _updateCenter(self, xdata, ydata):
+        """ updates the image center
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        """
+        self.__settings.centerx = float(xdata)
+        self.__settings.centery = float(ydata)
+        self._message()
+        self.updateGeometryTip()
+
+    @QtCore.pyqtSlot()
+    def _message(self):
+        """ provides geometry message
+        """
+        message = ""
+        _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        ilabel = self._mainwidget.scalingLabel()
+        if self.__gspaceindex == 0:
+            thetax, thetay, thetatotal = self.__pixel2theta(x, y)
+            if thetax is not None:
+                message = "th_x = %f deg, th_y = %f deg," \
+                          " th_tot = %f deg, %s = %.2f" \
+                          % (thetax, thetay, thetatotal, ilabel, intensity)
+        else:
+            qx, qz, q = self.__pixel2q(x, y)
+            if qx is not None:
+                message = u"q_x = %f 1/\u212B, q_z = %f 1/\u212B, " \
+                          u"q = %f 1/\u212B, %s = %.2f" \
+                          % (qx, qz, q, ilabel, intensity)
+
+        self._mainwidget.updateDisplayedText(message)
 
     def __pixel2theta(self, xdata, ydata):
         """ converts coordinates from pixel positions to theta angles

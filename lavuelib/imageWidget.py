@@ -475,6 +475,14 @@ class ImageWidget(QtGui.QWidget):
         else:
             self.__ui.infoLineEdit.setText(text)
 
+    def calcROIsum(self):
+        """ calculates the current roi sum
+
+        :returns: sum roi value, roi id
+        :rtype: (:obj:`str`, :obj:`int`)
+        """
+        return self.__displaywidget.calcROIsum()
+
     @QtCore.pyqtSlot(str)
     def updateDisplayedText(self, text):
         """ sets displayed info text

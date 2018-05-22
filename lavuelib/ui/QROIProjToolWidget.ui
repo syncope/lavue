@@ -27,7 +27,7 @@
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;row range in the python slice notation,&lt;/p&gt;&lt;p&gt;e.g. 0:100 or 100:200:2&lt;/p&gt;&lt;p&gt;empty means ALL&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
-          <string>Row slice:</string>
+          <string>Projections - Row slice:</string>
          </property>
          <property name="buddy">
           <cstring>rowsliceLineEdit</cstring>
