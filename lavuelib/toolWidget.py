@@ -269,7 +269,6 @@ class MotorsToolWidget(ToolWidget):
             self._mainwidget.updatePositionMark(
                 self.__xfinal, self.__yfinal)
 
-        
     @QtCore.pyqtSlot(float, float)
     def _updateFinal(self, xdata, ydata):
         """ updates the final motors position

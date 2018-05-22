@@ -644,7 +644,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 intensity = 0.
         else:
             intensity = 0.
-        return self.__xfdata, self.__yfdata, intensity, self.__xdata, self.__ydata
+        return (self.__xfdata, self.__yfdata, intensity,
+                self.__xdata, self.__ydata)
 
     def scalingLabel(self):
         """ provides scaling label
