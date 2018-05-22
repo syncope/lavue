@@ -193,11 +193,53 @@ class HTTPSourceWidget(BaseSourceWidget):
         #: (:obj:`str`) datasource class name
         self.datasource = "HTTPSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
-        self.widgetnames = ["httpLabel", "httpLineEdit"]
+        self.widgetnames = ["httpLabel", "httpComboBox"]
+
+        #: (:obj:`dict` <:obj:`str`, :obj:`str`>) dictionary with
+        #:                     (label, url) items
+        self.__urls = {}
+        #: (:obj:`list` <:obj:`str`>) user urls
+        self.__userurls = []
 
         self._detachWidgets()
 
-        self._ui.httpLineEdit.textEdited.connect(self.updateButton)
+        #: (:obj:`str`) default tip
+        self.__defaulttip = self._ui.httpComboBox.toolTip()
+
+        self.__connectComboBox()
+
+    def __connectComboBox(self):
+        self._ui.httpComboBox.lineEdit().textEdited.connect(
+            self.updateButton)
+        self._ui.httpComboBox.currentIndexChanged.connect(
+            self.updateButton)
+
+    def __disconnectComboBox(self):
+        self._ui.httpComboBox.lineEdit().textEdited.disconnect(
+            self.updateButton)
+        self._ui.httpComboBox.currentIndexChanged.disconnect(
+            self.updateButton)
+
+    def __updateComboBox(self):
+        """ updates a value of attr combo box
+        """
+        self.__disconnectComboBox()
+        currenturl = str(self._ui.httpComboBox.currentText()).strip()
+        self._ui.httpComboBox.clear()
+        urls = sorted(self.__urls.keys())
+        for mt in urls:
+            self._ui.httpComboBox.addItem(mt)
+            iid = self._ui.httpComboBox.findText(mt)
+            self._ui.httpComboBox.setItemData(
+                iid, str(self.__urls[mt]), QtCore.Qt.ToolTipRole)
+        for mt in self.__userurls:
+            self._ui.httpComboBox.addItem(mt)
+        if currenturl not in urls and currenturl not in self.__userurls:
+            self._ui.httpComboBox.addItem(currenturl)
+        ind = self._ui.httpComboBox.findText(currenturl)
+        self._ui.httpComboBox.setCurrentIndex(ind)
+
+        self.__connectComboBox()
 
     @QtCore.pyqtSlot()
     def updateButton(self):
@@ -205,7 +247,10 @@ class HTTPSourceWidget(BaseSourceWidget):
         """
         if not self.active:
             return
-        url = str(self._ui.httpLineEdit.text()).strip()
+        url = str(self._ui.httpComboBox.currentText()).strip()
+        if url in self.__urls.keys():
+            url = str(self.__urls[url]).strip()
+
         if not url.startswith("http://") and not url.startswith("https://"):
             surl = url.split("/")
             if len(surl) == 2 and surl[0] and surl[1]:
@@ -213,23 +258,44 @@ class HTTPSourceWidget(BaseSourceWidget):
                       % (surl[0], surl[1])
             else:
                 url = None
+        self._ui.httpComboBox.setToolTip(url or self.__defaulttip)
         if not url:
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
             self.configurationChanged.emit(url)
 
+    def updateMetaData(self, httpurls=None, **kargs):
+        """ update source input parameters
+
+        :param httpurls: json dictionary with
+                           (label, http urls) items
+        :type httpurls: :obj:`str`
+        :param kargs:  source widget input parameter dictionary
+        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        if httpurls is not None:
+            self.__urls = json.loads(httpurls)
+            self.__updateComboBox()
+
     def connectWidget(self):
         """ connects widget
         """
         self._connected = True
-        self._ui.httpLineEdit.setReadOnly(True)
+        self._ui.httpComboBox.lineEdit().setReadOnly(True)
+        self._ui.httpComboBox.setEnabled(False)
+        currenturl = str(self._ui.httpComboBox.currentText()).strip()
+        urls = self.__urls.keys()
+        if currenturl not in urls and currenturl not in self.__userurls:
+            self.__userurls.append(currenturl)
+            self.__updateComboBox()
 
     def disconnectWidget(self):
         """ disconnects widget
         """
         self._connected = False
-        self._ui.httpLineEdit.setReadOnly(False)
+        self._ui.httpComboBox.lineEdit().setReadOnly(False)
+        self._ui.httpComboBox.setEnabled(True)
 
 
 class HidraSourceWidget(BaseSourceWidget):
@@ -390,6 +456,9 @@ class TangoAttrSourceWidget(BaseSourceWidget):
 
         self._detachWidgets()
 
+        #: (:obj:`str`) default tip
+        self.__defaulttip = self._ui.attrComboBox.toolTip()
+
         self.__connectComboBox()
 
     def __connectComboBox(self):
@@ -413,6 +482,9 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         attrs = sorted(self.__tangoattrs.keys())
         for mt in attrs:
             self._ui.attrComboBox.addItem(mt)
+            iid = self._ui.attrComboBox.findText(mt)
+            self._ui.attrComboBox.setItemData(
+                iid, str(self.__tangoattrs[mt]), QtCore.Qt.ToolTipRole)
         for mt in self.__userattrs:
             self._ui.attrComboBox.addItem(mt)
         if currentattr not in attrs and currentattr not in self.__userattrs:
@@ -435,6 +507,7 @@ class TangoAttrSourceWidget(BaseSourceWidget):
             if currentattr in self.__tangoattrs.keys():
                 currentattr = str(self.__tangoattrs[currentattr]).strip()
             self.configurationChanged.emit(currentattr)
+        self._ui.attrComboBox.setToolTip(currentattr or self.__defaulttip)
 
     def updateMetaData(self, tangoattrs=None, **kargs):
         """ update source input parameters
@@ -655,7 +728,7 @@ class ZMQSourceWidget(BaseSourceWidget):
         self.datasource = "ZMQSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
-            "pickleLabel", "pickleLineEdit",
+            "pickleLabel", "pickleComboBox",
             "pickleTopicLabel", "pickleTopicComboBox"
         ]
 
@@ -664,13 +737,54 @@ class ZMQSourceWidget(BaseSourceWidget):
         #: (:obj:`bool`) automatic zmq topics enabled
         self.__autozmqtopics = False
 
+        #: (:obj:`dict` <:obj:`str`, :obj:`str`>) dictionary with
+        #:                     (label, server:port) items
+        self.__servers = {}
+        #: (:obj:`list` <:obj:`str`>) user servers
+        self.__userservers = []
+
         #: (:class:`PyQt4.QtCore.QMutex`) zmq datasource mutex
         self.__mutex = QtCore.QMutex()
 
         self._detachWidgets()
-        self._ui.pickleLineEdit.textEdited.connect(self.updateButton)
+
+        #: (:obj:`str`) default tip
+        self.__defaulttip = self._ui.pickleComboBox.toolTip()
+        self.__connectComboBox()
         self._ui.pickleTopicComboBox.currentIndexChanged.connect(
             self._updateZMQComboBox)
+
+    def __connectComboBox(self):
+        self._ui.pickleComboBox.lineEdit().textEdited.connect(
+            self.updateButton)
+        self._ui.pickleComboBox.currentIndexChanged.connect(
+            self.updateButton)
+
+    def __disconnectComboBox(self):
+        self._ui.pickleComboBox.lineEdit().textEdited.disconnect(
+            self.updateButton)
+        self._ui.pickleComboBox.currentIndexChanged.disconnect(
+            self.updateButton)
+
+    def __updateComboBox(self):
+        """ updates a value of attr combo box
+        """
+        self.__disconnectComboBox()
+        server = str(self._ui.pickleComboBox.currentText()).strip()
+        self._ui.pickleComboBox.clear()
+        servers = sorted(self.__servers.keys())
+        for mt in servers:
+            self._ui.pickleComboBox.addItem(mt)
+            iid = self._ui.pickleComboBox.findText(mt)
+            self._ui.pickleComboBox.setItemData(
+                iid, str(self.__servers[mt]), QtCore.Qt.ToolTipRole)
+        for mt in self.__userservers:
+            self._ui.pickleComboBox.addItem(mt)
+        if server not in servers and server not in self.__userservers:
+            self._ui.pickleComboBox.addItem(server)
+        ind = self._ui.pickleComboBox.findText(server)
+        self._ui.pickleComboBox.setCurrentIndex(ind)
+        self.__connectComboBox()
 
     @QtCore.pyqtSlot()
     def updateButton(self, disconnect=True):
@@ -682,18 +796,19 @@ class ZMQSourceWidget(BaseSourceWidget):
             if disconnect:
                 self._ui.pickleTopicComboBox.currentIndexChanged.disconnect(
                     self._updateZMQComboBox)
-            if not str(self._ui.pickleLineEdit.text()).strip() \
-               or ":" not in str(self._ui.pickleLineEdit.text()):
+            hosturl = str(self._ui.pickleComboBox.currentText()).strip()
+            if hosturl in self.__servers.keys():
+                hosturl = str(self.__servers[hosturl]).strip()
+            self._ui.pickleComboBox.setToolTip(hosturl or self.__defaulttip)
+            if not hosturl or ":" not in hosturl:
                 self.buttonEnabled.emit(False)
             else:
                 try:
-                    _, sport = str(self._ui.pickleLineEdit.text())\
-                        .strip().split("/")[0].split(":")
+                    _, sport = hosturl.split("/")[0].split(":")
                     port = int(sport)
                     if port > 65535 or port < 0:
                         raise Exception("Wrong port")
                     self.buttonEnabled.emit(True)
-                    hosturl = str(self._ui.pickleLineEdit.text()).strip()
                     if self._ui.pickleTopicComboBox.currentIndex() >= 0:
                         text = self._ui.pickleTopicComboBox.currentText()
                         if text == "**ALL**":
@@ -705,7 +820,7 @@ class ZMQSourceWidget(BaseSourceWidget):
                             shost.append(str(text))
                         hosturl = "/".join(shost)
                     self.configurationChanged.emit(hosturl)
-                except:
+                except Exception as e:
                     self.buttonEnabled.emit(False)
             if disconnect:
                 self._ui.pickleTopicComboBox.currentIndexChanged.connect(
@@ -726,7 +841,8 @@ class ZMQSourceWidget(BaseSourceWidget):
     def updateMetaData(
             self,
             zmqtopics=None, autozmqtopics=None,
-            datasources=None, disconnect=True, **kargs):
+            datasources=None, disconnect=True, zmqservers=None,
+            **kargs):
         """ update source input parameters
 
         :param zmqtopics: zmq source topics
@@ -737,6 +853,9 @@ class ZMQSourceWidget(BaseSourceWidget):
         :type datasources: :obj:`list` <:obj:`str`> >
         :param disconnect: disconnect on update
         :type disconnect: :obj:`bool`
+        :param zmqservers: json dictionary with
+                           (label, zmq servers) items
+        :type zmqservers: :obj:`str`
         :param kargs:  source widget input parameter dictionary
         :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
         """
@@ -747,6 +866,9 @@ class ZMQSourceWidget(BaseSourceWidget):
                     self._updateZMQComboBox)
         text = None
         updatecombo = False
+        if zmqservers is not None:
+            self.__servers = json.loads(zmqservers)
+            self.__updateComboBox()
         if isinstance(zmqtopics, list):
             with QtCore.QMutexLocker(self.__mutex):
                 text = str(self._ui.pickleTopicComboBox.currentText())
@@ -785,10 +907,17 @@ class ZMQSourceWidget(BaseSourceWidget):
         """ connects widget
         """
         self._connected = True
-        self._ui.pickleLineEdit.setReadOnly(True)
+        self._ui.pickleComboBox.lineEdit().setReadOnly(True)
+        self._ui.pickleComboBox.setEnabled(False)
+        server = str(self._ui.pickleComboBox.currentText()).strip()
+        servers = self.__servers.keys()
+        if server not in servers and server not in self.__userservers:
+            self.__userservers.append(server)
+            self.__updateComboBox()
 
     def disconnectWidget(self):
         """ disconnects widget
         """
         self._connected = False
-        self._ui.pickleLineEdit.setReadOnly(False)
+        self._ui.pickleComboBox.lineEdit().setReadOnly(False)
+        self._ui.pickleComboBox.setEnabled(True)
