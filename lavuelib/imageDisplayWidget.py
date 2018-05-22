@@ -259,11 +259,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         #: (:class:`pyqtgraph.InfiniteLine`)
         #:                 vertical center line of the mouse position
         self.__centerVLine = _pg.InfiniteLine(
-            angle=90, movable=False, pen=(255, 255, 0))
+            angle=90, movable=False, pen=(0, 255, 0))
         #: (:class:`pyqtgraph.InfiniteLine`)
         #:                   horizontal center line of the mouse position
         self.__centerHLine = _pg.InfiniteLine(
-            angle=0, movable=False, pen=(255, 255, 0))
+            angle=0, movable=False, pen=(0, 255, 0))
         self.__viewbox.addItem(self.__centerVLine, ignoreBounds=True)
         self.__viewbox.addItem(self.__centerHLine, ignoreBounds=True)
 
