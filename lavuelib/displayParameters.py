@@ -64,10 +64,12 @@ class CrossLinesParameters(object):
         """ constructor
         """
 
-        #: (:obj:`bool`) cross lines enabled flag
-        self.enabled = False
         #: (:obj:`bool`) locker enabled flag
         self.locker = False
+        #: (:obj:`bool`) center enabled flag
+        self.center = False
+        #: (:obj:`bool`) position mark enabled flag
+        self.positionmark = False
 
 
 class ROIsParameters(object):

@@ -938,3 +938,25 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :class:`numpy.ndarray`
         """
         return self.__displaywidget.rawData()
+
+    @QtCore.pyqtSlot(float, float)
+    def updateCenter(self, xdata, ydata):
+        """ updates the image center
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        """
+        self.__displaywidget.updateCenter(xdata, ydata)
+
+    @QtCore.pyqtSlot(float, float)
+    def updatePositionMark(self, xdata, ydata):
+        """ updates the position mark
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        """
+        self.__displaywidget.updatePositionMark(xdata, ydata)
