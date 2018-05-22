@@ -81,7 +81,7 @@ class ToolParameters(object):
 
         """
         #: (:obj:`bool`) lines enabled
-        self.lines = False
+        # self.lines = False
         #: (:obj:`bool`) rois enabled
         self.rois = False
         #: (:obj:`bool`) cuts enabled
@@ -94,6 +94,10 @@ class ToolParameters(object):
         self.rightplot = False
         #: (:obj:`bool`) cross hair locker enabled
         self.crosshairlocker = False
+        #: (:obj:`bool`) center lines enabled
+        self.centerlines = False
+        #: (:obj:`bool`) position lines enabled
+        self.positionlines = False
         #: (:obj:`str`) infolineedit text
         self.infolineedit = None
         #: (:obj:`str`) infolabel text
@@ -159,15 +163,9 @@ class IntensityToolWidget(ToolWidget):
         self.__ui = _intensityformclass()
         self.__ui.setupUi(self)
 
-        #: (:obj:`bool`) lines enabled
-        self.parameters.lines = True
-        #: (:obj:`bool`) axes scaling enabled
         self.parameters.scale = True
-        #: (:obj:`bool`) cross hair locker enabled
         self.parameters.crosshairlocker = True
-        #: (:obj:`str`) infolineedit text
         self.parameters.infolineedit = ""
-        #: (:obj:`str`) infolabel text
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
 
@@ -250,10 +248,8 @@ class MotorsToolWidget(ToolWidget):
         self.__ui.ycurLineEdit.hide()
 
         #: (:obj:`bool`) lines enabled
-        self.parameters.lines = True
-        #: (:obj:`str`) infolineedit text
+        # self.parameters.lines = True
         self.parameters.infolineedit = ""
-        #: (:obj:`str`) infolabel text
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
 
@@ -510,6 +506,7 @@ class MeshToolWidget(ToolWidget):
 
         self.parameters.rois = True
         self.parameters.infolineedit = ""
+        self.parameters.positionlines = True
         self.parameters.infolabel = "[x1, y1, x2, y2], sum: "
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
@@ -1487,9 +1484,11 @@ class AngleQToolWidget(ToolWidget):
         self.__ui = _angleqformclass()
         self.__ui.setupUi(self)
 
-        self.parameters.lines = True
+        # self.parameters.lines = True
+        #: (:obj:`str`) infolineedit text
         self.parameters.infolineedit = ""
         self.parameters.infotips = ""
+        self.parameters.centerlines = True
 
         #: (:class:`lavuelib.settings.Settings`:) configuration settings
         self.__settings = self._mainwidget.settings()
@@ -1509,6 +1508,8 @@ class AngleQToolWidget(ToolWidget):
         """ activates tool widget
         """
         self.updateGeometryTip()
+        self._mainwidget.updateCenter(
+            self.__settings.centerx, self.__settings.centery)
 
     @QtCore.pyqtSlot(float, float)
     def _updateCenter(self, xdata, ydata):

@@ -186,6 +186,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__viewbox = self.__layout.addViewBox(row=0, col=1)
         #: (:obj:`bool`) crooshair locked flag
         self.__crosshairlocked = False
+        #: ([:obj:`float`, :obj:`float`]) center coordinates
+        self.__centercoordinates = None
+        
         self.__viewbox.addItem(self.__image)
         #: (:obj:`float`) current x-position
         self.__xdata = 0
@@ -237,15 +240,26 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__layout.scene().sigMouseClicked.connect(self.mouse_click)
 
         #: (:class:`pyqtgraph.InfiniteLine`)
-        #:                 vertical line of the mouse position
-        self.__vLine = _pg.InfiniteLine(
+        #:                 vertical locker line of the mouse position
+        self.__lockerVLine = _pg.InfiniteLine(
             angle=90, movable=False, pen=(255, 0, 0))
         #: (:class:`pyqtgraph.InfiniteLine`)
-        #:                   horizontal line of the mouse position
-        self.__hLine = _pg.InfiniteLine(
+        #:                   horizontal locker line of the mouse position
+        self.__lockerHLine = _pg.InfiniteLine(
             angle=0, movable=False, pen=(255, 0, 0))
-        self.__viewbox.addItem(self.__vLine, ignoreBounds=True)
-        self.__viewbox.addItem(self.__hLine, ignoreBounds=True)
+        self.__viewbox.addItem(self.__lockerVLine, ignoreBounds=True)
+        self.__viewbox.addItem(self.__lockerHLine, ignoreBounds=True)
+
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:                 vertical center line of the mouse position
+        self.__centerVLine = _pg.InfiniteLine(
+            angle=90, movable=False, pen=(255, 255, 0))
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:                   horizontal center line of the mouse position
+        self.__centerHLine = _pg.InfiniteLine(
+            angle=0, movable=False, pen=(255, 255, 0))
+        self.__viewbox.addItem(self.__centerVLine, ignoreBounds=True)
+        self.__viewbox.addItem(self.__centerHLine, ignoreBounds=True)
 
         #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.ROI`>)
         #:            list of roi widgets
@@ -292,18 +306,31 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__currentcutmapper.setMapping(self._getCut(), 0)
         self.__cutregionmapper.setMapping(self._getCut(), 0)
 
-    def __showLines(self, status):
-        """ shows or hides HV mouse lines
+    def __showLockerLines(self, status):
+        """ shows or hides HV locker mouse lines
 
         :param status: will be shown
         :type status: :obj:`bool`
         """
         if status:
-            self.__vLine.show()
-            self.__hLine.show()
+            self.__lockerVLine.show()
+            self.__lockerHLine.show()
         else:
-            self.__vLine.hide()
-            self.__hLine.hide()
+            self.__lockerVLine.hide()
+            self.__lockerHLine.hide()
+
+    def __showCenterLines(self, status):
+        """ shows or hides HV center mouse lines
+
+        :param status: will be shown
+        :type status: :obj:`bool`
+        """
+        if status:
+            self.__centerVLine.show()
+            self.__centerHLine.show()
+        else:
+            self.__centerVLine.hide()
+            self.__centerHLine.hide()
 
     def setAspectLocked(self, flag):
         """sets aspectLocked
@@ -537,7 +564,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__rawdata = rawimg
         self.mouse_position()
 
-    def __setLines(self):
+    def __setLockerLines(self):
         """  sets vLine and hLine positions
         """
         if self.__axes.scale is not None and \
@@ -546,15 +573,21 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 if self.__axes.position is None \
                 else self.__axes.position
 
-            self.__vLine.setPos(
+            self.__lockerVLine.setPos(
                 (self.__xdata + .5) * self.__axes.scale[0]
                 + position[0])
-            self.__hLine.setPos(
+            self.__lockerHLine.setPos(
                 (self.__ydata + .5) * self.__axes.scale[1]
                 + position[1])
         else:
-            self.__vLine.setPos(self.__xdata + .5)
-            self.__hLine.setPos(self.__ydata + .5)
+            self.__lockerVLine.setPos(self.__xdata + .5)
+            self.__lockerHLine.setPos(self.__ydata + .5)
+
+    def __setCenterLines(self):
+        """  sets vLine and hLine positions
+        """
+        self.__centerVLine.setPos(self.__xdata + .5)
+        self.__centerHLine.setPos(self.__ydata + .5)
 
     def currentIntensity(self):
         """ provides intensity for current mouse position
@@ -639,9 +672,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 mousePoint = self.__image.mapFromScene(event)
                 self.__xdata = math.floor(mousePoint.x())
                 self.__ydata = math.floor(mousePoint.y())
-            if self.__lines.enabled:
+            if self.__lines.locker:
                 if not self.__crosshairlocked:
-                    self.__setLines()
+                    self.__setLockerLines()
+            if self.__lines.center:
+                if not self.__centercoordinates:
+                    self.__setCenterLines()
             self.mouseImagePositionChanged.emit()
         except Exception:
             # print("Warning: %s" % str(e))
@@ -691,10 +727,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             if self.__lines.locker:
                 self.__crosshairlocked = not self.__crosshairlocked
                 if not self.__crosshairlocked:
-                    self.__vLine.setPos(xdata + .5)
-                    self.__hLine.setPos(ydata + .5)
-            elif self.__lines.enabled:
-                self.__crosshairlocked = False
+                    self.__lockerVLine.setPos(xdata + .5)
+                    self.__lockerHLine.setPos(ydata + .5)
+            if self.__lines.center:
+                self.__centerVLine.setPos(xdata + .5)
+                self.__centerHLine.setPos(ydata + .5)
             self.mouseImageDoubleClicked.emit(xdata, ydata)
         else:
             self.mouseImageSingleClicked.emit(xdata, ydata)
@@ -752,11 +789,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 doreset = self.__axes.enabled
             self.__axes.enabled = parameters.scale
 
-        if parameters.lines is not None:
-            self.__showLines(parameters.lines)
-            self.__lines.enabled = parameters.lines
+        # if parameters.lines is not None:
         if parameters.crosshairlocker is not None:
+            self.__showLockerLines(parameters.crosshairlocker)
             self.__lines.locker = parameters.crosshairlocker
+        if parameters.centerlines is not None:
+            self.__showCenterLines(parameters.centerlines)
+            self.__lines.center = parameters.centerlines
         if parameters.rois is not None:
             self.__showROIs(parameters.rois)
             self.__rois.enabled = parameters.rois
@@ -1127,3 +1166,16 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :rtype: :class:`pyqtgraph.imageItem.ImageItem`
         """
         return self.__image
+
+    @QtCore.pyqtSlot(float, float)
+    def updateCenter(self, xdata, ydata):
+        """ updates the image center
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        """
+        self.__centercoordinates = [xdata, ydata]
+        self.__centerVLine.setPos(xdata + .5)
+        self.__centerHLine.setPos(ydata + .5)
