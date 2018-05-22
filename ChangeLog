@@ -1,6 +1,7 @@
 2018-05-22 Jan Kotanski <jan.kotanski@desy.de>
 	* add separate crosslines for certer and motor positions
 	* add editable combobox to http and zmq datasources
+	* add QROIProj tool
 	* tagged as 1.17.0
 
 2018-05-18 Jan Kotanski <jan.kotanski@desy.de>
