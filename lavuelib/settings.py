@@ -93,6 +93,12 @@ class Settings(object):
         #: (:obj:`str`) JSON dictionary with {label: tango attribute}
         #  for Tango Attribute source
         self.tangoattrs = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: url}
+        #  for HTTP responce source
+        self.httpurls = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: <server:port>}
+        #  for ZMQ source
+        self.zmqservers = '{}'
         #: (:obj:`str`) door device name
         self.doorname = ""
         #: (:obj:`bool`) nexus file source keeps the file open
@@ -260,6 +266,16 @@ class Settings(object):
             self.tangoattrs = qstval
 
         qstval = str(
+            settings.value("Configuration/HTTPURLs", type=str))
+        if qstval:
+            self.httpurls = qstval
+
+        qstval = str(
+            settings.value("Configuration/ZMQServers", type=str))
+        if qstval:
+            self.zmqservers = qstval
+
+        qstval = str(
             settings.value("Configuration/StoreGeometry", type=str))
         if qstval.lower() == "true":
             self.storegeometry = True
@@ -378,6 +394,12 @@ class Settings(object):
         settings.setValue(
             "Configuration/TangoAttributes",
             self.tangoattrs)
+        settings.setValue(
+            "Configuration/ZMQServers",
+            self.zmqservers)
+        settings.setValue(
+            "Configuration/HTTPURLs",
+            self.httpurls)
         settings.setValue(
             "Configuration/NXSLastImage",
             self.nxslast)

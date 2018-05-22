@@ -363,6 +363,8 @@ class LiveViewer(QtGui.QMainWindow):
             zmqtopics=self.__settings.zmqtopics,
             dirtrans=self.__settings.dirtrans,
             tangoattrs=self.__settings.tangoattrs,
+            zmqservers=self.__settings.zmqservers,
+            httpurls=self.__settings.httpurls,
             autozmqtopics=self.__settings.autozmqtopics,
             nxslast=self.__settings.nxslast,
             nxsopen=self.__settings.nxsopen,
@@ -540,6 +542,8 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.autozmqtopics = self.__settings.autozmqtopics
         cnfdlg.dirtrans = self.__settings.dirtrans
         cnfdlg.tangoattrs = self.__settings.tangoattrs
+        cnfdlg.httpurls = self.__settings.httpurls
+        cnfdlg.zmqservers = self.__settings.zmqservers
         cnfdlg.nxslast = self.__settings.nxslast
         cnfdlg.nxsopen = self.__settings.nxsopen
         cnfdlg.storegeometry = self.__settings.storegeometry
@@ -625,6 +629,12 @@ class LiveViewer(QtGui.QMainWindow):
         if self.__settings.tangoattrs != dialog.tangoattrs:
             self.__settings.tangoattrs = dialog.tangoattrs
             setsrc = True
+        if self.__settings.httpurls != dialog.httpurls:
+            self.__settings.httpurls = dialog.httpurls
+            setsrc = True
+        if self.__settings.zmqservers != dialog.zmqservers:
+            self.__settings.zmqservers = dialog.zmqservers
+            setsrc = True
         if self.__settings.zmqtopics != dialog.zmqtopics:
             self.__settings.zmqtopics = dialog.zmqtopics
             setsrc = True
@@ -649,6 +659,8 @@ class LiveViewer(QtGui.QMainWindow):
                 zmqtopics=self.__settings.zmqtopics,
                 dirtrans=self.__settings.dirtrans,
                 tangoattrs=self.__settings.tangoattrs,
+                zmqservers=self.__settings.zmqservers,
+                httpurls=self.__settings.httpurls,
                 autozmqtopics=self.__settings.autozmqtopics,
                 nxslast=self.__settings.nxslast,
                 nxsopen=self.__settings.nxsopen,

@@ -105,6 +105,12 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`str`) JSON dictionary with {label: tango attribute}
         #  for Tango Attribute source
         self.tangoattrs = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: url}
+        #  for HTTP responce source
+        self.httpurls = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: <server:port>}
+        #  for ZMQ source
+        self.zmqservers = '{}'
 
         #: (:obj:`bool`) nexus file source keeps the file open
         self.nxsopen = False
@@ -140,6 +146,8 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.autozmqtopicsCheckBox.setChecked(self.autozmqtopics)
         self.__ui.dirtransLineEdit.setText(self.dirtrans)
         self.__ui.attrLineEdit.setText(self.tangoattrs)
+        self.__ui.zmqserversLineEdit.setText(self.zmqservers)
+        self.__ui.urlsLineEdit.setText(self.httpurls)
         self.__ui.nxsopenCheckBox.setChecked(self.nxsopen)
         self.__ui.nxslastCheckBox.setChecked(self.nxslast)
         self.__ui.storegeometryCheckBox.setChecked(self.storegeometry)
@@ -204,6 +212,25 @@ class ConfigDialog(QtGui.QDialog):
             print(str(e))
             self.__ui.attrLineEdit.setFocus(True)
             return
+        try:
+            zmqservers = str(self.__ui.zmqserversLineEdit.text()).strip()
+            mytr = json.loads(zmqservers)
+            if isinstance(mytr, dict):
+                self.zmqservers = zmqservers
+        except Exception as e:
+            print(str(e))
+            self.__ui.zmqserversLineEdit.setFocus(True)
+            return
+        try:
+            urls = str(self.__ui.urlsLineEdit.text()).strip()
+            mytr = json.loads(urls)
+            if isinstance(mytr, dict):
+                self.httpurls = urls
+        except Exception as e:
+            print(str(e))
+            self.__ui.urlsLineEdit.setFocus(True)
+            return
+
         zmqtopics = str(self.__ui.zmqtopicsLineEdit.text()).strip().split(" ")
         self.zmqtopics = [tp for tp in zmqtopics if tp]
         detservers = str(
