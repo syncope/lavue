@@ -97,7 +97,7 @@ class ToolParameters(object):
         #: (:obj:`bool`) center lines enabled
         self.centerlines = False
         #: (:obj:`bool`) position lines enabled
-        self.positionlines = False
+        self.marklines = False
         #: (:obj:`str`) infolineedit text
         self.infolineedit = None
         #: (:obj:`str`) infolabel text
@@ -180,7 +180,7 @@ class IntensityToolWidget(ToolWidget):
     def _message(self):
         """ provides intensity message
         """
-        x, y, intensity = self._mainwidget.currentIntensity()
+        x, y, intensity = self._mainwidget.currentIntensity()[:3]
         ilabel = self._mainwidget.scalingLabel()
         txdata, tydata = self._mainwidget.scaledxy(x, y)
         xunits, yunits = self._mainwidget.axesunits()
@@ -247,8 +247,8 @@ class MotorsToolWidget(ToolWidget):
         self.__ui.xcurLineEdit.hide()
         self.__ui.ycurLineEdit.hide()
 
-        #: (:obj:`bool`) lines enabled
-        # self.parameters.lines = True
+        #: (:obj:`bool`) position lines enabled
+        self.parameters.marklines = True
         self.parameters.infolineedit = ""
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
@@ -262,6 +262,14 @@ class MotorsToolWidget(ToolWidget):
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
+    def activate(self):
+        """ activates tool widget
+        """
+        if self.__xfinal is not None and self.__yfinal is not None:
+            self._mainwidget.updatePositionMark(
+                self.__xfinal, self.__yfinal)
+
+        
     @QtCore.pyqtSlot(float, float)
     def _updateFinal(self, xdata, ydata):
         """ updates the final motors position
@@ -448,9 +456,9 @@ class MotorsToolWidget(ToolWidget):
     def _message(self):
         """ provides intensity message
         """
-        x, y, intensity = self._mainwidget.currentIntensity()
+        _, _, intensity, x, y = self._mainwidget.currentIntensity()
         ilabel = self._mainwidget.scalingLabel()
-        message = "x = %i, y = %i, %s = %.2f" % (
+        message = "x = %.2f, y = %.2f, %s = %.2f" % (
             x, y, ilabel, intensity)
         self._mainwidget.setDisplayedText(message)
 
@@ -498,7 +506,7 @@ class MeshToolWidget(ToolWidget):
         #: (:obj:`float`) integration time in seconds
         self.__itime = 0.1
 
-        #: (:class:`Ui_MotorsToolWidget')
+        #: (:class:`Ui_MeshToolWidget')
         #:        ui_toolwidget object from qtdesigner
         self.__ui = _meshformclass()
         self.__ui.setupUi(self)
@@ -506,7 +514,6 @@ class MeshToolWidget(ToolWidget):
 
         self.parameters.rois = True
         self.parameters.infolineedit = ""
-        self.parameters.positionlines = True
         self.parameters.infolabel = "[x1, y1, x2, y2], sum: "
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
@@ -1075,7 +1082,7 @@ class LineCutToolWidget(ToolWidget):
     def _message(self):
         """ provides cut message
         """
-        x, y, intensity = self._mainwidget.currentIntensity()
+        _, _, intensity, x, y = self._mainwidget.currentIntensity()
         ilabel = self._mainwidget.scalingLabel()
         if self._mainwidget.currentCut() > -1:
             crds = self._mainwidget.cutCoords()[
@@ -1083,7 +1090,7 @@ class LineCutToolWidget(ToolWidget):
             crds = "[[%.2f, %.2f], [%.2f, %.2f], width=%.2f]" % tuple(crds)
         else:
             crds = "[[0, 0], [0, 0], width=0]"
-        message = "%s, x = %i, y = %i, %s = %.2f" % (
+        message = "%s, x = %.2f, y = %.2f, %s = %.2f" % (
             crds, x, y, ilabel, intensity)
         self._mainwidget.setDisplayedText(message)
 
@@ -1286,7 +1293,7 @@ class ProjectionToolWidget(ToolWidget):
     def _message(self):
         """ provides intensity message
         """
-        x, y, intensity = self._mainwidget.currentIntensity()
+        x, y, intensity = self._mainwidget.currentIntensity()[:3]
         ilabel = self._mainwidget.scalingLabel()
         message = "x = %i, y = %i, %s = %.2f" % (
             x, y, ilabel, intensity)
@@ -1455,7 +1462,7 @@ class OneDToolWidget(ToolWidget):
     def _message(self):
         """ provides intensity message
         """
-        x, y, intensity = self._mainwidget.currentIntensity()
+        x, y, intensity = self._mainwidget.currentIntensity()[:3]
         ilabel = self._mainwidget.scalingLabel()
         message = "x = %i, y = %i, %s = %.2f" % (
             x, y, ilabel, intensity)
@@ -1530,7 +1537,7 @@ class AngleQToolWidget(ToolWidget):
         """ provides geometry message
         """
         message = ""
-        x, y, intensity = self._mainwidget.currentIntensity()
+        _, _, intensity, x, y = self._mainwidget.currentIntensity()
         ilabel = self._mainwidget.scalingLabel()
         if self.__gspaceindex == 0:
             thetax, thetay, thetatotal = self.__pixel2theta(x, y)

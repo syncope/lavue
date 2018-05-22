@@ -1,3 +1,7 @@
+2018-05-22 Jan Kotanski <jan.kotanski@desy.de>
+	* add separare crosslines for certer and motor positions
+	* tagged as 1.17.0
+
 2018-05-18 Jan Kotanski <jan.kotanski@desy.de>
 	* fix h5pywriter for utf8
 	* tagged as 1.16.4

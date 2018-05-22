@@ -188,8 +188,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__crosshairlocked = False
         #: ([:obj:`float`, :obj:`float`]) center coordinates
         self.__centercoordinates = None
-        
+        #: ([:obj:`float`, :obj:`float`]) position mark coordinates
+        self.__markcoordinates = None
+
         self.__viewbox.addItem(self.__image)
+        #: (:obj:`float`) current floar x-position
+        self.__xfdata = 0
+        #: (:obj:`float`) current floar y-position
+        self.__yfdata = 0
         #: (:obj:`float`) current x-position
         self.__xdata = 0
         #: (:obj:`float`) current y-position
@@ -261,6 +267,17 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__viewbox.addItem(self.__centerVLine, ignoreBounds=True)
         self.__viewbox.addItem(self.__centerHLine, ignoreBounds=True)
 
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:                 vertical mark line of the mouse position
+        self.__markVLine = _pg.InfiniteLine(
+            angle=90, movable=False, pen=(0, 0, 255))
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:                   horizontal mark line of the mouse position
+        self.__markHLine = _pg.InfiniteLine(
+            angle=0, movable=False, pen=(0, 0, 255))
+        self.__viewbox.addItem(self.__markVLine, ignoreBounds=True)
+        self.__viewbox.addItem(self.__markHLine, ignoreBounds=True)
+
         #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.ROI`>)
         #:            list of roi widgets
         self.__roi = []
@@ -331,6 +348,19 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         else:
             self.__centerVLine.hide()
             self.__centerHLine.hide()
+
+    def __showMarkLines(self, status):
+        """ shows or hides HV mark mouse lines
+
+        :param status: will be shown
+        :type status: :obj:`bool`
+        """
+        if status:
+            self.__markVLine.show()
+            self.__markHLine.show()
+        else:
+            self.__markVLine.hide()
+            self.__markHLine.hide()
 
     def setAspectLocked(self, flag):
         """sets aspectLocked
@@ -574,20 +604,26 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 else self.__axes.position
 
             self.__lockerVLine.setPos(
-                (self.__xdata + .5) * self.__axes.scale[0]
+                (self.__xfdata + .5) * self.__axes.scale[0]
                 + position[0])
             self.__lockerHLine.setPos(
-                (self.__ydata + .5) * self.__axes.scale[1]
+                (self.__yfdata + .5) * self.__axes.scale[1]
                 + position[1])
         else:
-            self.__lockerVLine.setPos(self.__xdata + .5)
-            self.__lockerHLine.setPos(self.__ydata + .5)
+            self.__lockerVLine.setPos(self.__xfdata + .5)
+            self.__lockerHLine.setPos(self.__yfdata + .5)
 
     def __setCenterLines(self):
         """  sets vLine and hLine positions
         """
-        self.__centerVLine.setPos(self.__xdata + .5)
-        self.__centerHLine.setPos(self.__ydata + .5)
+        self.__centerVLine.setPos(self.__xdata)
+        self.__centerHLine.setPos(self.__ydata)
+
+    def __setMarkLines(self):
+        """  sets vLine and hLine positions
+        """
+        self.__markVLine.setPos(self.__xdata)
+        self.__markHLine.setPos(self.__ydata)
 
     def currentIntensity(self):
         """ provides intensity for current mouse position
@@ -597,8 +633,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         if self.__rawdata is not None:
             try:
-                xf = int(math.floor(self.__xdata))
-                yf = int(math.floor(self.__ydata))
+                xf = int(math.floor(self.__xfdata))
+                yf = int(math.floor(self.__yfdata))
                 if xf >= 0 and yf >= 0 and xf < self.__rawdata.shape[0] \
                    and yf < self.__rawdata.shape[1]:
                     intensity = self.__rawdata[xf, yf]
@@ -608,7 +644,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 intensity = 0.
         else:
             intensity = 0.
-        return self.__xdata, self.__ydata, intensity
+        return self.__xfdata, self.__yfdata, intensity, self.__xdata, self.__ydata
 
     def scalingLabel(self):
         """ provides scaling label
@@ -670,14 +706,19 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         try:
             if event is not None:
                 mousePoint = self.__image.mapFromScene(event)
-                self.__xdata = math.floor(mousePoint.x())
-                self.__ydata = math.floor(mousePoint.y())
+                self.__xdata = mousePoint.x()
+                self.__ydata = mousePoint.y()
+                self.__xfdata = math.floor(self.__xdata)
+                self.__yfdata = math.floor(self.__ydata)
             if self.__lines.locker:
                 if not self.__crosshairlocked:
                     self.__setLockerLines()
             if self.__lines.center:
                 if not self.__centercoordinates:
                     self.__setCenterLines()
+            if self.__lines.positionmark:
+                if not self.__markcoordinates:
+                    self.__setMarkLines()
             self.mouseImagePositionChanged.emit()
         except Exception:
             # print("Warning: %s" % str(e))
@@ -730,8 +771,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     self.__lockerVLine.setPos(xdata + .5)
                     self.__lockerHLine.setPos(ydata + .5)
             if self.__lines.center:
-                self.__centerVLine.setPos(xdata + .5)
-                self.__centerHLine.setPos(ydata + .5)
+                self.updateCenter(xdata, ydata)
+            if self.__lines.positionmark:
+                self.updatePositionMark(xdata, ydata)
             self.mouseImageDoubleClicked.emit(xdata, ydata)
         else:
             self.mouseImageSingleClicked.emit(xdata, ydata)
@@ -796,6 +838,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if parameters.centerlines is not None:
             self.__showCenterLines(parameters.centerlines)
             self.__lines.center = parameters.centerlines
+        if parameters.marklines is not None:
+            self.__showMarkLines(parameters.marklines)
+            self.__lines.positionmark = parameters.marklines
         if parameters.rois is not None:
             self.__showROIs(parameters.rois)
             self.__rois.enabled = parameters.rois
@@ -1177,5 +1222,18 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type ydata: :obj:`float`
         """
         self.__centercoordinates = [xdata, ydata]
-        self.__centerVLine.setPos(xdata + .5)
-        self.__centerHLine.setPos(ydata + .5)
+        self.__centerVLine.setPos(xdata)
+        self.__centerHLine.setPos(ydata)
+
+    @QtCore.pyqtSlot(float, float)
+    def updatePositionMark(self, xdata, ydata):
+        """ updates the position mark
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        """
+        self.__markcoordinates = [xdata, ydata]
+        self.__markVLine.setPos(xdata)
+        self.__markHLine.setPos(ydata)

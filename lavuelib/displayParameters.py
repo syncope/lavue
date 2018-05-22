@@ -68,8 +68,8 @@ class CrossLinesParameters(object):
         self.locker = False
         #: (:obj:`bool`) center enabled flag
         self.center = False
-        #: (:obj:`bool`) position enabled flag
-        self.position = False
+        #: (:obj:`bool`) position mark enabled flag
+        self.positionmark = False
 
 
 class ROIsParameters(object):

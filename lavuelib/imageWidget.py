@@ -949,3 +949,14 @@ class ImageWidget(QtGui.QWidget):
         :type ydata: :obj:`float`
         """
         self.__displaywidget.updateCenter(xdata, ydata)
+
+    @QtCore.pyqtSlot(float, float)
+    def updatePositionMark(self, xdata, ydata):
+        """ updates the position mark
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        """
+        self.__displaywidget.updatePositionMark(xdata, ydata)
