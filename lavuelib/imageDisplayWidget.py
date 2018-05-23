@@ -596,7 +596,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__data = img
         self.__rawdata = rawimg
         self.mouse_position()
-        print "INVERTED", self.__viewbox.xInverted(), self.__viewbox.yInverted()
 
     def __setLockerLines(self):
         """  sets vLine and hLine positions
@@ -1261,7 +1260,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :param updownflip: up-down flip coordinates flag
         :type updownflip: :obj:`bool`
         """
-        print transpose, leftrightflip, updownflip
         if self.__transformations.transpose != transpose:
             self.__transformations.transpose = transpose
         if self.__transformations.leftrightflip != leftrightflip:
