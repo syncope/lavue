@@ -70,6 +70,8 @@ class CrossLinesParameters(object):
         self.center = False
         #: (:obj:`bool`) position mark enabled flag
         self.positionmark = False
+        #: (:obj:`bool`) lock for double click
+        self.doubleclicklock = False
 
 
 class ROIsParameters(object):

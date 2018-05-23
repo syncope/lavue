@@ -263,7 +263,9 @@ class MotorsToolWidget(ToolWidget):
             [self.__ui.takePushButton.clicked, self._setMotors],
             [self.__ui.movePushButton.clicked, self._moveStopMotors],
             [self._mainwidget.mouseImageDoubleClicked, self._updateFinal],
-            [self._mainwidget.mouseImagePositionChanged, self._message]
+            [self._mainwidget.mouseImagePositionChanged, self._message],
+            [self.__ui.xLineEdit.textEdited, self._getFinal],
+            [self.__ui.yLineEdit.textEdited, self._getFinal],
         ]
 
     def activate(self):
@@ -333,6 +335,7 @@ class MotorsToolWidget(ToolWidget):
             self.__motorWatcher.stop()
             self.__motorWatcher.wait()
             self.__motorWatcher = None
+        self._mainwidget.setDoubleClickLock(False)
         self.__ui.movePushButton.setText("Move")
         self.__ui.xcurLineEdit.hide()
         self.__ui.ycurLineEdit.hide()
@@ -346,11 +349,9 @@ class MotorsToolWidget(ToolWidget):
             "color: black; background-color: #90EE90;")
         return True
 
-    def __moveMotors(self):
-        """ move motors
-
-        :returns: motors started
-        :rtype: :obj:`bool`
+    @QtCore.pyqtSlot()
+    def _getFinal(self):
+        """ update final positions
         """
         try:
             self.__xfinal = float(self.__ui.xLineEdit.text())
@@ -362,6 +363,17 @@ class MotorsToolWidget(ToolWidget):
         except:
             self.__ui.yLineEdit.setFocus()
             return False
+        self._mainwidget.updatePositionMark(
+            self.__xfinal, self.__yfinal)
+
+    def __moveMotors(self):
+        """ move motors
+
+        :returns: motors started
+        :rtype: :obj:`bool`
+        """
+
+        self._getFinal()
 
         if self.__xmotordevice is None or self.__ymotordevice is None:
             if not self._setMotors():
@@ -382,6 +394,7 @@ class MotorsToolWidget(ToolWidget):
         self.__motorWatcher.motorStatusSignal.connect(self._showMotors)
         self.__motorWatcher.watchingFinished.connect(self._finished)
         self.__motorWatcher.start()
+        self._mainwidget.setDoubleClickLock(True)
         self.__ui.movePushButton.setText("Stop")
         self.__ui.xcurLineEdit.show()
         self.__ui.ycurLineEdit.show()
@@ -1652,7 +1665,6 @@ class AngleQToolWidget(ToolWidget):
             self.updateGeometryTip()
             self._mainwidget.updateCenter(
                 self.__settings.centerx, self.__settings.centery)
-            
 
     @QtCore.pyqtSlot(int)
     def _setGSpaceIndex(self, gindex):

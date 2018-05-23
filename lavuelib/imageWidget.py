@@ -968,3 +968,10 @@ class ImageWidget(QtGui.QWidget):
         :type ydata: :obj:`float`
         """
         self.__displaywidget.updatePositionMark(xdata, ydata)
+
+    def setDoubleClickLock(self, status=True):
+        """ sets double click lock
+        :param status: status flag
+        :type status: :obj:`bool`
+        """
+        self.__displaywidget.setDoubleClickLock(status)

@@ -773,7 +773,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     self.__lockerHLine.setPos(ydata + .5)
             if self.__lines.center:
                 self.updateCenter(xdata, ydata)
-            if self.__lines.positionmark:
+            if not self.__lines.doubleclicklock and self.__lines.positionmark:
                 self.updatePositionMark(xdata, ydata)
             self.mouseImageDoubleClicked.emit(xdata, ydata)
         else:
@@ -818,6 +818,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         if level is not None:
             self.__displaylevels[1] = level
+
+    def setDoubleClickLock(self, status=True):
+        """ sets double click lock
+        :param status: status flag
+        :type status: :obj:`bool`
+        """
+        self.__lines.doubleclicklock = status
 
     def setSubWidgets(self, parameters):
         """ set subwidget properties
