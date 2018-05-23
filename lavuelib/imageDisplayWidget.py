@@ -596,8 +596,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__data = img
         self.__rawdata = rawimg
         self.mouse_position()
-        self.__viewbox.invertX(self.__transformations.leftrightflip)
-        self.__viewbox.invertY(self.__transformations.updownflip)
 
     def __setLockerLines(self):
         """  sets vLine and hLine positions
