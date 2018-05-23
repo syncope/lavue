@@ -30,7 +30,7 @@ import numpy as np
 import math
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI, Handle
 from PyQt4 import QtCore, QtGui
-from .hooks import (viewbox_updateMatrix, viewbox_invertX,
+from .external.hooks import (viewbox_updateMatrix, viewbox_invertX,
                     viewbox_xInverted, axisitem_linkedViewChanged,
                     viewbox_linkedViewChanged)
 import types
