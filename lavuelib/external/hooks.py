@@ -25,6 +25,7 @@
 
 from pyqtgraph.Point import Point
 from pyqtgraph.graphicsItems.ViewBox import ViewBox
+from PyQt4 import QtCore, QtGui
 
 
 def viewbox_updateMatrix(self, changed=None):
