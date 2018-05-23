@@ -415,9 +415,27 @@ class ImageWidget(QtGui.QWidget):
         :param updownflip: up-down flip coordinates flag
         :type updownflip: :obj:`bool`
         """
+        oldtrans, oldleftright, oldupdown = \
+            self.__displaywidget.transformations()
+        if oldleftright != leftrightflip:
+            if hasattr(self.__bottomplot.getViewBox(), "invertX"):
+                self.__bottomplot.getViewBox().invertX(leftrightflip)
+            else:
+                """ version 0.9.10 without invertX """
+            # workaround for a bug in old pyqtgraph versions: stretch 0.10
+            self.__bottomplot.getViewBox().sigXRangeChanged.emit(
+                self.__bottomplot.getViewBox(),
+                tuple(self.__bottomplot.getViewBox().state['viewRange'][0]))
+            self.__bottomplot.getViewBox().sigYRangeChanged.emit(
+                self.__bottomplot.getViewBox(),
+                tuple(self.__bottomplot.getViewBox().state['viewRange'][1]))
+
+        if oldupdown != updownflip:
+            self.__rightplot.getViewBox().invertY(updownflip)
+
         self.__displaywidget.setTransformations(
             transpose, leftrightflip, updownflip)
-            
+
     def transformations(self):
         """ povides coordinates transformations
 
@@ -425,7 +443,7 @@ class ImageWidget(QtGui.QWidget):
         :rtype: (:obj:`bool`, :obj:`bool`, :obj:`bool`)
         """
         return self.__displaywidget.transformations()
-            
+
     def plot(self, array, rawarray=None):
         """ plots the image
 

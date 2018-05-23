@@ -596,6 +596,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__data = img
         self.__rawdata = rawimg
         self.mouse_position()
+        self.__viewbox.invertX(self.__transformations.leftrightflip)
+        self.__viewbox.invertY(self.__transformations.updownflip)
 
     def __setLockerLines(self):
         """  sets vLine and hLine positions
@@ -915,7 +917,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__axes.yunits = cnfdlg.yunits or None
             self.__setScale(position, scale)
             self.updateImage(self.__data, self.__rawdata)
-            
+
             return True
         return False
 
@@ -1264,12 +1266,20 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__transformations.transpose = transpose
         if self.__transformations.leftrightflip != leftrightflip:
             self.__transformations.leftrightflip = leftrightflip
-            self.__viewbox.invertX(leftrightflip)
+            if hasattr(self.__viewbox, "invertX"):
+                self.__viewbox.invertX(leftrightflip)
+            else:
+                """ version 0.9.10 without invertX """
+            # workaround for a bug in old pyqtgraph versions: stretch 0.10
+            self.__viewbox.sigXRangeChanged.emit(
+                self.__viewbox, tuple(self.__viewbox.state['viewRange'][0]))
+            self.__viewbox.sigYRangeChanged.emit(
+                self.__viewbox, tuple(self.__viewbox.state['viewRange'][1]))
+
         if self.__transformations.updownflip != updownflip:
             self.__transformations.updownflip = updownflip
             self.__viewbox.invertY(updownflip)
 
-            
     def transformations(self):
         """ povides coordinates transformations
 

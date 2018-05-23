@@ -133,4 +133,4 @@ class TransformationParameters(object):
         #: (:obj:`bool`) left-right flip coordinates flag
         self.leftrightflip = False
         #: (:obj:`bool`)  up-down flip coordinates flag
-        self.updownflip= False
+        self.updownflip = False

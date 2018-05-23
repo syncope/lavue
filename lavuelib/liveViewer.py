@@ -740,7 +740,8 @@ class LiveViewer(QtGui.QMainWindow):
         # calls internally the plot function of the plot widget
         if self.__imagename is not None and self.__scaledimage is not None:
             self.__ui.fileNameLineEdit.setText(self.__imagename)
-        self.__imagewg.setTransformations(crdtranspose, crdleftrightflip, crdupdownflip)
+        self.__imagewg.setTransformations(
+            crdtranspose, crdleftrightflip, crdupdownflip)
         self.__imagewg.plot(
             self.__scaledimage,
             self.__displayimage
@@ -1059,14 +1060,14 @@ class LiveViewer(QtGui.QMainWindow):
                 self.__displayimage = np.transpose(self.__displayimage)
             if self.__settings.keepcoords:
                 crdtranspose = True
-        elif self.__trafoname == "rot90 (clockwise)":            
+        elif self.__trafoname == "rot90 (clockwise)":
             if self.__settings.keepcoords:
                 crdtranspose = True
-                crdleftrightflip = True
+                crdupdownflip = True
                 self.__displayimage = np.transpose(self.__displayimage)
             elif self.__displayimage is not None:
                 self.__displayimage = np.transpose(
-                    np.flipud(self.__displayimage))                
+                    np.flipud(self.__displayimage))
         elif self.__trafoname == "rot180":
             if self.__settings.keepcoords:
                 crdupdownflip = True
@@ -1077,7 +1078,7 @@ class LiveViewer(QtGui.QMainWindow):
         elif self.__trafoname == "rot270 (clockwise)":
             if self.__settings.keepcoords:
                 crdtranspose = True
-                crdupdownflip = True
+                crdleftrightflip = True
                 self.__displayimage = np.transpose(self.__displayimage)
             elif self.__displayimage is not None:
                 self.__displayimage = np.transpose(
