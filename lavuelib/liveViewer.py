@@ -352,6 +352,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__setSardana(self.__settings.sardana)
         self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
         self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
+        self.__trafowg.setKeepCoordsLabel(self.__settings.keepcoords)
         self.__datasource.setTimeOut(self.__settings.timeout)
         dataFetchThread.GLOBALREFRESHRATE = self.__settings.refreshrate
         self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling)
@@ -537,6 +538,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.timeout = self.__settings.timeout
         cnfdlg.aspectlocked = self.__settings.aspectlocked
         cnfdlg.autodownsample = self.__settings.autodownsample
+        cnfdlg.keepcoords = self.__settings.keepcoords
         cnfdlg.statswoscaling = self.__settings.statswoscaling
         cnfdlg.zmqtopics = self.__settings.zmqtopics
         cnfdlg.detservers = self.__settings.detservers
@@ -618,6 +620,9 @@ class LiveViewer(QtGui.QMainWindow):
         self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
         self.__settings.autodownsample = dialog.autodownsample
         self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
+        self.__settings.keepcoords = dialog.keepcoords
+        self.__trafowg.setKeepCoordsLabel(self.__settings.keepcoords)
+        
         self.__settings.secstream = dialog.secstream
         self.__settings.storegeometry = dialog.storegeometry
         setsrc = False

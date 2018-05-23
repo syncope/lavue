@@ -62,6 +62,8 @@ class Settings(object):
         self.aspectlocked = False
         #: (:obj:`bool`) auto down sample
         self.autodownsample = False
+        #: (:obj:`bool`) keep original coordinates
+        self.keepcoords = False
         #: (:obj:`str`) security stream port
         self.secport = "5657"
         #: (:obj:`str`) hidra data port
@@ -174,6 +176,9 @@ class Settings(object):
         qstval = str(settings.value("Configuration/AutoDownSample", type=str))
         if qstval.lower() == "true":
             self.autodownsample = True
+        qstval = str(settings.value("Configuration/KeepOriginalCoordinates", type=str))
+        if qstval.lower() == "true":
+            self.keepcoords = True
         qstval = str(settings.value("Configuration/NXSFileOpen", type=str))
         if qstval.lower() == "true":
             self.nxsopen = True
@@ -373,6 +378,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/AutoDownSample",
             self.autodownsample)
+        settings.setValue(
+            "Configuration/KeepOriginalCoordinates",
+            self.keepcoords)
         settings.setValue(
             "Configuration/LastImageFileName",
             self.imagename)
