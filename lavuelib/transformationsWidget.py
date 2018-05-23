@@ -87,4 +87,3 @@ class TransformationsWidget(QtGui.QWidget):
             self.__ui.keepcoordsLabel.setText("Keep original cooridnates!")
         else:
             self.__ui.keepcoordsLabel.setText("Transform also coordinates!")
-            

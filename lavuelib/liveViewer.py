@@ -622,7 +622,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
         self.__settings.keepcoords = dialog.keepcoords
         self.__trafowg.setKeepCoordsLabel(self.__settings.keepcoords)
-        
+
         self.__settings.secstream = dialog.secstream
         self.__settings.storegeometry = dialog.storegeometry
         setsrc = False

@@ -176,7 +176,8 @@ class Settings(object):
         qstval = str(settings.value("Configuration/AutoDownSample", type=str))
         if qstval.lower() == "true":
             self.autodownsample = True
-        qstval = str(settings.value("Configuration/KeepOriginalCoordinates", type=str))
+        qstval = str(settings.value(
+            "Configuration/KeepOriginalCoordinates", type=str))
         if qstval.lower() == "true":
             self.keepcoords = True
         qstval = str(settings.value("Configuration/NXSFileOpen", type=str))
