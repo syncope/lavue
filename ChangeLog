@@ -1,3 +1,7 @@
+2018-05-23 Jan Kotanski <jan.kotanski@desy.de>
+	* change position of qspace cross on geometry change
+	* tagged as 1.17.1
+
 2018-05-22 Jan Kotanski <jan.kotanski@desy.de>
 	* add separate crosslines for certer and motor positions
 	* add editable combobox to http and zmq datasources

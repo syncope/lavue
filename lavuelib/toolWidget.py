@@ -1650,6 +1650,9 @@ class AngleQToolWidget(ToolWidget):
             self.__settings.pixelsizey = cnfdlg.pixelsizey
             self.__settings.detdistance = cnfdlg.detdistance
             self.updateGeometryTip()
+            self._mainwidget.updateCenter(
+                self.__settings.centerx, self.__settings.centery)
+            
 
     @QtCore.pyqtSlot(int)
     def _setGSpaceIndex(self, gindex):
@@ -2198,6 +2201,8 @@ class QROIProjToolWidget(ToolWidget):
             self.__settings.pixelsizey = cnfdlg.pixelsizey
             self.__settings.detdistance = cnfdlg.detdistance
             self.updateGeometryTip()
+            self._mainwidget.updateCenter(
+                self.__settings.centerx, self.__settings.centery)
 
     @QtCore.pyqtSlot(int)
     def _setGSpaceIndex(self, gindex):
