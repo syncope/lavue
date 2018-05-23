@@ -432,6 +432,13 @@ class ImageWidget(QtGui.QWidget):
 
         if oldupdown != updownflip:
             self.__rightplot.getViewBox().invertY(updownflip)
+            # workaround for a bug in old pyqtgraph versions: stretch 0.9.10
+            self.__rightplot.getViewBox().sigXRangeChanged.emit(
+                self.__rightplot.getViewBox(),
+                tuple(self.__rightplot.getViewBox().state['viewRange'][0]))
+            self.__rightplot.getViewBox().sigYRangeChanged.emit(
+                self.__rightplot.getViewBox(),
+                tuple(self.__rightplot.getViewBox().state['viewRange'][1]))
 
         self.__displaywidget.setTransformations(
             transpose, leftrightflip, updownflip)

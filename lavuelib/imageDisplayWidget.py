@@ -30,6 +30,10 @@ import numpy as np
 import math
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI, Handle
 from PyQt4 import QtCore, QtGui
+from .hooks import (viewbox_updateMatrix, viewbox_invertX,
+                    viewbox_xInverted, axisitem_linkedViewChanged,
+                    viewbox_linkedViewChanged)
+import types
 
 from . import axesDialog
 from . import displayParameters
@@ -187,6 +191,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
         #: (:class:`pyqtgraph.ViewBox`) viewbox item
         self.__viewbox = self.__layout.addViewBox(row=0, col=1)
+
         #: (:obj:`bool`) crooshair locked flag
         self.__crosshairlocked = False
         #: ([:obj:`float`, :obj:`float`]) center coordinates
@@ -237,13 +242,31 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
         #: (:class:`pyqtgraph.AxisItem`) left axis
         self.__leftaxis = _pg.AxisItem('left')
-        self.__leftaxis.linkToView(self.__viewbox)
-        self.__layout.addItem(self.__leftaxis, row=0, col=0)
 
         #: (:class:`pyqtgraph.AxisItem`) bottom axis
-        self.__bottomAxis = _pg.AxisItem('bottom')
-        self.__bottomAxis.linkToView(self.__viewbox)
-        self.__layout.addItem(self.__bottomAxis, row=1, col=1)
+        self.__bottomaxis = _pg.AxisItem('bottom')
+
+        #: dirty hooks for v0.9.10 to support invertX
+        if not hasattr(self.__viewbox, "invertX"):
+            self.__viewbox.state["xInverted"] = False
+            self.__viewbox.invertX = types.MethodType(
+                viewbox_invertX, self.__viewbox)
+            self.__viewbox.xInverted = types.MethodType(
+                viewbox_xInverted, self.__viewbox)
+            self.__viewbox.updateMatrix = types.MethodType(
+                viewbox_updateMatrix, self.__viewbox)
+            self.__viewbox.linkedViewChanged = types.MethodType(
+                viewbox_linkedViewChanged, self.__viewbox)
+
+            self.__bottomaxis.linkedViewChanged = types.MethodType(
+                axisitem_linkedViewChanged, self.__bottomaxis)
+            self.__leftaxis.linkedViewChanged = types.MethodType(
+                axisitem_linkedViewChanged, self.__leftaxis)
+
+        self.__leftaxis.linkToView(self.__viewbox)
+        self.__layout.addItem(self.__leftaxis, row=0, col=0)
+        self.__bottomaxis.linkToView(self.__viewbox)
+        self.__layout.addItem(self.__bottomaxis, row=1, col=1)
 
         self.__layout.scene().sigMouseMoved.connect(self.mouse_position)
         self.__layout.scene().sigMouseClicked.connect(self.mouse_click)
@@ -740,16 +763,16 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :param yunits: y-units text
         :param type: :obj:`str`
         """
-        self.__bottomAxis.autoSIPrefix = False
+        self.__bottomaxis.autoSIPrefix = False
         self.__leftaxis.autoSIPrefix = False
-        self.__bottomAxis.setLabel(text=xtext, units=xunits)
+        self.__bottomaxis.setLabel(text=xtext, units=xunits)
         self.__leftaxis.setLabel(text=ytext, units=yunits)
         if xunits is None:
-            self.__bottomAxis.labelUnits = ''
+            self.__bottomaxis.labelUnits = ''
         if yunits is None:
             self.__leftaxis.labelUnits = ''
         if xtext is None:
-            self.__bottomAxis.label.setVisible(False)
+            self.__bottomaxis.label.setVisible(False)
         if ytext is None:
             self.__leftaxis.label.setVisible(False)
 
@@ -1273,10 +1296,19 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 self.__viewbox, tuple(self.__viewbox.state['viewRange'][0]))
             self.__viewbox.sigYRangeChanged.emit(
                 self.__viewbox, tuple(self.__viewbox.state['viewRange'][1]))
+            self.__viewbox.sigRangeChanged.emit(
+                self.__viewbox, self.__viewbox.state['viewRange'])
 
         if self.__transformations.updownflip != updownflip:
             self.__transformations.updownflip = updownflip
             self.__viewbox.invertY(updownflip)
+            # workaround for a bug in old pyqtgraph versions: stretch 0.9.10
+            self.__viewbox.sigXRangeChanged.emit(
+                self.__viewbox, tuple(self.__viewbox.state['viewRange'][0]))
+            self.__viewbox.sigYRangeChanged.emit(
+                self.__viewbox, tuple(self.__viewbox.state['viewRange'][1]))
+            self.__viewbox.sigRangeChanged.emit(
+                self.__viewbox, self.__viewbox.state['viewRange'])
 
     def transformations(self):
         """ povides coordinates transformations

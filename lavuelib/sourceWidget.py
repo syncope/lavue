@@ -820,7 +820,7 @@ class ZMQSourceWidget(BaseSourceWidget):
                             shost.append(str(text))
                         hosturl = "/".join(shost)
                     self.configurationChanged.emit(hosturl)
-                except Exception as e:
+                except Exception:
                     self.buttonEnabled.emit(False)
             if disconnect:
                 self._ui.pickleTopicComboBox.currentIndexChanged.connect(
