@@ -405,6 +405,27 @@ class ImageWidget(QtGui.QWidget):
             self.__ui.cornerWidget.hide()
             self.__ui.oneDRightWidget.hide()
 
+    def setTransformations(self, transpose, leftrightflip, updownflip):
+        """ sets coordinate transformations
+
+        :param transpose: transpose coordinates flag
+        :type transpose: :obj:`bool`
+        :param leftrightflip: left-right flip coordinates flag
+        :type leftrightflip: :obj:`bool`
+        :param updownflip: up-down flip coordinates flag
+        :type updownflip: :obj:`bool`
+        """
+        self.__displaywidget.setTransformations(
+            transpose, leftrightflip, updownflip)
+            
+    def transformations(self):
+        """ povides coordinates transformations
+
+        :returns: transpose, leftrightflip, updownflip flags
+        :rtype: (:obj:`bool`, :obj:`bool`, :obj:`bool`)
+        """
+        return self.__displaywidget.transformations()
+            
     def plot(self, array, rawarray=None):
         """ plots the image
 

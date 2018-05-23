@@ -729,7 +729,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__prepareImage()
 
         # perform transformation
-        self.__transform()
+        crdtranspose, crdleftrightflip, crdupdownflip = self.__transform()
 
         # use the internal raw image to create a display image with chosen
         # scaling
@@ -740,6 +740,7 @@ class LiveViewer(QtGui.QMainWindow):
         # calls internally the plot function of the plot widget
         if self.__imagename is not None and self.__scaledimage is not None:
             self.__ui.fileNameLineEdit.setText(self.__imagename)
+        self.__imagewg.setTransformations(crdtranspose, crdleftrightflip, crdupdownflip)
         self.__imagewg.plot(
             self.__scaledimage,
             self.__displayimage
@@ -1034,30 +1035,63 @@ class LiveViewer(QtGui.QMainWindow):
 
     def __transform(self):
         """ does the image transformation on the given numpy array.
-        """
-        if self.__displayimage is None or self.__trafoname is "none":
-            return
 
+        :returns: crdtranspose, crdleftrightflip, crdupdownflip flags
+        :rtype: (:obj:`bool`, :obj:`bool`, :obj:`bool`)
+        """
+        crdupdownflip = False
+        crdleftrightflip = False
+        crdtranspose = False
+        if self.__trafoname is "none":
+            pass
         elif self.__trafoname == "flip (up-down)":
-            self.__displayimage = np.fliplr(self.__displayimage)
+            if self.__settings.keepcoords:
+                crdupdownflip = True
+            elif self.__displayimage is not None:
+                    self.__displayimage = np.fliplr(self.__displayimage)
         elif self.__trafoname == "flip (left-right)":
-            self.__displayimage = np.flipud(self.__displayimage)
+            if self.__settings.keepcoords:
+                crdleftrightflip = True
+            elif self.__displayimage is not None:
+                    self.__displayimage = np.flipud(self.__displayimage)
         elif self.__trafoname == "transpose":
-            self.__displayimage = np.transpose(self.__displayimage)
-        elif self.__trafoname == "rot90 (clockwise)":
-            # self.__displayimage = np.rot90(self.__displayimage, 3)
-            self.__displayimage = np.transpose(
-                np.flipud(self.__displayimage))
+            if self.__displayimage is not None:
+                self.__displayimage = np.transpose(self.__displayimage)
+            if self.__settings.keepcoords:
+                crdtranspose = True
+        elif self.__trafoname == "rot90 (clockwise)":            
+            if self.__settings.keepcoords:
+                crdtranspose = True
+                crdleftrightflip = True
+                self.__displayimage = np.transpose(self.__displayimage)
+            elif self.__displayimage is not None:
+                self.__displayimage = np.transpose(
+                    np.flipud(self.__displayimage))                
         elif self.__trafoname == "rot180":
-            self.__displayimage = np.flipud(
-                np.fliplr(self.__displayimage))
+            if self.__settings.keepcoords:
+                crdupdownflip = True
+                crdleftrightflip = True
+            elif self.__displayimage is not None:
+                self.__displayimage = np.flipud(
+                    np.fliplr(self.__displayimage))
         elif self.__trafoname == "rot270 (clockwise)":
-            # self.__displayimage = np.rot90(self.__displayimage, 1)
-            self.__displayimage = np.transpose(
-                np.fliplr(self.__displayimage))
+            if self.__settings.keepcoords:
+                crdtranspose = True
+                crdupdownflip = True
+                self.__displayimage = np.transpose(self.__displayimage)
+            elif self.__displayimage is not None:
+                self.__displayimage = np.transpose(
+                    np.fliplr(self.__displayimage))
         elif self.__trafoname == "rot180 + transpose":
-            self.__displayimage = np.transpose(
-                np.fliplr(np.flipud(self.__displayimage)))
+            if self.__settings.keepcoords:
+                crdtranspose = True
+                crdupdownflip = True
+                crdleftrightflip = True
+                self.__displayimage = np.transpose(self.__displayimage)
+            elif self.__displayimage is not None:
+                self.__displayimage = np.transpose(
+                    np.fliplr(np.flipud(self.__displayimage)))
+        return crdtranspose, crdleftrightflip, crdupdownflip
 
     def __scale(self, scalingtype):
         """ sets scaletype on the image

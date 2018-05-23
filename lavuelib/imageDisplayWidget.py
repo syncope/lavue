@@ -173,6 +173,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         #: (:class:`lavuelib.displayParameters.IntensityParameters`)
         #:                  intensity parameters
         self.__intensity = displayParameters.IntensityParameters()
+        #: (:class:`lavuelib.displayParameters.TransformationParameters`)
+        #:                  intensity parameters
+        self.__transformations = displayParameters.TransformationParameters()
 
         #: (:class:`numpy.ndarray`) data to displayed in 2d widget
         self.__data = None
@@ -593,6 +596,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__data = img
         self.__rawdata = rawimg
         self.mouse_position()
+        print "INVERTED", self.__viewbox.xInverted(), self.__viewbox.yInverted()
 
     def __setLockerLines(self):
         """  sets vLine and hLine positions
@@ -912,6 +916,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__axes.yunits = cnfdlg.yunits or None
             self.__setScale(position, scale)
             self.updateImage(self.__data, self.__rawdata)
+            
             return True
         return False
 
@@ -1245,3 +1250,35 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__markcoordinates = [xdata, ydata]
         self.__markVLine.setPos(xdata)
         self.__markHLine.setPos(ydata)
+
+    def setTransformations(self, transpose, leftrightflip, updownflip):
+        """ sets coordinate transformations
+
+        :param transpose: transpose coordinates flag
+        :type transpose: :obj:`bool`
+        :param leftrightflip: left-right flip coordinates flag
+        :type leftrightflip: :obj:`bool`
+        :param updownflip: up-down flip coordinates flag
+        :type updownflip: :obj:`bool`
+        """
+        print transpose, leftrightflip, updownflip
+        if self.__transformations.transpose != transpose:
+            self.__transformations.transpose = transpose
+        if self.__transformations.leftrightflip != leftrightflip:
+            self.__transformations.leftrightflip = leftrightflip
+            self.__viewbox.invertX(leftrightflip)
+        if self.__transformations.updownflip != updownflip:
+            self.__transformations.updownflip = updownflip
+            self.__viewbox.invertY(updownflip)
+
+            
+    def transformations(self):
+        """ povides coordinates transformations
+
+        :returns: transpose, leftrightflip, updownflip flags
+        :rtype: (:obj:`bool`, :obj:`bool`, :obj:`bool`)
+        """
+        return (
+            self.__transformations.transpose,
+            self.__transformations.leftrightflip,
+            self.__transformations.updownflip)
