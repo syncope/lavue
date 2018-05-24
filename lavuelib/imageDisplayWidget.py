@@ -483,7 +483,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                              coords[i][2] - coords[i][0]])
 
     def __addCutCoords(self, coords):
-        """ adds Cut coorinates
+        """ adds Cut coordinates
 
         :param coords: cut coordinates
         :type coords: :obj:`list`

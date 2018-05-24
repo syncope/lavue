@@ -623,7 +623,8 @@ class LiveViewer(QtGui.QMainWindow):
         replot = False
         if self.__settings.keepcoords != dialog.keepcoords:
             self.__settings.keepcoords = dialog.keepcoords
-            self.__trafowg.setKeepCoordsLabel(self.__settings.keepcoords)
+            self.__trafowg.setKeepCoordsLabel(
+            self.__settings.keepcoords)
             replot = True
 
         self.__settings.secstream = dialog.secstream
@@ -1208,4 +1209,12 @@ class LiveViewer(QtGui.QMainWindow):
         """ assesses the transformation and replot it
         """
         self.__trafoname = trafoname
+        if trafoname in [
+                "transpose", "rot90 (clockwise)",
+                "rot270 (clockwise)", "rot180 + transpose"]:
+            self.__trafowg.setKeepCoordsLabel(
+                self.__settings.keepcoords, True)
+        else:
+            self.__trafowg.setKeepCoordsLabel(
+                self.__settings.keepcoords, False)
         self._plot()

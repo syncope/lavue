@@ -77,13 +77,19 @@ class TransformationsWidget(QtGui.QWidget):
         if not flag:
             self.__ui.comboBox.setCurrentIndex(0)
 
-    def setKeepCoordsLabel(self, flag):
+    def setKeepCoordsLabel(self, flag, transpose=False):
         """ sets keep original coordinates label according to flag
 
         :param flag: keep original coordinates flag
         :type flag: :obj:`bool`
         """
         if flag:
-            self.__ui.keepcoordsLabel.setText("Keep original cooridnates!")
+            if transpose:
+                self.__ui.keepcoordsLabel.setText(
+                    "Keep original coordinates! (x-vertical)")
+            else:
+                self.__ui.keepcoordsLabel.setText(
+                    "Keep original coordinates! (x-horizontal)")
         else:
-            self.__ui.keepcoordsLabel.setText("Transform also coordinates!")
+            self.__ui.keepcoordsLabel.setText(
+                "Transform also coordinates! (x-horizontal)")
