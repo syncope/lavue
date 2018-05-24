@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>323</width>
-    <height>74</height>
+    <height>92</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;basic image transformation, i.e. flip, transpose. &lt;/p&gt;&lt;p&gt;It does not change coordinates of tools like QSpace, ROIs, LineCuts!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;basic image transformation, i.e. flips, transpose. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string>Transformation:</string>
@@ -31,7 +31,7 @@
        <item>
         <widget class="QComboBox" name="comboBox">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;basic image transformation, i.e. flip, transpose. &lt;/p&gt;&lt;p&gt;It does not change coordinates of tools like QSpace, ROIs, LineCuts!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;basic image transformation, i.e. flips, transpose.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <item>
           <property name="text">

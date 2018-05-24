@@ -352,7 +352,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__setSardana(self.__settings.sardana)
         self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
         self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
-        self.__trafowg.setKeepCoordsLabel(self.__settings.keepcoords)
+        self._assessTransformation(self.__trafoname)
         self.__datasource.setTimeOut(self.__settings.timeout)
         dataFetchThread.GLOBALREFRESHRATE = self.__settings.refreshrate
         self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling)
@@ -623,8 +623,7 @@ class LiveViewer(QtGui.QMainWindow):
         replot = False
         if self.__settings.keepcoords != dialog.keepcoords:
             self.__settings.keepcoords = dialog.keepcoords
-            self.__trafowg.setKeepCoordsLabel(
-            self.__settings.keepcoords)
+            self._assessTransformation(self.__trafoname)
             replot = True
 
         self.__settings.secstream = dialog.secstream
