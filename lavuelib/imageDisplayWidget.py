@@ -470,7 +470,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if coords:
             for i, crd in enumerate(self.__roi):
                 if i < len(coords):
-                    self.__rois.coords[i] = coords[i]                    
+                    self.__rois.coords[i] = coords[i]
                     if not self.__transformations.transpose:
                         crd.setPos([coords[i][0], coords[i][1]])
                         crd.setSize(
@@ -515,10 +515,10 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             pnt = 10 * (len(self.__cut) + 1)
             sz = 50
             coords = [pnt, pnt, pnt + sz, pnt, 0.00001]
-            
+
         if not self.__transformations.transpose:
             self.__cut.append(SimpleLineROI(
-            coords[:2], coords[2:4], width=coords[4], pen='r'))
+                coords[:2], coords[2:4], width=coords[4], pen='r'))
         else:
             self.__cut.append(SimpleLineROI(
                 [coords[1], coords[0]],
@@ -614,7 +614,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 self.__image.setPos(*self.__axes.position)
             else:
                 self.__image.setPos(
-                    self.__axes.position[1],self.__axes.position[0])
+                    self.__axes.position[1], self.__axes.position[0])
         else:
             self.__image.setPos(0, 0)
         if self.__rawdata is not None and update:
@@ -1140,8 +1140,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 self.__cuts.coords[cid] = crds
             else:
                 self.__cuts.coords[cid] = [
-                    crds[1],crds[0],crds[3],crds[2],crds[4]]
-                
+                    crds[1], crds[0], crds[3], crds[2], crds[4]]
+
             self.cutCoordsChanged.emit()
         except Exception as e:
             print("Warning: %s" % str(e))
@@ -1429,7 +1429,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__transformations.leftrightflip,
             self.__transformations.updownflip)
 
-
     def __transposeItems(self):
         """ transposes all image items
         """
@@ -1439,7 +1438,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__transposeLockerLines()
         self.__transposeCenterLines()
         self.__transposeMarkLines()
-        
+
     def __transposeROIs(self):
         """ transposes ROIs
         """
@@ -1448,20 +1447,19 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             size = crd.size()
             crd.setPos([pos[1], pos[0]])
             crd.setSize([size[1], size[0]])
-        
+
     def __transposeCuts(self):
         """ transposes Cuts
         """
         for crd in self.__cut:
-             pos = crd.pos()
-             size = crd.size()
-             angle = crd.angle()
-             ra = angle * np.pi / 180.
-             crd.setPos(
-                 [pos[1] + math.sin(ra)*size[0],
-                  pos[0] + math.cos(ra)*size[0]])
-             crd.setAngle(270-angle)
-       
+            pos = crd.pos()
+            size = crd.size()
+            angle = crd.angle()
+            ra = angle * np.pi / 180.
+            crd.setPos(
+                [pos[1] + math.sin(ra) * size[0],
+                 pos[0] + math.cos(ra) * size[0]])
+            crd.setAngle(270-angle)
 
     def __transposeLockerLines(self):
         """ transposes locker lines
@@ -1478,7 +1476,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         h = self.__centerVLine.getPos()[0]
         self.__centerVLine.setPos(v)
         self.__centerHLine.setPos(h)
-        
+
     def __transposeMarkLines(self):
         """ transposes Mark Position lines
         """
@@ -1492,5 +1490,3 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         if self.__axes.enabled is True:
             self.__setScale(self.__axes.position, self.__axes.scale)
-        
-        

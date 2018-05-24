@@ -680,9 +680,9 @@ class LiveViewer(QtGui.QMainWindow):
 
         self.__settings.statswoscaling = dialog.statswoscaling
         replot = replot or \
-                 self.__imagewg.setStatsWOScaling(
-                     self.__settings.statswoscaling)
-        if replot:    
+            self.__imagewg.setStatsWOScaling(
+                self.__settings.statswoscaling)
+        if replot:
             self._plot()
 
     @QtCore.pyqtSlot(str)
