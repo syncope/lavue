@@ -220,17 +220,21 @@ class ImageWidget(QtGui.QWidget):
         self.__ui.upperPlotSplitter.moveSplitter(pos, index)
         self.__connectsplitters()
 
-    def onedbottomplot(self):
+    def onedbottomplot(self, clear=False):
         """ creates 1d bottom plot
 
+        :param clear: clear flag
+        :type clear: :obj:`bool`
         :returns: 1d bottom plot
         :rtype: :class:`pyqtgraph.PlotDataItem`
         """
-        return self.__bottomplot.plot()
+        return self.__bottomplot.plot(clear=clear)
 
-    def onedrightplot(self):
+    def onedrightplot(self, clear=False):
         """ creates 1d right plot
 
+        :param clear: clear flag
+        :type clear: :obj:`bool`
         :returns: 1d right plot
         :rtype: :class:`pyqtgraph.PlotDataItem`
         """
