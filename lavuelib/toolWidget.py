@@ -1039,7 +1039,7 @@ class LineCutToolWidget(ToolWidget):
         """
 
         if self.__cutCurve is None:
-            self.__cutCurve = self._mainwidget.onedbottomplot()
+            self.__cutCurve = self._mainwidget.onedbottomplot(True)
         self.__cutCurve.show()
         self.__cutCurve.setVisible(True)
         self._plotCut()
@@ -1132,9 +1132,9 @@ class ProjectionToolWidget(ToolWidget):
         self.__ui.setupUi(self)
 
         #: (:class:`pyqtgraph.PlotDataItem`) 1D bottom plot
-        self.__bottomplot = self._mainwidget.onedbarbottomplot()
+        self.__bottomplot = None
         #: (:class:`pyqtgraph.PlotDataItem`) 1D bottom plot
-        self.__rightplot = self._mainwidget.onedbarrightplot()
+        self.__rightplot = None
         #: (:obj:`int`) function index
         self.__funindex = 0
 
@@ -1720,9 +1720,9 @@ class QROIProjToolWidget(ToolWidget):
         self.__ui.setupUi(self)
 
         #: (:class:`pyqtgraph.PlotDataItem`) 1D bottom plot
-        self.__bottomplot = self._mainwidget.onedbarbottomplot()
+        self.__bottomplot = None
         #: (:class:`pyqtgraph.PlotDataItem`) 1D bottom plot
-        self.__rightplot = self._mainwidget.onedbarrightplot()
+        self.__rightplot = None
         #: (:obj:`int`) function index
         self.__funindex = 0
 
