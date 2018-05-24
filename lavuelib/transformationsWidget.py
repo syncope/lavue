@@ -86,10 +86,10 @@ class TransformationsWidget(QtGui.QWidget):
         if flag:
             if transpose:
                 self.__ui.keepcoordsLabel.setText(
-                    "Keep original coordinates! (x-vertical)")
+                    "Keep original coordinates! (X-vertical)")
             else:
                 self.__ui.keepcoordsLabel.setText(
-                    "Keep original coordinates! (x-horizontal)")
+                    "Keep original coordinates! (X-horizontal)")
         else:
             self.__ui.keepcoordsLabel.setText(
-                "Transform also coordinates! (x-horizontal)")
+                "Transform also coordinates! (X-horizontal)")
