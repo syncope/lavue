@@ -620,8 +620,11 @@ class LiveViewer(QtGui.QMainWindow):
         self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
         self.__settings.autodownsample = dialog.autodownsample
         self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
-        self.__settings.keepcoords = dialog.keepcoords
-        self.__trafowg.setKeepCoordsLabel(self.__settings.keepcoords)
+        replot = False
+        if self.__settings.keepcoords != dialog.keepcoords:
+            self.__settings.keepcoords = dialog.keepcoords
+            self.__trafowg.setKeepCoordsLabel(self.__settings.keepcoords)
+            replot = True
 
         self.__settings.secstream = dialog.secstream
         self.__settings.storegeometry = dialog.storegeometry
@@ -676,7 +679,10 @@ class LiveViewer(QtGui.QMainWindow):
             self.__sourcewg.updateLayout()
 
         self.__settings.statswoscaling = dialog.statswoscaling
-        if self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling):
+        replot = replot or \
+                 self.__imagewg.setStatsWOScaling(
+                     self.__settings.statswoscaling)
+        if replot:    
             self._plot()
 
     @QtCore.pyqtSlot(str)

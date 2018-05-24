@@ -123,9 +123,11 @@ class SimpleLineROI(LineROI):
         # self.handle1 = self.addScaleRotateHandle([0, 0.5], [1, 0.5])
         # self.handle2 = self.addScaleRotateHandle([1, 0.5], [0, 0.5])
 
-    def getCoordinates(self):
+    def getCoordinates(self, trans=False):
         """ provides the roi coordinates
 
+        :param trans: transposed flag
+        :type trans: :obj:`bool`
         :returns: x1, y1, x2, y2 positions of the roi
         :rtype: [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`]
         """
@@ -136,7 +138,10 @@ class SimpleLineROI(LineROI):
         pos2 = pos1 + _pg.Point(
             size.x() * math.cos(ra),
             size.x() * math.sin(ra))
-        return [pos1.x(), pos1.y(), pos2.x(), pos2.y(), size.y()]
+        if trans:
+            return [pos1.y(), pos1.x(), pos2.y(), pos2.x(), size.y()]
+        else:
+            return [pos1.x(), pos1.y(), pos2.x(), pos2.y(), size.y()]
 
 
 class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
@@ -413,8 +418,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             coords = [pnt, pnt, pnt + sz, pnt + sz]
             spnt = _pg.Point(sz, sz)
         else:
-            pnt = _pg.Point(coords[0], coords[1])
-            spnt = _pg.Point(coords[2] - coords[0], coords[3] - coords[1])
+            if not self.__transformations.transpose:
+                pnt = _pg.Point(coords[0], coords[1])
+                spnt = _pg.Point(coords[2] - coords[0], coords[3] - coords[1])
+            else:
+                pnt = _pg.Point(coords[1], coords[0])
+                spnt = _pg.Point(coords[3] - coords[1], coords[2] - coords[0])
         self.__roi.append(ROI(pnt, spnt))
         self.__roi[-1].addScaleHandle([1, 1], [0, 0])
         self.__roi[-1].addScaleHandle([0, 0], [1, 1])
@@ -464,11 +473,17 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if coords:
             for i, crd in enumerate(self.__roi):
                 if i < len(coords):
-                    self.__rois.coords[i] = coords[i]
-                    crd.setPos([coords[i][0], coords[i][1]])
-                    crd.setSize(
-                        [coords[i][2] - coords[i][0],
-                         coords[i][3] - coords[i][1]])
+                    self.__rois.coords[i] = coords[i]                    
+                    if not self.__transformations.transpose:
+                        crd.setPos([coords[i][0], coords[i][1]])
+                        crd.setSize(
+                            [coords[i][2] - coords[i][0],
+                             coords[i][3] - coords[i][1]])
+                    else:
+                        crd.setPos([coords[i][1], coords[i][0]])
+                        crd.setSize(
+                            [coords[i][3] - coords[i][1],
+                             coords[i][2] - coords[i][0]])
 
     def __addCutCoords(self, coords):
         """ adds Cut coorinates
@@ -481,10 +496,16 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             for i, crd in enumerate(self.__cut):
                 if i < len(coords):
                     self.__cuts.coords[i] = coords[i]
-                    crd.setPos([coords[i][0], coords[i][1]])
-                    crd.setSize(
-                        [coords[i][2] - coords[i][0],
-                         coords[i][3] - coords[i][1]])
+                    if not self.__transformations.transpose:
+                        crd.setPos([coords[i][0], coords[i][1]])
+                        crd.setSize(
+                            [coords[i][2] - coords[i][0],
+                             coords[i][3] - coords[i][1]])
+                    else:
+                        crd.setPos([coords[i][1], coords[i][0]])
+                        crd.setSize(
+                            [coords[i][3] - coords[i][1],
+                             coords[i][2] - coords[i][0]])
 
     def __addCut(self, coords=None):
         """ adds Cuts
@@ -497,8 +518,15 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             pnt = 10 * (len(self.__cut) + 1)
             sz = 50
             coords = [pnt, pnt, pnt + sz, pnt, 0.00001]
-        self.__cut.append(SimpleLineROI(
+            
+        if not self.__transformations.transpose:
+            self.__cut.append(SimpleLineROI(
             coords[:2], coords[2:4], width=coords[4], pen='r'))
+        else:
+            self.__cut.append(SimpleLineROI(
+                [coords[1], coords[0]],
+                [coords[3], coords[2]],
+                width=coords[4], pen='r'))
         self.__viewbox.addItem(self.__cut[-1])
         self.__cuts.coords.append(coords)
 
@@ -577,11 +605,19 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__axes.scale = scale
         self.__image.resetTransform()
         if self.__axes.scale is not None and update:
-            self.__image.scale(*self.__axes.scale)
+            if not self.__transformations.transpose:
+                self.__image.scale(*self.__axes.scale)
+            else:
+                self.__image.scale(
+                    self.__axes.scale[1], self.__axes.scale[0])
         else:
             self.__image.scale(1, 1)
         if self.__axes.position is not None and update:
-            self.__image.setPos(*self.__axes.position)
+            if not self.__transformations.transpose:
+                self.__image.setPos(*self.__axes.position)
+            else:
+                self.__image.setPos(
+                    self.__axes.position[1],self.__axes.position[0])
         else:
             self.__image.setPos(0, 0)
         if self.__rawdata is not None and update:
@@ -631,27 +667,47 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 if self.__axes.position is None \
                 else self.__axes.position
 
-            self.__lockerVLine.setPos(
-                (self.__xfdata + .5) * self.__axes.scale[0]
-                + position[0])
-            self.__lockerHLine.setPos(
-                (self.__yfdata + .5) * self.__axes.scale[1]
-                + position[1])
+            if not self.__transformations.transpose:
+                self.__lockerVLine.setPos(
+                    (self.__xfdata + .5) * self.__axes.scale[0]
+                    + position[0])
+                self.__lockerHLine.setPos(
+                    (self.__yfdata + .5) * self.__axes.scale[1]
+                    + position[1])
+            else:
+                self.__lockerVLine.setPos(
+                    (self.__yfdata + .5) * self.__axes.scale[0]
+                    + position[0])
+                self.__lockerHLine.setPos(
+                    (self.__xfdata + .5) * self.__axes.scale[1]
+                    + position[1])
         else:
-            self.__lockerVLine.setPos(self.__xfdata + .5)
-            self.__lockerHLine.setPos(self.__yfdata + .5)
+            if not self.__transformations.transpose:
+                self.__lockerVLine.setPos(self.__xfdata + .5)
+                self.__lockerHLine.setPos(self.__yfdata + .5)
+            else:
+                self.__lockerVLine.setPos(self.__yfdata + .5)
+                self.__lockerHLine.setPos(self.__xfdata + .5)
 
     def __setCenterLines(self):
         """  sets vLine and hLine positions
         """
-        self.__centerVLine.setPos(self.__xdata)
-        self.__centerHLine.setPos(self.__ydata)
+        if not self.__transformations.transpose:
+            self.__centerVLine.setPos(self.__xdata)
+            self.__centerHLine.setPos(self.__ydata)
+        else:
+            self.__centerVLine.setPos(self.__ydata)
+            self.__centerHLine.setPos(self.__xdata)
 
     def __setMarkLines(self):
         """  sets vLine and hLine positions
         """
-        self.__markVLine.setPos(self.__xdata)
-        self.__markHLine.setPos(self.__ydata)
+        if not self.__transformations.transpose:
+            self.__markVLine.setPos(self.__xdata)
+            self.__markHLine.setPos(self.__ydata)
+        else:
+            self.__markVLine.setPos(self.__ydata)
+            self.__markHLine.setPos(self.__xdata)
 
     def currentIntensity(self):
         """ provides intensity for current mouse position
@@ -661,8 +717,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         if self.__rawdata is not None:
             try:
-                xf = int(math.floor(self.__xfdata))
-                yf = int(math.floor(self.__yfdata))
+                if not self.__transformations.transpose:
+                    xf = int(math.floor(self.__xfdata))
+                    yf = int(math.floor(self.__yfdata))
+                else:
+                    yf = int(math.floor(self.__xfdata))
+                    xf = int(math.floor(self.__yfdata))
                 if xf >= 0 and yf >= 0 and xf < self.__rawdata.shape[0] \
                    and yf < self.__rawdata.shape[1]:
                     intensity = self.__rawdata[xf, yf]
@@ -735,8 +795,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         try:
             if event is not None:
                 mousePoint = self.__image.mapFromScene(event)
-                self.__xdata = mousePoint.x()
-                self.__ydata = mousePoint.y()
+                if not self.__transformations.transpose:
+                    self.__xdata = mousePoint.x()
+                    self.__ydata = mousePoint.y()
+                else:
+                    self.__ydata = mousePoint.x()
+                    self.__xdata = mousePoint.y()
                 self.__xfdata = math.floor(self.__xdata)
                 self.__yfdata = math.floor(self.__ydata)
             if self.__lines.locker:
@@ -767,16 +831,28 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         self.__bottomaxis.autoSIPrefix = False
         self.__leftaxis.autoSIPrefix = False
-        self.__bottomaxis.setLabel(text=xtext, units=xunits)
-        self.__leftaxis.setLabel(text=ytext, units=yunits)
-        if xunits is None:
-            self.__bottomaxis.labelUnits = ''
-        if yunits is None:
-            self.__leftaxis.labelUnits = ''
-        if xtext is None:
-            self.__bottomaxis.label.setVisible(False)
-        if ytext is None:
-            self.__leftaxis.label.setVisible(False)
+        if not self.__transformations.transpose:
+            self.__bottomaxis.setLabel(text=xtext, units=xunits)
+            self.__leftaxis.setLabel(text=ytext, units=yunits)
+            if xunits is None:
+                self.__bottomaxis.labelUnits = ''
+            if yunits is None:
+                self.__leftaxis.labelUnits = ''
+            if xtext is None:
+                self.__bottomaxis.label.setVisible(False)
+            if ytext is None:
+                self.__leftaxis.label.setVisible(False)
+        else:
+            self.__bottomaxis.setLabel(text=ytext, units=yunits)
+            self.__leftaxis.setLabel(text=xtext, units=xunits)
+            if yunits is None:
+                self.__bottomaxis.labelUnits = ''
+            if xunits is None:
+                self.__leftaxis.labelUnits = ''
+            if ytext is None:
+                self.__bottomaxis.label.setVisible(False)
+            if xtext is None:
+                self.__leftaxis.label.setVisible(False)
 
     @QtCore.pyqtSlot(object)
     def mouse_click(self, event):
@@ -788,8 +864,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
         mousePoint = self.__image.mapFromScene(event.scenePos())
 
-        xdata = mousePoint.x()
-        ydata = mousePoint.y()
+        if not self.__transformations.transpose:
+            xdata = mousePoint.x()
+            ydata = mousePoint.y()
+        else:
+            ydata = mousePoint.x()
+            xdata = mousePoint.y()
 
         # if double click: fix mouse crosshair
         # another double click releases the crosshair again
@@ -797,8 +877,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             if self.__lines.locker:
                 self.__crosshairlocked = not self.__crosshairlocked
                 if not self.__crosshairlocked:
-                    self.__lockerVLine.setPos(xdata + .5)
-                    self.__lockerHLine.setPos(ydata + .5)
+                    if not self.__transformations.transpose:
+                        self.__lockerVLine.setPos(xdata + .5)
+                        self.__lockerHLine.setPos(ydata + .5)
+                    else:
+                        self.__lockerVLine.setPos(ydata + .5)
+                        self.__lockerHLine.setPos(xdata + .5)
             if self.__lines.center:
                 self.updateCenter(xdata, ydata)
             if not self.__lines.doubleclicklock and self.__lines.positionmark:
@@ -1016,10 +1100,16 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             roi = self._getROI(rid)
             if roi is not None:
                 state = roi.state
-                ptx = int(math.floor(state['pos'].x()))
-                pty = int(math.floor(state['pos'].y()))
-                szx = int(math.floor(state['size'].x()))
-                szy = int(math.floor(state['size'].y()))
+                if not self.__transformations.transpose:
+                    ptx = int(math.floor(state['pos'].x()))
+                    pty = int(math.floor(state['pos'].y()))
+                    szx = int(math.floor(state['size'].x()))
+                    szy = int(math.floor(state['size'].y()))
+                else:
+                    pty = int(math.floor(state['pos'].x()))
+                    ptx = int(math.floor(state['pos'].y()))
+                    szy = int(math.floor(state['size'].x()))
+                    szx = int(math.floor(state['size'].y()))
                 self.__rois.coords[rid] = [
                     ptx, pty, ptx + szx, pty + szy]
                 self.roiCoordsChanged.emit()
@@ -1044,7 +1134,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         try:
             cid = self.__cuts.current
-            self.__cuts.coords[cid] = self._getCut(cid).getCoordinates()
+            self.__cuts.coords[cid] = self._getCut(cid).getCoordinates(
+                self.__transformations.transpose)
             self.cutCoordsChanged.emit()
         except Exception as e:
             print("Warning: %s" % str(e))
@@ -1259,8 +1350,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type ydata: :obj:`float`
         """
         self.__centercoordinates = [xdata, ydata]
-        self.__centerVLine.setPos(xdata)
-        self.__centerHLine.setPos(ydata)
+        if not self.__transformations.transpose:
+            self.__centerVLine.setPos(xdata)
+            self.__centerHLine.setPos(ydata)
+        else:
+            self.__centerVLine.setPos(ydata)
+            self.__centerHLine.setPos(xdata)
 
     @QtCore.pyqtSlot(float, float)
     def updatePositionMark(self, xdata, ydata):
@@ -1272,8 +1367,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type ydata: :obj:`float`
         """
         self.__markcoordinates = [xdata, ydata]
-        self.__markVLine.setPos(xdata)
-        self.__markHLine.setPos(ydata)
+        if not self.__transformations.transpose:
+            self.__markVLine.setPos(xdata)
+            self.__markHLine.setPos(ydata)
+        else:
+            self.__markVLine.setPos(ydata)
+            self.__markHLine.setPos(xdata)
 
     def setTransformations(self, transpose, leftrightflip, updownflip):
         """ sets coordinate transformations
@@ -1287,6 +1386,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         if self.__transformations.transpose != transpose:
             self.__transformations.transpose = transpose
+            self.__transposeItems()
         if self.__transformations.leftrightflip != leftrightflip:
             self.__transformations.leftrightflip = leftrightflip
             if hasattr(self.__viewbox, "invertX"):
@@ -1322,3 +1422,65 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__transformations.transpose,
             self.__transformations.leftrightflip,
             self.__transformations.updownflip)
+
+
+    def __transposeItems(self):
+        """ transposes all image items
+        """
+        self.__transposeROIs()
+        self.__transposeCuts()
+        self.__transposeAxes()
+        self.__transposeLockerLines()
+        self.__transposeCenterLines()
+        self.__transposeMarkLines()
+        
+    def __transposeROIs(self):
+        """ transposes ROIs
+        """
+        for crd in self.__roi:
+            pos = crd.pos()
+            size = crd.size()
+            crd.setPos([pos[1], pos[0]])
+            crd.setSize([size[1], size[0]])
+        
+    def __transposeCuts(self):
+        """ transposes Cuts
+        """
+        for crd in self.__cut:
+            pos = crd.pos()
+            size = crd.size()
+            crd.setPos([pos[1], pos[0]])
+            crd.setSize([size[1], size[0]])
+        
+
+    def __transposeLockerLines(self):
+        """ transposes locker lines
+        """
+        v = self.__lockerHLine.getPos()[1]
+        h = self.__lockerVLine.getPos()[0]
+        self.__lockerVLine.setPos(v)
+        self.__lockerHLine.setPos(h)
+
+    def __transposeCenterLines(self):
+        """ transposes Center lines
+        """
+        v = self.__centerHLine.getPos()[1]
+        h = self.__centerVLine.getPos()[0]
+        self.__centerVLine.setPos(v)
+        self.__centerHLine.setPos(h)
+        
+    def __transposeMarkLines(self):
+        """ transposes Mark Position lines
+        """
+        v = self.__markHLine.getPos()[1]
+        h = self.__markVLine.getPos()[0]
+        self.__markVLine.setPos(v)
+        self.__markHLine.setPos(h)
+
+    def __transposeAxes(self):
+        """ transposes axes
+        """
+        if self.__axes.enabled is True:
+            self.__setScale(self.__axes.position, self.__axes.scale)
+        
+        
