@@ -202,6 +202,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__centercoordinates = None
         #: ([:obj:`float`, :obj:`float`]) position mark coordinates
         self.__markcoordinates = None
+        #: ([:obj:`float`, :obj:`float`]) position mark coordinates
+        self.__lockercoordinates = None
 
         self.__viewbox.addItem(self.__image)
         #: (:obj:`float`) current floar x-position
@@ -709,17 +711,26 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
     def currentIntensity(self):
         """ provides intensity for current mouse position
 
-        :returns: x position, y position, pixel intensity
-        :rtype: (`obj`:float:, `obj`:float:, `obj`:float:)
+        :returns: (x position, y position, pixel intensity,
+                   x position, y position)
+        :rtype: (`obj`:float:, `obj`:float:, `obj`:float:,
+                 `obj`:float:, `obj`:float:)
         """
+        if self.__lines.locker and self.__crosshairlocked \
+           and self.__lockercoordinates is not None:
+            xfdata = math.floor(self.__lockercoordinates[0])
+            yfdata = math.floor(self.__lockercoordinates[1])
+        else:
+            xfdata = self.__xfdata
+            yfdata = self.__yfdata
         if self.__rawdata is not None:
             try:
                 if not self.__transformations.transpose:
-                    xf = int(math.floor(self.__xfdata))
-                    yf = int(math.floor(self.__yfdata))
+                    xf = int(xfdata)
+                    yf = int(yfdata)
                 else:
-                    yf = int(math.floor(self.__xfdata))
-                    xf = int(math.floor(self.__yfdata))
+                    yf = int(xfdata)
+                    xf = int(yfdata)
                 if xf >= 0 and yf >= 0 and xf < self.__rawdata.shape[0] \
                    and yf < self.__rawdata.shape[1]:
                     intensity = self.__rawdata[xf, yf]
@@ -729,7 +740,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 intensity = 0.
         else:
             intensity = 0.
-        return (self.__xfdata, self.__yfdata, intensity,
+        return (xfdata, yfdata, intensity,
                 self.__xdata, self.__ydata)
 
     def scalingLabel(self):
@@ -872,14 +883,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         # another double click releases the crosshair again
         if event.double():
             if self.__lines.locker:
-                self.__crosshairlocked = not self.__crosshairlocked
-                if not self.__crosshairlocked:
-                    if not self.__transformations.transpose:
-                        self.__lockerVLine.setPos(xdata + .5)
-                        self.__lockerHLine.setPos(ydata + .5)
-                    else:
-                        self.__lockerVLine.setPos(ydata + .5)
-                        self.__lockerHLine.setPos(xdata + .5)
+                self.updateLocker(xdata, ydata)
             if self.__lines.center:
                 self.updateCenter(xdata, ydata)
             if not self.__lines.doubleclicklock and self.__lines.positionmark:
@@ -1362,6 +1366,26 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         else:
             self.__centerVLine.setPos(ydata)
             self.__centerHLine.setPos(xdata)
+
+    @QtCore.pyqtSlot(float, float)
+    def updateLocker(self, xdata, ydata):
+        """ updates the locker position
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        """
+        self.__crosshairlocked = not self.__crosshairlocked
+        if not self.__crosshairlocked:
+            if not self.__transformations.transpose:
+                self.__lockerVLine.setPos(xdata + 0.5)
+                self.__lockerHLine.setPos(ydata + 0.5)
+            else:
+                self.__lockerVLine.setPos(ydata + 0.5)
+                self.__lockerHLine.setPos(xdata + 0.5)
+        else:
+            self.__lockercoordinates = [xdata, ydata]
 
     @QtCore.pyqtSlot(float, float)
     def updatePositionMark(self, xdata, ydata):
