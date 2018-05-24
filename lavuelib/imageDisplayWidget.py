@@ -28,12 +28,13 @@
 import pyqtgraph as _pg
 import numpy as np
 import math
+import types
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI, Handle
 from PyQt4 import QtCore, QtGui
-from .external.hooks import (viewbox_updateMatrix, viewbox_invertX,
-                    viewbox_xInverted, axisitem_linkedViewChanged,
-                    viewbox_linkedViewChanged)
-import types
+from .external.pyqtgraph_0_10 import (
+    viewbox_updateMatrix, viewbox_invertX,
+    viewbox_xInverted, axisitem_linkedViewChanged,
+    viewbox_linkedViewChanged)
 
 from . import axesDialog
 from . import displayParameters
