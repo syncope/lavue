@@ -1456,9 +1456,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
              pos = crd.pos()
              size = crd.size()
              angle = crd.angle()
-             crd.setPos([pos[1], pos[0]])
-             crd.setSize([size[0], -size[1]])
-             crd.setAngle(90-angle)
+             ra = angle * np.pi / 180.
+             crd.setPos(
+                 [pos[1] + math.sin(ra)*size[0],
+                  pos[0] + math.cos(ra)*size[0]])
+             crd.setAngle(270-angle)
        
 
     def __transposeLockerLines(self):
