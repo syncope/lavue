@@ -31,13 +31,14 @@ import math
 import types
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI, Handle
 from PyQt4 import QtCore, QtGui
+
+from . import axesDialog
+from . import displayParameters
+
 from .external.pyqtgraph_0_10 import (
     viewbox_updateMatrix, viewbox_invertX,
     viewbox_xInverted, axisitem_linkedViewChanged,
     viewbox_linkedViewChanged)
-
-from . import axesDialog
-from . import displayParameters
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
     if _pg.__version__ else ("0", "9", "0")

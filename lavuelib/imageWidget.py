@@ -32,11 +32,17 @@ import pyqtgraph as _pg
 import re
 import os
 import json
+import types
 
 from . import imageDisplayWidget
 from . import messageBox
 from . import imageSource as isr
 from . import toolWidget
+
+from .external.pyqtgraph_0_10 import (
+    viewbox_updateMatrix, viewbox_invertX,
+    viewbox_xInverted, axisitem_linkedViewChanged,
+    viewbox_linkedViewChanged)
 
 
 # _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
@@ -123,9 +129,24 @@ class ImageWidget(QtGui.QWidget):
 
         #: (:class:`pyqtgraph.PlotWidget`) bottom 1D plot widget
         self.__bottomplot = _pg.PlotWidget(self)
+        vb = self.__bottomplot.getViewBox()
+        if not hasattr(vb, "invertX"):
+            vb.state["xInverted"] = False
+            vb.invertX = types.MethodType(viewbox_invertX, vb)
+            vb.xInverted = types.MethodType(viewbox_xInverted, vb)
+            vb.updateMatrix = types.MethodType(viewbox_updateMatrix, vb)
+            vb.linkedViewChanged = types.MethodType(
+                viewbox_linkedViewChanged, vb)
+            ba = self.__bottomplot.getAxis("bottom")
+            vb.sigResized.disconnect(ba.linkedViewChanged)
+            vb.sigXRangeChanged.disconnect(ba.linkedViewChanged)
+            ba.linkedViewChanged = types.MethodType(
+                axisitem_linkedViewChanged, ba)
+            vb.sigXRangeChanged.connect(ba.linkedViewChanged)
+            vb.sigResized.connect(ba.linkedViewChanged)
 
         #: (:class:`pyqtgraph.PlotWidget`) right 1D plot widget
-        self.__rightplot = _pg.PlotWidget()
+        self.__rightplot = _pg.PlotWidget(self)
 
         self.__ui.twoDVerticalLayout.addWidget(self.__displaywidget)
         self.__ui.oneDBottomVerticalLayout.addWidget(self.__bottomplot)

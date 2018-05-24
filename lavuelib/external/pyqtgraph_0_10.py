@@ -8,7 +8,7 @@
 # the rights to use, copy, modify, merge, publish, distribute, sublicense,
 # and/or sell copies of the Software, and to permit persons to whom
 # the Software is furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included
 # in all copies or substantial portions of the Software.
 #
@@ -25,11 +25,11 @@
 
 from pyqtgraph.Point import Point
 from pyqtgraph.graphicsItems.ViewBox import ViewBox
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtGui
 
 
 def viewbox_updateMatrix(self, changed=None):
-    ## Make the childGroup's transform match the requested viewRange.
+    # Make the childGroup's transform match the requested viewRange.
     bounds = self.rect()
 
     vr = self.viewRect()
@@ -42,24 +42,25 @@ def viewbox_updateMatrix(self, changed=None):
         scale = scale * Point(-1, 1)
     m = QtGui.QTransform()
 
-    ## First center the viewport at 0
+    # First center the viewport at 0
     center = bounds.center()
     m.translate(center.x(), center.y())
 
-    ## Now scale and translate properly
+    # Now scale and translate properly
     m.scale(scale[0], scale[1])
     st = Point(vr.center())
     m.translate(-st[0], -st[1])
 
     self.childGroup.setTransform(m)
 
-    self.sigTransformChanged.emit(self)  ## segfaults here: 1
+    self.sigTransformChanged.emit(self)  # segfaults here: 1
     self._matrixNeedsUpdate = False
 
 
 def viewbox_invertX(self, b=True):
     """
-    By default, the positive y-axis points upward on the screen. Use invertX(True) to reverse the x-axis.
+    By default, the positive y-axis points upward on the screen.
+    Use invertX(True) to reverse the x-axis.
     """
     if self.state['xInverted'] == b:
         return
@@ -89,13 +90,13 @@ def axisitem_linkedViewChanged(self, view, newRange=None):
         if view.xInverted():
             self.setRange(*newRange[::-1])
         else:
-            self.setRange(*newRange)            
-                                                        
+            self.setRange(*newRange)
+
+
 def viewbox_linkedViewChanged(self, view, axis):
     if self.linksBlocked or view is None:
         return
 
-    #print self.name, "ViewBox.linkedViewChanged", axis, view.viewRange()[axis]
     vr = view.viewRect()
     vg = view.screenGeometry()
     sg = self.screenGeometry()
@@ -106,26 +107,29 @@ def viewbox_linkedViewChanged(self, view, axis):
     try:
         if axis == ViewBox.XAxis:
             overlap = min(sg.right(), vg.right()) - max(sg.left(), vg.left())
-            if overlap < min(vg.width()/3, sg.width()/3):  ## if less than 1/3 of views overlap, 
-                                                           ## then just replicate the view
+            # if less than 1/3 of views overlap,
+            if overlap < min(vg.width()/3, sg.width()/3):
+                # then just replicate the view
                 x1 = vr.left()
                 x2 = vr.right()
-            else:  ## views overlap; line them up
+            else:
+                # views overlap; line them up
                 upp = float(vr.width()) / vg.width()
                 if self.xInverted():
-                    x1 = vr.left()   + (sg.right()-vg.right()) * upp
+                    x1 = vr.left() + (sg.right()-vg.right()) * upp
                 else:
-                    x1 = vr.left()   + (sg.x()-vg.x()) * upp
+                    x1 = vr.left() + (sg.x()-vg.x()) * upp
                 x2 = x1 + sg.width() * upp
             self.enableAutoRange(ViewBox.XAxis, False)
             self.setXRange(x1, x2, padding=0)
         else:
             overlap = min(sg.bottom(), vg.bottom()) - max(sg.top(), vg.top())
-            if overlap < min(vg.height()/3, sg.height()/3):  ## if less than 1/3 of views overlap, 
-                                                             ## then just replicate the view
+            # if less than 1/3 of views overlap,
+            if overlap < min(vg.height()/3, sg.height()/3):
+                # then just replicate the view
                 y1 = vr.top()
                 y2 = vr.bottom()
-            else:  ## views overlap; line them up
+            else:  # views overlap; line them up
                 upp = float(vr.height()) / vg.height()
                 if self.yInverted():
                     y2 = vr.bottom() + (sg.bottom()-vg.bottom()) * upp
@@ -136,5 +140,3 @@ def viewbox_linkedViewChanged(self, view, axis):
             self.setYRange(y1, y2, padding=0)
     finally:
         view.blockLink(False)
-
-
