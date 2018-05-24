@@ -123,7 +123,7 @@ class SimpleLineROI(LineROI):
         # self.handle1 = self.addScaleRotateHandle([0, 0.5], [1, 0.5])
         # self.handle2 = self.addScaleRotateHandle([1, 0.5], [0, 0.5])
 
-    def getCoordinates(self, trans=False):
+    def getCoordinates(self):
         """ provides the roi coordinates
 
         :param trans: transposed flag
@@ -138,10 +138,7 @@ class SimpleLineROI(LineROI):
         pos2 = pos1 + _pg.Point(
             size.x() * math.cos(ra),
             size.x() * math.sin(ra))
-        if trans:
-            return [pos1.y(), pos1.x(), pos2.y(), pos2.x(), size.y()]
-        else:
-            return [pos1.x(), pos1.y(), pos2.x(), pos2.y(), size.y()]
+        return [pos1.x(), pos1.y(), pos2.x(), pos2.y(), size.y()]
 
 
 class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
@@ -1138,8 +1135,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         try:
             cid = self.__cuts.current
-            self.__cuts.coords[cid] = self._getCut(cid).getCoordinates(
-                self.__transformations.transpose)
+            crds = self._getCut(cid).getCoordinates()
+            if not self.__transformations.transpose:
+                self.__cuts.coords[cid] = crds
+            else:
+                self.__cuts.coords[cid] = [
+                    crds[1],crds[0],crds[3],crds[2],crds[4]]
+                
             self.cutCoordsChanged.emit()
         except Exception as e:
             print("Warning: %s" % str(e))
@@ -1451,11 +1453,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """ transposes Cuts
         """
         for crd in self.__cut:
-            pos = crd.pos()
-            size = crd.size()
-            crd.setPos([pos[1], pos[0]])
-            crd.setSize([size[1], size[0]])
-        
+             pos = crd.pos()
+             size = crd.size()
+             angle = crd.angle()
+             crd.setPos([pos[1], pos[0]])
+             crd.setSize([size[0], -size[1]])
+             crd.setAngle(90-angle)
+       
 
     def __transposeLockerLines(self):
         """ transposes locker lines
