@@ -76,3 +76,20 @@ class TransformationsWidget(QtGui.QWidget):
         self.__ui.comboBox.setEnable(flag)
         if not flag:
             self.__ui.comboBox.setCurrentIndex(0)
+
+    def setKeepCoordsLabel(self, flag, transpose=False):
+        """ sets keep original coordinates label according to flag
+
+        :param flag: keep original coordinates flag
+        :type flag: :obj:`bool`
+        """
+        if flag:
+            if transpose:
+                self.__ui.keepcoordsLabel.setText(
+                    "Keep original coordinates! (X-vertical)")
+            else:
+                self.__ui.keepcoordsLabel.setText(
+                    "Keep original coordinates! (X-horizontal)")
+        else:
+            self.__ui.keepcoordsLabel.setText(
+                "Transform also coordinates! (X-horizontal)")

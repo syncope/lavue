@@ -352,6 +352,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__setSardana(self.__settings.sardana)
         self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
         self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
+        self._assessTransformation(self.__trafoname)
         self.__datasource.setTimeOut(self.__settings.timeout)
         dataFetchThread.GLOBALREFRESHRATE = self.__settings.refreshrate
         self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling)
@@ -537,6 +538,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.timeout = self.__settings.timeout
         cnfdlg.aspectlocked = self.__settings.aspectlocked
         cnfdlg.autodownsample = self.__settings.autodownsample
+        cnfdlg.keepcoords = self.__settings.keepcoords
         cnfdlg.statswoscaling = self.__settings.statswoscaling
         cnfdlg.zmqtopics = self.__settings.zmqtopics
         cnfdlg.detservers = self.__settings.detservers
@@ -618,6 +620,12 @@ class LiveViewer(QtGui.QMainWindow):
         self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
         self.__settings.autodownsample = dialog.autodownsample
         self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
+        replot = False
+        if self.__settings.keepcoords != dialog.keepcoords:
+            self.__settings.keepcoords = dialog.keepcoords
+            self._assessTransformation(self.__trafoname)
+            replot = True
+
         self.__settings.secstream = dialog.secstream
         self.__settings.storegeometry = dialog.storegeometry
         setsrc = False
@@ -671,7 +679,10 @@ class LiveViewer(QtGui.QMainWindow):
             self.__sourcewg.updateLayout()
 
         self.__settings.statswoscaling = dialog.statswoscaling
-        if self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling):
+        replot = replot or \
+            self.__imagewg.setStatsWOScaling(
+                self.__settings.statswoscaling)
+        if replot:
             self._plot()
 
     @QtCore.pyqtSlot(str)
@@ -724,7 +735,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__prepareImage()
 
         # perform transformation
-        self.__transform()
+        crdtranspose, crdleftrightflip, crdupdownflip = self.__transform()
 
         # use the internal raw image to create a display image with chosen
         # scaling
@@ -735,6 +746,8 @@ class LiveViewer(QtGui.QMainWindow):
         # calls internally the plot function of the plot widget
         if self.__imagename is not None and self.__scaledimage is not None:
             self.__ui.fileNameLineEdit.setText(self.__imagename)
+        self.__imagewg.setTransformations(
+            crdtranspose, crdleftrightflip, crdupdownflip)
         self.__imagewg.plot(
             self.__scaledimage,
             self.__displayimage
@@ -1029,30 +1042,63 @@ class LiveViewer(QtGui.QMainWindow):
 
     def __transform(self):
         """ does the image transformation on the given numpy array.
-        """
-        if self.__displayimage is None or self.__trafoname is "none":
-            return
 
+        :returns: crdtranspose, crdleftrightflip, crdupdownflip flags
+        :rtype: (:obj:`bool`, :obj:`bool`, :obj:`bool`)
+        """
+        crdupdownflip = False
+        crdleftrightflip = False
+        crdtranspose = False
+        if self.__trafoname is "none":
+            pass
         elif self.__trafoname == "flip (up-down)":
-            self.__displayimage = np.fliplr(self.__displayimage)
+            if self.__settings.keepcoords:
+                crdupdownflip = True
+            elif self.__displayimage is not None:
+                    self.__displayimage = np.fliplr(self.__displayimage)
         elif self.__trafoname == "flip (left-right)":
-            self.__displayimage = np.flipud(self.__displayimage)
+            if self.__settings.keepcoords:
+                crdleftrightflip = True
+            elif self.__displayimage is not None:
+                    self.__displayimage = np.flipud(self.__displayimage)
         elif self.__trafoname == "transpose":
-            self.__displayimage = np.transpose(self.__displayimage)
+            if self.__displayimage is not None:
+                self.__displayimage = np.transpose(self.__displayimage)
+            if self.__settings.keepcoords:
+                crdtranspose = True
         elif self.__trafoname == "rot90 (clockwise)":
-            # self.__displayimage = np.rot90(self.__displayimage, 3)
-            self.__displayimage = np.transpose(
-                np.flipud(self.__displayimage))
+            if self.__settings.keepcoords:
+                crdtranspose = True
+                crdupdownflip = True
+                self.__displayimage = np.transpose(self.__displayimage)
+            elif self.__displayimage is not None:
+                self.__displayimage = np.transpose(
+                    np.flipud(self.__displayimage))
         elif self.__trafoname == "rot180":
-            self.__displayimage = np.flipud(
-                np.fliplr(self.__displayimage))
+            if self.__settings.keepcoords:
+                crdupdownflip = True
+                crdleftrightflip = True
+            elif self.__displayimage is not None:
+                self.__displayimage = np.flipud(
+                    np.fliplr(self.__displayimage))
         elif self.__trafoname == "rot270 (clockwise)":
-            # self.__displayimage = np.rot90(self.__displayimage, 1)
-            self.__displayimage = np.transpose(
-                np.fliplr(self.__displayimage))
+            if self.__settings.keepcoords:
+                crdtranspose = True
+                crdleftrightflip = True
+                self.__displayimage = np.transpose(self.__displayimage)
+            elif self.__displayimage is not None:
+                self.__displayimage = np.transpose(
+                    np.fliplr(self.__displayimage))
         elif self.__trafoname == "rot180 + transpose":
-            self.__displayimage = np.transpose(
-                np.fliplr(np.flipud(self.__displayimage)))
+            if self.__settings.keepcoords:
+                crdtranspose = True
+                crdupdownflip = True
+                crdleftrightflip = True
+                self.__displayimage = np.transpose(self.__displayimage)
+            elif self.__displayimage is not None:
+                self.__displayimage = np.transpose(
+                    np.fliplr(np.flipud(self.__displayimage)))
+        return crdtranspose, crdleftrightflip, crdupdownflip
 
     def __scale(self, scalingtype):
         """ sets scaletype on the image
@@ -1162,4 +1208,12 @@ class LiveViewer(QtGui.QMainWindow):
         """ assesses the transformation and replot it
         """
         self.__trafoname = trafoname
+        if trafoname in [
+                "transpose", "rot90 (clockwise)",
+                "rot270 (clockwise)", "rot180 + transpose"]:
+            self.__trafowg.setKeepCoordsLabel(
+                self.__settings.keepcoords, True)
+        else:
+            self.__trafowg.setKeepCoordsLabel(
+                self.__settings.keepcoords, False)
         self._plot()

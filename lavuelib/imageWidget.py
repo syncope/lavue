@@ -32,11 +32,17 @@ import pyqtgraph as _pg
 import re
 import os
 import json
+import types
 
 from . import imageDisplayWidget
 from . import messageBox
 from . import imageSource as isr
 from . import toolWidget
+
+from .external.pyqtgraph_0_10 import (
+    viewbox_updateMatrix, viewbox_invertX,
+    viewbox_xInverted, axisitem_linkedViewChanged,
+    viewbox_linkedViewChanged)
 
 
 # _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
@@ -123,9 +129,24 @@ class ImageWidget(QtGui.QWidget):
 
         #: (:class:`pyqtgraph.PlotWidget`) bottom 1D plot widget
         self.__bottomplot = _pg.PlotWidget(self)
+        vb = self.__bottomplot.getViewBox()
+        if not hasattr(vb, "invertX"):
+            vb.state["xInverted"] = False
+            vb.invertX = types.MethodType(viewbox_invertX, vb)
+            vb.xInverted = types.MethodType(viewbox_xInverted, vb)
+            vb.updateMatrix = types.MethodType(viewbox_updateMatrix, vb)
+            vb.linkedViewChanged = types.MethodType(
+                viewbox_linkedViewChanged, vb)
+            ba = self.__bottomplot.getAxis("bottom")
+            vb.sigResized.disconnect(ba.linkedViewChanged)
+            vb.sigXRangeChanged.disconnect(ba.linkedViewChanged)
+            ba.linkedViewChanged = types.MethodType(
+                axisitem_linkedViewChanged, ba)
+            vb.sigXRangeChanged.connect(ba.linkedViewChanged)
+            vb.sigResized.connect(ba.linkedViewChanged)
 
         #: (:class:`pyqtgraph.PlotWidget`) right 1D plot widget
-        self.__rightplot = _pg.PlotWidget()
+        self.__rightplot = _pg.PlotWidget(self)
 
         self.__ui.twoDVerticalLayout.addWidget(self.__displaywidget)
         self.__ui.oneDBottomVerticalLayout.addWidget(self.__bottomplot)
@@ -404,6 +425,52 @@ class ImageWidget(QtGui.QWidget):
             self.__rightplot.hide()
             self.__ui.cornerWidget.hide()
             self.__ui.oneDRightWidget.hide()
+
+    def setTransformations(self, transpose, leftrightflip, updownflip):
+        """ sets coordinate transformations
+
+        :param transpose: transpose coordinates flag
+        :type transpose: :obj:`bool`
+        :param leftrightflip: left-right flip coordinates flag
+        :type leftrightflip: :obj:`bool`
+        :param updownflip: up-down flip coordinates flag
+        :type updownflip: :obj:`bool`
+        """
+        oldtrans, oldleftright, oldupdown = \
+            self.__displaywidget.transformations()
+        if oldleftright != leftrightflip:
+            if hasattr(self.__bottomplot.getViewBox(), "invertX"):
+                self.__bottomplot.getViewBox().invertX(leftrightflip)
+            else:
+                """ version 0.9.10 without invertX """
+            # workaround for a bug in old pyqtgraph versions: stretch 0.10
+            self.__bottomplot.getViewBox().sigXRangeChanged.emit(
+                self.__bottomplot.getViewBox(),
+                tuple(self.__bottomplot.getViewBox().state['viewRange'][0]))
+            self.__bottomplot.getViewBox().sigYRangeChanged.emit(
+                self.__bottomplot.getViewBox(),
+                tuple(self.__bottomplot.getViewBox().state['viewRange'][1]))
+
+        if oldupdown != updownflip:
+            self.__rightplot.getViewBox().invertY(updownflip)
+            # workaround for a bug in old pyqtgraph versions: stretch 0.9.10
+            self.__rightplot.getViewBox().sigXRangeChanged.emit(
+                self.__rightplot.getViewBox(),
+                tuple(self.__rightplot.getViewBox().state['viewRange'][0]))
+            self.__rightplot.getViewBox().sigYRangeChanged.emit(
+                self.__rightplot.getViewBox(),
+                tuple(self.__rightplot.getViewBox().state['viewRange'][1]))
+
+        self.__displaywidget.setTransformations(
+            transpose, leftrightflip, updownflip)
+
+    def transformations(self):
+        """ povides coordinates transformations
+
+        :returns: transpose, leftrightflip, updownflip flags
+        :rtype: (:obj:`bool`, :obj:`bool`, :obj:`bool`)
+        """
+        return self.__displaywidget.transformations()
 
     def plot(self, array, rawarray=None):
         """ plots the image

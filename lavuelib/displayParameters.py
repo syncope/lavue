@@ -117,5 +117,20 @@ class IntensityParameters(object):
         self.dobkgsubtraction = False
         #: (:obj:`bool`) calculate statistics without scaling
         self.statswoscaling = False
-        #: (:obj:`bool`) intensity scaling
+        #: (:obj:`str`) intensity scaling
         self.scaling = "sqrt"
+
+
+class TransformationParameters(object):
+    """ transformation parameters
+    """
+
+    def __init__(self):
+        """ constructor
+        """
+        #: (:obj:`bool`) transpose coordinates flag
+        self.transpose = False
+        #: (:obj:`bool`) left-right flip coordinates flag
+        self.leftrightflip = False
+        #: (:obj:`bool`)  up-down flip coordinates flag
+        self.updownflip = False
