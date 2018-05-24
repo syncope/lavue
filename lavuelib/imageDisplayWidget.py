@@ -1042,7 +1042,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     if self.__rois.enabled:
                         if rid >= 0:
                             roicoords = self.__rois.coords
-                            rcrds = list(roicoords[rid])
+                            if not self.__transformations.transpose:
+                                rcrds = list(roicoords[rid])
+                            else:
+                                rc = roicoords[rid]
+                                rcrds = [rc[1], rc[0], rc[3], rc[2]]
                             for i in [0, 2]:
                                 if rcrds[i] > image.shape[0]:
                                     rcrds[i] = image.shape[0]
