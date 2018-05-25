@@ -178,7 +178,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__maskwg = self.__prepwg.maskWidget
         #: (:class:`lavuelib.bkgSubtractionWidget.BkgSubtractionWidget`)
         #:    background subtraction widget
-        self.__bkgSubwg = self.__prepwg.bkgSubWidget
+        self.__bkgsubwg = self.__prepwg.bkgSubWidget
         #: (:class:`lavuelib.transformationsWidget.TransformationsWidget`)
         #:    transformations widget
         self.__trafowg = self.__prepwg.trafoWidget
@@ -285,10 +285,10 @@ class LiveViewer(QtGui.QMainWindow):
         self.__sourcewg.sourceStateChanged.connect(self._updateSource)
         self.__sourcewg.sourceChanged.connect(self._onSourceChanged)
 
-        self.__bkgSubwg.bkgFileSelected.connect(self._prepareBkgSubtraction)
-        self.__bkgSubwg.useCurrentImageAsBkg.connect(
+        self.__bkgsubwg.bkgFileSelected.connect(self._prepareBkgSubtraction)
+        self.__bkgsubwg.useCurrentImageAsBkg.connect(
             self._setCurrentImageAsBkg)
-        self.__bkgSubwg.applyStateChanged.connect(self._checkBkgSubtraction)
+        self.__bkgsubwg.applyStateChanged.connect(self._checkBkgSubtraction)
 
         self.__maskwg.maskFileSelected.connect(self._prepareMasking)
         self.__maskwg.applyStateChanged.connect(self._checkMasking)
@@ -359,24 +359,24 @@ class LiveViewer(QtGui.QMainWindow):
             self.__sourcewg.configure(options.configuration)
 
         if options.bkgfile:
-            pass
+            self.__bkgsubwg.setBackground(options.bkgfile)
 
         if options.maskfile:
-            pass
+            self.__maskwg.setMask(options.maskfile)
 
         if options.transformation:
-            pass
+            self.__trafowg.setTransformation(options.transformation)
 
         if options.scaling:
-            pass
+            self.__scalingwg.setScaling(options.scaling)
 
         if options.levels:
-            pass
+            self.__levelswg.setLevels(options.levels)
 
         if options.gradient:
             pass
 
-        return options.start
+        return options.start is True
 
     @QtCore.pyqtSlot(int)
     def _replotFrame(self, fid):
@@ -1156,7 +1156,8 @@ class LiveViewer(QtGui.QMainWindow):
             if self.__settings.keepcoords:
                 crdtranspose = True
                 crdupdownflip = True
-                self.__displayimage = np.transpose(self.__displayimage)
+                if self.__displayimage is not None:
+                    self.__displayimage = np.transpose(self.__displayimage)
             elif self.__displayimage is not None:
                 self.__displayimage = np.transpose(
                     np.flipud(self.__displayimage))
@@ -1171,7 +1172,8 @@ class LiveViewer(QtGui.QMainWindow):
             if self.__settings.keepcoords:
                 crdtranspose = True
                 crdleftrightflip = True
-                self.__displayimage = np.transpose(self.__displayimage)
+                if self.__displayimage is not None:
+                    self.__displayimage = np.transpose(self.__displayimage)
             elif self.__displayimage is not None:
                 self.__displayimage = np.transpose(
                     np.fliplr(self.__displayimage))
@@ -1180,7 +1182,8 @@ class LiveViewer(QtGui.QMainWindow):
                 crdtranspose = True
                 crdupdownflip = True
                 crdleftrightflip = True
-                self.__displayimage = np.transpose(self.__displayimage)
+                if self.__displayimage is not None:
+                    self.__displayimage = np.transpose(self.__displayimage)
             elif self.__displayimage is not None:
                 self.__displayimage = np.transpose(
                     np.fliplr(np.flipud(self.__displayimage)))
@@ -1265,9 +1268,9 @@ class LiveViewer(QtGui.QMainWindow):
         """
         self.__dobkgsubtraction = state
         if self.__dobkgsubtraction and self.__backgroundimage is None:
-            self.__bkgSubwg.setDisplayedName("")
+            self.__bkgsubwg.setDisplayedName("")
         else:
-            self.__bkgSubwg.checkBkgSubtraction(state)
+            self.__bkgsubwg.checkBkgSubtraction(state)
         self.__imagewg.setDoBkgSubtraction(state)
         self._plot()
 
@@ -1285,9 +1288,9 @@ class LiveViewer(QtGui.QMainWindow):
         """
         if self.__rawgreyimage is not None:
             self.__backgroundimage = self.__rawgreyimage
-            self.__bkgSubwg.setDisplayedName(str(self.__imagename))
+            self.__bkgsubwg.setDisplayedName(str(self.__imagename))
         else:
-            self.__bkgSubwg.setDisplayedName("")
+            self.__bkgsubwg.setDisplayedName("")
 
     @QtCore.pyqtSlot(str)
     def _assessTransformation(self, trafoname):
