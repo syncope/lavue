@@ -72,12 +72,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "-f", "--image-file", dest="imagefile",
         help="image file name to show")
-
-    
     parser.add_argument(
         "-s", "--source", dest="source",
         help="image source, i.e. hidra, http, tangoattr,\n"
         "    tangofile, zmq, nxsfile, test")
+
+
     parser.add_argument(
         "-c", "--configuration", dest="configuration",
         help="configuration strings for the image source separated by comma"
@@ -90,10 +90,6 @@ if __name__ == "__main__":
         "  zmq -> '-c haso228:5535'\n"
         "  nxsfile -> '-c /tmp/myfile.nxs,/entry/data/pilatus'\n"
     )
-    parser.add_argument(
-        "-x", "--start", action="store_true", default=False,
-        dest="start",
-        help="connect the image source")
     parser.add_argument(
         "-b", "--bkg-file", dest="bkgfile",
         help="background file-name to load"
@@ -123,6 +119,10 @@ if __name__ == "__main__":
         "  bipolar, spectrum, spectrumclip, greyclip, reversegrey, cyclic,\n"
         "  yellowy, inverted"
     )
+    parser.add_argument(
+        "-x", "--start", action="store_true", default=False,
+        dest="start",
+        help="connect the image source")
 
     # parser.add_argument(
     #     "-r", "--tango-server", dest="tangoserver",

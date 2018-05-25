@@ -313,3 +313,13 @@ class SourceGroupBox(QtGui.QGroupBox):
         if self.__currentSource is not None:
             self.__currentSource.disconnectWidget()
         # self.pushButton.setText("Retry connect")
+
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+            
+        if self.__currentSource is not None:
+            self.__currentSource.configure(configuration)

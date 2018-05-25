@@ -132,6 +132,12 @@ class BaseSourceWidget(QtGui.QWidget):
                 self.widgets.append(wg)
         self.__detached = True
 
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
 
 class TestSourceWidget(BaseSourceWidget):
 
@@ -278,6 +284,18 @@ class HTTPSourceWidget(BaseSourceWidget):
             self.__urls = json.loads(httpurls)
             self.__updateComboBox()
 
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        iid = self._ui.httpComboBox.findText(configuration)
+        if iid == -1:
+            self._ui.httpComboBox.addItem(configuration)
+            iid = self._ui.httpComboBox.findText(configuration)
+        self._ui.httpComboBox.setCurrentIndex(iid)
+
     def connectWidget(self):
         """ connects widget
         """
@@ -423,6 +441,18 @@ class HidraSourceWidget(BaseSourceWidget):
         self._connected = False
         self._ui.serverComboBox.setEnabled(True)
 
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        iid = self._ui.serverComboBox.findText(configuration)
+        if iid == -1:
+             self._ui.serverComboBox.addItem(configuration)
+             iid = self._ui.serverComboBox.findText(configuration)
+        self._ui.serverComboBox.setCurrentIndex(iid)
+
 
 class TangoAttrSourceWidget(BaseSourceWidget):
 
@@ -521,6 +551,18 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         if tangoattrs is not None:
             self.__tangoattrs = json.loads(tangoattrs)
             self.__updateComboBox()
+
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        iid = self._ui.attrComboBox.findText(configuration)
+        if iid == -1:
+             self._ui.attrComboBox.addItem(configuration)
+             iid = self._ui.attrComboBox.findText(configuration)
+        self._ui.attrComboBox.setCurrentIndex(iid)
 
     def disconnectWidget(self):
         """ disconnects widget

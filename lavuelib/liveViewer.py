@@ -346,7 +346,7 @@ class LiveViewer(QtGui.QMainWindow):
                 self.__sourcewg.setSourceComboBox(msid)
 
         if options.configuration:
-            pass
+            self.__sourcewg.configure(options.configuration)
 
         if options.bkgfile:
             pass
