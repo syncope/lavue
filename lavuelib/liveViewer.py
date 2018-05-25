@@ -429,6 +429,8 @@ class LiveViewer(QtGui.QMainWindow):
             zmqtopics=self.__settings.zmqtopics,
             dirtrans=self.__settings.dirtrans,
             tangoattrs=self.__settings.tangoattrs,
+            tangofileattrs=self.__settings.tangofileattrs,
+            tangodirattrs=self.__settings.tangodirattrs,
             zmqservers=self.__settings.zmqservers,
             httpurls=self.__settings.httpurls,
             autozmqtopics=self.__settings.autozmqtopics,
@@ -609,6 +611,8 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.autozmqtopics = self.__settings.autozmqtopics
         cnfdlg.dirtrans = self.__settings.dirtrans
         cnfdlg.tangoattrs = self.__settings.tangoattrs
+        cnfdlg.tangofileattrs = self.__settings.tangofileattrs
+        cnfdlg.tangodirattrs = self.__settings.tangodirattrs
         cnfdlg.httpurls = self.__settings.httpurls
         cnfdlg.zmqservers = self.__settings.zmqservers
         cnfdlg.nxslast = self.__settings.nxslast
@@ -702,6 +706,12 @@ class LiveViewer(QtGui.QMainWindow):
         if self.__settings.tangoattrs != dialog.tangoattrs:
             self.__settings.tangoattrs = dialog.tangoattrs
             setsrc = True
+        if self.__settings.tangofileattrs != dialog.tangofileattrs:
+            self.__settings.tangofileattrs = dialog.tangofileattrs
+            setsrc = True
+        if self.__settings.tangodirattrs != dialog.tangodirattrs:
+            self.__settings.tangodirattrs = dialog.tangodirattrs
+            setsrc = True
         if self.__settings.httpurls != dialog.httpurls:
             self.__settings.httpurls = dialog.httpurls
             setsrc = True
@@ -732,6 +742,8 @@ class LiveViewer(QtGui.QMainWindow):
                 zmqtopics=self.__settings.zmqtopics,
                 dirtrans=self.__settings.dirtrans,
                 tangoattrs=self.__settings.tangoattrs,
+                tangofileattrs=self.__settings.tangofileattrs,
+                tangodirattrs=self.__settings.tangodirattrs,
                 zmqservers=self.__settings.zmqservers,
                 httpurls=self.__settings.httpurls,
                 autozmqtopics=self.__settings.autozmqtopics,

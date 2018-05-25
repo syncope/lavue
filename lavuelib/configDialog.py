@@ -107,6 +107,12 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`str`) JSON dictionary with {label: tango attribute}
         #  for Tango Attribute source
         self.tangoattrs = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: file tango attribute}
+        #  for Tango Attribute source
+        self.tangofileattrs = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: dir tango attribute}
+        #  for Tango Attribute source
+        self.tangodirattrs = '{}'
         #: (:obj:`str`) JSON dictionary with {label: url}
         #  for HTTP responce source
         self.httpurls = '{}'
@@ -149,6 +155,8 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.autozmqtopicsCheckBox.setChecked(self.autozmqtopics)
         self.__ui.dirtransLineEdit.setText(self.dirtrans)
         self.__ui.attrLineEdit.setText(self.tangoattrs)
+        self.__ui.fileattrLineEdit.setText(self.tangofileattrs)
+        self.__ui.dirattrLineEdit.setText(self.tangodirattrs)
         self.__ui.zmqserversLineEdit.setText(self.zmqservers)
         self.__ui.urlsLineEdit.setText(self.httpurls)
         self.__ui.nxsopenCheckBox.setChecked(self.nxsopen)
@@ -215,6 +223,24 @@ class ConfigDialog(QtGui.QDialog):
         except Exception as e:
             print(str(e))
             self.__ui.attrLineEdit.setFocus(True)
+            return
+        try:
+            fileattr = str(self.__ui.fileattrLineEdit.text()).strip()
+            mytr = json.loads(fileattr)
+            if isinstance(mytr, dict):
+                self.tangofileattrs = fileattr
+        except Exception as e:
+            print(str(e))
+            self.__ui.fileattrLineEdit.setFocus(True)
+            return
+        try:
+            dirattr = str(self.__ui.dirattrLineEdit.text()).strip()
+            mytr = json.loads(dirattr)
+            if isinstance(mytr, dict):
+                self.tangodirattrs = dirattr
+        except Exception as e:
+            print(str(e))
+            self.__ui.dirattrLineEdit.setFocus(True)
             return
         try:
             zmqservers = str(self.__ui.zmqserversLineEdit.text()).strip()

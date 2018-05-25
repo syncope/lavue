@@ -95,6 +95,12 @@ class Settings(object):
         #: (:obj:`str`) JSON dictionary with {label: tango attribute}
         #  for Tango Attribute source
         self.tangoattrs = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: file tango attribute}
+        #  for Tango Attribute source
+        self.tangofileattrs = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: dir tango attribute}
+        #  for Tango Attribute source
+        self.tangodirattrs = '{}'
         #: (:obj:`str`) JSON dictionary with {label: url}
         #  for HTTP responce source
         self.httpurls = '{}'
@@ -272,6 +278,16 @@ class Settings(object):
             self.tangoattrs = qstval
 
         qstval = str(
+            settings.value("Configuration/TangoFileAttributes", type=str))
+        if qstval:
+            self.tangofileattrs = qstval
+
+        qstval = str(
+            settings.value("Configuration/TangoDirAttributes", type=str))
+        if qstval:
+            self.tangodirattrs = qstval
+
+        qstval = str(
             settings.value("Configuration/HTTPURLs", type=str))
         if qstval:
             self.httpurls = qstval
@@ -403,6 +419,12 @@ class Settings(object):
         settings.setValue(
             "Configuration/TangoAttributes",
             self.tangoattrs)
+        settings.setValue(
+            "Configuration/TangoFileAttributes",
+            self.tangofileattrs)
+        settings.setValue(
+            "Configuration/TangoDirAttributes",
+            self.tangodirattrs)
         settings.setValue(
             "Configuration/ZMQServers",
             self.zmqservers)

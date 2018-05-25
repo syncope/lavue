@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>741</width>
-    <height>682</height>
+    <width>763</width>
+    <height>755</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -590,7 +590,7 @@
            <layout class="QGridLayout" name="gridLayout_19">
             <item row="0" column="0">
              <layout class="QGridLayout" name="gridLayout_18">
-              <item row="0" column="0">
+              <item row="2" column="0">
                <widget class="QLabel" name="dirtransLabel">
                 <property name="toolTip">
                  <string>JSON dictionary denoting what to replace
@@ -604,11 +604,48 @@ in the file name and the file directory for Tango File Source</string>
                 </property>
                </widget>
               </item>
-              <item row="0" column="1">
+              <item row="2" column="1">
                <widget class="QLineEdit" name="dirtransLineEdit">
                 <property name="toolTip">
                  <string>JSON dictionary denoting what to replace
 in the file name and the file directory for Tango File Source</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="dirattrLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;JSON dictionary with labels and directory tango attributes, i.e.&lt;/p&gt;&lt;p&gt;{&amp;quot;pilatus1&amp;quot;: &amp;quot;/p09/pilatus/1/LastImagePath&amp;quot;, &amp;quot;test_image&amp;quot;:&amp;quot;sys/tg_test/1/double_image_ro&amp;quot; }&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Dir Attributes:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="fileattrLineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;JSON dictionary with labels and file tango attributes, i.e.&lt;/p&gt;&lt;p&gt;{&amp;quot;pilatus1&amp;quot;: &amp;quot;/p09/pilatus/1/LastImageTaken&amp;quot;, &amp;quot;test_image&amp;quot;:&amp;quot;sys/tg_test/1/double_image_ro&amp;quot; }&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="dirattrLineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;JSON dictionary with labels and directory tango attributes, i.e.&lt;/p&gt;&lt;p&gt;{&amp;quot;pilatus1&amp;quot;: &amp;quot;/p09/pilatus/1/LastImagePath&amp;quot;, &amp;quot;test_image&amp;quot;:&amp;quot;sys/tg_test/1/double_image_ro&amp;quot; }&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="fileattrLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;JSON dictionary with labels and file tango attributes, i.e.&lt;/p&gt;&lt;p&gt;{&amp;quot;pilatus1&amp;quot;: &amp;quot;/p09/pilatus/1/LastImageTaken&amp;quot;, &amp;quot;test_image&amp;quot;:&amp;quot;sys/tg_test/1/double_image_ro&amp;quot; }&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>File Attributes:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>fileattrLineEdit</cstring>
                 </property>
                </widget>
               </item>
@@ -936,8 +973,8 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>showtransCheckBox</tabstop>
   <tabstop>showsubCheckBox</tabstop>
   <tabstop>showmaskCheckBox</tabstop>
-  <tabstop>showscaleCheckBox</tabstop>
   <tabstop>showlevelsCheckBox</tabstop>
+  <tabstop>showscaleCheckBox</tabstop>
   <tabstop>showhistoCheckBox</tabstop>
   <tabstop>showstatsCheckBox</tabstop>
   <tabstop>statsscaleCheckBox</tabstop>
@@ -949,6 +986,8 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>hidraportLineEdit</tabstop>
   <tabstop>urlsLineEdit</tabstop>
   <tabstop>attrLineEdit</tabstop>
+  <tabstop>fileattrLineEdit</tabstop>
+  <tabstop>dirattrLineEdit</tabstop>
   <tabstop>dirtransLineEdit</tabstop>
   <tabstop>zmqserversLineEdit</tabstop>
   <tabstop>autozmqtopicsCheckBox</tabstop>
@@ -965,8 +1004,8 @@ in the file name and the file directory for Tango File Source</string>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>258</x>
-     <y>671</y>
+     <x>268</x>
+     <y>744</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -981,8 +1020,8 @@ in the file name and the file directory for Tango File Source</string>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>326</x>
-     <y>671</y>
+     <x>336</x>
+     <y>744</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
