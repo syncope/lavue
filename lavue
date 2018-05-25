@@ -88,7 +88,7 @@ if __name__ == "__main__":
         "  tangofile -> '-c p00/plt/1/LastImageTaken,p00/plt/1/"
         "LastImagePath'\n"
         "  zmq -> '-c haso228:5535,topic'\n"
-        "  nxsfile -> '-c /tmp/myfile.nxs,/entry/data/pilatus'\n"
+        "  nxsfile -> '-c /tmp/myfile.nxs://entry/data/pilatus'\n"
     )
     parser.add_argument(
         "-b", "--bkg-file", dest="bkgfile",

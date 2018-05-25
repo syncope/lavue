@@ -861,6 +861,29 @@ class NXSFileSourceWidget(BaseSourceWidget):
         if nxslast is not None:
             self.__nxslast = nxslast
 
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        cnflst = configuration.split(",")
+        filecnf = cnflst[0] if cnflst else ""
+        if ":/" in filecnf:
+            filecnf, fieldcnf = filecnf.split(":/", 1)
+        else:
+            fieldcnf = ""
+
+        try:
+            growcnf = int(cnflst[1])
+        except:
+            growcnf = 0
+
+        self._ui.nxsFileLineEdit.setText(filecnf)
+        self._ui.nxsFieldLineEdit.setText(fieldcnf)
+        self._ui.nxsDimSpinBox.setValue(growcnf)
+        self.updateButton()
+
 
 class ZMQSourceWidget(BaseSourceWidget):
 
