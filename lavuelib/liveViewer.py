@@ -314,7 +314,7 @@ class LiveViewer(QtGui.QMainWindow):
         self._plot()
 
         if start:
-            pass
+            self.__sourcewg.toggleServerConnection()
 
     def __applyoptions(self, options):
         """ apply options
@@ -374,7 +374,7 @@ class LiveViewer(QtGui.QMainWindow):
             self.__levelswg.setLevels(options.levels)
 
         if options.gradient:
-            pass
+            self.__levelswg.setGradient(options.gradient)
 
         return options.start is True
 

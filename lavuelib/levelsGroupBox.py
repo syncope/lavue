@@ -395,6 +395,14 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 self.__ui.channelComboBox.hide()
                 self.__colors = False
 
+    def setGradient(self, name):
+        """ set gradient
+
+        :param cnflevels:  configuration string
+        :type cnflevels: :obj:`str`
+        """
+        self._changeGradient(name)
+
     @QtCore.pyqtSlot(int)
     def _updateGradient(self, index):
         """ updates gradient in the intensity histogram
