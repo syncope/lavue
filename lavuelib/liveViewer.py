@@ -79,7 +79,14 @@ class LiveViewer(QtGui.QMainWindow):
     widget and handles communication.'''
     _stateUpdated = QtCore.pyqtSignal(bool)
 
-    def __init__(self, umode=None, parent=None):
+    def __init__(self, options, parent=None):
+        """ constructor
+
+        :param options: commandline options
+        :type options: :class:`argparse.Namespace`
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
         QtGui.QDialog.__init__(self, parent)
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
@@ -110,7 +117,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__tooltypes.append("ProjectionToolWidget")
         self.__tooltypes.append("QROIProjToolWidget")
 
-        if umode and umode.lower() in ["expert"]:
+        if options.mode and options.mode.lower() in ["expert"]:
             #: (:obj:`str`) execution mode: expert or user
             self.__umode = "expert"
         else:
@@ -302,7 +309,64 @@ class LiveViewer(QtGui.QMainWindow):
         self.__loadSettings()
 
         self.__updateframeview()
+
+        start = self.__applyoptions(options)
         self._plot()
+
+        if start:
+            pass
+
+    def __applyoptions(self, options):
+        """ apply options
+
+        :param options: commandline options
+        :type options: :class:`argparse.Namespace`
+        :returns: start flag
+        :rtype: :obj:`bool`
+        """
+        # load image file
+        if options.imagefile:
+            oldname = self.__settings.imagename
+            try:
+                self.__settings.imagename = options.imagefile
+                self._loadfile(fid=0)
+            except:
+                self.__settings.imagename = oldname
+
+        # set image source        
+        if options.source:
+            msid = None
+            for sid, src in enumerate(self.__sourcetypes):
+                if src.endswith("SourceWidget"):
+                    src = src[:-12]
+                    if options.source == src.lower():
+                        msid = sid
+                        break
+            if msid is not None:
+                self.__sourcewg.setSourceComboBox(msid)
+
+        if options.configuration:
+            pass
+
+        if options.bkgfile:
+            pass
+
+        if options.maskfile:
+            pass
+
+        if options.transformation:
+            pass
+        
+        if options.scaling:
+            pass
+
+        if options.levels:
+            pass
+
+        if options.gradient:
+            pass
+        
+        return options.start
 
     @QtCore.pyqtSlot(int)
     def _replotFrame(self, fid):

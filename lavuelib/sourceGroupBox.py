@@ -130,6 +130,14 @@ class SourceGroupBox(QtGui.QGroupBox):
         self.__ui.gridLayout.addWidget(self.__ui.cStatusLineEdit, sln + 1, 1)
         self.__ui.gridLayout.addWidget(self.__ui.pushButton, sln + 2, 1)
 
+    def setSourceComboBox(self, index):
+        """ set source by changing combobox
+
+        :param index: combobox index
+        :type index: :obj:`int`
+        """
+        self.__ui.sourceTypeComboBox.setCurrentIndex(index)
+        
     @QtCore.pyqtSlot()
     def _onSourceChanged(self):
         """ update current source widgets

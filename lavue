@@ -69,25 +69,26 @@ if __name__ == "__main__":
     parser.add_argument(
         "-e", "--stylesheet", dest="stylesheet",
         help="Qt stylesheet")
-
     parser.add_argument(
         "-f", "--image-file", dest="imagefile",
         help="image file name to show")
+
+    
     parser.add_argument(
         "-s", "--source", dest="source",
-        help="image source, i.e. hidra, http-response, tango-attribute,\n"
-        "    tango-file, zmq-stream, nexus_file, test")
+        help="image source, i.e. hidra, http, tangoattr,\n"
+        "    tangofile, zmq, nxsfile, test")
     parser.add_argument(
         "-c", "--configuration", dest="configuration",
         help="configuration strings for the image source separated by comma"
         ", e.g.\n"
         "  hidra -> '-c haspilatus300k.desy.de'\n"
-        "  http-response -> '-c haso228eiger/1.5.0'\n"
-        "  tango-attribute -> '-c sys/tg_test/1/double_image_ro'\n"
-        "  tango-file -> '-c p00/plt/1/LastImageTaken,p00/plt/1/"
+        "  http -> '-c haso228eiger/1.5.0'\n"
+        "  tangoattr -> '-c sys/tg_test/1/double_image_ro'\n"
+        "  tangofile -> '-c p00/plt/1/LastImageTaken,p00/plt/1/"
         "LastImagePath'\n"
-        "  zmq-stream -> '-c haso228:5535'\n"
-        "  nexus-file -> '-c /tmp/myfile.nxs,/entry/data/pilatus'\n"
+        "  zmq -> '-c haso228:5535'\n"
+        "  nxsfile -> '-c /tmp/myfile.nxs,/entry/data/pilatus'\n"
     )
     parser.add_argument(
         "-x", "--start", action="store_true", default=False,
@@ -133,12 +134,7 @@ if __name__ == "__main__":
     options = parser.parse_args()
 
     if options.version:
-        print(lavuelib.__version__)
         sys.exit(0)
-    if options.mode:
-        umode = options.mode
-    else:
-        umode = None
 
     # level = LogActions.levels.get(options.log, logging.INFO)
     # handler = LogHandler()
@@ -156,8 +152,8 @@ if __name__ == "__main__":
     app.setOrganizationName("DESY")
     app.setOrganizationDomain("desy.de")
     app.setApplicationName("LaVue")
+    dialog = lavuelib.liveViewer.LiveViewer(options=options)
 
-    dialog = lavuelib.liveViewer.LiveViewer(umode=umode)
     dialog.show()
 
     status = app.exec_()
