@@ -1,4 +1,8 @@
 2018-05-25 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for version printout
+	* tagged as 1.18.1
+
+2018-05-25 Jan Kotanski <jan.kotanski@desy.de>
 	* add Keep original Coordinates mode
 	* add combobox to tango file image source
 	* add command-line parameters

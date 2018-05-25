@@ -26,6 +26,7 @@
 #
 
 
+import lavuelib
 import lavuelib.liveViewer
 import sys
 import os
@@ -139,6 +140,7 @@ if __name__ == "__main__":
     options = parser.parse_args()
 
     if options.version:
+        print(lavuelib.__version__)
         sys.exit(0)
 
     # level = LogActions.levels.get(options.log, logging.INFO)
