@@ -79,7 +79,14 @@ class LiveViewer(QtGui.QMainWindow):
     widget and handles communication.'''
     _stateUpdated = QtCore.pyqtSignal(bool)
 
-    def __init__(self, umode=None, parent=None):
+    def __init__(self, options, parent=None):
+        """ constructor
+
+        :param options: commandline options
+        :type options: :class:`argparse.Namespace`
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
         QtGui.QDialog.__init__(self, parent)
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
@@ -110,7 +117,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__tooltypes.append("ProjectionToolWidget")
         self.__tooltypes.append("QROIProjToolWidget")
 
-        if umode and umode.lower() in ["expert"]:
+        if options.mode and options.mode.lower() in ["expert"]:
             #: (:obj:`str`) execution mode: expert or user
             self.__umode = "expert"
         else:
@@ -171,7 +178,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__maskwg = self.__prepwg.maskWidget
         #: (:class:`lavuelib.bkgSubtractionWidget.BkgSubtractionWidget`)
         #:    background subtraction widget
-        self.__bkgSubwg = self.__prepwg.bkgSubWidget
+        self.__bkgsubwg = self.__prepwg.bkgSubWidget
         #: (:class:`lavuelib.transformationsWidget.TransformationsWidget`)
         #:    transformations widget
         self.__trafowg = self.__prepwg.trafoWidget
@@ -278,10 +285,10 @@ class LiveViewer(QtGui.QMainWindow):
         self.__sourcewg.sourceStateChanged.connect(self._updateSource)
         self.__sourcewg.sourceChanged.connect(self._onSourceChanged)
 
-        self.__bkgSubwg.bkgFileSelected.connect(self._prepareBkgSubtraction)
-        self.__bkgSubwg.useCurrentImageAsBkg.connect(
+        self.__bkgsubwg.bkgFileSelected.connect(self._prepareBkgSubtraction)
+        self.__bkgsubwg.useCurrentImageAsBkg.connect(
             self._setCurrentImageAsBkg)
-        self.__bkgSubwg.applyStateChanged.connect(self._checkBkgSubtraction)
+        self.__bkgsubwg.applyStateChanged.connect(self._checkBkgSubtraction)
 
         self.__maskwg.maskFileSelected.connect(self._prepareMasking)
         self.__maskwg.applyStateChanged.connect(self._checkMasking)
@@ -302,7 +309,77 @@ class LiveViewer(QtGui.QMainWindow):
         self.__loadSettings()
 
         self.__updateframeview()
+
+        start = self.__applyoptions(options)
         self._plot()
+
+        if start:
+            self.__sourcewg.toggleServerConnection()
+
+    def __applyoptions(self, options):
+        """ apply options
+
+        :param options: commandline options
+        :type options: :class:`argparse.Namespace`
+        :returns: start flag
+        :rtype: :obj:`bool`
+        """
+        # load image file
+        if options.imagefile:
+            oldname = self.__settings.imagename
+            oldpath = self.__fieldpath
+            oldgrowing = self.__growing
+            try:
+                self.__settings.imagename = options.imagefile
+                if ":/" in self.__settings.imagename:
+                    self.__settings.imagename, self.__fieldpath =  \
+                        self.__settings.imagename.split(":/", 1)
+                else:
+                    self.__fieldpath = None
+                self.__growing = 0
+                self._loadfile(fid=0)
+            except:
+                self.__settings.imagename = oldname
+                self.__fieldpath = oldpath
+                self.__growing = oldgrowing
+
+        # set image source
+        if options.source:
+            msid = None
+            for sid, src in enumerate(self.__sourcetypes):
+                if src.endswith("SourceWidget"):
+                    src = src[:-12]
+                    if options.source == src.lower():
+                        msid = sid
+                        break
+            if msid is not None:
+                self.__sourcewg.setSourceComboBox(msid)
+
+        if options.configuration:
+            self.__sourcewg.configure(options.configuration)
+
+        if options.bkgfile:
+            self.__bkgsubwg.setBackground(options.bkgfile)
+
+        if options.maskfile:
+            self.__maskwg.setMask(options.maskfile)
+
+        if options.transformation:
+            self.__trafowg.setTransformation(options.transformation)
+
+        if options.scaling:
+            self.__scalingwg.setScaling(options.scaling)
+
+        if options.levels:
+            self.__levelswg.setLevels(options.levels)
+
+        if options.gradient:
+            self.__levelswg.setGradient(options.gradient)
+
+        if options.tool:
+            self.__imagewg.setTool(options.tool)
+
+        return options.start is True
 
     @QtCore.pyqtSlot(int)
     def _replotFrame(self, fid):
@@ -365,6 +442,8 @@ class LiveViewer(QtGui.QMainWindow):
             zmqtopics=self.__settings.zmqtopics,
             dirtrans=self.__settings.dirtrans,
             tangoattrs=self.__settings.tangoattrs,
+            tangofileattrs=self.__settings.tangofileattrs,
+            tangodirattrs=self.__settings.tangodirattrs,
             zmqservers=self.__settings.zmqservers,
             httpurls=self.__settings.httpurls,
             autozmqtopics=self.__settings.autozmqtopics,
@@ -545,6 +624,8 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.autozmqtopics = self.__settings.autozmqtopics
         cnfdlg.dirtrans = self.__settings.dirtrans
         cnfdlg.tangoattrs = self.__settings.tangoattrs
+        cnfdlg.tangofileattrs = self.__settings.tangofileattrs
+        cnfdlg.tangodirattrs = self.__settings.tangodirattrs
         cnfdlg.httpurls = self.__settings.httpurls
         cnfdlg.zmqservers = self.__settings.zmqservers
         cnfdlg.nxslast = self.__settings.nxslast
@@ -638,6 +719,12 @@ class LiveViewer(QtGui.QMainWindow):
         if self.__settings.tangoattrs != dialog.tangoattrs:
             self.__settings.tangoattrs = dialog.tangoattrs
             setsrc = True
+        if self.__settings.tangofileattrs != dialog.tangofileattrs:
+            self.__settings.tangofileattrs = dialog.tangofileattrs
+            setsrc = True
+        if self.__settings.tangodirattrs != dialog.tangodirattrs:
+            self.__settings.tangodirattrs = dialog.tangodirattrs
+            setsrc = True
         if self.__settings.httpurls != dialog.httpurls:
             self.__settings.httpurls = dialog.httpurls
             setsrc = True
@@ -668,6 +755,8 @@ class LiveViewer(QtGui.QMainWindow):
                 zmqtopics=self.__settings.zmqtopics,
                 dirtrans=self.__settings.dirtrans,
                 tangoattrs=self.__settings.tangoattrs,
+                tangofileattrs=self.__settings.tangofileattrs,
+                tangodirattrs=self.__settings.tangodirattrs,
                 zmqservers=self.__settings.zmqservers,
                 httpurls=self.__settings.httpurls,
                 autozmqtopics=self.__settings.autozmqtopics,
@@ -1070,7 +1159,8 @@ class LiveViewer(QtGui.QMainWindow):
             if self.__settings.keepcoords:
                 crdtranspose = True
                 crdupdownflip = True
-                self.__displayimage = np.transpose(self.__displayimage)
+                if self.__displayimage is not None:
+                    self.__displayimage = np.transpose(self.__displayimage)
             elif self.__displayimage is not None:
                 self.__displayimage = np.transpose(
                     np.flipud(self.__displayimage))
@@ -1085,7 +1175,8 @@ class LiveViewer(QtGui.QMainWindow):
             if self.__settings.keepcoords:
                 crdtranspose = True
                 crdleftrightflip = True
-                self.__displayimage = np.transpose(self.__displayimage)
+                if self.__displayimage is not None:
+                    self.__displayimage = np.transpose(self.__displayimage)
             elif self.__displayimage is not None:
                 self.__displayimage = np.transpose(
                     np.fliplr(self.__displayimage))
@@ -1094,7 +1185,8 @@ class LiveViewer(QtGui.QMainWindow):
                 crdtranspose = True
                 crdupdownflip = True
                 crdleftrightflip = True
-                self.__displayimage = np.transpose(self.__displayimage)
+                if self.__displayimage is not None:
+                    self.__displayimage = np.transpose(self.__displayimage)
             elif self.__displayimage is not None:
                 self.__displayimage = np.transpose(
                     np.fliplr(np.flipud(self.__displayimage)))
@@ -1179,9 +1271,9 @@ class LiveViewer(QtGui.QMainWindow):
         """
         self.__dobkgsubtraction = state
         if self.__dobkgsubtraction and self.__backgroundimage is None:
-            self.__bkgSubwg.setDisplayedName("")
+            self.__bkgsubwg.setDisplayedName("")
         else:
-            self.__bkgSubwg.checkBkgSubtraction(state)
+            self.__bkgsubwg.checkBkgSubtraction(state)
         self.__imagewg.setDoBkgSubtraction(state)
         self._plot()
 
@@ -1199,9 +1291,9 @@ class LiveViewer(QtGui.QMainWindow):
         """
         if self.__rawgreyimage is not None:
             self.__backgroundimage = self.__rawgreyimage
-            self.__bkgSubwg.setDisplayedName(str(self.__imagename))
+            self.__bkgsubwg.setDisplayedName(str(self.__imagename))
         else:
-            self.__bkgSubwg.setDisplayedName("")
+            self.__bkgsubwg.setDisplayedName("")
 
     @QtCore.pyqtSlot(str)
     def _assessTransformation(self, trafoname):

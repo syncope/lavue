@@ -132,6 +132,13 @@ class BaseSourceWidget(QtGui.QWidget):
                 self.widgets.append(wg)
         self.__detached = True
 
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+
 
 class TestSourceWidget(BaseSourceWidget):
 
@@ -278,6 +285,18 @@ class HTTPSourceWidget(BaseSourceWidget):
             self.__urls = json.loads(httpurls)
             self.__updateComboBox()
 
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        iid = self._ui.httpComboBox.findText(configuration)
+        if iid == -1:
+            self._ui.httpComboBox.addItem(configuration)
+            iid = self._ui.httpComboBox.findText(configuration)
+        self._ui.httpComboBox.setCurrentIndex(iid)
+
     def connectWidget(self):
         """ connects widget
         """
@@ -423,6 +442,18 @@ class HidraSourceWidget(BaseSourceWidget):
         self._connected = False
         self._ui.serverComboBox.setEnabled(True)
 
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        iid = self._ui.serverComboBox.findText(configuration)
+        if iid == -1:
+            self._ui.serverComboBox.addItem(configuration)
+            iid = self._ui.serverComboBox.findText(configuration)
+        self._ui.serverComboBox.setCurrentIndex(iid)
+
 
 class TangoAttrSourceWidget(BaseSourceWidget):
 
@@ -522,15 +553,24 @@ class TangoAttrSourceWidget(BaseSourceWidget):
             self.__tangoattrs = json.loads(tangoattrs)
             self.__updateComboBox()
 
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        iid = self._ui.attrComboBox.findText(configuration)
+        if iid == -1:
+            self._ui.attrComboBox.addItem(configuration)
+            iid = self._ui.attrComboBox.findText(configuration)
+        self._ui.attrComboBox.setCurrentIndex(iid)
+
     def disconnectWidget(self):
         """ disconnects widget
         """
         self._connected = False
         self._ui.attrComboBox.lineEdit().setReadOnly(False)
         self._ui.attrComboBox.setEnabled(True)
-        # if ":" in self._ui.attrLineEdit.text():
-        #     self._ui.attrLineEdit.setText(u'')
-        #     self.updateButton()
 
     def connectWidget(self):
         """ connects widget
@@ -566,18 +606,68 @@ class TangoFileSourceWidget(BaseSourceWidget):
         self.datasource = "TangoFileSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
-            "fileLabel", "fileLineEdit",
-            "dirLabel", "dirLineEdit"
+            "fileattrLabel", "fileattrComboBox",
+            "dirattrLabel", "dirattrComboBox"
         ]
 
         #: (:obj:`str`) json dictionary with directory
         #:               and file name translation
         self.__dirtrans = '{"/ramdisk/": "/gpfs/"}'
 
+        #: (:obj:`dict` <:obj:`str`, :obj:`str`>) dictionary with
+        #:                     (label, file tango attribute) items
+        self.__tangofileattrs = {}
+        #: (:obj:`list` <:obj:`str`>) user file tango attributes
+        self.__userfileattrs = []
+
+        #: (:obj:`dict` <:obj:`str`, :obj:`str`>) dictionary with
+        #:                     (label, dir tango attribute) items
+        self.__tangodirattrs = {}
+        #: (:obj:`list` <:obj:`str`>) user dir tango attributes
+        self.__userdirattrs = []
+
         self._detachWidgets()
 
-        self._ui.fileLineEdit.textEdited.connect(self.updateButton)
-        self._ui.dirLineEdit.textEdited.connect(self.updateButton)
+        #: (:obj:`str`) default file tip
+        self.__defaultfiletip = self._ui.fileattrComboBox.toolTip()
+
+        #: (:obj:`str`) default dir tip
+        self.__defaultdirtip = self._ui.dirattrComboBox.toolTip()
+
+        self.__connectComboBox(self._ui.fileattrComboBox)
+        self.__connectComboBox(self._ui.dirattrComboBox)
+
+    def __connectComboBox(self, combobox):
+        combobox.lineEdit().textEdited.connect(
+            self.updateButton)
+        combobox.currentIndexChanged.connect(
+            self.updateButton)
+
+    def __disconnectComboBox(self, combobox):
+        combobox.lineEdit().textEdited.disconnect(
+            self.updateButton)
+        combobox.currentIndexChanged.disconnect(
+            self.updateButton)
+
+    def __updateComboBox(self, combobox, atdict, atlist):
+        """ updates a value of attr combo box
+        """
+        self.__disconnectComboBox(combobox)
+        currentattr = str(combobox.currentText()).strip()
+        combobox.clear()
+        attrs = sorted(atdict.keys())
+        for mt in attrs:
+            combobox.addItem(mt)
+            iid = combobox.findText(mt)
+            combobox.setItemData(
+                iid, str(atdict[mt]), QtCore.Qt.ToolTipRole)
+        for mt in atlist:
+            combobox.addItem(mt)
+        if currentattr not in attrs and currentattr not in atlist:
+            combobox.addItem(currentattr)
+        ind = combobox.findText(currentattr)
+        combobox.setCurrentIndex(ind)
+        self.__connectComboBox(combobox)
 
     @QtCore.pyqtSlot()
     def updateButton(self):
@@ -585,25 +675,50 @@ class TangoFileSourceWidget(BaseSourceWidget):
         """
         if not self.active:
             return
-        fattr = str(self._ui.fileLineEdit.text()).strip()
-        if not str(self._ui.fileLineEdit.text()).strip():
+        dattr = str(self._ui.dirattrComboBox.currentText()).strip()
+        fattr = str(self._ui.fileattrComboBox.currentText()).strip()
+        if not fattr:
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
-            dattr = str(self._ui.dirLineEdit.text()).strip()
+            if fattr in self.__tangofileattrs.keys():
+                fattr = str(self.__tangofileattrs[fattr]).strip()
+
+            if dattr in self.__tangodirattrs.keys():
+                dattr = str(self.__tangodirattrs[dattr]).strip()
             dt = self.__dirtrans
             sourcename = "%s,%s,%s" % (fattr, dattr, dt)
             self.configurationChanged.emit(sourcename)
 
-    def updateMetaData(self, dirtrans=None, **kargs):
+        self._ui.fileattrComboBox.setToolTip(fattr or self.__defaultfiletip)
+        self._ui.dirattrComboBox.setToolTip(dattr or self.__defaultdirtip)
+
+    def updateMetaData(self, tangofileattrs=None, tangodirattrs=None,
+                       dirtrans=None, **kargs):
         """ update source input parameters
 
+        :param tangofileattrs: json dictionary with
+                           (label, file tango attribute) items
+        :type tangofileattrs: :obj:`str`
+        :param tangodirattrs: json dictionary with
+                           (label, dir tango attribute) items
+        :type tangodirattrs: :obj:`str`
         :param dirtrans: json dictionary with directory
                          and file name translation
         :type dirtrans: :obj:`str`
         :param kargs:  source widget input parameter dictionary
         :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
         """
+        if tangofileattrs is not None:
+            self.__tangofileattrs = json.loads(tangofileattrs)
+            self.__updateComboBox(
+                self._ui.fileattrComboBox, self.__tangofileattrs,
+                self.__userfileattrs)
+        if tangodirattrs is not None:
+            self.__tangodirattrs = json.loads(tangodirattrs)
+            self.__updateComboBox(
+                self._ui.dirattrComboBox, self.__tangodirattrs,
+                self.__userdirattrs)
         if dirtrans is not None:
             self.__dirtrans = dirtrans
 
@@ -611,15 +726,55 @@ class TangoFileSourceWidget(BaseSourceWidget):
         """ connects widget
         """
         self._connected = True
-        self._ui.fileLineEdit.setReadOnly(True)
-        self._ui.dirLineEdit.setReadOnly(True)
+        self._ui.fileattrComboBox.lineEdit().setReadOnly(True)
+        self._ui.fileattrComboBox.setEnabled(False)
+        fattr = str(self._ui.fileattrComboBox.currentText()).strip()
+        attrs = self.__tangofileattrs.keys()
+        if fattr not in attrs and fattr not in self.__userfileattrs:
+            self.__userfileattrs.append(fattr)
+            self.__updateComboBox(
+                self._ui.fileattrComboBox, self.__tangofileattrs,
+                self.__userfileattrs)
+        self._ui.dirattrComboBox.lineEdit().setReadOnly(True)
+        self._ui.dirattrComboBox.setEnabled(False)
+        dattr = str(self._ui.dirattrComboBox.currentText()).strip()
+        attrs = self.__tangodirattrs.keys()
+        if dattr not in attrs and dattr not in self.__userdirattrs:
+            self.__userdirattrs.append(dattr)
+            self.__updateComboBox(
+                self._ui.dirattrComboBox, self.__tangodirattrs,
+                self.__userdirattrs)
 
     def disconnectWidget(self):
         """ disconnects widget
         """
         self._connected = False
-        self._ui.fileLineEdit.setReadOnly(False)
-        self._ui.dirLineEdit.setReadOnly(False)
+        self._ui.fileattrComboBox.lineEdit().setReadOnly(False)
+        self._ui.fileattrComboBox.setEnabled(True)
+        self._ui.dirattrComboBox.lineEdit().setReadOnly(False)
+        self._ui.dirattrComboBox.setEnabled(True)
+
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        cnflst = configuration.split(",")
+        filecnf = cnflst[0] if cnflst else ""
+        dircnf = cnflst[1] if len(cnflst) > 1 else ""
+
+        iid = self._ui.fileattrComboBox.findText(filecnf)
+        if iid == -1:
+            self._ui.fileattrComboBox.addItem(filecnf)
+            iid = self._ui.fileattrComboBox.findText(filecnf)
+        self._ui.fileattrComboBox.setCurrentIndex(iid)
+
+        iid = self._ui.dirattrComboBox.findText(dircnf)
+        if iid == -1:
+            self._ui.dirattrComboBox.addItem(dircnf)
+            iid = self._ui.dirattrComboBox.findText(dircnf)
+        self._ui.dirattrComboBox.setCurrentIndex(iid)
 
 
 class NXSFileSourceWidget(BaseSourceWidget):
@@ -705,6 +860,29 @@ class NXSFileSourceWidget(BaseSourceWidget):
             self.__nxsopen = nxsopen
         if nxslast is not None:
             self.__nxslast = nxslast
+
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        cnflst = configuration.split(",")
+        filecnf = cnflst[0] if cnflst else ""
+        if ":/" in filecnf:
+            filecnf, fieldcnf = filecnf.split(":/", 1)
+        else:
+            fieldcnf = ""
+
+        try:
+            growcnf = int(cnflst[1])
+        except:
+            growcnf = 0
+
+        self._ui.nxsFileLineEdit.setText(filecnf)
+        self._ui.nxsFieldLineEdit.setText(fieldcnf)
+        self._ui.nxsDimSpinBox.setValue(growcnf)
+        self.updateButton()
 
 
 class ZMQSourceWidget(BaseSourceWidget):
@@ -921,3 +1099,26 @@ class ZMQSourceWidget(BaseSourceWidget):
         self._connected = False
         self._ui.pickleComboBox.lineEdit().setReadOnly(False)
         self._ui.pickleComboBox.setEnabled(True)
+
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        cnflst = configuration.split(",")
+        srvcnf = cnflst[0] if cnflst else ""
+        topiccnf = cnflst[1] if len(cnflst) > 1 else ""
+
+        iid = self._ui.pickleComboBox.findText(srvcnf)
+        if iid == -1:
+            self._ui.pickleComboBox.addItem(srvcnf)
+            iid = self._ui.pickleComboBox.findText(srvcnf)
+        self._ui.pickleComboBox.setCurrentIndex(iid)
+
+        if topiccnf:
+            iid = self._ui.pickleTopicComboBox.findText(topiccnf)
+            if iid == -1:
+                self._ui.pickleTopicComboBox.addItem(topiccnf)
+                iid = self._ui.pickleTopicComboBox.findText(topiccnf)
+            self._ui.pickleTopicComboBox.setCurrentIndex(iid)

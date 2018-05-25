@@ -74,6 +74,17 @@ class MaskWidget(QtGui.QWidget):
         """
         self.applyStateChanged.emit(state)
 
+    def setMask(self, fname):
+        """ sets the image mask
+
+        :param fname: file name
+        :type fname: :obj:`str`
+        """
+        self.setDisplayedName(fname)
+        self.maskFileSelected.emit(fname)
+        self.__ui.applyMaskCheckBox.setChecked(True)
+        self.applyStateChanged.emit(2)
+
     @QtCore.pyqtSlot()
     def _showFileDialog(self):
         """ shows file dialog and select the file name

@@ -95,6 +95,17 @@ class BkgSubtractionWidget(QtGui.QWidget):
             self.bkgFileSelected.emit(self.__fileName)
             self.__hideImageSelection()
 
+    def setBackground(self, fname):
+        """ sets the image background
+
+        :param fname: file name
+        :type fname: :obj:`str`
+        """
+        self.setDisplayedName(fname)
+        self.bkgFileSelected.emit(fname)
+        self.__ui.applyBkgCheckBox.setChecked(True)
+        self.applyStateChanged.emit(2)
+
     @QtCore.pyqtSlot()
     def _useCurrent(self):
         """ emits useCurrentImageAsBkg and hides image selection
