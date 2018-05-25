@@ -754,6 +754,28 @@ class TangoFileSourceWidget(BaseSourceWidget):
         self._ui.dirattrComboBox.lineEdit().setReadOnly(False)
         self._ui.dirattrComboBox.setEnabled(True)
 
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        cnflst = configuration.split(",")
+        filecnf = cnflst[0] if cnflst else ""
+        dircnf = cnflst[1] if len(cnflst) > 1 else ""
+
+        iid = self._ui.fileattrComboBox.findText(filecnf)
+        if iid == -1:
+            self._ui.fileattrComboBox.addItem(filecnf)
+            iid = self._ui.fileattrComboBox.findText(filecnf)
+        self._ui.fileattrComboBox.setCurrentIndex(iid)
+
+        iid = self._ui.dirattrComboBox.findText(dircnf)
+        if iid == -1:
+            self._ui.dirattrComboBox.addItem(dircnf)
+            iid = self._ui.dirattrComboBox.findText(dircnf)
+        self._ui.dirattrComboBox.setCurrentIndex(iid)
+
 
 class NXSFileSourceWidget(BaseSourceWidget):
 
@@ -1054,3 +1076,26 @@ class ZMQSourceWidget(BaseSourceWidget):
         self._connected = False
         self._ui.pickleComboBox.lineEdit().setReadOnly(False)
         self._ui.pickleComboBox.setEnabled(True)
+
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        cnflst = configuration.split(",")
+        srvcnf = cnflst[0] if cnflst else ""
+        topiccnf = cnflst[1] if len(cnflst) > 1 else ""
+
+        iid = self._ui.pickleComboBox.findText(srvcnf)
+        if iid == -1:
+            self._ui.pickleComboBox.addItem(srvcnf)
+            iid = self._ui.pickleComboBox.findText(srvcnf)
+        self._ui.pickleComboBox.setCurrentIndex(iid)
+
+        if topiccnf:
+            iid = self._ui.pickleTopicComboBox.findText(topiccnf)
+            if iid == -1:
+                self._ui.pickleTopicComboBox.addItem(topiccnf)
+                iid = self._ui.pickleTopicComboBox.findText(topiccnf)
+            self._ui.pickleTopicComboBox.setCurrentIndex(iid)

@@ -327,11 +327,21 @@ class LiveViewer(QtGui.QMainWindow):
         # load image file
         if options.imagefile:
             oldname = self.__settings.imagename
+            oldpath = self.__fieldpath
+            oldgrowing = self.__growing
             try:
                 self.__settings.imagename = options.imagefile
+                if ":/" in self.__settings.imagename:
+                    self.__settings.imagename, self.__fieldpath =  \
+                        self.__settings.imagename.split(":/", 1)
+                else:
+                    self.__fieldpath = None
+                self.__growing = 0
                 self._loadfile(fid=0)
             except:
                 self.__settings.imagename = oldname
+                self.__fieldpath = oldpath
+                self.__growing = oldgrowing
 
         # set image source
         if options.source:

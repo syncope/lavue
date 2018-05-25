@@ -87,7 +87,7 @@ if __name__ == "__main__":
         "  tangoattr -> '-c sys/tg_test/1/double_image_ro'\n"
         "  tangofile -> '-c p00/plt/1/LastImageTaken,p00/plt/1/"
         "LastImagePath'\n"
-        "  zmq -> '-c haso228:5535'\n"
+        "  zmq -> '-c haso228:5535,topic'\n"
         "  nxsfile -> '-c /tmp/myfile.nxs,/entry/data/pilatus'\n"
     )
     parser.add_argument(
