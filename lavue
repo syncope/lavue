@@ -78,7 +78,6 @@ if __name__ == "__main__":
         help="image source, i.e. hidra, http, tangoattr,\n"
         "    tangofile, zmq, nxsfile, test")
 
-
     parser.add_argument(
         "-c", "--configuration", dest="configuration",
         help="configuration strings for the image source separated by comma"
