@@ -139,6 +139,7 @@ class BaseSourceWidget(QtGui.QWidget):
         :type configuration: :obj:`str`
         """
 
+
 class TestSourceWidget(BaseSourceWidget):
 
     """ test source widget """
@@ -449,8 +450,8 @@ class HidraSourceWidget(BaseSourceWidget):
         """
         iid = self._ui.serverComboBox.findText(configuration)
         if iid == -1:
-             self._ui.serverComboBox.addItem(configuration)
-             iid = self._ui.serverComboBox.findText(configuration)
+            self._ui.serverComboBox.addItem(configuration)
+            iid = self._ui.serverComboBox.findText(configuration)
         self._ui.serverComboBox.setCurrentIndex(iid)
 
 
@@ -560,8 +561,8 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         """
         iid = self._ui.attrComboBox.findText(configuration)
         if iid == -1:
-             self._ui.attrComboBox.addItem(configuration)
-             iid = self._ui.attrComboBox.findText(configuration)
+            self._ui.attrComboBox.addItem(configuration)
+            iid = self._ui.attrComboBox.findText(configuration)
         self._ui.attrComboBox.setCurrentIndex(iid)
 
     def disconnectWidget(self):

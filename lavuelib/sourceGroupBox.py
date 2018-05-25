@@ -137,7 +137,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         :type index: :obj:`int`
         """
         self.__ui.sourceTypeComboBox.setCurrentIndex(index)
-        
+
     @QtCore.pyqtSlot()
     def _onSourceChanged(self):
         """ update current source widgets
@@ -320,6 +320,6 @@ class SourceGroupBox(QtGui.QGroupBox):
         :param configuration: configuration string
         :type configuration: :obj:`str`
         """
-            
+
         if self.__currentSource is not None:
             self.__currentSource.configure(configuration)

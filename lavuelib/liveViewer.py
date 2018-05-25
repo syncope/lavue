@@ -333,7 +333,7 @@ class LiveViewer(QtGui.QMainWindow):
             except:
                 self.__settings.imagename = oldname
 
-        # set image source        
+        # set image source
         if options.source:
             msid = None
             for sid, src in enumerate(self.__sourcetypes):
@@ -356,7 +356,7 @@ class LiveViewer(QtGui.QMainWindow):
 
         if options.transformation:
             pass
-        
+
         if options.scaling:
             pass
 
@@ -365,7 +365,7 @@ class LiveViewer(QtGui.QMainWindow):
 
         if options.gradient:
             pass
-        
+
         return options.start
 
     @QtCore.pyqtSlot(int)
