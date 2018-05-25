@@ -376,6 +376,9 @@ class LiveViewer(QtGui.QMainWindow):
         if options.gradient:
             self.__levelswg.setGradient(options.gradient)
 
+        if options.tool:
+            self.__imagewg.setTool(options.tool)
+
         return options.start is True
 
     @QtCore.pyqtSlot(int)

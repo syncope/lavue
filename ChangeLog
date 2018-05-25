@@ -1,4 +1,4 @@
-2018-05-XX Jan Kotanski <jan.kotanski@desy.de>
+2018-05-25 Jan Kotanski <jan.kotanski@desy.de>
 	* add Keep original Coordinates mode
 	* add combobox to tango file image source
 	* add command-line parameters

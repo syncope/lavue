@@ -123,6 +123,11 @@ if __name__ == "__main__":
         "-x", "--start", action="store_true", default=False,
         dest="start",
         help="connect the image source")
+    parser.add_argument(
+        "-u", "--tool", dest="tool",
+        help="utility tool, i.e. intensity, roi, movemotors, meshscan,\n"
+        "  linecut, projections, 1d-plot, angle/q, q+roi+proj"
+    )
 
     # parser.add_argument(
     #     "-r", "--tango-server", dest="tangoserver",

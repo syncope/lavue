@@ -1042,7 +1042,20 @@ class ImageWidget(QtGui.QWidget):
 
     def setDoubleClickLock(self, status=True):
         """ sets double click lock
+
         :param status: status flag
         :type status: :obj:`bool`
         """
         self.__displaywidget.setDoubleClickLock(status)
+
+    def setTool(self, tool):
+        """ sets tool from string
+
+        :param tool: tool name
+        :type tool: :obj:`str`
+        """
+        tools = [k.lower() for k in self.__toolnames]
+        ltool = tool.lower()
+        if ltool in tools:
+            tid = tools.index(ltool)
+            self.__ui.toolComboBox.setCurrentIndex(tid)
