@@ -316,6 +316,9 @@ class LiveViewer(QtGui.QMainWindow):
         if start:
             self.__sourcewg.start()
 
+        if options.tool:
+            QtCore.QTimer.singleShot(10, self.__imagewg.showCurrentTool)
+
     def __applyoptions(self, options):
         """ apply options
 
@@ -378,7 +381,6 @@ class LiveViewer(QtGui.QMainWindow):
 
         if options.tool:
             self.__imagewg.setTool(options.tool)
-
         return options.start is True
 
     @QtCore.pyqtSlot(int)

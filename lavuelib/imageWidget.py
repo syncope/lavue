@@ -369,6 +369,7 @@ class ImageWidget(QtGui.QWidget):
         return str(self.__ui.toolComboBox.currentText())
 
     @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot()
     def showCurrentTool(self):
         """ shows the current tool
         """
@@ -1059,3 +1060,4 @@ class ImageWidget(QtGui.QWidget):
         if ltool in tools:
             tid = tools.index(ltool)
             self.__ui.toolComboBox.setCurrentIndex(tid)
+            self.showCurrentTool()

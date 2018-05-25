@@ -1,4 +1,8 @@
 2018-05-25 Jan Kotanski <jan.kotanski@desy.de>
+	* refresh tool stretching
+	* tagged as 1.18.3
+
+2018-05-25 Jan Kotanski <jan.kotanski@desy.de>
 	* perform --start only if possible
 	* tagged as 1.18.2
 
