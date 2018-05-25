@@ -323,3 +323,9 @@ class SourceGroupBox(QtGui.QGroupBox):
 
         if self.__currentSource is not None:
             self.__currentSource.configure(configuration)
+
+    def start(self):
+        """ starts viewing if pushButton enable
+        """
+        if self.__ui.pushButton.isEnabled():
+            self.toggleServerConnection()

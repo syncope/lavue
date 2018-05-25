@@ -314,7 +314,7 @@ class LiveViewer(QtGui.QMainWindow):
         self._plot()
 
         if start:
-            self.__sourcewg.toggleServerConnection()
+            self.__sourcewg.start()
 
     def __applyoptions(self, options):
         """ apply options
