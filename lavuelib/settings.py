@@ -253,13 +253,13 @@ class Settings(object):
 
         qstval = \
             settings.value(
-                "Configuration/ZMQStreamTopics", type=list)
+                "Configuration/ZMQStreamTopics", type=str)
         if qstval:
             self.zmqtopics = [str(tp) for tp in qstval]
 
         qstval = \
             settings.value(
-                "Configuration/HidraDetectorServers", type=list)
+                "Configuration/HidraDetectorServers", type=str)
         if qstval:
             self.detservers = [str(tp) for tp in qstval]
 
