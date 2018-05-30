@@ -911,15 +911,22 @@ class HiDRASource(BaseSource):
         :type configuration: :obj:`str`
         """
         if self._configuration != configuration:
-            self._configuration = configuration
+
             self.__shost, self.__targetname, self.__portnumber \
-                = str(self._configuration).split()
-            self.__target = [
-                self.__targetname, self.__portnumber, 19,
-                [".cbf", ".tif", ".tiff"]]
-            with QtCore.QMutexLocker(self.__mutex):
-                self.__query = hidra.Transfer(
-                    "QUERY_NEXT", self.__shost)
+                = str(configuration).split()
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            result = sock.connect_ex(
+                (self.__targetname, int(self.__portnumber)))
+            if result:
+                self._configuration = configuration
+                self.__target = [
+                    self.__targetname, self.__portnumber, 19,
+                    [".cbf", ".tif", ".tiff"]]
+                with QtCore.QMutexLocker(self.__mutex):
+                    self.__query = hidra.Transfer(
+                        "QUERY_NEXT", self.__shost)
+            else:
+                self.__query = None
             self._initiated = False
 
     def connect(self):
@@ -927,6 +934,10 @@ class HiDRASource(BaseSource):
         """
         self.__tiffloader = False
         try:
+            if self.__query is None:
+                raise Exception(
+                    "%s:%s is busy. Please change the port"
+                    % (self.__targetname, self.__portnumber))
             if not self._initiated:
                 with QtCore.QMutexLocker(self.__mutex):
                     self.__query.initiate(self.__target)
@@ -934,7 +945,8 @@ class HiDRASource(BaseSource):
                 with QtCore.QMutexLocker(self.__mutex):
                     self.__query.start()
             return True
-        except:
+        except Exception as e:
+            print(str(e))
             if self.__query is not None:
                 with QtCore.QMutexLocker(self.__mutex):
                     self.__query.stop()
@@ -962,8 +974,20 @@ class HiDRASource(BaseSource):
         try:
             with QtCore.QMutexLocker(self.__mutex):
                 # [metadata, data] = self.__query.get()
+                t1 = time.time()
                 [metadata, data] = self.__query.get(self._timeout)
-        except:
+            if metadata is None and data is None \
+               and time.time() - t1 < self._timeout/2000.:
+                with QtCore.QMutexLocker(self.__mutex):
+                    self.__query.stop()
+                    self.__query = hidra.Transfer(
+                        "QUERY_NEXT", self.__shost)
+                    self.__query.initiate(self.__target)
+                    self._initiated = True
+                    self.__query.start()
+                    [metadata, data] = self.__query.get(self._timeout)
+        except Exception as e:
+            print(str(e))
             pass  # this needs a bit more care
 
         if metadata is not None and data is not None:
