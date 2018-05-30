@@ -150,6 +150,10 @@ class LiveViewer(QtGui.QMainWindow):
         #: (:class:`lavuelib.settings.Settings`) settings
         self.__settings = settings.Settings()
 
+        #: (:class:`lavuelib.controllerClient.ControllerClient`)
+        #:   tango controller client
+        self.__tangoclient = None
+
         #: (:obj:`int`) stacking dimension
         self.__growing = None
         #: (:obj:`int`) current frame id
@@ -401,6 +405,7 @@ class LiveViewer(QtGui.QMainWindow):
                 self.__imagewg.updateBeamCenterY)
             self.__tangoclient.detectorROIsChanged.connect(
                 self.__imagewg.updateDetectorROIs)
+            self.__imagewg.setTangoClient(self.__tangoclient)
             self.__tangoclient.subscribe()
         else:
             self.__tangoclient = None

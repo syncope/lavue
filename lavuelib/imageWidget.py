@@ -113,6 +113,9 @@ class ImageWidget(QtGui.QWidget):
         self.__toolwidgets = {}
         #: (:class:`lavuelib.settings.Settings`) settings
         self.__settings = settings
+        #: (:class:`lavuelib.controllerClient.ControllerClient`)
+        #:   tango controller client
+        self.__tangoclient = None
         #: (obj`str`) last text
         self.__lasttext = ""
         #: (obj`str`) roi labels
@@ -190,6 +193,26 @@ class ImageWidget(QtGui.QWidget):
         self.__connectsplitters()
         self.roiLineEditChanged.emit()
 
+    def writeAttibute(self, name, value):
+        """ writes attribute value of device
+
+        :param name: attribute name
+        :type name: :obj:`str`
+        :param value: attribute value
+        :type value: :obj:`any`
+        """
+        if self.__tangoclient:
+            self.__tangoclient.writeAttribute(name, value)
+        
+    def setTangoClient(self, tangoclient):
+        """ sets tango client
+
+        :param tangoclient: attribute name
+        :type tangoclient: 
+             :class:`lavuelib.controllerClient.ControllerClient`
+        """
+        self.__tangoclient = tangoclient
+        
     def __connectsplitters(self):
         """ connects splitters  signals
         """
