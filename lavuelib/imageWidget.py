@@ -1061,3 +1061,80 @@ class ImageWidget(QtGui.QWidget):
             tid = tools.index(ltool)
             self.__ui.toolComboBox.setCurrentIndex(tid)
             self.showCurrentTool()
+
+    @QtCore.pyqtSlot(float)
+    def updateEnergy(self, energy):
+        """ updates the beam energy
+
+        :param energy: beam energy
+        :type energy: :obj:`float`
+        """
+        self.__settings.energy = energy
+        self.mouseImagePositionChanged.emit()
+
+    @QtCore.pyqtSlot(float)
+    def updateDetectorDistance(self, distance):
+        """ updates the detector distance
+
+        :param distance: detector distance
+        :type distance: :obj:`float`
+        """
+        self.__settings.detdistance = distance
+        self.mouseImagePositionChanged.emit()
+
+    @QtCore.pyqtSlot(float)
+    def updateBeamCenterX(self, x):
+        """ updates the beam center x
+
+        :param x: beam center x
+        :type x: :obj:`float`
+        """
+        self.__settings.centerx = x
+        self.updateCenter(
+            self.__settings.centerx, self.__settings.centery)
+        self.mouseImagePositionChanged.emit()
+
+    @QtCore.pyqtSlot(float)
+    def updateBeamCenterY(self, y):
+        """ updates the beam center y
+
+        :param y: beam center y
+        :type y: :obj:`float`
+        """
+        self.__settings.centery = y
+        self.updateCenter(
+            self.__settings.centerx, self.__settings.centery)
+        self.mouseImagePositionChanged.emit()
+
+    @QtCore.pyqtSlot(str)
+    def updateDetectorROIs(self, rois):
+        """ updates the detector ROIs
+
+        :param distance: json dictionary with detector ROIs
+        :type distance: :obj:`str`
+        """
+        # self.__settings.detdistance = distance
+        # self.mouseImagePositionChanged.emit()
+
+        detrois = json.loads(str(rois))
+        coords = []
+        aliases = []
+        for k, v in detrois.items():
+            if isinstance(v, list):
+                for cr in v:
+                    if isinstance(cr, list):
+                        coords.append(cr)
+                        aliases.append(k)
+        slabel = []
+        for i, al in enumerate(aliases):
+            if len(set(aliases[i:])) == 1:
+                slabel.append(al)
+                break
+            else:
+                slabel.append(al)
+
+        print(slabel)
+        self.roiAliasesChanged.emit(" ".join(slabel))
+        self.roiLineEditChanged.emit()
+
+        self.updateROIs(len(coords), coords)
