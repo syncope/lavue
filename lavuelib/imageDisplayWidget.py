@@ -1191,6 +1191,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__currentroimapper.removeMappings(self._getROI())
             self.__roiregionmapper.removeMappings(self._getROI())
             self.__removeROI()
+        self.__showROIs(self.__rois.enabled)
 
     def updateCuts(self, cid, coords):
         """ update Cuts
