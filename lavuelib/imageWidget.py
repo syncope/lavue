@@ -1071,8 +1071,9 @@ class ImageWidget(QtGui.QWidget):
         :param energy: beam energy
         :type energy: :obj:`float`
         """
-        self.__settings.energy = energy
-        self.mouseImagePositionChanged.emit()
+        if self.__settings.energy != energy:
+            self.__settings.energy = energy
+            self.mouseImagePositionChanged.emit()
 
     @QtCore.pyqtSlot(float)
     def updateDetectorDistance(self, distance):
@@ -1081,8 +1082,9 @@ class ImageWidget(QtGui.QWidget):
         :param distance: detector distance
         :type distance: :obj:`float`
         """
-        self.__settings.detdistance = distance
-        self.mouseImagePositionChanged.emit()
+        if self.__settings.detdistance != distance:
+            self.__settings.detdistance = distance
+            self.mouseImagePositionChanged.emit()
 
     @QtCore.pyqtSlot(float)
     def updateBeamCenterX(self, x):
@@ -1091,10 +1093,11 @@ class ImageWidget(QtGui.QWidget):
         :param x: beam center x
         :type x: :obj:`float`
         """
-        self.__settings.centerx = x
-        self.updateCenter(
-            self.__settings.centerx, self.__settings.centery)
-        self.mouseImagePositionChanged.emit()
+        if self.__settings.centerx != x:
+            self.__settings.centerx = x
+            self.updateCenter(
+                self.__settings.centerx, self.__settings.centery)
+            self.mouseImagePositionChanged.emit()
 
     @QtCore.pyqtSlot(float)
     def updateBeamCenterY(self, y):
@@ -1103,10 +1106,11 @@ class ImageWidget(QtGui.QWidget):
         :param y: beam center y
         :type y: :obj:`float`
         """
-        self.__settings.centery = y
-        self.updateCenter(
-            self.__settings.centerx, self.__settings.centery)
-        self.mouseImagePositionChanged.emit()
+        if self.__settings.centery != y:
+            self.__settings.centery = y
+            self.updateCenter(
+                self.__settings.centerx, self.__settings.centery)
+            self.mouseImagePositionChanged.emit()
 
     @QtCore.pyqtSlot(str)
     def updateDetectorROIs(self, rois):
@@ -1136,8 +1140,11 @@ class ImageWidget(QtGui.QWidget):
                 slabel.append(al)
 
         print(slabel)
-        self.roilabels = " ".join(slabel)
-        self.roiAliasesChanged.emit(self.roilabels)
-        self.roiLineEditChanged.emit()
+        if self.roilabels != " ".join(slabel):
+            self.roilabels = " ".join(slabel)
+            self.roiAliasesChanged.emit(self.roilabels)
+            self.roiLineEditChanged.emit()
 
-        self.updateROIs(len(coords), coords)
+        oldcoords = self.__displaywidget.roiCoords():
+        if oldcoords != coords:
+            self.updateROIs(len(coords), coords)
