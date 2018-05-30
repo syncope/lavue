@@ -115,6 +115,8 @@ class ImageWidget(QtGui.QWidget):
         self.__settings = settings
         #: (obj`str`) last text
         self.__lasttext = ""
+        #: (obj`str`) roi labels
+        self.roilabels = ""
         #: (:class:`lavuelib.toolWidget.BaseToolWidget`) current tool
         self.__currenttool = None
 
@@ -1134,7 +1136,8 @@ class ImageWidget(QtGui.QWidget):
                 slabel.append(al)
 
         print(slabel)
-        self.roiAliasesChanged.emit(" ".join(slabel))
+        self.roilabels = " ".join(slabel)
+        self.roiAliasesChanged.emit(self.roilabels)
         self.roiLineEditChanged.emit()
 
         self.updateROIs(len(coords), coords)

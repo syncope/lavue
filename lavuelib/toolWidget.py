@@ -549,7 +549,7 @@ class MeshToolWidget(ToolWidget):
         """ activates tool widget
         """
         self._mainwidget.changeROIRegion()
-        self._mainwidget.updateROIs(1)
+        # self._mainwidget.updateROIs(1)
 
     def disactivate(self):
         """ disactivates tool widget
@@ -847,6 +847,7 @@ class ROIToolWidget(ToolWidget):
         self._mainwidget.changeROIRegion()
         self.setROIsNumber(len(self._mainwidget.roiCoords()))
         self.__aliases = self._mainwidget.getElementNames("ExpChannelList")
+        self.updateROILineEdit(self._mainwidget.roilabels)
         self.__updateCompleter()
 
     def __updateCompleter(self):
@@ -903,6 +904,7 @@ class ROIToolWidget(ToolWidget):
     def _updateApplyButton(self):
         """ updates applied button"""
         stext = str(self.__ui.labelROILineEdit.text())
+        self._mainwidget.roilabels = stext
         currentlength = len(stext)
         if not stext.strip():
             self.__ui.applyROIPushButton.setEnabled(False)
@@ -1789,6 +1791,7 @@ class QROIProjToolWidget(ToolWidget):
         self._mainwidget.changeROIRegion()
         self.setROIsNumber(len(self._mainwidget.roiCoords()))
         self.__aliases = self._mainwidget.getElementNames("ExpChannelList")
+        self.updateROILineEdit(self._mainwidget.roilabels)
         self.__updateCompleter()
 
         if self.__bottomplot is None:
@@ -2001,6 +2004,7 @@ class QROIProjToolWidget(ToolWidget):
     def _updateApplyButton(self):
         """ updates applied button"""
         stext = str(self.__ui.labelROILineEdit.text())
+        self._mainwidget.roilabels = stext
         currentlength = len(stext)
         if not stext.strip():
             self.__ui.applyROIPushButton.setEnabled(False)
