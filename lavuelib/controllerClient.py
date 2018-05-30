@@ -132,7 +132,7 @@ class ControllerClient(QtCore.QObject):
         :type value: :obj:`any`
         """
         self.__dp.write_attribute(name, value)
-        
+
     def unsubscribe(self):
         """ unsubscribe callback methods
         """

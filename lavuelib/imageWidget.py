@@ -203,16 +203,16 @@ class ImageWidget(QtGui.QWidget):
         """
         if self.__tangoclient:
             self.__tangoclient.writeAttribute(name, value)
-        
+
     def setTangoClient(self, tangoclient):
         """ sets tango client
 
         :param tangoclient: attribute name
-        :type tangoclient: 
+        :type tangoclient:
              :class:`lavuelib.controllerClient.ControllerClient`
         """
         self.__tangoclient = tangoclient
-        
+
     def __connectsplitters(self):
         """ connects splitters  signals
         """
@@ -1168,6 +1168,6 @@ class ImageWidget(QtGui.QWidget):
             self.roiAliasesChanged.emit(self.roilabels)
             self.roiLineEditChanged.emit()
 
-        oldcoords = self.__displaywidget.roiCoords():
+        oldcoords = self.__displaywidget.roiCoords()
         if oldcoords != coords:
             self.updateROIs(len(coords), coords)

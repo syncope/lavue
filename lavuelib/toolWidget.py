@@ -1547,6 +1547,8 @@ class AngleQToolWidget(ToolWidget):
         """
         self.__settings.centerx = float(xdata)
         self.__settings.centery = float(ydata)
+        self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
+        self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
         self._message()
         self.updateGeometryTip()
 
@@ -1664,6 +1666,15 @@ class AngleQToolWidget(ToolWidget):
             self.__settings.pixelsizex = cnfdlg.pixelsizex
             self.__settings.pixelsizey = cnfdlg.pixelsizey
             self.__settings.detdistance = cnfdlg.detdistance
+            self._mainwidget.writeAttribute(
+                "BeamCenterX", float(self.__settings.centerx))
+            self._mainwidget.writeAttribute(
+                "BeamCenterY", float(self.__settings.centery))
+            self._mainwidget.writeAttribute(
+                "Energy", float(self.__settings.energy))
+            self._mainwidget.writeAttribute(
+                "DetectorDistance",
+                float(self.__settings.detdistance))
             self.updateGeometryTip()
             self._mainwidget.updateCenter(
                 self.__settings.centerx, self.__settings.centery)
@@ -2099,6 +2110,8 @@ class QROIProjToolWidget(ToolWidget):
         """
         self.__settings.centerx = float(xdata)
         self.__settings.centery = float(ydata)
+        self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
+        self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
         self._message()
         self.updateGeometryTip()
 
@@ -2216,6 +2229,15 @@ class QROIProjToolWidget(ToolWidget):
             self.__settings.pixelsizex = cnfdlg.pixelsizex
             self.__settings.pixelsizey = cnfdlg.pixelsizey
             self.__settings.detdistance = cnfdlg.detdistance
+            self._mainwidget.writeAttribute(
+                "BeamCenterX", float(self.__settings.centerx))
+            self._mainwidget.writeAttribute(
+                "BeamCenterY", float(self.__settings.centery))
+            self._mainwidget.writeAttribute(
+                "Energy", float(self.__settings.energy))
+            self._mainwidget.writeAttribute(
+                "DetectorDistance",
+                float(self.__settings.detdistance))
             self.updateGeometryTip()
             self._mainwidget.updateCenter(
                 self.__settings.centerx, self.__settings.centery)
