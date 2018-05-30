@@ -123,6 +123,16 @@ class ControllerClient(QtCore.QObject):
             centery_cb)
         self.__subscribed = True
 
+    def write_attibute(self, name, value):
+        """ writes attribute value of device
+
+        :param name: attribute name
+        :type name: :obj:`str`
+        :param value: attribute value
+        :type value: :obj:`any`
+        """
+        self.__dp.write_attribute(name, value)
+        
     def unsubscribe(self):
         """ unsubscribe callback methods
         """
