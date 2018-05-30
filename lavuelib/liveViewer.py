@@ -50,6 +50,7 @@ from . import statisticsGroupBox
 from . import imageWidget
 from . import imageField
 from . import configDialog
+from . import controllerClient
 
 from . import imageFileHandler
 from . import sardanaUtils
@@ -311,6 +312,10 @@ class LiveViewer(QtGui.QMainWindow):
         self.__updateframeview()
 
         start = self.__applyoptions(options)
+
+        self.__tangoclient = controllerClient.ControllerClient(
+            self.__settings)
+        
         self._plot()
 
         if start:
