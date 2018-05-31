@@ -159,7 +159,7 @@ class SardanaUtils(object):
         :returns: device name if exists
         :rtype: :obj:`str`
         """
-
+        print("DOOR %s" % cname)
         if db is None:
             db = self.__db
         try:

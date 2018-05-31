@@ -337,6 +337,9 @@ class LiveViewer(QtGui.QMainWindow):
         :returns: start flag
         :rtype: :obj:`bool`
         """
+        if options.doordevice:
+            self.__settings.doorname = options.doordevice
+
         # load image file
         if options.imagefile:
             oldname = self.__settings.imagename
