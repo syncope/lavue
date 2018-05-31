@@ -431,7 +431,7 @@
                <item>
                 <widget class="QGroupBox" name="groupBox_3">
                  <property name="title">
-                  <string>Statistics</string>
+                  <string>Statistics and 1d plots</string>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_8">
                   <item row="0" column="0">
@@ -439,7 +439,7 @@
                     <item row="0" column="0">
                      <widget class="QLabel" name="statsscaleLabel">
                       <property name="toolTip">
-                       <string>statistics values with scaling</string>
+                       <string>statistics values 1d-plots with scaling</string>
                       </property>
                       <property name="text">
                        <string>Intensity scaling:</string>
@@ -452,7 +452,7 @@
                     <item row="0" column="1">
                      <widget class="QCheckBox" name="statsscaleCheckBox">
                       <property name="toolTip">
-                       <string>statistics values with scaling</string>
+                       <string>statistics values 1d-plots with scaling</string>
                       </property>
                       <property name="text">
                        <string/>
