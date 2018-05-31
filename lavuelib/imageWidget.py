@@ -61,34 +61,36 @@ class ImageWidget(QtGui.QWidget):
 
     #: (:class:`PyQt4.QtCore.pyqtSignal`) current tool changed signal
     currentToolChanged = QtCore.pyqtSignal(int)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) cut number changed signal
-    cutNumberChanged = QtCore.pyqtSignal(int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) roi number changed signal
     roiNumberChanged = QtCore.pyqtSignal(int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) roi coordinate changed signal
     roiCoordsChanged = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi Line Edit changed signal
+    roiLineEditChanged = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi aliases changed signal
+    roiAliasesChanged = QtCore.pyqtSignal(str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi value changed signal
+    roiValueChanged = QtCore.pyqtSignal(str, int, str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) cut number changed signal
+    cutNumberChanged = QtCore.pyqtSignal(int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) cut coordinate changed signal
     cutCoordsChanged = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) iamge plotted signal
     imagePlotted = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi Line Edit changed signal
-    roiLineEditChanged = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) sardana enabled signal
     sardanaEnabled = QtCore.pyqtSignal(bool)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) aspect locked toggled signal
     aspectLockedToggled = QtCore.pyqtSignal(bool)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) apply tips changed signal
     applyTipsChanged = QtCore.pyqtSignal(int)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi aliases changed signal
-    roiAliasesChanged = QtCore.pyqtSignal(str)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi value changed signal
-    roiValueChanged = QtCore.pyqtSignal(str, int, str)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse image position changed signal
     mouseImagePositionChanged = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse double clicked
     mouseImageDoubleClicked = QtCore.pyqtSignal(float, float)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse single clicked
     mouseImageSingleClicked = QtCore.pyqtSignal(float, float)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) geometry changed
+    geometryChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, tooltypes=None, settings=None):
         """ constructor
@@ -116,6 +118,8 @@ class ImageWidget(QtGui.QWidget):
         #: (:class:`lavuelib.controllerClient.ControllerClient`)
         #:   tango controller client
         self.__tangoclient = None
+        #: (obj`list`) collection of last writing rois
+        self.__lastrois = []
         #: (obj`str`) last text
         self.__lasttext = ""
         #: (obj`str`) roi labels
@@ -191,9 +195,10 @@ class ImageWidget(QtGui.QWidget):
             self._emitMouseImageSingleClicked)
 
         self.__connectsplitters()
+
         self.roiLineEditChanged.emit()
 
-    def writeAttibute(self, name, value):
+    def writeAttribute(self, name, value):
         """ writes attribute value of device
 
         :param name: attribute name
@@ -203,6 +208,46 @@ class ImageWidget(QtGui.QWidget):
         """
         if self.__tangoclient:
             self.__tangoclient.writeAttribute(name, value)
+
+    @QtCore.pyqtSlot()
+    def writeDetectorROIsAttribute(self):
+        """ writes DetectorROIsattribute value of device
+        """
+        if self.__tangoclient:
+            rois = {}
+            slabel = re.split(';|,| |\n', str(self.roilabels))
+            slabel = [lb for lb in slabel if lb]
+            rid = 0
+            lastcrdlist = None
+            toadd = []
+            lastalias = None
+
+            roicoords = self.__displaywidget.roiCoords()
+            self.__lastrois = list(roicoords)
+            for alias in slabel:
+                if alias not in toadd:
+                    rois[alias] = []
+                lastcrdlist = rois[alias]
+                if rid < len(roicoords):
+                    lastcrdlist.append(roicoords[rid])
+                    rid += 1
+                    if alias not in toadd:
+                        toadd.append(alias)
+                if not lastcrdlist:
+                    if alias in rois.keys():
+                        rois.pop(alias)
+                    toadd.append(alias)
+                lastalias = alias
+            if rid > 0:
+                while rid < len(roicoords):
+                    lastcrdlist.append(roicoords[rid])
+                    rid += 1
+                if not lastcrdlist:
+                    if lastalias in rois.keys():
+                        rois.pop(lastalias)
+                    toadd.append(lastalias)
+            print("ROIs %s" % json.dumps(rois))
+            self.__tangoclient.writeAttribute("DetectorROIs", json.dumps(rois))
 
     def setTangoClient(self, tangoclient):
         """ sets tango client
@@ -365,8 +410,8 @@ class ImageWidget(QtGui.QWidget):
         :type coords: :obj:`list`
                   < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
         """
-        self.applyTipsChanged.emit(rid)
         self.__displaywidget.updateROIs(rid, coords)
+        self.applyTipsChanged.emit(rid)
         self.roiCoordsChanged.emit()
         self.roiNumberChanged.emit(rid)
 
@@ -634,6 +679,9 @@ class ImageWidget(QtGui.QWidget):
     def _emitMouseImagePositionChanged(self):
         """emits mouseImagePositionChanged
         """
+        if self.__displaywidget.isROIsEnabled():
+            if self.__lastrois != self.__displaywidget.roiCoords():
+                self.writeDetectorROIsAttribute()
         self.mouseImagePositionChanged.emit()
 
     @QtCore.pyqtSlot(float, float)
@@ -759,7 +807,7 @@ class ImageWidget(QtGui.QWidget):
                 _, warn = self.__sardana.runMacro(
                     str(self.__settings.doorname), command, wait=False)
                 if warn:
-                    print("Warning: %s" % warn)
+                    print("Warning: %s" % str(warn))
                     msg = str(warn)
                     messageBox.MessageBox.warning(
                         self, "lavue: Errors in running macro: %s" % command,
@@ -785,7 +833,7 @@ class ImageWidget(QtGui.QWidget):
             try:
                 warn = self.__sardana.getError(str(self.__settings.doorname))
                 if warn:
-                    print("Warning: %s" % warn)
+                    print("Warning: %s" % str(warn))
                     msg = str(warn)
                     messageBox.MessageBox.warning(
                         self, "lavue: Errors in running macro ",
@@ -808,7 +856,6 @@ class ImageWidget(QtGui.QWidget):
         :param roispin: the current number of rois
         :type roispin: :obj:`int`
         """
-
         if isr.PYTANGO:
             if not self.__settings.doorname:
                 self.__settings.doorname = self.__sardana.getDeviceName("Door")
@@ -876,13 +923,13 @@ class ImageWidget(QtGui.QWidget):
                             str(self.__settings.doorname), ["nxsadd", alias])
                         if warn:
                             warns.extend(list(warn))
-                            print("Warning: %s" % warn)
+                            print("Warning: %s" % str(warn))
                     for alias in toremove:
                         _, warn = self.__sardana.runMacro(
                             str(self.__settings.doorname), ["nxsrm", alias])
                         if warn:
                             warns.extend(list(warn))
-                            print("Warning: %s" % warn)
+                            print("Warning: %s" % str(warn))
                     if warns:
                         msg = "\n".join(set(warns))
                         messageBox.MessageBox.warning(
@@ -948,7 +995,6 @@ class ImageWidget(QtGui.QWidget):
                 else:
                     slabel.append(al)
             self.roiAliasesChanged.emit(" ".join(slabel))
-            self.roiLineEditChanged.emit()
 
             self.updateROIs(len(coords), coords)
         else:
@@ -1097,6 +1143,7 @@ class ImageWidget(QtGui.QWidget):
         if self.__settings.energy != energy:
             self.__settings.energy = energy
             self.mouseImagePositionChanged.emit()
+            self.geometryChanged.emit()
 
     @QtCore.pyqtSlot(float)
     def updateDetectorDistance(self, distance):
@@ -1108,6 +1155,7 @@ class ImageWidget(QtGui.QWidget):
         if self.__settings.detdistance != distance:
             self.__settings.detdistance = distance
             self.mouseImagePositionChanged.emit()
+            self.geometryChanged.emit()
 
     @QtCore.pyqtSlot(float)
     def updateBeamCenterX(self, x):
@@ -1121,6 +1169,7 @@ class ImageWidget(QtGui.QWidget):
             self.updateCenter(
                 self.__settings.centerx, self.__settings.centery)
             self.mouseImagePositionChanged.emit()
+            self.geometryChanged.emit()
 
     @QtCore.pyqtSlot(float)
     def updateBeamCenterY(self, y):
@@ -1134,6 +1183,7 @@ class ImageWidget(QtGui.QWidget):
             self.updateCenter(
                 self.__settings.centerx, self.__settings.centery)
             self.mouseImagePositionChanged.emit()
+            self.geometryChanged.emit()
 
     @QtCore.pyqtSlot(str)
     def updateDetectorROIs(self, rois):
@@ -1166,8 +1216,8 @@ class ImageWidget(QtGui.QWidget):
         if self.roilabels != " ".join(slabel):
             self.roilabels = " ".join(slabel)
             self.roiAliasesChanged.emit(self.roilabels)
-            self.roiLineEditChanged.emit()
 
         oldcoords = self.__displaywidget.roiCoords()
+        print("UPDATE %s" % str(coords))
         if oldcoords != coords:
             self.updateROIs(len(coords), coords)

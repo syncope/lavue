@@ -123,7 +123,7 @@ class ControllerClient(QtCore.QObject):
             centery_cb)
         self.__subscribed = True
 
-    def writeAttibute(self, name, value):
+    def writeAttribute(self, name, value):
         """ writes attribute value of device
 
         :param name: attribute name

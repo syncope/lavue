@@ -833,12 +833,18 @@ class ROIToolWidget(ToolWidget):
             [self.__ui.labelROILineEdit.textChanged,
              self._updateApplyButton],
             [self.__ui.roiSpinBox.valueChanged, self._mainwidget.updateROIs],
+            [self.__ui.roiSpinBox.valueChanged,
+             self._mainwidget.writeDetectorROIsAttribute],
+            [self.__ui.labelROILineEdit.textEdited,
+             self._mainwidget.writeDetectorROIsAttribute],
             [self._mainwidget.roiLineEditChanged, self._updateApplyButton],
             [self._mainwidget.roiAliasesChanged, self.updateROILineEdit],
             [self._mainwidget.roiValueChanged, self.updateROIDisplayText],
             [self._mainwidget.roiNumberChanged, self.setROIsNumber],
             [self._mainwidget.sardanaEnabled, self.updateROIButton],
-            [self._mainwidget.mouseImagePositionChanged, self._message]
+            [self._mainwidget.mouseImagePositionChanged, self._message],
+
+
         ]
 
     def activate(self):
@@ -986,6 +992,7 @@ class ROIToolWidget(ToolWidget):
         :type rid: :obj:`int`
         """
         self.__ui.roiSpinBox.setValue(rid)
+        # self._mainwidget.writeDetectorROIsAttribute()
 
 
 class LineCutToolWidget(ToolWidget):
@@ -1526,6 +1533,7 @@ class AngleQToolWidget(ToolWidget):
              self._setGSpaceIndex],
             [self._mainwidget.mouseImageDoubleClicked,
              self._updateCenter],
+            [self._mainwidget.geometryChanged, self.updateGeometryTip],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
@@ -1688,6 +1696,7 @@ class AngleQToolWidget(ToolWidget):
         """
         self.__gspaceindex = gindex
 
+    @QtCore.pyqtSlot()
     def updateGeometryTip(self):
         """ update geometry tips
         """
@@ -1772,6 +1781,7 @@ class QROIProjToolWidget(ToolWidget):
             [self._mainwidget.mouseImageDoubleClicked,
              self._updateCenter],
             [self._mainwidget.mouseImagePositionChanged, self._message],
+            [self._mainwidget.geometryChanged, self.updateGeometryTip],
 
             [self.applyROIPressed, self._mainwidget.applyROIs],
             [self.fetchROIPressed, self._mainwidget.fetchROIs],
@@ -1779,6 +1789,10 @@ class QROIProjToolWidget(ToolWidget):
             [self.__ui.labelROILineEdit.textChanged,
              self._updateApplyButton],
             [self.__ui.roiSpinBox.valueChanged, self._mainwidget.updateROIs],
+            [self.__ui.roiSpinBox.valueChanged,
+             self._mainwidget.writeDetectorROIsAttribute],
+            [self.__ui.labelROILineEdit.textEdited,
+             self._mainwidget.writeDetectorROIsAttribute],
             [self._mainwidget.roiLineEditChanged, self._updateApplyButton],
             [self._mainwidget.roiAliasesChanged, self.updateROILineEdit],
             [self._mainwidget.roiValueChanged, self.updateROIDisplayText],
@@ -2098,6 +2112,7 @@ class QROIProjToolWidget(ToolWidget):
         :type rid: :obj:`int`
         """
         self.__ui.roiSpinBox.setValue(rid)
+        # self._mainwidget.writeDetectorROIsAttribute()
 
     @QtCore.pyqtSlot(float, float)
     def _updateCenter(self, xdata, ydata):
@@ -2251,6 +2266,7 @@ class QROIProjToolWidget(ToolWidget):
         """
         self.__gspaceindex = gindex
 
+    @QtCore.pyqtSlot()
     def updateGeometryTip(self):
         """ update geometry tips
         """
