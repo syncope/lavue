@@ -217,6 +217,8 @@ class ImageWidget(QtGui.QWidget):
             rois = {}
             slabel = re.split(';|,| |\n', str(self.roilabels))
             slabel = [lb for lb in slabel if lb]
+            if len(slabel) == 0:
+                slabel = ["__null__"]
             rid = 0
             lastcrdlist = None
             toadd = []
@@ -246,7 +248,7 @@ class ImageWidget(QtGui.QWidget):
                     if lastalias in rois.keys():
                         rois.pop(lastalias)
                     toadd.append(lastalias)
-            print("ROIs %s" % json.dumps(rois))
+            # print("ROIs %s" % json.dumps(rois))
             self.__tangoclient.writeAttribute("DetectorROIs", json.dumps(rois))
 
     def setTangoClient(self, tangoclient):
@@ -1192,8 +1194,6 @@ class ImageWidget(QtGui.QWidget):
         :param distance: json dictionary with detector ROIs
         :type distance: :obj:`str`
         """
-        # self.__settings.detdistance = distance
-        # self.mouseImagePositionChanged.emit()
 
         detrois = json.loads(str(rois))
         coords = []
@@ -1212,12 +1212,14 @@ class ImageWidget(QtGui.QWidget):
             else:
                 slabel.append(al)
 
-        print(slabel)
+        if len(slabel) == 1 and slabel[0] == "__null__":
+            slabel = []
+        # print(slabel)
         if self.roilabels != " ".join(slabel):
             self.roilabels = " ".join(slabel)
             self.roiAliasesChanged.emit(self.roilabels)
 
         oldcoords = self.__displaywidget.roiCoords()
-        print("UPDATE %s" % str(coords))
+        # print("UPDATE %s" % str(coords))
         if oldcoords != coords:
             self.updateROIs(len(coords), coords)

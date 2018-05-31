@@ -835,15 +835,13 @@ class ROIToolWidget(ToolWidget):
             [self.__ui.roiSpinBox.valueChanged, self._mainwidget.updateROIs],
             [self.__ui.roiSpinBox.valueChanged,
              self._mainwidget.writeDetectorROIsAttribute],
-            [self.__ui.labelROILineEdit.textEdited,
-             self._mainwidget.writeDetectorROIsAttribute],
+            [self.__ui.labelROILineEdit.textEdited, self._writeDetectorROIs],
             [self._mainwidget.roiLineEditChanged, self._updateApplyButton],
             [self._mainwidget.roiAliasesChanged, self.updateROILineEdit],
             [self._mainwidget.roiValueChanged, self.updateROIDisplayText],
             [self._mainwidget.roiNumberChanged, self.setROIsNumber],
             [self._mainwidget.sardanaEnabled, self.updateROIButton],
             [self._mainwidget.mouseImagePositionChanged, self._message],
-
 
         ]
 
@@ -879,6 +877,13 @@ class ROIToolWidget(ToolWidget):
         """ disactivates tool widget
         """
         self._mainwidget.roiCoordsChanged.emit()
+
+    @QtCore.pyqtSlot()
+    def _writeDetectorROIs(self):
+        """ writes Detector rois and updates roi labels
+        """
+        self._mainwidget.roilabels = str(self.__ui.labelROILineEdit.text())
+        self._mainwidget.writeDetectorROIsAttribute()
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -992,7 +997,6 @@ class ROIToolWidget(ToolWidget):
         :type rid: :obj:`int`
         """
         self.__ui.roiSpinBox.setValue(rid)
-        # self._mainwidget.writeDetectorROIsAttribute()
 
 
 class LineCutToolWidget(ToolWidget):
@@ -1792,7 +1796,7 @@ class QROIProjToolWidget(ToolWidget):
             [self.__ui.roiSpinBox.valueChanged,
              self._mainwidget.writeDetectorROIsAttribute],
             [self.__ui.labelROILineEdit.textEdited,
-             self._mainwidget.writeDetectorROIsAttribute],
+             self._writeDetectorROIs],
             [self._mainwidget.roiLineEditChanged, self._updateApplyButton],
             [self._mainwidget.roiAliasesChanged, self.updateROILineEdit],
             [self._mainwidget.roiValueChanged, self.updateROIDisplayText],
@@ -1845,6 +1849,13 @@ class QROIProjToolWidget(ToolWidget):
         self.__bottomplot = None
         self._mainwidget.removerightplot(self.__rightplot)
         self.__rightplot = None
+
+    @QtCore.pyqtSlot()
+    def _writeDetectorROIs(self):
+        """ writes Detector rois and updates roi labels
+        """
+        self._mainwidget.roilabels = str(self.__ui.labelROILineEdit.text())
+        self._mainwidget.writeDetectorROIsAttribute()
 
     def __updateslice(self, text):
         """ create slices from the text
