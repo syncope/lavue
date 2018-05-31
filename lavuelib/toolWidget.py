@@ -549,7 +549,7 @@ class MeshToolWidget(ToolWidget):
         """ activates tool widget
         """
         self._mainwidget.changeROIRegion()
-        self._mainwidget.updateROIs(1)
+        # self._mainwidget.updateROIs(1)
 
     def disactivate(self):
         """ disactivates tool widget
@@ -833,12 +833,16 @@ class ROIToolWidget(ToolWidget):
             [self.__ui.labelROILineEdit.textChanged,
              self._updateApplyButton],
             [self.__ui.roiSpinBox.valueChanged, self._mainwidget.updateROIs],
+            [self.__ui.roiSpinBox.valueChanged,
+             self._mainwidget.writeDetectorROIsAttribute],
+            [self.__ui.labelROILineEdit.textEdited, self._writeDetectorROIs],
             [self._mainwidget.roiLineEditChanged, self._updateApplyButton],
             [self._mainwidget.roiAliasesChanged, self.updateROILineEdit],
             [self._mainwidget.roiValueChanged, self.updateROIDisplayText],
             [self._mainwidget.roiNumberChanged, self.setROIsNumber],
             [self._mainwidget.sardanaEnabled, self.updateROIButton],
-            [self._mainwidget.mouseImagePositionChanged, self._message]
+            [self._mainwidget.mouseImagePositionChanged, self._message],
+
         ]
 
     def activate(self):
@@ -847,6 +851,7 @@ class ROIToolWidget(ToolWidget):
         self._mainwidget.changeROIRegion()
         self.setROIsNumber(len(self._mainwidget.roiCoords()))
         self.__aliases = self._mainwidget.getElementNames("ExpChannelList")
+        self.updateROILineEdit(self._mainwidget.roilabels)
         self.__updateCompleter()
 
     def __updateCompleter(self):
@@ -872,6 +877,13 @@ class ROIToolWidget(ToolWidget):
         """ disactivates tool widget
         """
         self._mainwidget.roiCoordsChanged.emit()
+
+    @QtCore.pyqtSlot()
+    def _writeDetectorROIs(self):
+        """ writes Detector rois and updates roi labels
+        """
+        self._mainwidget.roilabels = str(self.__ui.labelROILineEdit.text())
+        self._mainwidget.writeDetectorROIsAttribute()
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -903,6 +915,7 @@ class ROIToolWidget(ToolWidget):
     def _updateApplyButton(self):
         """ updates applied button"""
         stext = str(self.__ui.labelROILineEdit.text())
+        self._mainwidget.roilabels = stext
         currentlength = len(stext)
         if not stext.strip():
             self.__ui.applyROIPushButton.setEnabled(False)
@@ -1524,6 +1537,7 @@ class AngleQToolWidget(ToolWidget):
              self._setGSpaceIndex],
             [self._mainwidget.mouseImageDoubleClicked,
              self._updateCenter],
+            [self._mainwidget.geometryChanged, self.updateGeometryTip],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
@@ -1545,6 +1559,8 @@ class AngleQToolWidget(ToolWidget):
         """
         self.__settings.centerx = float(xdata)
         self.__settings.centery = float(ydata)
+        self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
+        self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
         self._message()
         self.updateGeometryTip()
 
@@ -1662,6 +1678,15 @@ class AngleQToolWidget(ToolWidget):
             self.__settings.pixelsizex = cnfdlg.pixelsizex
             self.__settings.pixelsizey = cnfdlg.pixelsizey
             self.__settings.detdistance = cnfdlg.detdistance
+            self._mainwidget.writeAttribute(
+                "BeamCenterX", float(self.__settings.centerx))
+            self._mainwidget.writeAttribute(
+                "BeamCenterY", float(self.__settings.centery))
+            self._mainwidget.writeAttribute(
+                "Energy", float(self.__settings.energy))
+            self._mainwidget.writeAttribute(
+                "DetectorDistance",
+                float(self.__settings.detdistance))
             self.updateGeometryTip()
             self._mainwidget.updateCenter(
                 self.__settings.centerx, self.__settings.centery)
@@ -1675,6 +1700,7 @@ class AngleQToolWidget(ToolWidget):
         """
         self.__gspaceindex = gindex
 
+    @QtCore.pyqtSlot()
     def updateGeometryTip(self):
         """ update geometry tips
         """
@@ -1759,6 +1785,7 @@ class QROIProjToolWidget(ToolWidget):
             [self._mainwidget.mouseImageDoubleClicked,
              self._updateCenter],
             [self._mainwidget.mouseImagePositionChanged, self._message],
+            [self._mainwidget.geometryChanged, self.updateGeometryTip],
 
             [self.applyROIPressed, self._mainwidget.applyROIs],
             [self.fetchROIPressed, self._mainwidget.fetchROIs],
@@ -1766,6 +1793,10 @@ class QROIProjToolWidget(ToolWidget):
             [self.__ui.labelROILineEdit.textChanged,
              self._updateApplyButton],
             [self.__ui.roiSpinBox.valueChanged, self._mainwidget.updateROIs],
+            [self.__ui.roiSpinBox.valueChanged,
+             self._mainwidget.writeDetectorROIsAttribute],
+            [self.__ui.labelROILineEdit.textEdited,
+             self._writeDetectorROIs],
             [self._mainwidget.roiLineEditChanged, self._updateApplyButton],
             [self._mainwidget.roiAliasesChanged, self.updateROILineEdit],
             [self._mainwidget.roiValueChanged, self.updateROIDisplayText],
@@ -1789,6 +1820,7 @@ class QROIProjToolWidget(ToolWidget):
         self._mainwidget.changeROIRegion()
         self.setROIsNumber(len(self._mainwidget.roiCoords()))
         self.__aliases = self._mainwidget.getElementNames("ExpChannelList")
+        self.updateROILineEdit(self._mainwidget.roilabels)
         self.__updateCompleter()
 
         if self.__bottomplot is None:
@@ -1817,6 +1849,13 @@ class QROIProjToolWidget(ToolWidget):
         self.__bottomplot = None
         self._mainwidget.removerightplot(self.__rightplot)
         self.__rightplot = None
+
+    @QtCore.pyqtSlot()
+    def _writeDetectorROIs(self):
+        """ writes Detector rois and updates roi labels
+        """
+        self._mainwidget.roilabels = str(self.__ui.labelROILineEdit.text())
+        self._mainwidget.writeDetectorROIsAttribute()
 
     def __updateslice(self, text):
         """ create slices from the text
@@ -2001,6 +2040,7 @@ class QROIProjToolWidget(ToolWidget):
     def _updateApplyButton(self):
         """ updates applied button"""
         stext = str(self.__ui.labelROILineEdit.text())
+        self._mainwidget.roilabels = stext
         currentlength = len(stext)
         if not stext.strip():
             self.__ui.applyROIPushButton.setEnabled(False)
@@ -2083,6 +2123,7 @@ class QROIProjToolWidget(ToolWidget):
         :type rid: :obj:`int`
         """
         self.__ui.roiSpinBox.setValue(rid)
+        # self._mainwidget.writeDetectorROIsAttribute()
 
     @QtCore.pyqtSlot(float, float)
     def _updateCenter(self, xdata, ydata):
@@ -2095,6 +2136,8 @@ class QROIProjToolWidget(ToolWidget):
         """
         self.__settings.centerx = float(xdata)
         self.__settings.centery = float(ydata)
+        self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
+        self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
         self._message()
         self.updateGeometryTip()
 
@@ -2212,6 +2255,15 @@ class QROIProjToolWidget(ToolWidget):
             self.__settings.pixelsizex = cnfdlg.pixelsizex
             self.__settings.pixelsizey = cnfdlg.pixelsizey
             self.__settings.detdistance = cnfdlg.detdistance
+            self._mainwidget.writeAttribute(
+                "BeamCenterX", float(self.__settings.centerx))
+            self._mainwidget.writeAttribute(
+                "BeamCenterY", float(self.__settings.centery))
+            self._mainwidget.writeAttribute(
+                "Energy", float(self.__settings.energy))
+            self._mainwidget.writeAttribute(
+                "DetectorDistance",
+                float(self.__settings.detdistance))
             self.updateGeometryTip()
             self._mainwidget.updateCenter(
                 self.__settings.centerx, self.__settings.centery)
@@ -2225,6 +2277,7 @@ class QROIProjToolWidget(ToolWidget):
         """
         self.__gspaceindex = gindex
 
+    @QtCore.pyqtSlot()
     def updateGeometryTip(self):
         """ update geometry tips
         """

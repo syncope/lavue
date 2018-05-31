@@ -129,9 +129,12 @@ if __name__ == "__main__":
         "  linecut, projections, 1d-plot, angle/q, q+roi+proj"
     )
 
-    # parser.add_argument(
-    #     "-r", "--tango-server", dest="tangoserver",
-    #     help="tango server to communicated with sardana during the run")
+    parser.add_argument(
+        "-a", "--tango-device", dest="tangodevice",
+        help="tango device to communicated with clients during the run")
+    #parser.add_argument(
+    #    "-d", "--door-device", dest="doordevice",
+    #    help="door device to communicated with sardana during the run")
     # parser.add_argument(
     #       "-o", "--log", dest="log",
     #        help="logging level, i.e. debug, info, warning, error, critical")

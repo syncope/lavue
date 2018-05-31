@@ -50,6 +50,11 @@ from . import statisticsGroupBox
 from . import imageWidget
 from . import imageField
 from . import configDialog
+try:
+    from . import controllerClient
+    TANGOCLIENT = True
+except:
+    TANGOCLIENT = False
 
 from . import imageFileHandler
 from . import sardanaUtils
@@ -77,6 +82,8 @@ class LiveViewer(QtGui.QMainWindow):
 
     '''The master class for the dialog, contains all other
     widget and handles communication.'''
+
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) state updated signal
     _stateUpdated = QtCore.pyqtSignal(bool)
 
     def __init__(self, options, parent=None):
@@ -142,6 +149,10 @@ class LiveViewer(QtGui.QMainWindow):
 
         #: (:class:`lavuelib.settings.Settings`) settings
         self.__settings = settings.Settings()
+
+        #: (:class:`lavuelib.controllerClient.ControllerClient`)
+        #:   tango controller client
+        self.__tangoclient = None
 
         #: (:obj:`int`) stacking dimension
         self.__growing = None
@@ -312,7 +323,6 @@ class LiveViewer(QtGui.QMainWindow):
 
         start = self.__applyoptions(options)
         self._plot()
-
         if start:
             self.__sourcewg.start()
 
@@ -381,6 +391,25 @@ class LiveViewer(QtGui.QMainWindow):
 
         if options.tool:
             self.__imagewg.setTool(options.tool)
+
+        if TANGOCLIENT and options.tangodevice:
+            self.__tangoclient = controllerClient.ControllerClient(
+                options.tangodevice)
+            self.__tangoclient.energyChanged.connect(
+                self.__imagewg.updateEnergy)
+            self.__tangoclient.detectorDistanceChanged.connect(
+                self.__imagewg.updateDetectorDistance)
+            self.__tangoclient.beamCenterXChanged.connect(
+                self.__imagewg.updateBeamCenterX)
+            self.__tangoclient.beamCenterYChanged.connect(
+                self.__imagewg.updateBeamCenterY)
+            self.__tangoclient.detectorROIsChanged.connect(
+                self.__imagewg.updateDetectorROIs)
+            self.__imagewg.setTangoClient(self.__tangoclient)
+            self.__tangoclient.subscribe()
+        else:
+            self.__tangoclient = None
+
         return options.start is True
 
     @QtCore.pyqtSlot(int)
@@ -501,6 +530,8 @@ class LiveViewer(QtGui.QMainWindow):
         :param event: close event
         :type event:  :class:`PyQt4.QtCore.QEvent`:
         """
+        if self.__tangoclient:
+            self.__tangoclient.unsubscribe()
         self.__storeSettings()
         self.__settings.secstream = False
         try:
@@ -509,6 +540,7 @@ class LiveViewer(QtGui.QMainWindow):
             pass
         # except Exception as e:
         #     print (str(e))
+
         if self.__sourcewg.isConnected():
             self.__sourcewg.toggleServerConnection()
         self._disconnectSource()
