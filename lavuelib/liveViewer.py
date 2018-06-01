@@ -1297,24 +1297,23 @@ class LiveViewer(QtGui.QMainWindow):
         if imagename:
             if imagename.endswith(".nxs") or imagename.endswith(".h5") \
                or imagename.endswith(".nx") or imagename.endswith(".ndf"):
-                fid = None
-                filepath = None
+                fieldpath = None
                 growing = 0
                 frame = 0
                 handler = imageFileHandler.NexusFieldHandler(
                     str(imagename))
                 fields = handler.findImageFields()
                 if fields:
-                    if fid is None or fieldpath is None:
-                        imgfield = imageField.ImageField(self)
-                        imgfield.fields = fields
-                        imgfield.createGUI()
-                        if imgfield.exec_():
-                            fieldpath = imgfield.field
-                            growing = imgfield.growing
-                            frame = imgfield.frame
-                        else:
-                            return
+                    imgfield = imageField.ImageField(self)
+                    imgfield.fields = fields
+                    imgfield.frame = 0
+                    imgfield.createGUI()
+                    if imgfield.exec_():
+                        fieldpath = imgfield.field
+                        growing = imgfield.growing
+                        frame = imgfield.frame
+                    else:
+                        return
                     currentfield = fields[fieldpath]
                     self.__maskimage = np.transpose(handler.getImage(
                         currentfield["node"],
@@ -1350,24 +1349,23 @@ class LiveViewer(QtGui.QMainWindow):
         if imagename:
             if imagename.endswith(".nxs") or imagename.endswith(".h5") \
                or imagename.endswith(".nx") or imagename.endswith(".ndf"):
-                fid = None
-                filepath = None
+                fieldpath = None
                 growing = 0
                 frame = 0
                 handler = imageFileHandler.NexusFieldHandler(
                     str(imagename))
                 fields = handler.findImageFields()
                 if fields:
-                    if fid is None or fieldpath is None:
-                        imgfield = imageField.ImageField(self)
-                        imgfield.fields = fields
-                        imgfield.createGUI()
-                        if imgfield.exec_():
-                            fieldpath = imgfield.field
-                            growing = imgfield.growing
-                            frame = imgfield.frame
-                        else:
-                            return
+                    imgfield = imageField.ImageField(self)
+                    imgfield.fields = fields
+                    imgfield.frame = 0
+                    imgfield.createGUI()
+                    if imgfield.exec_():
+                        fieldpath = imgfield.field
+                        growing = imgfield.growing
+                        frame = imgfield.frame
+                    else:
+                        return
                     currentfield = fields[fieldpath]
                     self.__backgroundimage = np.transpose(
                         handler.getImage(
