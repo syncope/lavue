@@ -170,7 +170,8 @@ class LiveViewer(QtGui.QMainWindow):
 
         #: (:class:`lavuelib.preparationGroupBox.PreparationGroupBox`)
         #: preparation groupbox
-        self.__prepwg = preparationGroupBox.PreparationGroupBox(parent=self)
+        self.__prepwg = preparationGroupBox.PreparationGroupBox(
+            parent=self, settings=self.__settings)
         #: (:class:`lavuelib.scalingGroupBox.ScalingGroupBox`) scaling groupbox
         self.__scalingwg = scalingGroupBox.ScalingGroupBox(parent=self)
         #: (:class:`lavuelib.levelsGroupBox.LevelsGroupBox`) level groupbox
@@ -1293,10 +1294,37 @@ class LiveViewer(QtGui.QMainWindow):
     def _prepareMasking(self, imagename):
         """ reads the mask image, select non-zero elements and store the indices
         """
+        imagename = str(imagename)
         if imagename:
-            self.__maskimage = np.transpose(
-                imageFileHandler.ImageFileHandler(
-                    str(imagename)).getImage())
+            if imagename.endswith(".nxs") or imagename.endswith(".h5") \
+               or imagename.endswith(".nx") or imagename.endswith(".ndf"):
+                fieldpath = None
+                growing = 0
+                frame = 0
+                handler = imageFileHandler.NexusFieldHandler(
+                    str(imagename))
+                fields = handler.findImageFields()
+                if fields:
+                    imgfield = imageField.ImageField(self)
+                    imgfield.fields = fields
+                    imgfield.frame = 0
+                    imgfield.createGUI()
+                    if imgfield.exec_():
+                        fieldpath = imgfield.field
+                        growing = imgfield.growing
+                        frame = imgfield.frame
+                    else:
+                        return
+                    currentfield = fields[fieldpath]
+                    self.__maskimage = np.transpose(handler.getImage(
+                        currentfield["node"],
+                        frame, growing, refresh=False))
+                else:
+                    return
+            else:
+                self.__maskimage = np.transpose(
+                    imageFileHandler.ImageFileHandler(
+                        str(imagename)).getImage())
             self.__maskindices = (self.__maskimage != 0)
         else:
             self.__maskimage = None
@@ -1318,9 +1346,40 @@ class LiveViewer(QtGui.QMainWindow):
     def _prepareBkgSubtraction(self, imagename):
         """ reads the background image
         """
-        self.__backgroundimage = np.transpose(
-            imageFileHandler.ImageFileHandler(
-                str(imagename)).getImage())
+        imagename = str(imagename)
+        if imagename:
+            if imagename.endswith(".nxs") or imagename.endswith(".h5") \
+               or imagename.endswith(".nx") or imagename.endswith(".ndf"):
+                fieldpath = None
+                growing = 0
+                frame = 0
+                handler = imageFileHandler.NexusFieldHandler(
+                    str(imagename))
+                fields = handler.findImageFields()
+                if fields:
+                    imgfield = imageField.ImageField(self)
+                    imgfield.fields = fields
+                    imgfield.frame = 0
+                    imgfield.createGUI()
+                    if imgfield.exec_():
+                        fieldpath = imgfield.field
+                        growing = imgfield.growing
+                        frame = imgfield.frame
+                    else:
+                        return
+                    currentfield = fields[fieldpath]
+                    self.__backgroundimage = np.transpose(
+                        handler.getImage(
+                            currentfield["node"],
+                            frame, growing, refresh=False))
+                else:
+                    return
+            else:
+                self.__backgroundimage = np.transpose(
+                    imageFileHandler.ImageFileHandler(
+                        str(imagename)).getImage())
+        else:
+            self.__backgroundimage = None
 
     @QtCore.pyqtSlot()
     def _setCurrentImageAsBkg(self):
