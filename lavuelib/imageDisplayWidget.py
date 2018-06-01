@@ -1071,13 +1071,16 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     return "0.", rid
         return "", None
 
-    def cutData(self):
+    def cutData(self, cid=None):
         """ provides the current cut data
 
+        :param cid: cut id
+        :type cid: :obj:`int`
         :returns: current cut data
         :rtype: :class:`numpy.ndarray`
         """
-        cid = self.__cuts.current
+        if cid is None:
+            cid = self.__cuts.current
         if cid > -1 and len(self.__cut) > cid:
             cut = self._getCut(cid)
             if self.__rawdata is not None:

@@ -1027,43 +1027,75 @@ class LineCutToolWidget(ToolWidget):
         #: (:obj:`int`) 1d x-coorindate index,
         #:          i.e. {0:Points, 1:"X-Pixels", 2:"Y-Pixels"}
         self.__xindex = 0
+        #: (:obj:`bool`) plot cuts
+        self.__allcuts = False
 
         #: (:class:`pyqtgraph.PlotDataItem`) 1D plot
-        self.__cutCurve = None
+        self.__curves = []
+        #: (:obj:`int`) current plot number
+        self.__nrplots = 0
 
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
-            [self.__ui.cutSpinBox.valueChanged, self._mainwidget.updateCuts],
+            [self.__ui.cutSpinBox.valueChanged, self._updateCuts],
             [self._mainwidget.cutNumberChanged, self._setCutsNumber],
-            [self._mainwidget.cutCoordsChanged, self._plotCut],
+            [self._mainwidget.cutCoordsChanged, self._plotCuts],
             [self.__ui.xcoordsComboBox.currentIndexChanged,
              self._setXCoords],
-            [self._mainwidget.mouseImagePositionChanged, self._message]
+            [self._mainwidget.mouseImagePositionChanged, self._message],
+            [self.__ui.allcutsCheckBox.stateChanged, self._updateAllCuts],
         ]
+
+    @QtCore.pyqtSlot(int)
+    def _updateCuts(self, cid):
+        """ update Cuts
+
+        :param cid: cut id
+        :type cid: :obj:`int`
+        """
+        if self.__allcuts:
+            self.__allcuts = True
+        else:
+            self.__allcuts = False
+
+        self._mainwidget.updateCuts(cid)
 
     def afterplot(self):
         """ command after plot
         """
-        self._plotCut()
+        self._plotCuts()
 
     def activate(self):
         """ activates tool widget
         """
-
-        if self.__cutCurve is None:
-            self.__cutCurve = self._mainwidget.onedbottomplot(True)
-        self.__cutCurve.show()
-        self.__cutCurve.setVisible(True)
-        self._plotCut()
+        if not self.__curves:
+            self.__curves.append(self._mainwidget.onedbottomplot(True))
+            self.__nrplots = 1
+        for curve in self.__curves:
+            curve.show()
+            curve.setVisible(True)
+        self._updateAllCuts(self.__allcuts)
+        self._plotCuts()
 
     def disactivate(self):
         """ activates tool widget
         """
-        self.__cutCurve.hide()
-        self.__cutCurve.setVisible(False)
-        self._mainwidget.removebottomplot(self.__cutCurve)
-        self.__cutCurve = None
+        for curve in self.__curves:
+            curve.hide()
+            curve.setVisible(False)
+            self._mainwidget.removebottomplot(curve)
+        self.__curves = []
+
+    @QtCore.pyqtSlot(int)
+    def _updateAllCuts(self, value):
+        """ updates X row status
+
+        :param value: if True or not 0 x-cooridnates taken from the first row
+        :param value: :obj:`int` or  :obj:`bool`
+        """
+        self.__allcuts = value
+        self._updateCuts(self.__ui.cutSpinBox.value())
 
     @QtCore.pyqtSlot(int)
     def _setXCoords(self, xindex):
@@ -1073,12 +1105,63 @@ class LineCutToolWidget(ToolWidget):
         :type xindex: :obj:`int`
         """
         self.__xindex = xindex
-        self._plotCut()
+        self._plotCuts()
 
     @QtCore.pyqtSlot()
-    def _plotCut(self):
+    def _plotCuts(self):
         """ plots the current 1d Cut
         """
+        if self.__allcuts:
+            self._plotAllCuts()
+        else:
+            self._plotCut()
+
+    def _plotAllCuts(self):
+        """ plot all 1d Cuts
+        """
+
+        if self._mainwidget.currentTool() == self.name:
+            nrplots = self.__ui.cutSpinBox.value()
+            if self.__nrplots != nrplots:
+                while nrplots > len(self.__curves):
+                    self.__curves.append(self._mainwidget.onedbottomplot())
+                for i in range(nrplots):
+                    self.__curves[i].show()
+                for i in range(nrplots, len(self.__curves)):
+                    self.__curves[i].hide()
+                self.__nrplots = nrplots
+                if nrplots:
+                    for i, cr in enumerate(self.__curves):
+                        if i < nrplots:
+                            cr.setPen(_pg.hsvColor(i/float(nrplots)))
+            coords = self._mainwidget.cutCoords()
+            for i in range(nrplots):
+                dt = self._mainwidget.cutData(i)
+                if dt is not None:
+                    if self.__xindex:
+                        if i < len(coords):
+                            crds = coords[i]
+                        else:
+                            crds = [0, 0, 1, 1, 0.00001]
+                        if self.__xindex == 2:
+                            dx = np.linspace(crds[1], crds[3], len(dt))
+                        else:
+                            dx = np.linspace(crds[0], crds[2], len(dt))
+                        self.__curves[i].setData(x=dx, y=dt)
+                    else:
+                        self.__curves[i].setData(y=dt)
+                    self.__curves[i].setVisible(True)
+                else:
+                    self.__curves[i].setVisible(False)
+
+    def _plotCut(self):
+        """ plot the current 1d Cut
+        """
+        if self.__nrplots > 1:
+            for i in range(1, len(self.__curves)):
+                self.__curves[i].setVisible(False)
+                self.__curves[i].hide()
+            self.__nrplots = 1
         if self._mainwidget.currentTool() == self.name:
             dt = self._mainwidget.cutData()
             if dt is not None:
@@ -1091,12 +1174,12 @@ class LineCutToolWidget(ToolWidget):
                         dx = np.linspace(crds[1], crds[3], len(dt))
                     else:
                         dx = np.linspace(crds[0], crds[2], len(dt))
-                    self.__cutCurve.setData(x=dx, y=dt)
+                    self.__curves[0].setData(x=dx, y=dt)
                 else:
-                    self.__cutCurve.setData(y=dt)
-                self.__cutCurve.setVisible(True)
+                    self.__curves[0].setData(y=dt)
+                self.__curves[0].setVisible(True)
             else:
-                self.__cutCurve.setVisible(False)
+                self.__curves[0].setVisible(False)
 
     @QtCore.pyqtSlot(int)
     def _setCutsNumber(self, cid):

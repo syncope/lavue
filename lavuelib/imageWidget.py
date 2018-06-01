@@ -1076,13 +1076,15 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__displaywidget.changeROIRegion()
 
-    def cutData(self):
+    def cutData(self, cid=None):
         """ provides the current cut data
 
+        :param cid: cut id
+        :type cid: :obj:`int`
         :returns: current cut data
         :rtype: :class:`numpy.ndarray`
         """
-        return self.__displaywidget.cutData()
+        return self.__displaywidget.cutData(cid)
 
     def rawData(self):
         """ provides the current raw data
