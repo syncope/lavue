@@ -254,7 +254,8 @@ class Settings(object):
         if qstval:
             self.maskimagename = qstval
         qstval = str(
-            settings.value("Configuration/LastBackgroundImageFileName", type=str))
+            settings.value(
+                "Configuration/LastBackgroundImageFileName", type=str))
         if qstval:
             self.bkgimagename = qstval
         qstval = str(
