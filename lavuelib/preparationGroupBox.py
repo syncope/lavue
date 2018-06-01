@@ -49,11 +49,13 @@ class PreparationGroupBox(QtGui.QGroupBox):
     """ colection of image preperation widgets
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, settings=None):
         """ constructor
 
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
+        :param settings: lavue configuration settings
+        :type settings: :class:`lavuelib.settings.Settings`
         """
         QtGui.QGroupBox.__init__(self, parent)
         self.setTitle("Image preparation")
@@ -66,11 +68,11 @@ class PreparationGroupBox(QtGui.QGroupBox):
         self.__trans = True
 
         #: (:class:`lavuelib.maskWidget.Maskwidget`) mask widget
-        self.maskWidget = maskWidget.MaskWidget(parent=self)
+        self.maskWidget = maskWidget.MaskWidget(parent=self, settings=settings)
         #: (:class:`lavuelib.bkgSubtractionWidget.BkgSubtractionWidget`)
         #  background subtrantion widget
         self.bkgSubWidget = bkgSubtractionWidget.BkgSubtractionWidget(
-            parent=self)
+            parent=self, settings=settings)
         self.__hline = QHLine()
         #: (:class:`lavuelib.transformationsWidget.TransformationsWidget`)
         #  transformations widget

@@ -84,6 +84,10 @@ class Settings(object):
         self.interruptonerror = True
         #: (:obj:`str`) last image file name
         self.imagename = None
+        #: (:obj:`str`) last mask image file name
+        self.maskimagename = None
+        #: (:obj:`str`) last background image file name
+        self.bkgimagename = None
         #: (:obj:`bool`) statistics without scaling
         self.statswoscaling = False
         #: (:obj:`list` < :obj:`str` > ) zmq source topics
@@ -246,6 +250,14 @@ class Settings(object):
         if qstval:
             self.imagename = qstval
         qstval = str(
+            settings.value("Configuration/LastMaskImageFileName", type=str))
+        if qstval:
+            self.maskimagename = qstval
+        qstval = str(
+            settings.value("Configuration/LastBackgroundImageFileName", type=str))
+        if qstval:
+            self.bkgimagename = qstval
+        qstval = str(
             settings.value(
                 "Configuration/StatisticsWithoutScaling", type=str))
         if qstval.lower() == "true":
@@ -401,6 +413,12 @@ class Settings(object):
         settings.setValue(
             "Configuration/LastImageFileName",
             self.imagename)
+        settings.setValue(
+            "Configuration/LastMaskImageFileName",
+            self.maskimagename)
+        settings.setValue(
+            "Configuration/LastBackgroundImageFileName",
+            self.bkgimagename)
         settings.setValue(
             "Configuration/StatisticsWithoutScaling",
             self.statswoscaling)

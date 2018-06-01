@@ -170,7 +170,8 @@ class LiveViewer(QtGui.QMainWindow):
 
         #: (:class:`lavuelib.preparationGroupBox.PreparationGroupBox`)
         #: preparation groupbox
-        self.__prepwg = preparationGroupBox.PreparationGroupBox(parent=self)
+        self.__prepwg = preparationGroupBox.PreparationGroupBox(
+            parent=self, settings=self.__settings)
         #: (:class:`lavuelib.scalingGroupBox.ScalingGroupBox`) scaling groupbox
         self.__scalingwg = scalingGroupBox.ScalingGroupBox(parent=self)
         #: (:class:`lavuelib.levelsGroupBox.LevelsGroupBox`) level groupbox
