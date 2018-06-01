@@ -1,6 +1,7 @@
 2018-06-01 Jan Kotanski <jan.kotanski@desy.de>
 	* add LavueController tango device
 	* add support for loading mask and background from nexus file
+	* add support for zero masks
 	* add --door-device options
 	* tagged as 1.19.0
 
