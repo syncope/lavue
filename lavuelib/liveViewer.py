@@ -50,6 +50,7 @@ from . import statisticsGroupBox
 from . import imageWidget
 from . import imageField
 from . import configDialog
+from . import release
 try:
     from . import controllerClient
     TANGOCLIENT = True
