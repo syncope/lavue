@@ -1294,9 +1294,36 @@ class LiveViewer(QtGui.QMainWindow):
         """ reads the mask image, select non-zero elements and store the indices
         """
         if imagename:
-            self.__maskimage = np.transpose(
-                imageFileHandler.ImageFileHandler(
-                    str(imagename)).getImage())
+            if imagename.endswith(".nxs") or imagename.endswith(".h5") \
+               or imagename.endswith(".nx") or imagename.endswith(".ndf"):
+                fid = None
+                filepath = None
+                growing = 0
+                frame = 0
+                handler = imageFileHandler.NexusFieldHandler(
+                    str(imagename))
+                fields = handler.findImageFields()
+                if fields:
+                    if fid is None or fieldpath is None:
+                        imgfield = imageField.ImageField(self)
+                        imgfield.fields = fields
+                        imgfield.createGUI()
+                        if imgfield.exec_():
+                            fieldpath = field
+                            growing = imgfield.growing
+                            frame = imgfield.frame
+                        else:
+                            return
+                    currentfield = fields[fieldpath]
+                    self.__maskimage = handler.getImage(
+                        currentfield["node"],
+                        frame, growing, refresh=False)
+                else:
+                    return
+            else:
+                self.__maskimage = np.transpose(
+                    imageFileHandler.ImageFileHandler(
+                        str(imagename)).getImage())
             self.__maskindices = (self.__maskimage != 0)
         else:
             self.__maskimage = None
@@ -1318,9 +1345,39 @@ class LiveViewer(QtGui.QMainWindow):
     def _prepareBkgSubtraction(self, imagename):
         """ reads the background image
         """
-        self.__backgroundimage = np.transpose(
-            imageFileHandler.ImageFileHandler(
-                str(imagename)).getImage())
+        if imagename:
+            if imagename.endswith(".nxs") or imagename.endswith(".h5") \
+               or imagename.endswith(".nx") or imagename.endswith(".ndf"):
+                fid = None
+                filepath = None
+                growing = 0
+                frame = 0
+                handler = imageFileHandler.NexusFieldHandler(
+                    str(imagename))
+                fields = handler.findImageFields()
+                if fields:
+                    if fid is None or fieldpath is None:
+                        imgfield = imageField.ImageField(self)
+                        imgfield.fields = fields
+                        imgfield.createGUI()
+                        if imgfield.exec_():
+                            fieldpath = field
+                            growing = imgfield.growing
+                            frame = imgfield.frame
+                        else:
+                            return
+                    currentfield = fields[fieldpath]
+                    self.__backgroundimage = handler.getImage(
+                        currentfield["node"],
+                        frame, growing, refresh=False)
+                else:
+                    return
+            else:
+                self.__backgroundimage = np.transpose(
+                    imageFileHandler.ImageFileHandler(
+                        str(imagename)).getImage())
+        else:
+            self.__backgroundimage = None
 
     @QtCore.pyqtSlot()
     def _setCurrentImageAsBkg(self):
