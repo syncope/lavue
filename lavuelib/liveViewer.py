@@ -651,6 +651,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.secport = self.__settings.secport
         cnfdlg.hidraport = self.__settings.hidraport
         cnfdlg.secstream = self.__settings.secstream
+        cnfdlg.zeromask = self.__settings.zeromask
         cnfdlg.refreshrate = dataFetchThread.GLOBALREFRESHRATE
         cnfdlg.timeout = self.__settings.timeout
         cnfdlg.aspectlocked = self.__settings.aspectlocked
@@ -740,6 +741,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__settings.autodownsample = dialog.autodownsample
         self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
         replot = False
+        remasking = False
         if self.__settings.keepcoords != dialog.keepcoords:
             self.__settings.keepcoords = dialog.keepcoords
             self._assessTransformation(self.__trafoname)
@@ -809,6 +811,15 @@ class LiveViewer(QtGui.QMainWindow):
         replot = replot or \
             self.__imagewg.setStatsWOScaling(
                 self.__settings.statswoscaling)
+
+        if self.__settings.zeromask != dialog.zeromask:
+            self.__settings.zeromask = dialog.zeromask
+            remasking = True
+            replot = True
+
+        if remasking:
+            self.__remasking()
+
         if replot:
             self._plot()
 
@@ -1332,6 +1343,15 @@ class LiveViewer(QtGui.QMainWindow):
         else:
             self.__maskimage = None
         # self.__maskindices = np.nonzero(self.__maskimage != 0)
+
+    def __remasking(self):
+        """ recalculates the mask
+        """
+        if self.__maskimage is not None:
+            if self.__settings.zeromask:
+                self.__maskindices = (self.__maskimage == 0)
+            else:
+                self.__maskindices = (self.__maskimage != 0)
 
     @QtCore.pyqtSlot(int)
     def _checkBkgSubtraction(self, state):

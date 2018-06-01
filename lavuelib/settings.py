@@ -216,10 +216,11 @@ class Settings(object):
             self.timeout = int(qstval)
         except:
             pass
-        qstval = str(settings.value("Configuration/MaskingWithZeros", type=str))
+        qstval = str(settings.value(
+            "Configuration/MaskingWithZeros", type=str))
         if qstval.lower() == "true":
             self.zeromask = True
-            
+
         qstval = str(settings.value("Configuration/SecStream", type=str))
         if qstval.lower() == "true":
             try:
