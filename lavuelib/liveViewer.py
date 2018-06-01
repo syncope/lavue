@@ -1293,6 +1293,7 @@ class LiveViewer(QtGui.QMainWindow):
     def _prepareMasking(self, imagename):
         """ reads the mask image, select non-zero elements and store the indices
         """
+        imagename = str(imagename)
         if imagename:
             if imagename.endswith(".nxs") or imagename.endswith(".h5") \
                or imagename.endswith(".nx") or imagename.endswith(".ndf"):
@@ -1309,15 +1310,15 @@ class LiveViewer(QtGui.QMainWindow):
                         imgfield.fields = fields
                         imgfield.createGUI()
                         if imgfield.exec_():
-                            fieldpath = field
+                            fieldpath = imgfield.field
                             growing = imgfield.growing
                             frame = imgfield.frame
                         else:
                             return
                     currentfield = fields[fieldpath]
-                    self.__maskimage = handler.getImage(
+                    self.__maskimage = np.transpose(handler.getImage(
                         currentfield["node"],
-                        frame, growing, refresh=False)
+                        frame, growing, refresh=False))
                 else:
                     return
             else:
@@ -1345,6 +1346,7 @@ class LiveViewer(QtGui.QMainWindow):
     def _prepareBkgSubtraction(self, imagename):
         """ reads the background image
         """
+        imagename = str(imagename)
         if imagename:
             if imagename.endswith(".nxs") or imagename.endswith(".h5") \
                or imagename.endswith(".nx") or imagename.endswith(".ndf"):
@@ -1361,15 +1363,16 @@ class LiveViewer(QtGui.QMainWindow):
                         imgfield.fields = fields
                         imgfield.createGUI()
                         if imgfield.exec_():
-                            fieldpath = field
+                            fieldpath = imgfield.field
                             growing = imgfield.growing
                             frame = imgfield.frame
                         else:
                             return
                     currentfield = fields[fieldpath]
-                    self.__backgroundimage = handler.getImage(
-                        currentfield["node"],
-                        frame, growing, refresh=False)
+                    self.__backgroundimage = np.transpose(
+                        handler.getImage(
+                            currentfield["node"],
+                            frame, growing, refresh=False))
                 else:
                     return
             else:
