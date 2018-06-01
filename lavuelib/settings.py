@@ -76,6 +76,8 @@ class Settings(object):
         self.secsocket = self.seccontext.socket(zmq.PUB)
         #: (:obj:`bool`) security stream enabled
         self.secstream = False
+        #: (:obj:`bool`) zero mask enabled
+        self.zeromask = False
         #: (:obj:`bool`) security stream options
         self.secsockopt = ""
         #: (:obj:`float`) refresh rate
@@ -214,6 +216,10 @@ class Settings(object):
             self.timeout = int(qstval)
         except:
             pass
+        qstval = str(settings.value("Configuration/MaskingWithZeros", type=str))
+        if qstval.lower() == "true":
+            self.zeromask = True
+            
         qstval = str(settings.value("Configuration/SecStream", type=str))
         if qstval.lower() == "true":
             try:
@@ -393,6 +399,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/SecStream",
             self.secstream)
+        settings.setValue(
+            "Configuration/MaskingWithZeros",
+            self.zeromask)
         settings.setValue(
             "Configuration/Sardana",
             self.sardana)

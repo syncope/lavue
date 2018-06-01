@@ -1325,7 +1325,10 @@ class LiveViewer(QtGui.QMainWindow):
                 self.__maskimage = np.transpose(
                     imageFileHandler.ImageFileHandler(
                         str(imagename)).getImage())
-            self.__maskindices = (self.__maskimage != 0)
+            if self.__settings.zeromask:
+                self.__maskindices = (self.__maskimage == 0)
+            else:
+                self.__maskindices = (self.__maskimage != 0)
         else:
             self.__maskimage = None
         # self.__maskindices = np.nonzero(self.__maskimage != 0)
