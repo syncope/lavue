@@ -2,6 +2,7 @@
 	* add LavueController tango device
 	* add support for loading mask and background from nexus file
 	* add support for zero masks
+	* add lavue version into the title
 	* add --door-device options
 	* tagged as 1.19.0
 

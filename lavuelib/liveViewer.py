@@ -235,7 +235,8 @@ class LiveViewer(QtGui.QMainWindow):
         self.__ui.setupUi(self)
 
         # # LAYOUT DEFINITIONS
-        self.setWindowTitle("laVue: Live Image Viewer")
+        self.setWindowTitle(
+            "laVue: Live Image Viewer (v%s)" % str(release.__version__))
         self.__ui.confVerticalLayout.addWidget(self.__sourcewg)
         self.__ui.confVerticalLayout.addWidget(self.__prepwg)
         self.__ui.confVerticalLayout.addWidget(self.__scalingwg)
