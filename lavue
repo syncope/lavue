@@ -132,7 +132,7 @@ if __name__ == "__main__":
         "-a", "--tango-device", dest="tangodevice",
         help="tango device to communicated with clients during the run")
     parser.add_argument(
-        "-d", "--door-device", dest="doordevice",
+        "-d", "--door", dest="doordevice",
         help="door device to communicated with sardana during the run")
 
     # parser.add_argument(
