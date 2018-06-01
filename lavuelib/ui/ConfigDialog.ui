@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>763</width>
-    <height>755</height>
+    <width>759</width>
+    <height>759</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -121,6 +121,29 @@
                     </item>
                     <item row="3" column="1">
                      <widget class="QCheckBox" name="keepCoordsCheckBox">
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="zeromaskLabel">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checkout pixel masks are represented by zero values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string>Pixel masks with zero values</string>
+                      </property>
+                      <property name="buddy">
+                       <cstring>zeromaskCheckBox</cstring>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QCheckBox" name="zeromaskCheckBox">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checkout pixel masks are represented by zero values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
                       <property name="text">
                        <string/>
                       </property>
@@ -966,21 +989,22 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>aspectlockedCheckBox</tabstop>
   <tabstop>downsampleCheckBox</tabstop>
   <tabstop>keepCoordsCheckBox</tabstop>
+  <tabstop>zeromaskCheckBox</tabstop>
   <tabstop>secstreamCheckBox</tabstop>
   <tabstop>secautoportCheckBox</tabstop>
   <tabstop>secportLineEdit</tabstop>
   <tabstop>storegeometryCheckBox</tabstop>
-  <tabstop>showtransCheckBox</tabstop>
-  <tabstop>showsubCheckBox</tabstop>
-  <tabstop>showmaskCheckBox</tabstop>
-  <tabstop>showlevelsCheckBox</tabstop>
-  <tabstop>showscaleCheckBox</tabstop>
-  <tabstop>showhistoCheckBox</tabstop>
-  <tabstop>showstatsCheckBox</tabstop>
-  <tabstop>statsscaleCheckBox</tabstop>
   <tabstop>sardanaCheckBox</tabstop>
   <tabstop>doorLineEdit</tabstop>
   <tabstop>addroisCheckBox</tabstop>
+  <tabstop>showtransCheckBox</tabstop>
+  <tabstop>showsubCheckBox</tabstop>
+  <tabstop>showmaskCheckBox</tabstop>
+  <tabstop>showscaleCheckBox</tabstop>
+  <tabstop>showlevelsCheckBox</tabstop>
+  <tabstop>showhistoCheckBox</tabstop>
+  <tabstop>showstatsCheckBox</tabstop>
+  <tabstop>statsscaleCheckBox</tabstop>
   <tabstop>timeoutLineEdit</tabstop>
   <tabstop>detserversLineEdit</tabstop>
   <tabstop>hidraportLineEdit</tabstop>

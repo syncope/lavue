@@ -71,6 +71,8 @@ class ConfigDialog(QtGui.QDialog):
         self.showmask = False
         #: (:obj:`bool`) show statistics widget
         self.showstats = True
+        #: (:obj:`bool`) zero mask enabled
+        self.zeromask = False
 
         #: (:obj:`bool`) show bakcground subtraction widget
         self.showsub = True
@@ -139,6 +141,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.doorLineEdit.setText(self.door)
         self.__ui.addroisCheckBox.setChecked(self.addrois)
         self.__ui.secstreamCheckBox.setChecked(self.secstream)
+        self.__ui.zeromaskCheckBox.setChecked(self.zeromask)
         self.__ui.secautoportCheckBox.setChecked(self.secautoport)
         self.__ui.secportLineEdit.setText(self.secport)
         self.__ui.hidraportLineEdit.setText(self.hidraport)
@@ -189,6 +192,7 @@ class ConfigDialog(QtGui.QDialog):
         self.addrois = self.__ui.addroisCheckBox.isChecked()
         self.hidraport = str(self.__ui.hidraportLineEdit.text()).strip()
         self.secstream = self.__ui.secstreamCheckBox.isChecked()
+        self.zeromask = self.__ui.zeromaskCheckBox.isChecked()
         self.secautoport = self.__ui.secautoportCheckBox.isChecked()
         self.refreshrate = float(self.__ui.rateDoubleSpinBox.value())
         self.showsub = self.__ui.showsubCheckBox.isChecked()
