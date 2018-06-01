@@ -23,6 +23,7 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
-""" Live Viewer widgets """
+""" release version """
 
-from .release import __version__
+#: (:obj:`str`) the live viewer version
+__version__ = "1.19.0"
