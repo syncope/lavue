@@ -1693,7 +1693,7 @@ class AngleQToolWidget(ToolWidget):
                 / self.__settings.detdistance) * 180 / math.pi
             r = math.sqrt(
                 (xcentered * self.__settings.pixelsizex / 1000.) ** 2
-                + (ycentered * self.__settings.pixelsizex / 1000.) ** 2)
+                + (ycentered * self.__settings.pixelsizey / 1000.) ** 2)
             thetatotal = math.atan(
                 r / self.__settings.detdistance) * 180 / math.pi
         return thetax, thetay, thetatotal
@@ -2271,7 +2271,7 @@ class QROIProjToolWidget(ToolWidget):
                 / self.__settings.detdistance) * 180 / math.pi
             r = math.sqrt(
                 (xcentered * self.__settings.pixelsizex / 1000.) ** 2
-                + (ycentered * self.__settings.pixelsizex / 1000.) ** 2)
+                + (ycentered * self.__settings.pixelsizey / 1000.) ** 2)
             thetatotal = math.atan(
                 r / self.__settings.detdistance) * 180 / math.pi
         return thetax, thetay, thetatotal
