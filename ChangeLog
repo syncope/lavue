@@ -1,9 +1,10 @@
-2018-06-XX Jan Kotanski <jan.kotanski@desy.de>
+2018-06-04 Jan Kotanski <jan.kotanski@desy.de>
 	* add LavueController tango device
 	* add support for loading mask and background from nexus file
 	* add support for zero masks
 	* add support plotting all LineCuts
 	* add lavue version into the title
+	* add more infor to combobox tips
 	* add --door-device options
 	* tagged as 1.19.0
 
