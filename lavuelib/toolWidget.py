@@ -1686,15 +1686,16 @@ class AngleQToolWidget(ToolWidget):
             xcentered = xdata - self.__settings.centerx
             ycentered = ydata - self.__settings.centery
             thetax = math.atan(
-                xcentered * self.__settings.pixelsizex/1000.
-                / self.__settings.detdistance)
+                xcentered * self.__settings.pixelsizex / 1000.
+                / self.__settings.detdistance) * 180 / math.pi
             thetay = math.atan(
-                ycentered * self.__settings.pixelsizey/1000.
-                / self.__settings.detdistance)
+                ycentered * self.__settings.pixelsizey / 1000.
+                / self.__settings.detdistance) * 180 / math.pi
             r = math.sqrt(
                 (xcentered * self.__settings.pixelsizex / 1000.) ** 2
                 + (ycentered * self.__settings.pixelsizex / 1000.) ** 2)
-            thetatotal = math.atan(r/self.__settings.detdistance)*180/math.pi
+            thetatotal = math.atan(
+                r / self.__settings.detdistance) * 180 / math.pi
         return thetax, thetay, thetatotal
 
     def __pixel2q(self, xdata, ydata):
@@ -2263,15 +2264,16 @@ class QROIProjToolWidget(ToolWidget):
             xcentered = xdata - self.__settings.centerx
             ycentered = ydata - self.__settings.centery
             thetax = math.atan(
-                xcentered * self.__settings.pixelsizex/1000.
-                / self.__settings.detdistance)
+                xcentered * self.__settings.pixelsizex / 1000.
+                / self.__settings.detdistance) * 180 / math.pi
             thetay = math.atan(
-                ycentered * self.__settings.pixelsizey/1000.
-                / self.__settings.detdistance)
+                ycentered * self.__settings.pixelsizey / 1000.
+                / self.__settings.detdistance) * 180 / math.pi
             r = math.sqrt(
                 (xcentered * self.__settings.pixelsizex / 1000.) ** 2
                 + (ycentered * self.__settings.pixelsizex / 1000.) ** 2)
-            thetatotal = math.atan(r/self.__settings.detdistance)*180/math.pi
+            thetatotal = math.atan(
+                r / self.__settings.detdistance) * 180 / math.pi
         return thetax, thetay, thetatotal
 
     def __pixel2q(self, xdata, ydata):
