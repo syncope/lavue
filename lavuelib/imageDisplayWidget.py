@@ -1099,6 +1099,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         return self.__rawdata
 
+    def currentData(self):
+        """ provides the data
+
+        :returns: current data
+        :rtype: :class:`numpy.ndarray`
+        """
+        return self.__data
+
     @QtCore.pyqtSlot(int)
     def changeROIRegion(self, _=None):
         """ changes the current roi region

@@ -32,7 +32,7 @@ import os
 import re
 import math
 import numpy as np
-import scipy
+import scipy.interpolate
 import pyqtgraph as _pg
 import warnings
 
@@ -1642,16 +1642,35 @@ class AngleQToolWidget(ToolWidget):
         """
         self._plotPolarImage()
 
+        
+    def inintencity(self, ntheta, ang):
+        print("INT")
+        theta = ntheta / 200. * self.__thmax
+#        fac = 1000. * self.__settings.detdistance \
+#            * self.__settings.detdistance \
+#            / self.__settings.pixelsizex*math.tan(theta)
+        fac = 1000. * self.__settings.detdistance \
+            * self.__settings.detdistance \
+            / self.__settings.pixelsizex * np.tan(theta)
+        x = self.__settings.centerx + fac * np.sin(ang*math.pi/180.)
+        y = self.__settings.centery + fac * np.cos(ang*math.pi/180.)
+        return self.__inter.ev(x, y)
+        
     @QtCore.pyqtSlot()
     def _plotPolarImage(self):
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
-            rdata = self._mainwidget.rawData()
-            x = list(range(len(rdata.shape[0])))
-            y = list(range(len(rdata.shape[1])))
-            inter = scipy.interpolate.SmoothBivariateSpline(x, y, rdata)
-            #inter = scipy.interpolate.RectBivariateSpline(x, y, rdata)
-            
-            self.__polarimage.setImage(rdata)
+            rdata = self._mainwidget.currentData()
+            xx = np.array(range(rdata.shape[0]))
+            yy = np.array(range(rdata.shape[1]))
+            self.__inter = scipy.interpolate.RectBivariateSpline(xx, yy, rdata)
+            _,_,th0 = self.__pixel2theta(0, 0)
+            _,_,th1 = self.__pixel2theta(0, rdata.shape[1])
+            _,_,th2 = self.__pixel2theta(rdata.shape[0], 0)
+            _,_,th3 = self.__pixel2theta(rdata.shape[0], rdata.shape[1])
+            self.__thmax = max(th0, th1, th2, th3)
+            print(self.__thmax)
+            tdata = np.fromfunction(lambda x,y: self.inintencity(x,y), (200, 360), dtype=float)
+            self.__polarimage.setImage(tdata)
         
         
     @QtCore.pyqtSlot(float, float)
@@ -1695,13 +1714,15 @@ class AngleQToolWidget(ToolWidget):
 
         self._mainwidget.setDisplayedText(message)
 
-    def __pixel2theta(self, xdata, ydata):
+    def __pixel2theta(self, xdata, ydata, xy=True):
         """ converts coordinates from pixel positions to theta angles
 
         :param xdata: x pixel position
         :type xdata: :obj:`float`
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
+        :param xy: flag
+        :type xy: :obj:`bool`
         :returns: x-theta, y-theta, total-theta
         :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
         """
@@ -1711,12 +1732,13 @@ class AngleQToolWidget(ToolWidget):
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             xcentered = xdata - self.__settings.centerx
             ycentered = ydata - self.__settings.centery
-            thetax = math.atan(
-                xcentered * self.__settings.pixelsizex / 1000.
-                / self.__settings.detdistance)
-            thetay = math.atan(
-                ycentered * self.__settings.pixelsizey / 1000.
-                / self.__settings.detdistance)
+            if xy:
+                thetax = math.atan(
+                    xcentered * self.__settings.pixelsizex / 1000.
+                    / self.__settings.detdistance)
+                thetay = math.atan(
+                    ycentered * self.__settings.pixelsizey / 1000.
+                    / self.__settings.detdistance)
             r = math.sqrt(
                 (xcentered * self.__settings.pixelsizex / 1000.) ** 2
                 + (ycentered * self.__settings.pixelsizey / 1000.) ** 2)

@@ -1104,6 +1104,14 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__displaywidget.rawData()
 
+    def currentData(self):
+        """ provides the current data
+
+        :returns: current data
+        :rtype: :class:`numpy.ndarray`
+        """
+        return self.__displaywidget.currentData()
+
     @QtCore.pyqtSlot(float, float)
     def updateCenter(self, xdata, ydata):
         """ updates the image center
