@@ -32,6 +32,7 @@ import os
 import re
 import math
 import numpy as np
+import scipy
 import pyqtgraph as _pg
 import warnings
 
@@ -1608,10 +1609,13 @@ class AngleQToolWidget(ToolWidget):
         self.parameters.infolineedit = ""
         self.parameters.infotips = ""
         self.parameters.centerlines = True
+        self.parameters.rightplot = True
 
         #: (:class:`lavuelib.settings.Settings`:) configuration settings
         self.__settings = self._mainwidget.settings()
-
+        
+        self.__polarimage = None
+        
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
@@ -1630,7 +1634,26 @@ class AngleQToolWidget(ToolWidget):
         self.updateGeometryTip()
         self._mainwidget.updateCenter(
             self.__settings.centerx, self.__settings.centery)
+        if self.__polarimage is None:
+            self.__polarimage = self._mainwidget.polarimage()
 
+    def afterplot(self):
+        """ command after plot
+        """
+        self._plotPolarImage()
+
+    @QtCore.pyqtSlot()
+    def _plotPolarImage(self):
+        if self.__settings.energy > 0 and self.__settings.detdistance > 0:
+            rdata = self._mainwidget.rawData()
+            x = list(range(len(rdata.shape[0])))
+            y = list(range(len(rdata.shape[1])))
+            inter = scipy.interpolate.SmoothBivariateSpline(x, y, rdata)
+            #inter = scipy.interpolate.RectBivariateSpline(x, y, rdata)
+            
+            self.__polarimage.setImage(rdata)
+        
+        
     @QtCore.pyqtSlot(float, float)
     def _updateCenter(self, xdata, ydata):
         """ updates the image center

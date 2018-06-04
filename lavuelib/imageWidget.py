@@ -332,6 +332,16 @@ class ImageWidget(QtGui.QWidget):
         self.__rightplot.addItem(bg)
         return bg
 
+    def polarimage(self):
+        """ creates polar plot
+
+        :returns: polar plot
+        :rtype: :class:`pyqtgraph.BarGraphItem`
+        """
+        img= _pg.ImageItem()
+        self.__rightplot.addItem(img)
+        return img
+    
     def removebottomplot(self, plot):
         """ removes bottom plot
 
