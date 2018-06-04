@@ -1,4 +1,8 @@
 2018-06-04 Jan Kotanski <jan.kotanski@desy.de>
+	* fix rad -> deg in pixel2theta
+	* tagged as 1.19.1
+
+2018-06-04 Jan Kotanski <jan.kotanski@desy.de>
 	* add LavueController tango device
 	* add support for loading mask and background from nexus file
 	* add support for zero masks
