@@ -1682,13 +1682,16 @@ class AngleQToolWidget(ToolWidget):
             if thetax is not None:
                 message = "th_x = %f deg, th_y = %f deg," \
                           " th_tot = %f deg, %s = %.2f" \
-                          % (thetax, thetay, thetatotal, ilabel, intensity)
+                          % (thetax * 180 / math.pi,
+                             thetay * 180 / math.pi,
+                             thetatotal * 180 / math.pi,
+                             ilabel, intensity)
         else:
-            qx, qz, q = self.__pixel2q(x, y)
+            qx, qy, q = self.__pixel2q(x, y)
             if qx is not None:
-                message = u"q_x = %f 1/\u212B, q_z = %f 1/\u212B, " \
+                message = u"q_x = %f 1/\u212B, q_y = %f 1/\u212B, " \
                           u"q = %f 1/\u212B, %s = %.2f" \
-                          % (qx, qz, q, ilabel, intensity)
+                          % (qx, qy, q, ilabel, intensity)
 
         self._mainwidget.setDisplayedText(message)
 
@@ -1710,15 +1713,15 @@ class AngleQToolWidget(ToolWidget):
             ycentered = ydata - self.__settings.centery
             thetax = math.atan(
                 xcentered * self.__settings.pixelsizex / 1000.
-                / self.__settings.detdistance) * 180 / math.pi
+                / self.__settings.detdistance)
             thetay = math.atan(
                 ycentered * self.__settings.pixelsizey / 1000.
-                / self.__settings.detdistance) * 180 / math.pi
+                / self.__settings.detdistance)
             r = math.sqrt(
                 (xcentered * self.__settings.pixelsizex / 1000.) ** 2
                 + (ycentered * self.__settings.pixelsizey / 1000.) ** 2)
             thetatotal = math.atan(
-                r / self.__settings.detdistance) * 180 / math.pi
+                r / self.__settings.detdistance)
         return thetax, thetay, thetatotal
 
     def __pixel2q(self, xdata, ydata):
@@ -1732,16 +1735,16 @@ class AngleQToolWidget(ToolWidget):
         :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
         """
         qx = None
-        qz = None
+        qy = None
         q = None
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             thetax, thetay, thetatotal = self.__pixel2theta(
                 xdata, ydata)
             wavelength = 12400./self.__settings.energy
             qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
-            qz = 4 * math.pi / wavelength * math.sin(thetay/2.)
+            qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
             q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)
-        return qx, qz, q
+        return qx, qy, q
 
     def __tipmessage(self):
         """ provides geometry messate
@@ -2260,13 +2263,16 @@ class QROIProjToolWidget(ToolWidget):
             if thetax is not None:
                 message = "th_x = %f deg, th_y = %f deg," \
                           " th_tot = %f deg, %s = %.2f" \
-                          % (thetax, thetay, thetatotal, ilabel, intensity)
+                          % (thetax * 180 / math.pi,
+                             thetay * 180 / math.pi,
+                             thetatotal * 180 / math.pi,
+                             ilabel, intensity)
         else:
-            qx, qz, q = self.__pixel2q(x, y)
+            qx, qy, q = self.__pixel2q(x, y)
             if qx is not None:
-                message = u"q_x = %f 1/\u212B, q_z = %f 1/\u212B, " \
+                message = u"q_x = %f 1/\u212B, q_y = %f 1/\u212B, " \
                           u"q = %f 1/\u212B, %s = %.2f" \
-                          % (qx, qz, q, ilabel, intensity)
+                          % (qx, qy, q, ilabel, intensity)
 
         self._mainwidget.updateDisplayedText(message)
 
@@ -2288,15 +2294,15 @@ class QROIProjToolWidget(ToolWidget):
             ycentered = ydata - self.__settings.centery
             thetax = math.atan(
                 xcentered * self.__settings.pixelsizex / 1000.
-                / self.__settings.detdistance) * 180 / math.pi
+                / self.__settings.detdistance)
             thetay = math.atan(
                 ycentered * self.__settings.pixelsizey / 1000.
-                / self.__settings.detdistance) * 180 / math.pi
+                / self.__settings.detdistance)
             r = math.sqrt(
                 (xcentered * self.__settings.pixelsizex / 1000.) ** 2
                 + (ycentered * self.__settings.pixelsizey / 1000.) ** 2)
             thetatotal = math.atan(
-                r / self.__settings.detdistance) * 180 / math.pi
+                r / self.__settings.detdistance)
         return thetax, thetay, thetatotal
 
     def __pixel2q(self, xdata, ydata):
@@ -2310,16 +2316,16 @@ class QROIProjToolWidget(ToolWidget):
         :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
         """
         qx = None
-        qz = None
+        qy = None
         q = None
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             thetax, thetay, thetatotal = self.__pixel2theta(
                 xdata, ydata)
             wavelength = 12400./self.__settings.energy
             qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
-            qz = 4 * math.pi / wavelength * math.sin(thetay/2.)
+            qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
             q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)
-        return qx, qz, q
+        return qx, qy, q
 
     def __tipmessage(self):
         """ provides geometry messate
