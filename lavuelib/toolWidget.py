@@ -147,13 +147,15 @@ class ToolWidget(QtGui.QWidget):
         """ command after plot
         """
 
-    def beforeplot(self, array):
+    def beforeplot(self, array, rawarray):
         """ command  before plot
 
         :param array: 2d image array
         :type array: :class:`numpy.ndarray`
-        :return: 2d image array
-        :rtype: :class:`numpy.ndarray`
+        :param rawarray: 2d raw image array
+        :type rawarray: :class:`numpy.ndarray`
+        :return: 2d image array and raw image
+        :rtype: (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
         """
 
 
@@ -1657,8 +1659,8 @@ class AngleQToolWidget(ToolWidget):
         :type array: :class:`numpy.ndarray`
         :param rawarray: 2d raw image array
         :type rawarray: :class:`numpy.ndarray`
-        :return: 2d image array
-        :rtype: :class:`numpy.ndarray`
+        :return: 2d image array and raw image
+        :rtype: (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
         """
         if self.__plotindex != 0:
             tdata = self.__plotPolarImage(array)
@@ -1910,6 +1912,9 @@ class AngleQToolWidget(ToolWidget):
             self.updateGeometryTip()
             self._mainwidget.updateCenter(
                 self.__settings.centerx, self.__settings.centery)
+            if self.__plotindex:
+                self._mainwidget.emitReplotImage()
+
 
     @QtCore.pyqtSlot(int)
     def _setGSpaceIndex(self, gindex):
@@ -1931,8 +1936,10 @@ class AngleQToolWidget(ToolWidget):
         self.__plotindex = pindex
         if pindex:
             self.parameters.centerlines = False
+            self.parameters.scale = True
         else:
             self.parameters.centerlines = True
+            self.parameters.scale = False
         self._mainwidget.updateinfowidgets(self.parameters)
 
         self._mainwidget.emitReplotImage()
