@@ -1642,7 +1642,7 @@ class AngleQToolWidget(ToolWidget):
         """
         self._plotPolarImage()
 
-    def intintencity(self, ntheta, ang):
+    def intintensity(self, ntheta, ang):
         theta = ntheta * self.__thmax
         fac = 1000. * self.__settings.detdistance * np.tan(theta)
         x = self.__settings.centerx + fac * np.sin(ang*math.pi/180) \
@@ -1669,14 +1669,14 @@ class AngleQToolWidget(ToolWidget):
             if False:
                 self.__inter = scipy.interpolate.RectBivariateSpline(xx, yy, rdata)
                 tdata = np.fromfunction(
-                    lambda x,y: self.intintencity(x, y), (maxdim, 360), dtype=float)
+                    lambda x,y: self.intintensity(x, y), (maxdim, 360), dtype=float)
             else:
                 self.__inter = scipy.interpolate.RegularGridInterpolator(
                     (xx, yy), rdata,
                     fill_value=(0 if self._mainwidget.scaling() != 'log' else -2),
                     bounds_error=False)
                 tdata = np.fromfunction(
-                    lambda x,y: self.intintencity(x, y), (maxdim, 360), dtype=float)
+                    lambda x,y: self.intintensity(x, y), (maxdim, 360), dtype=float)
             self.__polarimage.setImage(tdata)
 
 
