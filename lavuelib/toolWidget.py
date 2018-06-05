@@ -1744,12 +1744,13 @@ class AngleQToolWidget(ToolWidget):
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
         """
-        self.__settings.centerx = float(xdata)
-        self.__settings.centery = float(ydata)
-        self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
-        self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
-        self._message()
-        self.updateGeometryTip()
+        if self.__plotindex == 0:
+            self.__settings.centerx = float(xdata)
+            self.__settings.centery = float(ydata)
+            self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
+            self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
+            self._message()
+            self.updateGeometryTip()
 
     @QtCore.pyqtSlot()
     def _message(self):
