@@ -1626,7 +1626,8 @@ class AngleQToolWidget(ToolWidget):
         #: (:class:`lavuelib.settings.Settings`:) configuration settings
         self.__settings = self._mainwidget.settings()
 
-        self.__polarimage = None
+        #: (:obj:`float`) maximum or radial coordinate
+        self.__thqmax = 1.
 
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
@@ -1659,12 +1660,25 @@ class AngleQToolWidget(ToolWidget):
         :return: 2d image array
         :rtype: :class:`numpy.ndarray`
         """
-        if self.__plotindex == 1:
-            tdata = self._plotPolarImage(array)
+        if self.__plotindex != 0:
+            tdata = self.__plotPolarImage(array)
             return tdata, tdata
 
-    def intintensity(self, ntheta, ang):
-        theta = ntheta * self.__thmax
+    def __intintensity(self, radial, ang):
+        """ intensity interpolation function
+        
+        :param radial: radial coordinate
+        :type radial: :obj:`float` or :class:`numpy.array`
+        :param ang: polar angle coordinate
+        :type ang: :obj:`float` or :class:`numpy.array`
+        :return: interpolated intensity
+        :rtype: :obj:`float` or :class:`numpy.array`
+        """
+        if self.__plotindex == 1:
+            theta = radial * self.__thqmax
+        else:
+            wavelength = 12400./self.__settings.energy
+            theta = 2.*np.arcsin(radial  * self.__thqmax * wavelength / (4.* math.pi))
         fac = 1000. * self.__settings.detdistance * np.tan(theta)
         x = self.__settings.centerx + fac * np.sin(ang * math.pi / 180) \
             / self.__settings.pixelsizex
@@ -1675,25 +1689,39 @@ class AngleQToolWidget(ToolWidget):
         else:
             return self.__inter(np.transpose([x, y], axes=[1, 2, 0]))
 
-    @QtCore.pyqtSlot()
-    def _plotPolarImage(self, rdata=None):
+    def __plotPolarImage(self, rdata=None):
+        """ intensity interpolation function
+
+        :param rarray: 2d image array
+        :type rarray: :class:`numpy.ndarray`
+        :return: 2d image array
+        :rtype: :class:`numpy.ndarray`
+        """
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             if rdata is None:
                 rdata = self._mainwidget.currentData()
             xx = np.array(range(rdata.shape[0]))
             yy = np.array(range(rdata.shape[1]))
             maxdim = max(rdata.shape[0], rdata.shape[1])
-            _, _, th0 = self.__pixel2theta(0, 0, False)
-            _, _, th1 = self.__pixel2theta(0, rdata.shape[1], False)
-            _, _, th2 = self.__pixel2theta(rdata.shape[0], 0, False)
-            _, _, th3 = self.__pixel2theta(
-                rdata.shape[0], rdata.shape[1], False)
-            self.__thmax = max(th0, th1, th2, th3)/float(maxdim)
+            if self.__plotindex == 1:
+                _, _, th0 = self.__pixel2theta(0, 0, False)
+                _, _, th1 = self.__pixel2theta(0, rdata.shape[1], False)
+                _, _, th2 = self.__pixel2theta(rdata.shape[0], 0, False)
+                _, _, th3 = self.__pixel2theta(
+                    rdata.shape[0], rdata.shape[1], False)
+                self.__thqmax = max(th0, th1, th2, th3)/float(maxdim)
+            elif self.__plotindex == 2:
+                _, _, q0 = self.__pixel2q(0, 0, False)
+                _, _, q1 = self.__pixel2q(0, rdata.shape[1], False)
+                _, _, q2 = self.__pixel2q(rdata.shape[0], 0, False)
+                _, _, q3 = self.__pixel2q(rdata.shape[0], rdata.shape[1], False)
+                self.__thqmax = max(q0, q1, q2, q3)/float(maxdim)
+                
             if False:
                 self.__inter = scipy.interpolate.RectBivariateSpline(
                     xx, yy, rdata)
                 tdata = np.fromfunction(
-                    lambda x, y: self.intintensity(x, y), (maxdim, 360),
+                    lambda x, y: self.__intintensity(x, y), (maxdim, 360),
                     dtype=float)
             else:
                 self.__inter = scipy.interpolate.RegularGridInterpolator(
@@ -1703,7 +1731,7 @@ class AngleQToolWidget(ToolWidget):
                                 else -2),
                     bounds_error=False)
                 tdata = np.fromfunction(
-                    lambda x, y: self.intintensity(x, y), (maxdim, 360),
+                    lambda x, y: self.__intintensity(x, y), (maxdim, 360),
                     dtype=float)
             return tdata
 
@@ -1755,7 +1783,18 @@ class AngleQToolWidget(ToolWidget):
                     ilabel = "%s(%s)" % (iscaling, ilabel)
 
             message = u"th_tot = %f deg, polar = %f deg, " \
-                      u" %s = %.2f" % (x, y, ilabel, intensity)
+                      u" %s = %.2f" % (x  * 180 / math.pi * self.__thqmax, y,
+                                       ilabel, intensity)
+        elif self.__plotindex == 2:
+            iscaling = self._mainwidget.scaling()
+            if iscaling != "linear" and not ilabel.startswith(iscaling):
+                if ilabel[0] == "(":
+                    ilabel = "%s%s" % (iscaling, ilabel)
+                else:
+                    ilabel = "%s(%s)" % (iscaling, ilabel)
+
+            message = u"q = %f 1/\u212B, polar = %f deg, " \
+                      u" %s = %.2f" % (x * self.__thqmax, y, ilabel, intensity)
 
         self._mainwidget.setDisplayedText(message)
 
@@ -1791,13 +1830,15 @@ class AngleQToolWidget(ToolWidget):
                 r / self.__settings.detdistance)
         return thetax, thetay, thetatotal
 
-    def __pixel2q(self, xdata, ydata):
+    def __pixel2q(self, xdata, ydata, xy=True):
         """ converts coordinates from pixel positions to q-space coordinates
 
         :param xdata: x pixel position
         :type xdata: :obj:`float`
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
+        :param xy: flag
+        :type xy: :obj:`bool`
         :returns: q_x, q_y, q_total
         :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
         """
@@ -1806,10 +1847,11 @@ class AngleQToolWidget(ToolWidget):
         q = None
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             thetax, thetay, thetatotal = self.__pixel2theta(
-                xdata, ydata)
+                xdata, ydata, xy)
             wavelength = 12400./self.__settings.energy
-            qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
-            qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
+            if xy:
+                qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
+                qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
             q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)
         return qx, qy, q
 
