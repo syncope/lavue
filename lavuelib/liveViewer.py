@@ -284,6 +284,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__levelswg.channelChanged.connect(self._plot)
         self.__imagewg.aspectLockedToggled.connect(self._setAspectLocked)
 
+        self.__imagewg.replotImage.connect(self._plot)
         # simple mutable caching object for data exchange with thread
         #: (:class:`lavuelib.dataFetchTread.ExchangeList`)
         #:    exchange list

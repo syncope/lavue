@@ -147,6 +147,15 @@ class ToolWidget(QtGui.QWidget):
         """ command after plot
         """
 
+    def beforeplot(self, array):
+        """ command  before plot
+
+        :param array: 2d image array
+        :type array: :class:`numpy.ndarray`
+        :return: 2d image array
+        :rtype: :class:`numpy.ndarray`
+        """
+
 
 class IntensityToolWidget(ToolWidget):
     """ intensity tool widget
@@ -1600,6 +1609,9 @@ class AngleQToolWidget(ToolWidget):
         #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
         self.__gspaceindex = 0
 
+        #: (:obj:`int`) plot index -> 0: Cartesian, 1 polar-th, 2 polar-q
+        self.__plotindex = 0
+
         #: (:class:`Ui_ROIToolWidget') ui_toolwidget object from qtdesigner
         self.__ui = _angleqformclass()
         self.__ui.setupUi(self)
@@ -1609,7 +1621,7 @@ class AngleQToolWidget(ToolWidget):
         self.parameters.infolineedit = ""
         self.parameters.infotips = ""
         self.parameters.centerlines = True
-        self.parameters.rightplot = True
+        # self.parameters.rightplot = True
 
         #: (:class:`lavuelib.settings.Settings`:) configuration settings
         self.__settings = self._mainwidget.settings()
@@ -1622,6 +1634,8 @@ class AngleQToolWidget(ToolWidget):
             [self.__ui.angleqPushButton.clicked, self._setGeometry],
             [self.__ui.angleqComboBox.currentIndexChanged,
              self._setGSpaceIndex],
+            [self.__ui.plotComboBox.currentIndexChanged,
+             self._setPlotIndex],
             [self._mainwidget.mouseImageDoubleClicked,
              self._updateCenter],
             [self._mainwidget.geometryChanged, self.updateGeometryTip],
@@ -1634,51 +1648,64 @@ class AngleQToolWidget(ToolWidget):
         self.updateGeometryTip()
         self._mainwidget.updateCenter(
             self.__settings.centerx, self.__settings.centery)
-        if self.__polarimage is None:
-            self.__polarimage = self._mainwidget.polarimage()
 
-    def afterplot(self):
-        """ command after plot
+    def beforeplot(self, array, rawarray):
+        """ command  before plot
+
+        :param array: 2d image array
+        :type array: :class:`numpy.ndarray`
+        :param rawarray: 2d raw image array
+        :type rawarray: :class:`numpy.ndarray`
+        :return: 2d image array
+        :rtype: :class:`numpy.ndarray`
         """
-        self._plotPolarImage()
+        if self.__plotindex == 1:
+            tdata = self._plotPolarImage(array)
+            return tdata, tdata
 
     def intintensity(self, ntheta, ang):
         theta = ntheta * self.__thmax
         fac = 1000. * self.__settings.detdistance * np.tan(theta)
-        x = self.__settings.centerx + fac * np.sin(ang*math.pi/180) \
+        x = self.__settings.centerx + fac * np.sin(ang * math.pi / 180) \
             / self.__settings.pixelsizex
-        y = self.__settings.centery + fac * np.cos(ang*math.pi/180) \
+        y = self.__settings.centery + fac * np.cos(ang * math.pi / 180) \
             / self.__settings.pixelsizey
         if hasattr(self.__inter, "ev"):
             return self.__inter.ev(x, y)
         else:
-            return self.__inter(np.transpose([x,y],axes=[1,2,0]))
+            return self.__inter(np.transpose([x, y], axes=[1, 2, 0]))
 
     @QtCore.pyqtSlot()
-    def _plotPolarImage(self):
+    def _plotPolarImage(self, rdata=None):
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
-            rdata = self._mainwidget.currentData()
+            if rdata is None:
+                rdata = self._mainwidget.currentData()
             xx = np.array(range(rdata.shape[0]))
             yy = np.array(range(rdata.shape[1]))
             maxdim = max(rdata.shape[0], rdata.shape[1])
-            _,_,th0 = self.__pixel2theta(0, 0, False)
-            _,_,th1 = self.__pixel2theta(0, rdata.shape[1], False)
-            _,_,th2 = self.__pixel2theta(rdata.shape[0], 0, False)
-            _,_,th3 = self.__pixel2theta(rdata.shape[0], rdata.shape[1], False)
+            _, _, th0 = self.__pixel2theta(0, 0, False)
+            _, _, th1 = self.__pixel2theta(0, rdata.shape[1], False)
+            _, _, th2 = self.__pixel2theta(rdata.shape[0], 0, False)
+            _, _, th3 = self.__pixel2theta(
+                rdata.shape[0], rdata.shape[1], False)
             self.__thmax = max(th0, th1, th2, th3)/float(maxdim)
             if False:
-                self.__inter = scipy.interpolate.RectBivariateSpline(xx, yy, rdata)
+                self.__inter = scipy.interpolate.RectBivariateSpline(
+                    xx, yy, rdata)
                 tdata = np.fromfunction(
-                    lambda x,y: self.intintensity(x, y), (maxdim, 360), dtype=float)
+                    lambda x, y: self.intintensity(x, y), (maxdim, 360),
+                    dtype=float)
             else:
                 self.__inter = scipy.interpolate.RegularGridInterpolator(
                     (xx, yy), rdata,
-                    fill_value=(0 if self._mainwidget.scaling() != 'log' else -2),
+                    fill_value=(0
+                                if self._mainwidget.scaling() != 'log'
+                                else -2),
                     bounds_error=False)
                 tdata = np.fromfunction(
-                    lambda x,y: self.intintensity(x, y), (maxdim, 360), dtype=float)
-            self.__polarimage.setImage(tdata)
-
+                    lambda x, y: self.intintensity(x, y), (maxdim, 360),
+                    dtype=float)
+            return tdata
 
     @QtCore.pyqtSlot(float, float)
     def _updateCenter(self, xdata, ydata):
@@ -1703,21 +1730,32 @@ class AngleQToolWidget(ToolWidget):
         message = ""
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
         ilabel = self._mainwidget.scalingLabel()
-        if self.__gspaceindex == 0:
-            thetax, thetay, thetatotal = self.__pixel2theta(x, y)
-            if thetax is not None:
-                message = "th_x = %f deg, th_y = %f deg," \
-                          " th_tot = %f deg, %s = %.2f" \
-                          % (thetax * 180 / math.pi,
-                             thetay * 180 / math.pi,
-                             thetatotal * 180 / math.pi,
-                             ilabel, intensity)
-        else:
-            qx, qy, q = self.__pixel2q(x, y)
-            if qx is not None:
-                message = u"q_x = %f 1/\u212B, q_y = %f 1/\u212B, " \
-                          u"q = %f 1/\u212B, %s = %.2f" \
-                          % (qx, qy, q, ilabel, intensity)
+        if self.__plotindex == 0:
+            if self.__gspaceindex == 0:
+                thetax, thetay, thetatotal = self.__pixel2theta(x, y)
+                if thetax is not None:
+                    message = "th_x = %f deg, th_y = %f deg," \
+                              " th_tot = %f deg, %s = %.2f" \
+                              % (thetax * 180 / math.pi,
+                                 thetay * 180 / math.pi,
+                                 thetatotal * 180 / math.pi,
+                                 ilabel, intensity)
+            else:
+                qx, qy, q = self.__pixel2q(x, y)
+                if qx is not None:
+                    message = u"q_x = %f 1/\u212B, q_y = %f 1/\u212B, " \
+                              u"q = %f 1/\u212B, %s = %.2f" \
+                              % (qx, qy, q, ilabel, intensity)
+        elif self.__plotindex == 1:
+            iscaling = self._mainwidget.scaling()
+            if iscaling != "linear" and not ilabel.startswith(iscaling):
+                if ilabel[0] == "(":
+                    ilabel = "%s%s" % (iscaling, ilabel)
+                else:
+                    ilabel = "%s(%s)" % (iscaling, ilabel)
+
+            message = u"th_tot = %f deg, polar = %f deg, " \
+                      u" %s = %.2f" % (x, y, ilabel, intensity)
 
         self._mainwidget.setDisplayedText(message)
 
@@ -1838,6 +1876,23 @@ class AngleQToolWidget(ToolWidget):
         :type gspace: :obj:`int`
         """
         self.__gspaceindex = gindex
+
+    @QtCore.pyqtSlot(int)
+    def _setPlotIndex(self, pindex):
+        """ set gspace index
+
+        :param gspace: g-space index,
+        :         i.e. 0: Cartesian, 1: polar-th, 2: polar-q
+        :type gspace: :obj:`int`
+        """
+        self.__plotindex = pindex
+        if pindex:
+            self.parameters.centerlines = False
+        else:
+            self.parameters.centerlines = True
+        self._mainwidget.updateinfowidgets(self.parameters)
+
+        self._mainwidget.emitReplotImage()
 
     @QtCore.pyqtSlot()
     def updateGeometryTip(self):

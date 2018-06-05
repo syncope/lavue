@@ -75,8 +75,10 @@ class ImageWidget(QtGui.QWidget):
     cutNumberChanged = QtCore.pyqtSignal(int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) cut coordinate changed signal
     cutCoordsChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) iamge plotted signal
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) image plotted signal
     imagePlotted = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) replot image signal
+    replotImage = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) sardana enabled signal
     sardanaEnabled = QtCore.pyqtSignal(bool)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) aspect locked toggled signal
@@ -332,16 +334,6 @@ class ImageWidget(QtGui.QWidget):
         self.__rightplot.addItem(bg)
         return bg
 
-    def polarimage(self):
-        """ creates polar plot
-
-        :returns: polar plot
-        :rtype: :class:`pyqtgraph.BarGraphItem`
-        """
-        img= _pg.ImageItem()
-        self.__rightplot.addItem(img)
-        return img
-    
     def removebottomplot(self, plot):
         """ removes bottom plot
 
@@ -466,11 +458,14 @@ class ImageWidget(QtGui.QWidget):
         self.__currenttool = stwg
         if stwg is not None:
             stwg.show()
-            self.__displaywidget.setSubWidgets(stwg.parameters)
-            self.__updateinfowidgets(stwg.parameters)
+            self.updateinfowidgets(stwg.parameters)
 
         self.__connecttool()
         self.currentToolChanged.emit(text)
+
+    def updateinfowidgets(self, parameters):
+        self.__displaywidget.setSubWidgets(parameters)
+        self.__updateinfowidgets(parameters)
 
     def __updateinfowidgets(self, parameters):
         """ update info widgets
@@ -572,7 +567,11 @@ class ImageWidget(QtGui.QWidget):
         if rawarray is None:
             rawarray = array
 
-        self.__displaywidget.updateImage(array, rawarray)
+        if self.__currenttool:
+            barrays = self.__currenttool.beforeplot(array, rawarray)
+        self.__displaywidget.updateImage(
+            barrays[0] if barrays is not None else array,
+            barrays[1] if barrays is not None else rawarray)
         if self.__currenttool:
             self.__currenttool.afterplot()
 
@@ -717,6 +716,11 @@ class ImageWidget(QtGui.QWidget):
         :type y: :obj:`float`
         """
         self.mouseImageSingleClicked.emit(x, y)
+
+    def emitReplotImage(self):
+        """emits replotImage
+        """
+        self.replotImage.emit()
 
     def setAspectLocked(self, status):
         """sets aspectLocked
