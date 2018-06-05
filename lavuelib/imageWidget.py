@@ -1028,6 +1028,14 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__displaywidget.scalingLabel()
 
+    def scaling(self):
+        """ provides scaling type
+
+        :returns:  scaling type
+        :rtype: `obj`:str:
+        """
+        return self.__displaywidget.scaling()
+
     def scaledxy(self, x, y):
         """ provides scaled x,y positions
 

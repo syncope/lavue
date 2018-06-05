@@ -763,6 +763,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     ilabel = "%s(intensity)" % scaling
         return ilabel
 
+    def scaling(self):
+        """ provides scaling type
+
+        :returns:  scaling type
+        :rtype: `obj`:str:
+        """
+        return self.__intensity.scaling
+
     def axesunits(self):
         """ return axes units
         :returns: x,y units
