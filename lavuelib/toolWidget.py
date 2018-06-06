@@ -1663,7 +1663,10 @@ class AngleQToolWidget(ToolWidget):
         :rtype: (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
         """
         if self.__plotindex != 0:
-            tdata = self.__plotPolarImage(array)
+            if self._mainwidget.transformations()[0]:
+                tdata = self.__plotPolarImage(np.transpose(array))
+            else:
+                tdata = self.__plotPolarImage(array)
             return tdata, tdata
 
     def __intintensity(self, radial, ang):

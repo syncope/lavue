@@ -1,4 +1,4 @@
-# Copyright (C) 2017  DESY, Christoph Rosemann, Notkestr. 85, D-22607 Hamburg
+3# Copyright (C) 2017  DESY, Christoph Rosemann, Notkestr. 85, D-22607 Hamburg
 #
 # lavue is an image viewing program for photon science imaging detectors.
 # Its usual application is as a live viewer using hidra as data source.
@@ -675,10 +675,10 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     + position[1])
             else:
                 self.__lockerVLine.setPos(
-                    (self.__yfdata + .5) * self.__axes.scale[0]
+                    (self.__yfdata + .5) * self.__axes.scale[1]
                     + position[0])
                 self.__lockerHLine.setPos(
-                    (self.__xfdata + .5) * self.__axes.scale[1]
+                    (self.__xfdata + .5) * self.__axes.scale[0]
                     + position[1])
         else:
             if not self.__transformations.transpose:
