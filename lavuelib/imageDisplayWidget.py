@@ -675,10 +675,10 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     + position[1])
             else:
                 self.__lockerVLine.setPos(
-                    (self.__yfdata + .5) * self.__axes.scale[0]
+                    (self.__yfdata + .5) * self.__axes.scale[1]
                     + position[0])
                 self.__lockerHLine.setPos(
-                    (self.__xfdata + .5) * self.__axes.scale[1]
+                    (self.__xfdata + .5) * self.__axes.scale[0]
                     + position[1])
         else:
             if not self.__transformations.transpose:
