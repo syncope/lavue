@@ -1255,3 +1255,11 @@ class ImageWidget(QtGui.QWidget):
         # print("UPDATE %s" % str(coords))
         if oldcoords != coords:
             self.updateROIs(len(coords), coords)
+
+    def axes(self):
+        """ get axes parameters
+
+        :returns: axes parameters
+        :rtype: :class:`lavuelib.displayParameters.AxesParameters`
+        """
+        return self.__displaywidget.axes()

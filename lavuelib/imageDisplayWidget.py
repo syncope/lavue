@@ -1535,3 +1535,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         if self.__axes.enabled is True:
             self.__setScale(self.__axes.position, self.__axes.scale)
+
+    def axes(self):
+        """ get axes parameters
+
+        :returns: axes parameters
+        :rtype: :class:`lavuelib.displayParameters.AxesParameters`
+        """
+        return self.__axes

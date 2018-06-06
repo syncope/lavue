@@ -31,6 +31,7 @@ from PyQt4 import QtCore, QtGui, uic
 import os
 import re
 import math
+import copy
 import numpy as np
 import scipy.interpolate
 import pyqtgraph as _pg
@@ -1625,6 +1626,9 @@ class AngleQToolWidget(ToolWidget):
         self.parameters.centerlines = True
         # self.parameters.rightplot = True
 
+        #: (`lavuelib.displayParameters.AxesParameters`) axes backup
+        self.__axes = None
+
         #: (:class:`lavuelib.settings.Settings`:) configuration settings
         self.__settings = self._mainwidget.settings()
 
@@ -1651,6 +1655,15 @@ class AngleQToolWidget(ToolWidget):
         self.updateGeometryTip()
         self._mainwidget.updateCenter(
             self.__settings.centerx, self.__settings.centery)
+        if self.__plotindex == 0:
+            self.__axes = copy.copy(self.__mainwidget.axes())
+
+    def disactivate(self):
+        """ disactivates tool widget
+        """
+        if self.__plotindex == 1:
+            self.__mainwidget.axes = self.__axes
+
 
     def beforeplot(self, array, rawarray):
         """ command  before plot
