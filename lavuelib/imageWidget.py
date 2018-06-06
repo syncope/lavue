@@ -1129,7 +1129,7 @@ class ImageWidget(QtGui.QWidget):
     def autoRange(self):
         """ sets auto range
         """
-        return self.__displaywidget.autoRange()
+        self.__displaywidget.autoRange()
 
     @QtCore.pyqtSlot(float, float)
     def updateCenter(self, xdata, ydata):

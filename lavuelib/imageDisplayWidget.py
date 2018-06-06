@@ -634,7 +634,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         else:
             self.__image.setPos(0, 0)
         if self.__rawdata is not None and update:
-            self.__viewbox.autoRange()
+            self.autoRange()
 
     def setPolarScale(self, position=None, scale=None):
         """ set axes scales
@@ -665,7 +665,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__image.setPos(0, 0)
         if axes.scale is not None or axes.position is not None:
             if self.__rawdata is not None:
-                self.__viewbox.autoRange()
+                self.autoRange()
             self.__setLabels()
 
     def updateImage(self, img=None, rawimg=None):
@@ -1583,4 +1583,5 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
     def autoRange(self):
         """ sets auto range
         """
-        return self.__viewbox.autoRange()
+        self.__viewbox.autoRange()
+        self.__viewbox.enableAutoRange('xy', True)
