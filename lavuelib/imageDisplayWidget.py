@@ -172,6 +172,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         #: (:class:`lavuelib.displayParameters.AxesParameters`)
         #:            axes parameters
         self.__axes = displayParameters.AxesParameters()
+        #: (:class:`lavuelib.displayParameters.AxesParameters`)
+        #:            polar axes parameters
+        self.__polaraxes = displayParameters.AxesParameters()
         #: (:class:`lavuelib.displayParameters.ROIsParameters`)
         #:                rois parameters
         self.__rois = displayParameters.ROIsParameters()
@@ -399,10 +402,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
         :param status: state to set
         :type status: :obj:`bool`
+        :returns: old state
+        :rtype: :obj:`bool`
         """
         if flag != self.__setaspectlocked.isChecked():
             self.__setaspectlocked.setChecked(flag)
+        oldflag = self.__viewbox.state["aspectLocked"]
         self.__viewbox.setAspectLocked(flag)
+        return oldflag
 
     def __addROI(self, coords=None):
         """ adds ROIs
@@ -582,7 +589,54 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__setaspectlocked.setChecked(False)
             self.__setaspectlocked.triggered.emit(False)
 
-    def __setScale(self, position=None, scale=None, update=True):
+    def __setScale(self, position=None, scale=None, update=True, polar=False,
+                   force=False):
+        """ set axes scales
+
+        :param position: start position of axes
+        :type position: [:obj:`float`, :obj:`float`]
+        :param scale: scale axes
+        :type scale: [:obj:`float`, :obj:`float`]
+        :param update: update scales on image
+        :type update: :obj:`bool`
+        :param polar: update polar scale
+        :type polar: :obj:`bool`
+        :param force: force rescaling
+        :type force: :obj:`bool`
+        """
+        axes = self.__polaraxes if polar else self.__axes
+
+        if update:
+            self.__setLabels(axes.xtext, axes.ytext,
+                             axes.xunits, axes.yunits)
+
+        if not force:
+            if axes.position == position and axes.scale == scale and \
+               position is None and scale is None:
+                return
+        axes.position = position
+        axes.scale = scale
+        self.__image.resetTransform()
+        if axes.scale is not None and update:
+            if not self.__transformations.transpose:
+                self.__image.scale(*axes.scale)
+            else:
+                self.__image.scale(
+                    axes.scale[1], axes.scale[0])
+        else:
+            self.__image.scale(1, 1)
+        if axes.position is not None and update:
+            if not self.__transformations.transpose:
+                self.__image.setPos(*axes.position)
+            else:
+                self.__image.setPos(
+                    axes.position[1], axes.position[0])
+        else:
+            self.__image.setPos(0, 0)
+        if self.__rawdata is not None and update:
+            self.__viewbox.autoRange()
+
+    def setPolarScale(self, position=None, scale=None):
         """ set axes scales
 
         :param position: start position of axes
@@ -592,46 +646,24 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :param update: update scales on image
         :type updatescale: :obj:`bool`
         """
-        if update:
-            self.__setLabels(
-                self.__axes.xtext, self.__axes.ytext,
-                self.__axes.xunits, self.__axes.yunits)
-        if self.__axes.position == position and \
-           self.__axes.scale == scale and \
-           position is None and scale is None:
-            return
-        self.__axes.position = position
-        self.__axes.scale = scale
-        self.__image.resetTransform()
-        if self.__axes.scale is not None and update:
-            if not self.__transformations.transpose:
-                self.__image.scale(*self.__axes.scale)
-            else:
-                self.__image.scale(
-                    self.__axes.scale[1], self.__axes.scale[0])
-        else:
-            self.__image.scale(1, 1)
-        if self.__axes.position is not None and update:
-            if not self.__transformations.transpose:
-                self.__image.setPos(*self.__axes.position)
-            else:
-                self.__image.setPos(
-                    self.__axes.position[1], self.__axes.position[0])
-        else:
-            self.__image.setPos(0, 0)
-        if self.__rawdata is not None and update:
-            self.__viewbox.autoRange()
+        self.__polaraxes.position = position
+        self.__polaraxes.scale = scale
 
-    def __resetScale(self):
+    def __resetScale(self, polar=False):
         """ reset axes scales
+
+        :param polar: update polar scale
+        :type polar: :obj:`bool`
         """
-        if self.__axes.scale is not None or self.__axes.position is not None:
+        axes = self.__polaraxes if polar else self.__axes
+
+        if axes.scale is not None or axes.position is not None:
             self.__image.resetTransform()
-        if self.__axes.scale is not None:
+        if axes.scale is not None:
             self.__image.scale(1, 1)
-        if self.__axes.position is not None:
+        if axes.position is not None:
             self.__image.setPos(0, 0)
-        if self.__axes.scale is not None or self.__axes.position is not None:
+        if axes.scale is not None or axes.position is not None:
             if self.__rawdata is not None:
                 self.__viewbox.autoRange()
             self.__setLabels()
@@ -953,12 +985,17 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :param parameters: tool parameters
         :type parameters: :class:`lavuelib.toolWidget.ToolParameters`
         """
-
+        rescale = False
         doreset = False
         if parameters.scale is not None:
             if parameters.scale is False:
                 doreset = self.__axes.enabled
             self.__axes.enabled = parameters.scale
+        if parameters.polarscale is not None:
+            doreset = parameters.polarscale
+            if self.__polaraxes.enabled and not parameters.polarscale:
+                rescale = True
+            self.__polaraxes.enabled = parameters.polarscale
 
         # if parameters.lines is not None:
         if parameters.crosshairlocker is not None:
@@ -977,9 +1014,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__showCuts(parameters.cuts)
             self.__cuts.enabled = parameters.cuts
         if doreset:
-            self.__resetScale()
-        if parameters.scale is True:
-            self.__setScale(self.__axes.position, self.__axes.scale)
+            self.__resetScale(polar=parameters.polarscale)
+        if parameters.scale is True or rescale:
+            self.__setScale(
+                self.__axes.position, self.__axes.scale, force=rescale)
+        if parameters.polarscale is True:
+            self.__setScale(
+                self.__polaraxes.position, self.__polaraxes.scale, polar=True)
 
     @QtCore.pyqtSlot(bool)
     def emitAspectLockedToggled(self, status):
@@ -1535,11 +1576,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         if self.__axes.enabled is True:
             self.__setScale(self.__axes.position, self.__axes.scale)
+        if self.__polaraxes.enabled is True:
+            self.__setScale(
+                self.__polaraxes.position, self.__polaraxes.scale, polar=True)
 
-    def axes(self):
-        """ get axes parameters
-
-        :returns: axes parameters
-        :rtype: :class:`lavuelib.displayParameters.AxesParameters`
+    def autoRange(self):
+        """ sets auto range
         """
-        return self.__axes
+        return self.__viewbox.autoRange()

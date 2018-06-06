@@ -78,7 +78,7 @@ class ImageWidget(QtGui.QWidget):
     #: (:class:`PyQt4.QtCore.pyqtSignal`) image plotted signal
     imagePlotted = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) replot image signal
-    replotImage = QtCore.pyqtSignal()
+    replotImage = QtCore.pyqtSignal(bool)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) sardana enabled signal
     sardanaEnabled = QtCore.pyqtSignal(bool)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) aspect locked toggled signal
@@ -717,18 +717,20 @@ class ImageWidget(QtGui.QWidget):
         """
         self.mouseImageSingleClicked.emit(x, y)
 
-    def emitReplotImage(self):
+    def emitReplotImage(self, autorange=True):
         """emits replotImage
         """
-        self.replotImage.emit()
+        self.replotImage.emit(autorange)
 
     def setAspectLocked(self, status):
         """sets aspectLocked
 
         :param status: state to set
         :type status: :obj:`bool`
+        :returns: old state
+        :rtype: :obj:`bool`
         """
-        self.__displaywidget.setAspectLocked(status)
+        return self.__displaywidget.setAspectLocked(status)
 
     def setStatsWOScaling(self, status):
         """ sets statistics without scaling flag
@@ -1124,6 +1126,11 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__displaywidget.currentData()
 
+    def autoRange(self):
+        """ sets auto range
+        """
+        return self.__displaywidget.autoRange()
+
     @QtCore.pyqtSlot(float, float)
     def updateCenter(self, xdata, ydata):
         """ updates the image center
@@ -1256,10 +1263,12 @@ class ImageWidget(QtGui.QWidget):
         if oldcoords != coords:
             self.updateROIs(len(coords), coords)
 
-    def axes(self):
+    def setPolarScale(self, position=None, scale=None):
         """ get axes parameters
 
-        :returns: axes parameters
-        :rtype: :class:`lavuelib.displayParameters.AxesParameters`
+        :param position: start position of axes
+        :type position: [:obj:`float`, :obj:`float`]
+        :param scale: scale axes
+        :type scale: [:obj:`float`, :obj:`float`]
         """
-        return self.__displaywidget.axes()
+        return self.__displaywidget.setPolarScale(position, scale)

@@ -284,7 +284,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__levelswg.channelChanged.connect(self._plot)
         self.__imagewg.aspectLockedToggled.connect(self._setAspectLocked)
 
-        self.__imagewg.replotImage.connect(self._plot)
+        self.__imagewg.replotImage.connect(self._replot)
         # simple mutable caching object for data exchange with thread
         #: (:class:`lavuelib.dataFetchTread.ExchangeList`)
         #:    exchange list
@@ -866,6 +866,15 @@ class LiveViewer(QtGui.QMainWindow):
                 self.__datasource.setConfiguration(self.__sourceconfiguration)
             self.__sourcewg.updateMetaData(**self.__datasource.getMetaData())
         self._stateUpdated.emit(bool(status))
+
+    @QtCore.pyqtSlot(bool)
+    def _replot(self, autorange):
+        """ The main command of the live viewer class:
+        draw a numpy array with the given name and autoRange.
+        """
+        self._plot()
+        if autorange:
+            self.__imagewg.autoRange()
 
     @QtCore.pyqtSlot()
     def _plot(self):

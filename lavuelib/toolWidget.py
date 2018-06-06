@@ -31,7 +31,6 @@ from PyQt4 import QtCore, QtGui, uic
 import os
 import re
 import math
-import copy
 import numpy as np
 import scipy.interpolate
 import pyqtgraph as _pg
@@ -92,8 +91,10 @@ class ToolParameters(object):
         self.rois = False
         #: (:obj:`bool`) cuts enabled
         self.cuts = False
-        #: (:obj:`bool`) axes scaling enabled
+        #: (:obj:`bool`) axes scale enabled
         self.scale = False
+        #: (:obj:`bool`) polar axes scale enabled
+        self.polarscale = False
         #: (:obj:`bool`) bottom 1d plot enabled
         self.bottomplot = False
         #: (:obj:`bool`) right 1d plot enabled
@@ -1619,11 +1620,15 @@ class AngleQToolWidget(ToolWidget):
         self.__ui = _angleqformclass()
         self.__ui.setupUi(self)
 
+        #: (:obj:`bool`) old lock value
+        self.__oldlocked = None
+
         # self.parameters.lines = True
         #: (:obj:`str`) infolineedit text
         self.parameters.infolineedit = ""
         self.parameters.infotips = ""
         self.parameters.centerlines = True
+        self.parameters.polarscale = False
         # self.parameters.rightplot = True
 
         #: (`lavuelib.displayParameters.AxesParameters`) axes backup
@@ -1633,7 +1638,7 @@ class AngleQToolWidget(ToolWidget):
         self.__settings = self._mainwidget.settings()
 
         #: (:obj:`float`) maximum or radial coordinate
-        self.__thqmax = 1.
+        self.__radmax = 1.
 
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
@@ -1652,18 +1657,15 @@ class AngleQToolWidget(ToolWidget):
     def activate(self):
         """ activates tool widget
         """
+        self.__oldlocked = None
         self.updateGeometryTip()
         self._mainwidget.updateCenter(
             self.__settings.centerx, self.__settings.centery)
-        if self.__plotindex == 0:
-            self.__axes = copy.copy(self.__mainwidget.axes())
 
     def disactivate(self):
         """ disactivates tool widget
         """
-        if self.__plotindex == 1:
-            self.__mainwidget.axes = self.__axes
-
+        self._setPlotIndex(0)
 
     def beforeplot(self, array, rawarray):
         """ command  before plot
@@ -1684,7 +1686,7 @@ class AngleQToolWidget(ToolWidget):
 
     def __intintensity(self, radial, ang):
         """ intensity interpolation function
-        
+
         :param radial: radial coordinate
         :type radial: :obj:`float` or :class:`numpy.array`
         :param ang: polar angle coordinate
@@ -1693,10 +1695,11 @@ class AngleQToolWidget(ToolWidget):
         :rtype: :obj:`float` or :class:`numpy.array`
         """
         if self.__plotindex == 1:
-            theta = radial * self.__thqmax
+            theta = radial * self.__radmax
         else:
             wavelength = 12400./self.__settings.energy
-            theta = 2.*np.arcsin(radial  * self.__thqmax * wavelength / (4.* math.pi))
+            theta = 2. * np.arcsin(
+                radial * self.__radmax * wavelength / (4. * math.pi))
         fac = 1000. * self.__settings.detdistance * np.tan(theta)
         x = self.__settings.centerx + fac * np.sin(ang * math.pi / 180) \
             / self.__settings.pixelsizex
@@ -1706,6 +1709,31 @@ class AngleQToolWidget(ToolWidget):
             return self.__inter.ev(x, y)
         else:
             return self.__inter(np.transpose([x, y], axes=[1, 2, 0]))
+
+    def __calculateRadMax(self, pindex, rdata=None):
+        """ recalculates radmax
+
+        :param rarray: 2d image array
+        :type rarray: :class:`numpy.ndarray`
+        """
+        if rdata is None:
+            rdata = self._mainwidget.currentData()
+        if rdata is not None:
+            maxdim = max(rdata.shape[0], rdata.shape[1])
+            if pindex == 1:
+                _, _, th0 = self.__pixel2theta(0, 0, False)
+                _, _, th1 = self.__pixel2theta(0, rdata.shape[1], False)
+                _, _, th2 = self.__pixel2theta(rdata.shape[0], 0, False)
+                _, _, th3 = self.__pixel2theta(
+                    rdata.shape[0], rdata.shape[1], False)
+                self.__radmax = max(th0, th1, th2, th3)/float(maxdim)
+            elif pindex == 2:
+                _, _, q0 = self.__pixel2q(0, 0, False)
+                _, _, q1 = self.__pixel2q(0, rdata.shape[1], False)
+                _, _, q2 = self.__pixel2q(rdata.shape[0], 0, False)
+                _, _, q3 = self.__pixel2q(
+                    rdata.shape[0], rdata.shape[1], False)
+                self.__radmax = max(q0, q1, q2, q3)/float(maxdim)
 
     def __plotPolarImage(self, rdata=None):
         """ intensity interpolation function
@@ -1720,21 +1748,9 @@ class AngleQToolWidget(ToolWidget):
                 rdata = self._mainwidget.currentData()
             xx = np.array(range(rdata.shape[0]))
             yy = np.array(range(rdata.shape[1]))
+            self.__calculateRadMax(self.__plotindex, rdata)
             maxdim = max(rdata.shape[0], rdata.shape[1])
-            if self.__plotindex == 1:
-                _, _, th0 = self.__pixel2theta(0, 0, False)
-                _, _, th1 = self.__pixel2theta(0, rdata.shape[1], False)
-                _, _, th2 = self.__pixel2theta(rdata.shape[0], 0, False)
-                _, _, th3 = self.__pixel2theta(
-                    rdata.shape[0], rdata.shape[1], False)
-                self.__thqmax = max(th0, th1, th2, th3)/float(maxdim)
-            elif self.__plotindex == 2:
-                _, _, q0 = self.__pixel2q(0, 0, False)
-                _, _, q1 = self.__pixel2q(0, rdata.shape[1], False)
-                _, _, q2 = self.__pixel2q(rdata.shape[0], 0, False)
-                _, _, q3 = self.__pixel2q(rdata.shape[0], rdata.shape[1], False)
-                self.__thqmax = max(q0, q1, q2, q3)/float(maxdim)
-                
+
             if False:
                 self.__inter = scipy.interpolate.RectBivariateSpline(
                     xx, yy, rdata)
@@ -1802,8 +1818,9 @@ class AngleQToolWidget(ToolWidget):
                     ilabel = "%s(%s)" % (iscaling, ilabel)
 
             message = u"th_tot = %f deg, polar = %f deg, " \
-                      u" %s = %.2f" % (x  * 180 / math.pi * self.__thqmax, y,
-                                       ilabel, intensity)
+                      u" %s = %.2f" % (
+                          x * 180 / math.pi * self.__radmax, y,
+                          ilabel, intensity)
         elif self.__plotindex == 2:
             iscaling = self._mainwidget.scaling()
             if iscaling != "linear" and not ilabel.startswith(iscaling):
@@ -1813,7 +1830,7 @@ class AngleQToolWidget(ToolWidget):
                     ilabel = "%s(%s)" % (iscaling, ilabel)
 
             message = u"q = %f 1/\u212B, polar = %f deg, " \
-                      u" %s = %.2f" % (x * self.__thqmax, y, ilabel, intensity)
+                      u" %s = %.2f" % (x * self.__radmax, y, ilabel, intensity)
 
         self._mainwidget.setDisplayedText(message)
 
@@ -1931,7 +1948,6 @@ class AngleQToolWidget(ToolWidget):
             if self.__plotindex:
                 self._mainwidget.emitReplotImage()
 
-
     @QtCore.pyqtSlot(int)
     def _setGSpaceIndex(self, gindex):
         """ set gspace index
@@ -1942,20 +1958,33 @@ class AngleQToolWidget(ToolWidget):
         self.__gspaceindex = gindex
 
     @QtCore.pyqtSlot(int)
-    def _setPlotIndex(self, pindex):
+    def _setPlotIndex(self, pindex=None):
         """ set gspace index
 
         :param gspace: g-space index,
         :         i.e. 0: Cartesian, 1: polar-th, 2: polar-q
         :type gspace: :obj:`int`
         """
-        self.__plotindex = pindex
         if pindex:
+            self.__calculateRadMax(pindex)
             self.parameters.centerlines = False
-            self.parameters.scale = True
+            self.parameters.polarscale = True
+            if pindex == 1:
+                rscale = 180. / math.pi * self.__radmax
+            else:
+                rscale = self.__radmax
+            self._mainwidget.setPolarScale([0, 0], [rscale, 1])
+            if not self.__plotindex:
+                self.__oldlocked = self._mainwidget.setAspectLocked(False)
         else:
+            if self.__oldlocked is not None:
+                self._mainwidget.setAspectLocked(self.__oldlocked)
             self.parameters.centerlines = True
-            self.parameters.scale = False
+            self.parameters.polarscale = False
+        if pindex is not None:
+            self.__plotindex = pindex
+            if self.__ui.plotComboBox.currentIndex != pindex:
+                self.__ui.plotComboBox.setCurrentIndex(pindex)
         self._mainwidget.updateinfowidgets(self.parameters)
 
         self._mainwidget.emitReplotImage()
