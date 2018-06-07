@@ -1687,8 +1687,11 @@ class AngleQToolWidget(ToolWidget):
         #: (:class:`lavuelib.settings.Settings`:) configuration settings
         self.__settings = self._mainwidget.settings()
 
-        #: (:obj:`float`) maximum or radial coordinate
+        #: (:obj:`float`) radial coordinate factor
         self.__radmax = 1.
+
+        #: (:obj:`float`) polar coordinate factor
+        self.__polmax = 1.
 
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
@@ -1807,10 +1810,8 @@ class AngleQToolWidget(ToolWidget):
                     / (4. * math.pi))
             if self.__polsize is not None or \
                self.__polstart is not None or self.__polend is not None:
-                psize = self.__polsize if self.__polsize is not None else 360
                 pstart = self.__polstart if self.__polstart is not None else 0
-                pend = self.__polend if self.__polend is not None else 360
-                angle = angle * float(pend - pstart) / psize + pstart
+                angle = angle * self.__polmax + pstart
             fac = 1000. * self.__settings.detdistance * np.tan(theta)
             self.__lastx = self.__settings.centerx + \
                 fac * np.sin(angle * math.pi / 180) \
@@ -1845,11 +1846,13 @@ class AngleQToolWidget(ToolWidget):
         if rdata is None:
             rdata = self._mainwidget.currentData()
         if rdata is not None:
-            if self.__lastmaxdim is not None:
-                maxdim = self.__lastmaxdim
-            else:
-                maxdim = max(rdata.shape[0], rdata.shape[1])
+
             if pindex == 1:
+                if self.__lastmaxdim is not None \
+                   and self.__radthsize is not None:
+                    maxdim = self.__lastmaxdim
+                else:
+                    maxdim = max(rdata.shape[0], rdata.shape[1])
                 rstart = self.__radthstart \
                     if self.__radthstart is not None else 0
                 if self.__radthend is None:
@@ -1864,7 +1867,13 @@ class AngleQToolWidget(ToolWidget):
                 if self.__radthsize is not None:
                     maxdim = self.__radthsize
                 self.__radmax = rmax/float(maxdim)
+
             elif pindex == 2:
+                if self.__lastmaxdim is not None \
+                   and self.__radqsize is not None:
+                    maxdim = self.__lastmaxdim
+                else:
+                    maxdim = max(rdata.shape[0], rdata.shape[1])
                 rstart = self.__radqstart \
                     if self.__radqstart is not None else 0
                 if self.__radqend is None:
@@ -1879,6 +1888,11 @@ class AngleQToolWidget(ToolWidget):
                 if self.__radqsize is not None:
                     maxdim = self.__radqsize
                 self.__radmax = rmax/float(maxdim)
+            if pindex:
+                psize = self.__polsize if self.__polsize is not None else 360
+                pstart = self.__polstart if self.__polstart is not None else 0
+                pend = self.__polend if self.__polend is not None else 360
+                self.__polmax = float(pend - pstart) / psize
 
     def __plotPolarImage(self, rdata=None):
         """ intensity interpolation function
@@ -1967,6 +1981,9 @@ class AngleQToolWidget(ToolWidget):
                               u"q = %f 1/\u212B, %s = %.2f" \
                               % (qx, qy, q, ilabel, intensity)
         elif self.__plotindex == 1:
+            rstart = self.__radthstart \
+                if self.__radthstart is not None else 0
+            pstart = self.__polstart if self.__polstart is not None else 0
             iscaling = self._mainwidget.scaling()
             if iscaling != "linear" and not ilabel.startswith(iscaling):
                 if ilabel[0] == "(":
@@ -1976,10 +1993,14 @@ class AngleQToolWidget(ToolWidget):
 
             message = u"th_tot = %f deg, polar = %f deg, " \
                       u" %s = %.2f" % (
-                          x * 180 / math.pi * self.__radmax, y,
+                          x * 180 / math.pi * self.__radmax + rstart,
+                          y * self.__polmax + pstart,
                           ilabel, intensity)
         elif self.__plotindex == 2:
             iscaling = self._mainwidget.scaling()
+            pstart = self.__polstart if self.__polstart is not None else 0
+            rstart = self.__radqstart \
+                if self.__radqstart is not None else 0
             if iscaling != "linear" and not ilabel.startswith(iscaling):
                 if ilabel[0] == "(":
                     ilabel = "%s%s" % (iscaling, ilabel)
@@ -1987,7 +2008,10 @@ class AngleQToolWidget(ToolWidget):
                     ilabel = "%s(%s)" % (iscaling, ilabel)
 
             message = u"q = %f 1/\u212B, polar = %f deg, " \
-                      u" %s = %.2f" % (x * self.__radmax, y, ilabel, intensity)
+                      u" %s = %.2f" % (
+                          x * self.__radmax + rstart,
+                          y * self.__polmax + pstart,
+                          ilabel, intensity)
 
         self._mainwidget.setDisplayedText(message)
 
@@ -2169,10 +2193,7 @@ class AngleQToolWidget(ToolWidget):
                 rstart = self.__radqstart \
                     if self.__radqstart is not None else 0
             pstart = self.__polstart if self.__polstart is not None else 0
-            psize = self.__polsize if self.__polsize is not None else 360
-            pstart = self.__polstart if self.__polstart is not None else 0
-            pend = self.__polend if self.__polend is not None else 360
-            pscale = float(pend - pstart)/psize
+            pscale = self.__polmax
             self._mainwidget.setPolarScale([rstart, pstart], [rscale, pscale])
             if not self.__plotindex:
                 self.__oldlocked = self._mainwidget.setAspectLocked(False)
