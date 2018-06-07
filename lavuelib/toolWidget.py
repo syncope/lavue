@@ -35,6 +35,7 @@ import numpy as np
 import scipy.interpolate
 import pyqtgraph as _pg
 import warnings
+import time
 
 from . import geometryDialog
 from . import takeMotorsDialog
@@ -1623,6 +1624,19 @@ class AngleQToolWidget(ToolWidget):
         #: (:obj:`bool`) old lock value
         self.__oldlocked = None
 
+        self.__lastradial = None
+        self.__lastangle = None
+        self.__lastenergy = None
+        self.__lastradmax = None
+        self.__lastpindex = None
+        self.__lastdistance = None
+        self.__lastcenterx = None
+        self.__lastcentery = None
+        self.__lastpsizex = None
+        self.__lastpsizey = None
+        self.__lastx = None
+        self.__lasty = None
+
         # self.parameters.lines = True
         #: (:obj:`str`) infolineedit text
         self.parameters.infolineedit = ""
@@ -1684,31 +1698,93 @@ class AngleQToolWidget(ToolWidget):
                 tdata = self.__plotPolarImage(array)
             return tdata, tdata
 
-    def __intintensity(self, radial, ang):
+    def __havexychanged(self, radial, angle):
+        """ if xy changed
+
+        :param radial: radial coordinate
+        :type radial: :obj:`float` or :class:`numpy.array`
+        :param angle: polar angle coordinate
+        :type angle: :obj:`float` or :class:`numpy.array`
+        :returns: flag if (x, y) have changed
+        :rtype: :obj:`bool`
+        """
+        recalc = False
+        if self.__lastradial is None or self.__lastangle is None or \
+           self.__lastenergy is None or self.__lastradmax is None or \
+           self.__lastpindex is None or self.__lastdistance is None or \
+           self.__lastcenterx is None or self.__lastcentery is None or \
+           self.__lastpsizex is None or self.__lastpsizey is None or \
+           self.__lastx is None or self.__lasty is None:
+            recalc = True
+        elif self.__lastenergy != self.__settings.energy:
+            recalc = True
+        elif self.__lastradmax != self.__radmax:
+            recalc = True
+        elif self.__lastpindex != self.__plotindex:
+            recalc = True
+        elif self.__lastdistance != self.__settings.detdistance:
+            recalc = True
+        elif self.__lastcenterx != self.__settings.centerx:
+            recalc = True
+        elif self.__lastcentery != self.__settings.centery:
+            recalc = True
+        elif self.__lastpsizex != self.__settings.pixelsizex:
+            recalc = True
+        elif self.__lastpsizey != self.__settings.pixelsizey:
+            recalc = True
+        elif isinstance(radial, np.ndarray) and \
+               not np.array_equal(self.__lastradial, radial):
+                   recalc = True
+        elif not isinstance(radial, np.ndarray) and self.__lastradial != radial:
+                   recalc = True
+        elif isinstance(angle, np.ndarray) and \
+               not np.array_equal(self.__lastangle, angle):
+                   recalc = True
+        elif not isinstance(angle, np.ndarray) and self.__lastangle != angle:
+                   recalc = True                   
+        return recalc    
+
+
+    def __intintensity(self, radial, angle):
         """ intensity interpolation function
 
         :param radial: radial coordinate
         :type radial: :obj:`float` or :class:`numpy.array`
-        :param ang: polar angle coordinate
-        :type ang: :obj:`float` or :class:`numpy.array`
+        :param angle: polar angle coordinate
+        :type angle: :obj:`float` or :class:`numpy.array`
         :return: interpolated intensity
         :rtype: :obj:`float` or :class:`numpy.array`
         """
-        if self.__plotindex == 1:
-            theta = radial * self.__radmax
-        else:
-            wavelength = 12400./self.__settings.energy
-            theta = 2. * np.arcsin(
-                radial * self.__radmax * wavelength / (4. * math.pi))
-        fac = 1000. * self.__settings.detdistance * np.tan(theta)
-        x = self.__settings.centerx + fac * np.sin(ang * math.pi / 180) \
-            / self.__settings.pixelsizex
-        y = self.__settings.centery + fac * np.cos(ang * math.pi / 180) \
-            / self.__settings.pixelsizey
+        if True or self.__havexychanged(radial, angle):
+            if self.__plotindex == 1:
+                theta = radial * self.__radmax
+            else:
+                wavelength = 12400./self.__settings.energy
+                theta = 2. * np.arcsin(
+                    radial * self.__radmax * wavelength / (4. * math.pi))
+            fac = 1000. * self.__settings.detdistance * np.tan(theta)
+            self.__lastx = self.__settings.centerx + \
+                           fac * np.sin(angle * math.pi / 180) \
+                / self.__settings.pixelsizex
+            self.__lasty = self.__settings.centery + \
+                           fac * np.cos(angle * math.pi / 180) \
+                           / self.__settings.pixelsizey
+            self.__lastenergy = self.__settings.energy
+            self.__lastradmax = self.__radmax
+            self.__lastpindex = self.__plotindex
+            self.__lastdistance = self.__settings.detdistance
+            self.__lastcenterx = self.__settings.centerx
+            self.__lastcentery = self.__settings.centery
+            self.__lastpsizex = self.__settings.pixelsizex
+            self.__lastpsizey = self.__settings.pixelsizey
+            self.__lastradial = radial
+            self.__lastangle = angle
+            
         if hasattr(self.__inter, "ev"):
-            return self.__inter.ev(x, y)
+            return self.__inter.ev(self.__lastx, self.__lasty)
         else:
-            return self.__inter(np.transpose([x, y], axes=[1, 2, 0]))
+            return self.__inter(np.transpose(
+                [self.__lastx, self.__lasty], axes=[1, 2, 0]))
 
     def __calculateRadMax(self, pindex, rdata=None):
         """ recalculates radmax
@@ -1751,22 +1827,21 @@ class AngleQToolWidget(ToolWidget):
             self.__calculateRadMax(self.__plotindex, rdata)
             maxdim = max(rdata.shape[0], rdata.shape[1])
 
-            if False:
-                self.__inter = scipy.interpolate.RectBivariateSpline(
-                    xx, yy, rdata)
-                tdata = np.fromfunction(
-                    lambda x, y: self.__intintensity(x, y), (maxdim, 360),
-                    dtype=float)
-            else:
-                self.__inter = scipy.interpolate.RegularGridInterpolator(
-                    (xx, yy), rdata,
-                    fill_value=(0
-                                if self._mainwidget.scaling() != 'log'
-                                else -2),
-                    bounds_error=False)
-                tdata = np.fromfunction(
-                    lambda x, y: self.__intintensity(x, y), (maxdim, 360),
-                    dtype=float)
+            self.__inter = scipy.interpolate.RegularGridInterpolator(
+                (xx, yy), rdata,
+                fill_value=(0
+                            if self._mainwidget.scaling() != 'log'
+                            else -2),
+                bounds_error=False)
+            tdata = np.fromfunction(
+                lambda x, y: self.__intintensity(x, y), (maxdim, 360),
+                dtype=float)
+            # else:
+            #     self.__inter = scipy.interpolate.RectBivariateSpline(
+            #         xx, yy, rdata)
+            #     tdata = np.fromfunction(
+            #         lambda x, y: self.__intintensity(x, y), (maxdim, 360),
+            #         dtype=float)
             return tdata
 
     @QtCore.pyqtSlot(float, float)
