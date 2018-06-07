@@ -284,6 +284,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__levelswg.channelChanged.connect(self._plot)
         self.__imagewg.aspectLockedToggled.connect(self._setAspectLocked)
 
+        self.__imagewg.replotImage.connect(self._replot)
         # simple mutable caching object for data exchange with thread
         #: (:class:`lavuelib.dataFetchTread.ExchangeList`)
         #:    exchange list
@@ -620,6 +621,7 @@ class LiveViewer(QtGui.QMainWindow):
                 self.__imagename = imagename
                 self.__rawimage = np.transpose(newimage)
                 self._plot()
+                self.__imagewg.autoRange()
             else:
                 text = messageBox.MessageBox.getText(
                     "lavue: File %s cannot be loaded"
@@ -725,12 +727,12 @@ class LiveViewer(QtGui.QMainWindow):
                     self.__sourcewg.connectSuccess(None)
             if dialog.secstream:
                 if dialog.secautoport:
-                    self.__settings.secsockopt = "tcp://*:*"
+                    self.__settings.secsockopt = b"tcp://*:*"
                     self.__settings.secsocket.bind(self.__settings.secsockopt)
-                    dialog.secport = self.__settings.secsocket.getsockopt(
-                        zmq.LAST_ENDPOINT).split(":")[-1]
+                    dialog.secport = str(self.__settings.secsocket.getsockopt(
+                        zmq.LAST_ENDPOINT)).split(":")[-1]
                 else:
-                    self.__settings.secsockopt = "tcp://*:%s" % dialog.secport
+                    self.__settings.secsockopt = b"tcp://*:%s" % dialog.secport
                     self.__settings.secsocket.bind(self.__settings.secsockopt)
                 if self.__sourcewg.isConnected():
                     self.__sourcewg.connectSuccess(dialog.secport)
@@ -865,6 +867,15 @@ class LiveViewer(QtGui.QMainWindow):
                 self.__datasource.setConfiguration(self.__sourceconfiguration)
             self.__sourcewg.updateMetaData(**self.__datasource.getMetaData())
         self._stateUpdated.emit(bool(status))
+
+    @QtCore.pyqtSlot(bool)
+    def _replot(self, autorange):
+        """ The main command of the live viewer class:
+        draw a numpy array with the given name and autoRange.
+        """
+        self._plot()
+        if autorange:
+            self.__imagewg.autoRange()
 
     @QtCore.pyqtSlot()
     def _plot(self):
