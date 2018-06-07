@@ -66,11 +66,7 @@ from .hidraServerList import HIDRASERVERLIST
 
 
 if sys.version_info > (3,):
-    basestring = str    
-    unicode = str
-else:
-    bytes = str
-    
+    basestring = str
 
 
 #: ( (:obj:`str`,:obj:`str`,:obj:`str`) )

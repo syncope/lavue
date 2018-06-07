@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>298</width>
-    <height>348</height>
+    <width>440</width>
+    <height>486</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_5">
+  <layout class="QGridLayout" name="gridLayout_7">
    <item row="0" column="0">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
@@ -30,7 +30,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Start:</string>
+             <string>Start [deg]:</string>
             </property>
             <property name="buddy">
              <cstring>polstartLineEdit</cstring>
@@ -50,15 +50,15 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>End:</string>
+             <string>End [deg]:</string>
             </property>
             <property name="buddy">
-             <cstring>polEndLineEdit</cstring>
+             <cstring>polendLineEdit</cstring>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLineEdit" name="polEndLineEdit">
+           <widget class="QLineEdit" name="polendLineEdit">
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
@@ -70,7 +70,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;grid size of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Size:</string>
+             <string>Size [pixels]:</string>
             </property>
             <property name="buddy">
              <cstring>polsizeLineEdit</cstring>
@@ -88,74 +88,146 @@
         </item>
        </layout>
        <zorder></zorder>
-       <zorder></zorder>
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="radialGroupBox">
+      <widget class="QGroupBox" name="radialthGroupBox">
        <property name="title">
-        <string>Radial q or theta:</string>
+        <string>Radial theta:</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="0" column="0">
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="0">
-           <widget class="QLabel" name="radstartLabel">
+           <widget class="QLabel" name="radthstartLabel">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of radial coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Start:</string>
+             <string>Start [deg]:</string>
             </property>
             <property name="buddy">
-             <cstring>radstartLineEdit</cstring>
+             <cstring>radthstartLineEdit</cstring>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="radstartLineEdit">
+           <widget class="QLineEdit" name="radthstartLineEdit">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of radial coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="radendLabel">
+           <widget class="QLabel" name="radthendLabel">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of radial coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>End:</string>
+             <string>End [deg]:</string>
             </property>
             <property name="buddy">
-             <cstring>radendLineEdit</cstring>
+             <cstring>radthendLineEdit</cstring>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLineEdit" name="radendLineEdit">
+           <widget class="QLineEdit" name="radthendLineEdit">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of radial coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
           <item row="2" column="0">
-           <widget class="QLabel" name="radsizeLabel">
+           <widget class="QLabel" name="radthsizeLabel">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;grid size of radial coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;grid size of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Size:</string>
+             <string>Size [pixels]:</string>
             </property>
             <property name="buddy">
-             <cstring>radsizeLineEdit</cstring>
+             <cstring>radthsizeLineEdit</cstring>
             </property>
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QLineEdit" name="radsizeLineEdit">
+           <widget class="QLineEdit" name="radthsizeLineEdit">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;grid size of radial coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;grid size of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="radialqGroupBox">
+       <property name="title">
+        <string>Radial q:</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="gridLayout_6">
+          <item row="0" column="0">
+           <widget class="QLabel" name="radqstartLabel">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of radial q coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Start [1/Å]:</string>
+            </property>
+            <property name="buddy">
+             <cstring>radqstartLineEdit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="radqstartLineEdit">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of radial q coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="radqendLabel">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of radial q coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>End [1/Å]:</string>
+            </property>
+            <property name="buddy">
+             <cstring>radqendLineEdit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="radqendLineEdit">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of radial q coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="radqsizeLabel">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;grid size of radial q coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Size [pixels]:</string>
+            </property>
+            <property name="buddy">
+             <cstring>radqsizeLineEdit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="radqsizeLineEdit">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;grid size of radial q coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -193,11 +265,14 @@
  </widget>
  <tabstops>
   <tabstop>polstartLineEdit</tabstop>
-  <tabstop>polEndLineEdit</tabstop>
+  <tabstop>polendLineEdit</tabstop>
   <tabstop>polsizeLineEdit</tabstop>
-  <tabstop>radstartLineEdit</tabstop>
-  <tabstop>radendLineEdit</tabstop>
-  <tabstop>radsizeLineEdit</tabstop>
+  <tabstop>radthstartLineEdit</tabstop>
+  <tabstop>radthendLineEdit</tabstop>
+  <tabstop>radthsizeLineEdit</tabstop>
+  <tabstop>radqstartLineEdit</tabstop>
+  <tabstop>radqendLineEdit</tabstop>
+  <tabstop>radqsizeLineEdit</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>

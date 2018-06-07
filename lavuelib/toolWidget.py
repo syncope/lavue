@@ -37,6 +37,7 @@ import pyqtgraph as _pg
 import warnings
 
 from . import geometryDialog
+from . import rangeDialog
 from . import takeMotorsDialog
 from . import intervalsDialog
 from . import motorWatchThread
@@ -1647,6 +1648,30 @@ class AngleQToolWidget(ToolWidget):
         self.__lastx = None
         #: (:class:`numpy.array`) y array cache
         self.__lasty = None
+        #: (:obj:`float`) maxdim cache
+        self.__lastmaxdim = None
+
+        #: (:obj:`float`) start position of radial q coordinate
+        self.__radqstart = None
+        #: (:obj:`float`) end position of radial q coordinate
+        self.__radqend = None
+        #: (:obj:`int`) grid size of radial q coordinate
+        self.__radqsize = None
+        #: (:obj:`float`) start position of radial theta coordinate
+        self.__radthstart = None
+        #: (:obj:`float`) end position of radial theta coordinate
+        self.__radthend = None
+        #: (:obj:`int`) grid size of radial theta coordinate
+        self.__radthsize = None
+        #: (:obj:`float`) start position of polar angle
+        self.__polstart = None
+        #: (:obj:`float`) end position of polar angle
+        self.__polend = None
+        #: (:obj:`int`) grid size of polar angle
+        self.__polsize = None
+
+        #: (:obj:`float`) range changed flag
+        self.__rangechanged = True
 
         # self.parameters.lines = True
         #: (:obj:`str`) infolineedit text
@@ -1669,6 +1694,7 @@ class AngleQToolWidget(ToolWidget):
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.angleqPushButton.clicked, self._setGeometry],
+            [self.__ui.rangePushButton.clicked, self._setPolarRange],
             [self.__ui.angleqComboBox.currentIndexChanged,
              self._setGSpaceIndex],
             [self.__ui.plotComboBox.currentIndexChanged,
@@ -1684,6 +1710,7 @@ class AngleQToolWidget(ToolWidget):
         """
         self.__oldlocked = None
         self.updateGeometryTip()
+        self.updateRangeTip()
         self._mainwidget.updateCenter(
             self.__settings.centerx, self.__settings.centery)
 
@@ -1766,13 +1793,15 @@ class AngleQToolWidget(ToolWidget):
         :return: interpolated intensity
         :rtype: :obj:`float` or :class:`numpy.array`
         """
-        if self.__havexychanged(radial, angle):
+        if self.__rangechanged or self.__havexychanged(radial, angle):
             if self.__plotindex == 1:
                 theta = radial * self.__radmax
             else:
                 wavelength = 12400./self.__settings.energy
                 theta = 2. * np.arcsin(
                     radial * self.__radmax * wavelength / (4. * math.pi))
+            if self.__polsize is not None and self.__polsize != 360:
+                angle = angle * 360/self.__polsize
             fac = 1000. * self.__settings.detdistance * np.tan(theta)
             self.__lastx = self.__settings.centerx + \
                 fac * np.sin(angle * math.pi / 180) \
@@ -1790,6 +1819,7 @@ class AngleQToolWidget(ToolWidget):
             self.__lastpsizey = self.__settings.pixelsizey
             self.__lastradial = radial
             self.__lastangle = angle
+            self.__rangechanged = False
 
         if hasattr(self.__inter, "ev"):
             return self.__inter.ev(self.__lastx, self.__lasty)
@@ -1806,7 +1836,10 @@ class AngleQToolWidget(ToolWidget):
         if rdata is None:
             rdata = self._mainwidget.currentData()
         if rdata is not None:
-            maxdim = max(rdata.shape[0], rdata.shape[1])
+            if self.__lastmaxdim is not None:
+                maxdim = self.__lastmaxdim
+            else:
+                maxdim = max(rdata.shape[0], rdata.shape[1])
             if pindex == 1:
                 _, _, th0 = self.__pixel2theta(0, 0, False)
                 _, _, th1 = self.__pixel2theta(0, rdata.shape[1], False)
@@ -1835,16 +1868,29 @@ class AngleQToolWidget(ToolWidget):
                 rdata = self._mainwidget.currentData()
             xx = np.array(range(rdata.shape[0]))
             yy = np.array(range(rdata.shape[1]))
-            self.__calculateRadMax(self.__plotindex, rdata)
-            maxdim = max(rdata.shape[0], rdata.shape[1])
-
+            
             self.__inter = scipy.interpolate.RegularGridInterpolator(
                 (xx, yy), rdata,
                 fill_value=(0 if self._mainwidget.scaling() != 'log'
                             else -2),
                 bounds_error=False)
+            
+            maxpolar = self.__polsize if self.__polsize is not None else 360
+            if self.__plotindex == 1:
+                if self.__radthsize is not None:
+                    self.__lastmaxdim = self.__radthsize
+                else:
+                    self.__lastmaxdim = max(rdata.shape[0], rdata.shape[1])
+            else:
+                if self.__radqsize is not None:
+                    self.__lastmaxdim = self.__radqsize
+                else:
+                    self.__lastmaxdim = max(rdata.shape[0], rdata.shape[1])
+                    
+            self.__calculateRadMax(self.__plotindex, rdata)
             tdata = np.fromfunction(
-                lambda x, y: self.__intintensity(x, y), (maxdim, 360),
+                lambda x, y: self.__intintensity(x, y),
+                (self.__lastmaxdim, maxpolar),
                 dtype=float)
             # else:
             #     self.__inter = scipy.interpolate.RectBivariateSpline(
@@ -1997,6 +2043,39 @@ class AngleQToolWidget(ToolWidget):
             )
 
     @QtCore.pyqtSlot()
+    def _setPolarRange(self):
+        """ launches range widget
+
+        :returns: apply status
+        :rtype: :obj:`bool`
+        """
+        cnfdlg = rangeDialog.RangeDialog(self)
+        cnfdlg.polstart = self.__polstart
+        cnfdlg.polend = self.__polend
+        cnfdlg.polsize = self.__polsize
+        cnfdlg.radqstart = self.__radqstart
+        cnfdlg.radqend = self.__radqend
+        cnfdlg.radqsize = self.__radqsize
+        cnfdlg.radthstart = self.__radthstart
+        cnfdlg.radthend = self.__radthend
+        cnfdlg.radthsize = self.__radthsize
+        cnfdlg.createGUI()
+        if cnfdlg.exec_():
+            self.__polstart = cnfdlg.polstart
+            self.__polend = cnfdlg.polend
+            self.__polsize = cnfdlg.polsize
+            self.__radthstart = cnfdlg.radthstart
+            self.__radthend = cnfdlg.radthend
+            self.__radthsize = cnfdlg.radthsize
+            self.__radqstart = cnfdlg.radqstart
+            self.__radqend = cnfdlg.radqend
+            self.__radqsize = cnfdlg.radqsize
+            self.__rangechanged = True
+            self.updateRangeTip()
+            if self.__plotindex:
+                self._mainwidget.emitReplotImage()
+
+    @QtCore.pyqtSlot()
     def _setGeometry(self):
         """ launches geometry widget
 
@@ -2088,6 +2167,25 @@ class AngleQToolWidget(ToolWidget):
             "Select the display space\n%s" % message)
         self.__ui.toolLabel.setToolTip(
             "coordinate info display for the mouse pointer\n%s" % message)
+
+    @QtCore.pyqtSlot()
+    def updateRangeTip(self):
+        """ update geometry tips
+        """
+        self.__ui.rangePushButton.setToolTip(
+            u"Polar: [%s, %s] deg, size=%s\n"
+            u"th_tot: [%s, %s] deg, size=%s\n"
+            u"q: [%s, %s] 1/\u212B, size=%s" % (
+                self.__polstart if self.__polstart is not None else "0",
+                self.__polend if self.__polstart is not None  else "360",
+                self.__polsize if self.__polstart is not None  else "360",
+                self.__radthstart if self.__radthstart is not None  else "0",
+                self.__radthend if self.__radthend is not None  else "thmax",
+                self.__radthsize if self.__radthsize is not None  else "max",
+                self.__radqstart if self.__radqstart is not None  else "0",
+                self.__radqend if self.__radqend is not None else "qmax",
+                self.__radqsize if self.__radqsize is not None else "max")
+        )
 
 
 class QROIProjToolWidget(ToolWidget):
