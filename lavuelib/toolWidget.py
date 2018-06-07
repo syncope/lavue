@@ -1795,13 +1795,22 @@ class AngleQToolWidget(ToolWidget):
         """
         if self.__rangechanged or self.__havexychanged(radial, angle):
             if self.__plotindex == 1:
-                theta = radial * self.__radmax
+                rstart = self.__radthstart \
+                    if self.__radthstart is not None else 0
+                theta = radial * self.__radmax + rstart * math.pi / 180
             else:
                 wavelength = 12400./self.__settings.energy
+                rstart = self.__radqstart \
+                    if self.__radqstart is not None else 0
                 theta = 2. * np.arcsin(
-                    radial * self.__radmax * wavelength / (4. * math.pi))
-            if self.__polsize is not None and self.__polsize != 360:
-                angle = angle * 360/self.__polsize
+                    (radial * self.__radmax + rstart) * wavelength
+                    / (4. * math.pi))
+            if self.__polsize is not None or \
+               self.__polstart is not None or self.__polend is not None:
+                psize = self.__polsize if self.__polsize is not None else 360
+                pstart = self.__polstart if self.__polstart is not None else 0
+                pend = self.__polend if self.__polend is not None else 360
+                angle = angle * float(pend - pstart) / psize + pstart
             fac = 1000. * self.__settings.detdistance * np.tan(theta)
             self.__lastx = self.__settings.centerx + \
                 fac * np.sin(angle * math.pi / 180) \
@@ -1841,19 +1850,35 @@ class AngleQToolWidget(ToolWidget):
             else:
                 maxdim = max(rdata.shape[0], rdata.shape[1])
             if pindex == 1:
-                _, _, th0 = self.__pixel2theta(0, 0, False)
-                _, _, th1 = self.__pixel2theta(0, rdata.shape[1], False)
-                _, _, th2 = self.__pixel2theta(rdata.shape[0], 0, False)
-                _, _, th3 = self.__pixel2theta(
-                    rdata.shape[0], rdata.shape[1], False)
-                self.__radmax = max(th0, th1, th2, th3)/float(maxdim)
+                rstart = self.__radthstart \
+                    if self.__radthstart is not None else 0
+                if self.__radthend is None:
+                    _, _, th0 = self.__pixel2theta(0, 0, False)
+                    _, _, th1 = self.__pixel2theta(0, rdata.shape[1], False)
+                    _, _, th2 = self.__pixel2theta(rdata.shape[0], 0, False)
+                    _, _, th3 = self.__pixel2theta(
+                        rdata.shape[0], rdata.shape[1], False)
+                    rmax = max(th0, th1, th2, th3)
+                else:
+                    rmax = (self.__radthend - rstart) * math.pi / 180.
+                if self.__radthsize is not None:
+                    maxdim = self.__radthsize
+                self.__radmax = rmax/float(maxdim)
             elif pindex == 2:
-                _, _, q0 = self.__pixel2q(0, 0, False)
-                _, _, q1 = self.__pixel2q(0, rdata.shape[1], False)
-                _, _, q2 = self.__pixel2q(rdata.shape[0], 0, False)
-                _, _, q3 = self.__pixel2q(
-                    rdata.shape[0], rdata.shape[1], False)
-                self.__radmax = max(q0, q1, q2, q3)/float(maxdim)
+                rstart = self.__radqstart \
+                    if self.__radqstart is not None else 0
+                if self.__radqend is None:
+                    _, _, q0 = self.__pixel2q(0, 0, False)
+                    _, _, q1 = self.__pixel2q(0, rdata.shape[1], False)
+                    _, _, q2 = self.__pixel2q(rdata.shape[0], 0, False)
+                    _, _, q3 = self.__pixel2q(
+                        rdata.shape[0], rdata.shape[1], False)
+                    rmax = max(q0, q1, q2, q3)
+                else:
+                    rmax = (self.__radqend - rstart)
+                if self.__radqsize is not None:
+                    maxdim = self.__radqsize
+                self.__radmax = rmax/float(maxdim)
 
     def __plotPolarImage(self, rdata=None):
         """ intensity interpolation function
@@ -1868,13 +1893,13 @@ class AngleQToolWidget(ToolWidget):
                 rdata = self._mainwidget.currentData()
             xx = np.array(range(rdata.shape[0]))
             yy = np.array(range(rdata.shape[1]))
-            
+
             self.__inter = scipy.interpolate.RegularGridInterpolator(
                 (xx, yy), rdata,
                 fill_value=(0 if self._mainwidget.scaling() != 'log'
                             else -2),
                 bounds_error=False)
-            
+
             maxpolar = self.__polsize if self.__polsize is not None else 360
             if self.__plotindex == 1:
                 if self.__radthsize is not None:
@@ -1886,7 +1911,7 @@ class AngleQToolWidget(ToolWidget):
                     self.__lastmaxdim = self.__radqsize
                 else:
                     self.__lastmaxdim = max(rdata.shape[0], rdata.shape[1])
-                    
+
             self.__calculateRadMax(self.__plotindex, rdata)
             tdata = np.fromfunction(
                 lambda x, y: self.__intintensity(x, y),
@@ -1896,7 +1921,8 @@ class AngleQToolWidget(ToolWidget):
             #     self.__inter = scipy.interpolate.RectBivariateSpline(
             #         xx, yy, rdata)
             #     tdata = np.fromfunction(
-            #         lambda x, y: self.__intintensity(x, y), (maxdim, 360),
+            #         lambda x, y: self.__intintensity(x, y),
+            #         (self.__lastmaxdim, maxpolar),
             #         dtype=float)
             return tdata
 
@@ -2072,6 +2098,7 @@ class AngleQToolWidget(ToolWidget):
             self.__radqsize = cnfdlg.radqsize
             self.__rangechanged = True
             self.updateRangeTip()
+            self._setPlotIndex(self.__plotindex)
             if self.__plotindex:
                 self._mainwidget.emitReplotImage()
 
@@ -2135,9 +2162,18 @@ class AngleQToolWidget(ToolWidget):
             self.parameters.polarscale = True
             if pindex == 1:
                 rscale = 180. / math.pi * self.__radmax
+                rstart = self.__radthstart \
+                    if self.__radthstart is not None else 0
             else:
                 rscale = self.__radmax
-            self._mainwidget.setPolarScale([0, 0], [rscale, 1])
+                rstart = self.__radqstart \
+                    if self.__radqstart is not None else 0
+            pstart = self.__polstart if self.__polstart is not None else 0
+            psize = self.__polsize if self.__polsize is not None else 360
+            pstart = self.__polstart if self.__polstart is not None else 0
+            pend = self.__polend if self.__polend is not None else 360
+            pscale = float(pend - pstart)/psize
+            self._mainwidget.setPolarScale([rstart, pstart], [rscale, pscale])
             if not self.__plotindex:
                 self.__oldlocked = self._mainwidget.setAspectLocked(False)
         else:
@@ -2177,12 +2213,12 @@ class AngleQToolWidget(ToolWidget):
             u"th_tot: [%s, %s] deg, size=%s\n"
             u"q: [%s, %s] 1/\u212B, size=%s" % (
                 self.__polstart if self.__polstart is not None else "0",
-                self.__polend if self.__polstart is not None  else "360",
-                self.__polsize if self.__polstart is not None  else "360",
-                self.__radthstart if self.__radthstart is not None  else "0",
-                self.__radthend if self.__radthend is not None  else "thmax",
-                self.__radthsize if self.__radthsize is not None  else "max",
-                self.__radqstart if self.__radqstart is not None  else "0",
+                self.__polend if self.__polstart is not None else "360",
+                self.__polsize if self.__polstart is not None else "360",
+                self.__radthstart if self.__radthstart is not None else "0",
+                self.__radthend if self.__radthend is not None else "thmax",
+                self.__radthsize if self.__radthsize is not None else "max",
+                self.__radqstart if self.__radqstart is not None else "0",
                 self.__radqend if self.__radqend is not None else "qmax",
                 self.__radqsize if self.__radqsize is not None else "max")
         )

@@ -129,6 +129,11 @@ class ImageWidget(QtGui.QWidget):
         #: (:class:`lavuelib.toolWidget.BaseToolWidget`) current tool
         self.__currenttool = None
 
+        #: (:class:`numpy.ndarray`) data to displayed in 2d widget
+        self.__data = None
+        #: (:class:`numpy.ndarray`) raw data to cut plots
+        self.__rawdata = None
+
         #: (:class:`Ui_ImageWidget') ui_imagewidget object from qtdesigner
         self.__ui = _formclass()
         self.__ui.setupUi(self)
@@ -567,6 +572,8 @@ class ImageWidget(QtGui.QWidget):
         if rawarray is None:
             rawarray = array
 
+        self.__data = array
+        self.__rawdata = rawarray
         if self.__currenttool:
             barrays = self.__currenttool.beforeplot(array, rawarray)
         self.__displaywidget.updateImage(
@@ -1111,20 +1118,20 @@ class ImageWidget(QtGui.QWidget):
         return self.__displaywidget.cutData(cid)
 
     def rawData(self):
-        """ provides the current raw data
+        """ provides the raw data
 
         :returns: current raw data
         :rtype: :class:`numpy.ndarray`
         """
-        return self.__displaywidget.rawData()
+        return self.__rawdata
 
     def currentData(self):
-        """ provides the current data
+        """ provides the data
 
         :returns: current data
         :rtype: :class:`numpy.ndarray`
         """
-        return self.__displaywidget.currentData()
+        return self.__data
 
     def autoRange(self):
         """ sets auto range
