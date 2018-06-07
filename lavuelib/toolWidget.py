@@ -1732,18 +1732,18 @@ class AngleQToolWidget(ToolWidget):
             recalc = True
         elif self.__lastpsizey != self.__settings.pixelsizey:
             recalc = True
-        elif isinstance(radial, np.ndarray) and \
-               not np.array_equal(self.__lastradial, radial):
-                   recalc = True
-        elif not isinstance(radial, np.ndarray) and self.__lastradial != radial:
-                   recalc = True
-        elif isinstance(angle, np.ndarray) and \
-               not np.array_equal(self.__lastangle, angle):
-                   recalc = True
+        elif (isinstance(radial, np.ndarray) and
+              not np.array_equal(self.__lastradial, radial)):
+            recalc = True
+        elif (not isinstance(radial, np.ndarray)
+              and self.__lastradial != radial):
+            recalc = True
+        elif (isinstance(angle, np.ndarray)
+              and not np.array_equal(self.__lastangle, angle)):
+            recalc = True
         elif not isinstance(angle, np.ndarray) and self.__lastangle != angle:
-                   recalc = True                   
-        return recalc    
-
+            recalc = True
+        return recalc
 
     def __intintensity(self, radial, angle):
         """ intensity interpolation function
@@ -1764,11 +1764,11 @@ class AngleQToolWidget(ToolWidget):
                     radial * self.__radmax * wavelength / (4. * math.pi))
             fac = 1000. * self.__settings.detdistance * np.tan(theta)
             self.__lastx = self.__settings.centerx + \
-                           fac * np.sin(angle * math.pi / 180) \
+                fac * np.sin(angle * math.pi / 180) \
                 / self.__settings.pixelsizex
             self.__lasty = self.__settings.centery + \
-                           fac * np.cos(angle * math.pi / 180) \
-                           / self.__settings.pixelsizey
+                fac * np.cos(angle * math.pi / 180) \
+                / self.__settings.pixelsizey
             self.__lastenergy = self.__settings.energy
             self.__lastradmax = self.__radmax
             self.__lastpindex = self.__plotindex
@@ -1779,7 +1779,7 @@ class AngleQToolWidget(ToolWidget):
             self.__lastpsizey = self.__settings.pixelsizey
             self.__lastradial = radial
             self.__lastangle = angle
-            
+
         if hasattr(self.__inter, "ev"):
             return self.__inter.ev(self.__lastx, self.__lasty)
         else:
