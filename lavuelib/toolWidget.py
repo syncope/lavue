@@ -35,7 +35,6 @@ import numpy as np
 import scipy.interpolate
 import pyqtgraph as _pg
 import warnings
-import time
 
 from . import geometryDialog
 from . import takeMotorsDialog
@@ -1624,17 +1623,29 @@ class AngleQToolWidget(ToolWidget):
         #: (:obj:`bool`) old lock value
         self.__oldlocked = None
 
+        #: (:class:`numpy.array`) radial array cache
         self.__lastradial = None
+        #: (:class:`numpy.array`) angle array cache
         self.__lastangle = None
+        #: (:obj:`float`) energy cache
         self.__lastenergy = None
+        #: (:obj:`float`) radmax cache
         self.__lastradmax = None
+        #: (:obj:`float`) plotindex cache
         self.__lastpindex = None
+        #: (:obj:`float`) detdistance cache
         self.__lastdistance = None
+        #: (:obj:`float`) center x cache
         self.__lastcenterx = None
+        #: (:obj:`float`) center y cache
         self.__lastcentery = None
+        #: (:obj:`float`) pixelsizeycache
         self.__lastpsizex = None
+        #: (:obj:`float`) pixelsizey cache
         self.__lastpsizey = None
+        #: (:class:`numpy.array`) x array cache
         self.__lastx = None
+        #: (:class:`numpy.array`) y array cache
         self.__lasty = None
 
         # self.parameters.lines = True
@@ -1755,7 +1766,7 @@ class AngleQToolWidget(ToolWidget):
         :return: interpolated intensity
         :rtype: :obj:`float` or :class:`numpy.array`
         """
-        if True or self.__havexychanged(radial, angle):
+        if self.__havexychanged(radial, angle):
             if self.__plotindex == 1:
                 theta = radial * self.__radmax
             else:
@@ -1829,8 +1840,7 @@ class AngleQToolWidget(ToolWidget):
 
             self.__inter = scipy.interpolate.RegularGridInterpolator(
                 (xx, yy), rdata,
-                fill_value=(0
-                            if self._mainwidget.scaling() != 'log'
+                fill_value=(0 if self._mainwidget.scaling() != 'log'
                             else -2),
                 bounds_error=False)
             tdata = np.fromfunction(

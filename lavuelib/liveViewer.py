@@ -66,7 +66,11 @@ from .hidraServerList import HIDRASERVERLIST
 
 
 if sys.version_info > (3,):
-    basestring = str
+    basestring = str    
+    unicode = str
+else:
+    bytes = str
+    
 
 
 #: ( (:obj:`str`,:obj:`str`,:obj:`str`) )
@@ -727,12 +731,12 @@ class LiveViewer(QtGui.QMainWindow):
                     self.__sourcewg.connectSuccess(None)
             if dialog.secstream:
                 if dialog.secautoport:
-                    self.__settings.secsockopt = "tcp://*:*"
+                    self.__settings.secsockopt = b"tcp://*:*"
                     self.__settings.secsocket.bind(self.__settings.secsockopt)
-                    dialog.secport = self.__settings.secsocket.getsockopt(
-                        zmq.LAST_ENDPOINT).split(":")[-1]
+                    dialog.secport = str(self.__settings.secsocket.getsockopt(
+                        zmq.LAST_ENDPOINT)).split(":")[-1]
                 else:
-                    self.__settings.secsockopt = "tcp://*:%s" % dialog.secport
+                    self.__settings.secsockopt = b"tcp://*:%s" % dialog.secport
                     self.__settings.secsocket.bind(self.__settings.secsockopt)
                 if self.__sourcewg.isConnected():
                     self.__sourcewg.connectSuccess(dialog.secport)

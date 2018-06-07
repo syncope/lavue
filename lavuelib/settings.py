@@ -79,7 +79,7 @@ class Settings(object):
         #: (:obj:`bool`) zero mask enabled
         self.zeromask = False
         #: (:obj:`bool`) security stream options
-        self.secsockopt = ""
+        self.secsockopt = b""
         #: (:obj:`float`) refresh rate
         self.refreshrate = 0.1
         #: (:obj:`bool`) interrupt on error
@@ -225,12 +225,12 @@ class Settings(object):
         if qstval.lower() == "true":
             try:
                 if self.secautoport:
-                    self.secsockopt = "tcp://*:*"
+                    self.secsockopt = b"tcp://*:*"
                     self.secsocket.bind(self.secsockopt)
-                    self.secport = self.secsocket.getsockopt(
-                        zmq.LAST_ENDPOINT).split(":")[-1]
+                    self.secport = str(self.secsocket.getsockopt(
+                        zmq.LAST_ENDPOINT)).split(":")[-1]
                 else:
-                    self.secsockopt = "tcp://*:%s" % self.secport
+                    self.secsockopt = b"tcp://*:%s" % self.secport
                     self.secsocket.bind(self.secsockopt)
                 self.secstream = True
             except:
