@@ -1,3 +1,8 @@
+2018-06-XX Jan Kotanski <jan.kotanski@desy.de>
+	* add polar plots in angle/q
+	* fix secstream for python3
+	* tagged as 1.20.0
+
 2018-06-06 Jan Kotanski <jan.kotanski@desy.de>
 	* fix scaling in the intensity tool
 	* tagged as 1.19.3
