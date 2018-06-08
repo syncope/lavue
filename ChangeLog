@@ -1,4 +1,8 @@
 2018-06-08 Jan Kotanski <jan.kotanski@desy.de>
+	* remove printouts
+	* tagged as 1.20.1
+
+2018-06-08 Jan Kotanski <jan.kotanski@desy.de>
 	* add polar plots in angle/q
 	* fix secstream for python3
 	* enable defining of rois colors
