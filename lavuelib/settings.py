@@ -239,7 +239,6 @@ class Settings(object):
                         zmq.LAST_ENDPOINT)).split(":"))
                     self.secport = unicode(self.secsocket.getsockopt(
                         zmq.LAST_ENDPOINT)).split(":")[-1]
-                    print(self.secport)
                 else:
                     self.secsockopt = b"tcp://*:%s" % self.secport
                     self.secsocket.bind(self.secsockopt)
