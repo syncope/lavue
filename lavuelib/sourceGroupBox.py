@@ -253,7 +253,7 @@ class SourceGroupBox(QtGui.QGroupBox):
 
     @QtCore.pyqtSlot()
     def toggleServerConnection(self):
-        """ toggles server connection
+        """ toggles ser<ver connection
         """
         # if it is connected then it's easy:
         if self.__connected:

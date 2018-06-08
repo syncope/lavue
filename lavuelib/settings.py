@@ -28,7 +28,10 @@
 
 
 import zmq
+import sys
 
+if sys.version_info > (3,):
+    unicode = str
 
 class Settings(object):
 
@@ -123,6 +126,8 @@ class Settings(object):
         self.detservers = []
         #: (:obj:`bool`) store detector geometry
         self.storegeometry = False
+        #: (:obj:`str`) json list with roi colors 
+        self.roiscolors = "[]"
 
         #: (:obj:`float`) x-coordinates of the center of the image
         self.centerx = 0.0
@@ -227,8 +232,13 @@ class Settings(object):
                 if self.secautoport:
                     self.secsockopt = b"tcp://*:*"
                     self.secsocket.bind(self.secsockopt)
-                    self.secport = str(self.secsocket.getsockopt(
+                    print(str(self.secsocket.getsockopt(
+                        zmq.LAST_ENDPOINT)))
+                    print(str(self.secsocket.getsockopt(
+                        zmq.LAST_ENDPOINT)).split(":"))
+                    self.secport = unicode(self.secsocket.getsockopt(
                         zmq.LAST_ENDPOINT)).split(":")[-1]
+                    print(self.secport)
                 else:
                     self.secsockopt = b"tcp://*:%s" % self.secport
                     self.secsocket.bind(self.secsockopt)
@@ -321,6 +331,11 @@ class Settings(object):
             settings.value("Configuration/StoreGeometry", type=str))
         if qstval.lower() == "true":
             self.storegeometry = True
+
+        qstval = str(
+            settings.value("Configuration/ROIsColors", type=str))
+        if qstval:
+            self.roiscolors = qstval
 
         try:
             self.centerx = float(
@@ -469,6 +484,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/StoreGeometry",
             self.storegeometry)
+        settings.setValue(
+            "Configuration/ROIsColors",
+            self.roiscolors)
 
         if not self.storegeometry:
             self.centerx = 0.0

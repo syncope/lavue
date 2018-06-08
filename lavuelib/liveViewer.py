@@ -67,6 +67,7 @@ from .hidraServerList import HIDRASERVERLIST
 
 if sys.version_info > (3,):
     basestring = str
+    unicode = str
 
 
 #: ( (:obj:`str`,:obj:`str`,:obj:`str`) )
@@ -471,6 +472,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__datasource.setTimeOut(self.__settings.timeout)
         dataFetchThread.GLOBALREFRESHRATE = self.__settings.refreshrate
         self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling)
+        self.__imagewg.setROIsColors(self.__settings.roiscolors)
 
         if self.__settings.detservers:
             serverdict = {"pool": list(self.__settings.detservers)}
@@ -674,6 +676,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.nxslast = self.__settings.nxslast
         cnfdlg.nxsopen = self.__settings.nxsopen
         cnfdlg.storegeometry = self.__settings.storegeometry
+        cnfdlg.roiscolors = self.__settings.roiscolors
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
@@ -729,7 +732,7 @@ class LiveViewer(QtGui.QMainWindow):
                 if dialog.secautoport:
                     self.__settings.secsockopt = b"tcp://*:*"
                     self.__settings.secsocket.bind(self.__settings.secsockopt)
-                    dialog.secport = str(self.__settings.secsocket.getsockopt(
+                    dialog.secport = unicode(self.__settings.secsocket.getsockopt(
                         zmq.LAST_ENDPOINT)).split(":")[-1]
                 else:
                     self.__settings.secsockopt = b"tcp://*:%s" % dialog.secport
@@ -820,6 +823,10 @@ class LiveViewer(QtGui.QMainWindow):
             self.__settings.zeromask = dialog.zeromask
             remasking = True
             replot = True
+
+        if self.__settings.roiscolors != dialog.roiscolors:
+            self.__settings.roiscolors= dialog.roiscolors
+            self.__imagewg.setROIsColors(self.__settings.roiscolors)
 
         if remasking:
             self.__remasking()

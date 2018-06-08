@@ -29,6 +29,7 @@ import pyqtgraph as _pg
 import numpy as np
 import math
 import types
+import json
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI, Handle
 from PyQt4 import QtCore, QtGui
 
@@ -321,7 +322,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__roi[0].addScaleHandle([0, 0], [1, 1])
         self.__viewbox.addItem(self.__roi[0])
         self.__roi[0].hide()
-
+        self.setROIsColors()
+        
         #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.ROI`>)
         #:        list of cut widgets
         self.__cut = []
@@ -436,6 +438,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__viewbox.addItem(self.__roi[-1])
 
         self.__rois.coords.append(coords)
+        self.setROIsColors()
 
     def __removeROI(self):
         """ removes the last roi
@@ -1332,11 +1335,46 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
         :param status: statistics without scaling flag
         :type status: :obj:`bool`
+        :returns: change status
+        :rtype: :obj:`bool`
         """
         if self.__intensity.statswoscaling != status:
             self.__intensity.statswoscaling = status
             return True
         return False
+
+    def setROIsColors(self, colors = None):
+        """ sets statistics without scaling flag
+
+        :param colors: json list of roi colors
+        :type colors: :obj:`str`
+        :returns: change status
+        :rtype: :obj:`bool`
+        """
+        force = False
+        if colors is not None:
+            colors = json.loads(colors)
+            if not isinstance(colors, list):
+                return False
+            for cl in colors:
+                if not isinstance(cl, list):
+                    return False
+                if len(cl) != 3:
+                    return False
+                for clit in cl:
+                    if not isinstance(clit, int):
+                        return False
+        else:
+            colors = self.__rois.colors
+            force = True
+        if self.__rois.colors != colors or force:
+            self.__rois.colors = colors
+            defpen = (255, 255, 255)
+            for it, roi in enumerate(self.__roi):
+                roi.setPen(tuple(colors[it % len(colors)]) if colors else defpen)
+            
+        return True
+
 
     def setScalingType(self, scalingtype):
         """ sets intensity scaling types
