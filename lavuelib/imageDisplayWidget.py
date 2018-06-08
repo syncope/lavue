@@ -57,8 +57,8 @@ class HandleWithSignals(Handle):
 
         :param pos: position of handle
         :type pos: [float, float]
-        :param pos: center of handle
-        :type pos: [float, float]
+        :param center: center of handle
+        :type center: [float, float]
         :param parent: roi object
         :type parent: :class:`pyqtgraph.graphicsItems.ROI.ROI`
         """
@@ -748,8 +748,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
         :returns: (x position, y position, pixel intensity,
                    x position, y position)
-        :rtype: (`obj`:float:, `obj`:float:, `obj`:float:,
-                 `obj`:float:, `obj`:float:)
+        :rtype: (float, float, float, float, float)
         """
         if self.__lines.locker and self.__crosshairlocked \
            and self.__lockercoordinates is not None:
@@ -782,7 +781,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """ provides scaling label
 
         :returns:  scaling label
-        :rtype: `obj`:str:
+        :rtype: str
         """
         ilabel = "intensity"
         scaling = self.__intensity.scaling \
@@ -802,7 +801,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """ provides scaling type
 
         :returns:  scaling type
-        :rtype: `obj`:str:
+        :rtype: str
         """
         return self.__intensity.scaling
 
@@ -817,11 +816,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """ provides scaled x,y positions
 
         :param x: x pixel coordinate
-        :type x: :obj:`float`
+        :type x: float
         :param y: y pixel coordinate
-        :type y: :obj:`float`
+        :type y: float
         :returns: scaled x,y position
-        :rtype: (:obj:`float`, :obj:`float`)
+        :rtype: (float, float)
         """
         txdata = None
         tydata = None
@@ -1085,7 +1084,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """ calculates the current roi sum
 
         :returns: sum roi value, roi id
-        :rtype: (:obj:`str`, :obj:`int`)
+        :rtype: (str, int)
         """
         if self.__rois.enabled and self._getROI() is not None:
             rid = self.__rois.current
@@ -1260,11 +1259,10 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
     def updateCuts(self, cid, coords):
         """ update Cuts
 
-        :param rid: cut id
-        :type rid: :obj:`int`
+        :param cid: cut id
+        :type cid: :obj:`int`
         :param coords: cut coordinates
-        :type coords: :obj:`list`
-                < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        :type coords: :obj:`list` < [float, float, float, float] >
         """
         self.__addCutCoords(coords)
         while cid > len(self.__cut):

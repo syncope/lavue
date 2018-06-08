@@ -1433,7 +1433,7 @@ class OneDToolWidget(ToolWidget):
 
     def __init__(self, parent=None):
         """ constructor
-<
+
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """

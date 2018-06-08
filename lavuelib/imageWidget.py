@@ -369,7 +369,7 @@ class ImageWidget(QtGui.QWidget):
         """ provides settings
 
         :returns: setting object
-        :rtype :class:`lavuelib.settings.Settings`
+        :rtype : :class:`lavuelib.settings.Settings`
         """
         return self.__settings
 
@@ -432,8 +432,7 @@ class ImageWidget(QtGui.QWidget):
         :type cid: :obj:`int`
         :param coords: cut coordinates and width
         :type coords: :obj:`list`
-                  < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`,
-                     :obj:`float`] >
+                  < [float, float, float, float, float] >
         """
         self.__displaywidget.updateCuts(cid, coords)
         self.cutCoordsChanged.emit()
@@ -1041,7 +1040,7 @@ class ImageWidget(QtGui.QWidget):
         """ provides intensity for current mouse position
 
         :returns: x position, y position, pixel intensity
-        :rtype: (`obj`:float:, `obj`:float:, `obj`:float:)
+        :rtype: (float, float, float)
         """
         return self.__displaywidget.currentIntensity()
 
@@ -1049,7 +1048,7 @@ class ImageWidget(QtGui.QWidget):
         """ provides scaling label
 
         :returns:  scaling label
-        :rtype: `obj`:str:
+        :rtype: str
         """
         return self.__displaywidget.scalingLabel()
 
@@ -1057,7 +1056,7 @@ class ImageWidget(QtGui.QWidget):
         """ provides scaling type
 
         :returns:  scaling type
-        :rtype: `obj`:str:
+        :rtype: str
         """
         return self.__displaywidget.scaling()
 

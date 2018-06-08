@@ -88,7 +88,7 @@ class ROIsParameters(object):
         #: (:obj:`list` < [int, int, int, int] > )
         #: x1,y1,x2,y2 rois coordinates
         self.coords = [[10, 10, 60, 60]]
-        #: (:obj:`list`< (int, int, int) >) list with roi colors
+        #: (:obj:`list`< (int, int, int) > ) list with roi colors
         self.colors = []
 
 
