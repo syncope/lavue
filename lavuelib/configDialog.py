@@ -327,11 +327,9 @@ class ConfigDialog(QtGui.QDialog):
             return
         try:
             self.secport = str(self.__ui.secportLineEdit.text()).strip()
-            print(self.secport)
             int(self.secport)
         except:
             self.__ui.secportLineEdit.setFocus(True)
-            print("ERROR")
             return
         try:
             self.hidraport = str(self.__ui.hidraportLineEdit.text()).strip()
