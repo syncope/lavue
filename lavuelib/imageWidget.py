@@ -744,8 +744,20 @@ class ImageWidget(QtGui.QWidget):
 
         :param status: statistics without scaling flag
         :type status: :obj:`bool`
+        :returns: change status
+        :rtype: :obj:`bool`
         """
         return self.__displaywidget.setStatsWOScaling(status)
+
+    def setROIsColors(self, colors):
+        """ sets statistics without scaling flag
+
+        :param colors: json list of roi colors
+        :type colors: :obj:`str`
+        :returns: change status
+        :rtype: :obj:`bool`
+        """
+        return self.__displaywidget.setROIsColors(colors)
 
     def setScalingType(self, scalingtype):
         """ sets intensity scaling types

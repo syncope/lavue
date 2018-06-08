@@ -28,6 +28,7 @@
 from PyQt4 import QtGui, QtCore, uic
 import os
 import json
+import pyqtgraph as _pg
 
 
 _formclass, _baseclass = uic.loadUiType(
@@ -128,6 +129,11 @@ class ConfigDialog(QtGui.QDialog):
         self.nxslast = False
         #: (:obj:`bool`) store detector geometry
         self.storegeometry = False
+        #: (:obj:`str`) json list with rois colors
+        self.roiscolors = "[]"
+        #: (:obj:`list`<:class:`pyqtgraph.ColorButton`>)
+        #    list with rois color widgets
+        self.__roiswidgets = []
 
     def createGUI(self):
         """ create GUI
@@ -169,6 +175,51 @@ class ConfigDialog(QtGui.QDialog):
         self._updateSecPortLineEdit(self.secautoport)
         self.__ui.secautoportCheckBox.stateChanged.connect(
             self._updateSecPortLineEdit)
+        self.__ui.plusroiPushButton.clicked.connect(
+            self._addROIColorWidget)
+        self.__ui.minusroiPushButton.clicked.connect(
+            self._removeROIColorWidget)
+
+        self.__setROIsColorsWidgets()
+
+    def __setROIsColorsWidgets(self):
+        """ updates ROIs colors widgets
+        """
+        roiscolors = json.loads(self.roiscolors)
+        while len(self.__roiswidgets) > len(roiscolors):
+            self._removeROIColorWidget()
+        for cid, color in enumerate(roiscolors):
+            if cid >= len(self.__roiswidgets):
+                self._addROIColorWidget(tuple(color))
+
+    @QtCore.pyqtSlot()
+    def _addROIColorWidget(self, color=None):
+        """ add ROIs colors widgets
+
+        :param color: color to be added
+        :type color: (int, int, int)
+        """
+        if color is None:
+            color = (255, 255, 255)
+        cb = _pg.ColorButton(self, color)
+        self.__roiswidgets.append(cb)
+        self.__ui.colorHorizontalLayout.addWidget(cb)
+
+    @QtCore.pyqtSlot()
+    def _removeROIColorWidget(self):
+        """ updates ROIs colors widgets
+        """
+        cb = self.__roiswidgets.pop()
+        cb.hide()
+        self.__ui.colorHorizontalLayout.removeWidget(cb)
+
+    def __readROIsColors(self):
+        """ takes ROIs colors from rois widgets
+        """
+        colors = []
+        for roiswg in self.__roiswidgets:
+            colors.append(list(roiswg.color(mode='byte')[:3]))
+        self.roiscolors = json.dumps(colors)
 
     @QtCore.pyqtSlot(int)
     def _updateSecPortLineEdit(self, value):
@@ -186,7 +237,6 @@ class ConfigDialog(QtGui.QDialog):
     def accept(self):
         """ updates class variables with the form content
         """
-
         self.sardana = self.__ui.sardanaCheckBox.isChecked()
         self.door = str(self.__ui.doorLineEdit.text()).strip()
         self.addrois = self.__ui.addroisCheckBox.isChecked()
@@ -264,7 +314,6 @@ class ConfigDialog(QtGui.QDialog):
             print(str(e))
             self.__ui.urlsLineEdit.setFocus(True)
             return
-
         zmqtopics = str(self.__ui.zmqtopicsLineEdit.text()).strip().split(" ")
         self.zmqtopics = [tp for tp in zmqtopics if tp]
         detservers = str(
@@ -278,9 +327,11 @@ class ConfigDialog(QtGui.QDialog):
             return
         try:
             self.secport = str(self.__ui.secportLineEdit.text()).strip()
+            print(self.secport)
             int(self.secport)
         except:
             self.__ui.secportLineEdit.setFocus(True)
+            print("ERROR")
             return
         try:
             self.hidraport = str(self.__ui.hidraportLineEdit.text()).strip()
@@ -288,4 +339,5 @@ class ConfigDialog(QtGui.QDialog):
         except:
             self.__ui.hidraportLineEdit.setFocus(True)
             return
+        self.__readROIsColors()
         QtGui.QDialog.accept(self)
