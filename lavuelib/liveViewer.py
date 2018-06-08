@@ -732,8 +732,9 @@ class LiveViewer(QtGui.QMainWindow):
                 if dialog.secautoport:
                     self.__settings.secsockopt = b"tcp://*:*"
                     self.__settings.secsocket.bind(self.__settings.secsockopt)
-                    dialog.secport = unicode(self.__settings.secsocket.getsockopt(
-                        zmq.LAST_ENDPOINT)).split(":")[-1]
+                    dialog.secport = unicode(
+                        self.__settings.secsocket.getsockopt(
+                            zmq.LAST_ENDPOINT)).split(":")[-1]
                 else:
                     self.__settings.secsockopt = b"tcp://*:%s" % dialog.secport
                     self.__settings.secsocket.bind(self.__settings.secsockopt)
@@ -825,7 +826,7 @@ class LiveViewer(QtGui.QMainWindow):
             replot = True
 
         if self.__settings.roiscolors != dialog.roiscolors:
-            self.__settings.roiscolors= dialog.roiscolors
+            self.__settings.roiscolors = dialog.roiscolors
             self.__imagewg.setROIsColors(self.__settings.roiscolors)
 
         if remasking:

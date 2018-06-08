@@ -33,6 +33,7 @@ import sys
 if sys.version_info > (3,):
     unicode = str
 
+
 class Settings(object):
 
     """ lavue configuration settings """
@@ -126,7 +127,7 @@ class Settings(object):
         self.detservers = []
         #: (:obj:`bool`) store detector geometry
         self.storegeometry = False
-        #: (:obj:`str`) json list with roi colors 
+        #: (:obj:`str`) json list with roi colors
         self.roiscolors = "[]"
 
         #: (:obj:`float`) x-coordinates of the center of the image

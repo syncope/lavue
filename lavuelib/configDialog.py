@@ -129,10 +129,11 @@ class ConfigDialog(QtGui.QDialog):
         self.nxslast = False
         #: (:obj:`bool`) store detector geometry
         self.storegeometry = False
-        #: (:obj:`str`) json list with rois colors 
+        #: (:obj:`str`) json list with rois colors
         self.roiscolors = "[]"
-        #: (:obj:`list`<:class:`pyqtgraph.ColorButton`>) list with rois color widgets
-        self.roiswidgets = []
+        #: (:obj:`list`<:class:`pyqtgraph.ColorButton`>)
+        #    list with rois color widgets
+        self.__roiswidgets = []
 
     def createGUI(self):
         """ create GUI
@@ -180,17 +181,17 @@ class ConfigDialog(QtGui.QDialog):
             self._removeROIColorWidget)
 
         self.__setROIsColorsWidgets()
-        
+
     def __setROIsColorsWidgets(self):
         """ updates ROIs colors widgets
         """
         roiscolors = json.loads(self.roiscolors)
-        while len(self.roiswidgets) > len(roiscolors):
+        while len(self.__roiswidgets) > len(roiscolors):
             self._removeROIColorWidget()
         for cid, color in enumerate(roiscolors):
-            if cid >= len(self.roiswidgets):
+            if cid >= len(self.__roiswidgets):
                 self._addROIColorWidget(tuple(color))
-            
+
     @QtCore.pyqtSlot()
     def _addROIColorWidget(self, color=None):
         """ add ROIs colors widgets
@@ -201,24 +202,25 @@ class ConfigDialog(QtGui.QDialog):
         if color is None:
             color = (255, 255, 255)
         cb = _pg.ColorButton(self, color)
-        self.roiswidgets.append(cb)
+        self.__roiswidgets.append(cb)
         self.__ui.colorHorizontalLayout.addWidget(cb)
 
     @QtCore.pyqtSlot()
     def _removeROIColorWidget(self):
         """ updates ROIs colors widgets
         """
-        cb = roiswidgets.pop()
+        cb = self.__roiswidgets.pop()
+        cb.hide()
         self.__ui.colorHorizontalLayout.removeWidget(cb)
-        
+
     def __readROIsColors(self):
         """ takes ROIs colors from rois widgets
         """
         colors = []
-        for roiswg in self.roiswidgets:
+        for roiswg in self.__roiswidgets:
             colors.append(list(roiswg.color(mode='byte')[:3]))
         self.roiscolors = json.dumps(colors)
-        
+
     @QtCore.pyqtSlot(int)
     def _updateSecPortLineEdit(self, value):
         """ updates zmq security port lineedit widget
@@ -231,8 +233,6 @@ class ConfigDialog(QtGui.QDialog):
         else:
             self.__ui.secportLineEdit.setEnabled(True)
 
-
-        
     @QtCore.pyqtSlot()
     def accept(self):
         """ updates class variables with the form content

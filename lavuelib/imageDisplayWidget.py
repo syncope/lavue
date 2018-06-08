@@ -323,7 +323,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__viewbox.addItem(self.__roi[0])
         self.__roi[0].hide()
         self.setROIsColors()
-        
+
         #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.ROI`>)
         #:        list of cut widgets
         self.__cut = []
@@ -1343,7 +1343,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             return True
         return False
 
-    def setROIsColors(self, colors = None):
+    def setROIsColors(self, colors=None):
         """ sets statistics without scaling flag
 
         :param colors: json list of roi colors
@@ -1371,10 +1371,10 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__rois.colors = colors
             defpen = (255, 255, 255)
             for it, roi in enumerate(self.__roi):
-                roi.setPen(tuple(colors[it % len(colors)]) if colors else defpen)
-            
-        return True
+                roi.setPen(tuple(colors[it % len(colors)])
+                           if colors else defpen)
 
+        return True
 
     def setScalingType(self, scalingtype):
         """ sets intensity scaling types
