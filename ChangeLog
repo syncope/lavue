@@ -1,4 +1,8 @@
 2018-06-12 Jan Kotanski <jan.kotanski@desy.de>
+	* add an erro message on no data in nexus file
+	* tagged as 1.20.3
+
+2018-06-12 Jan Kotanski <jan.kotanski@desy.de>
 	* add double dots
 	* tagged as 1.20.2
 
