@@ -132,7 +132,7 @@
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checkout pixel masks are represented by zero values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="text">
-                       <string>Pixel masks with zero values</string>
+                       <string>Pixel masks with zero values:</string>
                       </property>
                       <property name="buddy">
                        <cstring>zeromaskCheckBox</cstring>
@@ -155,7 +155,7 @@
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;rois colors in cyclic order&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="text">
-                       <string>ROIs Colors</string>
+                       <string>ROIs Colors:</string>
                       </property>
                       <property name="buddy">
                        <cstring>plusroiPushButton</cstring>
