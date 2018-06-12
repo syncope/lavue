@@ -317,7 +317,7 @@ class LiveViewer(QtGui.QMainWindow):
 
         self.__sourcewg.configurationChanged.connect(
             self._setSourceConfiguration)
-        self.__ui.frameSpinBox.valueChanged.connect(self._loadfile)
+        self.__ui.frameSpinBox.valueChanged.connect(self._reloadfile)
         self.__sourcewg.updateLayout()
         self.__sourcewg.emitSourceChanged()
         self.__imagewg.showCurrentTool()
@@ -562,10 +562,22 @@ class LiveViewer(QtGui.QMainWindow):
     @QtCore.pyqtSlot(int)
     @QtCore.pyqtSlot()
     def _loadfile(self, fid=None):
-        """ loads the image file
+        """ reloads the image file
 
         :param fid: frame id
         :type fid: :obj:`int`
+         """
+        self._reloadfile(fid, showmessage=True)
+
+    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot()
+    def _reloadfile(self, fid=None, showmessage=False):
+        """ reloads the image file
+
+        :param fid: frame id
+        :type fid: :obj:`int`
+        :param showmessage: no image message
+        :type showmessage: :obj:`bool`
          """
         newimage = None
         if fid is None:
@@ -600,7 +612,7 @@ class LiveViewer(QtGui.QMainWindow):
                         self.__frame, self.__growing, refresh=False)
 
                     self.__ui.frameSpinBox.valueChanged.disconnect(
-                        self._loadfile)
+                        self._reloadfile)
                     while newimage is None and self.__frame > 0:
                         self.__frame -= 1
                         self.__updateframeview(True)
@@ -608,8 +620,18 @@ class LiveViewer(QtGui.QMainWindow):
                             currentfield["node"],
                             self.__frame, self.__growing, refresh=False)
                     self.__ui.frameSpinBox.valueChanged.connect(
-                        self._loadfile)
+                        self._reloadfile)
                 else:
+                    if showmessage:
+                        text = messageBox.MessageBox.getText(
+                            "lavue: Image %s cannot be loaded"
+                            % self.__settings.imagename)
+                        messageBox.MessageBox.warning(
+                            self,
+                            "lavue: File %s cannot be loaded"
+                            % self.__settings.imagename,
+                            "File %s without images"
+                            % self.__settings.imagename)
                     return
                 if imagename:
                     imagename = "%s:/%s" % (
