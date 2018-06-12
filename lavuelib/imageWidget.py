@@ -112,7 +112,7 @@ class ImageWidget(QtGui.QWidget):
         #: (:obj:`list` < :obj:`str` > ) tool names
         self.__toolnames = []
         #: (:obj:`dict` < :obj:`str`,
-        #:      :class:`lavuelib.toolWidget.BaseToolWidget` >)
+        #:      :class:`lavuelib.toolWidget.BaseToolWidget` > )
         #:           tool names
         self.__toolwidgets = {}
         #: (:class:`lavuelib.settings.Settings`) settings
@@ -369,7 +369,7 @@ class ImageWidget(QtGui.QWidget):
         """ provides settings
 
         :returns: setting object
-        :rtype : :class:`lavuelib.settings.Settings`
+        :rtype: :class:`lavuelib.settings.Settings`
         """
         return self.__settings
 

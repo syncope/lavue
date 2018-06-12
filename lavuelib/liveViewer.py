@@ -563,7 +563,10 @@ class LiveViewer(QtGui.QMainWindow):
     @QtCore.pyqtSlot()
     def _loadfile(self, fid=None):
         """ loads the image file
-        """
+
+        :param fid: frame id
+        :type fid: :obj:`int`
+         """
         newimage = None
         if fid is None:
             fileDialog = QtGui.QFileDialog()
