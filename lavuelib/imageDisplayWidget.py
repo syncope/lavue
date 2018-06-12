@@ -1039,7 +1039,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :returns: apply status
         :rtype: :obj:`bool`
         """
-        cnfdlg = axesDialog.AxesDialog(self)
+        cnfdlg = axesDialog.AxesDialog()
         if self.__axes.position is None:
             cnfdlg.xposition = None
             cnfdlg.yposition = None

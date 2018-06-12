@@ -454,7 +454,7 @@ class MotorsToolWidget(ToolWidget):
         """
 
         motors = self._mainwidget.getElementNames("MotorList")
-        cnfdlg = takeMotorsDialog.TakeMotorsDialog(self)
+        cnfdlg = takeMotorsDialog.TakeMotorsDialog()
         if motors is not None:
             cnfdlg.motortips = motors
         cnfdlg.xmotorname = self.__xmotorname
@@ -738,7 +738,7 @@ class MeshToolWidget(ToolWidget):
         :rtype: :obj:`bool`
         """
         motors = self._mainwidget.getElementNames("MotorList")
-        cnfdlg = takeMotorsDialog.TakeMotorsDialog(self)
+        cnfdlg = takeMotorsDialog.TakeMotorsDialog()
         if motors is not None:
             cnfdlg.motortips = motors
         cnfdlg.title = "Motor aliases"
@@ -772,7 +772,7 @@ class MeshToolWidget(ToolWidget):
         :returns: apply status
         :rtype: :obj:`bool`
         """
-        cnfdlg = intervalsDialog.IntervalsDialog(self)
+        cnfdlg = intervalsDialog.IntervalsDialog()
         cnfdlg.xintervals = self.__xintervals
         cnfdlg.yintervals = self.__yintervals
         cnfdlg.itime = self.__itime
@@ -2099,7 +2099,7 @@ class AngleQToolWidget(ToolWidget):
         :returns: apply status
         :rtype: :obj:`bool`
         """
-        cnfdlg = rangeDialog.RangeDialog(self)
+        cnfdlg = rangeDialog.RangeDialog()
         cnfdlg.polstart = self.__polstart
         cnfdlg.polend = self.__polend
         cnfdlg.polsize = self.__polsize
@@ -2133,7 +2133,7 @@ class AngleQToolWidget(ToolWidget):
         :returns: apply status
         :rtype: :obj:`bool`
         """
-        cnfdlg = geometryDialog.GeometryDialog(self)
+        cnfdlg = geometryDialog.GeometryDialog()
         cnfdlg.centerx = self.__settings.centerx
         cnfdlg.centery = self.__settings.centery
         cnfdlg.energy = self.__settings.energy
@@ -2773,7 +2773,7 @@ class QROIProjToolWidget(ToolWidget):
         :returns: apply status
         :rtype: :obj:`bool`
         """
-        cnfdlg = geometryDialog.GeometryDialog(self)
+        cnfdlg = geometryDialog.GeometryDialog()
         cnfdlg.centerx = self.__settings.centerx
         cnfdlg.centery = self.__settings.centery
         cnfdlg.energy = self.__settings.energy
