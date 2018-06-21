@@ -33,12 +33,13 @@ from setuptools import setup
 from setuptools.command.build_py import build_py
 from distutils.command.clean import clean
 from distutils.util import get_platform
-#from distutils.core import setup
-#from distutils.command.build import build
-#from distutils.command.clean import clean
+# from distutils.core import setup
+# from distutils.command.build import build
+# from distutils.command.clean import clean
 import shutil
 
 from sphinx.setup_command import BuildDoc
+
 
 def read(fname):
     """ read the file
@@ -76,6 +77,7 @@ GUISCRIPTS = ['lavue']
 
 needs_pytest = set(['test']).intersection(sys.argv)
 pytest_runner = ['pytest-runner'] if needs_pytest else []
+
 
 class toolBuild(build_py):
     """ ui and qrc builder for python
