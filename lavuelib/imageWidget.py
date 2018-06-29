@@ -122,6 +122,8 @@ class ImageWidget(QtGui.QWidget):
         self.__tangoclient = None
         #: (obj`list`) collection of last writing rois
         self.__lastrois = []
+        #: (obj`list`) collection of last writing rois values
+        self.__lastroisvalues = []
         #: (obj`str`) last text
         self.__lasttext = ""
         #: (obj`str`) roi labels
@@ -257,6 +259,50 @@ class ImageWidget(QtGui.QWidget):
                     toadd.append(lastalias)
             # print("ROIs %s" % json.dumps(rois))
             self.__tangoclient.writeAttribute("DetectorROIs", json.dumps(rois))
+
+    def writeDetectorROIsValuesAttribute(self, rvalues):
+        """ writes DetectorROIsValuesattribute of device
+
+        :param rvalues: list of roi values
+        :type rvalues: `obj`list < :obj:`float`>
+        """
+        if self.__tangoclient:
+            rois = {}
+            slabel = re.split(';|,| |\n', str(self.roilabels))
+            slabel = [lb for lb in slabel if lb]
+            if len(slabel) == 0:
+                slabel = ["__null__"]
+            rid = 0
+            lastcrdlist = None
+            toadd = []
+            lastalias = None
+
+            self.__lastroisvalues = rvalues
+            for alias in slabel:
+                if alias not in toadd:
+                    rois[alias] = []
+                lastcrdlist = rois[alias]
+                if rid < len(rvalues):
+                    lastcrdlist.append(rvalues[rid])
+                    rid += 1
+                    if alias not in toadd:
+                        toadd.append(alias)
+                if not lastcrdlist:
+                    if alias in rois.keys():
+                        rois.pop(alias)
+                    toadd.append(alias)
+                lastalias = alias
+            if rid > 0:
+                while rid < len(rvalues):
+                    lastcrdlist.append(rvalues[rid])
+                    rid += 1
+                if not lastcrdlist:
+                    if lastalias in rois.keys():
+                        rois.pop(lastalias)
+                    toadd.append(lastalias)
+            # print("ROIs %s" % json.dumps(rois))
+            self.__tangoclient.writeAttribute(
+                "DetectorROIsValues", json.dumps(rois))
 
     def setTangoClient(self, tangoclient):
         """ sets tango client
@@ -624,13 +670,31 @@ class ImageWidget(QtGui.QWidget):
         :param text: text to display
         :type text: :obj:`str`
         """
+        currentroi = None
+        sroiVal = ""
         if text is not None:
             self.__lasttext = text
         else:
             text = self.__lasttext
-        roiVal, currentroi = self.__displaywidget.calcROIsum()
+        if self.__displaywidget.isROIsEnabled():
+            if self.__settings.showallrois:
+                currentroi = self.currentROI()
+                roiVals = self.__displaywidget.calcROIsums()
+                sroiVal = " / ".join(
+                    [(("%g" % roiv) if roiv is not None else "?")
+                     for roiv in roiVals])
+                if self.__settings.sendrois:
+                    if self.__lastroisvalues != roiVals:
+                        self.writeDetectorROIsValuesAttribute(roiVals)
+            else:
+                roiVal, currentroi = self.__displaywidget.calcROIsum()
+                if roiVal is not None:
+                    sroiVal = "%.4f" % roiVal
+                if self.__settings.sendrois:
+                    if self.__lastroisvalues != [roiVal]:
+                        self.writeDetectorROIsValuesAttribute([roiVal])
         if currentroi is not None:
-            self.roiValueChanged.emit(text, currentroi, roiVal)
+            self.roiValueChanged.emit(text, currentroi, sroiVal)
         else:
             self.__ui.infoLineEdit.setText(text)
 
@@ -641,6 +705,14 @@ class ImageWidget(QtGui.QWidget):
         :rtype: (:obj:`str`, :obj:`int`)
         """
         return self.__displaywidget.calcROIsum()
+
+    def calcROIsums(self):
+        """ calculates all roi sums
+
+        :returns: sum roi value, roi id
+        :rtype: `obj`list < `obj`<float> >
+        """
+        return self.__displaywidget.calcROIsums()
 
     @QtCore.pyqtSlot(str)
     def updateDisplayedText(self, text):

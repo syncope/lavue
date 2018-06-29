@@ -142,6 +142,10 @@ class Settings(object):
         self.pixelsizey = 0.0
         #: (:obj:`float`) detector distance in mm
         self.detdistance = 0.0
+        #: (:obj:`bool`) show all rois flag
+        self.showallrois = False
+        #: (:obj:`bool`) send rois to LavueController flag
+        self.sendrois = False
 
     def load(self, settings):
         """ load settings
@@ -204,6 +208,12 @@ class Settings(object):
         qstval = str(settings.value("Configuration/NXSLastImage", type=str))
         if qstval.lower() == "true":
             self.nxslast = True
+        qstval = str(settings.value("Configuration/SendROIs", type=str))
+        if qstval.lower() == "true":
+            self.sendrois = True
+        qstval = str(settings.value("Configuration/ShowAllROIs", type=str))
+        if qstval.lower() == "true":
+            self.showallrois = True
         qstval = str(settings.value("Configuration/SecPort", type=str))
         try:
             int(qstval)
@@ -487,6 +497,12 @@ class Settings(object):
         settings.setValue(
             "Configuration/ROIsColors",
             self.roiscolors)
+        settings.setValue(
+            "Configuration/SendROIs",
+            self.sendrois)
+        settings.setValue(
+            "Configuration/ShowAllROIs",
+            self.showallrois)
 
         if not self.storegeometry:
             self.centerx = 0.0
