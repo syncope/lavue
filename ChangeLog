@@ -1,3 +1,7 @@
+2018-07-XX Jan Kotanski <jan.kotanski@desy.de>
+	* add DetectorROIsValues attribute to LavueController
+	* tagged as 1.21.0
+
 2018-06-12 Jan Kotanski <jan.kotanski@desy.de>
 	* add an error message on no data in a nexus file
 	* make tool dialog widget non-blocking
