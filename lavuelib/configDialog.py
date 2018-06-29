@@ -134,6 +134,10 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`list`<:class:`pyqtgraph.ColorButton`>)
         #    list with rois color widgets
         self.__roiswidgets = []
+        #: (:obj:`bool`) show all rois flag
+        self.showallrois = False
+        #: (:obj:`bool`) send rois to LavueController flag
+        self.sendrois = False
 
     def createGUI(self):
         """ create GUI
@@ -171,6 +175,8 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.nxsopenCheckBox.setChecked(self.nxsopen)
         self.__ui.nxslastCheckBox.setChecked(self.nxslast)
         self.__ui.storegeometryCheckBox.setChecked(self.storegeometry)
+        self.__ui.sendroisCheckBox.setChecked(self.sendrois)
+        self.__ui.showallroisCheckBox.setChecked(self.showallrois)
 
         self._updateSecPortLineEdit(self.secautoport)
         self.__ui.secautoportCheckBox.stateChanged.connect(
@@ -259,6 +265,8 @@ class ConfigDialog(QtGui.QDialog):
         self.nxsopen = self.__ui.nxsopenCheckBox.isChecked()
         self.nxslast = self.__ui.nxslastCheckBox.isChecked()
         self.storegeometry = self.__ui.storegeometryCheckBox.isChecked()
+        self.sendrois = self.__ui.sendroisCheckBox.isChecked()
+        self.showallrois = self.__ui.showallroisCheckBox.isChecked()
 
         try:
             dirtrans = str(self.__ui.dirtransLineEdit.text()).strip()

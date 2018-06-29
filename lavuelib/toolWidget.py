@@ -583,6 +583,9 @@ class MeshToolWidget(ToolWidget):
         :type text: :obj:`str`
         """
 
+        if "/" in roiVal:
+            sroiv = " / ".split(roiVal)
+            roiVal = sroiv[currentroi] if len(sroiv) > currentroi else ""
         roilabel = "roi [%s]" % (currentroi + 1)
 
         self.roiInfoChanged.emit("%s, %s = %s" % (text, roilabel, roiVal))
@@ -1002,7 +1005,11 @@ class ROIToolWidget(ToolWidget):
                 if currentroi < len(slabel) else slabel[-1],
                 (currentroi + 1)
             )
-        self.roiInfoChanged.emit("%s, %s = %s" % (text, roilabel, roiVal))
+        if "/" in roiVal:
+            self.roiInfoChanged.emit(
+                "%s, %s; values = %s" % (text, roilabel, roiVal))
+        else:
+            self.roiInfoChanged.emit("%s, %s = %s" % (text, roilabel, roiVal))
 
     @QtCore.pyqtSlot(int)
     def setROIsNumber(self, rid):
@@ -2540,13 +2547,23 @@ class QROIProjToolWidget(ToolWidget):
         :param text: text to display
         :type text: :obj:`str`
         """
+        sroiVal = ""
         if text is not None:
             self.__lasttext = text
         else:
             text = self.__lasttext
-        roiVal, currentroi = self._mainwidget.calcROIsum()
+        if self.__settings.showallrois:
+            currentroi = self._mainwidget.currentROI()
+            roiVals = self._mainwidget.calcROIsums()
+            sroiVal = " / ".join(
+                [(("%g" % roiv) if roiv is not None else "?")
+                 for roiv in roiVals])
+        else:
+            roiVal, currentroi = self._mainwidget.calcROIsum()
+            if roiVal is not None:
+                sroiVal = "%.4f" % roiVal
         if currentroi is not None:
-            self.updateROIDisplayText(text, currentroi, roiVal)
+            self.updateROIDisplayText(text, currentroi, sroiVal)
         else:
             self.__ui.roiinfoLineEdit.setText(text)
 
@@ -2641,8 +2658,11 @@ class QROIProjToolWidget(ToolWidget):
                 if currentroi < len(slabel) else slabel[-1],
                 (currentroi + 1)
             )
-        self.__ui.roiinfoLineEdit.setText(
-            "%s, %s = %s" % (text, roilabel, roiVal))
+        if "/" in roiVal:
+            self.roiInfoChanged.emit(
+                "%s, %s; values = %s" % (text, roilabel, roiVal))
+        else:
+            self.roiInfoChanged.emit("%s, %s = %s" % (text, roilabel, roiVal))
 
     @QtCore.pyqtSlot(int)
     def setROIsNumber(self, rid):

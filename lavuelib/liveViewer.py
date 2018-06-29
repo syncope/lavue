@@ -700,6 +700,8 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.zmqservers = self.__settings.zmqservers
         cnfdlg.nxslast = self.__settings.nxslast
         cnfdlg.nxsopen = self.__settings.nxsopen
+        cnfdlg.sendrois = self.__settings.sendrois
+        cnfdlg.showallrois = self.__settings.showallrois
         cnfdlg.storegeometry = self.__settings.storegeometry
         cnfdlg.roiscolors = self.__settings.roiscolors
         cnfdlg.createGUI()
@@ -819,6 +821,10 @@ class LiveViewer(QtGui.QMainWindow):
         if self.__settings.nxslast != dialog.nxslast:
             self.__settings.nxslast = dialog.nxslast
             setsrc = True
+        if self.__settings.sendrois != dialog.sendrois:
+            self.__settings.sendrois = dialog.sendrois
+        if self.__settings.showallrois != dialog.showallrois:
+            self.__settings.showallrois = dialog.showallrois
         if setsrc:
             if self.__settings.detservers:
                 serverdict = {"pool": list(self.__settings.detservers)}

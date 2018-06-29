@@ -1080,47 +1080,69 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             return True
         return False
 
+    def __calcROIsum(self, rid):
+        """ calculates the current roi sum
+
+        :param rid: roi id
+        :type rid: :obj:`int`
+        :returns: sum roi value, roi id
+        :rtype: (float, int)
+        """
+        if rid >= 0:
+            image = self.__rawdata
+            if image is not None:
+                if self.__rois.enabled:
+                    if rid >= 0:
+                        roicoords = self.__rois.coords
+                        if not self.__transformations.transpose:
+                            rcrds = list(roicoords[rid])
+                        else:
+                            rc = roicoords[rid]
+                            rcrds = [rc[1], rc[0], rc[3], rc[2]]
+                        for i in [0, 2]:
+                            if rcrds[i] > image.shape[0]:
+                                rcrds[i] = image.shape[0]
+                            elif rcrds[i] < -i // 2:
+                                rcrds[i] = -i // 2
+                        for i in [1, 3]:
+                            if rcrds[i] > image.shape[1]:
+                                rcrds[i] = image.shape[1]
+                            elif rcrds[i] < - (i - 1) // 2:
+                                rcrds[i] = - (i - 1) // 2
+                        roival = np.sum(image[
+                            int(rcrds[0]):(int(rcrds[2]) + 1),
+                            int(rcrds[1]):(int(rcrds[3]) + 1)
+                        ])
+                    else:
+                        roival = 0.
+                else:
+                    roival = 0.
+                return roival, rid
+            else:
+                return 0., rid
+        return None, None
+
     def calcROIsum(self):
         """ calculates the current roi sum
 
         :returns: sum roi value, roi id
-        :rtype: (str, int)
+        :rtype: (float, int)
         """
         if self.__rois.enabled and self._getROI() is not None:
             rid = self.__rois.current
-            if rid >= 0:
-                image = self.__rawdata
-                if image is not None:
-                    if self.__rois.enabled:
-                        if rid >= 0:
-                            roicoords = self.__rois.coords
-                            if not self.__transformations.transpose:
-                                rcrds = list(roicoords[rid])
-                            else:
-                                rc = roicoords[rid]
-                                rcrds = [rc[1], rc[0], rc[3], rc[2]]
-                            for i in [0, 2]:
-                                if rcrds[i] > image.shape[0]:
-                                    rcrds[i] = image.shape[0]
-                                elif rcrds[i] < -i // 2:
-                                    rcrds[i] = -i // 2
-                            for i in [1, 3]:
-                                if rcrds[i] > image.shape[1]:
-                                    rcrds[i] = image.shape[1]
-                                elif rcrds[i] < - (i - 1) // 2:
-                                    rcrds[i] = - (i - 1) // 2
-                            roival = np.sum(image[
-                                int(rcrds[0]):(int(rcrds[2]) + 1),
-                                int(rcrds[1]):(int(rcrds[3]) + 1)
-                            ])
-                        else:
-                            roival = 0.
-                    else:
-                        roival = 0.
-                    return str("%.4f" % roival), rid
-                else:
-                    return "0.", rid
-        return "", None
+            return self.__calcROIsum(rid)
+        return None, None
+
+    def calcROIsums(self):
+        """ calculates all roi sums
+
+        :returns: sum roi value, roi id
+        :rtype: `obj`list < `obj`<float> >
+        """
+        if self.__rawdata is None:
+            return None
+        return [self.__calcROIsum(rid)[0]
+                for rid in range(len(self.__rois.coords))]
 
     def cutData(self, cid=None):
         """ provides the current cut data

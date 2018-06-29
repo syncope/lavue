@@ -82,6 +82,7 @@ class LavueController (PyTango.Device_4Impl):
         self.attr_BeamCenterX_read = 0.0
         self.attr_BeamCenterY_read = 0.0
         self.attr_DetectorROIs_read = "{}"
+        self.attr_DetectorROIsValues_read = "{}"
         self.attr_DetectorDistance_read = 0.0
         self.set_change_event("Energy", True, False)
         self.set_change_event("BeamCenterX", True, False)
@@ -167,7 +168,35 @@ class LavueController (PyTango.Device_4Impl):
             self.attr_DetectorROIs_read = data
             self.push_change_event("DetectorROIs", self.attr_DetectorROIs_read)
         
-        #----- PROTECTED REGION END -----#	//	LavueController.DetectorROIs_write
+        
+    def read_DetectorROIsValues(self, attr):
+        self.debug_stream("In read_DetectorROIsValues()")
+        #----- PROTECTED REGION ID(LavueController.DetectorROIsValues_read) ENABLED START -----#
+        attr.set_value(self.attr_DetectorROIsValues_read)
+        
+        #----- PROTECTED REGION END -----#	//	LavueController.DetectorROIsValues_read
+        
+    def write_DetectorROIsValues(self, attr):
+        self.debug_stream("In write_DetectorROIsValues()")
+        data = attr.get_write_value()
+        #----- PROTECTED REGION ID(LavueController.DetectorROIsValues_write) ENABLED START -----#
+        detrois = json.loads(data)
+        for det, rois in detrois.items():
+            if not isinstance(det, (str, unicode)):
+                raise Exception(
+                    "ROI name %s is not string" % str(det))
+            if not isinstance(rois, (list)):
+                raise Exception(
+                    "ROI %s is not a double list" % str(det))
+            for vroi in rois:
+                if vroi is not None:
+                    float(vroi)
+
+        if self.attr_DetectorROIsValues_read != data:
+            self.attr_DetectorROIsValues_read = data
+            self.push_change_event("DetectorROIsValues", self.attr_DetectorROIsValues_read)
+        
+        #----- PROTECTED REGION END -----#	//	LavueController.DetectorROIsValues_write
         
     def read_DetectorDistance(self, attr):
         self.debug_stream("In read_DetectorDistance()")
@@ -299,6 +328,16 @@ class LavueControllerClass(PyTango.DeviceClass):
             {
                 'label': "detector ROIs",
                 'description': "json dictionary with detector ROIs, e.g.  {'pilatusroi1': [[26, 15, 232, 65]], 'lambdarois': [[54, 78, 102, 204], [10, 20, 40, 50]]}",
+                'Display level': PyTango.DispLevel.EXPERT,
+                'Memorized':"true"
+            } ],
+        'DetectorROIsValues':
+            [[PyTango.DevString,
+            PyTango.SCALAR,
+            PyTango.READ_WRITE],
+            {
+                'label': "detector ROIs values",
+                'description': "json dictionary with detector ROIs values, e.g.  {'pilatusroi1': [26.3], 'lambdarois': [54.3, 434.30]]}",
                 'Memorized':"true"
             } ],
         'DetectorDistance':
