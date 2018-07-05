@@ -680,9 +680,10 @@ class ImageWidget(QtGui.QWidget):
             if self.__settings.showallrois:
                 currentroi = self.currentROI()
                 roiVals = self.__displaywidget.calcROIsums()
-                sroiVal = " / ".join(
-                    [(("%g" % roiv) if roiv is not None else "?")
-                     for roiv in roiVals])
+                if roiVals is not None:
+                    sroiVal = " / ".join(
+                        [(("%g" % roiv) if roiv is not None else "?")
+                         for roiv in roiVals])
                 if self.__settings.sendrois:
                     if self.__lastroisvalues != roiVals:
                         self.writeDetectorROIsValuesAttribute(roiVals)

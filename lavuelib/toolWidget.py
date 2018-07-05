@@ -2555,9 +2555,10 @@ class QROIProjToolWidget(ToolWidget):
         if self.__settings.showallrois:
             currentroi = self._mainwidget.currentROI()
             roiVals = self._mainwidget.calcROIsums()
-            sroiVal = " / ".join(
-                [(("%g" % roiv) if roiv is not None else "?")
-                 for roiv in roiVals])
+            if roiVals is not None:
+                sroiVal = " / ".join(
+                    [(("%g" % roiv) if roiv is not None else "?")
+                     for roiv in roiVals])
         else:
             roiVal, currentroi = self._mainwidget.calcROIsum()
             if roiVal is not None:
