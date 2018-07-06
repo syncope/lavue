@@ -16,17 +16,9 @@ e.g. ``Pilatus``, ``Lambda``, ``Eiger``, ``PerkinElmer``, ``PCO``, ``LimaCCD``, 
 Installation
 ------------
 
-LaVue requires the following packages:
+LaVue requires the following packages: ``qt4``, ``pyqtgraph``, ``numpy``, ``zmq``, ``scipy``
 
-.. code-block:: console
-
-   qt4, pyqtgraph, numpy, zmq, scipy
-
-It is also recommended to install:
-
-.. code-block:: console
-
-   pytango, hidra, pil, fabio, requests, h5py, pni, nxstools
+It is also recommended to install: ``pytango``, ``hidra``, ``pil``, ``fabio``, ``requests``, ``h5py`, ``pni``, ``nxstools``
 
 	   
 From sources
