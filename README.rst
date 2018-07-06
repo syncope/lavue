@@ -6,8 +6,7 @@ Introduction
 
 This is a simple implementation of a live viewer front end.
 It is supposed to show a live image view from xray-detectors at PETRA3 @ DESY,
-
-  e.g. Pilatus, Lambda, Eiger, PerkinElmer, PCO, LimaCCD, and others.
+e.g. Pilatus, Lambda, Eiger, PerkinElmer, PCO, LimaCCD, and others.
 
 .. image:: https://github.com/jkotan/lavue/blob/develop/doc/_images/lavue.png?raw=true
 
