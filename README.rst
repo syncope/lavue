@@ -86,11 +86,15 @@ Start the Viewer
 
 To start LaVue
 
-  $ lavue
+.. code-block:: console
+
+   $ lavue
 
 for python 2.7 or
 
-  $ lavue3
+.. code-block:: console
+
+   $ lavue3
 
 for python 3.
 
@@ -99,7 +103,9 @@ Start the Viewer in the expert mode
 
 Changing LaVue  settings is available in the expert mode, i.e.
 
-  $ lavue -m expert
+.. code-block:: console
+
+   $ lavue -m expert
 
 under an additional button: Configuration.
 
@@ -108,6 +114,8 @@ Launching options
 
 To get all possible command-line parameters
 
-  $ lavue -h
+.. code-block:: console
+
+   $ lavue -h
 
 
