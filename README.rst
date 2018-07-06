@@ -79,7 +79,7 @@ for python 2.7 version
    $ apt-get update
    $ apt-get install python3-lavue
 
-for python 3 version. (Please notice that HiDRA is not available for python 3 yet).
+for python 3 version. Please notice that HiDRA is not available for python 3 yet.
 
 Start the Viewer
 ----------------
