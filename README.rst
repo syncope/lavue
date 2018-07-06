@@ -1,6 +1,8 @@
 LaVue - Live Image Viewer
 =========================
 
+Authors: Christoph Rosemann <christoph.rosemann at desy.de>, Jan Kotański <jan.kotanski at desy.de>, André Rothkirch <andre.rothkirch at desy.de>	   
+
 Introduction
 ------------
 
@@ -10,6 +12,7 @@ e.g. Pilatus, Lambda, Eiger, PerkinElmer, PCO, LimaCCD, and others.
 
 .. image:: https://github.com/jkotan/lavue/blob/develop/doc/_images/lavue.png?raw=true
 
+	   
 Installation
 ------------
 
