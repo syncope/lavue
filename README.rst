@@ -9,8 +9,7 @@ It is supposed to show a live image view from xray-detectors at PETRA3 @ DESY,
 
   e.g. Pilatus, Lambda, Eiger, PerkinElmer, PCO, LimaCCD, and others.
 
-.. image:: lavue.png
-   :target: https://github.com/jkotan/lavue/blob/develop/doc/_images
+.. image:: https://github.com/jkotan/lavue/blob/develop/doc/_images/lavue.png?raw=true
 
 Download
 --------
