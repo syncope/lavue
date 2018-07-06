@@ -16,7 +16,7 @@ e.g. ``Pilatus``, ``Lambda``, ``Eiger``, ``PerkinElmer``, ``PCO``, ``LimaCCD``, 
 Installation
 ------------
 
-LaVue requires the following packages: ``qt4  pyqtgraph  numpy  zmq  scipy``
+LaVue requires the following python packages: ``qt4  pyqtgraph  numpy  zmq  scipy``
 
 It is also recommended to install: ``pytango  hidra  pil  fabio  requests  h5py  pni  nxstools``
 
@@ -32,7 +32,7 @@ Extract sources and run
 
    $ python setup.py install
 
-The ``setup.py`` script may need: ``python-setuptools  sphinx  numpy  pytest`` as well as ``libqt4-dev-bin``.
+The ``setup.py`` script may need: ``python-setuptools  sphinx  numpy  pytest`` python packages as well as ``libqt4-dev-bin``.
 
 Debian packages
 """""""""""""""
