@@ -1,9 +1,15 @@
-Lightweight Live Viewer: LaVue
-==============================
+LaVue - Live Image Viewer
+=========================
+
+Introduction
+------------
 
 This is a simple implementation of a live viewer front end.
-It is supposed to show a live image view from xray-detectors at PETRA3.
-It is work in progress.
+It is supposed to show a live image view from xray-detectors at PETRA3 @ DESY,
+
+  e.g. Pilatus, Lambda, Eiger, PerkinElmer, PCO, LimaCCD, and others.
+
+![LaVue - Live Image Viewer GUI](https://raw.github.com/jkotan/lavue/develop/doc/_image/lavue2.png)
 
 Download
 --------
