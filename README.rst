@@ -32,7 +32,7 @@ Extract sources and run
 
    $ python setup.py install
 
-The ``setup.py`` script may need: ``python-setuptools  sphinx  numpy  pytest`` python packages as well as ``libqt4-dev-bin``.
+The ``setup.py`` script may need: ``setuptools  sphinx  numpy  pytest`` python packages as well as ``libqt4-dev-bin``.
 
 Debian packages
 """""""""""""""
