@@ -119,3 +119,8 @@ To get all possible command-line parameters
 .. code-block:: console
 
    $ lavue -h
+
+Further reading
+---------------
+
+More information can be: https://confluence.desy.de/display/FSEC/LaVue+-+Live+Image+Viewer
