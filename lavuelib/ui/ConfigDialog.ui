@@ -803,7 +803,7 @@ in the file name and the file directory for Tango File Source</string>
          <item row="1" column="0">
           <widget class="QGroupBox" name="httpGroupBox">
            <property name="title">
-            <string>HTTP responce</string>
+            <string>HTTP response</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_22">
             <item row="0" column="0">
