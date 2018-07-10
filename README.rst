@@ -123,4 +123,5 @@ To get all possible command-line parameters
 Further reading
 ---------------
 
-More information can be: https://confluence.desy.de/display/FSEC/LaVue+-+Live+Image+Viewer
+More information can be found at: `LaVue
+<https://confluence.desy.de/display/FSEC/LaVue+-+Live+Image+Viewer>`_
