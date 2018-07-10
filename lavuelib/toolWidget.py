@@ -2660,10 +2660,11 @@ class QROIProjToolWidget(ToolWidget):
                 (currentroi + 1)
             )
         if "/" in roiVal:
-            self.roiInfoChanged.emit(
+            self.__ui.roiinfoLineEdit.setText(
                 "%s, %s; values = %s" % (text, roilabel, roiVal))
         else:
-            self.roiInfoChanged.emit("%s, %s = %s" % (text, roilabel, roiVal))
+            self.__ui.roiinfoLineEdit.setText(
+                "%s, %s = %s" % (text, roilabel, roiVal))
 
     @QtCore.pyqtSlot(int)
     def setROIsNumber(self, rid):
