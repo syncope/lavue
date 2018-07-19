@@ -266,8 +266,6 @@ class LavueController (PyTango.Device_4Impl):
                 attr.set_value(detrois[name][0])
             else:
                 attr.set_value(-1)
-                
-        
         #----- PROTECTED REGION END -----#	//	LavueController.ScalarDynamicAttr_read
         
     def read_SpectrumDynamicAttr(self, attr):
@@ -286,9 +284,6 @@ class LavueController (PyTango.Device_4Impl):
                 attr.set_value(detrois[name])
             else:
                 attr.set_value([])
-                
-                
-            
         #----- PROTECTED REGION END -----#	//	LavueController.SpectrumDynamicAttr_read
         
     
@@ -339,8 +334,6 @@ class LavueController (PyTango.Device_4Impl):
                                        None, None)
             self.current_scalar_aliases = self.requested_scalar_aliases
             self.current_spectrum_aliases = self.requested_spectrum_aliases
-                
-                
         #----- PROTECTED REGION END -----#	//	LavueController.initialize_dynamic_attributes
             
     def read_attr_hardware(self, data):
@@ -386,8 +379,7 @@ class LavueController (PyTango.Device_4Impl):
         
 
     #----- PROTECTED REGION ID(LavueController.programmer_methods) ENABLED START -----#
-        
-    
+
     #----- PROTECTED REGION END -----#	//	LavueController.programmer_methods
 
 class LavueControllerClass(PyTango.DeviceClass):
