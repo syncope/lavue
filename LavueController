@@ -93,7 +93,11 @@ class LavueController (PyTango.Device_4Impl):
         #----- PROTECTED REGION ID(LavueController.init_device) ENABLED START -----#
         self.attr_DetectorROIs_read = "{}"
         self.attr_DetectorROIsValues_read = "{}"
-        
+
+        self.requested_scalar_aliases = []
+        self.requested_spectrum_aliases = []
+        self.current_scalar_aliases = []
+        self.current_spectrum_aliases = []
         #----- PROTECTED REGION END -----#	//	LavueController.init_device
 
     def always_executed_hook(self):
@@ -202,6 +206,7 @@ class LavueController (PyTango.Device_4Impl):
         #----- PROTECTED REGION ID(LavueController.DetectorROIsValues_write) ENABLED START -----#
         detrois = json.loads(data)
         for det, rois in detrois.items():
+                
             if not isinstance(det, (str, unicode)):
                 raise Exception(
                     "ROI name %s is not string" % str(det))
@@ -212,8 +217,19 @@ class LavueController (PyTango.Device_4Impl):
                 if vroi is not None:
                     float(vroi)
 
+        if self.DynamicROIs:
+            self.requested_scalar_aliases = []
+            self.requested_spectrum_aliases = []
+            for det, rois in detrois.items():
+                if len(rois) == 1:
+                    self.requested_scalar_aliases.append(det.title())
+                elif  len(rois) > 1:
+                    self.requested_spectrum_aliases.append(det.title())
+
         if self.attr_DetectorROIsValues_read != data:
             self.attr_DetectorROIsValues_read = data
+            if self.DynamicROIs:
+                self.initialize_dynamic_attributes()
             self.push_change_event("DetectorROIsValues", self.attr_DetectorROIsValues_read)
         
         #----- PROTECTED REGION END -----#	//	LavueController.DetectorROIsValues_write
@@ -235,7 +251,97 @@ class LavueController (PyTango.Device_4Impl):
         #----- PROTECTED REGION END -----#	//	LavueController.Energy_write
         
     
+    def read_ScalarDynamicAttr(self, attr):
+        self.debug_stream("In read_ScalarDynamicAttr()")
+        #----- PROTECTED REGION ID(LavueController.ScalarDynamicAttr_read) ENABLED START -----#
+        name = attr.get_name()[:-4]
+        if not name:
+            name = "__null__"
+        detrois = json.loads(self.attr_DetectorROIsValues_read)
+        if name in detrois.keys() and detrois[name]:
+            attr.set_value(detrois[name][0])
+        else:
+            name = ("%s%s" % (name[0].lower(), name[1:]))
+            if name in detrois.keys() and detrois[name]:
+                attr.set_value(detrois[name][0])
+            else:
+                attr.set_value(-1)
+                
+        
+        #----- PROTECTED REGION END -----#	//	LavueController.ScalarDynamicAttr_read
+        
+    def read_SpectrumDynamicAttr(self, attr):
+        self.debug_stream("In read_SpectrumDynamicAttr()")
+        #----- PROTECTED REGION ID(LavueController.SpectrumDynamicAttr_read) ENABLED START -----#
+        
+        name = attr.get_name()[:-4]
+        if not name:
+            name = "__null__"
+        detrois = json.loads(self.attr_DetectorROIsValues_read)
+        if name in detrois.keys():
+            attr.set_value(detrois[name])
+        else:
+            name = ("%s%s" % (name[0].lower(), name[1:]))
+            if name in detrois.keys():
+                attr.set_value(detrois[name])
+            else:
+                attr.set_value([])
+                
+                
+            
+        #----- PROTECTED REGION END -----#	//	LavueController.SpectrumDynamicAttr_read
+        
     
+    def initialize_dynamic_attributes(self):
+        self.debug_stream("In initialize_dynamic_attributes()")
+        
+        #   Example to add dynamic attributes
+        #   Copy inside the folowing protected area to instanciate at startup.
+        
+        """   For Attribute ScalarDynamicAttr
+        myScalarDynamicAttr = PyTango.Attr('MyScalarDynamicAttr', PyTango.DevDouble, PyTango.READ)
+        self.add_attribute(myScalarDynamicAttr,LavueController.read_ScalarDynamicAttr, None, None)
+        self.attr_ScalarDynamicAttr_read = 0.0
+        """
+        
+        """   For Attribute SpectrumDynamicAttr
+        mySpectrumDynamicAttr = PyTango.SpectrumAttr('MySpectrumDynamicAttr', PyTango.DevDouble, PyTango.READ, 4096)
+        self.add_attribute(mySpectrumDynamicAttr,LavueController.read_SpectrumDynamicAttr, None, None)
+        self.attr_SpectrumDynamicAttr_read = [0.0]
+        """
+        
+        #----- PROTECTED REGION ID(LavueController.initialize_dynamic_attributes) ENABLED START -----#
+        if self.current_scalar_aliases != self.requested_scalar_aliases or \
+           self.current_spectrum_aliases != self.requested_spectrum_aliases:
+            for alias in self.current_scalar_aliases:
+                if alias not in self.requested_scalar_aliases:
+                    self.remove_attribute(str("%sSum" % alias)
+                                          if alias != "__Null__" else "Sum")
+            for alias in self.current_spectrum_aliases:
+                if alias not in self.requested_spectrum_aliases:
+                    self.remove_attribute(str("%sSums" % alias)
+                                          if alias != "__Null__" else "Sums")
+
+            for alias in self.requested_scalar_aliases:
+                if alias not in self.current_scalar_aliases:
+                    myAttr = PyTango.Attr(
+                        str("%sSum" % alias) if alias != "__Null__" else "Sum",
+                        PyTango.DevDouble, PyTango.READ)
+                    self.add_attribute(myAttr, LavueController.read_ScalarDynamicAttr,
+                                       None, None)
+            for alias in self.requested_spectrum_aliases:
+                if alias not in self.current_spectrum_aliases:
+                    myAttr = PyTango.SpectrumAttr(
+                        str("%sSums" % alias) if alias != "__Null__" else "Sums",
+                        PyTango.DevDouble,
+                        PyTango.AttrWriteType.READ, 4096)
+                    self.add_attribute(myAttr, LavueController.read_SpectrumDynamicAttr,
+                                       None, None)
+            self.current_scalar_aliases = self.requested_scalar_aliases
+            self.current_spectrum_aliases = self.requested_spectrum_aliases
+                
+                
+        #----- PROTECTED REGION END -----#	//	LavueController.initialize_dynamic_attributes
             
     def read_attr_hardware(self, data):
         self.debug_stream("In read_attr_hardware()")
@@ -280,6 +386,7 @@ class LavueController (PyTango.Device_4Impl):
         
 
     #----- PROTECTED REGION ID(LavueController.programmer_methods) ENABLED START -----#
+        
     
     #----- PROTECTED REGION END -----#	//	LavueController.programmer_methods
 
@@ -289,6 +396,24 @@ class LavueControllerClass(PyTango.DeviceClass):
     
     #----- PROTECTED REGION END -----#	//	LavueController.global_class_variables
 
+    def dyn_attr(self, dev_list):
+        """Invoked to create dynamic attributes for the given devices.
+        Default implementation calls
+        :meth:`LavueController.initialize_dynamic_attributes` for each device
+    
+        :param dev_list: list of devices
+        :type dev_list: :class:`PyTango.DeviceImpl`"""
+    
+        for dev in dev_list:
+            try:
+                dev.initialize_dynamic_attributes()
+            except:
+                import traceback
+                dev.warn_stream("Failed to initialize dynamic attributes")
+                dev.debug_stream("Details: " + traceback.format_exc())
+        #----- PROTECTED REGION ID(LavueController.dyn_attr) ENABLED START -----#
+        
+        #----- PROTECTED REGION END -----#	//	LavueController.dyn_attr
 
     #    Class Properties
     class_property_list = {
