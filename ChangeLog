@@ -1,3 +1,11 @@
+2018-07-XX Jan Kotanski <jan.kotanski@desy.de>
+	* add dynamic attributes for ROIs sums
+	* tagged as 1.22.0
+
+2018-07-10 Jan Kotanski <jan.kotanski@desy.de>
+	* fix typo in the configuration
+	* tagged as 1.21.3
+
 2018-07-10 Jan Kotanski <jan.kotanski@desy.de>
 	* fix Q+ROI+PROJ messages
 	* tagged as 1.21.2
