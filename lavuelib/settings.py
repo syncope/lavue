@@ -243,10 +243,6 @@ class Settings(object):
                 if self.secautoport:
                     self.secsockopt = b"tcp://*:*"
                     self.secsocket.bind(self.secsockopt)
-                    print(str(self.secsocket.getsockopt(
-                        zmq.LAST_ENDPOINT)))
-                    print(str(self.secsocket.getsockopt(
-                        zmq.LAST_ENDPOINT)).split(":"))
                     self.secport = unicode(self.secsocket.getsockopt(
                         zmq.LAST_ENDPOINT)).split(":")[-1]
                 else:
