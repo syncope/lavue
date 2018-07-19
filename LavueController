@@ -67,6 +67,7 @@ class LavueController (PyTango.Device_4Impl):
         self.debug_stream("In __init__()")
         LavueController.init_device(self)
         #----- PROTECTED REGION ID(LavueController.__init__) ENABLED START -----#
+        
         #----- PROTECTED REGION END -----#	//	LavueController.__init__
         
     def delete_device(self):
@@ -78,18 +79,20 @@ class LavueController (PyTango.Device_4Impl):
     def init_device(self):
         self.debug_stream("In init_device()")
         self.get_device_properties(self.get_device_class())
-        self.attr_Energy_read = 0.0
         self.attr_BeamCenterX_read = 0.0
         self.attr_BeamCenterY_read = 0.0
-        self.attr_DetectorROIs_read = "{}"
-        self.attr_DetectorROIsValues_read = "{}"
         self.attr_DetectorDistance_read = 0.0
-        self.set_change_event("Energy", True, False)
+        self.attr_DetectorROIs_read = ""
+        self.attr_DetectorROIsValues_read = ""
+        self.attr_Energy_read = 0.0
         self.set_change_event("BeamCenterX", True, False)
         self.set_change_event("BeamCenterY", True, False)
-        self.set_change_event("DetectorROIs", True, False)
         self.set_change_event("DetectorDistance", True, False)
+        self.set_change_event("DetectorROIs", True, False)
+        self.set_change_event("Energy", True, False)
         #----- PROTECTED REGION ID(LavueController.init_device) ENABLED START -----#
+        self.attr_DetectorROIs_read = "{}"
+        self.attr_DetectorROIsValues_read = "{}"
         
         #----- PROTECTED REGION END -----#	//	LavueController.init_device
 
@@ -103,22 +106,6 @@ class LavueController (PyTango.Device_4Impl):
     #    LavueController read/write attribute methods
     # -------------------------------------------------------------------------
     
-    def read_Energy(self, attr):
-        self.debug_stream("In read_Energy()")
-        #----- PROTECTED REGION ID(LavueController.Energy_read) ENABLED START -----#
-        attr.set_value(self.attr_Energy_read)
-        
-        #----- PROTECTED REGION END -----#	//	LavueController.Energy_read
-        
-    def write_Energy(self, attr):
-        self.debug_stream("In write_Energy()")
-        data = attr.get_write_value()
-        #----- PROTECTED REGION ID(LavueController.Energy_write) ENABLED START -----#
-        if self.attr_Energy_read != float(data):
-            self.attr_Energy_read = float(data)
-            self.push_change_event("Energy", self.attr_Energy_read)
-        #----- PROTECTED REGION END -----#	//	LavueController.Energy_write
-        
     def read_BeamCenterX(self, attr):
         self.debug_stream("In read_BeamCenterX()")
         #----- PROTECTED REGION ID(LavueController.BeamCenterX_read) ENABLED START -----#
@@ -134,6 +121,39 @@ class LavueController (PyTango.Device_4Impl):
             self.attr_BeamCenterX_read = float(data)
             self.push_change_event("BeamCenterX", self.attr_BeamCenterX_read)
         #----- PROTECTED REGION END -----#	//	LavueController.BeamCenterX_write
+        
+    def read_BeamCenterY(self, attr):
+        self.debug_stream("In read_BeamCenterY()")
+        #----- PROTECTED REGION ID(LavueController.BeamCenterY_read) ENABLED START -----#
+        attr.set_value(self.attr_BeamCenterY_read)
+        
+        #----- PROTECTED REGION END -----#	//	LavueController.BeamCenterY_read
+        
+    def write_BeamCenterY(self, attr):
+        self.debug_stream("In write_BeamCenterY()")
+        data = attr.get_write_value()
+        #----- PROTECTED REGION ID(LavueController.BeamCenterY_write) ENABLED START -----#
+        if self.attr_BeamCenterY_read != float(data):
+            self.attr_BeamCenterY_read = float(data)
+            self.push_change_event("BeamCenterY", self.attr_BeamCenterY_read)
+        #----- PROTECTED REGION END -----#	//	LavueController.BeamCenterY_write
+        
+    def read_DetectorDistance(self, attr):
+        self.debug_stream("In read_DetectorDistance()")
+        #----- PROTECTED REGION ID(LavueController.DetectorDistance_read) ENABLED START -----#
+        attr.set_value(self.attr_DetectorDistance_read)
+        
+        #----- PROTECTED REGION END -----#	//	LavueController.DetectorDistance_read
+        
+    def write_DetectorDistance(self, attr):
+        self.debug_stream("In write_DetectorDistance()")
+        data = attr.get_write_value()
+        #----- PROTECTED REGION ID(LavueController.DetectorDistance_write) ENABLED START -----#
+        if self.attr_DetectorDistance_read != float(data):
+            self.attr_DetectorDistance_read = float(data)
+            self.push_change_event(
+                "DetectorDistance", self.attr_DetectorDistance_read)
+        #----- PROTECTED REGION END -----#	//	LavueController.DetectorDistance_write
         
     def read_DetectorROIs(self, attr):
         self.debug_stream("In read_DetectorROIs()")
@@ -167,7 +187,7 @@ class LavueController (PyTango.Device_4Impl):
         if self.attr_DetectorROIs_read != data:
             self.attr_DetectorROIs_read = data
             self.push_change_event("DetectorROIs", self.attr_DetectorROIs_read)
-        
+        #----- PROTECTED REGION END -----#	//	LavueController.DetectorROIs_write
         
     def read_DetectorROIsValues(self, attr):
         self.debug_stream("In read_DetectorROIsValues()")
@@ -198,39 +218,25 @@ class LavueController (PyTango.Device_4Impl):
         
         #----- PROTECTED REGION END -----#	//	LavueController.DetectorROIsValues_write
         
-    def read_DetectorDistance(self, attr):
-        self.debug_stream("In read_DetectorDistance()")
-        #----- PROTECTED REGION ID(LavueController.DetectorDistance_read) ENABLED START -----#
-        attr.set_value(self.attr_DetectorDistance_read)
+    def read_Energy(self, attr):
+        self.debug_stream("In read_Energy()")
+        #----- PROTECTED REGION ID(LavueController.Energy_read) ENABLED START -----#
+        attr.set_value(self.attr_Energy_read)
         
-        #----- PROTECTED REGION END -----#	//	LavueController.DetectorDistance_read
+        #----- PROTECTED REGION END -----#	//	LavueController.Energy_read
         
-    def write_DetectorDistance(self, attr):
-        self.debug_stream("In write_DetectorDistance()")
+    def write_Energy(self, attr):
+        self.debug_stream("In write_Energy()")
         data = attr.get_write_value()
-        #----- PROTECTED REGION ID(LavueController.DetectorDistance_write) ENABLED START -----#
-        if self.attr_DetectorDistance_read != float(data):
-            self.attr_DetectorDistance_read = float(data)
-            self.push_change_event(
-                "DetectorDistance", self.attr_DetectorDistance_read)
-        #----- PROTECTED REGION END -----#	//	LavueController.DetectorDistance_write
+        #----- PROTECTED REGION ID(LavueController.Energy_write) ENABLED START -----#
+        if self.attr_Energy_read != float(data):
+            self.attr_Energy_read = float(data)
+            self.push_change_event("Energy", self.attr_Energy_read)
+        #----- PROTECTED REGION END -----#	//	LavueController.Energy_write
         
-    def read_BeamCenterY(self, attr):
-        self.debug_stream("In read_BeamCenterY()")
-        #----- PROTECTED REGION ID(LavueController.BeamCenterY_read) ENABLED START -----#
-        attr.set_value(self.attr_BeamCenterY_read)
-        
-        #----- PROTECTED REGION END -----#	//	LavueController.BeamCenterY_read
-        
-    def write_BeamCenterY(self, attr):
-        self.debug_stream("In write_BeamCenterY()")
-        data = attr.get_write_value()
-        #----- PROTECTED REGION ID(LavueController.BeamCenterY_write) ENABLED START -----#
-        if self.attr_BeamCenterY_read != float(data):
-            self.attr_BeamCenterY_read = float(data)
-            self.push_change_event("BeamCenterY", self.attr_BeamCenterY_read)
-        #----- PROTECTED REGION END -----#	//	LavueController.BeamCenterY_write
-        
+    
+    
+            
     def read_attr_hardware(self, data):
         self.debug_stream("In read_attr_hardware()")
         #----- PROTECTED REGION ID(LavueController.read_attr_hardware) ENABLED START -----#
@@ -291,6 +297,10 @@ class LavueControllerClass(PyTango.DeviceClass):
 
     #    Device Properties
     device_property_list = {
+        'DynamicROIs':
+            [PyTango.DevBoolean, 
+            "create dynamically Attributes for ROIs aliases with their sums",
+            [False]],
         }
 
 
@@ -301,16 +311,6 @@ class LavueControllerClass(PyTango.DeviceClass):
 
     #    Attribute definitions
     attr_list = {
-        'Energy':
-            [[PyTango.DevDouble,
-            PyTango.SCALAR,
-            PyTango.READ_WRITE],
-            {
-                'label': "beam energy",
-                'unit': "eV",
-                'abs_change': "0.0001",
-                'Memorized':"true"
-            } ],
         'BeamCenterX':
             [[PyTango.DevDouble,
             PyTango.SCALAR,
@@ -321,23 +321,14 @@ class LavueControllerClass(PyTango.DeviceClass):
                 'abs_change': "0.0001",
                 'Memorized':"true"
             } ],
-        'DetectorROIs':
-            [[PyTango.DevString,
+        'BeamCenterY':
+            [[PyTango.DevDouble,
             PyTango.SCALAR,
             PyTango.READ_WRITE],
             {
-                'label': "detector ROIs",
-                'description': "json dictionary with detector ROIs, e.g.  {'pilatusroi1': [[26, 15, 232, 65]], 'lambdarois': [[54, 78, 102, 204], [10, 20, 40, 50]]}",
-                'Display level': PyTango.DispLevel.EXPERT,
-                'Memorized':"true"
-            } ],
-        'DetectorROIsValues':
-            [[PyTango.DevString,
-            PyTango.SCALAR,
-            PyTango.READ_WRITE],
-            {
-                'label': "detector ROIs values",
-                'description': "json dictionary with detector ROIs values, e.g.  {'pilatusroi1': [26.3], 'lambdarois': [54.3, 434.30]]}",
+                'label': "beam center y",
+                'unit': "pixels",
+                'abs_change': "0.0001",
                 'Memorized':"true"
             } ],
         'DetectorDistance':
@@ -350,13 +341,32 @@ class LavueControllerClass(PyTango.DeviceClass):
                 'abs_change': "0.0001",
                 'Memorized':"true"
             } ],
-        'BeamCenterY':
+        'DetectorROIs':
+            [[PyTango.DevString,
+            PyTango.SCALAR,
+            PyTango.READ_WRITE],
+            {
+                'label': "detector ROIs",
+                'description': "json dictionary with detector ROIs, e.g.  {`pilatusroi1`: [[26, 15, 232, 65]], `lambdarois`: [[54, 78, 102, 204], [10, 20, 40, 50]]}",
+                'Display level': PyTango.DispLevel.EXPERT,
+                'Memorized':"true"
+            } ],
+        'DetectorROIsValues':
+            [[PyTango.DevString,
+            PyTango.SCALAR,
+            PyTango.READ_WRITE],
+            {
+                'label': "detector ROIs values",
+                'description': "json dictionary with detector ROIs values, e.g.  {'pilatusroi1': [26.3], 'lambdarois': [54.3, 434.30]]}",
+                'Memorized':"true"
+            } ],
+        'Energy':
             [[PyTango.DevDouble,
             PyTango.SCALAR,
             PyTango.READ_WRITE],
             {
-                'label': "beam center y",
-                'unit': "pixels",
+                'label': "beam energy",
+                'unit': "eV",
                 'abs_change': "0.0001",
                 'Memorized':"true"
             } ],
