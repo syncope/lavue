@@ -417,7 +417,7 @@ class LavueControllerClass(PyTango.DeviceClass):
         'DynamicROIs':
             [PyTango.DevBoolean, 
             "create dynamically Attributes for ROIs aliases with their sums",
-            [False]],
+            [True]],
         }
 
 
