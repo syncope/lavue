@@ -65,7 +65,7 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`bool`) find security stream port automatically
         self.secautoport = True
         #: (:obj:`float`) refresh rate
-        self.refreshrate = 0.1
+        self.refreshrate = 0.2
         #: (:obj:`bool`) show color distribution histogram widget
         self.showhisto = True
         #: (:obj:`bool`) show mask widget
