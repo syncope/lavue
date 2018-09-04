@@ -85,7 +85,7 @@ class Settings(object):
         #: (:obj:`bool`) security stream options
         self.secsockopt = b""
         #: (:obj:`float`) refresh rate
-        self.refreshrate = 0.1
+        self.refreshrate = 0.2
         #: (:obj:`bool`) interrupt on error
         self.interruptonerror = True
         #: (:obj:`str`) last image file name
