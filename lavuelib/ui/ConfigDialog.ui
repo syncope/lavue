@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>588</width>
-    <height>751</height>
+    <width>622</width>
+    <height>797</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,29 +40,6 @@
                  <layout class="QGridLayout" name="gridLayout_2">
                   <item row="0" column="0">
                    <layout class="QGridLayout" name="imageGridLayout">
-                    <item row="0" column="0">
-                     <widget class="QLabel" name="rateLabel">
-                      <property name="toolTip">
-                       <string>refresh rate of the image in seconds</string>
-                      </property>
-                      <property name="text">
-                       <string>Refresh rate in s:</string>
-                      </property>
-                      <property name="buddy">
-                       <cstring>rateDoubleSpinBox</cstring>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="1">
-                     <widget class="QDoubleSpinBox" name="rateDoubleSpinBox">
-                      <property name="toolTip">
-                       <string>refresh rate of the image in seconds</string>
-                      </property>
-                      <property name="singleStep">
-                       <double>0.010000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="1" column="0">
                      <widget class="QLabel" name="aspectlockedLabel">
                       <property name="toolTip">
@@ -76,29 +53,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="1">
-                     <widget class="QCheckBox" name="aspectlockedCheckBox">
-                      <property name="toolTip">
-                       <string>lock the aspect ration of the image</string>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="0">
-                     <widget class="QLabel" name="downsampleLabel">
-                      <property name="toolTip">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;set auto down sample&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="text">
-                       <string>Auto Down-Sample:</string>
-                      </property>
-                      <property name="buddy">
-                       <cstring>downsampleCheckBox</cstring>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="2" column="1">
                      <widget class="QCheckBox" name="downsampleCheckBox">
                       <property name="toolTip">
@@ -106,59 +60,6 @@
                       </property>
                       <property name="text">
                        <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="0">
-                     <widget class="QLabel" name="keepCoordsLabel">
-                      <property name="text">
-                       <string>Keep original coordinates: </string>
-                      </property>
-                      <property name="buddy">
-                       <cstring>keepCoordsCheckBox</cstring>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="1">
-                     <widget class="QCheckBox" name="keepCoordsCheckBox">
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QLabel" name="zeromaskLabel">
-                      <property name="toolTip">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checkout pixel masks are represented by zero values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="text">
-                       <string>Pixel masks with zero values:</string>
-                      </property>
-                      <property name="buddy">
-                       <cstring>zeromaskCheckBox</cstring>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="1">
-                     <widget class="QCheckBox" name="zeromaskCheckBox">
-                      <property name="toolTip">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checkout pixel masks are represented by zero values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="5" column="0">
-                     <widget class="QLabel" name="roiscolorslabel">
-                      <property name="toolTip">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;rois colors in cyclic order&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="text">
-                       <string>ROIs Colors:</string>
-                      </property>
-                      <property name="buddy">
-                       <cstring>plusroiPushButton</cstring>
                       </property>
                      </widget>
                     </item>
@@ -233,6 +134,39 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="1" column="1">
+                     <widget class="QCheckBox" name="aspectlockedCheckBox">
+                      <property name="toolTip">
+                       <string>lock the aspect ration of the image</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QLabel" name="downsampleLabel">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;set auto down sample&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string>Auto Down-Sample:</string>
+                      </property>
+                      <property name="buddy">
+                       <cstring>downsampleCheckBox</cstring>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="1">
+                     <widget class="QCheckBox" name="sendroisCheckBox">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;send roi value(s) to LavueController server&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="6" column="0">
                      <widget class="QLabel" name="showallroisLabel">
                       <property name="toolTip">
@@ -243,6 +177,19 @@
                       </property>
                       <property name="buddy">
                        <cstring>showallroisCheckBox</cstring>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="8" column="0">
+                     <widget class="QLabel" name="interruptLabel">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrupt on an image source error&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string>Interupt on source errors:</string>
+                      </property>
+                      <property name="buddy">
+                       <cstring>interruptCheckBox</cstring>
                       </property>
                      </widget>
                     </item>
@@ -259,10 +206,86 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="7" column="1">
-                     <widget class="QCheckBox" name="sendroisCheckBox">
+                    <item row="4" column="1">
+                     <widget class="QCheckBox" name="zeromaskCheckBox">
                       <property name="toolTip">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;send roi value(s) to LavueController server&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checkout pixel masks are represented by zero values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="0">
+                     <widget class="QLabel" name="roiscolorslabel">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;rois colors in cyclic order&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string>ROIs Colors:</string>
+                      </property>
+                      <property name="buddy">
+                       <cstring>plusroiPushButton</cstring>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="zeromaskLabel">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checkout pixel masks are represented by zero values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string>Pixel masks with zero values:</string>
+                      </property>
+                      <property name="buddy">
+                       <cstring>zeromaskCheckBox</cstring>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QLabel" name="keepCoordsLabel">
+                      <property name="text">
+                       <string>Keep original coordinates: </string>
+                      </property>
+                      <property name="buddy">
+                       <cstring>keepCoordsCheckBox</cstring>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QCheckBox" name="keepCoordsCheckBox">
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="0">
+                     <widget class="QLabel" name="rateLabel">
+                      <property name="toolTip">
+                       <string>refresh rate of the image in seconds</string>
+                      </property>
+                      <property name="text">
+                       <string>Refresh rate in s:</string>
+                      </property>
+                      <property name="buddy">
+                       <cstring>rateDoubleSpinBox</cstring>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QDoubleSpinBox" name="rateDoubleSpinBox">
+                      <property name="toolTip">
+                       <string>refresh rate of the image in seconds</string>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="8" column="1">
+                     <widget class="QCheckBox" name="interruptCheckBox">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrupt on an image source error&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="text">
                        <string/>
@@ -1117,6 +1140,7 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>minusroiPushButton</tabstop>
   <tabstop>showallroisCheckBox</tabstop>
   <tabstop>sendroisCheckBox</tabstop>
+  <tabstop>interruptCheckBox</tabstop>
   <tabstop>statsscaleCheckBox</tabstop>
   <tabstop>secstreamCheckBox</tabstop>
   <tabstop>secautoportCheckBox</tabstop>
