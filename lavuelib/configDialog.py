@@ -103,6 +103,9 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`bool`) topics for ZMQ stream source fetched from the stream
         self.autozmqtopics = False
 
+        #: (:obj:`bool`) interrupt on error
+        self.interruptonerror = True
+
         #: (:obj:`str`) JSON dictionary with directory and filename translation
         #  for Tango file source
         self.dirtrans = '{"/ramdisk/": "/gpfs/"}'
@@ -166,6 +169,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.zmqtopicsLineEdit.setText(" ".join(self.zmqtopics))
         self.__ui.detserversLineEdit.setText(" ".join(self.detservers))
         self.__ui.autozmqtopicsCheckBox.setChecked(self.autozmqtopics)
+        self.__ui.interruptCheckBox.setChecked(self.interruptonerror)
         self.__ui.dirtransLineEdit.setText(self.dirtrans)
         self.__ui.attrLineEdit.setText(self.tangoattrs)
         self.__ui.fileattrLineEdit.setText(self.tangofileattrs)
@@ -327,6 +331,7 @@ class ConfigDialog(QtGui.QDialog):
         detservers = str(
             self.__ui.detserversLineEdit.text()).strip().split(" ")
         self.autozmqtopics = self.__ui.autozmqtopicsCheckBox.isChecked()
+        self.interruptonerror = self.__ui.interruptCheckBox.isChecked()
         self.detservers = [ds for ds in detservers if ds]
         try:
             self.timeout = int(self.__ui.timeoutLineEdit.text())

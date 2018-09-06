@@ -692,6 +692,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.zmqtopics = self.__settings.zmqtopics
         cnfdlg.detservers = self.__settings.detservers
         cnfdlg.autozmqtopics = self.__settings.autozmqtopics
+        cnfdlg.interruptonerror = self.__settings.interruptonerror
         cnfdlg.dirtrans = self.__settings.dirtrans
         cnfdlg.tangoattrs = self.__settings.tangoattrs
         cnfdlg.tangofileattrs = self.__settings.tangofileattrs
@@ -784,6 +785,7 @@ class LiveViewer(QtGui.QMainWindow):
 
         self.__settings.secstream = dialog.secstream
         self.__settings.storegeometry = dialog.storegeometry
+        self.__settings.interruptonerror = dialog.interruptonerror
         setsrc = False
         if self.__settings.hidraport != dialog.hidraport:
             self.__settings.hidraport = dialog.hidraport
