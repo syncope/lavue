@@ -1,3 +1,7 @@
+2018-09-07 Jan Kotanski <jan.kotanski@desy.de>
+	* add interrupt on source errors option
+	* tagged as 1.22.2
+
 2018-09-05 Jan Kotanski <jan.kotanski@desy.de>
 	* change default refreshrate 0.2
 	* tagged as 1.22.1
