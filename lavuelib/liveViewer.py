@@ -190,6 +190,9 @@ class LiveViewer(QtGui.QMainWindow):
 
         #: (:class:`lavuelib.maskWidget.MaskWidget`) mask widget
         self.__maskwg = self.__prepwg.maskWidget
+        #: (:class:`lavuelib.highValueMaskWidget.HighValueMaskWidget`)
+        #               high value mask widget
+        self.__highvaluemaskwg = self.__prepwg.highValueMaskWidget
         #: (:class:`lavuelib.bkgSubtractionWidget.BkgSubtractionWidget`)
         #:    background subtraction widget
         self.__bkgsubwg = self.__prepwg.bkgSubWidget
@@ -220,6 +223,8 @@ class LiveViewer(QtGui.QMainWindow):
 
         #: (:class:`numpy.ndarray`) mask image
         self.__maskimage = None
+        #: (:obj:`float`) file name
+        self.__maskvalue = None
         #: (:class:`numpy.ndarray`) mask image indices
         self.__maskindices = None
         #: (:obj:`bool`) apply mask
@@ -309,6 +314,9 @@ class LiveViewer(QtGui.QMainWindow):
         self.__maskwg.maskFileSelected.connect(self._prepareMasking)
         self.__maskwg.applyStateChanged.connect(self._checkMasking)
 
+        self.__highvaluemaskwg.maskHighValueChanged.connect(
+            self._checkHighMasking)
+
         # signals from transformation widget
         self.__trafowg.transformationChanged.connect(
             self._assessTransformation)
@@ -384,6 +392,9 @@ class LiveViewer(QtGui.QMainWindow):
 
         if options.maskfile:
             self.__maskwg.setMask(options.maskfile)
+
+        if options.maskhighvalue:
+            self.__highvaluemaskwg.setMask(options.maskhighvalue)
 
         if options.transformation:
             self.__trafowg.setTransformation(options.transformation)
@@ -500,7 +511,9 @@ class LiveViewer(QtGui.QMainWindow):
         self.__prepwg.changeView(
             self.__settings.showmask,
             self.__settings.showsub,
-            self.__settings.showtrans)
+            self.__settings.showtrans,
+            self.__settings.showhighvaluemask
+        )
         self.__scalingwg.changeView(self.__settings.showscale)
         self.__levelswg.changeView()
 
@@ -677,6 +690,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.showlevels = self.__settings.showlevels
         cnfdlg.showhisto = self.__settings.showhisto
         cnfdlg.showmask = self.__settings.showmask
+        cnfdlg.showhighvaluemask = self.__settings.showhighvaluemask
         cnfdlg.showstats = self.__settings.showstats
         cnfdlg.secautoport = self.__settings.secautoport
         cnfdlg.secport = self.__settings.secport
@@ -727,6 +741,10 @@ class LiveViewer(QtGui.QMainWindow):
         if self.__settings.showmask != dialog.showmask:
             self.__settings.showmask = dialog.showmask
             self.__prepwg.changeView(dialog.showmask)
+        if self.__settings.showhighvaluemask != dialog.showhighvaluemask:
+            self.__settings.showhighvaluemask = dialog.showhighvaluemask
+            self.__prepwg.changeView(
+                showhighvaluemask=dialog.showhighvaluemask)
 
         if self.__settings.showscale != dialog.showscale:
             self.__scalingwg.changeView(dialog.showscale)
@@ -1218,6 +1236,7 @@ class LiveViewer(QtGui.QMainWindow):
            self.__maskindices is not None:
             # set all masked (non-zero values) to zero by index
             try:
+                self.__displayimage = np.array(self.__displayimage)
                 self.__displayimage[self.__maskindices] = 0
             except IndexError:
                 self.__maskwg.noImage()
@@ -1230,6 +1249,22 @@ class LiveViewer(QtGui.QMainWindow):
                 messageBox.MessageBox.warning(
                     self, "lavue: Mask image does not match "
                     "to the current image",
+                    text, str(value))
+
+        if self.__settings.showhighvaluemask and \
+           self.__maskvalue is not None:
+            try:
+                self.__displayimage = np.array(self.__displayimage)
+                self.__displayimage[self.__displayimage > self.__maskvalue] = 0
+            except IndexError:
+                # self.__highvaluemaskwg.noValue()
+                import traceback
+                value = traceback.format_exc()
+                text = messageBox.MessageBox.getText(
+                    "lavue: Cannot apply high value mask to the current image")
+                messageBox.MessageBox.warning(
+                    self, "lavue: Cannot apply high value mask"
+                    " to the current image",
                     text, str(value))
 
     def __transform(self):
@@ -1345,6 +1380,16 @@ class LiveViewer(QtGui.QMainWindow):
         maxrawval = np.amax(self.__rawgreyimage) if flag[4] else 0.0
         minval = np.amin(self.__scaledimage) if flag[3] else 0.0
         return (maxval, meanval, varval, minval, maxrawval,  maxsval)
+
+    @QtCore.pyqtSlot(str)
+    def _checkHighMasking(self, value):
+        """ reads the mask image, select non-zero elements and store the indices
+        """
+        try:
+            self.__maskvalue = float(value)
+        except:
+            self.__maskvalue = None
+        self._plot()
 
     @QtCore.pyqtSlot(int)
     def _checkMasking(self, state):

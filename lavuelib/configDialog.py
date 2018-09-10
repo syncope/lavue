@@ -70,6 +70,8 @@ class ConfigDialog(QtGui.QDialog):
         self.showhisto = True
         #: (:obj:`bool`) show mask widget
         self.showmask = False
+        #: (:obj:`bool`) show high value mask widget
+        self.showhighvaluemask = False
         #: (:obj:`bool`) show statistics widget
         self.showstats = True
         #: (:obj:`bool`) zero mask enabled
@@ -160,6 +162,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.hidraportLineEdit.setText(self.hidraport)
         self.__ui.showhistoCheckBox.setChecked(self.showhisto)
         self.__ui.showmaskCheckBox.setChecked(self.showmask)
+        self.__ui.showmaskhighCheckBox.setChecked(self.showhighvaluemask)
         self.__ui.showstatsCheckBox.setChecked(self.showstats)
         self.__ui.showsubCheckBox.setChecked(self.showsub)
         self.__ui.showtransCheckBox.setChecked(self.showtrans)
@@ -261,6 +264,7 @@ class ConfigDialog(QtGui.QDialog):
         self.showlevels = self.__ui.showlevelsCheckBox.isChecked()
         self.showhisto = self.__ui.showhistoCheckBox.isChecked()
         self.showmask = self.__ui.showmaskCheckBox.isChecked()
+        self.showhighvaluemask = self.__ui.showmaskhighCheckBox.isChecked()
         self.showstats = self.__ui.showstatsCheckBox.isChecked()
         self.aspectlocked = self.__ui.aspectlockedCheckBox.isChecked()
         self.autodownsample = self.__ui.downsampleCheckBox.isChecked()

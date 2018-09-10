@@ -99,6 +99,10 @@ if __name__ == "__main__":
         help="mask file-name to load"
     )
     parser.add_argument(
+        "-p", "--mask-high-value", dest="maskhighvalue",
+        help="highest pixel value to show"
+    )
+    parser.add_argument(
         "-t", "--transformation", dest="transformation",
         help="image transformation, i.e.\n"
         "  flip-up-down, flip-left-right, transpose,\n"
