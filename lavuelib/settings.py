@@ -53,6 +53,8 @@ class Settings(object):
         #: (:obj:`bool`) show mask widget
         self.showmask = False
         #: (:obj:`bool`) show mask widget
+        self.showhighvaluemask = False
+        #: (:obj:`bool`) show mask widget
         self.showstats = True
         #: (:obj:`bool`) show bakcground subtraction widget
         self.showsub = True
@@ -189,6 +191,10 @@ class Settings(object):
         qstval = str(settings.value("Configuration/ShowMaskWidget", type=str))
         if qstval.lower() == "true":
             self.showmask = True
+        qstval = str(settings.value(
+            "Configuration/ShowHighValueMaskWidget", type=str))
+        if qstval.lower() == "true":
+            self.showhighvaluemask = True
         qstval = str(settings.value("Configuration/ShowStatistics", type=str))
         if qstval.lower() == "false":
             self.showstats = False
@@ -403,6 +409,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ShowMaskWidget",
             self.showmask)
+        settings.setValue(
+            "Configuration/ShowHighValueMaskWidget",
+            self.showhighvaluemask)
         settings.setValue(
             "Configuration/ShowStatistics",
             self.showstats)
