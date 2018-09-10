@@ -1,3 +1,7 @@
+2018-09-10 Jan Kotanski <jan.kotanski@desy.de>
+	* add massing high value pixels
+	* tagged as 1.23.0
+
 2018-09-07 Jan Kotanski <jan.kotanski@desy.de>
 	* add interrupt on source errors option
 	* tagged as 1.22.2
