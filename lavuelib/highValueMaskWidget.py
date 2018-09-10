@@ -91,7 +91,7 @@ class HighValueMaskWidget(QtGui.QWidget):
         """
         try:
             self.__maskvalue = float(value)
-        except:
+        except Exception:
             self.__maskvalue = None
             value = ""
         if self.__maskvalue is None:
