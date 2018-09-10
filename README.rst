@@ -1,7 +1,7 @@
 LaVue - Live Image Viewer
 =========================
 
-Authors: Christoph Rosemann <christoph.rosemann at desy.de>, Jan Kotański <jan.kotanski at desy.de>, André Rothkirch <andre.rothkirch at desy.de>	   
+Authors: Christoph Rosemann <christoph.rosemann at desy.de>, Jan Kotański <jan.kotanski at desy.de>, André Rothkirch <andre.rothkirch at desy.de>
 
 Introduction
 ------------
@@ -12,7 +12,7 @@ e.g. ``Pilatus``, ``Lambda``, ``Eiger``, ``PerkinElmer``, ``PCO``, ``LimaCCD``, 
 
 .. image:: https://github.com/jkotan/lavue/blob/develop/doc/_images/lavue.png?raw=true
 
-	   
+
 Installation
 ------------
 
@@ -20,7 +20,7 @@ LaVue requires the following python packages: ``qt4  pyqtgraph  numpy  zmq  scip
 
 It is also recommended to install: ``pytango  hidra  pil  fabio  requests  h5py  pni  nxstools``
 
-	   
+
 From sources
 """"""""""""
 
@@ -120,4 +120,8 @@ To get all possible command-line parameters
 
    $ lavue -h
 
+Further reading
+---------------
 
+More information can be found at: `LaVue
+<https://confluence.desy.de/display/FSEC/LaVue+-+Live+Image+Viewer>`_

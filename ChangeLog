@@ -1,4 +1,16 @@
-2018-07-XX Jan Kotanski <jan.kotanski@desy.de>
+2018-09-10 Jan Kotanski <jan.kotanski@desy.de>
+	* add massing high value pixels
+	* tagged as 1.23.0
+
+2018-09-07 Jan Kotanski <jan.kotanski@desy.de>
+	* add interrupt on source errors option
+	* tagged as 1.22.2
+
+2018-09-05 Jan Kotanski <jan.kotanski@desy.de>
+	* change default refreshrate 0.2
+	* tagged as 1.22.1
+
+2018-07-20 Jan Kotanski <jan.kotanski@desy.de>
 	* add dynamic attributes for ROIs sums
 	* tagged as 1.22.0
 

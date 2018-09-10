@@ -54,7 +54,7 @@ from . import release
 try:
     from . import controllerClient
     TANGOCLIENT = True
-except:
+except Exception:
     TANGOCLIENT = False
 
 from . import imageFileHandler
@@ -190,6 +190,9 @@ class LiveViewer(QtGui.QMainWindow):
 
         #: (:class:`lavuelib.maskWidget.MaskWidget`) mask widget
         self.__maskwg = self.__prepwg.maskWidget
+        #: (:class:`lavuelib.highValueMaskWidget.HighValueMaskWidget`)
+        #               high value mask widget
+        self.__highvaluemaskwg = self.__prepwg.highValueMaskWidget
         #: (:class:`lavuelib.bkgSubtractionWidget.BkgSubtractionWidget`)
         #:    background subtraction widget
         self.__bkgsubwg = self.__prepwg.bkgSubWidget
@@ -220,6 +223,8 @@ class LiveViewer(QtGui.QMainWindow):
 
         #: (:class:`numpy.ndarray`) mask image
         self.__maskimage = None
+        #: (:obj:`float`) file name
+        self.__maskvalue = None
         #: (:class:`numpy.ndarray`) mask image indices
         self.__maskindices = None
         #: (:obj:`bool`) apply mask
@@ -309,6 +314,9 @@ class LiveViewer(QtGui.QMainWindow):
         self.__maskwg.maskFileSelected.connect(self._prepareMasking)
         self.__maskwg.applyStateChanged.connect(self._checkMasking)
 
+        self.__highvaluemaskwg.maskHighValueChanged.connect(
+            self._checkHighMasking)
+
         # signals from transformation widget
         self.__trafowg.transformationChanged.connect(
             self._assessTransformation)
@@ -359,7 +367,7 @@ class LiveViewer(QtGui.QMainWindow):
                     self.__fieldpath = None
                 self.__growing = 0
                 self._loadfile(fid=0)
-            except:
+            except Exception:
                 self.__settings.imagename = oldname
                 self.__fieldpath = oldpath
                 self.__growing = oldgrowing
@@ -384,6 +392,9 @@ class LiveViewer(QtGui.QMainWindow):
 
         if options.maskfile:
             self.__maskwg.setMask(options.maskfile)
+
+        if options.maskhighvalue:
+            self.__highvaluemaskwg.setMask(options.maskhighvalue)
 
         if options.transformation:
             self.__trafowg.setTransformation(options.transformation)
@@ -500,7 +511,9 @@ class LiveViewer(QtGui.QMainWindow):
         self.__prepwg.changeView(
             self.__settings.showmask,
             self.__settings.showsub,
-            self.__settings.showtrans)
+            self.__settings.showtrans,
+            self.__settings.showhighvaluemask
+        )
         self.__scalingwg.changeView(self.__settings.showscale)
         self.__levelswg.changeView()
 
@@ -545,7 +558,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__settings.secstream = False
         try:
             self.__dataFetcher.newDataNameFetched.disconnect(self._getNewData)
-        except:
+        except Exception:
             pass
         # except Exception as e:
         #     print (str(e))
@@ -677,6 +690,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.showlevels = self.__settings.showlevels
         cnfdlg.showhisto = self.__settings.showhisto
         cnfdlg.showmask = self.__settings.showmask
+        cnfdlg.showhighvaluemask = self.__settings.showhighvaluemask
         cnfdlg.showstats = self.__settings.showstats
         cnfdlg.secautoport = self.__settings.secautoport
         cnfdlg.secport = self.__settings.secport
@@ -692,6 +706,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.zmqtopics = self.__settings.zmqtopics
         cnfdlg.detservers = self.__settings.detservers
         cnfdlg.autozmqtopics = self.__settings.autozmqtopics
+        cnfdlg.interruptonerror = self.__settings.interruptonerror
         cnfdlg.dirtrans = self.__settings.dirtrans
         cnfdlg.tangoattrs = self.__settings.tangoattrs
         cnfdlg.tangofileattrs = self.__settings.tangofileattrs
@@ -726,6 +741,10 @@ class LiveViewer(QtGui.QMainWindow):
         if self.__settings.showmask != dialog.showmask:
             self.__settings.showmask = dialog.showmask
             self.__prepwg.changeView(dialog.showmask)
+        if self.__settings.showhighvaluemask != dialog.showhighvaluemask:
+            self.__settings.showhighvaluemask = dialog.showhighvaluemask
+            self.__prepwg.changeView(
+                showhighvaluemask=dialog.showhighvaluemask)
 
         if self.__settings.showscale != dialog.showscale:
             self.__scalingwg.changeView(dialog.showscale)
@@ -751,7 +770,7 @@ class LiveViewer(QtGui.QMainWindow):
                 try:
                     self.__settings.secsocket.unbind(
                         self.__settings.secsockopt)
-                except:
+                except Exception:
                     pass
                 if self.__sourcewg.isConnected():
                     self.__sourcewg.connectSuccess(None)
@@ -784,6 +803,7 @@ class LiveViewer(QtGui.QMainWindow):
 
         self.__settings.secstream = dialog.secstream
         self.__settings.storegeometry = dialog.storegeometry
+        self.__settings.interruptonerror = dialog.interruptonerror
         setsrc = False
         if self.__settings.hidraport != dialog.hidraport:
             self.__settings.hidraport = dialog.hidraport
@@ -1164,7 +1184,7 @@ class LiveViewer(QtGui.QMainWindow):
                             self.__levelswg.colorChannel() - 1]
                     else:
                         self.__rawgreyimage = np.mean(self.__rawimage, 0)
-                except:
+                except Exception:
                     import traceback
                     value = traceback.format_exc()
                     text = messageBox.MessageBox.getText(
@@ -1198,7 +1218,7 @@ class LiveViewer(QtGui.QMainWindow):
             try:
                 self.__displayimage = \
                     self.__rawgreyimage - self.__backgroundimage
-            except:
+            except Exception:
                 self._checkBkgSubtraction(False)
                 self.__backgroundimage = None
                 self.__dobkgsubtraction = False
@@ -1216,6 +1236,7 @@ class LiveViewer(QtGui.QMainWindow):
            self.__maskindices is not None:
             # set all masked (non-zero values) to zero by index
             try:
+                self.__displayimage = np.array(self.__displayimage)
                 self.__displayimage[self.__maskindices] = 0
             except IndexError:
                 self.__maskwg.noImage()
@@ -1228,6 +1249,22 @@ class LiveViewer(QtGui.QMainWindow):
                 messageBox.MessageBox.warning(
                     self, "lavue: Mask image does not match "
                     "to the current image",
+                    text, str(value))
+
+        if self.__settings.showhighvaluemask and \
+           self.__maskvalue is not None:
+            try:
+                self.__displayimage = np.array(self.__displayimage)
+                self.__displayimage[self.__displayimage > self.__maskvalue] = 0
+            except IndexError:
+                # self.__highvaluemaskwg.noValue()
+                import traceback
+                value = traceback.format_exc()
+                text = messageBox.MessageBox.getText(
+                    "lavue: Cannot apply high value mask to the current image")
+                messageBox.MessageBox.warning(
+                    self, "lavue: Cannot apply high value mask"
+                    " to the current image",
                     text, str(value))
 
     def __transform(self):
@@ -1343,6 +1380,16 @@ class LiveViewer(QtGui.QMainWindow):
         maxrawval = np.amax(self.__rawgreyimage) if flag[4] else 0.0
         minval = np.amin(self.__scaledimage) if flag[3] else 0.0
         return (maxval, meanval, varval, minval, maxrawval,  maxsval)
+
+    @QtCore.pyqtSlot(str)
+    def _checkHighMasking(self, value):
+        """ reads the mask image, select non-zero elements and store the indices
+        """
+        try:
+            self.__maskvalue = float(value)
+        except Exception:
+            self.__maskvalue = None
+        self._plot()
 
     @QtCore.pyqtSlot(int)
     def _checkMasking(self, state):

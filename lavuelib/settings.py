@@ -53,6 +53,8 @@ class Settings(object):
         #: (:obj:`bool`) show mask widget
         self.showmask = False
         #: (:obj:`bool`) show mask widget
+        self.showhighvaluemask = False
+        #: (:obj:`bool`) show mask widget
         self.showstats = True
         #: (:obj:`bool`) show bakcground subtraction widget
         self.showsub = True
@@ -85,7 +87,7 @@ class Settings(object):
         #: (:obj:`bool`) security stream options
         self.secsockopt = b""
         #: (:obj:`float`) refresh rate
-        self.refreshrate = 0.1
+        self.refreshrate = 0.2
         #: (:obj:`bool`) interrupt on error
         self.interruptonerror = True
         #: (:obj:`str`) last image file name
@@ -189,6 +191,10 @@ class Settings(object):
         qstval = str(settings.value("Configuration/ShowMaskWidget", type=str))
         if qstval.lower() == "true":
             self.showmask = True
+        qstval = str(settings.value(
+            "Configuration/ShowHighValueMaskWidget", type=str))
+        if qstval.lower() == "true":
+            self.showhighvaluemask = True
         qstval = str(settings.value("Configuration/ShowStatistics", type=str))
         if qstval.lower() == "false":
             self.showstats = False
@@ -243,10 +249,6 @@ class Settings(object):
                 if self.secautoport:
                     self.secsockopt = b"tcp://*:*"
                     self.secsocket.bind(self.secsockopt)
-                    print(str(self.secsocket.getsockopt(
-                        zmq.LAST_ENDPOINT)))
-                    print(str(self.secsocket.getsockopt(
-                        zmq.LAST_ENDPOINT)).split(":"))
                     self.secport = unicode(self.secsocket.getsockopt(
                         zmq.LAST_ENDPOINT)).split(":")[-1]
                 else:
@@ -407,6 +409,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ShowMaskWidget",
             self.showmask)
+        settings.setValue(
+            "Configuration/ShowHighValueMaskWidget",
+            self.showhighvaluemask)
         settings.setValue(
             "Configuration/ShowStatistics",
             self.showstats)
