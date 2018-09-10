@@ -54,7 +54,7 @@ from . import release
 try:
     from . import controllerClient
     TANGOCLIENT = True
-except:
+except Exception:
     TANGOCLIENT = False
 
 from . import imageFileHandler
@@ -367,7 +367,7 @@ class LiveViewer(QtGui.QMainWindow):
                     self.__fieldpath = None
                 self.__growing = 0
                 self._loadfile(fid=0)
-            except:
+            except Exception:
                 self.__settings.imagename = oldname
                 self.__fieldpath = oldpath
                 self.__growing = oldgrowing
@@ -558,7 +558,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__settings.secstream = False
         try:
             self.__dataFetcher.newDataNameFetched.disconnect(self._getNewData)
-        except:
+        except Exception:
             pass
         # except Exception as e:
         #     print (str(e))
@@ -770,7 +770,7 @@ class LiveViewer(QtGui.QMainWindow):
                 try:
                     self.__settings.secsocket.unbind(
                         self.__settings.secsockopt)
-                except:
+                except Exception:
                     pass
                 if self.__sourcewg.isConnected():
                     self.__sourcewg.connectSuccess(None)
@@ -1184,7 +1184,7 @@ class LiveViewer(QtGui.QMainWindow):
                             self.__levelswg.colorChannel() - 1]
                     else:
                         self.__rawgreyimage = np.mean(self.__rawimage, 0)
-                except:
+                except Exception:
                     import traceback
                     value = traceback.format_exc()
                     text = messageBox.MessageBox.getText(
@@ -1218,7 +1218,7 @@ class LiveViewer(QtGui.QMainWindow):
             try:
                 self.__displayimage = \
                     self.__rawgreyimage - self.__backgroundimage
-            except:
+            except Exception:
                 self._checkBkgSubtraction(False)
                 self.__backgroundimage = None
                 self.__dobkgsubtraction = False
@@ -1387,7 +1387,7 @@ class LiveViewer(QtGui.QMainWindow):
         """
         try:
             self.__maskvalue = float(value)
-        except:
+        except Exception:
             self.__maskvalue = None
         self._plot()
 
