@@ -61,6 +61,7 @@ class HighValueMaskWidget(QtGui.QWidget):
         #: (:class:`lavuelib.settings.Settings`) settings
         self.__settings = settings
 
+        self.noValue()
         self.__ui.highvalueLineEdit.textChanged.connect(
             self._applyHighValue)
 
@@ -71,6 +72,7 @@ class HighValueMaskWidget(QtGui.QWidget):
         :type fname: :obj:`str`
         """
         self.__highValue = self.setDisplayedValue(value)
+        self.__ui.highvalueLineEdit.setText(self.__highValue)
         self.maskHighValueChanged.emit(self.__highValue)
 
     @QtCore.pyqtSlot(str)
