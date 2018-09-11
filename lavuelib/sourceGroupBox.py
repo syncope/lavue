@@ -82,6 +82,8 @@ class SourceGroupBox(QtGui.QGroupBox):
         #:      :class:`lavuelib.sourceWidget.BaseSourceWidget` >)
         #:           source names
         self.__sourcewidgets = {}
+        # (:obj:`str`) error status
+        self.__errorstatus = ""
 
         #: (:obj:`list` < :obj:`str` > ) datasource class names
         self.__datasources = []
@@ -255,8 +257,8 @@ class SourceGroupBox(QtGui.QGroupBox):
     def toggleServerConnection(self):
         """ toggles server connection
         """
-        # if it is connected then it's easy:
-        self.setErrorStatus()
+        if self.__errorstatus:
+            self.setErrorStatus()
         if self.__connected:
             self.__ui.cStatusLineEdit.setStyleSheet(
                 "color: yellow;"
@@ -285,12 +287,18 @@ class SourceGroupBox(QtGui.QGroupBox):
         :type status: :obj:`str`
         """
         if status:
-            self.__ui.cStatusLineEdit.setDisabled(True)
+            self.__ui.cStatusLineEdit.setStyleSheet(
+                "background-color: gray;")
+        elif "emitting" in str(self.__ui.cStatusLineEdit.text()):
+            self.__ui.cStatusLineEdit.setStyleSheet(
+                "color: white;"
+                "background-color: blue;")
         else:
-            self.__ui.cStatusLineEdit.setDisabled(False)
-            
-        
-            
+            self.__ui.cStatusLineEdit.setStyleSheet(
+                "color: white;"
+                "background-color: green;")
+        self.__errorstatus = status
+
     def connectSuccess(self, port=None):
         """ set connection status on and display connection status
 

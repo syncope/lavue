@@ -1126,7 +1126,7 @@ class LiveViewer(QtGui.QMainWindow):
             self.__dataFetcher.ready()
             return
         self.__sourcewg.setErrorStatus("")
-                    
+
         if name is None:
             self.__dataFetcher.ready()
             return

@@ -143,6 +143,9 @@ class BaseSource(object):
         :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
         """
         self.__counter += 1
+        # if self.__counter % 20 == 0:
+        #     return str("Test error"), "__ERROR__", ""
+
         return (np.transpose(
             [
                 [random.randint(0, 1000) for _ in range(512)]
