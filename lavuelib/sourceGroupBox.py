@@ -256,6 +256,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         """ toggles server connection
         """
         # if it is connected then it's easy:
+        self.setErrorStatus()
         if self.__connected:
             self.__ui.cStatusLineEdit.setStyleSheet(
                 "color: yellow;"
@@ -277,6 +278,19 @@ class SourceGroupBox(QtGui.QGroupBox):
             self.sourceConnected.emit(
                 self.__ui.sourceTypeComboBox.currentIndex() + 1)
 
+    def setErrorStatus(self, status=""):
+        """ set error status
+
+        :param status: error status
+        :type status: :obj:`str`
+        """
+        if status:
+            self.__ui.cStatusLineEdit.setDisabled(True)
+        else:
+            self.__ui.cStatusLineEdit.setDisabled(False)
+            
+        
+            
     def connectSuccess(self, port=None):
         """ set connection status on and display connection status
 

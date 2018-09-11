@@ -1121,8 +1121,12 @@ class LiveViewer(QtGui.QMainWindow):
                 messageBox.MessageBox.warning(
                     self, "lavue: Error in reading data",
                     "Viewing will be interrupted", str(errortext))
+            else:
+                self.__sourcewg.setErrorStatus(name)
             self.__dataFetcher.ready()
             return
+        self.__sourcewg.setErrorStatus("")
+                    
         if name is None:
             self.__dataFetcher.ready()
             return
