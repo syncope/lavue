@@ -1,3 +1,7 @@
+2018-09-11 Jan Kotanski <jan.kotanski@desy.de>
+	* add gray color of status on errors
+	* tagged as 1.23.1
+
 2018-09-10 Jan Kotanski <jan.kotanski@desy.de>
 	* add massing high value pixels
 	* tagged as 1.23.0
