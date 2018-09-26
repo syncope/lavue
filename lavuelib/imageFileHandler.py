@@ -57,17 +57,17 @@ WRITERS = {}
 try:
     from . import pniwriter
     WRITERS["pni"] = pniwriter
-except:
+except Exception:
     pass
 try:
     from . import h5pywriter
     WRITERS["h5py"] = h5pywriter
-except:
+except Exception:
     pass
 try:
     from . import h5cppwriter
     WRITERS["h5cpp"] = h5cppwriter
-except:
+except Exception:
     pass
 
 
@@ -113,11 +113,11 @@ class NexusFieldHandler(object):
                     libver='latest',
                     swmr=(True if writer in ["h5py", "h5cpp"] else False)
                 )
-            except:
+            except Exception:
                 try:
                     fl = filewriter.open_file(
                         fname, writer=wrmodule, readonly=True)
-                except:
+                except Exception:
                     raise Exception("File '%s' cannot be opened \n" % (fname))
                 # except Exception as e:
                 #     raise Exception("File '%s' cannot be opened %s\n"
@@ -205,7 +205,7 @@ class NexusFieldHandler(object):
             try:
                 ch = node.open(nm[0])
                 self.__parseimages(ch, nm[1])
-#            except:
+#            except Exception:
 #                pass
             finally:
                 pass
@@ -490,7 +490,7 @@ class CBFLoader(object):
         try:
             idd = np.where(id_relevant < (flbuffer.size - padding))
             id_relevant = id_relevant[idd]
-        except:
+        except Exception:
             pass
 
         for dummy, dummy2 in enumerate(id_relevant):
@@ -527,14 +527,14 @@ class CBFLoader(object):
             # print stream[0:11]
             # print flbuffer[0:11]
 
-        except:
+        except Exception:
             pass
 
         try:
             # print sum(isvalid)    #should be 305548
             idd = np.where(isvalid != 0)
             flbuffer = flbuffer[idd]
-        except:
+        except Exception:
             pass
 
         # print stream[0:11]
@@ -727,7 +727,7 @@ class TIFLoader(object):
 
         try:
             return np.transpose(image.reshape(width, length, order='F'))
-        except:
+        except Exception:
             return np.transpose(image)
 
 

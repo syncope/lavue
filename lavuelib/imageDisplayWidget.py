@@ -1342,11 +1342,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if axisscales is not None:
             try:
                 position = (float(axisscales[0]), float(axisscales[1]))
-            except:
+            except Exception:
                 position = None
             try:
                 scale = (float(axisscales[2]), float(axisscales[3]))
-            except:
+            except Exception:
                 scale = None
         self.__setScale(position, scale, self.__axes.enabled)
 

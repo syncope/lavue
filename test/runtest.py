@@ -34,7 +34,7 @@ except ImportError as e:
 try:
     try:
         __import__("pni.io.nx.h5")
-    except:
+    except Exception:
         __import__("pni.nx.h5")
     # if module pni avalable
     PNI_AVAILABLE = True

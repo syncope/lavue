@@ -163,7 +163,7 @@ class SardanaUtils(object):
             db = self.__db
         try:
             servers = db.get_device_exported_for_class(cname).value_string
-        except:
+        except Exception:
             servers = []
         device = ''
         for server in servers:

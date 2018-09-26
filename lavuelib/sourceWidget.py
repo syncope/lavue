@@ -876,7 +876,7 @@ class NXSFileSourceWidget(BaseSourceWidget):
 
         try:
             growcnf = int(cnflst[1])
-        except:
+        except Exception:
             growcnf = 0
 
         self._ui.nxsFileLineEdit.setText(filecnf)
