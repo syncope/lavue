@@ -339,19 +339,19 @@ class ConfigDialog(QtGui.QDialog):
         self.detservers = [ds for ds in detservers if ds]
         try:
             self.timeout = int(self.__ui.timeoutLineEdit.text())
-        except:
+        except Exception:
             self.__ui.timeoutLineEdit.setFocus(True)
             return
         try:
             self.secport = str(self.__ui.secportLineEdit.text()).strip()
             int(self.secport)
-        except:
+        except Exception:
             self.__ui.secportLineEdit.setFocus(True)
             return
         try:
             self.hidraport = str(self.__ui.hidraportLineEdit.text()).strip()
             int(self.hidraport)
-        except:
+        except Exception:
             self.__ui.hidraportLineEdit.setFocus(True)
             return
         self.__readROIsColors()

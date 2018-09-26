@@ -90,7 +90,7 @@ class TakeMotorsDialog(QtGui.QDialog):
             for attr in ["state", "position"]:
                 if not hasattr(self.xmotordevice, attr):
                     raise Exception("Missing %s" % attr)
-        except:
+        except Exception:
             self.__ui.xComboBox.setFocus()
             return
         try:
@@ -99,7 +99,7 @@ class TakeMotorsDialog(QtGui.QDialog):
             for attr in ["state", "position"]:
                 if not hasattr(self.ymotordevice, attr):
                     raise Exception("Missing %s" % attr)
-        except:
+        except Exception:
             self.__ui.yComboBox.setFocus()
             return
 

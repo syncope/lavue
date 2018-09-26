@@ -96,41 +96,41 @@ class RangeDialog(QtGui.QDialog):
         """
         try:
             self.polstart = float(self.__ui.polstartLineEdit.text())
-        except:
+        except Exception:
             self.polstart = None
         try:
             self.polend = float(self.__ui.polendLineEdit.text())
-        except:
+        except Exception:
             self.polend = None
         try:
             self.polsize = int(self.__ui.polsizeLineEdit.text())
-        except:
+        except Exception:
             self.polsize = None
 
         try:
             self.radthstart = float(self.__ui.radthstartLineEdit.text())
-        except:
+        except Exception:
             self.radthstart = None
         try:
             self.radthend = float(self.__ui.radthendLineEdit.text())
-        except:
+        except Exception:
             self.radthend = None
         try:
             self.radthsize = int(self.__ui.radthsizeLineEdit.text())
-        except:
+        except Exception:
             self.radthsize = None
 
         try:
             self.radqstart = float(self.__ui.radqstartLineEdit.text())
-        except:
+        except Exception:
             self.radqstart = None
         try:
             self.radqend = float(self.__ui.radqendLineEdit.text())
-        except:
+        except Exception:
             self.radqend = None
         try:
             self.radqsize = int(self.__ui.radqsizeLineEdit.text())
-        except:
+        except Exception:
             self.radqsize = None
 
         QtGui.QDialog.accept(self)

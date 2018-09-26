@@ -461,13 +461,13 @@ class LevelsGroupBox(QtGui.QGroupBox):
             if smin.startswith("m"):
                 smin = "-" + smin[1:]
             lmin = float(smin)
-        except:
+        except Exception:
             pass
         try:
             smax = llst[1]
             if smax.startswith("m"):
                 smax = "-" + smax[1:]
             lmax = float(smax)
-        except:
+        except Exception:
             pass
         self.updateLevels(lmin, lmax)

@@ -99,10 +99,10 @@ class SimpleLineROI(LineROI):
         pos1 = _pg.Point(pos1)
         pos2 = _pg.Point(pos2)
         d = pos2 - pos1
-        l = d.length()
+        ln = d.length()
         ang = _pg.Point(1, 0).angle(d)
 
-        ROI.__init__(self, pos1, size=_pg.Point(l, width), angle=ang, **args)
+        ROI.__init__(self, pos1, size=_pg.Point(ln, width), angle=ang, **args)
         h1pos = [0, 0.0]
         h1center = [1, 0.0]
         h2pos = [1, 0.0]
@@ -1342,11 +1342,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if axisscales is not None:
             try:
                 position = (float(axisscales[0]), float(axisscales[1]))
-            except:
+            except Exception:
                 position = None
             try:
                 scale = (float(axisscales[2]), float(axisscales[3]))
-            except:
+            except Exception:
                 scale = None
         self.__setScale(position, scale, self.__axes.enabled)
 
