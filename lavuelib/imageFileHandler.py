@@ -62,7 +62,11 @@ except:
 try:
     from . import h5pywriter
     WRITERS["h5py"] = h5pywriter
-    SWMR = h5pywriter.SWMR
+except:
+    pass
+try:
+    from . import h5cppwriter
+    WRITERS["h5cpp"] = h5cppwriter
 except:
     pass
 
@@ -93,7 +97,12 @@ class NexusFieldHandler(object):
         self.__root = None
 
         if not writer:
-            writer = "h5py" if "h5py" in WRITERS.keys() else "pni"
+            if "h5py" in WRITERS.keys():
+                writer = "h5py"
+            elif "h5cpp" in WRITERS.keys():
+                writer = "h5cpp"
+            else:
+                writer = "pni"
         if writer not in WRITERS.keys():
             raise Exception("Writer '%s' cannot be opened" % writer)
         wrmodule = WRITERS[writer.lower()]
@@ -102,7 +111,7 @@ class NexusFieldHandler(object):
                 fl = filewriter.open_file(
                     fname, writer=wrmodule, readonly=True,
                     libver='latest',
-                    swmr=(True if writer == "h5py" else False)
+                    swmr=(True if writer in ["h5py", "h5cpp"] else False)
                 )
             except:
                 try:
