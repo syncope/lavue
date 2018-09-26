@@ -6,7 +6,7 @@ exclude=
     .eggs,
     dist,
     __pycache__,
-    test,
+#     test,
     nxstest,
     build
 # max-complexity = 10
