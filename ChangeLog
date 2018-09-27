@@ -1,4 +1,8 @@
 2018-09-27 Jan Kotanski <jan.kotanski@desy.de>
+	* add number labels to rois
+	* tagged as 1.23.5
+
+2018-09-27 Jan Kotanski <jan.kotanski@desy.de>
 	* second fix setting roi aliases
 	* tagged as 1.23.4
 
