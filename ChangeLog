@@ -1,3 +1,7 @@
+2018-09-27 Jan Kotanski <jan.kotanski@desy.de>
+	* fix setting roi aliases
+	* tagged as 1.23.3
+
 2018-09-26 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for LavueController dynamic attributes
 	* tagged as 1.23.2
