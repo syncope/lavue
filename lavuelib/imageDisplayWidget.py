@@ -314,15 +314,22 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__viewbox.addItem(self.__markVLine, ignoreBounds=True)
         self.__viewbox.addItem(self.__markHLine, ignoreBounds=True)
 
+        #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.TextItem`>)
+        #:            list of roi widgets
+        self.__roitext = []
         #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.ROI`>)
         #:            list of roi widgets
         self.__roi = []
         self.__roi.append(ROI(0, _pg.Point(50, 50)))
         self.__roi[0].addScaleHandle([1, 1], [0, 0])
         self.__roi[0].addScaleHandle([0, 0], [1, 1])
+        text = _pg.TextItem("1.", anchor=(1, 1))
+        text.setParentItem(self.__roi[0])
+        self.__roitext.append(text)
         self.__viewbox.addItem(self.__roi[0])
         self.__roi[0].hide()
         self.setROIsColors()
+        print(self.__rois.colors)
 
         #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.ROI`>)
         #:        list of cut widgets
@@ -435,6 +442,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__roi.append(ROI(pnt, spnt))
         self.__roi[-1].addScaleHandle([1, 1], [0, 0])
         self.__roi[-1].addScaleHandle([0, 0], [1, 1])
+        text = _pg.TextItem("%s." % len(self.__roi), anchor=(1, 1))
+        text.setParentItem(self.__roi[-1])
+        self.__roitext.append(text)
         self.__viewbox.addItem(self.__roi[-1])
 
         self.__rois.coords.append(coords)
@@ -445,6 +455,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         roi = self.__roi.pop()
         roi.hide()
+        roitext = self.__roitext.pop()
+        roitext.hide()
         self.__viewbox.removeItem(roi)
         self.__rois.coords.pop()
 
@@ -1391,8 +1403,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__rois.colors = colors
             defpen = (255, 255, 255)
             for it, roi in enumerate(self.__roi):
-                roi.setPen(tuple(colors[it % len(colors)])
-                           if colors else defpen)
+                clr = tuple(colors[it % len(colors)]) if colors else defpen
+                roi.setPen(clr)
+                self.__roitext[it].setColor(clr)
 
         return True
 
