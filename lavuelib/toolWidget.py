@@ -2607,8 +2607,9 @@ class QROIProjToolWidget(ToolWidget):
         :param text: text to update
         :type text: :obj:`str`
         """
-        self.__ui.labelROILineEdit.setText(text)
-        self._updateApplyButton()
+        if not self.__ui.labelROILineEdit.hasFocus():
+            self.__ui.labelROILineEdit.setText(text)
+            self._updateApplyButton()
 
     @QtCore.pyqtSlot(bool)
     def updateROIButton(self, enabled):
