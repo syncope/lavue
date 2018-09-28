@@ -1,3 +1,8 @@
+2018-09-28 Jan Kotanski <jan.kotanski@desy.de>
+	* make h5cpp default reader
+	* add support for h5cpp SWMR
+	* tagged as 1.24.0
+
 2018-09-27 Jan Kotanski <jan.kotanski@desy.de>
 	* add number labels to rois
 	* tagged as 1.23.5
