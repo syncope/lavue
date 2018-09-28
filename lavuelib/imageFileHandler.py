@@ -97,10 +97,10 @@ class NexusFieldHandler(object):
         self.__root = None
 
         if not writer:
-            if "h5py" in WRITERS.keys():
-                writer = "h5py"
-            elif "h5cpp" in WRITERS.keys():
+            if "h5cpp" in WRITERS.keys():
                 writer = "h5cpp"
+            elif "h5py" in WRITERS.keys():
+                writer = "h5py"
             else:
                 writer = "pni"
         if writer not in WRITERS.keys():
