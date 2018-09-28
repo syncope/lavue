@@ -329,7 +329,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__viewbox.addItem(self.__roi[0])
         self.__roi[0].hide()
         self.setROIsColors()
-        print(self.__rois.colors)
 
         #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.ROI`>)
         #:        list of cut widgets
