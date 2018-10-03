@@ -1407,8 +1407,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 if hasattr(self.__roitext[it], "setColor"):
                     self.__roitext[it].setColor(clr)
                 else:
-                    self.__roitext[it].color = fn.mkColor(color)
-                    self.__roitext[it].textItem.setDefaultTextColor(self.color)
+                    self.__roitext[it].color = _pg.functions.mkColor(clr)
+                    self.__roitext[it].textItem.setDefaultTextColor(
+                        self.__roitext[it].color)
         return True
 
     def setScalingType(self, scalingtype):
