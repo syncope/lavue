@@ -1404,8 +1404,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             for it, roi in enumerate(self.__roi):
                 clr = tuple(colors[it % len(colors)]) if colors else defpen
                 roi.setPen(clr)
-                self.__roitext[it].setColor(clr)
-
+                if hasattr(self.__roitext[it], "setColor"):
+                    self.__roitext[it].setColor(clr)
+                else:
+                    self.__roitext[it].color = _pg.functions.mkColor(clr)
+                    self.__roitext[it].textItem.setDefaultTextColor(
+                        self.__roitext[it].color)
         return True
 
     def setScalingType(self, scalingtype):
