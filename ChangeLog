@@ -1,3 +1,7 @@
+2018-10-04 Jan Kotanski <jan.kotanski@desy.de>
+	* fix setColor of textitem for pyqtgraph < 10.
+	* tagged as 1.24.1
+
 2018-09-28 Jan Kotanski <jan.kotanski@desy.de>
 	* make h5cpp default reader
 	* add support for h5cpp SWMR
