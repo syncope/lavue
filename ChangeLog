@@ -1,3 +1,7 @@
+2018-10-09 Jan Kotanski <jan.kotanski@desy.de>
+	* add support for pninexus 1.2.10
+	* tagged as 1.24.2
+
 2018-10-04 Jan Kotanski <jan.kotanski@desy.de>
 	* fix setColor of textitem for pyqtgraph < 0.10.
 	* tagged as 1.24.1
