@@ -900,7 +900,8 @@ class H5CppField(filewriter.FTField):
             else:
                 return "int"
         elif str(self._h5object.datatype.type) == "ENUM":
-            if h5cpp._datatype.is_bool(self._h5object.datatype):
+            if h5cpp._datatype.is_bool(
+                    h5cpp.datatype.Enum(self._h5object.datatype)):
                 return "bool"
             else:
                 return "int"
@@ -1387,7 +1388,8 @@ class H5CppAttribute(filewriter.FTAttribute):
             else:
                 return "int"
         elif str(self._h5object.datatype.type) == "ENUM":
-            if h5cpp._datatype.is_bool(self._h5object.datatype):
+            if h5cpp._datatype.is_bool(
+                    h5cpp.datatype.Enum(self._h5object.datatype)):
                 return "bool"
             else:
                 return "int"
