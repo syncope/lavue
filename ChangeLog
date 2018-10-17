@@ -1,3 +1,7 @@
+2018-10-17 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for lavue shutting
+	* tagged as 1.24.4
+
 2018-10-09 Jan Kotanski <jan.kotanski@desy.de>
 	* fix reopen for h5cpp
 	* tagged as 1.24.3

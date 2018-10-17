@@ -1112,6 +1112,7 @@ class LiveViewer(QtGui.QMainWindow):
         name, rawimage, metadata = self.__exchangelist.readData()
 
         if str(self.__imagename).strip() == str(name).strip() and not metadata:
+            self.__dataFetcher.ready()
             return
         if name == "__ERROR__":
             if self.__settings.interruptonerror:
