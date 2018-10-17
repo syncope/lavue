@@ -254,7 +254,7 @@ class LavueController (PyTango.Device_4Impl):
     def read_ScalarDynamicAttr(self, attr):
         self.debug_stream("In read_ScalarDynamicAttr()")
         #----- PROTECTED REGION ID(LavueController.ScalarDynamicAttr_read) ENABLED START -----#
-        name = attr.get_name()[:-4]
+        name = attr.get_name()[:-3]
         if not name:
             name = "__null__"
         detrois = json.loads(self.attr_DetectorROIsValues_read)

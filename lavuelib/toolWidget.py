@@ -370,12 +370,12 @@ class MotorsToolWidget(ToolWidget):
         """
         try:
             self.__xfinal = float(self.__ui.xLineEdit.text())
-        except:
+        except Exception:
             self.__ui.xLineEdit.setFocus()
             return False
         try:
             self.__yfinal = float(self.__ui.yLineEdit.text())
-        except:
+        except Exception:
             self.__ui.yLineEdit.setFocus()
             return False
         self._mainwidget.updatePositionMark(
@@ -951,8 +951,10 @@ class ROIToolWidget(ToolWidget):
         :param text: text to update
         :type text: :obj:`str`
         """
-        self.__ui.labelROILineEdit.setText(text)
-        self._updateApplyButton()
+
+        if not self.__ui.labelROILineEdit.hasFocus():
+            self.__ui.labelROILineEdit.setText(text)
+            self._updateApplyButton()
 
     @QtCore.pyqtSlot(bool)
     def updateROIButton(self, enabled):
@@ -1294,7 +1296,7 @@ class ProjectionToolWidget(ToolWidget):
                         rows = slice(s0, s1)
                 else:
                     rows = int(text)
-            except:
+            except Exception:
                 pass
         else:
             rows = None
@@ -1392,7 +1394,7 @@ class ProjectionToolWidget(ToolWidget):
                                 sx = npfun(dts[:, self.__rows], axis=1)
                             else:
                                 sx = dts[:, self.__rows]
-                    except:
+                    except Exception:
                         sx = []
 
                 else:
@@ -1409,7 +1411,7 @@ class ProjectionToolWidget(ToolWidget):
                                 sy = npfun(dts[self.__columns, :], axis=0)
                             else:
                                 sy = dts[self.__columns, :]
-                    except:
+                    except Exception:
                         sy = []
                 else:
                     sy = npfun(dts, axis=0)
@@ -1531,7 +1533,7 @@ class OneDToolWidget(ToolWidget):
                                 rows.extend(list(range(s0, s1)))
                         else:
                             rows.append(int(rw))
-                except:
+                except Exception:
                     rows = []
         self.__rows = rows
         self._plotCurves()
@@ -2410,7 +2412,7 @@ class QROIProjToolWidget(ToolWidget):
                         rows = slice(s0, s1)
                 else:
                     rows = int(text)
-            except:
+            except Exception:
                 pass
         else:
             rows = None
@@ -2480,7 +2482,7 @@ class QROIProjToolWidget(ToolWidget):
                                 sx = npfun(dts[:, self.__rows], axis=1)
                             else:
                                 sx = dts[:, self.__rows]
-                    except:
+                    except Exception:
                         sx = []
 
                 else:
@@ -2497,7 +2499,7 @@ class QROIProjToolWidget(ToolWidget):
                                 sy = npfun(dts[self.__columns, :], axis=0)
                             else:
                                 sy = dts[self.__columns, :]
-                    except:
+                    except Exception:
                         sy = []
                 else:
                     sy = npfun(dts, axis=0)
@@ -2605,8 +2607,9 @@ class QROIProjToolWidget(ToolWidget):
         :param text: text to update
         :type text: :obj:`str`
         """
-        self.__ui.labelROILineEdit.setText(text)
-        self._updateApplyButton()
+        if not self.__ui.labelROILineEdit.hasFocus():
+            self.__ui.labelROILineEdit.setText(text)
+            self._updateApplyButton()
 
     @QtCore.pyqtSlot(bool)
     def updateROIButton(self, enabled):

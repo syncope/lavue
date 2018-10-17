@@ -186,7 +186,7 @@
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrupt on an image source error&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="text">
-                       <string>Interupt on source errors:</string>
+                       <string>Interrupt on source errors:</string>
                       </property>
                       <property name="buddy">
                        <cstring>interruptCheckBox</cstring>

@@ -224,19 +224,19 @@ class Settings(object):
         try:
             int(qstval)
             self.secport = str(qstval)
-        except:
+        except Exception:
             pass
         qstval = str(settings.value("Configuration/HidraDataPort", type=str))
         try:
             int(qstval)
             self.hidraport = str(qstval)
-        except:
+        except Exception:
             pass
         qstval = str(settings.value("Configuration/SourceTimeout", type=str))
         try:
             int(qstval)
             self.timeout = int(qstval)
-        except:
+        except Exception:
             pass
         qstval = str(settings.value(
             "Configuration/MaskingWithZeros", type=str))
@@ -255,7 +255,7 @@ class Settings(object):
                     self.secsockopt = b"tcp://*:%s" % self.secport
                     self.secsocket.bind(self.secsockopt)
                 self.secstream = True
-            except:
+            except Exception:
                 self.secstream = False
                 import traceback
                 value = traceback.format_exc()
@@ -265,7 +265,7 @@ class Settings(object):
         try:
             self.refreshrate = float(
                 settings.value("Configuration/RefreshRate", type=str))
-        except:
+        except Exception:
             pass
 
         qstval = str(
@@ -352,33 +352,33 @@ class Settings(object):
         try:
             self.centerx = float(
                 settings.value("Tools/CenterX", type=str))
-        except:
+        except Exception:
             pass
         try:
             self.centery = float(
                 settings.value("Tools/CenterY", type=str))
-        except:
+        except Exception:
             pass
         try:
             self.energy = float(
                 settings.value("Tools/Energy", type=str))
-        except:
+        except Exception:
             pass
 
         try:
             self.pixelsizex = float(
                 settings.value("Tools/PixelSizeX", type=str))
-        except:
+        except Exception:
             pass
         try:
             self.pixelsizey = float(
                 settings.value("Tools/PixelSizeY", type=str))
-        except:
+        except Exception:
             pass
         try:
             self.detdistance = float(
                 settings.value("Tools/DetectorDistance", type=str))
-        except:
+        except Exception:
             pass
         return status
 

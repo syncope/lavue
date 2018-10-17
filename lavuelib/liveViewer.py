@@ -1112,6 +1112,7 @@ class LiveViewer(QtGui.QMainWindow):
         name, rawimage, metadata = self.__exchangelist.readData()
 
         if str(self.__imagename).strip() == str(name).strip() and not metadata:
+            self.__dataFetcher.ready()
             return
         if name == "__ERROR__":
             if self.__settings.interruptonerror:
@@ -1121,8 +1122,12 @@ class LiveViewer(QtGui.QMainWindow):
                 messageBox.MessageBox.warning(
                     self, "lavue: Error in reading data",
                     "Viewing will be interrupted", str(errortext))
+            else:
+                self.__sourcewg.setErrorStatus(name)
             self.__dataFetcher.ready()
             return
+        self.__sourcewg.setErrorStatus("")
+
         if name is None:
             self.__dataFetcher.ready()
             return

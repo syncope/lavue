@@ -66,7 +66,7 @@ try:
     import zmq
     #: (:obj:`str`,:obj:`str`) zmq major version, zmq minor version
     ZMQMAJOR, ZMQMINOR = list(map(int, zmq.zmq_version().split(".")))[:2]
-except:
+except Exception:
     #: (:obj:`str`,:obj:`str`) zmq major version, zmq minor version
     ZMQMAJOR, ZMQMINOR = 0, 0
 
@@ -77,7 +77,7 @@ import random
 import time
 try:
     import cPickle
-except:
+except Exception:
     import _pickle as cPickle
 import sys
 
@@ -143,6 +143,9 @@ class BaseSource(object):
         :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
         """
         self.__counter += 1
+        # if self.__counter % 20 == 0:
+        #     return str("Test error"), "__ERROR__", ""
+
         return (np.transpose(
             [
                 [random.randint(0, 1000) for _ in range(512)]
@@ -162,7 +165,7 @@ class BaseSource(object):
         """
         try:
             pass
-        except:
+        except Exception:
             pass
 
     def _updaterror(self):
@@ -221,7 +224,7 @@ class FixTestSource(BaseSource):
         """
         try:
             pass
-        except:
+        except Exception:
             pass
 
 
@@ -277,7 +280,7 @@ class NXSFileSource(BaseSource):
                         self.__frame = fid - 1
                 image = self.__handler.getImage(
                     self.__node, self.__frame, self.__gdim)
-            # except:
+            # except Exception:
             except Exception as e:
                 print(str(e))
                 try:
@@ -326,7 +329,7 @@ class NXSFileSource(BaseSource):
                     self._configuration).strip().split(",", 4)
             try:
                 self.__gdim = int(growdim)
-            except:
+            except Exception:
                 self.__gdim = 0
             if nxsopen.lower() == "false":
                 self.__nxsopen = False
@@ -621,7 +624,7 @@ class HTTPSource(BaseSource):
                             try:
                                 img = np.array(
                                     PIL.Image.open(BytesIO(str(data))))
-                            except:
+                            except Exception:
                                 img = imageFileHandler.TIFLoader().load(
                                     np.fromstring(data[:], dtype=np.uint8))
                                 self.__tiffloader = True
@@ -717,7 +720,7 @@ class ZMQSource(BaseSource):
         else:
             try:
                 metadata = cPickle.loads(message)
-            except:
+            except Exception:
                 metadata = json.loads(message)
         return metadata
 
@@ -806,7 +809,7 @@ class ZMQSource(BaseSource):
                     metadata.pop("dtype")
                     try:
                         jmetadata = json.dumps(metadata)
-                    except:
+                    except Exception:
                         pass
                 return (np.transpose(array), name, jmetadata)
 
@@ -960,7 +963,7 @@ class HiDRASource(BaseSource):
             if self.__query is not None:
                 with QtCore.QMutexLocker(self.__mutex):
                     self.__query.stop()
-        except:
+        except Exception:
             self._updaterror()
 
     def getData(self):
@@ -1004,7 +1007,7 @@ class HiDRASource(BaseSource):
                 if PILLOW and not self.__tiffloader:
                     try:
                         img = np.array(PIL.Image.open(BytesIO(str(data))))
-                    except:
+                    except Exception:
                         img = imageFileHandler.TIFLoader().load(
                             np.fromstring(data[:], dtype=np.uint8))
                         self.__tiffloader = True

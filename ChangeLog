@@ -1,3 +1,44 @@
+2018-10-17 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for lavue shutting
+	* tagged as 1.24.4
+
+2018-10-09 Jan Kotanski <jan.kotanski@desy.de>
+	* fix reopen for h5cpp
+	* tagged as 1.24.3
+
+2018-10-09 Jan Kotanski <jan.kotanski@desy.de>
+	* add support for pninexus 1.2.10
+	* tagged as 1.24.2
+
+2018-10-04 Jan Kotanski <jan.kotanski@desy.de>
+	* fix setColor of textitem for pyqtgraph < 0.10.
+	* tagged as 1.24.1
+
+2018-09-28 Jan Kotanski <jan.kotanski@desy.de>
+	* make h5cpp default reader
+	* add support for h5cpp SWMR
+	* tagged as 1.24.0
+
+2018-09-27 Jan Kotanski <jan.kotanski@desy.de>
+	* add number labels to rois
+	* tagged as 1.23.5
+
+2018-09-27 Jan Kotanski <jan.kotanski@desy.de>
+	* second fix setting roi aliases
+	* tagged as 1.23.4
+
+2018-09-27 Jan Kotanski <jan.kotanski@desy.de>
+	* fix setting roi aliases
+	* tagged as 1.23.3
+
+2018-09-26 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for LavueController dynamic attributes
+	* tagged as 1.23.2
+
+2018-09-11 Jan Kotanski <jan.kotanski@desy.de>
+	* add gray color of status on errors
+	* tagged as 1.23.1
+
 2018-09-10 Jan Kotanski <jan.kotanski@desy.de>
 	* add massing high value pixels
 	* tagged as 1.23.0
