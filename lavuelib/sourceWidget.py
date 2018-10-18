@@ -426,7 +426,7 @@ class HidraSourceWidget(BaseSourceWidget):
 
         self.__sortedserverlist = []
         for bl in beamlines:
-            if bl in name:
+            if bl in name and bl in self.__serverdict.keys():
                 self.__sortedserverlist.extend(self.__serverdict[bl])
         self.__sortedserverlist.extend(self.__serverdict["pool"])
 

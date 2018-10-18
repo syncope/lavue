@@ -1,3 +1,7 @@
+2018-10-18 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for missing beamline
+	* tagged as 1.24.5
+
 2018-10-17 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for lavue shutting
 	* tagged as 1.24.4

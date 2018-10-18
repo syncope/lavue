@@ -75,7 +75,6 @@ def _slice2selection(t, shape):
     :returns: hyperslab selection
     :rtype: :class:`h5cpp.dataspace.Hyperslab`
     """
-
     if t is Ellipsis:
         return None
     elif isinstance(t, slice):
@@ -101,7 +100,9 @@ def _slice2selection(t, shape):
         block = []
         count = []
         stride = []
-        for it, tel in enumerate(t):
+        it = -1
+        for tit, tel in enumerate(t):
+            it += 1
             if isinstance(tel, (int, long)):
                 if tel < 0:
                     offset.append(shape[it] + tel)
@@ -129,6 +130,15 @@ def _slice2selection(t, shape):
                         int(math.ceil(
                             (stop - start) / float(tel.step))))
                     stride.append(tel.step - 1)
+            elif tel is Ellipsis:
+                esize = len(shape) - len(t) + 1
+                for jt in range(esize):
+                    offset.append(0)
+                    block.append(shape[it])
+                    count.append(1)
+                    stride.append(1)
+                    if jt < esize - 1:
+                        it += 1
         if len(offset):
             return h5cpp.dataspace.Hyperslab(
                 offset=offset, block=block, count=count, stride=stride)
