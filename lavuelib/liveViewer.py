@@ -934,8 +934,10 @@ class LiveViewer(QtGui.QMainWindow):
                     self.__levelswg.setAutoLevels(2)
                 if 'bkgfile' not in values.keys():
                     self.__bkgsubwg.checkBkgSubtraction(False)
+                    self.__dobkgsubtraction = None
                 if 'maskfile' not in values.keys():
                     self.__maskwg.noImage()
+                    self.__applymask = False
 
     def __setSourceLabel(self):
         """sets source display parameters
