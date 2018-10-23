@@ -71,17 +71,25 @@ class HighValueMaskWidget(QtGui.QWidget):
         :param fname: high pixel value for masking
         :type fname: :obj:`str`
         """
-        self.__highValue = self.setDisplayedValue(value)
-        self.__ui.highvalueLineEdit.setText(self.__highValue)
-        self.maskHighValueChanged.emit(self.__highValue)
+        self.__maskvalue = self.setDisplayedValue(value)
+        self.__ui.highvalueLineEdit.setText(self.__maskvalue)
+        self.maskHighValueChanged.emit(self.__maskvalue)
+
+    def mask(self):
+        """ provides the image mask high value
+
+        :returns: high pixel value for masking
+        :rtype: :obj:`str`
+        """
+        return self.__maskvalue
 
     @QtCore.pyqtSlot(str)
     def _applyHighValue(self, value):
         """ shows file dialog and select the file name
         """
-        self.__highValue = self.setDisplayedValue(value)
+        self.__maskvalue = self.setDisplayedValue(value)
 
-        self.maskHighValueChanged.emit(self.__highValue)
+        self.maskHighValueChanged.emit(self.__maskvalue)
 
     def setDisplayedValue(self, value):
         """ sets displayed high pixel value

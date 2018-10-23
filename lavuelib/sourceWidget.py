@@ -29,6 +29,7 @@ from PyQt4 import QtCore, QtGui, uic
 import os
 import socket
 import json
+import re
 
 _testformclass, _testbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -69,6 +70,8 @@ class BaseSourceWidget(QtGui.QWidget):
     sourceStateChanged = QtCore.pyqtSignal(int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source server name signal
     configurationChanged = QtCore.pyqtSignal(str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) source label name signal
+    sourceLabelChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         """ constructor
@@ -109,11 +112,13 @@ class BaseSourceWidget(QtGui.QWidget):
         :param kargs:  source widget input parameter dictionary
         :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
         """
+        self.sourceLabelChanged.emit(self.label())
 
     def connectWidget(self):
         """ connects widget
         """
         self._connected = True
+        self.sourceLabelChanged.emit(self.label())
 
     def disconnectWidget(self):
         """ disconnects widget
@@ -138,6 +143,14 @@ class BaseSourceWidget(QtGui.QWidget):
         :param configuration: configuration string
         :type configuration: :obj:`str`
         """
+
+    def label(self):
+        """ return a label of the current detector
+
+        :return: label of the current detector
+        :rtype: :obj:`str`
+        """
+        return self.name
 
 
 class TestSourceWidget(BaseSourceWidget):
@@ -271,6 +284,7 @@ class HTTPSourceWidget(BaseSourceWidget):
         else:
             self.buttonEnabled.emit(True)
             self.configurationChanged.emit(url)
+            self.sourceLabelChanged.emit(self.label())
 
     def updateMetaData(self, httpurls=None, **kargs):
         """ update source input parameters
@@ -284,6 +298,7 @@ class HTTPSourceWidget(BaseSourceWidget):
         if httpurls is not None:
             self.__urls = json.loads(httpurls)
             self.__updateComboBox()
+        self.sourceLabelChanged.emit(self.label())
 
     def configure(self, configuration):
         """ set configuration for the current image source
@@ -315,6 +330,15 @@ class HTTPSourceWidget(BaseSourceWidget):
         self._connected = False
         self._ui.httpComboBox.lineEdit().setReadOnly(False)
         self._ui.httpComboBox.setEnabled(True)
+
+    def label(self):
+        """ return a label of the current detector
+
+        :return: label of the current detector
+        :rtype: :obj:`str`
+        """
+        label = str(self._ui.httpComboBox.currentText()).strip()
+        return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
 class HidraSourceWidget(BaseSourceWidget):
@@ -376,6 +400,7 @@ class HidraSourceWidget(BaseSourceWidget):
                 )
             )
             self.buttonEnabled.emit(True)
+            self.sourceLabelChanged.emit(self.label())
 
     def updateMetaData(self, serverdict=None, hidraport=None, **kargs):
         """ update source input parameters
@@ -412,6 +437,7 @@ class HidraSourceWidget(BaseSourceWidget):
                     self.__portnumber
                 )
             )
+        self.sourceLabelChanged.emit(self.label())
 
     def __sortServerList(self, name):
         """ small function to sort out the server list details.
@@ -453,6 +479,18 @@ class HidraSourceWidget(BaseSourceWidget):
             self._ui.serverComboBox.addItem(configuration)
             iid = self._ui.serverComboBox.findText(configuration)
         self._ui.serverComboBox.setCurrentIndex(iid)
+
+    def label(self):
+        """ return a label of the current detector
+
+        :return: label of the current detector
+        :rtype: :obj:`str`
+        """
+        if self._ui.serverComboBox.currentText() == "Pick a server":
+            return ""
+        else:
+            label = str(self._ui.serverComboBox.currentText()).strip()
+            return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
 class TangoAttrSourceWidget(BaseSourceWidget):
@@ -538,6 +576,7 @@ class TangoAttrSourceWidget(BaseSourceWidget):
             if currentattr in self.__tangoattrs.keys():
                 currentattr = str(self.__tangoattrs[currentattr]).strip()
             self.configurationChanged.emit(currentattr)
+            self.sourceLabelChanged.emit(self.label())
         self._ui.attrComboBox.setToolTip(currentattr or self.__defaulttip)
 
     def updateMetaData(self, tangoattrs=None, **kargs):
@@ -552,6 +591,7 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         if tangoattrs is not None:
             self.__tangoattrs = json.loads(tangoattrs)
             self.__updateComboBox()
+        self.sourceLabelChanged.emit(self.label())
 
     def configure(self, configuration):
         """ set configuration for the current image source
@@ -583,6 +623,15 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         if currentattr not in attrs and currentattr not in self.__userattrs:
             self.__userattrs.append(currentattr)
             self.__updateComboBox()
+
+    def label(self):
+        """ return a label of the current detector
+
+        :return: label of the current detector
+        :rtype: :obj:`str`
+        """
+        label = str(self._ui.attrComboBox.currentText()).strip()
+        return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
 class TangoFileSourceWidget(BaseSourceWidget):
@@ -690,6 +739,7 @@ class TangoFileSourceWidget(BaseSourceWidget):
             sourcename = "%s,%s,%s" % (fattr, dattr, dt)
             self.configurationChanged.emit(sourcename)
 
+            self.sourceLabelChanged.emit(self.label())
         self._ui.fileattrComboBox.setToolTip(fattr or self.__defaultfiletip)
         self._ui.dirattrComboBox.setToolTip(dattr or self.__defaultdirtip)
 
@@ -721,6 +771,7 @@ class TangoFileSourceWidget(BaseSourceWidget):
                 self.__userdirattrs)
         if dirtrans is not None:
             self.__dirtrans = dirtrans
+        self.sourceLabelChanged.emit(self.label())
 
     def connectWidget(self):
         """ connects widget
@@ -776,6 +827,15 @@ class TangoFileSourceWidget(BaseSourceWidget):
             iid = self._ui.dirattrComboBox.findText(dircnf)
         self._ui.dirattrComboBox.setCurrentIndex(iid)
 
+    def label(self):
+        """ return a label of the current detector
+
+        :return: label of the current detector
+        :rtype: :obj:`str`
+        """
+        label = str(self._ui.dirattrComboBox.currentText()).strip()
+        return re.sub("[^a-zA-Z0-9_]+", "_", label)
+
 
 class NXSFileSourceWidget(BaseSourceWidget):
 
@@ -826,6 +886,7 @@ class NXSFileSourceWidget(BaseSourceWidget):
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
+            self.sourceLabelChanged.emit(self.label())
             sourcename = "%s,%s,%s,%s,%s" % (
                 nfl, nfd, nsb, self.__nxsopen, self.__nxslast)
             self.configurationChanged.emit(sourcename)
@@ -860,6 +921,7 @@ class NXSFileSourceWidget(BaseSourceWidget):
             self.__nxsopen = nxsopen
         if nxslast is not None:
             self.__nxslast = nxslast
+        self.sourceLabelChanged.emit(self.label())
 
     def configure(self, configuration):
         """ set configuration for the current image source
@@ -883,6 +945,18 @@ class NXSFileSourceWidget(BaseSourceWidget):
         self._ui.nxsFieldLineEdit.setText(fieldcnf)
         self._ui.nxsDimSpinBox.setValue(growcnf)
         self.updateButton()
+
+    def label(self):
+        """ return a label of the current detector
+
+        :return: label of the current detector
+        :rtype: :obj:`str`
+        """
+        label = str(self._ui.nxsFileLineEdit.text()).strip() + \
+            ":/" + str(self._ui.nxsFieldLineEdit.text()).strip()
+        if label == ":/":
+            return ""
+        return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
 class ZMQSourceWidget(BaseSourceWidget):
@@ -1080,6 +1154,7 @@ class ZMQSourceWidget(BaseSourceWidget):
             with QtCore.QMutexLocker(self.__mutex):
                 self._ui.pickleTopicComboBox.currentIndexChanged.connect(
                     self._updateZMQComboBox)
+        self.sourceLabelChanged.emit(self.label())
 
     def connectWidget(self):
         """ connects widget
@@ -1122,3 +1197,12 @@ class ZMQSourceWidget(BaseSourceWidget):
                 self._ui.pickleTopicComboBox.addItem(topiccnf)
                 iid = self._ui.pickleTopicComboBox.findText(topiccnf)
             self._ui.pickleTopicComboBox.setCurrentIndex(iid)
+
+    def label(self):
+        """ return a label of the current detector
+
+        :return: label of the current detector
+        :rtype: :obj:`str`
+        """
+        label = str(self._ui.pickleComboBox.currentText()).strip()
+        return re.sub("[^a-zA-Z0-9_]+", "_", label)

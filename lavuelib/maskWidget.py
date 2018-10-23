@@ -122,6 +122,13 @@ class MaskWidget(QtGui.QWidget):
         self.__fileName = ""
         self.__ui.applyMaskCheckBox.setChecked(False)
 
+    def isMaskApplied(self):
+        """ if background subtraction applied
+        :returns: apply status
+        :rtype: :obj:`bool`
+        """
+        return self.__ui.applyMaskCheckBox.isChecked()
+
 
 if __name__ == "__main__":
     import sys

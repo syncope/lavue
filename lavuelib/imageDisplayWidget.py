@@ -603,6 +603,29 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__setaspectlocked.setChecked(False)
             self.__setaspectlocked.triggered.emit(False)
 
+    def setViewRange(self, rangelist):
+        """ set view range values
+
+        :param rangelist: xmin,ymin,xsize,ysize
+        :type rangelist: :obj:`str`
+        """
+        lims = rangelist.split(",")
+        if lims and len(lims) == 4:
+            fl = [float(lm.replace("m", "-")) for lm in lims]
+            self.__viewbox.setRange(QtCore.QRectF(*fl), padding=0)
+
+    def viewRange(self):
+        """ get view range values
+
+        :returns: xmin,ymin,xsize,ysize
+        :rtype rangelist: :obj:`str`
+        """
+        vr = self.__viewbox.viewRange()
+        vr0 = vr[0]
+        vr1 = vr[1]
+        return "%s,%s,%s,%s" % (
+            vr0[0], vr1[0], vr0[1] - vr0[0], vr1[1] - vr1[0])
+
     def __setScale(self, position=None, scale=None, update=True, polar=False,
                    force=False):
         """ set axes scales

@@ -101,7 +101,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
 
         self.__hideControls()
         self.__ui.autoLevelsCheckBox.stateChanged.connect(
-            self._onAutoLevelsChanged)
+            self.onAutoLevelsChanged)
         self.__connectHistogram()
         self.updateLevels(self.__minval, self.__maxval)
         self.__connectMinMax()
@@ -216,7 +216,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
         return self.__auto
 
     @QtCore.pyqtSlot(int)
-    def _onAutoLevelsChanged(self, auto):
+    def onAutoLevelsChanged(self, auto):
         """enables or disables automatic levels
 
         :param auto: if automatics levels to be set
@@ -395,11 +395,19 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 self.__ui.channelComboBox.hide()
                 self.__colors = False
 
-    def setGradient(self, name):
-        """ set gradient
+    def gradient(self):
+        """ provides the current color gradient
 
-        :param cnflevels:  configuration string
-        :type cnflevels: :obj:`str`
+        :returns:  gradient name
+        :rtype: :obj:`str`
+        """
+        return str(self.__ui.gradientComboBox.currentText())
+
+    def setGradient(self, name):
+        """ sets gradient
+
+        :param name  gradient name
+        :type name: :obj:`str`
         """
         self._changeGradient(name)
 
@@ -445,14 +453,24 @@ class LevelsGroupBox(QtGui.QGroupBox):
         """
         self.__histogram.setImageItem(image)
 
+    def levels(self):
+        """ provides levels from configuration string
+
+        :returns:  configuration string: lowlim,uplim
+        :rtype: :obj:`str`
+        """
+        lowlim = self.__ui.minDoubleSpinBox.value()
+        uplim = self.__ui.maxDoubleSpinBox.value()
+        return "%s,%s" % (lowlim, uplim)
+
     def setLevels(self, cnflevels):
         """ set levels from configuration string
 
-        :param cnflevels:  configuration string
+        :param cnflevels:  configuration string: lowlim,uplim
         :type cnflevels: :obj:`str`
         """
         self.__ui.autoLevelsCheckBox.setChecked(False)
-        self._onAutoLevelsChanged(0)
+        self.onAutoLevelsChanged(0)
         llst = cnflevels.split(",")
         lmin = None
         lmax = None

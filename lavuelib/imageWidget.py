@@ -1265,6 +1265,18 @@ class ImageWidget(QtGui.QWidget):
             self.__ui.toolComboBox.setCurrentIndex(tid)
             self.showCurrentTool()
 
+    def tool(self):
+        """ provices tool from string
+
+        :param tool: tool name
+        :type tool: :obj:`str`
+        """
+        tid = self.__ui.toolComboBox.currentIndex()
+        if tid >= 0:
+            return str(self.__ui.toolComboBox.itemText(tid)).lower()
+        else:
+            return ""
+
     @QtCore.pyqtSlot(float)
     def updateEnergy(self, energy):
         """ updates the beam energy
@@ -1363,3 +1375,19 @@ class ImageWidget(QtGui.QWidget):
         :type scale: [:obj:`float`, :obj:`float`]
         """
         return self.__displaywidget.setPolarScale(position, scale)
+
+    def setViewRange(self, rangelist):
+        """ set view range values
+
+        :param rangelist: xmin,ymin,xsize,ysize
+        :type rangelist: :obj:`str`
+        """
+        self.__displaywidget.setViewRange(rangelist)
+
+    def viewRange(self):
+        """ get view range values
+
+        :returns: xmin,ymin,xsize,ysize
+        :rtype rangelist: :obj:`str`
+        """
+        return self.__displaywidget.viewRange()

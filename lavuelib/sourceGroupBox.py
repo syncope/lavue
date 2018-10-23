@@ -49,6 +49,8 @@ class SourceGroupBox(QtGui.QGroupBox):
     sourceChanged = QtCore.pyqtSignal(int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) source server name signal
     configurationChanged = QtCore.pyqtSignal(str)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) source label name signal
+    sourceLabelChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None, sourcetypes=None):
         """ constructor
@@ -178,6 +180,8 @@ class SourceGroupBox(QtGui.QGroupBox):
                 self.updateButton)
             self.__currentSource.configurationChanged.disconnect(
                 self._emitConfigurationChanged)
+            self.__currentSource.sourceLabelChanged.disconnect(
+                self._emitSourceLabelChanged)
             self.__currentSource.sourceStateChanged.disconnect(
                 self._emitSourceStateChanged)
             self.__currentSource.active = False
@@ -187,6 +191,8 @@ class SourceGroupBox(QtGui.QGroupBox):
             self.__currentSource.active = True
             self.__currentSource.buttonEnabled.connect(
                 self.updateButton)
+            self.__currentSource.sourceLabelChanged.connect(
+                self._emitSourceLabelChanged)
             self.__currentSource.configurationChanged.connect(
                 self._emitConfigurationChanged)
             self.__currentSource.sourceStateChanged.connect(
@@ -209,6 +215,15 @@ class SourceGroupBox(QtGui.QGroupBox):
         :type name: :obj:`str`
         """
         self.configurationChanged.emit(name)
+
+    @QtCore.pyqtSlot(str)
+    def _emitSourceLabelChanged(self,  name):
+        """ emits sourceLabelChanged signal with the given name
+
+        :param name: source label string
+        :type name: :obj:`str`
+        """
+        self.sourceLabelChanged.emit(name)
 
     @QtCore.pyqtSlot(int)
     def _emitSourceStateChanged(self, status):

@@ -29,6 +29,7 @@
 
 import zmq
 import sys
+from PyQt4 import QtCore
 
 if sys.version_info > (3,):
     unicode = str
@@ -41,7 +42,6 @@ class Settings(object):
     def __init__(self):
         """ constructor
         """
-
         #: (:obj:`bool`) sardana enabled
         self.sardana = True
         #: (:obj:`bool`) add rois to sardana
@@ -148,6 +148,37 @@ class Settings(object):
         self.showallrois = False
         #: (:obj:`bool`) send rois to LavueController flag
         self.sendrois = False
+
+        #: (:obj:`dict` < :obj:`str`, :obj:`dict` < :obj:`str`,`any`> >
+        #                source display dictionary
+        self.__sourcedisplay = {}
+
+        #: (:class:`PyQt4.QtCore.QMutex`) zmq bind address
+        self.__mutex = QtCore.QMutex()
+
+    def setSourceDisplay(self, source, values):
+        """ sets source display parameters
+        :param source: source name
+        :type source: :obj:`str`
+        :param values: display parameter dictionary
+        :type values: :obj:`dict` <:obj:`str`, `any`>
+        """
+        with QtCore.QMutexLocker(self.__mutex):
+            if source and isinstance(values, dict):
+                self.__sourcedisplay[source] = values
+
+    def sourceDisplay(self, source):
+        """ sets source display parameters
+        :param source: source name
+        :type source: :obj:`str`
+        :returns: display parameter dictionary
+        :rtype: :obj:`dict` <:obj:`str`, `any`>
+        """
+        values = None
+        with QtCore.QMutexLocker(self.__mutex):
+            if source in self.__sourcedisplay.keys():
+                values = dict(self.__sourcedisplay[source])
+        return values
 
     def load(self, settings):
         """ load settings

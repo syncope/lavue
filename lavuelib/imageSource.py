@@ -679,7 +679,7 @@ class ZMQSource(BaseSource):
         self.__topic = "10001"
         #: (:obj:`str`) zmq bind address
         self.__bindaddress = None
-        #: (:class:`PyQt4.QtCore.QMutex`) zmq bind address
+        #: (:class:`PyQt4.QtCore.QMutex`) mutex lock for zmq source
         self.__mutex = QtCore.QMutex()
 
     @QtCore.pyqtSlot(str)
@@ -901,7 +901,7 @@ class HiDRASource(BaseSource):
                          [".cbf", ".tif", ".tiff"]]
         #: (:class:`hidra.transfer.Transfer`) hidra query
         self.__query = None
-        #: (:class:`PyQt4.QtCore.QMutex`) zmq bind address
+        #: (:class:`PyQt4.QtCore.QMutex`) mutex lock for hidra source
         self.__mutex = QtCore.QMutex()
         #: (:obj:`bool`) use tiff loader
         self.__tiffloader = False
