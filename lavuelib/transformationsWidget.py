@@ -81,6 +81,18 @@ class TransformationsWidget(QtGui.QWidget):
         if not flag:
             self.__ui.comboBox.setCurrentIndex(0)
 
+    def transformation(self):
+        """ provides transformation name
+
+        :returns: transfromation name
+        :rtype: :obj:`str`
+        """
+        index = self.__ui.comboBox.currentIndex()
+        if index >= 0:
+            return str(self.__names[index])
+        else:
+            return ""
+
     def setTransformation(self, tname):
         """ sets transformation from the string
 
@@ -90,8 +102,8 @@ class TransformationsWidget(QtGui.QWidget):
         if tname in self.__names:
             tid = self.__names.index(tname)
             self.__ui.comboBox.setCurrentIndex(tid)
-#            self.transformationChanged.emit(
-#                self.__ui.comboBox.itemText(tid))
+            #            self.transformationChanged.emit(
+            #                self.__ui.comboBox.itemText(tid))
 
     def setKeepCoordsLabel(self, flag, transpose=False):
         """ sets keep original coordinates label according to flag

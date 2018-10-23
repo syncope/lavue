@@ -29,6 +29,7 @@
 
 import zmq
 import sys
+from PyQt4 import QtCore
 
 if sys.version_info > (3,):
     unicode = str
@@ -41,7 +42,6 @@ class Settings(object):
     def __init__(self):
         """ constructor
         """
-
         #: (:obj:`bool`) sardana enabled
         self.sardana = True
         #: (:obj:`bool`) add rois to sardana
@@ -148,6 +148,39 @@ class Settings(object):
         self.showallrois = False
         #: (:obj:`bool`) send rois to LavueController flag
         self.sendrois = False
+        #: (:obj:`bool`) store display parameters for specific sources
+        self.sourcedisplay = False
+
+        #: (:obj:`dict` < :obj:`str`, :obj:`dict` < :obj:`str`,`any`> >
+        #                source display dictionary
+        self.__sourcedisplay = {}
+
+        #: (:class:`PyQt4.QtCore.QMutex`) zmq bind address
+        self.__mutex = QtCore.QMutex()
+
+    def setSourceDisplay(self, source, values):
+        """ sets source display parameters
+        :param source: source name
+        :type source: :obj:`str`
+        :param values: display parameter dictionary
+        :type values: :obj:`dict` <:obj:`str`, `any`>
+        """
+        with QtCore.QMutexLocker(self.__mutex):
+            if source and isinstance(values, dict):
+                self.__sourcedisplay[str(source)] = values
+
+    def sourceDisplay(self, source):
+        """ sets source display parameters
+        :param source: source name
+        :type source: :obj:`str`
+        :returns: display parameter dictionary
+        :rtype: :obj:`dict` <:obj:`str`, `any`>
+        """
+        values = None
+        with QtCore.QMutexLocker(self.__mutex):
+            if source in self.__sourcedisplay.keys():
+                values = dict(self.__sourcedisplay[str(source)])
+        return values
 
     def load(self, settings):
         """ load settings
@@ -287,6 +320,7 @@ class Settings(object):
                 "Configuration/LastBackgroundImageFileName", type=str))
         if qstval:
             self.bkgimagename = qstval
+
         qstval = str(
             settings.value(
                 "Configuration/StatisticsWithoutScaling", type=str))
@@ -349,6 +383,12 @@ class Settings(object):
         if qstval:
             self.roiscolors = qstval
 
+        qstval = str(
+            settings.value(
+                "Configuration/SourceDisplayParams", type=str))
+        if qstval.lower() == "true":
+            self.sourcedisplay = True
+
         try:
             self.centerx = float(
                 settings.value("Tools/CenterX", type=str))
@@ -380,6 +420,7 @@ class Settings(object):
                 settings.value("Tools/DetectorDistance", type=str))
         except Exception:
             pass
+        self.__loadDisplayParams(settings)
         return status
 
     def store(self, settings):
@@ -508,6 +549,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ShowAllROIs",
             self.showallrois)
+        settings.setValue(
+            "Configuration/SourceDisplayParams",
+            self.sourcedisplay)
 
         if not self.storegeometry:
             self.centerx = 0.0
@@ -535,3 +579,45 @@ class Settings(object):
         settings.setValue(
             "Tools/DetectorDistance",
             self.detdistance)
+        self.__storeDisplayParams(settings)
+
+    def __storeDisplayParams(self, settings):
+        """ Stores display parameters settings in QSettings object
+
+        :param settings: QSettings object
+        :type settings: :class:`PyQt4.QtCore.QSettings`
+        """
+        with QtCore.QMutexLocker(self.__mutex):
+            for source, dct in self.__sourcedisplay.items():
+                for key, value in dct.items():
+                    settings.setValue(
+                        "Source_%s/%s" % (source, key),
+                        value)
+
+    def __loadDisplayParams(self, settings):
+        """ loads display parameters settings
+
+        :param settings: QSettings object
+        :type settings: :class:`PyQt4.QtCore.QSettings`
+        :returns: error messages list
+        :rtype: :obj:`list` < (:obj:`str`, :obj:`str`) >
+        """
+        with QtCore.QMutexLocker(self.__mutex):
+            qgroups = list(settings.childGroups())
+            groups = [str(f) for f in qgroups
+                      if str(f).startswith("Source_")]
+
+            for gr in groups:
+                source = gr[7:]
+                if source not in self.__sourcedisplay.keys():
+                    self.__sourcedisplay[source] = {}
+                settings.beginGroup(gr)
+                try:
+                    for key in settings.allKeys():
+                        qstval = str(
+                            settings.value(
+                                "%s" % str(key), type=str))
+                        self.__sourcedisplay[source][str(key)] = str(qstval)
+                    settings.endGroup()
+                except Exception:
+                    settings.endGroup()

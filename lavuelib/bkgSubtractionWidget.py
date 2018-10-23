@@ -156,6 +156,13 @@ class BkgSubtractionWidget(QtGui.QWidget):
             self.__ui.applyBkgCheckBox.setChecked(False)
             self.setDisplayedName("")
 
+    def isBkgSubApplied(self):
+        """ if background subtraction applied
+        :returns: apply status
+        :rtype: :obj:`bool`
+        """
+        return self.__ui.applyBkgCheckBox.isChecked()
+
 
 if __name__ == "__main__":
     import sys

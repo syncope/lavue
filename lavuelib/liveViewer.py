@@ -36,6 +36,7 @@ import pyqtgraph as _pg
 import os
 import zmq
 import sys
+import argparse
 
 from PyQt4 import QtCore, QtGui, uic
 
@@ -233,6 +234,9 @@ class LiveViewer(QtGui.QMainWindow):
         #: (:obj:`str`) source configuration string
         self.__sourceconfiguration = None
 
+        #: (:obj:`str`) source label
+        self.__sourcelabel = None
+
         #: (:obj:`str`) transformation name
         self.__trafoname = "None"
 
@@ -325,6 +329,8 @@ class LiveViewer(QtGui.QMainWindow):
 
         self.__sourcewg.configurationChanged.connect(
             self._setSourceConfiguration)
+        self.__sourcewg.sourceLabelChanged.connect(
+            self._switchSourceDisplay)
         self.__ui.frameSpinBox.valueChanged.connect(self._reloadfile)
         self.__sourcewg.updateLayout()
         self.__sourcewg.emitSourceChanged()
@@ -350,11 +356,11 @@ class LiveViewer(QtGui.QMainWindow):
         :returns: start flag
         :rtype: :obj:`bool`
         """
-        if options.doordevice:
+        if hasattr(options, "doordevice") and options.doordevice:
             self.__settings.doorname = options.doordevice
 
         # load image file
-        if options.imagefile:
+        if hasattr(options, "imagefile") and options.imagefile:
             oldname = self.__settings.imagename
             oldpath = self.__fieldpath
             oldgrowing = self.__growing
@@ -373,7 +379,7 @@ class LiveViewer(QtGui.QMainWindow):
                 self.__growing = oldgrowing
 
         # set image source
-        if options.source:
+        if hasattr(options, "source") and options.source:
             msid = None
             for sid, src in enumerate(self.__sourcetypes):
                 if src.endswith("SourceWidget"):
@@ -384,34 +390,35 @@ class LiveViewer(QtGui.QMainWindow):
             if msid is not None:
                 self.__sourcewg.setSourceComboBox(msid)
 
-        if options.configuration:
+        if hasattr(options, "configuration") and options.configuration:
             self.__sourcewg.configure(options.configuration)
 
-        if options.bkgfile:
+        if hasattr(options, "bkgfile") and options.bkgfile:
             self.__bkgsubwg.setBackground(options.bkgfile)
 
-        if options.maskfile:
+        if hasattr(options, "maskfile") and options.maskfile:
             self.__maskwg.setMask(options.maskfile)
 
-        if options.maskhighvalue:
+        if hasattr(options, "maskhighvalue") and options.maskhighvalue:
             self.__highvaluemaskwg.setMask(options.maskhighvalue)
 
-        if options.transformation:
+        if hasattr(options, "transformation") and options.transformation:
             self.__trafowg.setTransformation(options.transformation)
 
-        if options.scaling:
+        if hasattr(options, "scaling") and options.scaling:
             self.__scalingwg.setScaling(options.scaling)
 
-        if options.levels:
+        if hasattr(options, "levels") and options.levels:
             self.__levelswg.setLevels(options.levels)
 
-        if options.gradient:
+        if hasattr(options, "gradient") and options.gradient:
             self.__levelswg.setGradient(options.gradient)
 
-        if options.tool:
+        if hasattr(options, "tool") and options.tool:
             self.__imagewg.setTool(options.tool)
 
-        if TANGOCLIENT and options.tangodevice:
+        if hasattr(options, "tangodevice") and \
+           TANGOCLIENT and options.tangodevice:
             self.__tangoclient = controllerClient.ControllerClient(
                 options.tangodevice)
             self.__tangoclient.energyChanged.connect(
@@ -429,7 +436,12 @@ class LiveViewer(QtGui.QMainWindow):
         else:
             self.__tangoclient = None
 
-        return options.start is True
+        if hasattr(options, "viewrange") and options.viewrange:
+            self.__imagewg.setViewRange(options.viewrange)
+        if hasattr(options, "start"):
+            return options.start is True
+        else:
+            return False
 
     @QtCore.pyqtSlot(int)
     def _replotFrame(self, fid):
@@ -719,9 +731,11 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.showallrois = self.__settings.showallrois
         cnfdlg.storegeometry = self.__settings.storegeometry
         cnfdlg.roiscolors = self.__settings.roiscolors
+        cnfdlg.sourcedisplay = self.__settings.sourcedisplay
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
+            self.__storeSettings()
 
     def __updateConfig(self, dialog):
         """ updates the configuration
@@ -804,6 +818,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__settings.secstream = dialog.secstream
         self.__settings.storegeometry = dialog.storegeometry
         self.__settings.interruptonerror = dialog.interruptonerror
+        self.__settings.sourcedisplay = dialog.sourcedisplay
         setsrc = False
         if self.__settings.hidraport != dialog.hidraport:
             self.__settings.hidraport = dialog.hidraport
@@ -889,11 +904,64 @@ class LiveViewer(QtGui.QMainWindow):
     @QtCore.pyqtSlot(str)
     def _setSourceConfiguration(self, sourceConfiguration):
         """ sets the source configuration
+
+        :param sourceConfiguration: source configuration string
+        :type sourceConfiguration: :obj:`str
         """
         self.__sourceconfiguration = sourceConfiguration
         if self.__sourcewg.currentDataSource() == \
            str(type(self.__datasource).__name__):
             self.__datasource.setConfiguration(self.__sourceconfiguration)
+
+    @QtCore.pyqtSlot(str)
+    def _switchSourceDisplay(self, label):
+        """switches source display parameters
+
+        :param sourceConfiguration: source configuration string
+        :type sourceConfiguration: :obj:`str
+        """
+        if self.__sourcelabel != str(label) and label and \
+           self.__settings.sourcedisplay:
+            self.__sourcelabel = str(label)
+            values = self.__settings.sourceDisplay(
+                self.__sourcelabel)
+            if values:
+                options = argparse.Namespace()
+                for key, vl in values.items():
+                    setattr(options, key, vl)
+                self.__applyoptions(options)
+                if 'levels' not in values.keys():
+                    self.__levelswg.setAutoLevels(2)
+                if 'bkgfile' not in values.keys():
+                    self.__bkgsubwg.checkBkgSubtraction(False)
+                    self.__dobkgsubtraction = None
+                if 'maskfile' not in values.keys():
+                    self.__maskwg.noImage()
+                    self.__applymask = False
+
+    def __setSourceLabel(self):
+        """sets source display parameters
+        """
+        if self.__sourcelabel and self.__settings.sourcedisplay:
+            label = self.__sourcelabel
+            values = {}
+            values["transformation"] = self.__trafowg.transformation()
+            values["tool"] = self.__imagewg.tool()
+            values["scaling"] = self.__scalingwg.currentScaling()
+            if not self.__levelswg.isAutoLevel():
+                values["levels"] = self.__levelswg.levels()
+            values["gradient"] = self.__levelswg.gradient()
+            if self.__bkgsubwg.isBkgSubApplied():
+                values["bkgfile"] = str(self.__settings.bkgimagename)
+            if self.__maskwg.isMaskApplied():
+                values["maskfile"] = str(self.__settings.maskimagename)
+            mvalue = self.__highvaluemaskwg.mask()
+            if mvalue is not None:
+                values["maskhighvalue"] = str(mvalue)
+            else:
+                values["maskhighvalue"] = ""
+            values["viewrange"] = self.__imagewg.viewRange()
+            self.__settings.setSourceDisplay(label, values)
 
     def __setSardana(self, status):
         """ sets the sardana utils
@@ -1078,6 +1146,7 @@ class LiveViewer(QtGui.QMainWindow):
             self.__settings.secsocket.send_string("%d %s" % (
                 topic, str(json.dumps(messagedata)).encode("ascii")))
         self.__updatehisto = True
+        self.__setSourceLabel()
         self._startPlotting()
 
     @QtCore.pyqtSlot()
@@ -1097,6 +1166,7 @@ class LiveViewer(QtGui.QMainWindow):
             self.__settings.secsocket.send_string("%d %s" % (
                 topic, str(json.dumps(messagedata)).encode("ascii")))
         self._updateSource(0)
+        self.__setSourceLabel()
         # self.__datasource = None
 
     @QtCore.pyqtSlot(str, str)

@@ -292,6 +292,29 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="9" column="1">
+                     <widget class="QCheckBox" name="sourcedisplayCheckBox">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display parameters separately set for image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="0">
+                     <widget class="QLabel" name="sourcedisplayLabel">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display parameters separately set for image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string>Display specific for sources:</string>
+                      </property>
+                      <property name="buddy">
+                       <cstring>sourcedisplayCheckBox</cstring>
+                      </property>
+                     </widget>
+                    </item>
                    </layout>
                   </item>
                  </layout>
@@ -1164,6 +1187,7 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>showallroisCheckBox</tabstop>
   <tabstop>sendroisCheckBox</tabstop>
   <tabstop>interruptCheckBox</tabstop>
+  <tabstop>sourcedisplayCheckBox</tabstop>
   <tabstop>statsscaleCheckBox</tabstop>
   <tabstop>secstreamCheckBox</tabstop>
   <tabstop>secautoportCheckBox</tabstop>
