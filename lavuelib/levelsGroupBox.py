@@ -101,7 +101,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
 
         self.__hideControls()
         self.__ui.autoLevelsCheckBox.stateChanged.connect(
-            self.onAutoLevelsChanged)
+            self._onAutoLevelsChanged)
         self.__connectHistogram()
         self.updateLevels(self.__minval, self.__maxval)
         self.__connectMinMax()
@@ -216,13 +216,24 @@ class LevelsGroupBox(QtGui.QGroupBox):
         return self.__auto
 
     @QtCore.pyqtSlot(int)
-    def onAutoLevelsChanged(self, auto):
+    def setAutoLevels(self, auto):
         """enables or disables automatic levels
 
         :param auto: if automatics levels to be set
-        :type auto: :obj:`bool`
+        :type auto: :obj:`bool` or :obj:`int`
         """
-        if auto == 2:
+        self.__ui.autoLevelsCheckBox.setChecked(
+            2 if auto else 0)
+        self._onAutoLevelsChanged(auto)
+
+    @QtCore.pyqtSlot(int)
+    def _onAutoLevelsChanged(self, auto):
+        """enables or disables automatic levels
+
+        :param auto: if automatics levels to be set
+        :type auto: :obj:`bool` or :obj:`int`
+        """
+        if auto:
             self.__auto = True
             self.__hideControls()
             self.autoLevelsChanged.emit(1)
@@ -470,7 +481,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
         :type cnflevels: :obj:`str`
         """
         self.__ui.autoLevelsCheckBox.setChecked(False)
-        self.onAutoLevelsChanged(0)
+        self._onAutoLevelsChanged(0)
         llst = cnflevels.split(",")
         lmin = None
         lmax = None

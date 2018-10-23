@@ -167,7 +167,7 @@ class Settings(object):
         """
         with QtCore.QMutexLocker(self.__mutex):
             if source and isinstance(values, dict):
-                self.__sourcedisplay[source] = values
+                self.__sourcedisplay[str(source)] = values
 
     def sourceDisplay(self, source):
         """ sets source display parameters
@@ -593,9 +593,6 @@ class Settings(object):
                     settings.setValue(
                         "Source_%s/%s" % (source, key),
                         value)
-                    print "STO", source, str(key), str(value)
-            
-            pass
 
     def __loadDisplayParams(self, settings):
         """ loads display parameters settings
@@ -608,9 +605,8 @@ class Settings(object):
         with QtCore.QMutexLocker(self.__mutex):
             qgroups = list(settings.childGroups())
             groups = [str(f) for f in qgroups
-                       if str(f).startswith("Source_")]
+                      if str(f).startswith("Source_")]
 
-            print(groups)
             for gr in groups:
                 source = gr[7:]
                 if source not in self.__sourcedisplay.keys():
@@ -622,8 +618,6 @@ class Settings(object):
                             settings.value(
                                 "%s" % str(key), type=str))
                         self.__sourcedisplay[source][str(key)] = str(qstval)
-                        print "LO", source, str(key), str(qstval)
                     settings.endGroup()
-                except:
+                except Exception:
                     settings.endGroup()
-                

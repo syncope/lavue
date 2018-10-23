@@ -920,19 +920,18 @@ class LiveViewer(QtGui.QMainWindow):
         :param sourceConfiguration: source configuration string
         :type sourceConfiguration: :obj:`str
         """
-        if self.__sourcelabel != label and label and \
+        if self.__sourcelabel != str(label) and label and \
            self.__settings.sourcedisplay:
-            self.__sourcelabel = label
-            print("SOURCE %s" % label)
-            values = self.__settings.sourceDisplay(label)
-            print("VALUE %s" % values)
+            self.__sourcelabel = str(label)
+            values = self.__settings.sourceDisplay(
+                self.__sourcelabel)
             if values:
                 options = argparse.Namespace()
                 for key, vl in values.items():
                     setattr(options, key, vl)
                 self.__applyoptions(options)
                 if 'levels' not in values.keys():
-                    self.__levelswg.onAutoLevelsChanged(2)
+                    self.__levelswg.setAutoLevels(2)
                 if 'bkgfile' not in values.keys():
                     self.__bkgsubwg.checkBkgSubtraction(False)
                 if 'maskfile' not in values.keys():
@@ -942,7 +941,6 @@ class LiveViewer(QtGui.QMainWindow):
         """sets source display parameters
         """
         if self.__sourcelabel and self.__settings.sourcedisplay:
-            print("SET %s " % self.__sourcelabel)
             label = self.__sourcelabel
             values = {}
             values["transformation"] = self.__trafowg.transformation()
@@ -962,7 +960,6 @@ class LiveViewer(QtGui.QMainWindow):
                 values["maskhighvalue"] = ""
             values["viewrange"] = self.__imagewg.viewRange()
             self.__settings.setSourceDisplay(label, values)
-            print(values)
 
     def __setSardana(self, status):
         """ sets the sardana utils
