@@ -179,7 +179,7 @@ class Settings(object):
         values = None
         with QtCore.QMutexLocker(self.__mutex):
             if source in self.__sourcedisplay.keys():
-                values = dict(self.__sourcedisplay[source])
+                values = dict(self.__sourcedisplay[str(source)])
         return values
 
     def load(self, settings):
@@ -420,6 +420,7 @@ class Settings(object):
                 settings.value("Tools/DetectorDistance", type=str))
         except Exception:
             pass
+        self.__loadDisplayParams(settings)
         return status
 
     def store(self, settings):
@@ -578,3 +579,51 @@ class Settings(object):
         settings.setValue(
             "Tools/DetectorDistance",
             self.detdistance)
+        self.__storeDisplayParams(settings)
+
+    def __storeDisplayParams(self, settings):
+        """ Stores display parameters settings in QSettings object
+
+        :param settings: QSettings object
+        :type settings: :class:`PyQt4.QtCore.QSettings`
+        """
+        with QtCore.QMutexLocker(self.__mutex):
+            for source, dct in self.__sourcedisplay.items():
+                for key, value in dct.items():
+                    settings.setValue(
+                        "Source_%s/%s" % (source, key),
+                        value)
+                    print "STO", source, str(key), str(value)
+            
+            pass
+
+    def __loadDisplayParams(self, settings):
+        """ loads display parameters settings
+
+        :param settings: QSettings object
+        :type settings: :class:`PyQt4.QtCore.QSettings`
+        :returns: error messages list
+        :rtype: :obj:`list` < (:obj:`str`, :obj:`str`) >
+        """
+        with QtCore.QMutexLocker(self.__mutex):
+            qgroups = list(settings.childGroups())
+            groups = [str(f) for f in qgroups
+                       if str(f).startswith("Source_")]
+
+            print(groups)
+            for gr in groups:
+                source = gr[7:]
+                if source not in self.__sourcedisplay.keys():
+                    self.__sourcedisplay[source] = {}
+                settings.beginGroup(gr)
+                try:
+                    for key in settings.allKeys():
+                        qstval = str(
+                            settings.value(
+                                "%s" % str(key), type=str))
+                        self.__sourcedisplay[source][str(key)] = str(qstval)
+                        print "LO", source, str(key), str(qstval)
+                    settings.endGroup()
+                except:
+                    settings.endGroup()
+                

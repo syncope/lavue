@@ -735,6 +735,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
+            self.__storeSettings()
 
     def __updateConfig(self, dialog):
         """ updates the configuration
@@ -919,7 +920,8 @@ class LiveViewer(QtGui.QMainWindow):
         :param sourceConfiguration: source configuration string
         :type sourceConfiguration: :obj:`str
         """
-        if self.__sourcelabel != label and label:
+        if self.__sourcelabel != label and label and \
+           self.__settings.sourcedisplay:
             self.__sourcelabel = label
             print("SOURCE %s" % label)
             values = self.__settings.sourceDisplay(label)
@@ -939,8 +941,8 @@ class LiveViewer(QtGui.QMainWindow):
     def __setSourceLabel(self):
         """sets source display parameters
         """
-        print("SET %s " % self.__sourcelabel)
-        if self.__sourcelabel:
+        if self.__sourcelabel and self.__settings.sourcedisplay:
+            print("SET %s " % self.__sourcelabel)
             label = self.__sourcelabel
             values = {}
             values["transformation"] = self.__trafowg.transformation()
