@@ -1,4 +1,8 @@
 2018-10-23 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for loading options
+	* tagged as 1.25.1
+
+2018-10-23 Jan Kotanski <jan.kotanski@desy.de>
 	* add storing detector display parameters
 	* add range option
 	* tagged as 1.25.0

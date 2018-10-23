@@ -356,11 +356,11 @@ class LiveViewer(QtGui.QMainWindow):
         :returns: start flag
         :rtype: :obj:`bool`
         """
-        if hasattr(options, "doordevice") and options.doordevice:
+        if hasattr(options, "doordevice") and options.doordevice is not None:
             self.__settings.doorname = options.doordevice
 
         # load image file
-        if hasattr(options, "imagefile") and options.imagefile:
+        if hasattr(options, "imagefile") and options.imagefile is not None:
             oldname = self.__settings.imagename
             oldpath = self.__fieldpath
             oldgrowing = self.__growing
@@ -379,7 +379,7 @@ class LiveViewer(QtGui.QMainWindow):
                 self.__growing = oldgrowing
 
         # set image source
-        if hasattr(options, "source") and options.source:
+        if hasattr(options, "source") and options.source is not None:
             msid = None
             for sid, src in enumerate(self.__sourcetypes):
                 if src.endswith("SourceWidget"):
@@ -390,35 +390,38 @@ class LiveViewer(QtGui.QMainWindow):
             if msid is not None:
                 self.__sourcewg.setSourceComboBox(msid)
 
-        if hasattr(options, "configuration") and options.configuration:
+        if hasattr(options, "configuration") and \
+           options.configuration is not None:
             self.__sourcewg.configure(options.configuration)
 
-        if hasattr(options, "bkgfile") and options.bkgfile:
+        if hasattr(options, "bkgfile") and options.bkgfile is not None:
             self.__bkgsubwg.setBackground(options.bkgfile)
 
-        if hasattr(options, "maskfile") and options.maskfile:
+        if hasattr(options, "maskfile") and options.maskfile is not None:
             self.__maskwg.setMask(options.maskfile)
 
-        if hasattr(options, "maskhighvalue") and options.maskhighvalue:
+        if hasattr(options, "maskhighvalue") and \
+           options.maskhighvalue is not None:
             self.__highvaluemaskwg.setMask(options.maskhighvalue)
 
-        if hasattr(options, "transformation") and options.transformation:
+        if hasattr(options, "transformation") and \
+           options.transformation is not None:
             self.__trafowg.setTransformation(options.transformation)
 
-        if hasattr(options, "scaling") and options.scaling:
+        if hasattr(options, "scaling") and options.scaling is not None:
             self.__scalingwg.setScaling(options.scaling)
 
-        if hasattr(options, "levels") and options.levels:
+        if hasattr(options, "levels") and options.levels is not None:
             self.__levelswg.setLevels(options.levels)
 
-        if hasattr(options, "gradient") and options.gradient:
+        if hasattr(options, "gradient") and options.gradient is not None:
             self.__levelswg.setGradient(options.gradient)
 
-        if hasattr(options, "tool") and options.tool:
+        if hasattr(options, "tool") and options.tool is not None:
             self.__imagewg.setTool(options.tool)
 
         if hasattr(options, "tangodevice") and \
-           TANGOCLIENT and options.tangodevice:
+           TANGOCLIENT and options.tangodevice is not None:
             self.__tangoclient = controllerClient.ControllerClient(
                 options.tangodevice)
             self.__tangoclient.energyChanged.connect(
@@ -436,7 +439,7 @@ class LiveViewer(QtGui.QMainWindow):
         else:
             self.__tangoclient = None
 
-        if hasattr(options, "viewrange") and options.viewrange:
+        if hasattr(options, "viewrange") and options.viewrange is not None:
             self.__imagewg.setViewRange(options.viewrange)
         if hasattr(options, "start"):
             return options.start is True
