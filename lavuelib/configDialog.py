@@ -143,6 +143,8 @@ class ConfigDialog(QtGui.QDialog):
         self.showallrois = False
         #: (:obj:`bool`) send rois to LavueController flag
         self.sendrois = False
+        #: (:obj:`bool`) store display parameters for specific sources
+        self.sourcedisplay = False
 
     def createGUI(self):
         """ create GUI
@@ -184,6 +186,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.storegeometryCheckBox.setChecked(self.storegeometry)
         self.__ui.sendroisCheckBox.setChecked(self.sendrois)
         self.__ui.showallroisCheckBox.setChecked(self.showallrois)
+        self.__ui.sourcedisplayCheckBox.setChecked(self.sourcedisplay)
 
         self._updateSecPortLineEdit(self.secautoport)
         self.__ui.secautoportCheckBox.stateChanged.connect(
@@ -275,6 +278,7 @@ class ConfigDialog(QtGui.QDialog):
         self.storegeometry = self.__ui.storegeometryCheckBox.isChecked()
         self.sendrois = self.__ui.sendroisCheckBox.isChecked()
         self.showallrois = self.__ui.showallroisCheckBox.isChecked()
+        self.sourcedisplay = self.__ui.sourcedisplayCheckBox.isChecked()
 
         try:
             dirtrans = str(self.__ui.dirtransLineEdit.text()).strip()

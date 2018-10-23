@@ -731,6 +731,7 @@ class LiveViewer(QtGui.QMainWindow):
         cnfdlg.showallrois = self.__settings.showallrois
         cnfdlg.storegeometry = self.__settings.storegeometry
         cnfdlg.roiscolors = self.__settings.roiscolors
+        cnfdlg.sourcedisplay = self.__settings.sourcedisplay
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
@@ -816,6 +817,7 @@ class LiveViewer(QtGui.QMainWindow):
         self.__settings.secstream = dialog.secstream
         self.__settings.storegeometry = dialog.storegeometry
         self.__settings.interruptonerror = dialog.interruptonerror
+        self.__settings.sourcedisplay = dialog.sourcedisplay
         setsrc = False
         if self.__settings.hidraport != dialog.hidraport:
             self.__settings.hidraport = dialog.hidraport

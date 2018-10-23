@@ -148,6 +148,8 @@ class Settings(object):
         self.showallrois = False
         #: (:obj:`bool`) send rois to LavueController flag
         self.sendrois = False
+        #: (:obj:`bool`) store display parameters for specific sources
+        self.sourcedisplay = False
 
         #: (:obj:`dict` < :obj:`str`, :obj:`dict` < :obj:`str`,`any`> >
         #                source display dictionary
@@ -318,6 +320,7 @@ class Settings(object):
                 "Configuration/LastBackgroundImageFileName", type=str))
         if qstval:
             self.bkgimagename = qstval
+
         qstval = str(
             settings.value(
                 "Configuration/StatisticsWithoutScaling", type=str))
@@ -379,6 +382,12 @@ class Settings(object):
             settings.value("Configuration/ROIsColors", type=str))
         if qstval:
             self.roiscolors = qstval
+
+        qstval = str(
+            settings.value(
+                "Configuration/SourceDisplayParams", type=str))
+        if qstval.lower() == "true":
+            self.sourcedisplay = True
 
         try:
             self.centerx = float(
@@ -539,6 +548,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ShowAllROIs",
             self.showallrois)
+        settings.setValue(
+            "Configuration/SourceDisplayParams",
+            self.sourcedisplay)
 
         if not self.storegeometry:
             self.centerx = 0.0
