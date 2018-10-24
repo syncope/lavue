@@ -185,6 +185,7 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         self.layout.addItem(self.gradient, 2, 0)
         self.range = None
 
+        self.autolevelfactor = 0.5
         self.gradient.setFlag(self.gradient.ItemStacksBehindParent)
         self.vb.setFlag(self.gradient.ItemStacksBehindParent)
 
@@ -252,3 +253,17 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         """
         self.vb.enableAutoRange(self.vb.XAxis, False)
         self.vb.setYRange(mn, mx, padding)
+
+        
+    # def imageChanged(self, autoLevel=False, autoRange=False):
+
+    #     if self.autolevelfactor is not None:
+    #         h = self.imageItem().getHistogram()
+    #         print(h)
+    #         mn, mx = self.imageItem().levels
+    #         self.setLevels(20, mx)
+    #         _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.imageChanged(
+    #             self, autoLevel=False, autoRange=autoRange)
+    #     else:
+    #         _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.imageChanged(
+    #             self, autoLevel=autoLevel, autoRange=autoRange)
