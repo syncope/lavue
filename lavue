@@ -31,9 +31,47 @@ import lavuelib.liveViewer
 import sys
 import os
 import argparse
+import signal
+
 from argparse import RawTextHelpFormatter
 
 import lavuelib.qrc as qrc
+
+dialog = None
+
+
+def setupHandler():
+    """ sets interrupt handler for SIGINT and SIGTERM
+    """
+    signal.signal(signal.SIGINT, _intHandler)
+    signal.signal(signal.SIGTERM, _intHandler)
+    if os.name == 'posix':
+        signal.signal(signal.SIGHUP, _intHandler)
+    sftimer()
+
+
+def _intHandler(signum, frame):
+    """ interrupt handler
+    :param signum:  signal number
+    :type signum: :obj:`int`
+    :param frame: frame object
+    :type frame:  :obj:`frame`
+    """
+    dialog.close()
+    QtGui.QApplication.quit()
+    # print("quit")
+
+
+def sftimer():
+    """ creates a garbage collector safe timer
+    """
+    def timerEvent():
+        try:
+            pass
+        finally:
+            QtCore.QTimer.singleShot(500, timerEvent)
+    QtCore.QTimer.singleShot(500, timerEvent)
+
 
 # def main():
 if __name__ == "__main__":
@@ -119,7 +157,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-q", "--factor", dest="autofactor",
-        help="factor of the highest pick for automatic levels in %%, e.g. -q 0.5"
+        help="factor of the highest pick for automatic levels in %%,"
+        " e.g. -q 0.5"
     )
     parser.add_argument(
         "-g", "--gradient", dest="gradient",
@@ -167,6 +206,7 @@ if __name__ == "__main__":
     # logger.setLevel(level)
 
     app = QtGui.QApplication([])
+    setupHandler()
     if options.style:
         app.setStyle(options.style)
     if options.stylesheet:
