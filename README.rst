@@ -37,7 +37,7 @@ The ``setup.py`` script may need: ``setuptools  sphinx  numpy  pytest`` python p
 Debian packages
 """""""""""""""
 
-Debian Stretch (and Jessie) packages can be found in the HDRI repository.
+Debian `stretch` (and `jessie`) ot Ubuntu  `bionic` packages can be found in the HDRI repository.
 
 To install the debian packages, add the PGP repository key
 
@@ -63,6 +63,11 @@ or
 .. code-block:: console
 
    $ wget http://repos.pni-hdri.de/jessie-pni-hdri.list
+or
+
+.. code-block:: console
+
+   $ wget http://repos.pni-hdri.de/bionic-pni-hdri.list
 
 respectively.
 
