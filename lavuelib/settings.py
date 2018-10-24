@@ -593,6 +593,14 @@ class Settings(object):
                     settings.setValue(
                         "Source_%s/%s" % (source, key),
                         value)
+                try:
+                    settings.beginGroup("Source_%s" % source)
+                    oldkeys = set([str(key) for key in settings.allKeys()]) - \
+                        set(dct.keys())
+                    for key in oldkeys:
+                        settings.remove(key)
+                finally:
+                    settings.endGroup()
 
     def __loadDisplayParams(self, settings):
         """ loads display parameters settings
@@ -618,6 +626,5 @@ class Settings(object):
                             settings.value(
                                 "%s" % str(key), type=str))
                         self.__sourcedisplay[source][str(key)] = str(qstval)
-                    settings.endGroup()
-                except Exception:
+                finally:
                     settings.endGroup()
