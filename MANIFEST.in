@@ -2,6 +2,7 @@ include README.rst
 include LICENSE
 include COPYRIGHT
 include man/lavue.1
+include man/lavuelib.1
 include man/lavuemonitor.1
 include man/LavueController.1
 include man/lavuezmqstreamfromtango.1
