@@ -21,12 +21,52 @@ is a simple implementation of a live viewer front end. It is supposed to show a 
 show a help message and exit
 .IP "--version, -v"
 lavue version
-.IP "--mode, -m"
+.IP "-m MODE, --mode MODE"
 interface mode, i.e. user, expert
-.IP "--style, -t"
+.IP "-y STYLE, --style STYLE"
 QT style
-.IP "--stylesheet, -y"
+.IP "-e STYLESHEET, --stylesheet STYLESHEET"
 QT style sheet
+.IP "-f IMAGEFILE, --image-file IMAGEFILE"
+image file name to show
+.IP "-s SOURCE, --source SOURCE"
+image source, i.e. hidra, http, tangoattr, tangofile, zmq, nxsfile, test
+.IP "-c CONFIGURATION, --configuration CONFIGURATION"
+configuration strings for the image source separated by comma, e.g.
+  hidra -> '-c haspilatus300k.desy.de'
+  http -> '-c haso228eiger/1.5.0'
+  tangoattr -> '-c sys/tg_test/1/double_image_ro'
+  tangofile -> '-c p00/plt/1/LastImageTaken,p00/plt/1/LastImagePath'
+  zmq -> '-c haso228:5535,topic'
+  nxsfile -> '-c /tmp/myfile.nxs://entry/data/pilatus'
+.IP "-b BKGFILE, --bkg-file BKGFILE"
+background file-name to load
+.IP "-k MASKFILE, --mask-file MASKFILE"
+mask file-name to load
+.IP "-p MASKHIGHVALUE, --mask-high-value MASKHIGHVALUE"
+highest pixel value to show
+.IP "-t TRANSFORMATION, --transformation TRANSFORMATION"
+image transformation, i.e.
+flip-up-down, flip-left-right, transpose,
+rot90, rot180, rot270, rot180+transpose
+.IP "-i SCALING, --scaling SCALING"
+intensity scaling, i.e. sqrt, linear, log
+.IP "-l LEVELS, --levels LEVELS"
+intensity display levels e.g. -l m20,20
+where 'm' is '-'
+.IP "-g GRADIENT, --gradient GRADIENT"
+color gradient, i.e.
+grey, highcontrast, thermal, flame, bipolar, spectrum, spectrumclip, greyclip, reversegrey, cyclic, yellowy, inverted
+.IP "-r VIEWRANGE, --range VIEWRANGE"
+viewbox range, i.e. xmin,ymin,xsize,ysize , e.g. -l 5.6,m60.7,543.2,444.11
+.IP "-x, --start"
+connect the image source
+.IP "-u TOOL, --tool TOOL"
+utility tool, i.e. intensity, roi, movemotors, meshscan, linecut, projections, 1d-plot, angle/q, q+roi+proj
+.IP "-a TANGODEVICE, --tango-device TANGODEVICE"
+tango device to communicated with clients during the run
+.IP "-d DOORDEVICE, --door DOORDEVICE"
+door device to communicated with sardana during the run
 
 
 .SH SEE ALSO

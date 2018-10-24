@@ -186,7 +186,7 @@
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrupt on an image source error&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="text">
-                       <string>Interrupt on source errors:</string>
+                       <string>Interrupt on a source error:</string>
                       </property>
                       <property name="buddy">
                        <cstring>interruptCheckBox</cstring>
@@ -308,7 +308,7 @@
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display parameters separately set for image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="text">
-                       <string>Display specific for sources:</string>
+                       <string>Display specific for a source:</string>
                       </property>
                       <property name="buddy">
                        <cstring>sourcedisplayCheckBox</cstring>
