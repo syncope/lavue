@@ -66,7 +66,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
 
         #: (:obj: `bool`) colors to be shown
         self.__colors = True
-        #: (:obj: `bool`) auto levels enebled
+        #: (:obj: `bool`) auto levels enabled
         self.__auto = True
         #: (:obj: `bool`) histogram shown
         self.__histo = True
@@ -102,6 +102,8 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self.__hideControls()
         self.__ui.autoLevelsCheckBox.stateChanged.connect(
             self._onAutoLevelsChanged)
+        self.__ui.autofactorLineEdit.textChanged.connect(
+            self._onAutoFactorChanged)
         self.__connectHistogram()
         self.updateLevels(self.__minval, self.__maxval)
         self.__connectMinMax()
@@ -226,6 +228,23 @@ class LevelsGroupBox(QtGui.QGroupBox):
             2 if auto else 0)
         self._onAutoLevelsChanged(auto)
 
+    @QtCore.pyqtSlot(str)
+    def _onAutoFactorChanged(self, factor):
+        """sets factor for  automatic levels
+
+        :param factor: if automatics levels to be set
+        :type factor: :obj:`str`
+        """
+        try:
+            ffactor = float(factor)
+            if ffactor < 0:
+                ffactor = 0
+                self.__ui.autofactorLineEdit.setText("0")
+            self.__histogram.setAutoFactor(ffactor)
+        except Exception:
+            self.__histogram.setAutoFactor(None)
+        self.autoLevelsChanged.emit(1)
+
     @QtCore.pyqtSlot(int)
     def _onAutoLevelsChanged(self, auto):
         """enables or disables automatic levels
@@ -236,8 +255,9 @@ class LevelsGroupBox(QtGui.QGroupBox):
         if auto:
             self.__auto = True
             self.__hideControls()
-            self.autoLevelsChanged.emit(1)
+            self._onAutoFactorChanged(str(self.__ui.autofactorLineEdit.text()))
         else:
+            self.__histogram.setAutoFactor(None)
             self.__auto = False
             self.__showControls()
             self.autoLevelsChanged.emit(0)
@@ -300,12 +320,16 @@ class LevelsGroupBox(QtGui.QGroupBox):
         """
         self.__ui.minDoubleSpinBox.setEnabled(False)
         self.__ui.maxDoubleSpinBox.setEnabled(False)
+        self.__ui.autofactorLineEdit.setEnabled(True)
+        self.__ui.autofactorLabel.setEnabled(True)
 
     def __showControls(self):
         """ enables spinboxes
         """
         self.__ui.minDoubleSpinBox.setEnabled(True)
         self.__ui.maxDoubleSpinBox.setEnabled(True)
+        self.__ui.autofactorLineEdit.setEnabled(False)
+        self.__ui.autofactorLabel.setEnabled(False)
 
     @QtCore.pyqtSlot(str)
     def setScalingLabel(self, scalingtype):
@@ -500,3 +524,22 @@ class LevelsGroupBox(QtGui.QGroupBox):
         except Exception:
             pass
         self.updateLevels(lmin, lmax)
+
+    def autoFactor(self):
+        """ provides factor for automatic levels
+
+        :returns: factor for automatic levels
+        :rtype: :obj:`str`
+        """
+        return str(self.__ui.autofactorLineEdit.text())
+
+    def setAutoFactor(self, factor):
+        """ sets factor for automatic levels
+
+        :param factor: factor for automatic levels
+        :type factor: :obj:`str`
+        """
+        self.__ui.autofactorLineEdit.setText(factor)
+        if factor:
+            self.setAutoLevels(2)
+        self._onAutoFactorChanged(factor)

@@ -118,6 +118,10 @@ if __name__ == "__main__":
         "  where 'm' is '-'"
     )
     parser.add_argument(
+        "-q", "--factor", dest="autofactor",
+        help="factor of the highest pick for automatic levels in %%"
+    )
+    parser.add_argument(
         "-g", "--gradient", dest="gradient",
         help="color gradient, i.e. grey, highcontrast, thermal, flame,\n"
         "  bipolar, spectrum, spectrumclip, greyclip, reversegrey, cyclic,\n"

@@ -27,6 +27,7 @@
 
 
 import pyqtgraph as _pg
+import numpy as np
 from PyQt4 import QtCore, QtGui
 
 #: ( (:obj:`str`,:obj:`str`,:obj:`str`) )
@@ -96,6 +97,14 @@ class HistogramHLUTWidget(_pg.widgets.GraphicsView.GraphicsView):
         """
         return getattr(self.item, attr)
 
+    def setAutoFactor(self, factor):
+        """ sets auto level factor
+
+        :param factor: auto level factor of maximal peak
+        :type factor: :obj:`float`
+        """
+        self.item.autolevelfactor = factor
+
 
 class GradientEditorItemWS(
         _pg.graphicsItems.GradientEditorItem.GradientEditorItem):
@@ -128,6 +137,9 @@ class GradientEditorItemWS(
 
 
 class HistogramHLUTItem(_pg.HistogramLUTItem):
+
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) automatic levels changed signal
+    autoLevelsChanged = QtCore.pyqtSignal(int)  # bool does not work...
 
     """ Horizontal HistogramItem """
 
@@ -185,6 +197,7 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         self.layout.addItem(self.gradient, 2, 0)
         self.range = None
 
+        self.autolevelfactor = None
         self.gradient.setFlag(self.gradient.ItemStacksBehindParent)
         self.vb.setFlag(self.gradient.ItemStacksBehindParent)
 
@@ -252,3 +265,27 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         """
         self.vb.enableAutoRange(self.vb.XAxis, False)
         self.vb.setYRange(mn, mx, padding)
+
+    def imageChanged(self, autoLevel=False, autoRange=False):
+
+        hx = None
+        hy = None
+        if self.autolevelfactor is not None:
+            hx, hy = self.imageItem().getHistogram()
+            if hy is not None and hx is not None:
+                if abs(hx[0]) < 1.e-3 or abs(hx[0]+2.) < 1.e-3:
+                    hx = hx[1:]
+                    hy = hy[1:]
+                hmax = max(hy)
+                hmin = self.autolevelfactor*hmax/100.
+                mn, mx = self.imageItem().levels
+                indexes = np.where(hy >= hmin)
+                ind1 = indexes[0][0]
+                ind2 = indexes[-1][-1]
+                self.region.setRegion([hx[ind1], hx[ind2]])
+                _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.\
+                    imageChanged(
+                        self, autoLevel=False, autoRange=autoRange)
+        if hx is None or hy is None:
+            _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.imageChanged(
+                self, autoLevel=autoLevel, autoRange=autoRange)

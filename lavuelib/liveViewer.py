@@ -414,6 +414,9 @@ class LiveViewer(QtGui.QMainWindow):
         if hasattr(options, "levels") and options.levels is not None:
             self.__levelswg.setLevels(options.levels)
 
+        if hasattr(options, "autofactor") and options.autofactor is not None:
+            self.__levelswg.setAutoFactor(options.autofactor)
+
         if hasattr(options, "gradient") and options.gradient is not None:
             self.__levelswg.setGradient(options.gradient)
 
@@ -953,6 +956,9 @@ class LiveViewer(QtGui.QMainWindow):
             values["scaling"] = self.__scalingwg.currentScaling()
             if not self.__levelswg.isAutoLevel():
                 values["levels"] = self.__levelswg.levels()
+                values["autofactor"] = ""
+            else:
+                values["autofactor"] = self.__levelswg.autoFactor()
             values["gradient"] = self.__levelswg.gradient()
             if self.__bkgsubwg.isBkgSubApplied():
                 values["bkgfile"] = str(self.__settings.bkgimagename)

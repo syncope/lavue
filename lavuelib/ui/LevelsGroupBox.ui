@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>327</width>
-    <height>238</height>
+    <width>333</width>
+    <height>214</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,16 +21,17 @@
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QLabel" name="scalingLabel">
+       <item row="0" column="1">
+        <widget class="QCheckBox" name="autoLevelsCheckBox">
          <property name="toolTip">
-          <string>intensity display scaling</string>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: red;</string>
+          <string>find mininum and maximum intensity values after scaling
+for color distribution of the image</string>
          </property>
          <property name="text">
-          <string>sqrt scale!</string>
+          <string>Auto levels</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -47,34 +48,6 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QCheckBox" name="autoLevelsCheckBox">
-         <property name="toolTip">
-          <string>find mininum and maximum intensity values after scaling
-for color distribution of the image</string>
-         </property>
-         <property name="text">
-          <string>Automatic levels</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QDoubleSpinBox" name="minDoubleSpinBox">
-         <property name="toolTip">
-          <string>mininum intensity values after scaling</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QDoubleSpinBox" name="maxDoubleSpinBox">
-         <property name="toolTip">
-          <string>maximum intensity values after scaling</string>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="0">
         <widget class="QLabel" name="minLabel">
          <property name="toolTip">
@@ -85,6 +58,53 @@ for color distribution of the image</string>
          </property>
          <property name="buddy">
           <cstring>minDoubleSpinBox</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="scalingLabel">
+         <property name="toolTip">
+          <string>intensity display scaling</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color: red;</string>
+         </property>
+         <property name="text">
+          <string>sqrt scale!</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLineEdit" name="autofactorLineEdit">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;factor of maxial peak to display&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="autofactorLabel">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;factor of maxial peak to display&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>%</string>
+         </property>
+         <property name="buddy">
+          <cstring>autofactorLineEdit</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" colspan="3">
+        <widget class="QDoubleSpinBox" name="minDoubleSpinBox">
+         <property name="toolTip">
+          <string>mininum intensity values after scaling</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" colspan="3">
+        <widget class="QDoubleSpinBox" name="maxDoubleSpinBox">
+         <property name="toolTip">
+          <string>maximum intensity values after scaling</string>
          </property>
         </widget>
        </item>
@@ -228,6 +248,14 @@ for color distribution of the image</string>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>autoLevelsCheckBox</tabstop>
+  <tabstop>autofactorLineEdit</tabstop>
+  <tabstop>minDoubleSpinBox</tabstop>
+  <tabstop>maxDoubleSpinBox</tabstop>
+  <tabstop>gradientComboBox</tabstop>
+  <tabstop>channelComboBox</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
