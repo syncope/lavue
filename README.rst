@@ -63,6 +63,7 @@ or
 .. code-block:: console
 
    $ wget http://repos.pni-hdri.de/jessie-pni-hdri.list
+
 or
 
 .. code-block:: console

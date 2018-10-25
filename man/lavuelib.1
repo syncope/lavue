@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Oct 23, 2018" "1.25" "lavuelib"
+.TH "LAVUELIB" "1" "Oct 25, 2018" "1.26" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -62,7 +62,7 @@ $ python setup.py install
 The \fBsetup.py\fP script may need: \fBsetuptools  sphinx  numpy  pytest\fP python packages as well as \fBlibqt4\-dev\-bin\fP\&.
 .SS Debian packages
 .sp
-Debian Stretch (and Jessie) packages can be found in the HDRI repository.
+Debian \fIstretch\fP (and \fIjessie\fP) ot Ubuntu  \fIbionic\fP packages can be found in the HDRI repository.
 .sp
 To install the debian packages, add the PGP repository key
 .INDENT 0.0
@@ -108,6 +108,18 @@ or
 .nf
 .ft C
 $ wget http://repos.pni\-hdri.de/jessie\-pni\-hdri.list
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+or
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ wget http://repos.pni\-hdri.de/bionic\-pni\-hdri.list
 .ft P
 .fi
 .UNINDENT
@@ -219,7 +231,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -288,9 +300,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .IP \(bu 2
-\fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) \-\- lavue configuration settings
+\fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) – lavue configuration settings
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -311,7 +323,7 @@ and reset the display
 .INDENT 7.0
 .TP
 .B Parameters
-\fBstate\fP (\fI\%int\fP) \-\- checkbox state
+\fBstate\fP (\fI\%int\fP) – checkbox state
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -328,7 +340,7 @@ sets the image background
 .INDENT 7.0
 .TP
 .B Parameters
-\fBfname\fP (\fI\%str\fP) \-\- file name
+\fBfname\fP (\fI\%str\fP) – file name
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -338,7 +350,7 @@ sets displayed file name
 .INDENT 7.0
 .TP
 .B Parameters
-\fBname\fP (\fI\%str\fP) \-\- file name
+\fBname\fP (\fI\%str\fP) – file name
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -359,7 +371,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -398,11 +410,6 @@ create GUI
 .UNINDENT
 .INDENT 7.0
 .TP
-.B dirtrans = None
-(\fI\%str\fP) JSON dictionary with directory and filename translation
-.UNINDENT
-.INDENT 7.0
-.TP
 .B door = None
 (\fI\%str\fP) device name of sardana door
 .UNINDENT
@@ -410,11 +417,6 @@ create GUI
 .TP
 .B hidraport = None
 (\fI\%str\fP) hidra data port
-.UNINDENT
-.INDENT 7.0
-.TP
-.B httpurls = None
-(\fI\%str\fP) JSON dictionary with {label: url}
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -533,21 +535,6 @@ create GUI
 .UNINDENT
 .INDENT 7.0
 .TP
-.B tangoattrs = None
-(\fI\%str\fP) JSON dictionary with {label: tango attribute}
-.UNINDENT
-.INDENT 7.0
-.TP
-.B tangodirattrs = None
-(\fI\%str\fP) JSON dictionary with {label: dir tango attribute}
-.UNINDENT
-.INDENT 7.0
-.TP
-.B tangofileattrs = None
-(\fI\%str\fP) JSON dictionary with {label: file tango attribute}
-.UNINDENT
-.INDENT 7.0
-.TP
 .B timeout = None
 (\fI\%int\fP) image source timeout in ms
 .UNINDENT
@@ -555,11 +542,6 @@ create GUI
 .TP
 .B zeromask = None
 (\fI\%bool\fP) zero mask enabled
-.UNINDENT
-.INDENT 7.0
-.TP
-.B zmqservers = None
-(\fI\%str\fP) JSON dictionary with {label: <server:port>}
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -581,9 +563,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBdatasource\fP (\fI\%lavuelib.imageSource.BaseSource\fP) \-\- image source
+\fBdatasource\fP (\fI\%lavuelib.imageSource.BaseSource\fP) – image source
 .IP \(bu 2
-\fBalist\fP (\fI\%ExchangeList\fP) \-\- exchange object
+\fBalist\fP (\fI\%ExchangeList\fP) – exchange object
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -593,7 +575,7 @@ change connection status
 .INDENT 7.0
 .TP
 .B Parameters
-\fBstatus\fP (\fI\%bool\fP) \-\- connection status
+\fBstatus\fP (\fI\%bool\fP) – connection status
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -654,11 +636,11 @@ write data into exchange object
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBname\fP (\fI\%str\fP) \-\- image name
+\fBname\fP (\fI\%str\fP) – image name
 .IP \(bu 2
-\fBdata\fP (\fI\%numpy.ndarray\fP) \-\- image data
+\fBdata\fP (\fI\%numpy.ndarray\fP) – image data
 .IP \(bu 2
-\fBmetadata\fP (\fI\%str\fP) \-\- json dictionary with image metadata
+\fBmetadata\fP (\fI\%str\fP) – json dictionary with image metadata
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -696,11 +678,6 @@ constructor
 .TP
 .B enabled = None
 (\fI\%bool\fP) enabled flag
-.UNINDENT
-.INDENT 7.0
-.TP
-.B position = None
-(\fI\%tuple\fP <\fI\%float\fP, \fI\%float\fP> )
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -808,6 +785,25 @@ constructor
 .UNINDENT
 .INDENT 0.0
 .TP
+.B class lavuelib.displayParameters.MaximaParameters
+Bases: \fI\%object\fP
+.sp
+maxima parameters
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B enabled = None
+(\fI\%bool\fP) enabled flag
+.UNINDENT
+.INDENT 7.0
+.TP
+.B positions = None
+(\fBlist\fP < (float, float) > ) list with maxima coordinates
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
 .B class lavuelib.displayParameters.ROIsParameters
 Bases: \fI\%object\fP
 .sp
@@ -876,9 +872,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fI\%FTObject\fP) \-\- treee parent
+\fBtparent\fP (\fI\%FTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -932,7 +928,7 @@ write attribute value
 .INDENT 7.0
 .TP
 .B Parameters
-\fBo\fP (\fI\%any\fP) \-\- python object
+\fBo\fP (\fI\%any\fP) – python object
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -949,9 +945,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fI\%FTObject\fP) \-\- treee parent
+\fBtparent\fP (\fI\%FTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -963,13 +959,13 @@ create a new attribute
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBname\fP (\fI\%str\fP) \-\- attribute name
+\fBname\fP (\fI\%str\fP) – attribute name
 .IP \(bu 2
-\fBdtype\fP (\fI\%str\fP) \-\- attribute type
+\fBdtype\fP (\fI\%str\fP) – attribute type
 .IP \(bu 2
-\fBshape\fP (\fBlist\(ga< :obj:\(gaint\fP>) \-\- attribute shape
+\fBshape\fP (\fBlist\(ga< :obj:\(gaint\fP>) – attribute shape
 .IP \(bu 2
-\fBoverwrite\fP (\fI\%bool\fP) \-\- overwrite flag
+\fBoverwrite\fP (\fI\%bool\fP) – overwrite flag
 .UNINDENT
 .TP
 .B Returns
@@ -998,9 +994,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fI\%FTObject\fP) \-\- treee parent
+\fBtparent\fP (\fI\%FTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -1048,9 +1044,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fI\%FTObject\fP) \-\- treee parent
+\fBtparent\fP (\fI\%FTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -1088,9 +1084,9 @@ grow the field
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBdim\fP (\fI\%int\fP) \-\- growing dimension
+\fBdim\fP (\fI\%int\fP) – growing dimension
 .IP \(bu 2
-\fBdim\fP \-\- size of the grow
+\fBdim\fP – size of the grow
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -1158,7 +1154,7 @@ write the field value
 .INDENT 7.0
 .TP
 .B Parameters
-\fBo\fP (\fI\%any\fP) \-\- pni object
+\fBo\fP (\fI\%any\fP) – pni object
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -1175,12 +1171,12 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBfilename\fP (\fI\%str\fP) \-\- file name
+\fBfilename\fP (\fI\%str\fP) – file name
 .IP \(bu 2
 \fBwriter\fP (\fBPNIWriter\fP or \fBH5PYWriter\fP
-or \fBH5CppWriter\fP) \-\- writer module
+or \fBH5CppWriter\fP) – writer module
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -1241,11 +1237,11 @@ reopen attribute
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBreadonly\fP (\fI\%bool\fP) \-\- readonly flag
+\fBreadonly\fP (\fI\%bool\fP) – readonly flag
 .IP \(bu 2
-\fBswmr\fP (\fI\%bool\fP) \-\- swmr flag
+\fBswmr\fP (\fI\%bool\fP) – swmr flag
 .IP \(bu 2
-\fBlibver\fP (\fI\%str\fP) \-\- library version, default: \(aqlatest\(aq
+\fBlibver\fP (\fI\%str\fP) – library version, default: ‘latest’
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -1262,11 +1258,6 @@ parent object
 \fI\%FTGroup\fP
 .UNINDENT
 .UNINDENT
-.INDENT 7.0
-.TP
-.B writer = None
-(\fBPNIWriter\fP or \fBH5PYWriter\fP or \fBH5CppWriter\fP)
-.UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
@@ -1281,9 +1272,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fI\%FTObject\fP) \-\- treee parent
+\fBtparent\fP (\fI\%FTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -1308,15 +1299,15 @@ open a file tree element
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBn\fP (\fI\%str\fP) \-\- group name
+\fBn\fP (\fI\%str\fP) – group name
 .IP \(bu 2
-\fBtype_code\fP (\fI\%str\fP) \-\- nexus field type
+\fBtype_code\fP (\fI\%str\fP) – nexus field type
 .IP \(bu 2
-\fBshape\fP (\fBlist\fP < \fI\%int\fP >) \-\- shape
+\fBshape\fP (\fBlist\fP < \fI\%int\fP >) – shape
 .IP \(bu 2
-\fBchunk\fP (\fBlist\fP < \fI\%int\fP >) \-\- chunk
+\fBchunk\fP (\fBlist\fP < \fI\%int\fP >) – chunk
 .IP \(bu 2
-\fBdfilter\fP (\fI\%FTDeflate\fP) \-\- filter deflater
+\fBdfilter\fP (\fI\%FTDeflate\fP) – filter deflater
 .UNINDENT
 .TP
 .B Returns
@@ -1335,9 +1326,9 @@ open a file tree element
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBn\fP (\fI\%str\fP) \-\- group name
+\fBn\fP (\fI\%str\fP) – group name
 .IP \(bu 2
-\fBnxclass\fP (\fI\%str\fP) \-\- group type
+\fBnxclass\fP (\fI\%str\fP) – group type
 .UNINDENT
 .TP
 .B Returns
@@ -1354,7 +1345,7 @@ if child exists
 .INDENT 7.0
 .TP
 .B Parameters
-\fBname\fP (\fI\%str\fP) \-\- child name
+\fBname\fP (\fI\%str\fP) – child name
 .TP
 .B Returns
 existing flag
@@ -1383,7 +1374,7 @@ open a file tree element
 .INDENT 7.0
 .TP
 .B Parameters
-\fBname\fP (\fI\%str\fP) \-\- element name
+\fBname\fP (\fI\%str\fP) – element name
 .TP
 .B Returns
 file tree object
@@ -1429,9 +1420,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fI\%FTObject\fP) \-\- treee parent
+\fBtparent\fP (\fI\%FTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -1479,9 +1470,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- h5 object
+\fBh5object\fP (\fI\%any\fP) – h5 object
 .IP \(bu 2
-\fBtparent\fP (\fI\%FTObject\fP) \-\- tree parent
+\fBtparent\fP (\fI\%FTObject\fP) – tree parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -1491,7 +1482,7 @@ append child weakref
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtparent\fP (\fI\%FTObject\fP) \-\- tree parent
+\fBtparent\fP (\fI\%FTObject\fP) – tree parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -1553,11 +1544,11 @@ create a new file
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBfilename\fP (\fI\%str\fP) \-\- file name
+\fBfilename\fP (\fI\%str\fP) – file name
 .IP \(bu 2
-\fBoverwrite\fP (\fI\%bool\fP) \-\- overwrite flag
+\fBoverwrite\fP (\fI\%bool\fP) – overwrite flag
 .IP \(bu 2
-\fBpars\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%str\fP>) \-\- parameters
+\fBpars\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%str\fP>) – parameters
 .UNINDENT
 .TP
 .B Returns
@@ -1574,7 +1565,7 @@ create deflate filter
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fI\%FTObject\fP) \-\- parent object
+\fBparent\fP (\fI\%FTObject\fP) – parent object
 .TP
 .B Returns
 deflate filter object
@@ -1590,7 +1581,7 @@ get first element if the only
 .INDENT 7.0
 .TP
 .B Parameters
-\fBarray\fP (\fI\%any\fP) \-\- numpy array
+\fBarray\fP (\fI\%any\fP) – numpy array
 .TP
 .B Returns
 first element of the array
@@ -1603,7 +1594,7 @@ get links
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fI\%FTObject\fP) \-\- parent object
+\fBparent\fP (\fI\%FTObject\fP) – parent object
 .TP
 .B Returns
 list of link objects
@@ -1626,11 +1617,11 @@ create link
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBtarget\fP (\fI\%str\fP) \-\- file name
+\fBtarget\fP (\fI\%str\fP) – file name
 .IP \(bu 2
-\fBparent\fP (\fI\%FTObject\fP) \-\- parent object
+\fBparent\fP (\fI\%FTObject\fP) – parent object
 .IP \(bu 2
-\fBname\fP (\fI\%str\fP) \-\- link name
+\fBname\fP (\fI\%str\fP) – link name
 .UNINDENT
 .TP
 .B Returns
@@ -1649,11 +1640,11 @@ open the new file
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBfilename\fP (\fI\%str\fP) \-\- file name
+\fBfilename\fP (\fI\%str\fP) – file name
 .IP \(bu 2
-\fBreadonly\fP (\fI\%bool\fP) \-\- readonly flag
+\fBreadonly\fP (\fI\%bool\fP) – readonly flag
 .IP \(bu 2
-\fBpars\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%str\fP>) \-\- parameters
+\fBpars\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%str\fP>) – parameters
 .UNINDENT
 .TP
 .B Returns
@@ -1670,13 +1661,8 @@ sets writer
 .INDENT 7.0
 .TP
 .B Parameters
-\fBwr\fP (\fBPNIWriter\fP or \fBH5PYWriter\fP or \fBH5CppWriter\fP) \-\- writer module
+\fBwr\fP (\fBPNIWriter\fP or \fBH5PYWriter\fP or \fBH5CppWriter\fP) – writer module
 .UNINDENT
-.UNINDENT
-.INDENT 0.0
-.TP
-.B lavuelib.filewriter.writer = None
-(\fBPNIWriter\fP or \fBH5PYWriter\(gaor :mod:\(gaH5CppWriter\fP)
 .UNINDENT
 .INDENT 0.0
 .TP
@@ -1697,7 +1683,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -1756,9 +1742,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fBFTObject\fP) \-\- treee parent
+\fBtparent\fP (\fBFTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -1830,7 +1816,7 @@ write attribute value
 .INDENT 7.0
 .TP
 .B Parameters
-\fBo\fP (\fI\%any\fP) \-\- python object
+\fBo\fP (\fI\%any\fP) – python object
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -1847,9 +1833,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fBFTObject\fP) \-\- treee parent
+\fBtparent\fP (\fBFTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -1861,7 +1847,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBmanager\fP (\fI\%H5PYAttributeManager\fP) \-\- attribute manager
+\fBmanager\fP (\fI\%H5PYAttributeManager\fP) – attribute manager
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -1879,25 +1865,25 @@ attribute object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYAttributeManager.close()
+.B close()
 close attribure manager
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYAttributeManager.create(name, dtype, shape=None, overwrite=False)
+.B create(name, dtype, shape=None, overwrite=False)
 create a new attribute
 .INDENT 7.0
 .TP
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBname\fP (\fI\%str\fP) \-\- attribute name
+\fBname\fP (\fI\%str\fP) – attribute name
 .IP \(bu 2
-\fBdtype\fP (\fI\%str\fP) \-\- attribute type
+\fBdtype\fP (\fI\%str\fP) – attribute type
 .IP \(bu 2
-\fBshape\fP (\fBlist\fP < \fI\%int\fP >) \-\- attribute shape
+\fBshape\fP (\fBlist\fP < \fI\%int\fP >) – attribute shape
 .IP \(bu 2
-\fBoverwrite\fP (\fI\%bool\fP) \-\- overwrite flag
+\fBoverwrite\fP (\fI\%bool\fP) – overwrite flag
 .UNINDENT
 .TP
 .B Returns
@@ -1909,7 +1895,7 @@ attribute object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYAttributeManager.is_valid
+.B is_valid
 check if link is valid
 .INDENT 7.0
 .TP
@@ -1922,17 +1908,17 @@ valid flag
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYAttributeManager.name = None
+.B name = None
 (\fI\%str\fP) object name
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYAttributeManager.path = None
+.B path = None
 (\fI\%str\fP) object nexus path
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYAttributeManager.reopen()
+.B reopen()
 reopen field
 .UNINDENT
 .UNINDENT
@@ -1968,9 +1954,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fBFTObject\fP) \-\- treee parent
+\fBtparent\fP (\fBFTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2013,9 +1999,9 @@ grow the field
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBdim\fP (\fI\%int\fP) \-\- growing dimension
+\fBdim\fP (\fI\%int\fP) – growing dimension
 .IP \(bu 2
-\fBdim\fP \-\- size of the grow
+\fBdim\fP – size of the grow
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -2096,7 +2082,7 @@ write the field value
 .INDENT 7.0
 .TP
 .B Parameters
-\fBo\fP (\fI\%any\fP) \-\- pni object
+\fBo\fP (\fI\%any\fP) – pni object
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -2113,9 +2099,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBfilename\fP (\fI\%str\fP) \-\- file name
+\fBfilename\fP (\fI\%str\fP) – file name
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2181,11 +2167,11 @@ reopen file
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBreadonly\fP (\fI\%bool\fP) \-\- readonly flag
+\fBreadonly\fP (\fI\%bool\fP) – readonly flag
 .IP \(bu 2
-\fBswmr\fP (\fI\%bool\fP) \-\- swmr flag
+\fBswmr\fP (\fI\%bool\fP) – swmr flag
 .IP \(bu 2
-\fBlibver\fP (\fI\%str\fP) \-\- library version, default: \(aqlatest\(aq
+\fBlibver\fP (\fI\%str\fP) – library version, default: ‘latest’
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -2216,9 +2202,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fBFTObject\fP) \-\- treee parent
+\fBtparent\fP (\fBFTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2230,7 +2216,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBgroup\fP \-\- group object
+\fBgroup\fP – group object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -2248,7 +2234,7 @@ attribute object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYGroup.attributes
+.B attributes
 return the attribute manager
 .INDENT 7.0
 .TP
@@ -2261,27 +2247,27 @@ attribute manager
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYGroup.close()
+.B close()
 close group
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYGroup.create_field(name, type_code, shape=None, chunk=None, dfilter=None)
+.B create_field(name, type_code, shape=None, chunk=None, dfilter=None)
 open a file tree element
 .INDENT 7.0
 .TP
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBn\fP (\fI\%str\fP) \-\- group name
+\fBn\fP (\fI\%str\fP) – group name
 .IP \(bu 2
-\fBtype_code\fP (\fI\%str\fP) \-\- nexus field type
+\fBtype_code\fP (\fI\%str\fP) – nexus field type
 .IP \(bu 2
-\fBshape\fP (\fBlist\fP < \fI\%int\fP >) \-\- shape
+\fBshape\fP (\fBlist\fP < \fI\%int\fP >) – shape
 .IP \(bu 2
-\fBchunk\fP (\fBlist\fP < \fI\%int\fP >) \-\- chunk
+\fBchunk\fP (\fBlist\fP < \fI\%int\fP >) – chunk
 .IP \(bu 2
-\fBdfilter\fP (\fI\%H5PYDeflate\fP) \-\- filter deflater
+\fBdfilter\fP (\fI\%H5PYDeflate\fP) – filter deflater
 .UNINDENT
 .TP
 .B Returns
@@ -2293,16 +2279,16 @@ file tree field
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYGroup.create_group(n, nxclass=\(aq\(aq)
+.B create_group(n, nxclass=\(aq\(aq)
 open a file tree element
 .INDENT 7.0
 .TP
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBn\fP (\fI\%str\fP) \-\- group name
+\fBn\fP (\fI\%str\fP) – group name
 .IP \(bu 2
-\fBnxclass\fP (\fI\%str\fP) \-\- group type
+\fBnxclass\fP (\fI\%str\fP) – group type
 .UNINDENT
 .TP
 .B Returns
@@ -2314,12 +2300,12 @@ file tree group
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYGroup.exists(name)
+.B exists(name)
 if child exists
 .INDENT 7.0
 .TP
 .B Parameters
-\fBname\fP (\fI\%str\fP) \-\- child name
+\fBname\fP (\fI\%str\fP) – child name
 .TP
 .B Returns
 existing flag
@@ -2330,7 +2316,7 @@ existing flag
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYGroup.is_valid
+.B is_valid
 check if group is valid
 .INDENT 7.0
 .TP
@@ -2343,7 +2329,7 @@ valid flag
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYGroup.names()
+.B names()
 read the child names
 .INDENT 7.0
 .TP
@@ -2356,12 +2342,12 @@ pni object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYGroup.open(name)
+.B open(name)
 open a file tree element
 .INDENT 7.0
 .TP
 .B Parameters
-\fBname\fP (\fI\%str\fP) \-\- element name
+\fBname\fP (\fI\%str\fP) – element name
 .TP
 .B Returns
 file tree object
@@ -2372,12 +2358,12 @@ file tree object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYGroup.reopen()
+.B reopen()
 reopen file
 .UNINDENT
 .INDENT 7.0
 .TP
-.B H5PYGroup.size
+.B size
 group size
 .INDENT 7.0
 .TP
@@ -2402,9 +2388,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fBFTObject\fP) \-\- treee parent
+\fBtparent\fP (\fBFTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2487,11 +2473,11 @@ create a new file
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBfilename\fP (\fI\%str\fP) \-\- file name
+\fBfilename\fP (\fI\%str\fP) – file name
 .IP \(bu 2
-\fBoverwrite\fP (\fI\%bool\fP) \-\- overwrite flag
+\fBoverwrite\fP (\fI\%bool\fP) – overwrite flag
 .IP \(bu 2
-\fBpars\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%str\fP>) \-\- parameters
+\fBpars\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%str\fP>) – parameters
 .UNINDENT
 .TP
 .B Returns
@@ -2521,7 +2507,7 @@ get links
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBFTObject\fP) \-\- parent object
+\fBparent\fP (\fBFTObject\fP) – parent object
 .TP
 .B Returns
 list of link objects
@@ -2547,11 +2533,11 @@ create link
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBtarget\fP (\fI\%str\fP) \-\- file name
+\fBtarget\fP (\fI\%str\fP) – file name
 .IP \(bu 2
-\fBparent\fP (\fBFTObject\fP) \-\- parent object
+\fBparent\fP (\fBFTObject\fP) – parent object
 .IP \(bu 2
-\fBname\fP (\fI\%str\fP) \-\- link name
+\fBname\fP (\fI\%str\fP) – link name
 .UNINDENT
 .TP
 .B Returns
@@ -2568,7 +2554,7 @@ converts to numpy types
 .INDENT 7.0
 .TP
 .B Parameters
-\fBdtype\fP (\fI\%str\fP) \-\- h5 writer type type
+\fBdtype\fP (\fI\%str\fP) – h5 writer type type
 .TP
 .B Returns
 nupy type
@@ -2586,11 +2572,11 @@ open the new file
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBfilename\fP (\fI\%str\fP) \-\- file name
+\fBfilename\fP (\fI\%str\fP) – file name
 .IP \(bu 2
-\fBreadonly\fP (\fI\%bool\fP) \-\- readonly flag
+\fBreadonly\fP (\fI\%bool\fP) – readonly flag
 .IP \(bu 2
-\fBpars\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%str\fP>) \-\- parameters
+\fBpars\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%str\fP>) – parameters
 .UNINDENT
 .TP
 .B Returns
@@ -2605,12 +2591,9 @@ file object
 A list of possible hidra servers. Take your pick.
 .INDENT 0.0
 .TP
-.B lavuelib.hidraServerList.HIDRASERVERLIST = {\(aqp10\(aq: [\(aqhaspp10pilatus.desy.de\(aq], \(aqp03\(aq: [\(aqhaspp03pilatus.desy.de\(aq], \(aqp11\(aq: [\(aqhaspp11pilatus.desy.de\(aq], \(aqp09\(aq: [\(aqhaspp09pilatus.desy.de\(aq], \(aqp08\(aq: [\(aqhaspp08pil100.desy.de\(aq, \(aqhaspp08perk01.desy.de\(aq], \(aqpool\(aq: [\(aqhaspilatus300k.desy.de\(aq, \(aqhaspilatus1m.desy.de\(aq, \(aqhaso233det.desy.de\(aq]}
-.INDENT 7.0
-.TP
-.B (\fI\%dict\fP < \fI\%str\fP, \fBlist\fP <\fI\%str\fP> >)
+.B lavuelib.hidraServerList.HIDRASERVERLIST = {\(aqp03\(aq: [\(aqhaspp03pilatus.desy.de\(aq], \(aqp08\(aq: [\(aqhaspp08pil100.desy.de\(aq, \(aqhaspp08perk01.desy.de\(aq], \(aqp09\(aq: [\(aqhaspp09pilatus.desy.de\(aq], \(aqp10\(aq: [\(aqhaspp10pilatus.desy.de\(aq], \(aqp11\(aq: [\(aqhaspp11pilatus.desy.de\(aq], \(aqpool\(aq: [\(aqhaspilatus300k.desy.de\(aq, \(aqhaspilatus1m.desy.de\(aq, \(aqhaso233det.desy.de\(aq]}
+(\fI\%dict\fP < \fI\%str\fP, \fBlist\fP <\fI\%str\fP> >)
 server dictionary
-.UNINDENT
 .UNINDENT
 .SS lavuelib.histogramWidget module
 .sp
@@ -2628,17 +2611,27 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .IP \(bu 2
-\fBargs\fP (\fBlist\fP < \fI\%any\fP>) \-\- HistogramHLUTItem parameters list
+\fBargs\fP (\fBlist\fP < \fI\%any\fP>) – HistogramHLUTItem parameters list
 .IP \(bu 2
-\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) \-\- HistogramHLUTItem parameter dictionary
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – HistogramHLUTItem parameter dictionary
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
 .B item = None
 (\fBHistogramHLUTItem\fP) histogram item
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setAutoFactor(factor)
+sets auto level factor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBfactor\fP (\fI\%float\fP) – auto level factor of maximal peak
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -2662,11 +2655,11 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBpos\fP (\fI[float, float]\fP) \-\- position of handle
+\fBpos\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) – position of handle
 .IP \(bu 2
-\fBcenter\fP (\fI[float, float]\fP) \-\- center of handle
+\fBcenter\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) – center of handle
 .IP \(bu 2
-\fBparent\fP (\fBpyqtgraph.graphicsItems.ROI.ROI\fP) \-\- roi object
+\fBparent\fP (\fBpyqtgraph.graphicsItems.ROI.ROI\fP) – roi object
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2676,7 +2669,7 @@ hover event
 .INDENT 7.0
 .TP
 .B Parameters
-\fBev\fP (\fBPyQt4.QtCore.QEvent\fP:) \-\- close event
+\fBev\fP (\fBPyQt4.QtCore.QEvent\fP:) – close event
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2694,7 +2687,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -2723,7 +2716,7 @@ calculates the current roi sum
 sum roi value, roi id
 .TP
 .B Return type
-(float, int)
+(\fI\%float\fP, \fI\%int\fP)
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2736,15 +2729,7 @@ calculates all roi sums
 sum roi value, roi id
 .TP
 .B Return type
-
-.nf
-\(ga
-.fi
-obj\(galist < 
-.nf
-\(ga
-.fi
-obj\(ga<float> >
+:obj:list < float >
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2794,7 +2779,7 @@ provides intensity for current mouse position
 x position, y position)
 .TP
 .B Return type
-(float, float, float, float, float)
+(\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP)
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2836,7 +2821,7 @@ provides the current cut data
 .INDENT 7.0
 .TP
 .B Parameters
-\fBcid\fP (\fI\%int\fP) \-\- cut id
+\fBcid\fP (\fI\%int\fP) – cut id
 .TP
 .B Returns
 current cut data
@@ -2852,7 +2837,7 @@ emits aspectLockedToggled
 .INDENT 7.0
 .TP
 .B Parameters
-\fBstatus\fP (\fI\%bool\fP) \-\- aspectLockedToggled status
+\fBstatus\fP (\fI\%bool\fP) – aspectLockedToggled status
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2916,7 +2901,7 @@ updates image widget after mouse click
 .INDENT 7.0
 .TP
 .B Parameters
-\fBevent\fP (\fBPyQt4.QtCore.QEvent\fP) \-\- mouse click event
+\fBevent\fP (\fBPyQt4.QtCore.QEvent\fP) – mouse click event
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2926,7 +2911,7 @@ updates image widget after mouse position change
 .INDENT 7.0
 .TP
 .B Parameters
-\fBevent\fP (\fBPyQt4.QtCore.QEvent\fP) \-\- mouse move event
+\fBevent\fP (\fBPyQt4.QtCore.QEvent\fP) – mouse move event
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2970,16 +2955,16 @@ provides scaled x,y positions
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBx\fP (\fI\%float\fP) \-\- x pixel coordinate
+\fBx\fP (\fI\%float\fP) – x pixel coordinate
 .IP \(bu 2
-\fBy\fP (\fI\%float\fP) \-\- y pixel coordinate
+\fBy\fP (\fI\%float\fP) – y pixel coordinate
 .UNINDENT
 .TP
 .B Returns
 scaled x,y position
 .TP
 .B Return type
-(float, float)
+(\fI\%float\fP, \fI\%float\fP)
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3015,7 +3000,7 @@ sets aspectLocked
 .INDENT 7.0
 .TP
 .B Parameters
-\fBstatus\fP (\fI\%bool\fP) \-\- state to set
+\fBstatus\fP (\fI\%bool\fP) – state to set
 .TP
 .B Returns
 old state
@@ -3031,7 +3016,7 @@ sets auto levels
 .INDENT 7.0
 .TP
 .B Parameters
-\fBautolevels\fP (\fI\%bool\fP) \-\- auto down sample enabled
+\fBautolevels\fP (\fI\%bool\fP) – auto down sample enabled
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3041,7 +3026,7 @@ sets auto levels
 .INDENT 7.0
 .TP
 .B Parameters
-\fBautolevels\fP (\fI\%bool\fP) \-\- auto levels enabled
+\fBautolevels\fP (\fI\%bool\fP) – auto levels enabled
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3051,7 +3036,7 @@ sets maximum intensity level
 .INDENT 7.0
 .TP
 .B Parameters
-\fBlevel\fP (\fI\%float\fP) \-\- maximum intensity
+\fBlevel\fP (\fI\%float\fP) – maximum intensity
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3061,7 +3046,7 @@ sets minimum intensity level
 .INDENT 7.0
 .TP
 .B Parameters
-\fBlevel\fP (\fI\%float\fP) \-\- minimum intensity
+\fBlevel\fP (\fI\%float\fP) – minimum intensity
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3071,7 +3056,7 @@ sets do background subtraction flag
 .INDENT 7.0
 .TP
 .B Parameters
-\fBstatus\fP (\fI\%bool\fP) \-\- do background subtraction flag
+\fBstatus\fP (\fI\%bool\fP) – do background subtraction flag
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3083,6 +3068,16 @@ sets double click lock
 .UNINDENT
 .INDENT 7.0
 .TP
+.B setMaximaPos(positionlist)
+sets maxima postions
+.INDENT 7.0
+.TP
+.B Parameters
+\fBpositionlist\fP (\fBlist\fP < (float, float) >) – [(x1, y1), … , (xn, yn)]
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B setPolarScale(position=None, scale=None)
 set axes scales
 .INDENT 7.0
@@ -3090,11 +3085,11 @@ set axes scales
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBposition\fP ([\fI\%float\fP, \fI\%float\fP]) \-\- start position of axes
+\fBposition\fP ([\fI\%float\fP, \fI\%float\fP]) – start position of axes
 .IP \(bu 2
-\fBscale\fP ([\fI\%float\fP, \fI\%float\fP]) \-\- scale axes
+\fBscale\fP ([\fI\%float\fP, \fI\%float\fP]) – scale axes
 .IP \(bu 2
-\fBupdate\fP \-\- update scales on image
+\fBupdate\fP – update scales on image
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -3105,7 +3100,7 @@ sets statistics without scaling flag
 .INDENT 7.0
 .TP
 .B Parameters
-\fBcolors\fP (\fI\%str\fP) \-\- json list of roi colors
+\fBcolors\fP (\fI\%str\fP) – json list of roi colors
 .TP
 .B Returns
 change status
@@ -3121,7 +3116,7 @@ sets intensity scaling types
 .INDENT 7.0
 .TP
 .B Parameters
-\fBscalingtype\fP (\fI\%str\fP) \-\- intensity scaling type
+\fBscalingtype\fP (\fI\%str\fP) – intensity scaling type
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3131,7 +3126,7 @@ sets statistics without scaling flag
 .INDENT 7.0
 .TP
 .B Parameters
-\fBstatus\fP (\fI\%bool\fP) \-\- statistics without scaling flag
+\fBstatus\fP (\fI\%bool\fP) – statistics without scaling flag
 .TP
 .B Returns
 change status
@@ -3147,7 +3142,7 @@ set subwidget properties
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparameters\fP (\fI\%lavuelib.toolWidget.ToolParameters\fP) \-\- tool parameters
+\fBparameters\fP (\fI\%lavuelib.toolWidget.ToolParameters\fP) – tool parameters
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3172,11 +3167,11 @@ sets coordinate transformations
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBtranspose\fP (\fI\%bool\fP) \-\- transpose coordinates flag
+\fBtranspose\fP (\fI\%bool\fP) – transpose coordinates flag
 .IP \(bu 2
-\fBleftrightflip\fP (\fI\%bool\fP) \-\- left\-right flip coordinates flag
+\fBleftrightflip\fP (\fI\%bool\fP) – left\-right flip coordinates flag
 .IP \(bu 2
-\fBupdownflip\fP (\fI\%bool\fP) \-\- up\-down flip coordinates flag
+\fBupdownflip\fP (\fI\%bool\fP) – up\-down flip coordinates flag
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -3187,7 +3182,7 @@ set view range values
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrangelist\fP (\fI\%str\fP) \-\- xmin,ymin,xsize,ysize
+\fBrangelist\fP (\fI\%str\fP) – xmin,ymin,xsize,ysize
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3212,9 +3207,9 @@ updates the image center
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBxdata\fP (\fI\%float\fP) \-\- x pixel position
+\fBxdata\fP (\fI\%float\fP) – x pixel position
 .IP \(bu 2
-\fBydata\fP (\fI\%float\fP) \-\- y\-pixel position
+\fBydata\fP (\fI\%float\fP) – y\-pixel position
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -3227,9 +3222,9 @@ update Cuts
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBcid\fP (\fI\%int\fP) \-\- cut id
+\fBcid\fP (\fI\%int\fP) – cut id
 .IP \(bu 2
-\fBcoords\fP (\fBlist\fP < [float, float, float, float] >) \-\- cut coordinates
+\fBcoords\fP (\fBlist\fP < [float, float, float, float] >) – cut coordinates
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -3242,9 +3237,9 @@ updates the image to display
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBimg\fP (\fI\%numpy.ndarray\fP) \-\- 2d image array
+\fBimg\fP (\fI\%numpy.ndarray\fP) – 2d image array
 .IP \(bu 2
-\fBrawimg\fP (\fI\%numpy.ndarray\fP) \-\- 2d raw image array
+\fBrawimg\fP (\fI\%numpy.ndarray\fP) – 2d raw image array
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -3257,9 +3252,9 @@ updates the locker position
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBxdata\fP (\fI\%float\fP) \-\- x pixel position
+\fBxdata\fP (\fI\%float\fP) – x pixel position
 .IP \(bu 2
-\fBydata\fP (\fI\%float\fP) \-\- y\-pixel position
+\fBydata\fP (\fI\%float\fP) – y\-pixel position
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -3272,9 +3267,9 @@ update Metadata informations
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBaxisscales\fP ([\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP]) \-\- [xstart, ystart, xscale, yscale]
+\fBaxisscales\fP ([\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP]) – [xstart, ystart, xscale, yscale]
 .IP \(bu 2
-\fBaxislabels\fP ([\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP]) \-\- [xtext, ytext, xunits, yunits]
+\fBaxislabels\fP ([\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP]) – [xtext, ytext, xunits, yunits]
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -3287,9 +3282,9 @@ updates the position mark
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBxdata\fP (\fI\%float\fP) \-\- x pixel position
+\fBxdata\fP (\fI\%float\fP) – x pixel position
 .IP \(bu 2
-\fBydata\fP (\fI\%float\fP) \-\- y\-pixel position
+\fBydata\fP (\fI\%float\fP) – y\-pixel position
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -3302,10 +3297,10 @@ update ROIs
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBrid\fP (\fI\%int\fP) \-\- roi id
+\fBrid\fP (\fI\%int\fP) – roi id
 .IP \(bu 2
 \fBcoords\fP (\fBlist\fP
-< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >) \-\- roi coordinates
+< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >) – roi coordinates
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -3336,11 +3331,11 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBpos1\fP (\fI[float, float]\fP) \-\- start position
+\fBpos1\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) – start position
 .IP \(bu 2
-\fBpos2\fP (\fI[float, float]\fP) \-\- end position
+\fBpos2\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) – end position
 .IP \(bu 2
-\fBargs\fP (\fBdict\(ga<:obj:\(gastr\fP, \fI\%any\fP>) \-\- dictionary with ROI parameters
+\fBargs\fP (\fBdict\(ga<:obj:\(gastr\fP, \fI\%any\fP>) – dictionary with ROI parameters
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3350,7 +3345,7 @@ provides the roi coordinates
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtrans\fP (\fI\%bool\fP) \-\- transposed flag
+\fBtrans\fP (\fI\%bool\fP) – transposed flag
 .TP
 .B Returns
 x1, y1, x2, y2 positions of the roi
@@ -3372,7 +3367,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -3423,7 +3418,7 @@ loads CBF file image data into numpy array
 .INDENT 7.0
 .TP
 .B Parameters
-\fBflbuffer\fP (\fI\%numpy.ndarray\fP) \-\- numpy array with CBF file image data
+\fBflbuffer\fP (\fI\%numpy.ndarray\fP) – numpy array with CBF file image data
 .TP
 .B Returns
 image data
@@ -3450,7 +3445,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBfname\fP (\fI\%str\fP) \-\- file name
+\fBfname\fP (\fI\%str\fP) – file name
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -3480,9 +3475,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBfname\fP (\fI\%str\fP) \-\- file name
+\fBfname\fP (\fI\%str\fP) – file name
 .IP \(bu 2
-\fBwriter\fP (\fI\%str\fP) \-\- h5 writer module: "pni" or "h5py"
+\fBwriter\fP (\fI\%str\fP) – h5 writer module: “pni” or “h5py”
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3507,13 +3502,13 @@ parses the field and add it into the description list
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBnode\fP (\fBpni.io.nx.h5.nxfield\fP or                     \fBpni.io.nx.h5.nxgroup\fP or                     \fBpni.io.nx.h5.nxlink\fP or                     \fBpni.io.nx.h5.nxattribute\fP or                     \fBpni.io.nx.h5.nxroot\fP) \-\- nexus field node
+\fBnode\fP (\fBpni.io.nx.h5.nxfield\fP or                     \fBpni.io.nx.h5.nxgroup\fP or                     \fBpni.io.nx.h5.nxlink\fP or                     \fBpni.io.nx.h5.nxattribute\fP or                     \fBpni.io.nx.h5.nxroot\fP) – nexus field node
 .IP \(bu 2
-\fBframe\fP (\fI\%int\fP) \-\- frame to take, the last one is \-1
+\fBframe\fP (\fI\%int\fP) – frame to take, the last one is \-1
 .IP \(bu 2
-\fBgrowing\fP (\fI\%int\fP) \-\- growing dimension
+\fBgrowing\fP (\fI\%int\fP) – growing dimension
 .IP \(bu 2
-\fBrefresh\fP (\fI\%bool\fP) \-\- refresh image node
+\fBrefresh\fP (\fI\%bool\fP) – refresh image node
 .UNINDENT
 .TP
 .B Returns
@@ -3532,11 +3527,11 @@ provides the last frame number
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBnode\fP (\fBpni.io.nx.h5.nxfield\fP or                     \fBpni.io.nx.h5.nxgroup\fP or                     \fBpni.io.nx.h5.nxlink\fP or                     \fBpni.io.nx.h5.nxattribute\fP or                     \fBpni.io.nx.h5.nxroot\fP) \-\- nexus field node
+\fBnode\fP (\fBpni.io.nx.h5.nxfield\fP or                     \fBpni.io.nx.h5.nxgroup\fP or                     \fBpni.io.nx.h5.nxlink\fP or                     \fBpni.io.nx.h5.nxattribute\fP or                     \fBpni.io.nx.h5.nxroot\fP) – nexus field node
 .IP \(bu 2
-\fBgrowing\fP (\fI\%int\fP) \-\- growing dimension
+\fBgrowing\fP (\fI\%int\fP) – growing dimension
 .IP \(bu 2
-\fBrefresh\fP (\fI\%bool\fP) \-\- refresh image node
+\fBrefresh\fP (\fI\%bool\fP) – refresh image node
 .UNINDENT
 .TP
 .B Returns
@@ -3574,7 +3569,7 @@ loads TIF file image data into numpy array
 .INDENT 7.0
 .TP
 .B Parameters
-\fBflbuffer\fP (\fI\%numpy.ndarray\fP) \-\- numpy array with TIF file image data
+\fBflbuffer\fP (\fI\%numpy.ndarray\fP) – numpy array with TIF file image data
 .TP
 .B Returns
 image data
@@ -3586,7 +3581,7 @@ image data
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageFileHandler.WRITERS = {\(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.pyc\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.pyc\(aq>, \(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.pyc\(aq>}
+.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.pyc\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.pyc\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.pyc\(aq>}
 (\fI\%dict\fP <\fI\%str\fP, \fBmodule\fP> ) nexus writer modules
 .UNINDENT
 .SS lavuelib.imageSource module
@@ -3603,7 +3598,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtimeout\fP (\fI\%int\fP) \-\- timeout for setting connection in ms
+\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -3653,7 +3648,7 @@ set configuration
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiguration\fP (\fI\%str\fP) \-\- configuration string
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3663,7 +3658,7 @@ set timeout
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtimeout\fP (\fI\%int\fP) \-\- timeout in ms
+\fBtimeout\fP (\fI\%int\fP) – timeout in ms
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -3679,7 +3674,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtimeout\fP (\fI\%int\fP) \-\- timeout for setting connection in ms
+\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -3721,7 +3716,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtimeout\fP (\fI\%int\fP) \-\- timeout for setting connection in ms
+\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -3753,7 +3748,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtimeout\fP (\fI\%int\fP) \-\- timeout for setting connection in ms
+\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -3785,7 +3780,7 @@ set configuration
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiguration\fP (\fI\%str\fP) \-\- configuration string
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -3801,7 +3796,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtimeout\fP (\fI\%int\fP) \-\- timeout for setting connection in ms
+\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -3853,7 +3848,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtimeout\fP (\fI\%int\fP) \-\- timeout for setting connection in ms
+\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -3886,7 +3881,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtimeout\fP (\fI\%int\fP) \-\- timeout for setting connection in ms
+\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -3950,7 +3945,7 @@ loads encoded data
 .INDENT 7.0
 .TP
 .B Parameters
-\fBdata\fP ([\fI\%str\fP, \fI\%str\fP]) \-\- encoded data
+\fBdata\fP ([\fI\%str\fP, \fI\%str\fP]) – encoded data
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3974,6 +3969,16 @@ the data shape if data was loaded
 .UNINDENT
 .INDENT 0.0
 .TP
+.B lavuelib.imageSource.ZMQMAJOR = 4
+(\fI\%str\fP,:obj:\fIstr\fP) zmq major version, zmq minor version
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.imageSource.ZMQMINOR = 2
+(\fI\%str\fP,:obj:\fIstr\fP) zmq major version, zmq minor version
+.UNINDENT
+.INDENT 0.0
+.TP
 .B class lavuelib.imageSource.ZMQSource(timeout=None)
 Bases: \fI\%lavuelib.imageSource.BaseSource\fP
 .sp
@@ -3983,7 +3988,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtimeout\fP (\fI\%int\fP) \-\- timeout for setting connection in ms
+\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -4015,7 +4020,7 @@ set configuration
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiguration\fP (\fI\%str\fP) \-\- configuration string
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -4035,11 +4040,11 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .IP \(bu 2
-\fBtooltypes\fP (\fBlist\fP <\fI\%str\fP>) \-\- tool class names
+\fBtooltypes\fP (\fBlist\fP <\fI\%str\fP>) – tool class names
 .IP \(bu 2
-\fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) \-\- lavue configuration settings
+\fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) – lavue configuration settings
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4051,9 +4056,9 @@ saves ROIs in sardana and add them to the measurement group
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBrlabel\fP (\fI\%str\fP) \-\- rois aliases separated by space
+\fBrlabel\fP (\fI\%str\fP) – rois aliases separated by space
 .IP \(bu 2
-\fBroispin\fP (\fI\%int\fP) \-\- the current number of rois
+\fBroispin\fP (\fI\%int\fP) – the current number of rois
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -4102,15 +4107,7 @@ calculates all roi sums
 sum roi value, roi id
 .TP
 .B Return type
-
-.nf
-\(ga
-.fi
-obj\(galist < 
-.nf
-\(ga
-.fi
-obj\(ga<float> >
+:obj:list < float >
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4154,7 +4151,7 @@ provides intensity for current mouse position
 x position, y position, pixel intensity
 .TP
 .B Return type
-(float, float, float)
+(\fI\%float\fP, \fI\%float\fP, \fI\%float\fP)
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4214,7 +4211,7 @@ provides the current cut data
 .INDENT 7.0
 .TP
 .B Parameters
-\fBcid\fP (\fI\%int\fP) \-\- cut id
+\fBcid\fP (\fI\%int\fP) – cut id
 .TP
 .B Returns
 current cut data
@@ -4235,7 +4232,7 @@ emits aspectLockedToggled
 .INDENT 7.0
 .TP
 .B Parameters
-\fBstatus\fP (\fI\%bool\fP) \-\- current state
+\fBstatus\fP (\fI\%bool\fP) – current state
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4255,7 +4252,7 @@ loads ROIs from sardana
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrlabel\fP (\fI\%str\fP) \-\- rois aliases separated by space
+\fBrlabel\fP (\fI\%str\fP) – rois aliases separated by space
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4270,7 +4267,7 @@ runs macro
 .INDENT 7.0
 .TP
 .B Parameters
-\fBcommand\fP (\fBlist\fP <\fI\%str\fP>) \-\- command list
+\fBcommand\fP (\fBlist\fP <\fI\%str\fP>) – command list
 .TP
 .B Returns
 macro runned
@@ -4288,9 +4285,9 @@ provides experimental Channels
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBlistattr\fP (\fI\%str\fP) \-\- pool attribute with list
+\fBlistattr\fP (\fI\%str\fP) – pool attribute with list
 .IP \(bu 2
-\fBtypefilter\fP (\fBlist\fP <\fI\%str\fP>) \-\- pool attribute with list
+\fBtypefilter\fP (\fBlist\fP <\fI\%str\fP>) – pool attribute with list
 .UNINDENT
 .TP
 .B Returns
@@ -4366,7 +4363,7 @@ creates 1d bottom plot
 .INDENT 7.0
 .TP
 .B Parameters
-\fBclear\fP (\fI\%bool\fP) \-\- clear flag
+\fBclear\fP (\fI\%bool\fP) – clear flag
 .TP
 .B Returns
 1d bottom plot
@@ -4382,7 +4379,7 @@ creates 1d right plot
 .INDENT 7.0
 .TP
 .B Parameters
-\fBclear\fP (\fI\%bool\fP) \-\- clear flag
+\fBclear\fP (\fI\%bool\fP) – clear flag
 .TP
 .B Returns
 1d right plot
@@ -4400,9 +4397,9 @@ plots the image
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBarray\fP (\fI\%numpy.ndarray\fP) \-\- 2d image array
+\fBarray\fP (\fI\%numpy.ndarray\fP) – 2d image array
 .IP \(bu 2
-\fBrawarray\fP (\fI\%numpy.ndarray\fP) \-\- 2d raw image array
+\fBrawarray\fP (\fI\%numpy.ndarray\fP) – 2d raw image array
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -4426,7 +4423,7 @@ removes bottom plot
 .INDENT 7.0
 .TP
 .B Parameters
-\fBplot\fP (\fBpyqtgraph.PlotItem\fP) \-\- right plot item
+\fBplot\fP (\fBpyqtgraph.PlotItem\fP) – right plot item
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4436,7 +4433,7 @@ removes right plot
 .INDENT 7.0
 .TP
 .B Parameters
-\fBplot\fP (\fBpyqtgraph.PlotItem\fP) \-\- right plot item
+\fBplot\fP (\fBpyqtgraph.PlotItem\fP) – right plot item
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4495,7 +4492,7 @@ runs macro
 .INDENT 7.0
 .TP
 .B Parameters
-\fBcommand\fP (\fBlist\fP <\fI\%str\fP>) \-\- command list
+\fBcommand\fP (\fBlist\fP <\fI\%str\fP>) – command list
 .TP
 .B Returns
 macro runned
@@ -4518,9 +4515,9 @@ provides scaled x,y positions
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBx\fP (\fI\%float\fP) \-\- x pixel coordinate
+\fBx\fP (\fI\%float\fP) – x pixel coordinate
 .IP \(bu 2
-\fBy\fP (\fI\%float\fP) \-\- y pixel coordinate
+\fBy\fP (\fI\%float\fP) – y pixel coordinate
 .UNINDENT
 .TP
 .B Returns
@@ -4563,7 +4560,7 @@ sets aspectLocked
 .INDENT 7.0
 .TP
 .B Parameters
-\fBstatus\fP (\fI\%bool\fP) \-\- state to set
+\fBstatus\fP (\fI\%bool\fP) – state to set
 .TP
 .B Returns
 old state
@@ -4579,7 +4576,7 @@ sets auto down sample
 .INDENT 7.0
 .TP
 .B Parameters
-\fBautolevels\fP (\fI\%bool\fP) \-\- auto down sample enabled
+\fBautolevels\fP (\fI\%bool\fP) – auto down sample enabled
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4589,7 +4586,7 @@ sets auto levels
 .INDENT 7.0
 .TP
 .B Parameters
-\fBautolevels\fP (\fI\%bool\fP) \-\- auto levels enabled
+\fBautolevels\fP (\fI\%bool\fP) – auto levels enabled
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4599,7 +4596,7 @@ sets displayed info text and recalculates the current roi sum
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtext\fP (\fI\%str\fP) \-\- text to display
+\fBtext\fP (\fI\%str\fP) – text to display
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4609,7 +4606,7 @@ sets do background subtraction flag
 .INDENT 7.0
 .TP
 .B Parameters
-\fBstatus\fP (\fI\%bool\fP) \-\- do background subtraction flag
+\fBstatus\fP (\fI\%bool\fP) – do background subtraction flag
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4619,7 +4616,7 @@ sets double click lock
 .INDENT 7.0
 .TP
 .B Parameters
-\fBstatus\fP (\fI\%bool\fP) \-\- status flag
+\fBstatus\fP (\fI\%bool\fP) – status flag
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4629,7 +4626,17 @@ sets maximum intensity level
 .INDENT 7.0
 .TP
 .B Parameters
-\fBlevel\fP (\fI\%float\fP) \-\- maximum intensity
+\fBlevel\fP (\fI\%float\fP) – maximum intensity
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setMaximaPos(positionlist)
+sets maxima postions
+.INDENT 7.0
+.TP
+.B Parameters
+\fBpositionlist\fP (\fBlist\fP < (float, float) >) – [(x1, y1), … , (xn, yn)]
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4639,7 +4646,7 @@ sets minimum intensity level
 .INDENT 7.0
 .TP
 .B Parameters
-\fBlevel\fP (\fI\%float\fP) \-\- minimum intensity
+\fBlevel\fP (\fI\%float\fP) – minimum intensity
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4651,9 +4658,9 @@ get axes parameters
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBposition\fP ([\fI\%float\fP, \fI\%float\fP]) \-\- start position of axes
+\fBposition\fP ([\fI\%float\fP, \fI\%float\fP]) – start position of axes
 .IP \(bu 2
-\fBscale\fP ([\fI\%float\fP, \fI\%float\fP]) \-\- scale axes
+\fBscale\fP ([\fI\%float\fP, \fI\%float\fP]) – scale axes
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -4664,7 +4671,7 @@ sets statistics without scaling flag
 .INDENT 7.0
 .TP
 .B Parameters
-\fBcolors\fP (\fI\%str\fP) \-\- json list of roi colors
+\fBcolors\fP (\fI\%str\fP) – json list of roi colors
 .TP
 .B Returns
 change status
@@ -4680,7 +4687,7 @@ sets sardana utils
 .INDENT 7.0
 .TP
 .B Parameters
-\fBsardana\fP (\fI\%lavuelib.sardanaUtils.SardanaUtils\fP) \-\- sardana utils
+\fBsardana\fP (\fI\%lavuelib.sardanaUtils.SardanaUtils\fP) – sardana utils
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4690,7 +4697,7 @@ sets intensity scaling types
 .INDENT 7.0
 .TP
 .B Parameters
-\fBscalingtype\fP (\fI\%str\fP) \-\- intensity scaling type
+\fBscalingtype\fP (\fI\%str\fP) – intensity scaling type
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4700,7 +4707,7 @@ sets statistics without scaling flag
 .INDENT 7.0
 .TP
 .B Parameters
-\fBstatus\fP (\fI\%bool\fP) \-\- statistics without scaling flag
+\fBstatus\fP (\fI\%bool\fP) – statistics without scaling flag
 .TP
 .B Returns
 change status
@@ -4716,7 +4723,7 @@ sets tango client
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtangoclient\fP (\fBlavuelib.controllerClient.ControllerClient\fP) \-\- attribute name
+\fBtangoclient\fP (\fBlavuelib.controllerClient.ControllerClient\fP) – attribute name
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4739,7 +4746,7 @@ sets tool from string
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtool\fP (\fI\%str\fP) \-\- tool name
+\fBtool\fP (\fI\%str\fP) – tool name
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4751,11 +4758,11 @@ sets coordinate transformations
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBtranspose\fP (\fI\%bool\fP) \-\- transpose coordinates flag
+\fBtranspose\fP (\fI\%bool\fP) – transpose coordinates flag
 .IP \(bu 2
-\fBleftrightflip\fP (\fI\%bool\fP) \-\- left\-right flip coordinates flag
+\fBleftrightflip\fP (\fI\%bool\fP) – left\-right flip coordinates flag
 .IP \(bu 2
-\fBupdownflip\fP (\fI\%bool\fP) \-\- up\-down flip coordinates flag
+\fBupdownflip\fP (\fI\%bool\fP) – up\-down flip coordinates flag
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -4766,7 +4773,7 @@ set view range values
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrangelist\fP (\fI\%str\fP) \-\- xmin,ymin,xsize,ysize
+\fBrangelist\fP (\fI\%str\fP) – xmin,ymin,xsize,ysize
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4799,7 +4806,7 @@ provices tool from string
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtool\fP (\fI\%str\fP) \-\- tool name
+\fBtool\fP (\fI\%str\fP) – tool name
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4822,7 +4829,7 @@ updates the beam center x
 .INDENT 7.0
 .TP
 .B Parameters
-\fBx\fP (\fI\%float\fP) \-\- beam center x
+\fBx\fP (\fI\%float\fP) – beam center x
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4832,7 +4839,7 @@ updates the beam center y
 .INDENT 7.0
 .TP
 .B Parameters
-\fBy\fP (\fI\%float\fP) \-\- beam center y
+\fBy\fP (\fI\%float\fP) – beam center y
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4844,9 +4851,9 @@ updates the image center
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBxdata\fP (\fI\%float\fP) \-\- x pixel position
+\fBxdata\fP (\fI\%float\fP) – x pixel position
 .IP \(bu 2
-\fBydata\fP (\fI\%float\fP) \-\- y\-pixel position
+\fBydata\fP (\fI\%float\fP) – y\-pixel position
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -4859,10 +4866,10 @@ update Cuts
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBcid\fP (\fI\%int\fP) \-\- cut id
+\fBcid\fP (\fI\%int\fP) – cut id
 .IP \(bu 2
 \fBcoords\fP (\fBlist\fP
-< [float, float, float, float, float] >) \-\- cut coordinates and width
+< [float, float, float, float, float] >) – cut coordinates and width
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -4873,7 +4880,7 @@ updates the detector distance
 .INDENT 7.0
 .TP
 .B Parameters
-\fBdistance\fP (\fI\%float\fP) \-\- detector distance
+\fBdistance\fP (\fI\%float\fP) – detector distance
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4883,7 +4890,7 @@ updates the detector ROIs
 .INDENT 7.0
 .TP
 .B Parameters
-\fBdistance\fP (\fI\%str\fP) \-\- json dictionary with detector ROIs
+\fBdistance\fP (\fI\%str\fP) – json dictionary with detector ROIs
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4893,7 +4900,7 @@ sets displayed info text
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtext\fP (\fI\%str\fP) \-\- text to display
+\fBtext\fP (\fI\%str\fP) – text to display
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4903,7 +4910,7 @@ sets displayed info text tup
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtext\fP (\fI\%str\fP) \-\- tip text to display
+\fBtext\fP (\fI\%str\fP) – tip text to display
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4913,7 +4920,7 @@ updates the beam energy
 .INDENT 7.0
 .TP
 .B Parameters
-\fBenergy\fP (\fI\%float\fP) \-\- beam energy
+\fBenergy\fP (\fI\%float\fP) – beam energy
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4925,9 +4932,9 @@ update Metadata informations
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBaxisscales\fP ([\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP]) \-\- [xstart, ystart, xscale, yscale]
+\fBaxisscales\fP ([\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP]) – [xstart, ystart, xscale, yscale]
 .IP \(bu 2
-\fBaxislabels\fP ([\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP]) \-\- [xtext, ytext, xunits, yunits]
+\fBaxislabels\fP ([\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP]) – [xtext, ytext, xunits, yunits]
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -4940,9 +4947,9 @@ updates the position mark
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBxdata\fP (\fI\%float\fP) \-\- x pixel position
+\fBxdata\fP (\fI\%float\fP) – x pixel position
 .IP \(bu 2
-\fBydata\fP (\fI\%float\fP) \-\- y\-pixel position
+\fBydata\fP (\fI\%float\fP) – y\-pixel position
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -4955,10 +4962,10 @@ update ROIs
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBrid\fP (\fI\%int\fP) \-\- roi id
+\fBrid\fP (\fI\%int\fP) – roi id
 .IP \(bu 2
 \fBcoords\fP (\fBlist\fP
-< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >) \-\- roi coordinates
+< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >) – roi coordinates
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -4988,9 +4995,9 @@ writes attribute value of device
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBname\fP (\fI\%str\fP) \-\- attribute name
+\fBname\fP (\fI\%str\fP) – attribute name
 .IP \(bu 2
-\fBvalue\fP (\fI\%any\fP) \-\- attribute value
+\fBvalue\fP (\fI\%any\fP) – attribute value
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5006,7 +5013,7 @@ writes DetectorROIsValuesattribute of device
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrvalues\fP (\fIobj\(galist < :obj:\(gafloat\fP>) \-\- list of roi values
+\fBrvalues\fP (\fIobj\(galist < :obj:\(gafloat\fP>) – list of roi values
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5024,7 +5031,20 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B autoFactor()
+provides factor for automatic levels
+.INDENT 7.0
+.TP
+.B Returns
+factor for automatic levels
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5040,9 +5060,9 @@ shows or hides the histogram widget
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBshowhistogram\fP (\fI\%bool\fP) \-\- if histogram should be shown
+\fBshowhistogram\fP (\fI\%bool\fP) – if histogram should be shown
 .IP \(bu 2
-\fBshowlevels\fP (\fI\%bool\fP) \-\- if levels should be shown
+\fBshowlevels\fP (\fI\%bool\fP) – if levels should be shown
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5120,12 +5140,22 @@ configuration string: lowlim,uplim
 .UNINDENT
 .INDENT 7.0
 .TP
+.B setAutoFactor(factor)
+sets factor for automatic levels
+.INDENT 7.0
+.TP
+.B Parameters
+\fBfactor\fP (\fI\%str\fP) – factor for automatic levels
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B setAutoLevels(auto)
 enables or disables automatic levels
 .INDENT 7.0
 .TP
 .B Parameters
-\fBauto\fP (\fI\%bool\fP or \fI\%int\fP) \-\- if automatics levels to be set
+\fBauto\fP (\fI\%bool\fP or \fI\%int\fP) – if automatics levels to be set
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5135,7 +5165,7 @@ sets color channel
 .INDENT 7.0
 .TP
 .B Parameters
-\fBchannel\fP (\fI\%int\fP) \-\- color channel
+\fBchannel\fP (\fI\%int\fP) – color channel
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5153,7 +5183,7 @@ sets histogram image
 .INDENT 7.0
 .TP
 .B Parameters
-\fBimage\fP (\fBpyqtgraph.graphicsItems.ImageItem.ImageItem\fP) \-\- histogram image
+\fBimage\fP (\fBpyqtgraph.graphicsItems.ImageItem.ImageItem\fP) – histogram image
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5163,7 +5193,7 @@ set levels from configuration string
 .INDENT 7.0
 .TP
 .B Parameters
-\fBcnflevels\fP (\fI\%str\fP) \-\- configuration string: lowlim,uplim
+\fBcnflevels\fP (\fI\%str\fP) – configuration string: lowlim,uplim
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5173,7 +5203,7 @@ sets maximum number of color channel
 .INDENT 7.0
 .TP
 .B Parameters
-\fBnumber\fP (\fI\%int\fP) \-\- number of color channel
+\fBnumber\fP (\fI\%int\fP) – number of color channel
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5183,7 +5213,7 @@ sets scaling label
 .INDENT 7.0
 .TP
 .B Parameters
-\fBscalingtype\fP (\fI\%str\fP) \-\- scaling type, i.e. log, linear, sqrt
+\fBscalingtype\fP (\fI\%str\fP) – scaling type, i.e. log, linear, sqrt
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5193,7 +5223,7 @@ executes imageChanged of histogram with the givel autoLevel
 .INDENT 7.0
 .TP
 .B Parameters
-\fBautoLevel\fP (\fI\%bool\fP) \-\- if automatics levels to be set
+\fBautoLevel\fP (\fI\%bool\fP) – if automatics levels to be set
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5205,9 +5235,9 @@ set min/max level spinboxes and histogram from the parameters
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBlowlim\fP (\fI\%float\fP) \-\- minimum intensity value
+\fBlowlim\fP (\fI\%float\fP) – minimum intensity value
 .IP \(bu 2
-\fBuplim\fP (\fI\%float\fP) \-\- maximum intensity value
+\fBuplim\fP (\fI\%float\fP) – maximum intensity value
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5229,9 +5259,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBoptions\fP (\fI\%argparse.Namespace\fP) \-\- commandline options
+\fBoptions\fP (\fI\%argparse.Namespace\fP) – commandline options
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5241,7 +5271,7 @@ stores the setting before finishing the application
 .INDENT 7.0
 .TP
 .B Parameters
-\fBevent\fP (\fBPyQt4.QtCore.QEvent\fP:) \-\- close event
+\fBevent\fP (\fBPyQt4.QtCore.QEvent\fP:) – close event
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5261,9 +5291,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .IP \(bu 2
-\fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) \-\- lavue configuration settings
+\fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) – lavue configuration settings
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5295,7 +5325,7 @@ sets displayed file name
 .INDENT 7.0
 .TP
 .B Parameters
-\fBname\fP (\fI\%str\fP) \-\- file name
+\fBname\fP (\fI\%str\fP) – file name
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5305,7 +5335,7 @@ sets the image mask
 .INDENT 7.0
 .TP
 .B Parameters
-\fBfname\fP (\fI\%str\fP) \-\- file name
+\fBfname\fP (\fI\%str\fP) – file name
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5323,7 +5353,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5334,9 +5364,9 @@ provides error message text fro sys.exc_info()
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBdefault\fP (\fI\%str\fP) \-\- default message test
+\fBdefault\fP (\fI\%str\fP) – default message test
 .IP \(bu 2
-\fBerror\fP (\fBException\fP) \-\- exception to describe
+\fBerror\fP (\fBException\fP) – exception to describe
 .UNINDENT
 .TP
 .B Returns
@@ -5355,15 +5385,15 @@ creates warning messagebox
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .IP \(bu 2
-\fBtitle\fP (\fI\%str\fP) \-\- message box title
+\fBtitle\fP (\fI\%str\fP) – message box title
 .IP \(bu 2
-\fBtext\fP (\fI\%str\fP) \-\- message box text
+\fBtext\fP (\fI\%str\fP) – message box text
 .IP \(bu 2
-\fBdetailedText\fP (\fI\%str\fP) \-\- message box detailed text
+\fBdetailedText\fP (\fI\%str\fP) – message box detailed text
 .IP \(bu 2
-\fBicon\fP (\fBPyQt4.QtCore.QIcon\fP) \-\- message box icon
+\fBicon\fP (\fBPyQt4.QtCore.QIcon\fP) – message box icon
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5389,9 +5419,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fBFTObject\fP) \-\- treee parent
+\fBtparent\fP (\fBFTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5473,7 +5503,7 @@ write attribute value
 .INDENT 7.0
 .TP
 .B Parameters
-\fBo\fP (\fI\%any\fP) \-\- python object
+\fBo\fP (\fI\%any\fP) – python object
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5490,9 +5520,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fBFTObject\fP) \-\- treee parent
+\fBtparent\fP (\fBFTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5509,13 +5539,13 @@ create a new attribute
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBname\fP (\fI\%str\fP) \-\- attribute name
+\fBname\fP (\fI\%str\fP) – attribute name
 .IP \(bu 2
-\fBdtype\fP (\fI\%str\fP) \-\- attribute type
+\fBdtype\fP (\fI\%str\fP) – attribute type
 .IP \(bu 2
-\fBshape\fP (\fBlist\fP < \fI\%int\fP >) \-\- attribute shape
+\fBshape\fP (\fBlist\fP < \fI\%int\fP >) – attribute shape
 .IP \(bu 2
-\fBoverwrite\fP (\fI\%bool\fP) \-\- overwrite flag
+\fBoverwrite\fP (\fI\%bool\fP) – overwrite flag
 .UNINDENT
 .TP
 .B Returns
@@ -5565,7 +5595,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5591,9 +5621,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fBFTObject\fP) \-\- treee parent
+\fBtparent\fP (\fBFTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5636,9 +5666,9 @@ grow the field
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBdim\fP (\fI\%int\fP) \-\- growing dimension
+\fBdim\fP (\fI\%int\fP) – growing dimension
 .IP \(bu 2
-\fBdim\fP \-\- size of the grow
+\fBdim\fP – size of the grow
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5729,7 +5759,7 @@ write the field value
 .INDENT 7.0
 .TP
 .B Parameters
-\fBo\fP (\fI\%any\fP) \-\- pni object
+\fBo\fP (\fI\%any\fP) – pni object
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5746,9 +5776,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBfilename\fP (\fI\%str\fP) \-\- file name
+\fBfilename\fP (\fI\%str\fP) – file name
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5801,11 +5831,11 @@ reopen file
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBreadonly\fP (\fI\%bool\fP) \-\- readonly flag
+\fBreadonly\fP (\fI\%bool\fP) – readonly flag
 .IP \(bu 2
-\fBswmr\fP (\fI\%bool\fP) \-\- swmr flag
+\fBswmr\fP (\fI\%bool\fP) – swmr flag
 .IP \(bu 2
-\fBlibver\fP (\fI\%str\fP) \-\- library version, default: \(aqlatest\(aq
+\fBlibver\fP (\fI\%str\fP) – library version, default: ‘latest’
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5836,9 +5866,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fBFTObject\fP) \-\- tree parent
+\fBtparent\fP (\fBFTObject\fP) – tree parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5850,7 +5880,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBgroup\fP \-\- group object
+\fBgroup\fP – group object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5868,7 +5898,7 @@ attribute object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B PNIGroup.attributes
+.B attributes
 return the attribute manager
 .INDENT 7.0
 .TP
@@ -5881,27 +5911,27 @@ attribute manager
 .UNINDENT
 .INDENT 7.0
 .TP
-.B PNIGroup.close()
+.B close()
 close group
 .UNINDENT
 .INDENT 7.0
 .TP
-.B PNIGroup.create_field(name, type_code, shape=None, chunk=None, dfilter=None)
+.B create_field(name, type_code, shape=None, chunk=None, dfilter=None)
 open a file tree element
 .INDENT 7.0
 .TP
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBn\fP (\fI\%str\fP) \-\- group name
+\fBn\fP (\fI\%str\fP) – group name
 .IP \(bu 2
-\fBtype_code\fP (\fI\%str\fP) \-\- nexus field type
+\fBtype_code\fP (\fI\%str\fP) – nexus field type
 .IP \(bu 2
-\fBshape\fP (\fBlist\fP < \fI\%int\fP >) \-\- shape
+\fBshape\fP (\fBlist\fP < \fI\%int\fP >) – shape
 .IP \(bu 2
-\fBchunk\fP (\fBlist\fP < \fI\%int\fP >) \-\- chunk
+\fBchunk\fP (\fBlist\fP < \fI\%int\fP >) – chunk
 .IP \(bu 2
-\fBdfilter\fP (\fI\%PNIDeflate\fP) \-\- filter deflater
+\fBdfilter\fP (\fI\%PNIDeflate\fP) – filter deflater
 .UNINDENT
 .TP
 .B Returns
@@ -5913,16 +5943,16 @@ file tree field
 .UNINDENT
 .INDENT 7.0
 .TP
-.B PNIGroup.create_group(n, nxclass=\(aq\(aq)
+.B create_group(n, nxclass=\(aq\(aq)
 open a file tree element
 .INDENT 7.0
 .TP
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBn\fP (\fI\%str\fP) \-\- group name
+\fBn\fP (\fI\%str\fP) – group name
 .IP \(bu 2
-\fBnxclass\fP (\fI\%str\fP) \-\- group type
+\fBnxclass\fP (\fI\%str\fP) – group type
 .UNINDENT
 .TP
 .B Returns
@@ -5934,12 +5964,12 @@ file tree group
 .UNINDENT
 .INDENT 7.0
 .TP
-.B PNIGroup.exists(name)
+.B exists(name)
 if child exists
 .INDENT 7.0
 .TP
 .B Parameters
-\fBname\fP (\fI\%str\fP) \-\- child name
+\fBname\fP (\fI\%str\fP) – child name
 .TP
 .B Returns
 existing flag
@@ -5950,7 +5980,7 @@ existing flag
 .UNINDENT
 .INDENT 7.0
 .TP
-.B PNIGroup.is_valid
+.B is_valid
 check if field is valid
 .INDENT 7.0
 .TP
@@ -5963,12 +5993,12 @@ valid flag
 .UNINDENT
 .INDENT 7.0
 .TP
-.B PNIGroup.name = None
+.B name = None
 (\fI\%str\fP) object name
 .UNINDENT
 .INDENT 7.0
 .TP
-.B PNIGroup.names()
+.B names()
 read the child names
 .INDENT 7.0
 .TP
@@ -5981,12 +6011,12 @@ pni object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B PNIGroup.open(name)
+.B open(name)
 open a file tree element
 .INDENT 7.0
 .TP
 .B Parameters
-\fBname\fP (\fI\%str\fP) \-\- element name
+\fBname\fP (\fI\%str\fP) – element name
 .TP
 .B Returns
 file tree object
@@ -5997,17 +6027,17 @@ file tree object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B PNIGroup.path = None
+.B path = None
 (\fI\%str\fP) object nexus path
 .UNINDENT
 .INDENT 7.0
 .TP
-.B PNIGroup.reopen()
+.B reopen()
 reopen group
 .UNINDENT
 .INDENT 7.0
 .TP
-.B PNIGroup.size
+.B size
 group size
 .INDENT 7.0
 .TP
@@ -6032,9 +6062,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBh5object\fP (\fI\%any\fP) \-\- pni object
+\fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
-\fBtparent\fP (\fBFTObject\fP) \-\- treee parent
+\fBtparent\fP (\fBFTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -6106,11 +6136,11 @@ create a new file
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBfilename\fP (\fI\%str\fP) \-\- file name
+\fBfilename\fP (\fI\%str\fP) – file name
 .IP \(bu 2
-\fBoverwrite\fP (\fI\%bool\fP) \-\- overwrite flag
+\fBoverwrite\fP (\fI\%bool\fP) – overwrite flag
 .IP \(bu 2
-\fBlibver\fP (\fI\%str\fP) \-\- library version: \(aqlastest\(aq or \(aqearliest\(aq
+\fBlibver\fP (\fI\%str\fP) – library version: ‘lastest’ or ‘earliest’
 .UNINDENT
 .TP
 .B Returns
@@ -6140,7 +6170,7 @@ get links
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBFTObject\fP) \-\- parent object
+\fBparent\fP (\fBFTObject\fP) – parent object
 .TP
 .B Returns
 list of link objects
@@ -6166,11 +6196,11 @@ create link
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBtarget\fP (\fI\%str\fP) \-\- file name
+\fBtarget\fP (\fI\%str\fP) – file name
 .IP \(bu 2
-\fBparent\fP (\fBFTObject\fP) \-\- parent object
+\fBparent\fP (\fBFTObject\fP) – parent object
 .IP \(bu 2
-\fBname\fP (\fI\%str\fP) \-\- link name
+\fBname\fP (\fI\%str\fP) – link name
 .UNINDENT
 .TP
 .B Returns
@@ -6189,11 +6219,11 @@ open the new file
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBfilename\fP (\fI\%str\fP) \-\- file name
+\fBfilename\fP (\fI\%str\fP) – file name
 .IP \(bu 2
-\fBreadonly\fP (\fI\%bool\fP) \-\- readonly flag
+\fBreadonly\fP (\fI\%bool\fP) – readonly flag
 .IP \(bu 2
-\fBlibver\fP (\fI\%str\fP) \-\- library version: \(aqlastest\(aq or \(aqearliest\(aq
+\fBlibver\fP (\fI\%str\fP) – library version: ‘lastest’ or ‘earliest’
 .UNINDENT
 .TP
 .B Returns
@@ -6219,15 +6249,10 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .IP \(bu 2
-\fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) \-\- lavue configuration settings
+\fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) – lavue configuration settings
 .UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B bkgSubWidget = None
-(\fI\%lavuelib.bkgSubtractionWidget.BkgSubtractionWidget\fP)
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6238,13 +6263,13 @@ show or hide widgets in the preparation colection
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBshowmask\fP (\fI\%bool\fP) \-\- mask widget shown
+\fBshowmask\fP (\fI\%bool\fP) – mask widget shown
 .IP \(bu 2
-\fBshowsub\fP (\fI\%bool\fP) \-\- subtraction widget shown
+\fBshowsub\fP (\fI\%bool\fP) – subtraction widget shown
 .IP \(bu 2
-\fBshowtrans\fP (\fI\%bool\fP) \-\- transformation widget shown
+\fBshowtrans\fP (\fI\%bool\fP) – transformation widget shown
 .IP \(bu 2
-\fBshowhighvaluemask\fP (\fI\%bool\fP) \-\- mask widget shown
+\fBshowhighvaluemask\fP (\fI\%bool\fP) – mask widget shown
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -6257,11 +6282,6 @@ show or hide widgets in the preparation colection
 .TP
 .B maskWidget = None
 (\fBlavuelib.maskWidget.Maskwidget\fP) mask widget
-.UNINDENT
-.INDENT 7.0
-.TP
-.B trafoWidget = None
-(\fI\%lavuelib.transformationsWidget.TransformationsWidget\fP)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -6298,9 +6318,9 @@ finds device of give class
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBcname\fP (\fI\%str\fP) \-\- device class name
+\fBcname\fP (\fI\%str\fP) – device class name
 .IP \(bu 2
-\fBdb\fP (\fBPyTango.Database\fP) \-\- tango database
+\fBdb\fP (\fBPyTango.Database\fP) – tango database
 .UNINDENT
 .TP
 .B Returns
@@ -6319,11 +6339,11 @@ provides experimental Channels
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBdoor\fP (\fI\%str\fP) \-\- door device name
+\fBdoor\fP (\fI\%str\fP) – door device name
 .IP \(bu 2
-\fBlistattr\fP (\fI\%str\fP) \-\- pool attribute with list
+\fBlistattr\fP (\fI\%str\fP) – pool attribute with list
 .IP \(bu 2
-\fBtypefilter\fP (\fBlist\fP <\fI\%str\fP>) \-\- pool attribute with list
+\fBtypefilter\fP (\fBlist\fP <\fI\%str\fP>) – pool attribute with list
 .UNINDENT
 .TP
 .B Returns
@@ -6340,7 +6360,7 @@ stores Scan Environment Data
 .INDENT 7.0
 .TP
 .B Parameters
-\fBdoor\fP (\fI\%str\fP) \-\- door device
+\fBdoor\fP (\fI\%str\fP) – door device
 .TP
 .B Returns
 error or warning
@@ -6356,7 +6376,7 @@ door macro server device name
 .INDENT 7.0
 .TP
 .B Parameters
-\fBdoor\fP (\fI\%str\fP) \-\- door device name
+\fBdoor\fP (\fI\%str\fP) – door device name
 .TP
 .B Returns
 macroserver device proxy
@@ -6372,7 +6392,7 @@ provides pool devices
 .INDENT 7.0
 .TP
 .B Parameters
-\fBdoor\fP (\fI\%str\fP) \-\- door device name
+\fBdoor\fP (\fI\%str\fP) – door device name
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -6382,7 +6402,7 @@ provides proxies of given device names
 .INDENT 7.0
 .TP
 .B Parameters
-\fBnames\fP (\fBlist\fP <\fI\%str\fP>) \-\- given device names
+\fBnames\fP (\fBlist\fP <\fI\%str\fP>) – given device names
 .TP
 .B Returns
 list of device DeviceProxies
@@ -6398,7 +6418,7 @@ fetches Scan Environment Data
 .INDENT 7.0
 .TP
 .B Parameters
-\fBdoor\fP (\fI\%str\fP) \-\- door device
+\fBdoor\fP (\fI\%str\fP) – door device
 .TP
 .B Returns
 JSON String with important variables
@@ -6414,7 +6434,7 @@ opens device proxy of the given device
 .INDENT 7.0
 .TP
 .B Parameters
-\fBdevice\fP (\fI\%str\fP) \-\- device name
+\fBdevice\fP (\fI\%str\fP) – device name
 .TP
 .B Returns
 DeviceProxy of device
@@ -6432,11 +6452,11 @@ stores Scan Environment Data
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBdoor\fP (\fI\%str\fP) \-\- door device
+\fBdoor\fP (\fI\%str\fP) – door device
 .IP \(bu 2
-\fBcommand\fP (\fBlist\fP <\fI\%str\fP>) \-\- list with the macro name and its parameters
+\fBcommand\fP (\fBlist\fP <\fI\%str\fP>) – list with the macro name and its parameters
 .IP \(bu 2
-\fBwait\fP (\fI\%bool\fP) \-\- wait till macro is finished
+\fBwait\fP (\fI\%bool\fP) – wait till macro is finished
 .UNINDENT
 .TP
 .B Returns
@@ -6455,9 +6475,9 @@ stores Scan Environment Data
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBdoor\fP (\fI\%str\fP) \-\- door device
+\fBdoor\fP (\fI\%str\fP) – door device
 .IP \(bu 2
-\fBjdata\fP (\fI\%str\fP) \-\- JSON String with important variables
+\fBjdata\fP (\fI\%str\fP) – JSON String with important variables
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -6468,7 +6488,7 @@ converts list/dict/object of unicode/string to string object
 .INDENT 7.0
 .TP
 .B Parameters
-\fBobj\fP (\fIany\fP) \-\- given unicode/string object
+\fBobj\fP (\fIany\fP) – given unicode/string object
 .TP
 .B Returns
 string object
@@ -6486,11 +6506,11 @@ stores Scan Environment Data
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBname\fP (\fI\%str\fP) \-\- device name
+\fBname\fP (\fI\%str\fP) – device name
 .IP \(bu 2
-\fBproxy\fP (\fI\%str\fP) \-\- door device proxy
+\fBproxy\fP (\fI\%str\fP) – door device proxy
 .IP \(bu 2
-\fBmaxcount\fP (\fI\%int\fP) \-\- number of 0.01s to wait
+\fBmaxcount\fP (\fI\%int\fP) – number of 0.01s to wait
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -6509,7 +6529,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6518,7 +6538,7 @@ shows or hides the histogram widget
 .INDENT 7.0
 .TP
 .B Parameters
-\fBshowhistogram\fP (\fI\%bool\fP) \-\- if histogram should be shown
+\fBshowhistogram\fP (\fI\%bool\fP) – if histogram should be shown
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -6546,7 +6566,7 @@ sets scaling from string
 .INDENT 7.0
 .TP
 .B Parameters
-\fBscaling\fP \-\- scaling name, i.e. linear, log or sqrt
+\fBscaling\fP – scaling name, i.e. linear, log or sqrt
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -6633,11 +6653,6 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
-.B httpurls = None
-(\fI\%str\fP) JSON dictionary with {label: url}
-.UNINDENT
-.INDENT 7.0
-.TP
 .B imagename = None
 (\fI\%str\fP) last image file name
 .UNINDENT
@@ -6658,7 +6673,7 @@ load settings
 .INDENT 7.0
 .TP
 .B Parameters
-\fBsettings\fP (\fBPyQt4.QtCore.QSettings\fP) \-\- QSettings object
+\fBsettings\fP (\fBPyQt4.QtCore.QSettings\fP) – QSettings object
 .TP
 .B Returns
 error messages list
@@ -6822,28 +6837,13 @@ Stores settings in QSettings object
 .INDENT 7.0
 .TP
 .B Parameters
-\fBsettings\fP (\fBPyQt4.QtCore.QSettings\fP) \-\- QSettings object
+\fBsettings\fP (\fBPyQt4.QtCore.QSettings\fP) – QSettings object
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
 .B storegeometry = None
 (\fI\%bool\fP) store detector geometry
-.UNINDENT
-.INDENT 7.0
-.TP
-.B tangoattrs = None
-(\fI\%str\fP) JSON dictionary with {label: tango attribute}
-.UNINDENT
-.INDENT 7.0
-.TP
-.B tangodirattrs = None
-(\fI\%str\fP) JSON dictionary with {label: dir tango attribute}
-.UNINDENT
-.INDENT 7.0
-.TP
-.B tangofileattrs = None
-(\fI\%str\fP) JSON dictionary with {label: file tango attribute}
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6854,11 +6854,6 @@ Stores settings in QSettings object
 .TP
 .B zeromask = None
 (\fI\%bool\fP) zero mask enabled
-.UNINDENT
-.INDENT 7.0
-.TP
-.B zmqservers = None
-(\fI\%str\fP) JSON dictionary with {label: <server:port>}
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6882,9 +6877,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .IP \(bu 2
-\fBsourcetypes\fP (\fBlist\fP <\fI\%str\fP>) \-\- source type class names
+\fBsourcetypes\fP (\fBlist\fP <\fI\%str\fP>) – source type class names
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -6899,7 +6894,7 @@ set configuration for the current image source
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiguration\fP (\fI\%str\fP) \-\- configuration string
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -6914,7 +6909,7 @@ set connection status on and display connection status
 .INDENT 7.0
 .TP
 .B Parameters
-\fBport\fP \-\- zmq port
+\fBport\fP – zmq port
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -6955,7 +6950,7 @@ set error status
 .INDENT 7.0
 .TP
 .B Parameters
-\fBstatus\fP (\fI\%str\fP) \-\- error status
+\fBstatus\fP (\fI\%str\fP) – error status
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -6965,7 +6960,7 @@ set source by changing combobox
 .INDENT 7.0
 .TP
 .B Parameters
-\fBindex\fP (\fI\%int\fP) \-\- combobox index
+\fBindex\fP (\fI\%int\fP) – combobox index
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -6975,7 +6970,7 @@ set target name
 .INDENT 7.0
 .TP
 .B Parameters
-\fBname\fP (\fI\%str\fP) \-\- source name
+\fBname\fP (\fI\%str\fP) – source name
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7030,7 +7025,7 @@ update source input parameters
 .INDENT 7.0
 .TP
 .B Parameters
-\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) \-\- source widget input parameter dictionary
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -7048,7 +7043,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7072,7 +7067,7 @@ set configuration for the current image source
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiguration\fP (\fI\%str\fP) \-\- configuration string
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7130,7 +7125,7 @@ update source input parameters
 .INDENT 7.0
 .TP
 .B Parameters
-\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) \-\- source widget input parameter dictionary
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7155,7 +7150,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7179,7 +7174,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7188,7 +7183,7 @@ set configuration for the current image source
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiguration\fP (\fI\%str\fP) \-\- configuration string
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7238,10 +7233,10 @@ update source input parameters
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBhttpurls\fP (\fI\%str\fP) \-\- json dictionary with
+\fBhttpurls\fP (\fI\%str\fP) – json dictionary with
 (label, http urls) items
 .IP \(bu 2
-\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) \-\- source widget input parameter dictionary
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -7262,7 +7257,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7271,7 +7266,7 @@ set configuration for the current image source
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiguration\fP (\fI\%str\fP) \-\- configuration string
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7321,9 +7316,9 @@ update source input parameters
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBserverdict\fP (\fI\%dict\fP < \fI\%str\fP, \fBlist\fP <\fI\%str\fP> >) \-\- server dictionary
+\fBserverdict\fP (\fI\%dict\fP < \fI\%str\fP, \fBlist\fP <\fI\%str\fP> >) – server dictionary
 .IP \(bu 2
-\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) \-\- source widget input parameter dictionary
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -7344,7 +7339,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7353,7 +7348,7 @@ set configuration for the current image source
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiguration\fP (\fI\%str\fP) \-\- configuration string
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7403,11 +7398,11 @@ update source input parameters
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBnxsopen\fP (\fI\%bool\fP) \-\- nexus file source keeps the file open
+\fBnxsopen\fP (\fI\%bool\fP) – nexus file source keeps the file open
 .IP \(bu 2
-\fBnxslast\fP (\fI\%bool\fP) \-\- nexus file source starts from the last image
+\fBnxslast\fP (\fI\%bool\fP) – nexus file source starts from the last image
 .IP \(bu 2
-\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) \-\- source widget input parameter dictionary
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -7428,7 +7423,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7437,7 +7432,7 @@ set configuration for the current image source
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiguration\fP (\fI\%str\fP) \-\- configuration string
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7487,10 +7482,10 @@ update source input parameters
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBtangoattrs\fP (\fI\%str\fP) \-\- json dictionary with
+\fBtangoattrs\fP (\fI\%str\fP) – json dictionary with
 (label, tango attribute) items
 .IP \(bu 2
-\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) \-\- source widget input parameter dictionary
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -7511,7 +7506,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7520,7 +7515,7 @@ set configuration for the current image source
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiguration\fP (\fI\%str\fP) \-\- configuration string
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7570,16 +7565,16 @@ update source input parameters
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBtangofileattrs\fP (\fI\%str\fP) \-\- json dictionary with
+\fBtangofileattrs\fP (\fI\%str\fP) – json dictionary with
 (label, file tango attribute) items
 .IP \(bu 2
-\fBtangodirattrs\fP (\fI\%str\fP) \-\- json dictionary with
+\fBtangodirattrs\fP (\fI\%str\fP) – json dictionary with
 (label, dir tango attribute) items
 .IP \(bu 2
-\fBdirtrans\fP (\fI\%str\fP) \-\- json dictionary with directory
+\fBdirtrans\fP (\fI\%str\fP) – json dictionary with directory
 and file name translation
 .IP \(bu 2
-\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) \-\- source widget input parameter dictionary
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -7600,7 +7595,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -7614,7 +7609,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7623,7 +7618,7 @@ set configuration for the current image source
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiguration\fP (\fI\%str\fP) \-\- configuration string
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7673,18 +7668,18 @@ update source input parameters
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBzmqtopics\fP (\fBlist\fP <\fI\%str\fP> >) \-\- zmq source topics
+\fBzmqtopics\fP (\fBlist\fP <\fI\%str\fP> >) – zmq source topics
 .IP \(bu 2
-\fBautozmqtopics\fP (\fI\%bool\fP) \-\- automatic zmq topics enabled
+\fBautozmqtopics\fP (\fI\%bool\fP) – automatic zmq topics enabled
 .IP \(bu 2
-\fBdatasources\fP (\fBlist\fP <\fI\%str\fP> >) \-\- automatic zmq source topics
+\fBdatasources\fP (\fBlist\fP <\fI\%str\fP> >) – automatic zmq source topics
 .IP \(bu 2
-\fBdisconnect\fP (\fI\%bool\fP) \-\- disconnect on update
+\fBdisconnect\fP (\fI\%bool\fP) – disconnect on update
 .IP \(bu 2
-\fBzmqservers\fP (\fI\%str\fP) \-\- json dictionary with
+\fBzmqservers\fP (\fI\%str\fP) – json dictionary with
 (label, zmq servers) items
 .IP \(bu 2
-\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) \-\- source widget input parameter dictionary
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -7708,7 +7703,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7717,7 +7712,7 @@ shows or hides the histogram widget
 .INDENT 7.0
 .TP
 .B Parameters
-\fBshowhistogram\fP (\fI\%bool\fP) \-\- if histogram should be shown
+\fBshowhistogram\fP (\fI\%bool\fP) – if histogram should be shown
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7727,7 +7722,7 @@ update image statistic values
 .INDENT 7.0
 .TP
 .B Parameters
-\fBmeanparent\fP \-\- parent object
+\fBmeanparent\fP – parent object
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -7745,7 +7740,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7761,9 +7756,9 @@ command  before plot
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBarray\fP (\fI\%numpy.ndarray\fP) \-\- 2d image array
+\fBarray\fP (\fI\%numpy.ndarray\fP) – 2d image array
 .IP \(bu 2
-\fBrawarray\fP (\fI\%numpy.ndarray\fP) \-\- 2d raw image array
+\fBrawarray\fP (\fI\%numpy.ndarray\fP) – 2d raw image array
 .UNINDENT
 .TP
 .B Returns
@@ -7811,7 +7806,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7836,7 +7831,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7867,6 +7862,67 @@ list of [signal, slot] object to connect
 .UNINDENT
 .INDENT 0.0
 .TP
+.B class lavuelib.toolWidget.MaximaToolWidget(parent=None)
+Bases: \fI\%lavuelib.toolWidget.ToolWidget\fP
+.sp
+angle/q tool widget
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B activate()
+activates tool widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B beforeplot(array, rawarray)
+command  before plot
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBarray\fP (\fI\%numpy.ndarray\fP) – 2d image array
+.IP \(bu 2
+\fBrawarray\fP (\fI\%numpy.ndarray\fP) – 2d raw image array
+.UNINDENT
+.TP
+.B Returns
+2d image array and raw image
+.TP
+.B Return type
+(\fI\%numpy.ndarray\fP, \fI\%numpy.ndarray\fP)
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B disactivate()
+disactivates tool widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) tool name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B signal2slot = None
+(\fBlist\fP < [\fBPyQt4.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+list of [signal, slot] object to connect
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateGeometryTip()
+update geometry tips
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
 .B class lavuelib.toolWidget.MeshToolWidget(parent=None)
 Bases: \fI\%lavuelib.toolWidget.ToolWidget\fP
 .sp
@@ -7876,7 +7932,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7913,11 +7969,11 @@ updates ROI display text
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBtext\fP (\fI\%str\fP) \-\- standard display text
+\fBtext\fP (\fI\%str\fP) – standard display text
 .IP \(bu 2
-\fBcurrentroi\fP (\fI\%str\fP) \-\- current roi label
+\fBcurrentroi\fP (\fI\%str\fP) – current roi label
 .IP \(bu 2
-\fBtext\fP \-\- roi sum value
+\fBtext\fP – roi sum value
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -7933,7 +7989,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7963,7 +8019,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8003,7 +8059,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8043,7 +8099,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8087,7 +8143,7 @@ sets a number of rois
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrid\fP (\fI\%int\fP) \-\- number of rois
+\fBrid\fP (\fI\%int\fP) – number of rois
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -8103,7 +8159,7 @@ updates apply tips
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrid\fP (\fI\%int\fP) \-\- current roi id
+\fBrid\fP (\fI\%int\fP) – current roi id
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -8118,7 +8174,7 @@ enables/disables ROI buttons
 .INDENT 7.0
 .TP
 .B Parameters
-\fBenable\fP (\fI\%bool\fP) \-\- buttons enabled
+\fBenable\fP (\fI\%bool\fP) – buttons enabled
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -8130,11 +8186,11 @@ updates ROI display text
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBtext\fP (\fI\%str\fP) \-\- standard display text
+\fBtext\fP (\fI\%str\fP) – standard display text
 .IP \(bu 2
-\fBcurrentroi\fP (\fI\%str\fP) \-\- current roi label
+\fBcurrentroi\fP (\fI\%str\fP) – current roi label
 .IP \(bu 2
-\fBtext\fP \-\- roi sum value
+\fBtext\fP – roi sum value
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -8145,7 +8201,7 @@ updates ROI line edit text
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtext\fP (\fI\%str\fP) \-\- text to update
+\fBtext\fP (\fI\%str\fP) – text to update
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -8160,7 +8216,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8199,7 +8255,7 @@ sets a number of rois
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrid\fP (\fI\%int\fP) \-\- number of rois
+\fBrid\fP (\fI\%int\fP) – number of rois
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -8215,7 +8271,7 @@ updates apply tips
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrid\fP (\fI\%int\fP) \-\- current roi id
+\fBrid\fP (\fI\%int\fP) – current roi id
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -8225,7 +8281,7 @@ enables/disables ROI buttons
 .INDENT 7.0
 .TP
 .B Parameters
-\fBenable\fP (\fI\%bool\fP) \-\- buttons enabled
+\fBenable\fP (\fI\%bool\fP) – buttons enabled
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -8237,11 +8293,11 @@ updates ROI display text
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBtext\fP (\fI\%str\fP) \-\- standard display text
+\fBtext\fP (\fI\%str\fP) – standard display text
 .IP \(bu 2
-\fBcurrentroi\fP (\fI\%str\fP) \-\- current roi label
+\fBcurrentroi\fP (\fI\%str\fP) – current roi label
 .IP \(bu 2
-\fBtext\fP \-\- roi sum value
+\fBtext\fP – roi sum value
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -8252,7 +8308,7 @@ updates ROI line edit text
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtext\fP (\fI\%str\fP) \-\- text to update
+\fBtext\fP (\fI\%str\fP) – text to update
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -8306,6 +8362,11 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B maxima = None
+(\fI\%str\fP) show maxima
+.UNINDENT
+.INDENT 7.0
+.TP
 .B polarscale = None
 (\fI\%bool\fP) polar axes scale enabled
 .UNINDENT
@@ -8317,7 +8378,6 @@ constructor
 .INDENT 7.0
 .TP
 .B rois = None
-(\fI\%bool\fP) lines enabled
 (\fI\%bool\fP) rois enabled
 .UNINDENT
 .INDENT 7.0
@@ -8337,7 +8397,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8358,9 +8418,9 @@ command  before plot
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBarray\fP (\fI\%numpy.ndarray\fP) \-\- 2d image array
+\fBarray\fP (\fI\%numpy.ndarray\fP) – 2d image array
 .IP \(bu 2
-\fBrawarray\fP (\fI\%numpy.ndarray\fP) \-\- 2d raw image array
+\fBrawarray\fP (\fI\%numpy.ndarray\fP) – 2d raw image array
 .UNINDENT
 .TP
 .B Returns
@@ -8406,7 +8466,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) \-\- parent object
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8415,7 +8475,7 @@ disables or enables the combobox
 .INDENT 7.0
 .TP
 .B Parameters
-\fBflag\fP (\fI\%bool\fP) \-\- combobox to be enabled
+\fBflag\fP (\fI\%bool\fP) – combobox to be enabled
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -8425,7 +8485,7 @@ sets keep original coordinates label according to flag
 .INDENT 7.0
 .TP
 .B Parameters
-\fBflag\fP (\fI\%bool\fP) \-\- keep original coordinates flag
+\fBflag\fP (\fI\%bool\fP) – keep original coordinates flag
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -8435,7 +8495,7 @@ sets transformation from the string
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtname\fP (\fI\%str\fP) \-\- transfromation name
+\fBtname\fP (\fI\%str\fP) – transfromation name
 .UNINDENT
 .UNINDENT
 .INDENT 7.0

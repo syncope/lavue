@@ -700,7 +700,7 @@ class ImageWidget(QtGui.QWidget):
             self.__ui.infoLineEdit.setText(text)
 
     def calcROIsum(self):
-        """ calculates the current roi sum
+        """calculates the current roi sum
 
         :returns: sum roi value, roi id
         :rtype: (:obj:`str`, :obj:`int`)
@@ -711,7 +711,7 @@ class ImageWidget(QtGui.QWidget):
         """ calculates all roi sums
 
         :returns: sum roi value, roi id
-        :rtype: `obj`list < `obj`<float> >
+        :rtype: :obj:list < float >
         """
         return self.__displaywidget.calcROIsums()
 

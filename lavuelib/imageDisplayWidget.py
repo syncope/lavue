@@ -1124,7 +1124,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         return False
 
     def __calcROIsum(self, rid):
-        """ calculates the current roi sum
+        """calculates the current roi sum
 
         :param rid: roi id
         :type rid: :obj:`int`
@@ -1166,7 +1166,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         return None, None
 
     def calcROIsum(self):
-        """ calculates the current roi sum
+        """calculates the current roi sum
 
         :returns: sum roi value, roi id
         :rtype: (float, int)
@@ -1180,7 +1180,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """ calculates all roi sums
 
         :returns: sum roi value, roi id
-        :rtype: `obj`list < `obj`<float> >
+        :rtype: :obj:list < float >
         """
         if self.__rawdata is None:
             return None
