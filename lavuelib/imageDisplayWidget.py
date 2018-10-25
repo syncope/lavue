@@ -182,6 +182,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         #: (:class:`lavuelib.displayParameters.CutsParameters`)
         #:                 cuts parameters
         self.__cuts = displayParameters.CutsParameters()
+        #: (:class:`lavuelib.displayParameters.MaximaParameters`)
+        #:                 maxima parameters
+        self.__maxima = displayParameters.MaximaParameters()
         #: (:class:`lavuelib.displayParameters.IntensityParameters`)
         #:                  intensity parameters
         self.__intensity = displayParameters.IntensityParameters()
@@ -336,6 +339,10 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__cut.append(SimpleLineROI([10, 10], [60, 10], pen='r'))
         self.__viewbox.addItem(self.__cut[0])
         self.__cut[0].hide()
+
+        self.__maxplot = _pg.ScatterPlotItem(
+            size=30, symbol='+', pen=_pg.mkPen((0, 0, 0)))
+        self.__viewbox.addItem(self.__maxplot)
 
         self.__setaspectlocked.triggered.connect(self.emitAspectLockedToggled)
 
@@ -1049,6 +1056,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if parameters.cuts is not None:
             self.__showCuts(parameters.cuts)
             self.__cuts.enabled = parameters.cuts
+        if parameters.maxima is not None:
+            self.__maxima.enabled = parameters.maxima
         if doreset:
             self.__resetScale(polar=parameters.polarscale)
         if parameters.scale is True or rescale:
@@ -1682,3 +1691,19 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         self.__viewbox.autoRange()
         self.__viewbox.enableAutoRange('xy', True)
+
+    def setMaximaPos(self, positionlist):
+        """
+        sets maxima postions
+
+        :param positionlist: [(x1, y1), ... , (xn, yn)]
+        :type positionlist: :obj:`list` < (float, float) >
+        """
+        self.__maxima.positions = positionlist
+        spots = [{'pos': [i + 0.5, j + 0.5], 'data': 1,
+                  'brush': _pg.mkBrush((255, 0, 255))}
+                 for i, j in self.__maxima.positions]
+        if spots:
+            spots[-1]['brush'] = _pg.mkBrush((255, 255, 0))
+        self.__maxplot.clear()
+        self.__maxplot.addPoints(spots)

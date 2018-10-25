@@ -1391,3 +1391,12 @@ class ImageWidget(QtGui.QWidget):
         :rtype rangelist: :obj:`str`
         """
         return self.__displaywidget.viewRange()
+
+    def setMaximaPos(self, positionlist):
+        """
+        sets maxima postions
+
+        :param positionlist: [(x1, y1), ... , (xn, yn)]
+        :type positionlist: :obj:`list` < (float, float) >
+        """
+        return self.__displaywidget.setMaximaPos(positionlist)

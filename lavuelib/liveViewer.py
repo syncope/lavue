@@ -125,6 +125,7 @@ class LiveViewer(QtGui.QMainWindow):
             self.__tooltypes.append("MeshToolWidget")
         self.__tooltypes.append("OneDToolWidget")
         self.__tooltypes.append("ProjectionToolWidget")
+        self.__tooltypes.append("MaximaToolWidget")
         self.__tooltypes.append("QROIProjToolWidget")
 
         if options.mode and options.mode.lower() in ["expert"]:
