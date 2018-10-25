@@ -2364,6 +2364,7 @@ class MaximaToolWidget(ToolWidget):
                 self._mainwidget.setMaximaPos(aidxs)
             else:
                 self.__updatemaxima([])
+                self._mainwidget.setMaximaPos([])
         self.__reploting = False
 
     def __updatemaxima(self, maxidxs):
