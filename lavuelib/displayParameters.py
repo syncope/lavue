@@ -92,6 +92,19 @@ class ROIsParameters(object):
         self.colors = []
 
 
+class MaximaParameters(object):
+    """ maxima parameters
+    """
+
+    def __init__(self):
+        """ constructor
+        """
+        #: (:obj:`bool`) enabled flag
+        self.enabled = False
+        #: (:obj:`list` < (float, float) > ) list with maxima coordinates
+        self.positions = []
+
+
 class CutsParameters(object):
     """ cuts parameters
     """
