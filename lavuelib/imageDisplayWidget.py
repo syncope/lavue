@@ -490,6 +490,17 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             for roi in self.__roi:
                 roi.hide()
 
+    def __showMaxima(self, status):
+        """ shows or hides maxima
+
+        :param status: will be shown
+        :type status: :obj:`bool`
+        """
+        if status:
+            self.__maxplot.show()
+        else:
+            self.__maxplot.hide()
+
     def __addROICoords(self, coords):
         """ adds ROI coorinates
 
@@ -1057,6 +1068,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__showCuts(parameters.cuts)
             self.__cuts.enabled = parameters.cuts
         if parameters.maxima is not None:
+            self.__showMaxima(parameters.maxima)
             self.__maxima.enabled = parameters.maxima
         if doreset:
             self.__resetScale(polar=parameters.polarscale)

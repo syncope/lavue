@@ -2305,7 +2305,15 @@ class MaximaToolWidget(ToolWidget):
 
         #: (:obj:`float`) polar coordinate factor
         self.__polmax = 1.
-        self.__lastmaxima = []
+
+        #: (:obj:`bool`) reploting flag
+        self.__reploting = False
+
+        #: (:obj:`bool`) reploting flag
+        self.__updating = False
+
+        #: (:obj:`list`) last combo items
+        self.__lastcomboitems = []
 
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
@@ -2354,6 +2362,8 @@ class MaximaToolWidget(ToolWidget):
                 if current >= 0:
                     aidxs.append(aidxs.pop(len(aidxs) - current - 1))
                 self._mainwidget.setMaximaPos(aidxs)
+            else:
+                self.__updatemaxima([])
         self.__reploting = False
 
     def __updatemaxima(self, maxidxs):
@@ -2362,6 +2372,7 @@ class MaximaToolWidget(ToolWidget):
         :param maxidxs: list with [[xn,yn, maxn], ... [x1,y1, max1]]
         :type maxidxs:
         """
+        self.__updating = True
         combo = self.__ui.maximaComboBox
         idx = combo.currentIndex()
         if len(maxidxs) < idx:
@@ -2369,10 +2380,20 @@ class MaximaToolWidget(ToolWidget):
         if len(maxidxs) and idx < 0:
             idx = 0
 
-        combo.clear()
-        combo.addItems(["%s: %s at (%s, %s)" % (i + 1, vl[2], vl[0], vl[1])
-                        for i, vl in enumerate(reversed(maxidxs))])
-        combo.setCurrentIndex(idx)
+        trans = self._mainwidget.transformations()[0]
+        if trans:
+            comboitems = ["%s: %s at (%s, %s)" % (i + 1, vl[2], vl[1], vl[0])
+                          for i, vl in enumerate(reversed(maxidxs))]
+        else:
+            comboitems = ["%s: %s at (%s, %s)" % (i + 1, vl[2], vl[0], vl[1])
+                          for i, vl in enumerate(reversed(maxidxs))]
+        if self.__lastcomboitems != comboitems:
+            self.__lastcomboitems != comboitems
+            combo.clear()
+            # self.__reploting = True
+            combo.addItems(comboitems)
+            combo.setCurrentIndex(idx)
+        self.__updating = False
         return idx
 
     @QtCore.pyqtSlot(float, float)
@@ -2393,7 +2414,7 @@ class MaximaToolWidget(ToolWidget):
 
     @QtCore.pyqtSlot()
     def _replot(self):
-        if not self.__reploting:
+        if not self.__reploting and not self.__updating:
             self.__reploting = True
             self._mainwidget.emitReplotImage(False)
 
