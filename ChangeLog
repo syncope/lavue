@@ -1,3 +1,8 @@
+2018-10-25 Jan Kotanski <jan.kotanski@desy.de>
+	* add MaximaTool
+	* add autofactor
+	* tagged as 1.26.0
+
 2018-10-24 Jan Kotanski <jan.kotanski@desy.de>
 	* remove non-exists settings
 	* tagged as 1.25.3
