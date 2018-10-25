@@ -1,4 +1,8 @@
 2018-10-25 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for  MaximaTool
+	* tagged as 1.26.1
+
+2018-10-25 Jan Kotanski <jan.kotanski@desy.de>
 	* add MaximaTool
 	* add autofactor
 	* tagged as 1.26.0
