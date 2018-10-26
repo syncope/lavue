@@ -1,4 +1,9 @@
 2018-10-26 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for setting geometry when in angle
+	* change default statswoscaling to True
+	* tagged as 1.26.4
+
+2018-10-26 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for rescaling in tools
 	* tagged as 1.26.3
 
