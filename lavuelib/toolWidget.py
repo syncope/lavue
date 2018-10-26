@@ -1881,6 +1881,9 @@ class AngleQToolWidget(ToolWidget):
                     rmax = (self.__radthend - rstart) * math.pi / 180.
                 if self.__radthsize is not None:
                     maxdim = self.__radthsize
+                if rmax is None:
+                    self._setGeometry()
+                    return
                 self.__radmax = rmax/float(maxdim)
 
             elif pindex == 2:
@@ -1902,6 +1905,9 @@ class AngleQToolWidget(ToolWidget):
                     rmax = (self.__radqend - rstart)
                 if self.__radqsize is not None:
                     maxdim = self.__radqsize
+                if rmax is None:
+                    self._setGeometry()
+                    return
                 self.__radmax = rmax/float(maxdim)
             if pindex:
                 psize = self.__polsize if self.__polsize is not None else 360
