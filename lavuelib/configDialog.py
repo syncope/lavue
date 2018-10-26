@@ -91,7 +91,7 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`bool`) aspect ratio locked
         self.aspectlocked = False
         #: (:obj:`bool`) statistics without intensity scaling
-        self.statswoscaling = False
+        self.statswoscaling = True
         #: (:obj:`bool`) auto down sample
         self.autodownsample = False
         #: (:obj:`bool`) keep original coordinates

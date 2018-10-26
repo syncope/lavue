@@ -131,7 +131,7 @@ class IntensityParameters(object):
         #: (:obj:`bool`) do background substraction
         self.dobkgsubtraction = False
         #: (:obj:`bool`) calculate statistics without scaling
-        self.statswoscaling = False
+        self.statswoscaling = True
         #: (:obj:`str`) intensity scaling
         self.scaling = "sqrt"
 

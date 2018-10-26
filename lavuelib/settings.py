@@ -97,7 +97,7 @@ class Settings(object):
         #: (:obj:`str`) last background image file name
         self.bkgimagename = None
         #: (:obj:`bool`) statistics without scaling
-        self.statswoscaling = False
+        self.statswoscaling = True
         #: (:obj:`list` < :obj:`str` > ) zmq source topics
         self.zmqtopics = []
         #: (:obj:`bool`) automatic zmq source topics
@@ -324,8 +324,8 @@ class Settings(object):
         qstval = str(
             settings.value(
                 "Configuration/StatisticsWithoutScaling", type=str))
-        if qstval.lower() == "true":
-            self.statswoscaling = True
+        if qstval.lower() == "false":
+            self.statswoscaling = False
 
         qstval = \
             settings.value(
