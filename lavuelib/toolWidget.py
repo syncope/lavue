@@ -891,9 +891,12 @@ class ROIToolWidget(ToolWidget):
             stext = " ".join(sptext[:-1])
 
         if stext:
-            hints = ["%s %s" % (stext, al) for al in self.__aliases]
+            if self.__aliases:
+                hints = ["%s %s" % (stext, al) for al in self.__aliases]
+            else:
+                hints = [stext]
         else:
-            hints = self.__aliases
+            hints = self.__aliases or []
         completer = QtGui.QCompleter(hints, self)
         self.__ui.labelROILineEdit.setCompleter(completer)
 
@@ -2861,9 +2864,12 @@ class QROIProjToolWidget(ToolWidget):
             stext = " ".join(sptext[:-1])
 
         if stext:
-            hints = ["%s %s" % (stext, al) for al in self.__aliases]
+            if self.__aliases:
+                hints = ["%s %s" % (stext, al) for al in self.__aliases]
+            else:
+                hints = [stext]
         else:
-            hints = self.__aliases
+            hints = self.__aliases or []
         completer = QtGui.QCompleter(hints, self)
         self.__ui.labelROILineEdit.setCompleter(completer)
 
