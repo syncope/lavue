@@ -1049,6 +1049,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             doreset = doreset or parameters.polarscale
             if self.__polaraxes.enabled and not parameters.polarscale:
                 doreset = True
+                rescale = True
             self.__polaraxes.enabled = parameters.polarscale
 
         # if parameters.lines is not None:

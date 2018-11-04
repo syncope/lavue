@@ -1926,7 +1926,8 @@ class AngleQToolWidget(ToolWidget):
         :return: 2d image array
         :rtype: :class:`numpy.ndarray`
         """
-        if self.__settings.energy > 0 and self.__settings.detdistance > 0:
+        if self.__settings.energy > 0 and self.__settings.detdistance > 0 and \
+           self.__settings.pixelsizex > 0 and self.__settings.pixelsizey > 0:
             if rdata is None:
                 rdata = self._mainwidget.currentData()
             xx = np.array(range(rdata.shape[0]))

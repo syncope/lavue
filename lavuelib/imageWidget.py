@@ -277,6 +277,10 @@ class ImageWidget(QtGui.QWidget):
             toadd = []
             lastalias = None
 
+            if rvalues is None:
+                self.__tangoclient.writeAttribute(
+                    "DetectorROIsValues", json.dumps({}))
+                return
             self.__lastroisvalues = rvalues
             for alias in slabel:
                 if alias not in toadd:
