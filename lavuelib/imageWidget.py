@@ -1344,8 +1344,19 @@ class ImageWidget(QtGui.QWidget):
         detrois = json.loads(str(rois))
         coords = []
         aliases = []
+        found = set()
+        llabels = str(self.roilabels).split(" ")
+        for k in llabels:
+            if k in detrois.items():
+                v = detrois[k]
+                if k not in found and isinstance(v, list):
+                    found.add(k)
+                    for cr in v:
+                        if isinstance(cr, list):
+                            coords.append(cr)
+                            aliases.append(k)
         for k, v in detrois.items():
-            if isinstance(v, list):
+            if isinstance(v, list) and k not in found:
                 for cr in v:
                     if isinstance(cr, list):
                         coords.append(cr)
