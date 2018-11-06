@@ -1,3 +1,7 @@
+2018-11-06 Jan Kotanski <jan.kotanski@desy.de>
+	* fix sync of roi labels
+	* tagged as 1.26.6
+
 2018-11-04 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for rescale when in angle
 	* tagged as 1.26.5
