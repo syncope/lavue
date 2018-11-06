@@ -1347,7 +1347,7 @@ class ImageWidget(QtGui.QWidget):
         found = set()
         llabels = str(self.roilabels).split(" ")
         for k in llabels:
-            if k in detrois.items():
+            if k in detrois.keys():
                 v = detrois[k]
                 if k not in found and isinstance(v, list):
                     found.add(k)
