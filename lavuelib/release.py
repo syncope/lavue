@@ -26,4 +26,4 @@
 """ release version """
 
 #: (:obj:`str`) the live viewer version
-__version__ = "1.26.6"
+__version__ = "1.26.7"

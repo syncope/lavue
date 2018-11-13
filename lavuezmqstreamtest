@@ -78,7 +78,7 @@ def main():
         try:
             value = np.transpose(
                 [
-                [random.randint(0, 1000) for _ in range(512)]
+                    [random.randint(0, 1000) for _ in range(512)]
                     for _ in range(256)
                 ])
             shape = value.shape
