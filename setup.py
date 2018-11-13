@@ -71,7 +71,7 @@ QRCDIR = os.path.join(NAME, "qrc")
 EXTERNAL = os.path.join(NAME, "external")
 #: (:obj:`list` < :obj:`str` >) executable scripts
 SCRIPTS = ['lavuemonitor', 'lavuezmqstreamfromtango',
-           'LavueController']
+           'LavueController', 'lavuezmqstreamtest']
 #: (:obj:`list` < :obj:`str` >) executable GUI scripts
 GUISCRIPTS = ['lavue']
 

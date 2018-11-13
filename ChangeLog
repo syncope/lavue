@@ -1,4 +1,8 @@
 2018-11-13 Jan Kotanski <jan.kotanski@desy.de>
+	* add lavuezmqstreamtest to setup script
+	* tagged as 1.26.8
+
+2018-11-13 Jan Kotanski <jan.kotanski@desy.de>
 	* hook for the getHistogram bug in pyqtgraph
 	* add lavuezmqstreamtest script without tango
 	* tagged as 1.26.7
