@@ -281,7 +281,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__leftaxis.linkedViewChanged = types.MethodType(
                 axisitem_linkedViewChanged, self.__leftaxis)
             #: dirty hooks for v0.9.10 to fix getHistogram
-            
+
         self.__leftaxis.linkToView(self.__viewbox)
         self.__layout.addItem(self.__leftaxis, row=0, col=0)
         self.__bottomaxis.linkToView(self.__viewbox)
