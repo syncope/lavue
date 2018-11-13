@@ -1,4 +1,8 @@
 2018-11-13 Jan Kotanski <jan.kotanski@desy.de>
+	* add __imageItem getter indepmendent of pyqtgraph version
+	* tagged as 1.26.9
+
+2018-11-13 Jan Kotanski <jan.kotanski@desy.de>
 	* add lavuezmqstreamtest to setup script
 	* tagged as 1.26.8
 

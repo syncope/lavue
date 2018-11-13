@@ -266,12 +266,26 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         self.vb.enableAutoRange(self.vb.XAxis, False)
         self.vb.setYRange(mn, mx, padding)
 
+    def __imageItem(self):
+        """ provides imageItem independent of the pyqtgraph version
+
+        :returns: image item
+        :rtype: :class:`pyqtgraph.ImageItem`
+
+        """
+        if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
+            #: (:class:`weakref.ref` or :class:`pyqtgraph.ImageItem`)
+            #: weakref to image item or image item itself  (for < 0.9.8)
+            return self.imageItem
+        else:
+            return self.imageItem()
+
     def imageChanged(self, autoLevel=False, autoRange=False):
 
         hx = None
         hy = None
         if self.autolevelfactor is not None:
-            hx, hy = self.imageItem().getHistogram()
+            hx, hy = self.__imageItem().getHistogram()
             if hy is not None and hx is not None and hx.any() and hy.any():
                 if abs(hx[0]) < 1.e-3 or abs(hx[0]+2.) < 1.e-3:
                     hx = hx[1:]
@@ -279,7 +293,7 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
                 if hx.any() and hy.any():
                     hmax = max(hy)
                     hmin = self.autolevelfactor*hmax/100.
-                    mn, mx = self.imageItem().levels
+                    mn, mx = self.__imageItem().levels
                     indexes = np.where(hy >= hmin)
                     ind1 = indexes[0][0]
                     ind2 = indexes[-1][-1]
