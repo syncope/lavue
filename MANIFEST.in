@@ -6,6 +6,7 @@ include man/lavuelib.1
 include man/lavuemonitor.1
 include man/LavueController.1
 include man/lavuezmqstreamfromtango.1
+include man/lavuezmqstreamtest.1
 include lavuelib/images/lavue.png
 include lavuelib/ui/*.ui
 include lavuelib/qrc/resources.qrc

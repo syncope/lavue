@@ -26,6 +26,7 @@
 from pyqtgraph.Point import Point
 from pyqtgraph.graphicsItems.ViewBox import ViewBox
 from PyQt4 import QtGui
+import numpy as np
 
 
 def viewbox_updateMatrix(self, changed=None):
@@ -140,3 +141,50 @@ def viewbox_linkedViewChanged(self, view, axis):
             self.setYRange(y1, y2, padding=0)
     finally:
         view.blockLink(False)
+
+
+def imageitem_getHistogram(self, bins='auto', step='auto', targetImageSize=200,
+                           targetHistogramSize=500, **kwds):
+    """Returns x and y arrays containing the histogram values for the current
+    image. For an explanation of the return format, see numpy.histogram().
+
+    The *step* argument causes pixels to be skipped when computing
+    the histogram to save time.
+    If *step* is 'auto', then a step is chosen such that the analyzed data has
+    dimensions roughly *targetImageSize* for each axis.
+
+    The *bins* argument and any extra keyword arguments are passed to
+    np.histogram(). If *bins* is 'auto', then a bin number is automatically
+    chosen based on the image characteristics:
+
+    * Integer images will have approximately *targetHistogramSize* bins,
+      with each bin having an integer width.
+    * All other types will have *targetHistogramSize* bins.
+
+    This method is also used when automatically computing levels.
+    """
+    if self.image is None:
+        return None, None
+    if step == 'auto':
+        step = (max(1, int(np.ceil(self.image.shape[0] / targetImageSize))),
+                max(1, int(np.ceil(self.image.shape[1] / targetImageSize))))
+    if np.isscalar(step):
+        step = (step, step)
+    stepData = self.image[::step[0], ::step[1]]
+
+    if bins == 'auto':
+        if stepData.dtype.kind in "ui":
+            mn = stepData.min()
+            mx = stepData.max()
+            step = np.ceil((mx-mn) / 500.)
+            bins = np.arange(mn, mx+1.01*step, step, dtype=np.int)
+            if len(bins) == 0:
+                bins = [mn, mx]
+        else:
+            bins = 500
+
+    kwds['bins'] = bins
+    stepData = stepData[np.isfinite(stepData)]
+    hist = np.histogram(stepData, **kwds)
+
+    return hist[1][:-1], hist[0]

@@ -39,7 +39,9 @@ from . import displayParameters
 from .external.pyqtgraph_0_10 import (
     viewbox_updateMatrix, viewbox_invertX,
     viewbox_xInverted, axisitem_linkedViewChanged,
-    viewbox_linkedViewChanged)
+    viewbox_linkedViewChanged,
+    imageitem_getHistogram
+)
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
     if _pg.__version__ else ("0", "9", "0")
@@ -199,6 +201,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
         #: (:class:`pyqtgraph.ImageItem`) image item
         self.__image = _pg.ImageItem()
+        if _VMAJOR == '0' and int(_VMINOR) < 10:
+            self.__image.getHistogram = types.MethodType(
+                imageitem_getHistogram, self.__image)
 
         #: (:class:`pyqtgraph.ViewBox`) viewbox item
         self.__viewbox = self.__layout.addViewBox(row=0, col=1)
@@ -275,6 +280,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 axisitem_linkedViewChanged, self.__bottomaxis)
             self.__leftaxis.linkedViewChanged = types.MethodType(
                 axisitem_linkedViewChanged, self.__leftaxis)
+            #: dirty hooks for v0.9.10 to fix getHistogram
 
         self.__leftaxis.linkToView(self.__viewbox)
         self.__layout.addItem(self.__leftaxis, row=0, col=0)
