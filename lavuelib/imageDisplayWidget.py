@@ -144,20 +144,10 @@ class SimpleLineROI(LineROI):
         return [pos1.x(), pos1.y(), pos2.x(), pos2.y(), size.y()]
 
 
-class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
+class ROIExtension(QObject):
 
     #: (:class:`PyQt4.QtCore.pyqtSignal`) roi coordinate changed signal
     roiCoordsChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) cut coordinate changed signal
-    cutCoordsChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) aspect locked toggled signal
-    aspectLockedToggled = QtCore.pyqtSignal(bool)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse position changed signal
-    mouseImagePositionChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse double clicked
-    mouseImageDoubleClicked = QtCore.pyqtSignal(float, float)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse single clicked
-    mouseImageSingleClicked = QtCore.pyqtSignal(float, float)
 
     def __init__(self, parent=None):
         """ constructor
@@ -165,163 +155,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :param parent: parent object
         :type parent: :class:`PyQt4.QtCore.QObject`
         """
-        _pg.GraphicsLayoutWidget.__init__(self, parent)
-        #: (:class:`PyQt4.QtGui.QLayout`) the main layout
-        self.__layout = self.ci
-
-        #: (:class:`lavuelib.displayParameters.AxesParameters`)
-        #:            axes parameters
-        self.__lines = displayParameters.CrossLinesParameters()
-        #: (:class:`lavuelib.displayParameters.AxesParameters`)
-        #:            axes parameters
-        self.__axes = displayParameters.AxesParameters()
-        #: (:class:`lavuelib.displayParameters.AxesParameters`)
-        #:            polar axes parameters
-        self.__polaraxes = displayParameters.AxesParameters()
         #: (:class:`lavuelib.displayParameters.ROIsParameters`)
         #:                rois parameters
         self.__rois = displayParameters.ROIsParameters()
-        #: (:class:`lavuelib.displayParameters.CutsParameters`)
-        #:                 cuts parameters
-        self.__cuts = displayParameters.CutsParameters()
-        #: (:class:`lavuelib.displayParameters.MaximaParameters`)
-        #:                 maxima parameters
-        self.__maxima = displayParameters.MaximaParameters()
-        #: (:class:`lavuelib.displayParameters.IntensityParameters`)
-        #:                  intensity parameters
-        self.__intensity = displayParameters.IntensityParameters()
-        #: (:class:`lavuelib.displayParameters.TransformationParameters`)
-        #:                  intensity parameters
-        self.__transformations = displayParameters.TransformationParameters()
-
-        #: (:class:`numpy.ndarray`) data to displayed in 2d widget
-        self.__data = None
-        #: (:class:`numpy.ndarray`) raw data to cut plots
-        self.__rawdata = None
-
-        #: (:class:`pyqtgraph.ImageItem`) image item
-        self.__image = _pg.ImageItem()
-        if _VMAJOR == '0' and int(_VMINOR) < 10:
-            self.__image.getHistogram = types.MethodType(
-                imageitem_getHistogram, self.__image)
-
-        #: (:class:`pyqtgraph.ViewBox`) viewbox item
-        self.__viewbox = self.__layout.addViewBox(row=0, col=1)
-
-        #: (:obj:`bool`) crooshair locked flag
-        self.__crosshairlocked = False
-        #: ([:obj:`float`, :obj:`float`]) center coordinates
-        self.__centercoordinates = None
-        #: ([:obj:`float`, :obj:`float`]) position mark coordinates
-        self.__markcoordinates = None
-        #: ([:obj:`float`, :obj:`float`]) position mark coordinates
-        self.__lockercoordinates = None
-
-        self.__viewbox.addItem(self.__image)
-        #: (:obj:`float`) current floar x-position
-        self.__xfdata = 0
-        #: (:obj:`float`) current floar y-position
-        self.__yfdata = 0
-        #: (:obj:`float`) current x-position
-        self.__xdata = 0
-        #: (:obj:`float`) current y-position
-        self.__ydata = 0
-        #: (:obj:`bool`) auto display level flag
-        self.__autodisplaylevels = True
-        #: (:obj:`bool`) auto down sample
-        self.__autodownsample = True
-        #: ([:obj:`float`, :obj:`float`]) minimum and maximum intensity levels
-        self.__displaylevels = [None, None]
 
         #: (:class:`PyQt4.QtCore.QSignalMapper`) current roi mapper
         self.__currentroimapper = QtCore.QSignalMapper(self)
         #: (:class:`PyQt4.QtCore.QSignalMapper`) roi region mapper
         self.__roiregionmapper = QtCore.QSignalMapper(self)
-        #: (:class:`PyQt4.QtCore.QSignalMapper`) current cut mapper
-        self.__currentcutmapper = QtCore.QSignalMapper(self)
-        #: (:class:`PyQt4.QtCore.QSignalMapper`) cut region mapper
-        self.__cutregionmapper = QtCore.QSignalMapper(self)
-
-        #: (:class:`PyQt4.QtGui.QAction`) set aspect ration locked action
-        self.__setaspectlocked = QtGui.QAction(
-            "Set Aspect Locked", self.__viewbox.menu)
-        self.__setaspectlocked.setCheckable(True)
-        if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
-            self.__viewbox.menu.axes.insert(0, self.__setaspectlocked)
-        self.__viewbox.menu.addAction(self.__setaspectlocked)
-
-        #: (:class:`PyQt4.QtGui.QAction`) view one to one pixel action
-        self.__viewonetoone = QtGui.QAction(
-            "View 1:1 pixels", self.__viewbox.menu)
-        self.__viewonetoone.triggered.connect(self._oneToOneRange)
-        if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
-            self.__viewbox.menu.axes.insert(0, self.__viewonetoone)
-        self.__viewbox.menu.addAction(self.__viewonetoone)
-
-        #: (:class:`pyqtgraph.AxisItem`) left axis
-        self.__leftaxis = _pg.AxisItem('left')
-
-        #: (:class:`pyqtgraph.AxisItem`) bottom axis
-        self.__bottomaxis = _pg.AxisItem('bottom')
-
-        #: dirty hooks for v0.9.10 to support invertX
-        if not hasattr(self.__viewbox, "invertX"):
-            self.__viewbox.state["xInverted"] = False
-            self.__viewbox.invertX = types.MethodType(
-                viewbox_invertX, self.__viewbox)
-            self.__viewbox.xInverted = types.MethodType(
-                viewbox_xInverted, self.__viewbox)
-            self.__viewbox.updateMatrix = types.MethodType(
-                viewbox_updateMatrix, self.__viewbox)
-            self.__viewbox.linkedViewChanged = types.MethodType(
-                viewbox_linkedViewChanged, self.__viewbox)
-
-            self.__bottomaxis.linkedViewChanged = types.MethodType(
-                axisitem_linkedViewChanged, self.__bottomaxis)
-            self.__leftaxis.linkedViewChanged = types.MethodType(
-                axisitem_linkedViewChanged, self.__leftaxis)
-            #: dirty hooks for v0.9.10 to fix getHistogram
-
-        self.__leftaxis.linkToView(self.__viewbox)
-        self.__layout.addItem(self.__leftaxis, row=0, col=0)
-        self.__bottomaxis.linkToView(self.__viewbox)
-        self.__layout.addItem(self.__bottomaxis, row=1, col=1)
-
-        self.__layout.scene().sigMouseMoved.connect(self.mouse_position)
-        self.__layout.scene().sigMouseClicked.connect(self.mouse_click)
-
-        #: (:class:`pyqtgraph.InfiniteLine`)
-        #:                 vertical locker line of the mouse position
-        self.__lockerVLine = _pg.InfiniteLine(
-            angle=90, movable=False, pen=(255, 0, 0))
-        #: (:class:`pyqtgraph.InfiniteLine`)
-        #:                   horizontal locker line of the mouse position
-        self.__lockerHLine = _pg.InfiniteLine(
-            angle=0, movable=False, pen=(255, 0, 0))
-        self.__viewbox.addItem(self.__lockerVLine, ignoreBounds=True)
-        self.__viewbox.addItem(self.__lockerHLine, ignoreBounds=True)
-
-        #: (:class:`pyqtgraph.InfiniteLine`)
-        #:                 vertical center line of the mouse position
-        self.__centerVLine = _pg.InfiniteLine(
-            angle=90, movable=False, pen=(0, 255, 0))
-        #: (:class:`pyqtgraph.InfiniteLine`)
-        #:                   horizontal center line of the mouse position
-        self.__centerHLine = _pg.InfiniteLine(
-            angle=0, movable=False, pen=(0, 255, 0))
-        self.__viewbox.addItem(self.__centerVLine, ignoreBounds=True)
-        self.__viewbox.addItem(self.__centerHLine, ignoreBounds=True)
-
-        #: (:class:`pyqtgraph.InfiniteLine`)
-        #:                 vertical mark line of the mouse position
-        self.__markVLine = _pg.InfiniteLine(
-            angle=90, movable=False, pen=(0, 0, 255))
-        #: (:class:`pyqtgraph.InfiniteLine`)
-        #:                   horizontal mark line of the mouse position
-        self.__markHLine = _pg.InfiniteLine(
-            angle=0, movable=False, pen=(0, 0, 255))
-        self.__viewbox.addItem(self.__markVLine, ignoreBounds=True)
-        self.__viewbox.addItem(self.__markHLine, ignoreBounds=True)
 
         #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.TextItem`>)
         #:            list of roi widgets
@@ -339,19 +180,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__roi[0].hide()
         self.setROIsColors()
 
-        #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.ROI`>)
-        #:        list of cut widgets
-        self.__cut = []
-        self.__cut.append(SimpleLineROI([10, 10], [60, 10], pen='r'))
-        self.__viewbox.addItem(self.__cut[0])
-        self.__cut[0].hide()
-
-        self.__maxplot = _pg.ScatterPlotItem(
-            size=30, symbol='+', pen=_pg.mkPen((0, 0, 0)))
-        self.__viewbox.addItem(self.__maxplot)
-
-        self.__setaspectlocked.triggered.connect(self.emitAspectLockedToggled)
-
         self.__roiregionmapper.mapped.connect(self.changeROIRegion)
         self.__currentroimapper.mapped.connect(self._emitROICoordsChanged)
         self._getROI().sigHoverEvent.connect(
@@ -360,77 +188,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__roiregionmapper.map)
         self.__currentroimapper.setMapping(self._getROI(), 0)
         self.__roiregionmapper.setMapping(self._getROI(), 0)
-
-        self.__cutregionmapper.mapped.connect(self.changeCutRegion)
-        self.__currentcutmapper.mapped.connect(self._emitCutCoordsChanged)
-        self._getCut().sigHoverEvent.connect(
-            self.__currentcutmapper.map)
-        self._getCut().sigRegionChanged.connect(
-            self.__cutregionmapper.map)
-        self._getCut().handle1.hovered.connect(
-            self.__currentcutmapper.map)
-        self._getCut().handle2.hovered.connect(
-            self.__currentcutmapper.map)
-        self._getCut().vhandle.hovered.connect(
-            self.__currentcutmapper.map)
-        self.__currentcutmapper.setMapping(self._getCut().handle1, 0)
-        self.__currentcutmapper.setMapping(self._getCut().handle2, 0)
-        self.__currentcutmapper.setMapping(self._getCut().vhandle, 0)
-        self.__currentcutmapper.setMapping(self._getCut(), 0)
-        self.__cutregionmapper.setMapping(self._getCut(), 0)
-
-    def __showLockerLines(self, status):
-        """ shows or hides HV locker mouse lines
-
-        :param status: will be shown
-        :type status: :obj:`bool`
-        """
-        if status:
-            self.__lockerVLine.show()
-            self.__lockerHLine.show()
-        else:
-            self.__lockerVLine.hide()
-            self.__lockerHLine.hide()
-
-    def __showCenterLines(self, status):
-        """ shows or hides HV center mouse lines
-
-        :param status: will be shown
-        :type status: :obj:`bool`
-        """
-        if status:
-            self.__centerVLine.show()
-            self.__centerHLine.show()
-        else:
-            self.__centerVLine.hide()
-            self.__centerHLine.hide()
-
-    def __showMarkLines(self, status):
-        """ shows or hides HV mark mouse lines
-
-        :param status: will be shown
-        :type status: :obj:`bool`
-        """
-        if status:
-            self.__markVLine.show()
-            self.__markHLine.show()
-        else:
-            self.__markVLine.hide()
-            self.__markHLine.hide()
-
-    def setAspectLocked(self, flag):
-        """sets aspectLocked
-
-        :param status: state to set
-        :type status: :obj:`bool`
-        :returns: old state
-        :rtype: :obj:`bool`
-        """
-        if flag != self.__setaspectlocked.isChecked():
-            self.__setaspectlocked.setChecked(flag)
-        oldflag = self.__viewbox.state["aspectLocked"]
-        self.__viewbox.setAspectLocked(flag)
-        return oldflag
 
     def __addROI(self, coords=None):
         """ adds ROIs
@@ -496,17 +253,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             for roi in self.__roi:
                 roi.hide()
 
-    def __showMaxima(self, status):
-        """ shows or hides maxima
-
-        :param status: will be shown
-        :type status: :obj:`bool`
-        """
-        if status:
-            self.__maxplot.show()
-        else:
-            self.__maxplot.hide()
-
     def __addROICoords(self, coords):
         """ adds ROI coorinates
 
@@ -528,6 +274,256 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                         crd.setSize(
                             [coords[i][3] - coords[i][1],
                              coords[i][2] - coords[i][0]])
+
+    def __calcROIsum(self, rid):
+        """calculates the current roi sum
+
+        :param rid: roi id
+        :type rid: :obj:`int`
+        :returns: sum roi value, roi id
+        :rtype: (float, int)
+        """
+        if rid >= 0:
+            image = self.__rawdata
+            if image is not None:
+                if self.__rois.enabled:
+                    if rid >= 0:
+                        roicoords = self.__rois.coords
+                        if not self.__transformations.transpose:
+                            rcrds = list(roicoords[rid])
+                        else:
+                            rc = roicoords[rid]
+                            rcrds = [rc[1], rc[0], rc[3], rc[2]]
+                        for i in [0, 2]:
+                            if rcrds[i] > image.shape[0]:
+                                rcrds[i] = image.shape[0]
+                            elif rcrds[i] < -i // 2:
+                                rcrds[i] = -i // 2
+                        for i in [1, 3]:
+                            if rcrds[i] > image.shape[1]:
+                                rcrds[i] = image.shape[1]
+                            elif rcrds[i] < - (i - 1) // 2:
+                                rcrds[i] = - (i - 1) // 2
+                        roival = np.sum(image[
+                            int(rcrds[0]):(int(rcrds[2]) + 1),
+                            int(rcrds[1]):(int(rcrds[3]) + 1)
+                        ])
+                    else:
+                        roival = 0.
+                else:
+                    roival = 0.
+                return roival, rid
+            else:
+                return 0., rid
+        return None, None
+
+    def calcROIsum(self):
+        """calculates the current roi sum
+
+        :returns: sum roi value, roi id
+        :rtype: (float, int)
+        """
+        if self.__rois.enabled and self._getROI() is not None:
+            rid = self.__rois.current
+            return self.__calcROIsum(rid)
+        return None, None
+
+    def calcROIsums(self):
+        """ calculates all roi sums
+
+        :returns: sum roi value, roi id
+        :rtype: :obj:list < float >
+        """
+        if self.__rawdata is None:
+            return None
+        return [self.__calcROIsum(rid)[0]
+                for rid in range(len(self.__rois.coords))]
+
+    @QtCore.pyqtSlot(int)
+    def changeROIRegion(self, _=None):
+        """ changes the current roi region
+        """
+        try:
+            rid = self.__rois.current
+            roi = self._getROI(rid)
+            if roi is not None:
+                state = roi.state
+                if not self.__transformations.transpose:
+                    ptx = int(math.floor(state['pos'].x()))
+                    pty = int(math.floor(state['pos'].y()))
+                    szx = int(math.floor(state['size'].x()))
+                    szy = int(math.floor(state['size'].y()))
+                else:
+                    pty = int(math.floor(state['pos'].x()))
+                    ptx = int(math.floor(state['pos'].y()))
+                    szy = int(math.floor(state['size'].x()))
+                    szx = int(math.floor(state['size'].y()))
+                crd = [ptx, pty, ptx + szx, pty + szy]
+                if self.__rois.coords[rid] != crd:
+                    self.__rois.coords[rid] = crd
+                    self.roiCoordsChanged.emit()
+        except Exception as e:
+            print("Warning: %s" % str(e))
+
+    @QtCore.pyqtSlot(int)
+    def _emitROICoordsChanged(self, rid):
+        """ emits roiCoordsChanged signal
+
+        :param rid: roi id
+        :type rid: :obj:`int`
+        """
+        oldrid = self.__rois.current
+        if rid != oldrid:
+            self.__rois.current = rid
+            self.roiCoordsChanged.emit()
+
+    def updateROIs(self, rid, coords):
+        """ update ROIs
+
+        :param rid: roi id
+        :type rid: :obj:`int`
+        :param coords: roi coordinates
+        :type coords: :obj:`list`
+                 < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
+        self.__addROICoords(coords)
+        while rid > len(self.__roi):
+            if coords and len(coords) >= len(self.__roi):
+                self.__addROI(coords[len(self.__roi)])
+            else:
+                self.__addROI()
+            self._getROI().sigHoverEvent.connect(self.__currentroimapper.map)
+            self._getROI().sigRegionChanged.connect(self.__roiregionmapper.map)
+            self.__currentroimapper.setMapping(
+                self._getROI(), len(self.__roi) - 1)
+            self.__roiregionmapper.setMapping(
+                self._getROI(), len(self.__roi) - 1)
+        if rid <= 0:
+            self.__rois.current = -1
+        elif self.__rois.current >= rid:
+            self.__rois.current = 0
+        while self._getROI(max(rid, 0)) is not None:
+            self.__currentroimapper.removeMappings(self._getROI())
+            self.__roiregionmapper.removeMappings(self._getROI())
+            self.__removeROI()
+        self.__showROIs(self.__rois.enabled)
+
+
+    def setROIsColors(self, colors=None):
+        """ sets statistics without scaling flag
+
+        :param colors: json list of roi colors
+        :type colors: :obj:`str`
+        :returns: change status
+        :rtype: :obj:`bool`
+        """
+        force = False
+        if colors is not None:
+            colors = json.loads(colors)
+            if not isinstance(colors, list):
+                return False
+            for cl in colors:
+                if not isinstance(cl, list):
+                    return False
+                if len(cl) != 3:
+                    return False
+                for clit in cl:
+                    if not isinstance(clit, int):
+                        return False
+        else:
+            colors = self.__rois.colors
+            force = True
+        if self.__rois.colors != colors or force:
+            self.__rois.colors = colors
+            defpen = (255, 255, 255)
+            for it, roi in enumerate(self.__roi):
+                clr = tuple(colors[it % len(colors)]) if colors else defpen
+                roi.setPen(clr)
+                if hasattr(self.__roitext[it], "setColor"):
+                    self.__roitext[it].setColor(clr)
+                else:
+                    self.__roitext[it].color = _pg.functions.mkColor(clr)
+                    self.__roitext[it].textItem.setDefaultTextColor(
+                        self.__roitext[it].color)
+        return True
+
+    def roiCoords(self):
+        """ provides rois coordinates
+
+        :return: rois coordinates
+        :rtype: :obj:`list`
+               < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
+        return self.__rois.coords
+
+    def isROIsEnabled(self):
+        """ provides flag rois enabled
+
+        :return: roi enabled flag
+        :rtype: :obj:`bool`
+        """
+        return self.__rois.enabled
+
+    def currentROI(self):
+        """ provides current roi id
+
+        :return: roi id
+        :rtype: :obj:`int`
+        """
+        return self.__rois.current
+
+    def __transposeROIs(self):
+        """ transposes ROIs
+        """
+        for crd in self.__roi:
+            pos = crd.pos()
+            size = crd.size()
+            crd.setPos([pos[1], pos[0]])
+            crd.setSize([size[1], size[0]])
+
+
+class CutExtension(QObject):
+
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) cut coordinate changed signal
+    cutCoordsChanged = QtCore.pyqtSignal()
+
+    def __init__(self, parent=None):
+        """ constructor """
+
+        #: (:class:`lavuelib.displayParameters.CutsParameters`)
+        #:                 cuts parameters
+        self.__cuts = displayParameters.CutsParameters()
+
+
+        #: (:class:`PyQt4.QtCore.QSignalMapper`) current cut mapper
+        self.__currentcutmapper = QtCore.QSignalMapper(self)
+        #: (:class:`PyQt4.QtCore.QSignalMapper`) cut region mapper
+        self.__cutregionmapper = QtCore.QSignalMapper(self)
+
+        #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.ROI`>)
+        #:        list of cut widgets
+        self.__cut = []
+        self.__cut.append(SimpleLineROI([10, 10], [60, 10], pen='r'))
+        self.__viewbox.addItem(self.__cut[0])
+        self.__cut[0].hide()
+
+        self.__cutregionmapper.mapped.connect(self.changeCutRegion)
+        self.__currentcutmapper.mapped.connect(self._emitCutCoordsChanged)
+        self._getCut().sigHoverEvent.connect(
+            self.__currentcutmapper.map)
+        self._getCut().sigRegionChanged.connect(
+            self.__cutregionmapper.map)
+        self._getCut().handle1.hovered.connect(
+            self.__currentcutmapper.map)
+        self._getCut().handle2.hovered.connect(
+            self.__currentcutmapper.map)
+        self._getCut().vhandle.hovered.connect(
+            self.__currentcutmapper.map)
+        self.__currentcutmapper.setMapping(self._getCut().handle1, 0)
+        self.__currentcutmapper.setMapping(self._getCut().handle2, 0)
+        self.__currentcutmapper.setMapping(self._getCut().vhandle, 0)
+        self.__currentcutmapper.setMapping(self._getCut(), 0)
+        self.__cutregionmapper.setMapping(self._getCut(), 0)
 
     def __addCutCoords(self, coords):
         """ adds Cut coordinates
@@ -605,6 +601,540 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         else:
             for cut in self.__cut:
                 cut.hide()
+
+    def cutData(self, cid=None):
+        """ provides the current cut data
+
+        :param cid: cut id
+        :type cid: :obj:`int`
+        :returns: current cut data
+        :rtype: :class:`numpy.ndarray`
+        """
+        if cid is None:
+            cid = self.__cuts.current
+        if cid > -1 and len(self.__cut) > cid:
+            cut = self._getCut(cid)
+            if self.__rawdata is not None:
+                dt = cut.getArrayRegion(
+                    self.__rawdata, self.__image, axes=(0, 1))
+                while dt.ndim > 1:
+                    dt = dt.mean(axis=1)
+                return dt
+        return None
+
+    def cutCoords(self):
+        """ provides cuts coordinates
+
+        :return: cuts coordinates
+        :rtype: :obj:`list`
+               < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
+        return self.__cuts.coords
+
+    @QtCore.pyqtSlot(int)
+    def changeCutRegion(self, _=None):
+        """ changes the current roi region
+        """
+        try:
+            cid = self.__cuts.current
+            crds = self._getCut(cid).getCoordinates()
+            if not self.__transformations.transpose:
+                self.__cuts.coords[cid] = crds
+            else:
+                self.__cuts.coords[cid] = [
+                    crds[1], crds[0], crds[3], crds[2], crds[4]]
+
+            self.cutCoordsChanged.emit()
+        except Exception as e:
+            print("Warning: %s" % str(e))
+
+    @QtCore.pyqtSlot(int)
+    def _emitCutCoordsChanged(self, cid):
+        """ emits cutCoordsChanged signal
+
+        :param cid: cut id
+        :type cid: :obj:`int`
+        """
+        oldcid = self.__cuts.current
+        if cid != oldcid:
+            self.__cuts.current = cid
+            self.cutCoordsChanged.emit()
+
+    def updateCuts(self, cid, coords):
+        """ update Cuts
+
+        :param cid: cut id
+        :type cid: :obj:`int`
+        :param coords: cut coordinates
+        :type coords: :obj:`list` < [float, float, float, float] >
+        """
+        self.__addCutCoords(coords)
+        while cid > len(self.__cut):
+            if coords and len(coords) >= len(self.__cut):
+                self.__addCut(coords[len(self.__cut)])
+            else:
+                self.__addCut()
+            self._getCut().sigHoverEvent.connect(self.__currentcutmapper.map)
+            self._getCut().sigRegionChanged.connect(self.__cutregionmapper.map)
+            self._getCut().handle1.hovered.connect(self.__currentcutmapper.map)
+            self._getCut().handle2.hovered.connect(self.__currentcutmapper.map)
+            self._getCut().vhandle.hovered.connect(self.__currentcutmapper.map)
+            self.__currentcutmapper.setMapping(
+                self._getCut(), len(self.__cut) - 1)
+            self.__currentcutmapper.setMapping(
+                self._getCut().handle1, len(self.__cut) - 1)
+            self.__currentcutmapper.setMapping(
+                self._getCut().handle2, len(self.__cut) - 1)
+            self.__currentcutmapper.setMapping(
+                self._getCut().vhandle, len(self.__cut) - 1)
+            self.__cutregionmapper.setMapping(
+                self._getCut(), len(self.__cut) - 1)
+        if cid <= 0:
+            self.__cuts.current = -1
+        elif self.__cuts.current >= cid:
+            self.__cuts.current = 0
+        while max(cid, 0) < len(self.__cut):
+            self.__currentcutmapper.removeMappings(self._getCut())
+            self.__currentcutmapper.removeMappings(self._getCut().handle1)
+            self.__currentcutmapper.removeMappings(self._getCut().handle2)
+            self.__cutregionmapper.removeMappings(self._getCut())
+            self.__removeCut()
+
+    def isCutsEnabled(self):
+        """ provides flag cuts enabled
+
+        :return: cut enabled flag
+        :rtype: :obj:`bool`
+        """
+        return self.__cuts.enabled
+
+    def currentCut(self):
+        """ provides current cut id
+
+        :return: cut id
+        :rtype: :obj:`int`
+        """
+        return self.__cuts.current
+
+    def __transposeCuts(self):
+        """ transposes Cuts
+        """
+        for crd in self.__cut:
+            pos = crd.pos()
+            size = crd.size()
+            angle = crd.angle()
+            ra = angle * np.pi / 180.
+            crd.setPos(
+                [pos[1] + math.sin(ra) * size[0],
+                 pos[0] + math.cos(ra) * size[0]])
+            crd.setAngle(270-angle)
+
+
+class LockerExtension(QObject):
+
+    def __init__(self, parent=None):
+        """ constructor """
+
+        #: (:class:`lavuelib.displayParameters.AxesParameters`)
+        #:            axes parameters
+        self.__lines = displayParameters.CrossLinesParameters()
+
+        #: (:obj:`bool`) crooshair locked flag
+        self.__crosshairlocked = False
+        #: ([:obj:`float`, :obj:`float`]) position mark coordinates
+        self.__lockercoordinates = None
+
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:                 vertical locker line of the mouse position
+        self.__lockerVLine = _pg.InfiniteLine(
+            angle=90, movable=False, pen=(255, 0, 0))
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:                   horizontal locker line of the mouse position
+        self.__lockerHLine = _pg.InfiniteLine(
+            angle=0, movable=False, pen=(255, 0, 0))
+        self.__viewbox.addItem(self.__lockerVLine, ignoreBounds=True)
+        self.__viewbox.addItem(self.__lockerHLine, ignoreBounds=True)
+
+    def __showLockerLines(self, status):
+        """ shows or hides HV locker mouse lines
+
+        :param status: will be shown
+        :type status: :obj:`bool`
+        """
+        if status:
+            self.__lockerVLine.show()
+            self.__lockerHLine.show()
+        else:
+            self.__lockerVLine.hide()
+            self.__lockerHLine.hide()
+
+    def __setLockerLines(self):
+        """  sets vLine and hLine positions
+        """
+        if self.__axes.scale is not None and \
+           self.__axes.enabled is True:
+            position = [0, 0] \
+                if self.__axes.position is None \
+                else self.__axes.position
+
+            if not self.__transformations.transpose:
+                self.__lockerVLine.setPos(
+                    (self.__xfdata + .5) * self.__axes.scale[0]
+                    + position[0])
+                self.__lockerHLine.setPos(
+                    (self.__yfdata + .5) * self.__axes.scale[1]
+                    + position[1])
+            else:
+                self.__lockerVLine.setPos(
+                    (self.__yfdata + .5) * self.__axes.scale[1]
+                    + position[0])
+                self.__lockerHLine.setPos(
+                    (self.__xfdata + .5) * self.__axes.scale[0]
+                    + position[1])
+        else:
+            if not self.__transformations.transpose:
+                self.__lockerVLine.setPos(self.__xfdata + .5)
+                self.__lockerHLine.setPos(self.__yfdata + .5)
+            else:
+                self.__lockerVLine.setPos(self.__yfdata + .5)
+                self.__lockerHLine.setPos(self.__xfdata + .5)
+
+    @QtCore.pyqtSlot(float, float)
+    def updateLocker(self, xdata, ydata):
+        """ updates the locker position
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        """
+        self.__crosshairlocked = not self.__crosshairlocked
+        if not self.__crosshairlocked:
+            if not self.__transformations.transpose:
+                self.__lockerVLine.setPos(xdata + 0.5)
+                self.__lockerHLine.setPos(ydata + 0.5)
+            else:
+                self.__lockerVLine.setPos(ydata + 0.5)
+                self.__lockerHLine.setPos(xdata + 0.5)
+        else:
+            self.__lockercoordinates = [xdata, ydata]
+
+    def __transposeLockerLines(self):
+        """ transposes locker lines
+        """
+        v = self.__lockerHLine.getPos()[1]
+        h = self.__lockerVLine.getPos()[0]
+        self.__lockerVLine.setPos(v)
+        self.__lockerHLine.setPos(h)
+
+
+
+class CenterExtension(QObject):
+
+    def __init__(self, parent=None):
+        """ constructor """
+
+        #: ([:obj:`float`, :obj:`float`]) center coordinates
+        self.__centercoordinates = None
+
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:                 vertical center line of the mouse position
+        self.__centerVLine = _pg.InfiniteLine(
+            angle=90, movable=False, pen=(0, 255, 0))
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:                   horizontal center line of the mouse position
+        self.__centerHLine = _pg.InfiniteLine(
+            angle=0, movable=False, pen=(0, 255, 0))
+        self.__viewbox.addItem(self.__centerVLine, ignoreBounds=True)
+        self.__viewbox.addItem(self.__centerHLine, ignoreBounds=True)
+
+    def __showCenterLines(self, status):
+        """ shows or hides HV center mouse lines
+
+        :param status: will be shown
+        :type status: :obj:`bool`
+        """
+        if status:
+            self.__centerVLine.show()
+            self.__centerHLine.show()
+        else:
+            self.__centerVLine.hide()
+            self.__centerHLine.hide()
+
+    def __setCenterLines(self):
+        """  sets vLine and hLine positions
+        """
+        if not self.__transformations.transpose:
+            self.__centerVLine.setPos(self.__xdata)
+            self.__centerHLine.setPos(self.__ydata)
+        else:
+            self.__centerVLine.setPos(self.__ydata)
+            self.__centerHLine.setPos(self.__xdata)
+
+    @QtCore.pyqtSlot(float, float)
+    def updateCenter(self, xdata, ydata):
+        """ updates the image center
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        """
+        self.__centercoordinates = [xdata, ydata]
+        if not self.__transformations.transpose:
+            self.__centerVLine.setPos(xdata)
+            self.__centerHLine.setPos(ydata)
+        else:
+            self.__centerVLine.setPos(ydata)
+            self.__centerHLine.setPos(xdata)
+
+    def __transposeCenterLines(self):
+        """ transposes Center lines
+        """
+        v = self.__centerHLine.getPos()[1]
+        h = self.__centerVLine.getPos()[0]
+        self.__centerVLine.setPos(v)
+        self.__centerHLine.setPos(h)
+
+
+class MarkExtension(QObject):
+
+    def __init__(self, parent=None):
+        """ constructor """
+
+        #: ([:obj:`float`, :obj:`float`]) position mark coordinates
+        self.__markcoordinates = None
+
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:                 vertical mark line of the mouse position
+        self.__markVLine = _pg.InfiniteLine(
+            angle=90, movable=False, pen=(0, 0, 255))
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:                   horizontal mark line of the mouse position
+        self.__markHLine = _pg.InfiniteLine(
+            angle=0, movable=False, pen=(0, 0, 255))
+        self.__viewbox.addItem(self.__markVLine, ignoreBounds=True)
+        self.__viewbox.addItem(self.__markHLine, ignoreBounds=True)
+
+    def __showMarkLines(self, status):
+        """ shows or hides HV mark mouse lines
+
+        :param status: will be shown
+        :type status: :obj:`bool`
+        """
+        if status:
+            self.__markVLine.show()
+            self.__markHLine.show()
+        else:
+            self.__markVLine.hide()
+            self.__markHLine.hide()
+
+    def __setMarkLines(self):
+        """  sets vLine and hLine positions
+        """
+        if not self.__transformations.transpose:
+            self.__markVLine.setPos(self.__xdata)
+            self.__markHLine.setPos(self.__ydata)
+        else:
+            self.__markVLine.setPos(self.__ydata)
+            self.__markHLine.setPos(self.__xdata)
+
+    @QtCore.pyqtSlot(float, float)
+    def updatePositionMark(self, xdata, ydata):
+        """ updates the position mark
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        """
+        self.__markcoordinates = [xdata, ydata]
+        if not self.__transformations.transpose:
+            self.__markVLine.setPos(xdata)
+            self.__markHLine.setPos(ydata)
+        else:
+            self.__markVLine.setPos(ydata)
+            self.__markHLine.setPos(xdata)
+
+    def __transposeMarkLines(self):
+        """ transposes Mark Position lines
+        """
+        v = self.__markHLine.getPos()[1]
+        h = self.__markVLine.getPos()[0]
+        self.__markVLine.setPos(v)
+        self.__markHLine.setPos(h)
+
+
+class MaximaExtension(QObject):
+
+    def __init__(self, parent=None):
+        """ constructor """
+
+        #: (:class:`lavuelib.displayParameters.MaximaParameters`)
+        #:                 maxima parameters
+        self.__maxima = displayParameters.MaximaParameters()
+
+        self.__maxplot = _pg.ScatterPlotItem(
+            size=30, symbol='+', pen=_pg.mkPen((0, 0, 0)))
+        self.__viewbox.addItem(self.__maxplot)
+
+    def __showMaxima(self, status):
+        """ shows or hides maxima
+
+        :param status: will be shown
+        :type status: :obj:`bool`
+        """
+        if status:
+            self.__maxplot.show()
+        else:
+            self.__maxplot.hide()
+
+    def setMaximaPos(self, positionlist):
+        """
+        sets maxima postions
+
+        :param positionlist: [(x1, y1), ... , (xn, yn)]
+        :type positionlist: :obj:`list` < (float, float) >
+        """
+        self.__maxima.positions = positionlist
+        spots = [{'pos': [i + 0.5, j + 0.5], 'data': 1,
+                  'brush': _pg.mkBrush((255, 0, 255))}
+                 for i, j in self.__maxima.positions]
+        if spots:
+            spots[-1]['brush'] = _pg.mkBrush((255, 255, 0))
+        self.__maxplot.clear()
+        self.__maxplot.addPoints(spots)
+
+
+class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
+
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) aspect locked toggled signal
+    aspectLockedToggled = QtCore.pyqtSignal(bool)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse position changed signal
+    mouseImagePositionChanged = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse double clicked
+    mouseImageDoubleClicked = QtCore.pyqtSignal(float, float)
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse single clicked
+    mouseImageSingleClicked = QtCore.pyqtSignal(float, float)
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
+        _pg.GraphicsLayoutWidget.__init__(self, parent)
+        #: (:class:`PyQt4.QtGui.QLayout`) the main layout
+        self.__layout = self.ci
+
+        #: (:class:`lavuelib.displayParameters.AxesParameters`)
+        #:            axes parameters
+        self.__axes = displayParameters.AxesParameters()
+        #: (:class:`lavuelib.displayParameters.AxesParameters`)
+        #:            polar axes parameters
+        self.__polaraxes = displayParameters.AxesParameters()
+        
+        #: (:class:`lavuelib.displayParameters.IntensityParameters`)
+        #:                  intensity parameters
+        self.__intensity = displayParameters.IntensityParameters()
+        #: (:class:`lavuelib.displayParameters.TransformationParameters`)
+        #:                  intensity parameters
+        self.__transformations = displayParameters.TransformationParameters()
+
+        #: (:class:`numpy.ndarray`) data to displayed in 2d widget
+        self.__data = None
+        #: (:class:`numpy.ndarray`) raw data to cut plots
+        self.__rawdata = None
+
+        #: (:class:`pyqtgraph.ImageItem`) image item
+        self.__image = _pg.ImageItem()
+        if _VMAJOR == '0' and int(_VMINOR) < 10:
+            self.__image.getHistogram = types.MethodType(
+                imageitem_getHistogram, self.__image)
+
+        #: (:class:`pyqtgraph.ViewBox`) viewbox item
+        self.__viewbox = self.__layout.addViewBox(row=0, col=1)
+
+        self.__viewbox.addItem(self.__image)
+        #: (:obj:`float`) current floar x-position
+        self.__xfdata = 0
+        #: (:obj:`float`) current floar y-position
+        self.__yfdata = 0
+        #: (:obj:`float`) current x-position
+        self.__xdata = 0
+        #: (:obj:`float`) current y-position
+        self.__ydata = 0
+        #: (:obj:`bool`) auto display level flag
+        self.__autodisplaylevels = True
+        #: (:obj:`bool`) auto down sample
+        self.__autodownsample = True
+        #: ([:obj:`float`, :obj:`float`]) minimum and maximum intensity levels
+        self.__displaylevels = [None, None]
+
+        #: (:class:`PyQt4.QtGui.QAction`) set aspect ration locked action
+        self.__setaspectlocked = QtGui.QAction(
+            "Set Aspect Locked", self.__viewbox.menu)
+        self.__setaspectlocked.setCheckable(True)
+        if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
+            self.__viewbox.menu.axes.insert(0, self.__setaspectlocked)
+        self.__viewbox.menu.addAction(self.__setaspectlocked)
+
+        #: (:class:`PyQt4.QtGui.QAction`) view one to one pixel action
+        self.__viewonetoone = QtGui.QAction(
+            "View 1:1 pixels", self.__viewbox.menu)
+        self.__viewonetoone.triggered.connect(self._oneToOneRange)
+        if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
+            self.__viewbox.menu.axes.insert(0, self.__viewonetoone)
+        self.__viewbox.menu.addAction(self.__viewonetoone)
+
+        #: (:class:`pyqtgraph.AxisItem`) left axis
+        self.__leftaxis = _pg.AxisItem('left')
+
+        #: (:class:`pyqtgraph.AxisItem`) bottom axis
+        self.__bottomaxis = _pg.AxisItem('bottom')
+
+        #: dirty hooks for v0.9.10 to support invertX
+        if not hasattr(self.__viewbox, "invertX"):
+            self.__viewbox.state["xInverted"] = False
+            self.__viewbox.invertX = types.MethodType(
+                viewbox_invertX, self.__viewbox)
+            self.__viewbox.xInverted = types.MethodType(
+                viewbox_xInverted, self.__viewbox)
+            self.__viewbox.updateMatrix = types.MethodType(
+                viewbox_updateMatrix, self.__viewbox)
+            self.__viewbox.linkedViewChanged = types.MethodType(
+                viewbox_linkedViewChanged, self.__viewbox)
+
+            self.__bottomaxis.linkedViewChanged = types.MethodType(
+                axisitem_linkedViewChanged, self.__bottomaxis)
+            self.__leftaxis.linkedViewChanged = types.MethodType(
+                axisitem_linkedViewChanged, self.__leftaxis)
+            #: dirty hooks for v0.9.10 to fix getHistogram
+
+        self.__leftaxis.linkToView(self.__viewbox)
+        self.__layout.addItem(self.__leftaxis, row=0, col=0)
+        self.__bottomaxis.linkToView(self.__viewbox)
+        self.__layout.addItem(self.__bottomaxis, row=1, col=1)
+
+        self.__layout.scene().sigMouseMoved.connect(self.mouse_position)
+        self.__layout.scene().sigMouseClicked.connect(self.mouse_click)
+
+        self.__setaspectlocked.triggered.connect(self.emitAspectLockedToggled)
+
+
+    def setAspectLocked(self, flag):
+        """sets aspectLocked
+
+        :param status: state to set
+        :type status: :obj:`bool`
+        :returns: old state
+        :rtype: :obj:`bool`
+        """
+        if flag != self.__setaspectlocked.isChecked():
+            self.__setaspectlocked.setChecked(flag)
+        oldflag = self.__viewbox.state["aspectLocked"]
+        self.__viewbox.setAspectLocked(flag)
+        return oldflag
 
     def _oneToOneRange(self):
         """ set one to one range
@@ -750,56 +1280,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__rawdata = rawimg
         self.mouse_position()
 
-    def __setLockerLines(self):
-        """  sets vLine and hLine positions
-        """
-        if self.__axes.scale is not None and \
-           self.__axes.enabled is True:
-            position = [0, 0] \
-                if self.__axes.position is None \
-                else self.__axes.position
-
-            if not self.__transformations.transpose:
-                self.__lockerVLine.setPos(
-                    (self.__xfdata + .5) * self.__axes.scale[0]
-                    + position[0])
-                self.__lockerHLine.setPos(
-                    (self.__yfdata + .5) * self.__axes.scale[1]
-                    + position[1])
-            else:
-                self.__lockerVLine.setPos(
-                    (self.__yfdata + .5) * self.__axes.scale[1]
-                    + position[0])
-                self.__lockerHLine.setPos(
-                    (self.__xfdata + .5) * self.__axes.scale[0]
-                    + position[1])
-        else:
-            if not self.__transformations.transpose:
-                self.__lockerVLine.setPos(self.__xfdata + .5)
-                self.__lockerHLine.setPos(self.__yfdata + .5)
-            else:
-                self.__lockerVLine.setPos(self.__yfdata + .5)
-                self.__lockerHLine.setPos(self.__xfdata + .5)
-
-    def __setCenterLines(self):
-        """  sets vLine and hLine positions
-        """
-        if not self.__transformations.transpose:
-            self.__centerVLine.setPos(self.__xdata)
-            self.__centerHLine.setPos(self.__ydata)
-        else:
-            self.__centerVLine.setPos(self.__ydata)
-            self.__centerHLine.setPos(self.__xdata)
-
-    def __setMarkLines(self):
-        """  sets vLine and hLine positions
-        """
-        if not self.__transformations.transpose:
-            self.__markVLine.setPos(self.__xdata)
-            self.__markHLine.setPos(self.__ydata)
-        else:
-            self.__markVLine.setPos(self.__ydata)
-            self.__markHLine.setPos(self.__xdata)
 
     def currentIntensity(self):
         """ provides intensity for current mouse position
@@ -1142,90 +1622,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             return True
         return False
 
-    def __calcROIsum(self, rid):
-        """calculates the current roi sum
-
-        :param rid: roi id
-        :type rid: :obj:`int`
-        :returns: sum roi value, roi id
-        :rtype: (float, int)
-        """
-        if rid >= 0:
-            image = self.__rawdata
-            if image is not None:
-                if self.__rois.enabled:
-                    if rid >= 0:
-                        roicoords = self.__rois.coords
-                        if not self.__transformations.transpose:
-                            rcrds = list(roicoords[rid])
-                        else:
-                            rc = roicoords[rid]
-                            rcrds = [rc[1], rc[0], rc[3], rc[2]]
-                        for i in [0, 2]:
-                            if rcrds[i] > image.shape[0]:
-                                rcrds[i] = image.shape[0]
-                            elif rcrds[i] < -i // 2:
-                                rcrds[i] = -i // 2
-                        for i in [1, 3]:
-                            if rcrds[i] > image.shape[1]:
-                                rcrds[i] = image.shape[1]
-                            elif rcrds[i] < - (i - 1) // 2:
-                                rcrds[i] = - (i - 1) // 2
-                        roival = np.sum(image[
-                            int(rcrds[0]):(int(rcrds[2]) + 1),
-                            int(rcrds[1]):(int(rcrds[3]) + 1)
-                        ])
-                    else:
-                        roival = 0.
-                else:
-                    roival = 0.
-                return roival, rid
-            else:
-                return 0., rid
-        return None, None
-
-    def calcROIsum(self):
-        """calculates the current roi sum
-
-        :returns: sum roi value, roi id
-        :rtype: (float, int)
-        """
-        if self.__rois.enabled and self._getROI() is not None:
-            rid = self.__rois.current
-            return self.__calcROIsum(rid)
-        return None, None
-
-    def calcROIsums(self):
-        """ calculates all roi sums
-
-        :returns: sum roi value, roi id
-        :rtype: :obj:list < float >
-        """
-        if self.__rawdata is None:
-            return None
-        return [self.__calcROIsum(rid)[0]
-                for rid in range(len(self.__rois.coords))]
-
-    def cutData(self, cid=None):
-        """ provides the current cut data
-
-        :param cid: cut id
-        :type cid: :obj:`int`
-        :returns: current cut data
-        :rtype: :class:`numpy.ndarray`
-        """
-        if cid is None:
-            cid = self.__cuts.current
-        if cid > -1 and len(self.__cut) > cid:
-            cut = self._getCut(cid)
-            if self.__rawdata is not None:
-                dt = cut.getArrayRegion(
-                    self.__rawdata, self.__image, axes=(0, 1))
-                while dt.ndim > 1:
-                    dt = dt.mean(axis=1)
-                return dt
-        return None
-
     def rawData(self):
         """ provides the raw data
 
@@ -1241,145 +1637,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :rtype: :class:`numpy.ndarray`
         """
         return self.__data
-
-    @QtCore.pyqtSlot(int)
-    def changeROIRegion(self, _=None):
-        """ changes the current roi region
-        """
-        try:
-            rid = self.__rois.current
-            roi = self._getROI(rid)
-            if roi is not None:
-                state = roi.state
-                if not self.__transformations.transpose:
-                    ptx = int(math.floor(state['pos'].x()))
-                    pty = int(math.floor(state['pos'].y()))
-                    szx = int(math.floor(state['size'].x()))
-                    szy = int(math.floor(state['size'].y()))
-                else:
-                    pty = int(math.floor(state['pos'].x()))
-                    ptx = int(math.floor(state['pos'].y()))
-                    szy = int(math.floor(state['size'].x()))
-                    szx = int(math.floor(state['size'].y()))
-                crd = [ptx, pty, ptx + szx, pty + szy]
-                if self.__rois.coords[rid] != crd:
-                    self.__rois.coords[rid] = crd
-                    self.roiCoordsChanged.emit()
-        except Exception as e:
-            print("Warning: %s" % str(e))
-
-    @QtCore.pyqtSlot(int)
-    def _emitROICoordsChanged(self, rid):
-        """ emits roiCoordsChanged signal
-
-        :param rid: roi id
-        :type rid: :obj:`int`
-        """
-        oldrid = self.__rois.current
-        if rid != oldrid:
-            self.__rois.current = rid
-            self.roiCoordsChanged.emit()
-
-    @QtCore.pyqtSlot(int)
-    def changeCutRegion(self, _=None):
-        """ changes the current roi region
-        """
-        try:
-            cid = self.__cuts.current
-            crds = self._getCut(cid).getCoordinates()
-            if not self.__transformations.transpose:
-                self.__cuts.coords[cid] = crds
-            else:
-                self.__cuts.coords[cid] = [
-                    crds[1], crds[0], crds[3], crds[2], crds[4]]
-
-            self.cutCoordsChanged.emit()
-        except Exception as e:
-            print("Warning: %s" % str(e))
-
-    @QtCore.pyqtSlot(int)
-    def _emitCutCoordsChanged(self, cid):
-        """ emits cutCoordsChanged signal
-
-        :param cid: cut id
-        :type cid: :obj:`int`
-        """
-        oldcid = self.__cuts.current
-        if cid != oldcid:
-            self.__cuts.current = cid
-            self.cutCoordsChanged.emit()
-
-    def updateROIs(self, rid, coords):
-        """ update ROIs
-
-        :param rid: roi id
-        :type rid: :obj:`int`
-        :param coords: roi coordinates
-        :type coords: :obj:`list`
-                 < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
-        """
-        self.__addROICoords(coords)
-        while rid > len(self.__roi):
-            if coords and len(coords) >= len(self.__roi):
-                self.__addROI(coords[len(self.__roi)])
-            else:
-                self.__addROI()
-            self._getROI().sigHoverEvent.connect(self.__currentroimapper.map)
-            self._getROI().sigRegionChanged.connect(self.__roiregionmapper.map)
-            self.__currentroimapper.setMapping(
-                self._getROI(), len(self.__roi) - 1)
-            self.__roiregionmapper.setMapping(
-                self._getROI(), len(self.__roi) - 1)
-        if rid <= 0:
-            self.__rois.current = -1
-        elif self.__rois.current >= rid:
-            self.__rois.current = 0
-        while self._getROI(max(rid, 0)) is not None:
-            self.__currentroimapper.removeMappings(self._getROI())
-            self.__roiregionmapper.removeMappings(self._getROI())
-            self.__removeROI()
-        self.__showROIs(self.__rois.enabled)
-
-    def updateCuts(self, cid, coords):
-        """ update Cuts
-
-        :param cid: cut id
-        :type cid: :obj:`int`
-        :param coords: cut coordinates
-        :type coords: :obj:`list` < [float, float, float, float] >
-        """
-        self.__addCutCoords(coords)
-        while cid > len(self.__cut):
-            if coords and len(coords) >= len(self.__cut):
-                self.__addCut(coords[len(self.__cut)])
-            else:
-                self.__addCut()
-            self._getCut().sigHoverEvent.connect(self.__currentcutmapper.map)
-            self._getCut().sigRegionChanged.connect(self.__cutregionmapper.map)
-            self._getCut().handle1.hovered.connect(self.__currentcutmapper.map)
-            self._getCut().handle2.hovered.connect(self.__currentcutmapper.map)
-            self._getCut().vhandle.hovered.connect(self.__currentcutmapper.map)
-            self.__currentcutmapper.setMapping(
-                self._getCut(), len(self.__cut) - 1)
-            self.__currentcutmapper.setMapping(
-                self._getCut().handle1, len(self.__cut) - 1)
-            self.__currentcutmapper.setMapping(
-                self._getCut().handle2, len(self.__cut) - 1)
-            self.__currentcutmapper.setMapping(
-                self._getCut().vhandle, len(self.__cut) - 1)
-            self.__cutregionmapper.setMapping(
-                self._getCut(), len(self.__cut) - 1)
-        if cid <= 0:
-            self.__cuts.current = -1
-        elif self.__cuts.current >= cid:
-            self.__cuts.current = 0
-        while max(cid, 0) < len(self.__cut):
-            self.__currentcutmapper.removeMappings(self._getCut())
-            self.__currentcutmapper.removeMappings(self._getCut().handle1)
-            self.__currentcutmapper.removeMappings(self._getCut().handle2)
-            self.__cutregionmapper.removeMappings(self._getCut())
-            self.__removeCut()
-
     def updateMetaData(self, axisscales=None, axislabels=None):
         """ update Metadata informations
 
@@ -1424,45 +1681,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__intensity.statswoscaling = status
             return True
         return False
-
-    def setROIsColors(self, colors=None):
-        """ sets statistics without scaling flag
-
-        :param colors: json list of roi colors
-        :type colors: :obj:`str`
-        :returns: change status
-        :rtype: :obj:`bool`
-        """
-        force = False
-        if colors is not None:
-            colors = json.loads(colors)
-            if not isinstance(colors, list):
-                return False
-            for cl in colors:
-                if not isinstance(cl, list):
-                    return False
-                if len(cl) != 3:
-                    return False
-                for clit in cl:
-                    if not isinstance(clit, int):
-                        return False
-        else:
-            colors = self.__rois.colors
-            force = True
-        if self.__rois.colors != colors or force:
-            self.__rois.colors = colors
-            defpen = (255, 255, 255)
-            for it, roi in enumerate(self.__roi):
-                clr = tuple(colors[it % len(colors)]) if colors else defpen
-                roi.setPen(clr)
-                if hasattr(self.__roitext[it], "setColor"):
-                    self.__roitext[it].setColor(clr)
-                else:
-                    self.__roitext[it].color = _pg.functions.mkColor(clr)
-                    self.__roitext[it].textItem.setDefaultTextColor(
-                        self.__roitext[it].color)
-        return True
-
     def setScalingType(self, scalingtype):
         """ sets intensity scaling types
 
@@ -1479,56 +1697,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         self.__intensity.dobkgsubtraction = state
 
-    def isCutsEnabled(self):
-        """ provides flag cuts enabled
-
-        :return: cut enabled flag
-        :rtype: :obj:`bool`
-        """
-        return self.__cuts.enabled
-
-    def isROIsEnabled(self):
-        """ provides flag rois enabled
-
-        :return: roi enabled flag
-        :rtype: :obj:`bool`
-        """
-        return self.__rois.enabled
-
-    def roiCoords(self):
-        """ provides rois coordinates
-
-        :return: rois coordinates
-        :rtype: :obj:`list`
-               < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
-        """
-        return self.__rois.coords
-
-    def cutCoords(self):
-        """ provides cuts coordinates
-
-        :return: cuts coordinates
-        :rtype: :obj:`list`
-               < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
-        """
-        return self.__cuts.coords
-
-    def currentROI(self):
-        """ provides current roi id
-
-        :return: roi id
-        :rtype: :obj:`int`
-        """
-        return self.__rois.current
-
-    def currentCut(self):
-        """ provides current cut id
-
-        :return: cut id
-        :rtype: :obj:`int`
-        """
-        return self.__cuts.current
-
     def image(self):
         """ provides imageItem object
 
@@ -1536,60 +1704,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :rtype: :class:`pyqtgraph.imageItem.ImageItem`
         """
         return self.__image
-
-    @QtCore.pyqtSlot(float, float)
-    def updateCenter(self, xdata, ydata):
-        """ updates the image center
-
-        :param xdata: x pixel position
-        :type xdata: :obj:`float`
-        :param ydata: y-pixel position
-        :type ydata: :obj:`float`
-        """
-        self.__centercoordinates = [xdata, ydata]
-        if not self.__transformations.transpose:
-            self.__centerVLine.setPos(xdata)
-            self.__centerHLine.setPos(ydata)
-        else:
-            self.__centerVLine.setPos(ydata)
-            self.__centerHLine.setPos(xdata)
-
-    @QtCore.pyqtSlot(float, float)
-    def updateLocker(self, xdata, ydata):
-        """ updates the locker position
-
-        :param xdata: x pixel position
-        :type xdata: :obj:`float`
-        :param ydata: y-pixel position
-        :type ydata: :obj:`float`
-        """
-        self.__crosshairlocked = not self.__crosshairlocked
-        if not self.__crosshairlocked:
-            if not self.__transformations.transpose:
-                self.__lockerVLine.setPos(xdata + 0.5)
-                self.__lockerHLine.setPos(ydata + 0.5)
-            else:
-                self.__lockerVLine.setPos(ydata + 0.5)
-                self.__lockerHLine.setPos(xdata + 0.5)
-        else:
-            self.__lockercoordinates = [xdata, ydata]
-
-    @QtCore.pyqtSlot(float, float)
-    def updatePositionMark(self, xdata, ydata):
-        """ updates the position mark
-
-        :param xdata: x pixel position
-        :type xdata: :obj:`float`
-        :param ydata: y-pixel position
-        :type ydata: :obj:`float`
-        """
-        self.__markcoordinates = [xdata, ydata]
-        if not self.__transformations.transpose:
-            self.__markVLine.setPos(xdata)
-            self.__markHLine.setPos(ydata)
-        else:
-            self.__markVLine.setPos(ydata)
-            self.__markHLine.setPos(xdata)
 
     def setTransformations(self, transpose, leftrightflip, updownflip):
         """ sets coordinate transformations
@@ -1650,52 +1764,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__transposeCenterLines()
         self.__transposeMarkLines()
 
-    def __transposeROIs(self):
-        """ transposes ROIs
-        """
-        for crd in self.__roi:
-            pos = crd.pos()
-            size = crd.size()
-            crd.setPos([pos[1], pos[0]])
-            crd.setSize([size[1], size[0]])
-
-    def __transposeCuts(self):
-        """ transposes Cuts
-        """
-        for crd in self.__cut:
-            pos = crd.pos()
-            size = crd.size()
-            angle = crd.angle()
-            ra = angle * np.pi / 180.
-            crd.setPos(
-                [pos[1] + math.sin(ra) * size[0],
-                 pos[0] + math.cos(ra) * size[0]])
-            crd.setAngle(270-angle)
-
-    def __transposeLockerLines(self):
-        """ transposes locker lines
-        """
-        v = self.__lockerHLine.getPos()[1]
-        h = self.__lockerVLine.getPos()[0]
-        self.__lockerVLine.setPos(v)
-        self.__lockerHLine.setPos(h)
-
-    def __transposeCenterLines(self):
-        """ transposes Center lines
-        """
-        v = self.__centerHLine.getPos()[1]
-        h = self.__centerVLine.getPos()[0]
-        self.__centerVLine.setPos(v)
-        self.__centerHLine.setPos(h)
-
-    def __transposeMarkLines(self):
-        """ transposes Mark Position lines
-        """
-        v = self.__markHLine.getPos()[1]
-        h = self.__markVLine.getPos()[0]
-        self.__markVLine.setPos(v)
-        self.__markHLine.setPos(h)
-
     def __transposeAxes(self):
         """ transposes axes
         """
@@ -1710,19 +1778,3 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         self.__viewbox.autoRange()
         self.__viewbox.enableAutoRange('xy', True)
-
-    def setMaximaPos(self, positionlist):
-        """
-        sets maxima postions
-
-        :param positionlist: [(x1, y1), ... , (xn, yn)]
-        :type positionlist: :obj:`list` < (float, float) >
-        """
-        self.__maxima.positions = positionlist
-        spots = [{'pos': [i + 0.5, j + 0.5], 'data': 1,
-                  'brush': _pg.mkBrush((255, 0, 255))}
-                 for i, j in self.__maxima.positions]
-        if spots:
-            spots[-1]['brush'] = _pg.mkBrush((255, 255, 0))
-        self.__maxplot.clear()
-        self.__maxplot.addPoints(spots)
