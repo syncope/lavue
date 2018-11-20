@@ -72,10 +72,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         #:            polar axes parameters
         self.__polaraxes = displayParameters.AxesParameters()
 
-        #: (:class:`lavuelib.displayParameters.AxesParameters`)
-        #:            axes parameters
-        self.__lines = displayParameters.CrossLinesParameters()
-
         #: (:class:`lavuelib.displayParameters.IntensityParameters`)
         #:                  intensity parameters
         self.__intensity = displayParameters.IntensityParameters()
@@ -112,6 +108,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__autodownsample = True
         #: ([:obj:`float`, :obj:`float`]) minimum and maximum intensity levels
         self.__displaylevels = [None, None]
+        #: (:obj:`bool`) lock for double click
+        self.__doubleclicklock = False
         #: (:obj:`dict` < :obj:`str`, :obj:`DisplayExtension` >)
         #          extension dictionary with name keys
         self.__extensions = {}
@@ -545,7 +543,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 if ext.enabled():
                     ext.mouse_doubleclick(
                         xdata, ydata,
-                        self.__lines.doubleclicklock)
+                        self.__doubleclicklock)
             self.mouseImageDoubleClicked.emit(xdata, ydata)
         else:
             for ext in self.__extensions.values():
@@ -598,7 +596,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :param status: status flag
         :type status: :obj:`bool`
         """
-        self.__lines.doubleclicklock = status
+        self.__doubleclicklock = status
 
     def setSubWidgets(self, parameters):
         """ set subwidget properties

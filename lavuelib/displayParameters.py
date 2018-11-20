@@ -56,24 +56,6 @@ class AxesParameters(object):
         self.yunits = None
 
 
-class CrossLinesParameters(object):
-    """ axes parameters
-    """
-
-    def __init__(self):
-        """ constructor
-        """
-
-        #: (:obj:`bool`) locker enabled flag
-        self.locker = False
-        #: (:obj:`bool`) center enabled flag
-        self.center = False
-        #: (:obj:`bool`) position mark enabled flag
-        self.positionmark = False
-        #: (:obj:`bool`) lock for double click
-        self.doubleclicklock = False
-
-
 class ROIsParameters(object):
     """ rois parameters
     """
