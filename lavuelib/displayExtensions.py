@@ -32,8 +32,6 @@ import json
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI, Handle
 from PyQt4 import QtCore
 
-from . import displayParameters
-
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
     if _pg.__version__ else ("0", "9", "0")
@@ -206,6 +204,13 @@ class DisplayExtension(QtCore.QObject):
         :type y: float
         """
 
+    def scalingLabel(self):
+        """ provides scaling label
+
+        :returns:  scaling label
+        :rtype: str
+        """
+
 
 class ROIExtension(DisplayExtension):
 
@@ -221,15 +226,20 @@ class ROIExtension(DisplayExtension):
         DisplayExtension.__init__(self, parent)
 
         #: (:obj:`str`) tool name
-        self.name = "roi"
-        #: (:class:`lavuelib.displayParameters.ROIsParameters`)
-        #:                rois parameters
-        self.__rois = displayParameters.ROIsParameters()
+        self.name = "rois"
 
         #: (:class:`PyQt4.QtCore.QSignalMapper`) current roi mapper
         self.__currentroimapper = QtCore.QSignalMapper(self)
         #: (:class:`PyQt4.QtCore.QSignalMapper`) roi region mapper
         self.__roiregionmapper = QtCore.QSignalMapper(self)
+
+        #: (:obj:`int`) current roi id
+        self.__current = 0
+        #: (:obj:`list` < [int, int, int, int] > )
+        #: x1,y1,x2,y2 rois coordinates
+        self.__coords = [[10, 10, 60, 60]]
+        #: (:obj:`list` < (int, int, int) > ) list with roi colors
+        self.__colors = []
 
         #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.TextItem`>)
         #:            list of roi widgets
@@ -264,8 +274,15 @@ class ROIExtension(DisplayExtension):
         """
         if parameters.rois is not None:
             self.__showROIs(parameters.rois)
-            self.__rois.enabled = parameters.rois
             self._enabled = parameters.rois
+
+    def scalingLabel(self):
+        """ provides scaling label
+
+        :returns:  scaling label
+        :rtype: str
+        """
+        return "intensity"
 
     def __addROI(self, coords=None):
         """ adds ROIs
@@ -294,7 +311,7 @@ class ROIExtension(DisplayExtension):
         self.__roitext.append(text)
         self._mainwidget.viewbox().addItem(self.__roi[-1])
 
-        self.__rois.coords.append(coords)
+        self.__coords.append(coords)
         self.setROIsColors()
 
     def __removeROI(self):
@@ -305,7 +322,7 @@ class ROIExtension(DisplayExtension):
         roitext = self.__roitext.pop()
         roitext.hide()
         self._mainwidget.viewbox().removeItem(roi)
-        self.__rois.coords.pop()
+        self.__coords.pop()
 
     def _getROI(self, rid=-1):
         """ get the given or the last ROI
@@ -341,7 +358,7 @@ class ROIExtension(DisplayExtension):
         if coords:
             for i, crd in enumerate(self.__roi):
                 if i < len(coords):
-                    self.__rois.coords[i] = coords[i]
+                    self.__coords[i] = coords[i]
                     if not self._mainwidget.transformations()[0]:
                         crd.setPos([coords[i][0], coords[i][1]])
                         crd.setSize(
@@ -364,9 +381,9 @@ class ROIExtension(DisplayExtension):
         if rid >= 0:
             image = self._mainwidget.rawData()
             if image is not None:
-                if self.__rois.enabled:
+                if self._enabled:
                     if rid >= 0:
-                        roicoords = self.__rois.coords
+                        roicoords = self.__coords
                         if not self._mainwidget.transformations()[0]:
                             rcrds = list(roicoords[rid])
                         else:
@@ -401,8 +418,8 @@ class ROIExtension(DisplayExtension):
         :returns: sum roi value, roi id
         :rtype: (float, int)
         """
-        if self.__rois.enabled and self._getROI() is not None:
-            rid = self.__rois.current
+        if self._enabled and self._getROI() is not None:
+            rid = self.__current
             return self.__calcROIsum(rid)
         return None, None
 
@@ -415,14 +432,14 @@ class ROIExtension(DisplayExtension):
         if self._mainwidget.rawData() is None:
             return None
         return [self.__calcROIsum(rid)[0]
-                for rid in range(len(self.__rois.coords))]
+                for rid in range(len(self.__coords))]
 
     @QtCore.pyqtSlot(int)
     def changeROIRegion(self, _=None):
         """ changes the current roi region
         """
         try:
-            rid = self.__rois.current
+            rid = self.__current
             roi = self._getROI(rid)
             if roi is not None:
                 state = roi.state
@@ -437,8 +454,8 @@ class ROIExtension(DisplayExtension):
                     szy = int(math.floor(state['size'].x()))
                     szx = int(math.floor(state['size'].y()))
                 crd = [ptx, pty, ptx + szx, pty + szy]
-                if self.__rois.coords[rid] != crd:
-                    self.__rois.coords[rid] = crd
+                if self.__coords[rid] != crd:
+                    self.__coords[rid] = crd
                     self.roiCoordsChanged.emit()
         except Exception as e:
             print("Warning: %s" % str(e))
@@ -450,9 +467,9 @@ class ROIExtension(DisplayExtension):
         :param rid: roi id
         :type rid: :obj:`int`
         """
-        oldrid = self.__rois.current
+        oldrid = self.__current
         if rid != oldrid:
-            self.__rois.current = rid
+            self.__current = rid
             self.roiCoordsChanged.emit()
 
     def updateROIs(self, rid, coords):
@@ -477,14 +494,14 @@ class ROIExtension(DisplayExtension):
             self.__roiregionmapper.setMapping(
                 self._getROI(), len(self.__roi) - 1)
         if rid <= 0:
-            self.__rois.current = -1
-        elif self.__rois.current >= rid:
-            self.__rois.current = 0
+            self.__current = -1
+        elif self.__current >= rid:
+            self.__current = 0
         while self._getROI(max(rid, 0)) is not None:
             self.__currentroimapper.removeMappings(self._getROI())
             self.__roiregionmapper.removeMappings(self._getROI())
             self.__removeROI()
-        self.__showROIs(self.__rois.enabled)
+        self.__showROIs(self._enabled)
 
     def setROIsColors(self, colors=None):
         """ sets statistics without scaling flag
@@ -508,10 +525,10 @@ class ROIExtension(DisplayExtension):
                     if not isinstance(clit, int):
                         return False
         else:
-            colors = self.__rois.colors
+            colors = self.__colors
             force = True
-        if self.__rois.colors != colors or force:
-            self.__rois.colors = colors
+        if self.__colors != colors or force:
+            self.__colors = colors
             defpen = (255, 255, 255)
             for it, roi in enumerate(self.__roi):
                 clr = tuple(colors[it % len(colors)]) if colors else defpen
@@ -531,7 +548,7 @@ class ROIExtension(DisplayExtension):
         :rtype: :obj:`list`
                < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
         """
-        return self.__rois.coords
+        return self.__coords
 
     def isROIsEnabled(self):
         """ provides flag rois enabled
@@ -539,7 +556,7 @@ class ROIExtension(DisplayExtension):
         :return: roi enabled flag
         :rtype: :obj:`bool`
         """
-        return self.__rois.enabled
+        return self._enabled
 
     def currentROI(self):
         """ provides current roi id
@@ -547,7 +564,7 @@ class ROIExtension(DisplayExtension):
         :return: roi id
         :rtype: :obj:`int`
         """
-        return self.__rois.current
+        return self.__current
 
     def transpose(self):
         """ transposes ROIs
@@ -573,15 +590,18 @@ class CutExtension(DisplayExtension):
         DisplayExtension.__init__(self, parent)
 
         #: (:obj:`str`) tool name
-        self.name = "cut"
-        #: (:class:`lavuelib.displayParameters.CutsParameters`)
-        #:                 cuts parameters
-        self.__cuts = displayParameters.CutsParameters()
+        self.name = "cuts"
 
         #: (:class:`PyQt4.QtCore.QSignalMapper`) current cut mapper
         self.__currentcutmapper = QtCore.QSignalMapper(self)
         #: (:class:`PyQt4.QtCore.QSignalMapper`) cut region mapper
         self.__cutregionmapper = QtCore.QSignalMapper(self)
+
+        #: (:obj:`int`) current cut id
+        self.__current = 0
+        #: (:obj:`list` < [int, int, int, int] > )
+        #: x1,y1,x2,y2, width rois coordinates
+        self.__coords = [[10, 10, 60, 10, 0.00001]]
 
         #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.ROI`>)
         #:        list of cut widgets
@@ -616,7 +636,6 @@ class CutExtension(DisplayExtension):
         """
         if parameters.cuts is not None:
             self.__showCuts(parameters.cuts)
-            self.__cuts.enabled = parameters.cuts
             self._enabled = parameters.cuts
 
     def __addCutCoords(self, coords):
@@ -629,7 +648,7 @@ class CutExtension(DisplayExtension):
         if coords:
             for i, crd in enumerate(self.__cut):
                 if i < len(coords):
-                    self.__cuts.coords[i] = coords[i]
+                    self.__coords[i] = coords[i]
                     if not self._mainwidget.transformations()[0]:
                         crd.setPos([coords[i][0], coords[i][1]])
                         crd.setSize(
@@ -662,7 +681,7 @@ class CutExtension(DisplayExtension):
                 [coords[3], coords[2]],
                 width=coords[4], pen='r'))
         self._mainwidget.viewbox().addItem(self.__cut[-1])
-        self.__cuts.coords.append(coords)
+        self.__coords.append(coords)
 
     def __removeCut(self):
         """ removes the last cut
@@ -670,7 +689,7 @@ class CutExtension(DisplayExtension):
         cut = self.__cut.pop()
         cut.hide()
         self._mainwidget.viewbox().removeItem(cut)
-        self.__cuts.coords.pop()
+        self.__coords.pop()
 
     def _getCut(self, cid=-1):
         """ get the given or the last Cut
@@ -705,7 +724,7 @@ class CutExtension(DisplayExtension):
         :rtype: :class:`numpy.ndarray`
         """
         if cid is None:
-            cid = self.__cuts.current
+            cid = self.__current
         if cid > -1 and len(self.__cut) > cid:
             cut = self._getCut(cid)
             if self._mainwidget.rawData() is not None:
@@ -725,19 +744,19 @@ class CutExtension(DisplayExtension):
         :rtype: :obj:`list`
                < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
         """
-        return self.__cuts.coords
+        return self.__coords
 
     @QtCore.pyqtSlot(int)
     def changeCutRegion(self, _=None):
         """ changes the current roi region
         """
         try:
-            cid = self.__cuts.current
+            cid = self.__current
             crds = self._getCut(cid).getCoordinates()
             if not self._mainwidget.transformations()[0]:
-                self.__cuts.coords[cid] = crds
+                self.__coords[cid] = crds
             else:
-                self.__cuts.coords[cid] = [
+                self.__coords[cid] = [
                     crds[1], crds[0], crds[3], crds[2], crds[4]]
 
             self.cutCoordsChanged.emit()
@@ -751,9 +770,9 @@ class CutExtension(DisplayExtension):
         :param cid: cut id
         :type cid: :obj:`int`
         """
-        oldcid = self.__cuts.current
+        oldcid = self.__current
         if cid != oldcid:
-            self.__cuts.current = cid
+            self.__current = cid
             self.cutCoordsChanged.emit()
 
     def updateCuts(self, cid, coords):
@@ -786,9 +805,9 @@ class CutExtension(DisplayExtension):
             self.__cutregionmapper.setMapping(
                 self._getCut(), len(self.__cut) - 1)
         if cid <= 0:
-            self.__cuts.current = -1
-        elif self.__cuts.current >= cid:
-            self.__cuts.current = 0
+            self.__current = -1
+        elif self.__current >= cid:
+            self.__current = 0
         while max(cid, 0) < len(self.__cut):
             self.__currentcutmapper.removeMappings(self._getCut())
             self.__currentcutmapper.removeMappings(self._getCut().handle1)
@@ -802,7 +821,7 @@ class CutExtension(DisplayExtension):
         :return: cut enabled flag
         :rtype: :obj:`bool`
         """
-        return self.__cuts.enabled
+        return self._enabled
 
     def currentCut(self):
         """ provides current cut id
@@ -810,7 +829,7 @@ class CutExtension(DisplayExtension):
         :return: cut id
         :rtype: :obj:`int`
         """
-        return self.__cuts.current
+        return self.__current
 
     def transpose(self):
         """ transposes Cuts
@@ -1182,9 +1201,8 @@ class MaximaExtension(DisplayExtension):
         #: (:obj:`str`) tool name
         self.name = "maxima"
 
-        #: (:class:`lavuelib.displayParameters.MaximaParameters`)
-        #:                 maxima parameters
-        self.__maxima = displayParameters.MaximaParameters()
+        #: (:obj:`list` < > ) maxima parameters
+        self.__positions = []
 
         self.__maxplot = _pg.ScatterPlotItem(
             size=30, symbol='+', pen=_pg.mkPen((0, 0, 0)))
@@ -1198,7 +1216,6 @@ class MaximaExtension(DisplayExtension):
         """
         if parameters.maxima is not None:
             self.__showMaxima(parameters.maxima)
-            self.__maxima.enabled = parameters.maxima
             self._enabled = parameters.maxima
 
     def __showMaxima(self, status):
@@ -1219,10 +1236,10 @@ class MaximaExtension(DisplayExtension):
         :param positionlist: [(x1, y1), ... , (xn, yn)]
         :type positionlist: :obj:`list` < (float, float) >
         """
-        self.__maxima.positions = positionlist
+        self.__positions = positionlist
         spots = [{'pos': [i + 0.5, j + 0.5], 'data': 1,
                   'brush': _pg.mkBrush((255, 0, 255))}
-                 for i, j in self.__maxima.positions]
+                 for i, j in self.__positions]
         if spots:
             spots[-1]['brush'] = _pg.mkBrush((255, 255, 0))
         self.__maxplot.clear()
@@ -1231,5 +1248,5 @@ class MaximaExtension(DisplayExtension):
     def transpose(self):
         """ transposes maxima
         """
-        positionlist = [(pos[1], pos[0]) for pos in self.__maxima.positions]
+        positionlist = [(pos[1], pos[0]) for pos in self.__positions]
         self.setMaximaPos(positionlist)

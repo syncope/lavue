@@ -31,7 +31,6 @@ import types
 from PyQt4 import QtCore, QtGui
 
 from . import axesDialog
-from . import displayParameters
 
 from .external.pyqtgraph_0_10 import (
     viewbox_updateMatrix, viewbox_invertX,
@@ -42,6 +41,61 @@ from .external.pyqtgraph_0_10 import (
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
     if _pg.__version__ else ("0", "9", "0")
+
+
+class AxesParameters(object):
+    """ axes parameters
+    """
+
+    def __init__(self):
+        """ constructor
+        """
+
+        #: (:obj:`bool`) enabled flag
+        self.enabled = False
+        #: (:obj:`tuple` <:obj:`float`, :obj:`float`> ) image scale (x,y)
+        self.scale = None
+        #: (:obj:`tuple` <:obj:`float`, :obj:`float`> )
+        #    position of the first pixel
+        self.position = None
+        #: (:obj:`str`) label of x-axis
+        self.xtext = None
+        #: (:obj:`str`) label of y-axis
+        self.ytext = None
+        #: (:obj:`str`) units of x-axis
+        self.xunits = None
+        #: (:obj:`str`) units of y-axis
+        self.yunits = None
+
+
+class IntensityParameters(object):
+    """ intensity parameters
+    """
+
+    def __init__(self):
+        """ constructor
+        """
+        #: (:obj:`bool`) do background substraction
+        self.dobkgsubtraction = False
+        #: (:obj:`bool`) calculate statistics without scaling
+        self.statswoscaling = True
+        #: (:obj:`str`) intensity scaling
+        self.scaling = "sqrt"
+
+
+class TransformationParameters(object):
+    """ transformation parameters
+    """
+
+    def __init__(self):
+        """ constructor
+        """
+        #: (:obj:`bool`) transpose coordinates flag
+        self.transpose = False
+        #: (:obj:`bool`) left-right flip coordinates flag
+        self.leftrightflip = False
+        #: (:obj:`bool`)  up-down flip coordinates flag
+        self.updownflip = False
 
 
 class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
@@ -65,19 +119,19 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         #: (:class:`PyQt4.QtGui.QLayout`) the main layout
         self.__layout = self.ci
 
-        #: (:class:`lavuelib.displayParameters.AxesParameters`)
+        #: (:class:`lavuelib.imageDisplayWidget.AxesParameters`)
         #:            axes parameters
-        self.__axes = displayParameters.AxesParameters()
-        #: (:class:`lavuelib.displayParameters.AxesParameters`)
+        self.__axes = AxesParameters()
+        #: (:class:`lavuelib.imageDisplayWidget.AxesParameters`)
         #:            polar axes parameters
-        self.__polaraxes = displayParameters.AxesParameters()
+        self.__polaraxes = AxesParameters()
 
-        #: (:class:`lavuelib.displayParameters.IntensityParameters`)
+        #: (:class:`lavuelib.imageDisplayWidget.IntensityParameters`)
         #:                  intensity parameters
-        self.__intensity = displayParameters.IntensityParameters()
-        #: (:class:`lavuelib.displayParameters.TransformationParameters`)
+        self.__intensity = IntensityParameters()
+        #: (:class:`lavuelib.imageDisplayWidget.TransformationParameters`)
         #:                  intensity parameters
-        self.__transformations = displayParameters.TransformationParameters()
+        self.__transformations = TransformationParameters()
 
         #: (:class:`numpy.ndarray`) data to displayed in 2d widget
         self.__data = None
@@ -404,10 +458,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :returns:  scaling label
         :rtype: str
         """
-        ilabel = "intensity"
-        scaling = self.__intensity.scaling \
-            if not self.__intensity.statswoscaling else "linear"
-        if not self.extension('roi').enabled():
+        ilabel = None
+        for ext in self.__extensions.values():
+            if ext.enabled():
+                ilabel = ext.scalingLabel()
+        if ilabel is None:
+            scaling = self.__intensity.scaling \
+                if not self.__intensity.statswoscaling else "linear"
             if self.__intensity.dobkgsubtraction:
                 ilabel = "%s(intensity-background)" % (
                     scaling if scaling != "linear" else "")
