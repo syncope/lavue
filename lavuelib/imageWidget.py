@@ -35,6 +35,7 @@ import json
 import types
 
 from . import imageDisplayWidget
+from . import displayExtensions
 from . import messageBox
 from . import imageSource as isr
 from . import toolWidget
@@ -144,6 +145,14 @@ class ImageWidget(QtGui.QWidget):
         #:     2D image display widget
         self.__displaywidget = imageDisplayWidget.ImageDisplayWidget(
             parent=self)
+        self.__displaywidget.addExtensions(
+            [displayExtensions.ROIExtension,
+             displayExtensions.CutExtension,
+             displayExtensions.LockerExtension,
+             displayExtensions.CenterExtension,
+             displayExtensions.MarkExtension,
+             displayExtensions.MaximaExtension]
+        )
 
         #: (:class:`pyqtgraph.PlotWidget`) bottom 1D plot widget
         self.__bottomplot = _pg.PlotWidget(self)
@@ -190,7 +199,7 @@ class ImageWidget(QtGui.QWidget):
         self.__ui.toolSplitter.setStretchFactor(0, 2000)
         self.__ui.toolSplitter.setStretchFactor(1, 1)
 
-        self.__displaywidget.cutCoordsChanged.connect(
+        self.__displaywidget.extension('cuts').cutCoordsChanged.connect(
             self.emitCutCoordsChanged)
         self.__ui.toolComboBox.currentIndexChanged.connect(
             self.showCurrentTool)
@@ -233,7 +242,7 @@ class ImageWidget(QtGui.QWidget):
             toadd = []
             lastalias = None
 
-            roicoords = self.__displaywidget.roiCoords()
+            roicoords = self.__displaywidget.extension('rois').roiCoords()
             self.__lastrois = list(roicoords)
             for alias in slabel:
                 if alias not in toadd:
@@ -469,7 +478,7 @@ class ImageWidget(QtGui.QWidget):
         :type coords: :obj:`list`
                   < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
         """
-        self.__displaywidget.updateROIs(rid, coords)
+        self.__displaywidget.extension('rois').updateROIs(rid, coords)
         self.applyTipsChanged.emit(rid)
         self.roiCoordsChanged.emit()
         self.roiNumberChanged.emit(rid)
@@ -484,7 +493,7 @@ class ImageWidget(QtGui.QWidget):
         :type coords: :obj:`list`
                   < [float, float, float, float, float] >
         """
-        self.__displaywidget.updateCuts(cid, coords)
+        self.__displaywidget.extension('cuts').updateCuts(cid, coords)
         self.cutCoordsChanged.emit()
         self.cutNumberChanged.emit(cid)
 
@@ -680,10 +689,10 @@ class ImageWidget(QtGui.QWidget):
             self.__lasttext = text
         else:
             text = self.__lasttext
-        if self.__displaywidget.isROIsEnabled():
+        if self.__displaywidget.extension('rois').isROIsEnabled():
             if self.__settings.showallrois:
                 currentroi = self.currentROI()
-                roiVals = self.__displaywidget.calcROIsums()
+                roiVals = self.__displaywidget.extension('rois').calcROIsums()
                 if roiVals is not None:
                     sroiVal = " / ".join(
                         [(("%g" % roiv) if roiv is not None else "?")
@@ -692,7 +701,8 @@ class ImageWidget(QtGui.QWidget):
                     if self.__lastroisvalues != roiVals:
                         self.writeDetectorROIsValuesAttribute(roiVals)
             else:
-                roiVal, currentroi = self.__displaywidget.calcROIsum()
+                roiVal, currentroi = self.__displaywidget.\
+                                     extension('rois').calcROIsum()
                 if roiVal is not None:
                     sroiVal = "%.4f" % roiVal
                 if self.__settings.sendrois:
@@ -709,7 +719,7 @@ class ImageWidget(QtGui.QWidget):
         :returns: sum roi value, roi id
         :rtype: (:obj:`str`, :obj:`int`)
         """
-        return self.__displaywidget.calcROIsum()
+        return self.__displaywidget.extension('rois').calcROIsum()
 
     def calcROIsums(self):
         """ calculates all roi sums
@@ -717,7 +727,7 @@ class ImageWidget(QtGui.QWidget):
         :returns: sum roi value, roi id
         :rtype: :obj:list < float >
         """
-        return self.__displaywidget.calcROIsums()
+        return self.__displaywidget.extension('rois').calcROIsums()
 
     @QtCore.pyqtSlot(str)
     def updateDisplayedText(self, text):
@@ -773,8 +783,9 @@ class ImageWidget(QtGui.QWidget):
     def _emitMouseImagePositionChanged(self):
         """emits mouseImagePositionChanged
         """
-        if self.__displaywidget.isROIsEnabled():
-            if self.__lastrois != self.__displaywidget.roiCoords():
+        if self.__displaywidget.extension('rois').isROIsEnabled():
+            if self.__lastrois != self.__displaywidget.\
+               extension('rois').roiCoords():
                 self.writeDetectorROIsAttribute()
         self.mouseImagePositionChanged.emit()
 
@@ -833,7 +844,7 @@ class ImageWidget(QtGui.QWidget):
         :returns: change status
         :rtype: :obj:`bool`
         """
-        return self.__displaywidget.setROIsColors(colors)
+        return self.__displaywidget.extension('rois').setROIsColors(colors)
 
     def setScalingType(self, scalingtype):
         """ sets intensity scaling types
@@ -996,7 +1007,7 @@ class ImageWidget(QtGui.QWidget):
                 rois["DetectorROIs"] = {}
             lastalias = None
 
-            roicoords = self.__displaywidget.roiCoords()
+            roicoords = self.__displaywidget.extension('rois').roiCoords()
             for alias in slabel:
                 if alias not in toadd:
                     rois["DetectorROIs"][alias] = []
@@ -1163,7 +1174,7 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :obj:`list`
                < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
         """
-        return self.__displaywidget.roiCoords()
+        return self.__displaywidget.extension('rois').roiCoords()
 
     def cutCoords(self):
         """ provides cuts coordinates
@@ -1172,7 +1183,7 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :obj:`list`
                < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
         """
-        return self.__displaywidget.cutCoords()
+        return self.__displaywidget.extension('cuts').cutCoords()
 
     def currentROI(self):
         """ provides current roi id
@@ -1180,7 +1191,7 @@ class ImageWidget(QtGui.QWidget):
         :return: roi id
         :rtype: :obj:`int`
         """
-        return self.__displaywidget.currentROI()
+        return self.__displaywidget.extension('rois').currentROI()
 
     def currentCut(self):
         """ provides current cut id
@@ -1188,12 +1199,12 @@ class ImageWidget(QtGui.QWidget):
         :return: cut id
         :rtype: :obj:`int`
         """
-        return self.__displaywidget.currentCut()
+        return self.__displaywidget.extension('cuts').currentCut()
 
     def changeROIRegion(self):
         """ changes the current roi region
         """
-        return self.__displaywidget.changeROIRegion()
+        return self.__displaywidget.extension('rois').changeROIRegion()
 
     def cutData(self, cid=None):
         """ provides the current cut data
@@ -1203,7 +1214,7 @@ class ImageWidget(QtGui.QWidget):
         :returns: current cut data
         :rtype: :class:`numpy.ndarray`
         """
-        return self.__displaywidget.cutData(cid)
+        return self.__displaywidget.extension('cuts').cutData(cid)
 
     def rawData(self):
         """ provides the raw data
@@ -1235,7 +1246,7 @@ class ImageWidget(QtGui.QWidget):
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
         """
-        self.__displaywidget.updateCenter(xdata, ydata)
+        self.__displaywidget.extension('center').updateCenter(xdata, ydata)
 
     @QtCore.pyqtSlot(float, float)
     def updatePositionMark(self, xdata, ydata):
@@ -1246,7 +1257,7 @@ class ImageWidget(QtGui.QWidget):
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
         """
-        self.__displaywidget.updatePositionMark(xdata, ydata)
+        self.__displaywidget.extension('mark').updatePositionMark(xdata, ydata)
 
     def setDoubleClickLock(self, status=True):
         """ sets double click lock
@@ -1376,7 +1387,7 @@ class ImageWidget(QtGui.QWidget):
             self.roilabels = " ".join(slabel)
             self.roiAliasesChanged.emit(self.roilabels)
 
-        oldcoords = self.__displaywidget.roiCoords()
+        oldcoords = self.__displaywidget.extension('rois').roiCoords()
         # print("UPDATE %s" % str(coords))
         if oldcoords != coords:
             self.updateROIs(len(coords), coords)
@@ -1414,4 +1425,5 @@ class ImageWidget(QtGui.QWidget):
         :param positionlist: [(x1, y1), ... , (xn, yn)]
         :type positionlist: :obj:`list` < (float, float) >
         """
-        return self.__displaywidget.setMaximaPos(positionlist)
+        return self.__displaywidget.extension('maxima').\
+            setMaximaPos(positionlist)
