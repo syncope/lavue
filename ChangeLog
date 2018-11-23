@@ -1,3 +1,7 @@
+2018-11-23 Jan Kotanski <jan.kotanski@desy.de>
+	* change lavuezmqstreamtest to use JSON
+	* tagged as 1.27.1
+
 2018-11-21 Jan Kotanski <jan.kotanski@desy.de>
 	* split imageDisplayWidget to extensions
 	* tagged as 1.27.0
