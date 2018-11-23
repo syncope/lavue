@@ -31,7 +31,7 @@ import zmq
 import time
 import argparse
 import signal
-import cPickle
+import json
 import numpy as np
 import random
 
@@ -84,7 +84,7 @@ def main():
             shape = value.shape
             dtype = value.dtype.name
 
-            datasources = ["%s" % (10010 + counter / 50), "10001", "10002"]
+            datasources = ["%s" % (10010 + counter // 50), "10001", "10002"]
             if topicfilter is not None:
                 tfilter = topicfilter
             else:
@@ -98,7 +98,7 @@ def main():
             if not counter % 20:
                 axislabels = [
                     "x%s" % counter, "y%s" % counter,
-                    "m" * ((counter / 20) % 3), "A" * ((counter / 20) % 3)]
+                    "m" * ((counter // 20) % 3), "A" * ((counter // 20) % 3)]
             else:
                 axislabels = None
             if nodict:
@@ -106,16 +106,18 @@ def main():
                     message = (
                         tfilter,
                         value,
-                        cPickle.dumps(shape),
-                        cPickle.dumps(dtype),
-                        "%s_%s" % (prefix, counter)
+                        json.dumps(shape).encode('ascii', 'ignore'),
+                        json.dumps(dtype).encode('ascii', 'ignore'),
+                        "%s_%s" % (prefix, counter),
+                        "JSON".encode('ascii', 'ignore')
                     )
                 else:
                     message = (
-                        tfilter,
+                        tfilter.encode('ascii', 'ignore'),
                         value,
-                        cPickle.dumps(shape),
-                        cPickle.dumps(dtype)
+                        json.dumps(shape).encode('ascii', 'ignore'),
+                        json.dumps(dtype).encode('ascii', 'ignore'),
+                        "JSON".encode('ascii', 'ignore')
                     )
             else:
                 metadata = {"shape": shape, "dtype": dtype,
@@ -129,26 +131,28 @@ def main():
                     metadata["axisscales"] = axisscales
 
                 message = (
-                    tfilter,
+                    tfilter.encode('ascii', 'ignore'),
                     value,
-                    cPickle.dumps(metadata)
+                    json.dumps(metadata).encode('ascii', 'ignore'),
+                    "JSON".encode('ascii', 'ignore')
                 )
                 metadata2 = dict(metadata)
                 if counter % 3:
                     metadata2.pop("shape")
                     metadata2.pop("dtype")
                 message2 = (
-                    "datasources",
-                    cPickle.dumps(metadata2)
+                    "datasources".encode('ascii', 'ignore'),
+                    json.dumps(metadata2).encode('ascii', 'ignore'),
+                    "JSON".encode('ascii', 'ignore')
                 )
-                print("Send2: tcp://*:%s/%s %s"
-                      % (port, "datasources", metadata2))
+                print("Send2: tcp://*:%s/%s %s %s"
+                      % (port, "datasources", metadata2, "JSON"))
                 socket.send_multipart(message2)
             counter += 1
             socket.send_multipart(message)
-            print("Send: tcp://*:%s/%s %s %s %s_%s"
+            print("Send: tcp://*:%s/%s %s %s %s_%s %s"
                   % (port, tfilter, shape, dtype,
-                     prefix or "", counter))
+                     prefix or "", counter, "JSON"))
         except Exception as e:
             print("Error: %s" % str(e))
         time.sleep(maxtimegap)
@@ -157,7 +161,7 @@ def main():
 if __name__ == "__main__":
     options = None
     parser = argparse.ArgumentParser(
-        description='ZMQ Pickle test server')
+        description='ZMQ JSON test server')
     parser.add_argument(
         "-g", "--time-gap",
         help="maximal time gap in seconds (default: 0.1)",
