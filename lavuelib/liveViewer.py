@@ -680,7 +680,8 @@ class LiveViewer(QtGui.QMainWindow):
                 self.__imagename = imagename
                 self.__rawimage = np.transpose(newimage)
                 self._plot()
-                self.__imagewg.autoRange()
+                if fid is None:
+                    self.__imagewg.autoRange()
             else:
                 text = messageBox.MessageBox.getText(
                     "lavue: File %s cannot be loaded"
