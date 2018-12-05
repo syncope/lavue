@@ -390,8 +390,8 @@ class TangoFileSource(BaseSource):
                     filename = filename.replace(key, val)
             image = imageFileHandler.ImageFileHandler(
                 str(filename)).getImage()
-
-            return (np.transpose(image), '%s' % (filename), "")
+            if image is not None:
+                return (np.transpose(image), '%s' % (filename), "")
         except Exception as e:
             print(str(e))
             return str(e), "__ERROR__", ""
@@ -562,9 +562,10 @@ class TangoAttrSource(BaseSource):
                             '%s  (%s)' % (
                                 self._configuration, str(attr.time)), "")
             else:
-                return (np.transpose(attr.value),
-                        '%s  (%s)' % (
-                            self._configuration, str(attr.time)), "")
+                if attr.value is not None:
+                    return (np.transpose(attr.value),
+                            '%s  (%s)' % (
+                                self._configuration, str(attr.time)), "")
         except Exception as e:
             print(str(e))
             return str(e), "__ERROR__", ""
@@ -616,6 +617,8 @@ class HTTPSource(BaseSource):
                         # print("[cbf source module]::metadata", name)
                         img = imageFileHandler.CBFLoader().load(
                             np.fromstring(data[:], dtype=np.uint8))
+                        if img is None:
+                            return None, None, None
                         return (np.transpose(img),
                                 "%s (%s)" % (name, time.ctime()), "")
                     else:
@@ -628,11 +631,15 @@ class HTTPSource(BaseSource):
                                 img = imageFileHandler.TIFLoader().load(
                                     np.fromstring(data[:], dtype=np.uint8))
                                 self.__tiffloader = True
+                            if img is None:
+                                return None, None, None
                             return (np.transpose(img),
                                     "%s (%s)" % (name, time.ctime()), "")
                         else:
                             img = imageFileHandler.TIFLoader().load(
                                 np.fromstring(data[:], dtype=np.uint8))
+                            if img is None:
+                                return None, None, None
                             return (np.transpose(img),
                                     "%s (%s)" % (name, time.ctime()), "")
                 else:
@@ -798,7 +805,7 @@ class ZMQSource(BaseSource):
                     dtype = self.__loads(_dtype, encoding)
                     shape = self.__loads(_shape, encoding)
 
-            if _array:
+            if _array is not None:
                 array = np.frombuffer(buffer(_array), dtype=dtype)
                 array = array.reshape(shape)
                 array = np.transpose(array)
@@ -1011,12 +1018,13 @@ class HiDRASource(BaseSource):
                         img = imageFileHandler.TIFLoader().load(
                             np.fromstring(data[:], dtype=np.uint8))
                         self.__tiffloader = True
-
-                    return np.transpose(img), metadata["filename"], ""
+                    if img is not None:
+                        return np.transpose(img), metadata["filename"], ""
                 else:
                     img = imageFileHandler.TIFLoader().load(
                         np.fromstring(data[:], dtype=np.uint8))
-                    return np.transpose(img), metadata["filename"], ""
+                    if img is not None:
+                        return np.transpose(img), metadata["filename"], ""
             # else:
             #     print(
             #       "[unknown source module]::metadata", metadata["filename"])

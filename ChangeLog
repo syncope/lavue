@@ -1,3 +1,7 @@
+2018-12-05 Jan Kotanski <jan.kotanski@desy.de>
+	* fix image source behavior on no-image
+	* tagged as 1.27.3
+
 2018-12-04 Jan Kotanski <jan.kotanski@desy.de>
 	* do not autorange on new frame
 	* tagged as 1.27.2
