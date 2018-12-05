@@ -1068,7 +1068,20 @@ class ImageWidget(QtGui.QWidget):
                     messageBox.MessageBox.warning(
                         self, "lavue: Error in Setting Measurement group",
                         text, str(value))
-
+            if self.__settings.analysisdevice:
+                flatrois = [item for coords in roicoords for item in coords]
+                try:
+                    adp = self.__sardana.openProxy(
+                        str(self.__settings.analysisdevice))
+                    adp.RoIs = flatrois
+                except Exception:
+                    import traceback
+                    value = traceback.format_exc()
+                    text = messageBox.MessageBox.getText(
+                        "Problems in setting RoIs for Analysis device")
+                    messageBox.MessageBox.warning(
+                        self, "lavue: Error in Setting Rois",
+                        text, str(value))
         else:
             print("Connection error")
 

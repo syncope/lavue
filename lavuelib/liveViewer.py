@@ -360,6 +360,10 @@ class LiveViewer(QtGui.QMainWindow):
         if hasattr(options, "doordevice") and options.doordevice is not None:
             self.__settings.doorname = options.doordevice
 
+        if hasattr(options, "analysisdevice") and \
+           options.analysisdevice is not None:
+            self.__settings.analysisdevice = options.analysisdevice
+
         # load image file
         if hasattr(options, "imagefile") and options.imagefile is not None:
             oldname = self.__settings.imagename

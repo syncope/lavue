@@ -121,6 +121,8 @@ class Settings(object):
         self.zmqservers = '{}'
         #: (:obj:`str`) door device name
         self.doorname = ""
+        #: (:obj:`str`) analysis device name
+        self.analysisdevice = ""
         #: (:obj:`bool`) nexus file source keeps the file open
         self.nxsopen = False
         #: (:obj:`bool`) nexus file source starts from the last image
