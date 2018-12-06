@@ -1071,7 +1071,7 @@ class ImageWidget(QtGui.QWidget):
             if self.__settings.analysisdevice:
                 flatrois = []
                 for crds in roicoords:
-                    flatrois.extend(crds[0], crds[2], crds[1], crds[3])
+                    flatrois.extend([crds[0], crds[2], crds[1], crds[3]])
                 try:
                     adp = self.__sardana.openProxy(
                         str(self.__settings.analysisdevice))
