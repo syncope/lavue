@@ -1069,7 +1069,9 @@ class ImageWidget(QtGui.QWidget):
                         self, "lavue: Error in Setting Measurement group",
                         text, str(value))
             if self.__settings.analysisdevice:
-                flatrois = [item for coords in roicoords for item in coords]
+                flatrois = []
+                for crds in roicoords:
+                    flatrois.extend(crds[0], crds[2], crds[1], crds[3])
                 try:
                     adp = self.__sardana.openProxy(
                         str(self.__settings.analysisdevice))
