@@ -183,10 +183,15 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-a", "--tango-device", dest="tangodevice",
-        help="tango device to communicated with clients during the run")
+        help="tango device name of LavueController to communicated"
+        " with clients during the run")
     parser.add_argument(
         "-d", "--door", dest="doordevice",
         help="door device to communicated with sardana during the run")
+    parser.add_argument(
+        "-n", "--analysis-device", dest="analysisdevice",
+        help="tango analysis device of LambdaOnlineAnalysis"
+        " to communicated with clients during the run")
 
     # parser.add_argument(
     #       "-o", "--log", dest="log",
