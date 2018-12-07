@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Oct 25, 2018" "1.26" "lavuelib"
+.TH "LAVUELIB" "1" "Dec 07, 2018" "1.29" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -549,6 +549,99 @@ create GUI
 (\fBlist\fP < \fI\%str\fP>) list of topics for ZMQ stream source
 .UNINDENT
 .UNINDENT
+.SS lavuelib.controllerClient module
+.sp
+tango lavue controller client
+.INDENT 0.0
+.TP
+.B class lavuelib.controllerClient.ControllerClient(device)
+Bases: \fBPyQt4.QtCore.QObject\fP
+.sp
+lavue controller client
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBdevice\fP (\fI\%str\fP) – tango device name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B beamCenterXChanged
+(\fBPyQt4.QtCore.pyqtSignal\fP) beam Center X changed siganal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B beamCenterYChanged
+(\fBPyQt4.QtCore.pyqtSignal\fP) beam Center Y changed siganal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B detectorDistanceChanged
+(\fBPyQt4.QtCore.pyqtSignal\fP) detector distance changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B detectorROIsChanged
+(\fBPyQt4.QtCore.pyqtSignal\fP) detector ROIs changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B energyChanged
+(\fBPyQt4.QtCore.pyqtSignal\fP) energy changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B subscribe()
+subscribe callback methods
+.UNINDENT
+.INDENT 7.0
+.TP
+.B unsubscribe()
+unsubscribe callback methods
+.UNINDENT
+.INDENT 7.0
+.TP
+.B writeAttribute(name, value)
+writes attribute value of device
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBname\fP (\fI\%str\fP) – attribute name
+.IP \(bu 2
+\fBvalue\fP (\fI\%any\fP) – attribute value
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.controllerClient.TangoCB(client, name, signal)
+Bases: \fI\%object\fP
+.sp
+tango attribute callback class
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBclient\fP (\fI\%str\fP) – tango controller client
+.IP \(bu 2
+\fBname\fP (\fI\%str\fP) – attribute name
+.IP \(bu 2
+\fBsignal\fP (\fBPyQt4.QtCore.pyqtSignal\fP) – signal to emit
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B push_event(*args, **kwargs)
+callback method receiving the event
+.UNINDENT
+.UNINDENT
 .SS lavuelib.dataFetchThread module
 .sp
 data fetch thread
@@ -663,197 +756,742 @@ tuple of exchange object (name, data, metadata)
 .B lavuelib.dataFetchThread.GLOBALREFRESHRATE = 0.1
 (\fI\%float\fP) refresh rate in seconds
 .UNINDENT
-.SS lavuelib.displayParameters module
+.SS lavuelib.displayExtensions module
 .sp
 image display widget
 .INDENT 0.0
 .TP
-.B class lavuelib.displayParameters.AxesParameters
-Bases: \fI\%object\fP
-.sp
-axes parameters
+.B class lavuelib.displayExtensions.CenterExtension(parent=None)
+Bases: \fI\%lavuelib.displayExtensions.DisplayExtension\fP
 .sp
 constructor
 .INDENT 7.0
 .TP
-.B enabled = None
-(\fI\%bool\fP) enabled flag
+.B Parameters
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B scale = None
-(\fI\%tuple\fP <\fI\%float\fP, \fI\%float\fP> ) image scale (x,y)
+.B mouse_doubleclick(x, y, locked)
+sets vLine and hLine positions
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBx\fP (\fI\%float\fP) – x coordinate
+.IP \(bu 2
+\fBy\fP (\fI\%float\fP) – y coordinate
+.IP \(bu 2
+\fBlocked\fP (\fI\%bool\fP) – double click lock
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
-.B xtext = None
-(\fI\%str\fP) label of x\-axis
+.B mouse_position(x, y)
+sets vLine and hLine positions
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBx\fP (\fI\%float\fP) – x coordinate
+.IP \(bu 2
+\fBy\fP (\fI\%float\fP) – y coordinate
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
-.B xunits = None
-(\fI\%str\fP) units of x\-axis
+.B name = None
+(\fI\%str\fP) tool name
 .UNINDENT
 .INDENT 7.0
 .TP
-.B ytext = None
-(\fI\%str\fP) label of y\-axis
+.B show(parameters)
+set subwidget properties
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparameters\fP (\fI\%lavuelib.toolWidget.ToolParameters\fP) – tool parameters
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
-.B yunits = None
-(\fI\%str\fP) units of y\-axis
+.B transpose()
+transposes Center lines
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateCenter(xdata, ydata)
+updates the image center
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBxdata\fP (\fI\%float\fP) – x pixel position
+.IP \(bu 2
+\fBydata\fP (\fI\%float\fP) – y\-pixel position
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.displayParameters.CrossLinesParameters
-Bases: \fI\%object\fP
-.sp
-axes parameters
+.B class lavuelib.displayExtensions.CutExtension(parent=None)
+Bases: \fI\%lavuelib.displayExtensions.DisplayExtension\fP
 .sp
 constructor
 .INDENT 7.0
 .TP
-.B center = None
-(\fI\%bool\fP) center enabled flag
+.B Parameters
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B doubleclicklock = None
-(\fI\%bool\fP) lock for double click
+.B changeCutRegion(_=None)
+changes the current roi region
 .UNINDENT
 .INDENT 7.0
 .TP
-.B locker = None
-(\fI\%bool\fP) locker enabled flag
+.B currentCut()
+provides current cut id
+.INDENT 7.0
+.TP
+.B Returns
+cut id
+.TP
+.B Return type
+\fI\%int\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
-.B positionmark = None
-(\fI\%bool\fP) position mark enabled flag
+.B cutCoords()
+provides cuts coordinates
+.INDENT 7.0
+.TP
+.B Returns
+cuts coordinates
+.TP
+.B Return type
+\fBlist\fP
+< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B cutCoordsChanged
+(\fBPyQt4.QtCore.pyqtSignal\fP) cut coordinate changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B cutData(cid=None)
+provides the current cut data
+.INDENT 7.0
+.TP
+.B Parameters
+\fBcid\fP (\fI\%int\fP) – cut id
+.TP
+.B Returns
+current cut data
+.TP
+.B Return type
+\fI\%numpy.ndarray\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B isCutsEnabled()
+provides flag cuts enabled
+.INDENT 7.0
+.TP
+.B Returns
+cut enabled flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) tool name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B show(parameters)
+set subwidget properties
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparameters\fP (\fI\%lavuelib.toolWidget.ToolParameters\fP) – tool parameters
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B transpose()
+transposes Cuts
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateCuts(cid, coords)
+update Cuts
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBcid\fP (\fI\%int\fP) – cut id
+.IP \(bu 2
+\fBcoords\fP (\fBlist\fP < [float, float, float, float] >) – cut coordinates
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.displayParameters.CutsParameters
-Bases: \fI\%object\fP
+.B class lavuelib.displayExtensions.DisplayExtension(parent=None)
+Bases: \fBPyQt4.QtCore.QObject\fP
 .sp
-cuts parameters
+display extension for ImageDisplayWidget
 .sp
 constructor
 .INDENT 7.0
 .TP
-.B coords = None
-(\fBlist\fP < [int, int, int, int] > )
-x1,y1,x2,y2, width rois coordinates
+.B Parameters
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B current = None
-(\fI\%int\fP) current cut id
+.B coordinates()
+returns coordinates
 .UNINDENT
 .INDENT 7.0
 .TP
-.B enabled = None
-(\fI\%bool\fP) enabled flag
+.B enabled()
+is extension enabled
+.INDENT 7.0
+.TP
+.B Returns
+is extension enabled
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B mouse_click(x, y)
+sets vLine and hLine positions
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBx\fP (\fI\%float\fP) – x coordinate
+.IP \(bu 2
+\fBy\fP (\fI\%float\fP) – y coordinate
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B mouse_doubleclick(x, y, locked)
+sets vLine and hLine positions
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBx\fP (\fI\%float\fP) – x coordinate
+.IP \(bu 2
+\fBy\fP (\fI\%float\fP) – y coordinate
+.IP \(bu 2
+\fBlocked\fP (\fI\%bool\fP) – double click lock
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B mouse_position(x, y)
+sets vLine and hLine positions
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBx\fP (\fI\%float\fP) – x coordinate
+.IP \(bu 2
+\fBy\fP (\fI\%float\fP) – y coordinate
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) extension name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B scalingLabel()
+provides scaling label
+.INDENT 7.0
+.TP
+.B Returns
+scaling label
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B show(parameters)
+set subwidget properties
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparameters\fP (\fI\%lavuelib.toolWidget.ToolParameters\fP) – tool parameters
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B transpose()
+transposes subwidget
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.displayParameters.IntensityParameters
-Bases: \fI\%object\fP
+.B class lavuelib.displayExtensions.HandleWithSignals(pos, center, parent)
+Bases: \fBpyqtgraph.graphicsItems.ROI.Handle\fP
 .sp
-intensity parameters
+handle with signals
 .sp
 constructor
 .INDENT 7.0
 .TP
-.B dobkgsubtraction = None
-(\fI\%bool\fP) do background substraction
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBpos\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) – position of handle
+.IP \(bu 2
+\fBcenter\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) – center of handle
+.IP \(bu 2
+\fBparent\fP (\fBpyqtgraph.graphicsItems.ROI.ROI\fP) – roi object
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
-.B scaling = None
-(\fI\%str\fP) intensity scaling
+.B hoverEvent(ev)
+hover event
+.INDENT 7.0
+.TP
+.B Parameters
+\fBev\fP (\fBPyQt4.QtCore.QEvent\fP:) – close event
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
-.B statswoscaling = None
-(\fI\%bool\fP) calculate statistics without scaling
+.B hovered
+(\fBPyQt4.QtCore.pyqtSignal\fP) hover event emitted
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.displayParameters.MaximaParameters
-Bases: \fI\%object\fP
-.sp
-maxima parameters
+.B class lavuelib.displayExtensions.LockerExtension(parent=None)
+Bases: \fI\%lavuelib.displayExtensions.DisplayExtension\fP
 .sp
 constructor
 .INDENT 7.0
 .TP
-.B enabled = None
-(\fI\%bool\fP) enabled flag
+.B Parameters
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B positions = None
-(\fBlist\fP < (float, float) > ) list with maxima coordinates
+.B coordinates()
+returns coordinates
+.UNINDENT
+.INDENT 7.0
+.TP
+.B mouse_doubleclick(x, y, locked)
+sets vLine and hLine positions
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBx\fP (\fI\%float\fP) – x coordinate
+.IP \(bu 2
+\fBy\fP (\fI\%float\fP) – y coordinate
+.IP \(bu 2
+\fBlocked\fP (\fI\%bool\fP) – double click lock
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B mouse_position(x, y)
+sets vLine and hLine positions
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBx\fP (\fI\%float\fP) – x coordinate
+.IP \(bu 2
+\fBy\fP (\fI\%float\fP) – y coordinate
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) tool name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B show(parameters)
+set subwidget properties
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparameters\fP (\fI\%lavuelib.toolWidget.ToolParameters\fP) – tool parameters
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B transpose()
+transposes locker lines
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateLocker(xdata, ydata)
+updates the locker position
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBxdata\fP (\fI\%float\fP) – x pixel position
+.IP \(bu 2
+\fBydata\fP (\fI\%float\fP) – y\-pixel position
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.displayParameters.ROIsParameters
-Bases: \fI\%object\fP
-.sp
-rois parameters
+.B class lavuelib.displayExtensions.MarkExtension(parent=None)
+Bases: \fI\%lavuelib.displayExtensions.DisplayExtension\fP
 .sp
 constructor
 .INDENT 7.0
 .TP
-.B colors = None
-(\fBlist\fP < (int, int, int) > ) list with roi colors
+.B Parameters
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B coords = None
-(\fBlist\fP < [int, int, int, int] > )
-x1,y1,x2,y2 rois coordinates
+.B mouse_doubleclick(x, y, locked)
+sets vLine and hLine positions
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBx\fP (\fI\%float\fP) – x coordinate
+.IP \(bu 2
+\fBy\fP (\fI\%float\fP) – y coordinate
+.IP \(bu 2
+\fBlocked\fP (\fI\%bool\fP) – double click lock
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
-.B current = None
-(\fI\%int\fP) current roi id
+.B mouse_position(x, y)
+sets vLine and hLine positions
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBx\fP (\fI\%float\fP) – x coordinate
+.IP \(bu 2
+\fBy\fP (\fI\%float\fP) – y coordinate
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
-.B enabled = None
-(\fI\%bool\fP) enabled flag
+.B name = None
+(\fI\%str\fP) tool name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B show(parameters)
+set subwidget properties
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparameters\fP (\fI\%lavuelib.toolWidget.ToolParameters\fP) – tool parameters
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B transpose()
+transposes Mark Position lines
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updatePositionMark(xdata, ydata)
+updates the position mark
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBxdata\fP (\fI\%float\fP) – x pixel position
+.IP \(bu 2
+\fBydata\fP (\fI\%float\fP) – y\-pixel position
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.displayParameters.TransformationParameters
-Bases: \fI\%object\fP
-.sp
-transformation parameters
+.B class lavuelib.displayExtensions.MaximaExtension(parent=None)
+Bases: \fI\%lavuelib.displayExtensions.DisplayExtension\fP
 .sp
 constructor
 .INDENT 7.0
 .TP
-.B leftrightflip = None
-(\fI\%bool\fP) left\-right flip coordinates flag
+.B Parameters
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B transpose = None
-(\fI\%bool\fP) transpose coordinates flag
+.B name = None
+(\fI\%str\fP) tool name
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updownflip = None
-(\fI\%bool\fP)  up\-down flip coordinates flag
+.B setMaximaPos(positionlist)
+sets maxima postions
+.INDENT 7.0
+.TP
+.B Parameters
+\fBpositionlist\fP (\fBlist\fP < (float, float) >) – [(x1, y1), … , (xn, yn)]
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B show(parameters)
+set subwidget properties
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparameters\fP (\fI\%lavuelib.toolWidget.ToolParameters\fP) – tool parameters
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B transpose()
+transposes maxima
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.displayExtensions.ROIExtension(parent=None)
+Bases: \fI\%lavuelib.displayExtensions.DisplayExtension\fP
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B calcROIsum()
+calculates the current roi sum
+.INDENT 7.0
+.TP
+.B Returns
+sum roi value, roi id
+.TP
+.B Return type
+(\fI\%float\fP, \fI\%int\fP)
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B calcROIsums()
+calculates all roi sums
+.INDENT 7.0
+.TP
+.B Returns
+sum roi value, roi id
+.TP
+.B Return type
+:obj:list < float >
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B changeROIRegion(_=None)
+changes the current roi region
+.UNINDENT
+.INDENT 7.0
+.TP
+.B currentROI()
+provides current roi id
+.INDENT 7.0
+.TP
+.B Returns
+roi id
+.TP
+.B Return type
+\fI\%int\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B isROIsEnabled()
+provides flag rois enabled
+.INDENT 7.0
+.TP
+.B Returns
+roi enabled flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) tool name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B roiCoords()
+provides rois coordinates
+.INDENT 7.0
+.TP
+.B Returns
+rois coordinates
+.TP
+.B Return type
+\fBlist\fP
+< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B roiCoordsChanged
+(\fBPyQt4.QtCore.pyqtSignal\fP) roi coordinate changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B scalingLabel()
+provides scaling label
+.INDENT 7.0
+.TP
+.B Returns
+scaling label
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setROIsColors(colors=None)
+sets statistics without scaling flag
+.INDENT 7.0
+.TP
+.B Parameters
+\fBcolors\fP (\fI\%str\fP) – json list of roi colors
+.TP
+.B Returns
+change status
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B show(parameters)
+set subwidget properties
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparameters\fP (\fI\%lavuelib.toolWidget.ToolParameters\fP) – tool parameters
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B transpose()
+transposes ROIs
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateROIs(rid, coords)
+update ROIs
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBrid\fP (\fI\%int\fP) – roi id
+.IP \(bu 2
+\fBcoords\fP (\fBlist\fP
+< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >) – roi coordinates
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.displayExtensions.SimpleLineROI(pos1, pos2, width=1e\-05, **args)
+Bases: \fBpyqtgraph.graphicsItems.ROI.LineROI\fP
+.sp
+simple line roi
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBpos1\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) – start position
+.IP \(bu 2
+\fBpos2\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) – end position
+.IP \(bu 2
+\fBargs\fP (\fBdict\(ga<:obj:\(gastr\fP, \fI\%any\fP>) – dictionary with ROI parameters
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B getCoordinates()
+provides the roi coordinates
+.INDENT 7.0
+.TP
+.B Parameters
+\fBtrans\fP (\fI\%bool\fP) – transposed flag
+.TP
+.B Returns
+x1, y1, x2, y2 positions of the roi
+.TP
+.B Return type
+[\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP]
+.UNINDENT
 .UNINDENT
 .UNINDENT
 .SS lavuelib.filewriter module
@@ -1726,6 +2364,856 @@ create GUI
 (\fI\%float\fP) pixel y\-size in um
 .UNINDENT
 .UNINDENT
+.SS lavuelib.h5cppwriter
+.sp
+Provides pni file writer
+.INDENT 0.0
+.TP
+.B class lavuelib.h5cppwriter.H5CppAttribute(h5object, tparent=None)
+Bases: \fI\%lavuelib.filewriter.FTAttribute\fP
+.sp
+file tree attribute
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBh5object\fP (\fI\%any\fP) – pni object
+.IP \(bu 2
+\fBtparent\fP (\fBFTObject\fP) – treee parent
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B close()
+close attribute
+.UNINDENT
+.INDENT 7.0
+.TP
+.B dtype
+field data type
+.INDENT 7.0
+.TP
+.B Returns
+field data type
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B is_valid
+check if attribute is valid
+.INDENT 7.0
+.TP
+.B Returns
+valid flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) object name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B path = None
+(\fI\%str\fP) object nexus path
+.UNINDENT
+.INDENT 7.0
+.TP
+.B read()
+read attribute value
+.INDENT 7.0
+.TP
+.B Returns
+python object
+.TP
+.B Return type
+\fI\%any\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B reopen()
+reopen attribute
+.UNINDENT
+.INDENT 7.0
+.TP
+.B shape
+attribute shape
+.INDENT 7.0
+.TP
+.B Returns
+attribute shape
+.TP
+.B Return type
+\fBlist\fP < \fI\%int\fP >
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B write(o)
+write attribute value
+.INDENT 7.0
+.TP
+.B Parameters
+\fBo\fP (\fI\%any\fP) – python object
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.h5cppwriter.H5CppAttributeManager(h5object, tparent=None)
+Bases: \fI\%lavuelib.filewriter.FTAttributeManager\fP
+.sp
+file tree attribute
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBh5object\fP (\fI\%any\fP) – pni object
+.IP \(bu 2
+\fBtparent\fP (\fBFTObject\fP) – treee parent
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B close()
+close attribure manager
+.UNINDENT
+.INDENT 7.0
+.TP
+.B create(name, dtype, shape=None, overwrite=False)
+create a new attribute
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBname\fP (\fI\%str\fP) – attribute name
+.IP \(bu 2
+\fBdtype\fP (\fI\%str\fP) – attribute type
+.IP \(bu 2
+\fBshape\fP (\fBlist\fP < \fI\%int\fP >) – attribute shape
+.IP \(bu 2
+\fBoverwrite\fP (\fI\%bool\fP) – overwrite flag
+.UNINDENT
+.TP
+.B Returns
+attribute object
+.TP
+.B Return type
+\fBH5CppAtribute\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B is_valid
+check if link is valid
+.INDENT 7.0
+.TP
+.B Returns
+valid flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) object name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B path = None
+(\fI\%str\fP) object nexus path
+.UNINDENT
+.INDENT 7.0
+.TP
+.B reopen()
+reopen field
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.h5cppwriter.H5CppDeflate(h5object)
+Bases: \fI\%lavuelib.filewriter.FTDeflate\fP
+.sp
+file tree deflate
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBh5object\fP (\fI\%any\fP) – pni object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B rate
+(\fI\%int\fP) compression rate
+.UNINDENT
+.INDENT 7.0
+.TP
+.B shuffle
+(\fI\%bool\fP) compression shuffle
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.h5cppwriter.H5CppField(h5object, tparent=None)
+Bases: \fI\%lavuelib.filewriter.FTField\fP
+.sp
+file tree file
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBh5object\fP (\fI\%any\fP) – pni object
+.IP \(bu 2
+\fBtparent\fP (\fBFTObject\fP) – treee parent
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B attributes
+return the attribute manager
+.INDENT 7.0
+.TP
+.B Returns
+attribute manager
+.TP
+.B Return type
+\fI\%H5CppAttributeManager\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B close()
+close field
+.UNINDENT
+.INDENT 7.0
+.TP
+.B dtype
+field data type
+.INDENT 7.0
+.TP
+.B Returns
+field data type
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B grow(dim=0, ext=1)
+grow the field
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBdim\fP (\fI\%int\fP) – growing dimension
+.IP \(bu 2
+\fBdim\fP – size of the grow
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B is_valid
+check if field is valid
+.INDENT 7.0
+.TP
+.B Returns
+valid flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) object name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B path = None
+(\fI\%str\fP) object nexus path
+.UNINDENT
+.INDENT 7.0
+.TP
+.B read()
+read the field value
+.INDENT 7.0
+.TP
+.B Returns
+pni object
+.TP
+.B Return type
+\fI\%any\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B refresh()
+refresh the field
+.INDENT 7.0
+.TP
+.B Returns
+refreshed
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B reopen()
+reopen field
+.UNINDENT
+.INDENT 7.0
+.TP
+.B shape
+field shape
+.INDENT 7.0
+.TP
+.B Returns
+field shape
+.TP
+.B Return type
+\fBlist\fP < \fI\%int\fP >
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B size
+field size
+.INDENT 7.0
+.TP
+.B Returns
+field size
+.TP
+.B Return type
+\fI\%int\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B write(o)
+write the field value
+.INDENT 7.0
+.TP
+.B Parameters
+\fBo\fP (\fI\%any\fP) – pni object
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.h5cppwriter.H5CppFile(h5object, filename)
+Bases: \fI\%lavuelib.filewriter.FTFile\fP
+.sp
+file tree file
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBh5object\fP (\fI\%any\fP) – pni object
+.IP \(bu 2
+\fBfilename\fP (\fI\%str\fP) – file name
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B close()
+close file
+.UNINDENT
+.INDENT 7.0
+.TP
+.B flush()
+flash the data
+.UNINDENT
+.INDENT 7.0
+.TP
+.B is_valid
+check if file is valid
+.INDENT 7.0
+.TP
+.B Returns
+valid flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B path = None
+(\fI\%str\fP) object nexus path
+.UNINDENT
+.INDENT 7.0
+.TP
+.B readonly
+check if file is readonly
+.INDENT 7.0
+.TP
+.B Returns
+readonly flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B reopen(readonly=False, swmr=False, libver=None)
+reopen file
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBreadonly\fP (\fI\%bool\fP) – readonly flag
+.IP \(bu 2
+\fBswmr\fP (\fI\%bool\fP) – swmr flag
+.IP \(bu 2
+\fBlibver\fP (\fI\%str\fP) – library version, default: ‘latest’
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B root()
+root object
+.INDENT 7.0
+.TP
+.B Returns
+parent object
+.TP
+.B Return type
+\fI\%H5CppGroup\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.h5cppwriter.H5CppGroup(h5object, tparent=None)
+Bases: \fI\%lavuelib.filewriter.FTGroup\fP
+.sp
+file tree group
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBh5object\fP (\fI\%any\fP) – pni object
+.IP \(bu 2
+\fBtparent\fP (\fBFTObject\fP) – tree parent
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B class H5CppGroupIter(group)
+Bases: \fI\%object\fP
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBgroup\fP – group object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B next()
+the next attribute
+.INDENT 7.0
+.TP
+.B Returns
+attribute object
+.TP
+.B Return type
+\fBFTAtribute\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B attributes
+return the attribute manager
+.INDENT 7.0
+.TP
+.B Returns
+attribute manager
+.TP
+.B Return type
+\fI\%H5CppAttributeManager\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B close()
+close group
+.UNINDENT
+.INDENT 7.0
+.TP
+.B create_field(name, type_code, shape=None, chunk=None, dfilter=None)
+open a file tree element
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBn\fP (\fI\%str\fP) – group name
+.IP \(bu 2
+\fBtype_code\fP (\fI\%str\fP) – nexus field type
+.IP \(bu 2
+\fBshape\fP (\fBlist\fP < \fI\%int\fP >) – shape
+.IP \(bu 2
+\fBchunk\fP (\fBlist\fP < \fI\%int\fP >) – chunk
+.IP \(bu 2
+\fBdfilter\fP (\fI\%H5CppDeflate\fP) – filter deflater
+.UNINDENT
+.TP
+.B Returns
+file tree field
+.TP
+.B Return type
+\fI\%H5CppField\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B create_group(n, nxclass=None)
+open a file tree element
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBn\fP (\fI\%str\fP) – group name
+.IP \(bu 2
+\fBnxclass\fP (\fI\%str\fP) – group type
+.UNINDENT
+.TP
+.B Returns
+file tree group
+.TP
+.B Return type
+\fI\%H5CppGroup\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B exists(name)
+if child exists
+.INDENT 7.0
+.TP
+.B Parameters
+\fBname\fP (\fI\%str\fP) – child name
+.TP
+.B Returns
+existing flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B is_valid
+check if field is valid
+.INDENT 7.0
+.TP
+.B Returns
+valid flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) object name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B names()
+read the child names
+.INDENT 7.0
+.TP
+.B Returns
+pni object
+.TP
+.B Return type
+\fBlist\fP <\fIstr\fP>
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B open(name)
+open a file tree element
+.INDENT 7.0
+.TP
+.B Parameters
+\fBname\fP (\fI\%str\fP) – element name
+.TP
+.B Returns
+file tree object
+.TP
+.B Return type
+\fBFTObject\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B path = None
+(\fI\%str\fP) object nexus path
+.UNINDENT
+.INDENT 7.0
+.TP
+.B reopen()
+reopen group
+.UNINDENT
+.INDENT 7.0
+.TP
+.B size
+group size
+.INDENT 7.0
+.TP
+.B Returns
+group size
+.TP
+.B Return type
+\fI\%int\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.h5cppwriter.H5CppLink(h5object, tparent=None)
+Bases: \fI\%lavuelib.filewriter.FTLink\fP
+.sp
+file tree link
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBh5object\fP (\fI\%any\fP) – pni object
+.IP \(bu 2
+\fBtparent\fP (\fBFTObject\fP) – treee parent
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B close()
+close group
+.UNINDENT
+.INDENT 7.0
+.TP
+.B classmethod getfilename(obj)
+.UNINDENT
+.INDENT 7.0
+.TP
+.B is_valid
+check if link is valid
+.INDENT 7.0
+.TP
+.B Returns
+valid flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) object name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B path = None
+(\fI\%str\fP) object nexus path
+.UNINDENT
+.INDENT 7.0
+.TP
+.B refresh()
+refresh the field
+.INDENT 7.0
+.TP
+.B Returns
+refreshed
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B reopen()
+reopen field
+.UNINDENT
+.INDENT 7.0
+.TP
+.B target_path
+target path
+.INDENT 7.0
+.TP
+.B Returns
+target path
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.h5cppwriter.create_file(filename, overwrite=False, libver=None)
+create a new file
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfilename\fP (\fI\%str\fP) – file name
+.IP \(bu 2
+\fBoverwrite\fP (\fI\%bool\fP) – overwrite flag
+.IP \(bu 2
+\fBlibver\fP (\fI\%str\fP) – library version: ‘lastest’ or ‘earliest’
+.UNINDENT
+.TP
+.B Returns
+file object
+.TP
+.B Return type
+\fI\%H5CppFile\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.h5cppwriter.deflate_filter()
+create deflate filter
+.INDENT 7.0
+.TP
+.B Returns
+deflate filter object
+.TP
+.B Return type
+\fI\%H5CppDeflate\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.h5cppwriter.get_links(parent)
+get links
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBFTObject\fP) – parent object
+.TP
+.B Returns
+list of link objects
+.TP
+.B Returns
+link object
+.TP
+.B Return type
+.INDENT 7.0
+.TP
+.B obj
+\fIlist\fP <\fI\%H5CppLink\fP>
+.UNINDENT
+
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.h5cppwriter.link(target, parent, name)
+create link
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBtarget\fP (\fI\%str\fP) – nexus path name
+.IP \(bu 2
+\fBparent\fP (\fBFTObject\fP) – parent object
+.IP \(bu 2
+\fBname\fP (\fI\%str\fP) – link name
+.UNINDENT
+.TP
+.B Returns
+link object
+.TP
+.B Return type
+\fI\%H5CppLink\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.h5cppwriter.nptype(dtype)
+converts to numpy types
+.INDENT 7.0
+.TP
+.B Parameters
+\fBdtype\fP (\fI\%str\fP) – h5 writer type type
+.TP
+.B Returns
+nupy type
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.h5cppwriter.open_file(filename, readonly=False, libver=None, swmr=False)
+open the new file
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfilename\fP (\fI\%str\fP) – file name
+.IP \(bu 2
+\fBreadonly\fP (\fI\%bool\fP) – readonly flag
+.IP \(bu 2
+\fBlibver\fP (\fI\%str\fP) – library version: ‘lastest’ or ‘earliest’
+.UNINDENT
+.TP
+.B Returns
+file object
+.TP
+.B Return type
+\fI\%H5CppFile\fP
+.UNINDENT
+.UNINDENT
 .SS lavuelib.h5pywriter
 .sp
 Provides h5py file writer
@@ -2595,6 +4083,71 @@ A list of possible hidra servers. Take your pick.
 (\fI\%dict\fP < \fI\%str\fP, \fBlist\fP <\fI\%str\fP> >)
 server dictionary
 .UNINDENT
+.SS lavuelib.highValueMaskWidget module
+.sp
+mask widget
+.INDENT 0.0
+.TP
+.B class lavuelib.highValueMaskWidget.HighValueMaskWidget(parent=None, settings=None)
+Bases: \fBPyQt4.QtGui.QWidget\fP
+.sp
+Define and apply masking of the displayed image.
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+.IP \(bu 2
+\fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) – lavue configuration settings
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B mask()
+provides the image mask high value
+.INDENT 7.0
+.TP
+.B Returns
+high pixel value for masking
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B maskHighValueChanged
+(\fBPyQt4.QtCore.pyqtSignal\fP) mask high value changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B noValue()
+unchecks the apply checkbox and clear the file display
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setDisplayedValue(value)
+sets displayed high pixel value
+.INDENT 7.0
+.TP
+.B Parameters
+\fBname\fP (\fI\%str\fP) – high pixel value
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setMask(value)
+sets the image mask high value
+.INDENT 7.0
+.TP
+.B Parameters
+\fBfname\fP (\fI\%str\fP) – high pixel value for masking
+.UNINDENT
+.UNINDENT
+.UNINDENT
 .SS lavuelib.histogramWidget module
 .sp
 Horizontal HistogramWidget
@@ -2644,38 +4197,41 @@ sets size hint
 image display widget
 .INDENT 0.0
 .TP
-.B class lavuelib.imageDisplayWidget.HandleWithSignals(pos, center, parent)
-Bases: \fBpyqtgraph.graphicsItems.ROI.Handle\fP
+.B class lavuelib.imageDisplayWidget.AxesParameters
+Bases: \fI\%object\fP
 .sp
-handle with signals
+axes parameters
 .sp
 constructor
 .INDENT 7.0
 .TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBpos\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) – position of handle
-.IP \(bu 2
-\fBcenter\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) – center of handle
-.IP \(bu 2
-\fBparent\fP (\fBpyqtgraph.graphicsItems.ROI.ROI\fP) – roi object
-.UNINDENT
+.B enabled = None
+(\fI\%bool\fP) enabled flag
 .UNINDENT
 .INDENT 7.0
 .TP
-.B hoverEvent(ev)
-hover event
-.INDENT 7.0
-.TP
-.B Parameters
-\fBev\fP (\fBPyQt4.QtCore.QEvent\fP:) – close event
-.UNINDENT
+.B scale = None
+(\fI\%tuple\fP <\fI\%float\fP, \fI\%float\fP> ) image scale (x,y)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B hovered
-(\fBPyQt4.QtCore.pyqtSignal\fP) hover event emitted
+.B xtext = None
+(\fI\%str\fP) label of x\-axis
+.UNINDENT
+.INDENT 7.0
+.TP
+.B xunits = None
+(\fI\%str\fP) units of x\-axis
+.UNINDENT
+.INDENT 7.0
+.TP
+.B ytext = None
+(\fI\%str\fP) label of y\-axis
+.UNINDENT
+.INDENT 7.0
+.TP
+.B yunits = None
+(\fI\%str\fP) units of y\-axis
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -2688,6 +4244,13 @@ constructor
 .TP
 .B Parameters
 \fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B addExtensions(extlist)
+provides viewbox
+:param extlist: extension list
+:type extlist: \fBlist\fP < \fBDisplayExtension\fP >
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -2705,55 +4268,6 @@ sets auto range
 return axes units
 :returns: x,y units
 :rtype: (\fI\%str\fP, \fI\%str\fP)
-.UNINDENT
-.INDENT 7.0
-.TP
-.B calcROIsum()
-calculates the current roi sum
-.INDENT 7.0
-.TP
-.B Returns
-sum roi value, roi id
-.TP
-.B Return type
-(\fI\%float\fP, \fI\%int\fP)
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B calcROIsums()
-calculates all roi sums
-.INDENT 7.0
-.TP
-.B Returns
-sum roi value, roi id
-.TP
-.B Return type
-:obj:list < float >
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B changeCutRegion(_=None)
-changes the current roi region
-.UNINDENT
-.INDENT 7.0
-.TP
-.B changeROIRegion(_=None)
-changes the current roi region
-.UNINDENT
-.INDENT 7.0
-.TP
-.B currentCut()
-provides current cut id
-.INDENT 7.0
-.TP
-.B Returns
-cut id
-.TP
-.B Return type
-\fI\%int\fP
-.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -2784,54 +4298,6 @@ x position, y position)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B currentROI()
-provides current roi id
-.INDENT 7.0
-.TP
-.B Returns
-roi id
-.TP
-.B Return type
-\fI\%int\fP
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B cutCoords()
-provides cuts coordinates
-.INDENT 7.0
-.TP
-.B Returns
-cuts coordinates
-.TP
-.B Return type
-\fBlist\fP
-< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B cutCoordsChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) cut coordinate changed signal
-.UNINDENT
-.INDENT 7.0
-.TP
-.B cutData(cid=None)
-provides the current cut data
-.INDENT 7.0
-.TP
-.B Parameters
-\fBcid\fP (\fI\%int\fP) – cut id
-.TP
-.B Returns
-current cut data
-.TP
-.B Return type
-\fI\%numpy.ndarray\fP
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
 .B emitAspectLockedToggled(status)
 emits aspectLockedToggled
 .INDENT 7.0
@@ -2839,6 +4305,15 @@ emits aspectLockedToggled
 .B Parameters
 \fBstatus\fP (\fI\%bool\fP) – aspectLockedToggled status
 .UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B extension(name)
+provides viewbox
+:param name: extension name
+:type name: \fI\%str\fP
+:rtype: \fBDisplayExtension\fP
+:returns: display extension
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -2851,32 +4326,6 @@ image object
 .TP
 .B Return type
 \fBpyqtgraph.imageItem.ImageItem\fP
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B isCutsEnabled()
-provides flag cuts enabled
-.INDENT 7.0
-.TP
-.B Returns
-cut enabled flag
-.TP
-.B Return type
-\fI\%bool\fP
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B isROIsEnabled()
-provides flag rois enabled
-.INDENT 7.0
-.TP
-.B Returns
-roi enabled flag
-.TP
-.B Return type
-\fI\%bool\fP
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2929,22 +4378,10 @@ current raw data
 .UNINDENT
 .INDENT 7.0
 .TP
-.B roiCoords()
-provides rois coordinates
-.INDENT 7.0
-.TP
-.B Returns
-rois coordinates
-.TP
-.B Return type
-\fBlist\fP
-< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B roiCoordsChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) roi coordinate changed signal
+.B scale()
+provides scale and position of the axes
+:rtype: [int, int, int, int]
+:returns: [posx, posy, scalex, scaley]
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -3068,16 +4505,6 @@ sets double click lock
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setMaximaPos(positionlist)
-sets maxima postions
-.INDENT 7.0
-.TP
-.B Parameters
-\fBpositionlist\fP (\fBlist\fP < (float, float) >) – [(x1, y1), … , (xn, yn)]
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
 .B setPolarScale(position=None, scale=None)
 set axes scales
 .INDENT 7.0
@@ -3091,22 +4518,6 @@ set axes scales
 .IP \(bu 2
 \fBupdate\fP – update scales on image
 .UNINDENT
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B setROIsColors(colors=None)
-sets statistics without scaling flag
-.INDENT 7.0
-.TP
-.B Parameters
-\fBcolors\fP (\fI\%str\fP) – json list of roi colors
-.TP
-.B Returns
-change status
-.TP
-.B Return type
-\fI\%bool\fP
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3200,36 +4611,6 @@ transpose, leftrightflip, updownflip flags
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updateCenter(xdata, ydata)
-updates the image center
-.INDENT 7.0
-.TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBxdata\fP (\fI\%float\fP) – x pixel position
-.IP \(bu 2
-\fBydata\fP (\fI\%float\fP) – y\-pixel position
-.UNINDENT
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B updateCuts(cid, coords)
-update Cuts
-.INDENT 7.0
-.TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBcid\fP (\fI\%int\fP) – cut id
-.IP \(bu 2
-\fBcoords\fP (\fBlist\fP < [float, float, float, float] >) – cut coordinates
-.UNINDENT
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
 .B updateImage(img=None, rawimg=None)
 updates the image to display
 .INDENT 7.0
@@ -3240,21 +4621,6 @@ updates the image to display
 \fBimg\fP (\fI\%numpy.ndarray\fP) – 2d image array
 .IP \(bu 2
 \fBrawimg\fP (\fI\%numpy.ndarray\fP) – 2d raw image array
-.UNINDENT
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B updateLocker(xdata, ydata)
-updates the locker position
-.INDENT 7.0
-.TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBxdata\fP (\fI\%float\fP) – x pixel position
-.IP \(bu 2
-\fBydata\fP (\fI\%float\fP) – y\-pixel position
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -3275,37 +4641,6 @@ update Metadata informations
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updatePositionMark(xdata, ydata)
-updates the position mark
-.INDENT 7.0
-.TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBxdata\fP (\fI\%float\fP) – x pixel position
-.IP \(bu 2
-\fBydata\fP (\fI\%float\fP) – y\-pixel position
-.UNINDENT
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B updateROIs(rid, coords)
-update ROIs
-.INDENT 7.0
-.TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBrid\fP (\fI\%int\fP) – roi id
-.IP \(bu 2
-\fBcoords\fP (\fBlist\fP
-< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >) – roi coordinates
-.UNINDENT
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
 .B viewRange()
 get view range values
 .INDENT 7.0
@@ -3317,42 +4652,60 @@ xmin,ymin,xsize,ysize
 \fI\%str\fP
 .UNINDENT
 .UNINDENT
+.INDENT 7.0
+.TP
+.B viewbox()
+provides viewbox
+:rtype: \fBpyqtgraph.ViewBox\fP
+:returns: viewbox
+.UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.imageDisplayWidget.SimpleLineROI(pos1, pos2, width=1e\-05, **args)
-Bases: \fBpyqtgraph.graphicsItems.ROI.LineROI\fP
+.B class lavuelib.imageDisplayWidget.IntensityParameters
+Bases: \fI\%object\fP
 .sp
-simple line roi
+intensity parameters
 .sp
 constructor
 .INDENT 7.0
 .TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBpos1\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) – start position
-.IP \(bu 2
-\fBpos2\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) – end position
-.IP \(bu 2
-\fBargs\fP (\fBdict\(ga<:obj:\(gastr\fP, \fI\%any\fP>) – dictionary with ROI parameters
-.UNINDENT
+.B dobkgsubtraction = None
+(\fI\%bool\fP) do background substraction
 .UNINDENT
 .INDENT 7.0
 .TP
-.B getCoordinates()
-provides the roi coordinates
+.B scaling = None
+(\fI\%str\fP) intensity scaling
+.UNINDENT
 .INDENT 7.0
 .TP
-.B Parameters
-\fBtrans\fP (\fI\%bool\fP) – transposed flag
-.TP
-.B Returns
-x1, y1, x2, y2 positions of the roi
-.TP
-.B Return type
-[\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP]
+.B statswoscaling = None
+(\fI\%bool\fP) calculate statistics without scaling
 .UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.imageDisplayWidget.TransformationParameters
+Bases: \fI\%object\fP
+.sp
+transformation parameters
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B leftrightflip = None
+(\fI\%bool\fP) left\-right flip coordinates flag
+.UNINDENT
+.INDENT 7.0
+.TP
+.B transpose = None
+(\fI\%bool\fP) transpose coordinates flag
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updownflip = None
+(\fI\%bool\fP)  up\-down flip coordinates flag
 .UNINDENT
 .UNINDENT
 .SS lavuelib.imageField
@@ -4723,7 +6076,7 @@ sets tango client
 .INDENT 7.0
 .TP
 .B Parameters
-\fBtangoclient\fP (\fBlavuelib.controllerClient.ControllerClient\fP) – attribute name
+\fBtangoclient\fP (\fI\%lavuelib.controllerClient.ControllerClient\fP) – attribute name
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5017,6 +6370,48 @@ writes DetectorROIsValuesattribute of device
 .UNINDENT
 .UNINDENT
 .UNINDENT
+.SS lavuelib.intervalsDialog module
+.sp
+interval device widget
+.INDENT 0.0
+.TP
+.B class lavuelib.intervalsDialog.IntervalsDialog(parent=None)
+Bases: \fBPyQt4.QtGui.QDialog\fP
+.sp
+interval widget class
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B accept()
+updates class variables with the form content
+.UNINDENT
+.INDENT 7.0
+.TP
+.B createGUI()
+create GUI
+.UNINDENT
+.INDENT 7.0
+.TP
+.B itime = None
+(\fI\%float\fP) integration time in seconds
+.UNINDENT
+.INDENT 7.0
+.TP
+.B xintervals = None
+(\fI\%int\fP) number of x intervals
+.UNINDENT
+.INDENT 7.0
+.TP
+.B yintervals = None
+(\fI\%int\fP) number of y intervals
+.UNINDENT
+.UNINDENT
 .SS lavuelib.levelsGroupBox module
 .sp
 level widget
@@ -5248,7 +6643,7 @@ live viewer settings
 .INDENT 0.0
 .TP
 .B class lavuelib.liveViewer.LiveViewer(options, parent=None)
-Bases: \fBPyQt4.QtGui.QMainWindow\fP
+Bases: \fBPyQt4.QtGui.QDialog\fP
 .sp
 The master class for the dialog, contains all other
 widget and handles communication.
@@ -5272,6 +6667,23 @@ stores the setting before finishing the application
 .TP
 .B Parameters
 \fBevent\fP (\fBPyQt4.QtCore.QEvent\fP:) – close event
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.liveViewer.MainWindow(options, parent=None)
+Bases: \fBPyQt4.QtGui.QMainWindow\fP
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBoptions\fP (\fI\%argparse.Namespace\fP) – commandline options
+.IP \(bu 2
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5402,6 +6814,66 @@ creates warning messagebox
 .TP
 .B lavuelib.messageBox.PYTANGO = True
 (\fI\%bool\fP) PyTango imported
+.UNINDENT
+.SS lavuelib.motorWatchThread module
+.sp
+motor watch thread
+.INDENT 0.0
+.TP
+.B lavuelib.motorWatchThread.GLOBALREFRESHRATE = 0.1
+(\fI\%float\fP) refresh rate in seconds
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.motorWatchThread.MotorWatchThread(motor1, motor2, server=None)
+Bases: \fBPyQt4.QtCore.QThread\fP
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBmotor1\fP (\fBPyTango.DeviceProxy\fP) – first motor device proxy
+.IP \(bu 2
+\fBmotor2\fP (\fBPyTango.DeviceProxy\fP) – second motor device proxy
+.IP \(bu 2
+\fBmserver\fP (\fBPyTango.DeviceProxy\fP) – door server device proxy
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B isRunning()
+is datasource source connected
+.INDENT 7.0
+.TP
+.B Returns
+if datasource source connected
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B motorStatusSignal
+(\fBPyQt4.QtCore.pyqtSignal\fP) signal with motor status
+.UNINDENT
+.INDENT 7.0
+.TP
+.B run()
+runner of the fetching thread
+.UNINDENT
+.INDENT 7.0
+.TP
+.B stop()
+stops loop
+.UNINDENT
+.INDENT 7.0
+.TP
+.B watchingFinished
+(\fBPyQt4.QtCore.pyqtSignal\fP) watching finished
+.UNINDENT
 .UNINDENT
 .SS lavuelib.pniwriter
 .sp
@@ -6293,6 +7765,81 @@ horizontal line
 .sp
 constructor
 .UNINDENT
+.SS lavuelib.rangeDialog module
+.sp
+detector range widget
+.INDENT 0.0
+.TP
+.B class lavuelib.rangeDialog.RangeDialog(parent=None)
+Bases: \fBPyQt4.QtGui.QDialog\fP
+.sp
+detector range widget class
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B accept()
+updates class variables with the form content
+.UNINDENT
+.INDENT 7.0
+.TP
+.B createGUI()
+create GUI
+.UNINDENT
+.INDENT 7.0
+.TP
+.B polend = None
+(\fI\%float\fP) end position of polar angle
+.UNINDENT
+.INDENT 7.0
+.TP
+.B polsize = None
+(\fI\%int\fP) grid size of polar angle
+.UNINDENT
+.INDENT 7.0
+.TP
+.B polstart = None
+(\fI\%float\fP) start position of polar angle
+.UNINDENT
+.INDENT 7.0
+.TP
+.B radqend = None
+(\fI\%float\fP) end position of radial coordinate
+.UNINDENT
+.INDENT 7.0
+.TP
+.B radqsize = None
+(\fI\%int\fP) grid size of radial coordinate
+.UNINDENT
+.INDENT 7.0
+.TP
+.B radqstart = None
+(\fI\%float\fP) start position of radial coordinate
+.UNINDENT
+.INDENT 7.0
+.TP
+.B radthend = None
+(\fI\%float\fP) end position of radial coordinate
+.UNINDENT
+.INDENT 7.0
+.TP
+.B radthsize = None
+(\fI\%int\fP) grid size of radial coordinate
+.UNINDENT
+.INDENT 7.0
+.TP
+.B radthstart = None
+(\fI\%float\fP) start position of radial coordinate
+.UNINDENT
+.UNINDENT
+.SS lavuelib.release module
+.sp
+release version
 .SS lavuelib.sardanaUtils module
 .sp
 sardana utils
@@ -6590,6 +8137,11 @@ constructor
 .TP
 .B addrois = None
 (\fI\%bool\fP) add rois to sardana
+.UNINDENT
+.INDENT 7.0
+.TP
+.B analysisdevice = None
+(\fI\%str\fP) analysis device name
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7724,6 +9276,68 @@ update image statistic values
 .B Parameters
 \fBmeanparent\fP – parent object
 .UNINDENT
+.UNINDENT
+.UNINDENT
+.SS lavuelib.takeMotorsDialog module
+.sp
+motor device widget
+.INDENT 0.0
+.TP
+.B lavuelib.takeMotorsDialog.PYTANGO = True
+(\fI\%bool\fP) PyTango imported
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.takeMotorsDialog.TakeMotorsDialog(parent=None)
+Bases: \fBPyQt4.QtGui.QDialog\fP
+.sp
+detector geometry widget class
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B accept()
+updates class variables with the form content
+.UNINDENT
+.INDENT 7.0
+.TP
+.B createGUI()
+create GUI
+.UNINDENT
+.INDENT 7.0
+.TP
+.B motortips = None
+(\fBlist\(ga<:obj:\(gastr\fP>) motortips list
+.UNINDENT
+.INDENT 7.0
+.TP
+.B title = None
+(\fI\%str\fP) group title
+.UNINDENT
+.INDENT 7.0
+.TP
+.B xmotordevice = None
+(\fBPyTango.DeviceProxy\fP) x motor device
+.UNINDENT
+.INDENT 7.0
+.TP
+.B xmotorname = None
+(\fI\%str\fP) x motor name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B ymotordevice = None
+(\fBPyTango.DeviceProxy\fP) y motor device
+.UNINDENT
+.INDENT 7.0
+.TP
+.B ymotorname = None
+(\fI\%str\fP) y motor name
 .UNINDENT
 .UNINDENT
 .SS lavuelib.toolWidget module
