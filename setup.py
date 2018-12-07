@@ -73,7 +73,7 @@ EXTERNAL = os.path.join(NAME, "external")
 SCRIPTS = ['lavuemonitor', 'lavuezmqstreamfromtango',
            'LavueController', 'lavuezmqstreamtest']
 #: (:obj:`list` < :obj:`str` >) executable GUI scripts
-GUISCRIPTS = ['lavue']
+GUISCRIPTS = ['lavue', 'lavuetaurus']
 
 needs_pytest = set(['test']).intersection(sys.argv)
 pytest_runner = ['pytest-runner'] if needs_pytest else []

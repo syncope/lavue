@@ -1,0 +1,218 @@
+#!/usr/bin/env python
+
+# Copyright (C) 2017  DESY, Notkestr. 85, D-22607 Hamburg
+#
+# lavue is an image viewing program for photon science imaging detectors.
+# Its usual application is as a live viewer using hidra as data source.
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation in  version 2
+# of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301, USA.
+#
+# Authors:
+#     Christoph Rosemann <christoph.rosemann@desy.de>
+#     Jan Kotanski <jan.kotanski@desy.de>
+#
+
+try:
+    from taurus.external.qt import Qt
+except:
+    from taurus.qt import Qt
+
+from taurus.qt.qtgui.base import TaurusBaseWidget
+
+import taurus.qt.qtgui.application
+import taurus.core.util.argparse
+
+import lavuelib
+import lavuelib.liveViewer
+import sys
+import os
+# from PyQt4 import QtGui, QtCore
+
+import lavuelib.qrc as qrc
+
+dialog = None
+
+
+class TaurusLavue(lavuelib.liveViewer.LiveViewer, TaurusBaseWidget):
+    '''The Taurus master class for the dialog, contains all other
+    widget and handles communication.'''
+
+    def __init__(self, options, parent=None):
+        """ constructor
+
+        :param options: commandline options
+        :type options: :class:`argparse.Namespace`
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
+        lavuelib.liveViewer.LiveViewer.__init__(self, options, parent)
+        TaurusBaseWidget.__init__(self, 'TaurusLauve')
+        self.setWindowTitle(
+            "laVue: Live Image Viewer (v%s)" % str(lavuelib.__version__))
+
+
+def main():
+    """ the main function
+    """
+
+    if "GNOME_DESKTOP_SESSION_ID" not in os.environ:
+        os.environ["GNOME_DESKTOP_SESSION_ID"] = "qtconfig"
+    if os.path.isdir("/usr/lib/kde4/plugins/") and \
+       "QT_PLUGIN_PATH" not in os.environ:
+        os.environ["QT_PLUGIN_PATH"] = "/usr/lib/kde4/plugins/"
+
+    Qt.QCoreApplication.setAttribute(Qt.Qt.AA_X11InitThreads)
+    Qt.QResource.registerResource(
+        os.path.join(qrc.__path__[0], "resources.rcc"))
+
+    Application = taurus.qt.qtgui.application.TaurusApplication
+
+    app = Application.instance()
+    parser = taurus.core.util.argparse.get_taurus_parser()
+    parser.description = '2d detector live image viewer'
+
+    parser.add_option(
+         "-v", "--lavue-version",
+         action="store_true",
+         default=False,
+         dest="lversion",
+         help="program version")
+    parser.add_option(
+        "-m", "--mode", dest="mode",
+        help="interface mode, i.e. user, expert")
+    parser.add_option(
+        "-y", "--style", dest="style",
+        help="Qt style")
+    parser.add_option(
+        "-e", "--stylesheet", dest="stylesheet",
+        help="Qt stylesheet")
+    parser.add_option(
+        "-f", "--image-file", dest="imagefile",
+        help="image file name to show")
+    parser.add_option(
+        "-s", "--source", dest="source",
+        help="image source, i.e. hidra, http, tangoattr,\n"
+        "    tangofile, zmq, nxsfile, test")
+
+    parser.add_option(
+        "-c", "--configuration", dest="configuration",
+        help="configuration strings for the image source separated by comma"
+        ", e.g.\n"
+        "  hidra -> '-c haspilatus300k.desy.de'\n"
+        "  http -> '-c haso228eiger/1.5.0'\n"
+        "  tangoattr -> '-c sys/tg_test/1/double_image_ro'\n"
+        "  tangofile -> '-c p00/plt/1/LastImageTaken,p00/plt/1/"
+        "LastImagePath'\n"
+        "  zmq -> '-c haso228:5535,topic'\n"
+        "  nxsfile -> '-c /tmp/myfile.nxs://entry/data/pilatus'\n"
+    )
+    parser.add_option(
+        "-b", "--bkg-file", dest="bkgfile",
+        help="background file-name to load"
+    )
+    parser.add_option(
+        "-k", "--mask-file", dest="maskfile",
+        help="mask file-name to load"
+    )
+    parser.add_option(
+        "-p", "--mask-high-value", dest="maskhighvalue",
+        help="highest pixel value to show"
+    )
+    parser.add_option(
+        "-t", "--transformation", dest="transformation",
+        help="image transformation, i.e.\n"
+        "  flip-up-down, flip-left-right, transpose,\n"
+        "  rot90, rot180, rot270, rot180+transpose"
+    )
+    parser.add_option(
+        "-i", "--scaling", dest="scaling",
+        help="intensity scaling, i.e. sqrt, linear, log"
+    )
+    parser.add_option(
+        "-l", "--levels", dest="levels",
+        help="intensity display levels e.g. -l m20,20\n"
+        "  where 'm' is '-'"
+    )
+    parser.add_option(
+        "-q", "--factor", dest="autofactor",
+        help="factor of the highest pick for automatic levels in %%,"
+        " e.g. -q 0.5"
+    )
+    parser.add_option(
+        "-g", "--gradient", dest="gradient",
+        help="color gradient, i.e. grey, highcontrast, thermal, flame,\n"
+        "  bipolar, spectrum, spectrumclip, greyclip, reversegrey, cyclic,\n"
+        "  yellowy, inverted"
+    )
+    parser.add_option(
+        "-r", "--range", dest="viewrange",
+        help="viewbox range, i.e. xmin,ymin,xsize,ysize , "
+        "e.g. -l 5.6,m60.7,543.2,444.11\n"
+        "  where 'm' is '-'"
+    )
+    parser.add_option(
+        "-x", "--start", action="store_true", default=False,
+        dest="start",
+        help="connect the image source")
+    parser.add_option(
+        "-u", "--tool", dest="tool",
+        help="utility tool, i.e. intensity, roi, movemotors, meshscan,\n"
+        "  linecut, projections, 1d-plot, angle/q, q+roi+proj"
+    )
+    parser.add_option(
+        "-a", "--tango-device", dest="tangodevice",
+        help="tango device name of LavueController to communicate"
+        " with controller clients during the run")
+    parser.add_option(
+        "-d", "--door", dest="doordevice",
+        help="door device to communicate with sardana during the run")
+    parser.add_option(
+        "-n", "--analysis-device", dest="analysisdevice",
+        help="tango analysis device of LambdaOnlineAnalysis"
+        " to communicate with analysis clients during the run")
+
+    (options, _) = parser.parse_args()
+
+    if options.lversion:
+        print(lavuelib.__version__)
+        sys.exit(0)
+
+    app = Application(
+        sys.argv,
+        cmd_line_parser=parser,
+        app_name="Lavue: Live Viewer",
+        app_version=lavuelib.__version__,
+        org_domain="desy.de",
+        org_name="DESY")
+
+    if options.style:
+        app.setStyle(options.style)
+    if options.stylesheet:
+        app.setStyle(options.stylesheet)
+    app.setWindowIcon(Qt.QIcon(":/lavue.png"))
+    dialog = TaurusLavue(options)
+
+    dialog.show()
+
+    status = app.exec_()
+    dialog = None
+    import gc
+    gc.collect()
+    sys.exit(status)
+
+
+if __name__ == "__main__":
+    main()
