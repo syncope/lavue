@@ -119,7 +119,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-c", "--configuration", dest="configuration",
         help="configuration strings for the image source separated by comma"
-        ", e.g.\n">
+        ", e.g.\n"
         "  hidra -> '-c haspilatus300k.desy.de'\n"
         "  http -> '-c haso228eiger/1.5.0'\n"
         "  tangoattr -> '-c sys/tg_test/1/double_image_ro'\n"
@@ -220,7 +220,7 @@ if __name__ == "__main__":
     app.setOrganizationName("DESY")
     app.setOrganizationDomain("desy.de")
     app.setApplicationName("LaVue")
-    dialog = lavuelib.liveViewer.LiveViewer(options=options)
+    dialog = lavuelib.liveViewer.MainWindow(options=options)
 
     dialog.show()
 

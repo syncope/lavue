@@ -78,10 +78,32 @@ _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                 "ui", "MainWindow.ui"))
+                 "ui", "MainDialog.ui"))
 
 
-class LiveViewer(QtGui.QMainWindow):
+class MainWindow(QtGui.QMainWindow):
+
+    def __init__(self, options, parent=None):
+        """ constructor
+
+        :param options: commandline options
+        :type options: :class:`argparse.Namespace`
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
+        QtGui.QMainWindow.__init__(self, parent)
+        self.__lavue = LiveViewer(options, self)
+        self.centralwidget = QtGui.QWidget(self)
+        self.gridLayout = QtGui.QGridLayout(self.centralwidget)
+        self.gridLayout.setMargin(0)
+        self.gridLayout.setSpacing(0)
+        self.gridLayout.addWidget(self.__lavue, 0, 0, 1, 1)
+        self.setCentralWidget(self.centralwidget)
+        self.setWindowTitle(
+            "laVue: Live Image Viewer (v%s)" % str(release.__version__))
+
+
+class LiveViewer(QtGui.QDialog):
 
     '''The master class for the dialog, contains all other
     widget and handles communication.'''
@@ -246,8 +268,6 @@ class LiveViewer(QtGui.QMainWindow):
         self.__ui.setupUi(self)
 
         # # LAYOUT DEFINITIONS
-        self.setWindowTitle(
-            "laVue: Live Image Viewer (v%s)" % str(release.__version__))
         self.__ui.confVerticalLayout.addWidget(self.__sourcewg)
         self.__ui.confVerticalLayout.addWidget(self.__prepwg)
         self.__ui.confVerticalLayout.addWidget(self.__scalingwg)
@@ -491,8 +511,12 @@ class LiveViewer(QtGui.QMainWindow):
         """ loads settings from QSettings object
         """
         settings = QtCore.QSettings()
-        self.restoreGeometry(settings.value(
-            "Layout/Geometry", type=QtCore.QByteArray))
+        if self.parent() is not None:
+            self.parent().restoreGeometry(settings.value(
+                "Layout/Geometry", type=QtCore.QByteArray))
+        else:
+            self.restoreGeometry(settings.value(
+                "Layout/Geometry", type=QtCore.QByteArray))
         status = self.__settings.load(settings)
 
         for topic, value in status:
@@ -544,9 +568,14 @@ class LiveViewer(QtGui.QMainWindow):
         """ stores settings in QSettings object
         """
         settings = QtCore.QSettings()
-        settings.setValue(
-            "Layout/Geometry",
-            QtCore.QByteArray(self.saveGeometry()))
+        if self.parent() is not None and self.parent().parent() is not None:
+            settings.setValue(
+                "Layout/Geometry",
+                QtCore.QByteArray(self.parent().parent().saveGeometry()))
+        else:
+            settings.setValue(
+                "Layout/Geometry",
+                QtCore.QByteArray(self.saveGeometry()))
 
         self.__settings.refreshrate = dataFetchThread.GLOBALREFRESHRATE
         self.__settings.sardana = True if self.__sardana is not None else False
