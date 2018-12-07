@@ -166,7 +166,6 @@ class DisplayExtension(QtCore.QObject):
 
         :returns: is extension enabled
         :rtype: :obj:`bool`
-        ::
         """
         return self._enabled
 

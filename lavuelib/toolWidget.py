@@ -1699,7 +1699,7 @@ class AngleQToolWidget(ToolWidget):
         self.parameters.polarscale = False
         # self.parameters.rightplot = True
 
-        #: (`lavuelib.displayParameters.AxesParameters`) axes backup
+        #: (`lavuelib.imageDisplayWidget.AxesParameters`) axes backup
         self.__axes = None
 
         #: (:class:`lavuelib.settings.Settings`:) configuration settings
@@ -2304,7 +2304,7 @@ class MaximaToolWidget(ToolWidget):
         self.parameters.maxima = True
         # self.parameters.rightplot = True
 
-        #: (`lavuelib.displayParameters.AxesParameters`) axes backup
+        #: (`lavuelib..imageDisplayWidget.AxesParameters`) axes backup
         self.__axes = None
 
         #: (:class:`lavuelib.settings.Settings`:) configuration settings

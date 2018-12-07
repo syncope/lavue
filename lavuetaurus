@@ -25,56 +25,46 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
+try:
+    from taurus.external.qt import Qt
+except:
+    from taurus.qt import Qt
+
+from taurus.qt.qtgui.base import TaurusBaseWidget
+
+import taurus.qt.qtgui.application
+import taurus.core.util.argparse
 
 import lavuelib
 import lavuelib.liveViewer
 import sys
 import os
-import argparse
-import signal
-
-from argparse import RawTextHelpFormatter
+# from PyQt4 import QtGui, QtCore
 
 import lavuelib.qrc as qrc
 
 dialog = None
 
 
-def setupHandler():
-    """ sets interrupt handler for SIGINT and SIGTERM
-    """
-    signal.signal(signal.SIGINT, _intHandler)
-    signal.signal(signal.SIGTERM, _intHandler)
-    if os.name == 'posix':
-        signal.signal(signal.SIGHUP, _intHandler)
-    sftimer()
+class TaurusLavue(lavuelib.liveViewer.LiveViewer, TaurusBaseWidget):
+    '''The Taurus master class for the dialog, contains all other
+    widget and handles communication.'''
+
+    def __init__(self, options, parent=None):
+        """ constructor
+
+        :param options: commandline options
+        :type options: :class:`argparse.Namespace`
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
+        lavuelib.liveViewer.LiveViewer.__init__(self, options, parent)
+        TaurusBaseWidget.__init__(self, 'TaurusLauve')
+        self.setWindowTitle(
+            "laVue: Live Image Viewer (v%s)" % str(lavuelib.__version__))
 
 
-def _intHandler(signum, frame):
-    """ interrupt handler
-    :param signum:  signal number
-    :type signum: :obj:`int`
-    :param frame: frame object
-    :type frame:  :obj:`frame`
-    """
-    dialog.close()
-    QtGui.QApplication.quit()
-    # print("quit")
-
-
-def sftimer():
-    """ creates a garbage collector safe timer
-    """
-    def timerEvent():
-        try:
-            pass
-        finally:
-            QtCore.QTimer.singleShot(500, timerEvent)
-    QtCore.QTimer.singleShot(500, timerEvent)
-
-
-# def main():
-if __name__ == "__main__":
+def main():
     """ the main function
     """
 
@@ -84,39 +74,40 @@ if __name__ == "__main__":
        "QT_PLUGIN_PATH" not in os.environ:
         os.environ["QT_PLUGIN_PATH"] = "/usr/lib/kde4/plugins/"
 
-    from PyQt4 import QtGui, QtCore
-
-    QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
-    QtCore.QResource.registerResource(
+    Qt.QCoreApplication.setAttribute(Qt.Qt.AA_X11InitThreads)
+    Qt.QResource.registerResource(
         os.path.join(qrc.__path__[0], "resources.rcc"))
 
-    parser = argparse.ArgumentParser(
-        description='2d detector live image viewer',
-        formatter_class=RawTextHelpFormatter)
-    parser.add_argument(
-        "-v", "--version",
-        action="store_true",
-        default=False,
-        dest="version",
-        help="program version")
-    parser.add_argument(
+    Application = taurus.qt.qtgui.application.TaurusApplication
+
+    app = Application.instance()
+    parser = taurus.core.util.argparse.get_taurus_parser()
+    parser.description = '2d detector live image viewer'
+
+    parser.add_option(
+         "-v", "--lavue-version",
+         action="store_true",
+         default=False,
+         dest="lversion",
+         help="program version")
+    parser.add_option(
         "-m", "--mode", dest="mode",
         help="interface mode, i.e. user, expert")
-    parser.add_argument(
+    parser.add_option(
         "-y", "--style", dest="style",
         help="Qt style")
-    parser.add_argument(
+    parser.add_option(
         "-e", "--stylesheet", dest="stylesheet",
         help="Qt stylesheet")
-    parser.add_argument(
+    parser.add_option(
         "-f", "--image-file", dest="imagefile",
         help="image file name to show")
-    parser.add_argument(
+    parser.add_option(
         "-s", "--source", dest="source",
         help="image source, i.e. hidra, http, tangoattr,\n"
         "    tangofile, zmq, nxsfile, test")
 
-    parser.add_argument(
+    parser.add_option(
         "-c", "--configuration", dest="configuration",
         help="configuration strings for the image source separated by comma"
         ", e.g.\n"
@@ -128,99 +119,91 @@ if __name__ == "__main__":
         "  zmq -> '-c haso228:5535,topic'\n"
         "  nxsfile -> '-c /tmp/myfile.nxs://entry/data/pilatus'\n"
     )
-    parser.add_argument(
+    parser.add_option(
         "-b", "--bkg-file", dest="bkgfile",
         help="background file-name to load"
     )
-    parser.add_argument(
+    parser.add_option(
         "-k", "--mask-file", dest="maskfile",
         help="mask file-name to load"
     )
-    parser.add_argument(
+    parser.add_option(
         "-p", "--mask-high-value", dest="maskhighvalue",
         help="highest pixel value to show"
     )
-    parser.add_argument(
+    parser.add_option(
         "-t", "--transformation", dest="transformation",
         help="image transformation, i.e.\n"
         "  flip-up-down, flip-left-right, transpose,\n"
         "  rot90, rot180, rot270, rot180+transpose"
     )
-    parser.add_argument(
+    parser.add_option(
         "-i", "--scaling", dest="scaling",
         help="intensity scaling, i.e. sqrt, linear, log"
     )
-    parser.add_argument(
+    parser.add_option(
         "-l", "--levels", dest="levels",
         help="intensity display levels e.g. -l m20,20\n"
         "  where 'm' is '-'"
     )
-    parser.add_argument(
+    parser.add_option(
         "-q", "--factor", dest="autofactor",
         help="factor of the highest pick for automatic levels in %%,"
         " e.g. -q 0.5"
     )
-    parser.add_argument(
+    parser.add_option(
         "-g", "--gradient", dest="gradient",
         help="color gradient, i.e. grey, highcontrast, thermal, flame,\n"
         "  bipolar, spectrum, spectrumclip, greyclip, reversegrey, cyclic,\n"
         "  yellowy, inverted"
     )
-    parser.add_argument(
+    parser.add_option(
         "-r", "--range", dest="viewrange",
         help="viewbox range, i.e. xmin,ymin,xsize,ysize , "
         "e.g. -l 5.6,m60.7,543.2,444.11\n"
         "  where 'm' is '-'"
     )
-    parser.add_argument(
+    parser.add_option(
         "-x", "--start", action="store_true", default=False,
         dest="start",
         help="connect the image source")
-    parser.add_argument(
+    parser.add_option(
         "-u", "--tool", dest="tool",
         help="utility tool, i.e. intensity, roi, movemotors, meshscan,\n"
         "  linecut, projections, 1d-plot, angle/q, q+roi+proj"
     )
-    parser.add_argument(
+    parser.add_option(
         "-a", "--tango-device", dest="tangodevice",
         help="tango device name of LavueController to communicate"
         " with controller clients during the run")
-    parser.add_argument(
+    parser.add_option(
         "-d", "--door", dest="doordevice",
         help="door device to communicate with sardana during the run")
-    parser.add_argument(
+    parser.add_option(
         "-n", "--analysis-device", dest="analysisdevice",
         help="tango analysis device of LambdaOnlineAnalysis"
         " to communicate with analysis clients during the run")
 
-    # parser.add_argument(
-    #       "-o", "--log", dest="log",
-    #        help="logging level, i.e. debug, info, warning, error, critical")
+    (options, _) = parser.parse_args()
 
-    options = parser.parse_args()
-
-    if options.version:
+    if options.lversion:
         print(lavuelib.__version__)
         sys.exit(0)
 
-    # level = LogActions.levels.get(options.log, logging.INFO)
-    # handler = LogHandler()
-    # handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
-    # logger = logging.getLogger("lavue")
-    # logger.addHandler(handler)
-    # logger.setLevel(level)
+    app = Application(
+        sys.argv,
+        cmd_line_parser=parser,
+        app_name="Lavue: Live Viewer",
+        app_version=lavuelib.__version__,
+        org_domain="desy.de",
+        org_name="DESY")
 
-    app = QtGui.QApplication([])
-    setupHandler()
     if options.style:
         app.setStyle(options.style)
     if options.stylesheet:
         app.setStyle(options.stylesheet)
-    app.setWindowIcon(QtGui.QIcon(":/lavue.png"))
-    app.setOrganizationName("DESY")
-    app.setOrganizationDomain("desy.de")
-    app.setApplicationName("LaVue")
-    dialog = lavuelib.liveViewer.MainWindow(options=options)
+    app.setWindowIcon(Qt.QIcon(":/lavue.png"))
+    dialog = TaurusLavue(options)
 
     dialog.show()
 
@@ -230,5 +213,6 @@ if __name__ == "__main__":
     gc.collect()
     sys.exit(status)
 
-# if __name__ == "__main__":
-#     main()
+
+if __name__ == "__main__":
+    main()

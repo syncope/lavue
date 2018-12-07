@@ -1,3 +1,7 @@
+2018-12-07 Jan Kotanski <jan.kotanski@desy.de>
+	* add taurus support
+	* tagged as 1.29.0
+
 2018-12-05 Jan Kotanski <jan.kotanski@desy.de>
 	* add sending rois to onlineanalysis server
 	* tagged as 1.28.0

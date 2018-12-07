@@ -35,6 +35,14 @@ lavuelib.configDialog module
     :undoc-members:
     :show-inheritance:
 
+lavuelib.controllerClient module
+--------------------------------
+
+.. automodule:: lavuelib.controllerClient
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lavuelib.dataFetchThread module
 -------------------------------
 
@@ -43,10 +51,10 @@ lavuelib.dataFetchThread module
     :undoc-members:
     :show-inheritance:
 
-lavuelib.displayParameters module
+lavuelib.displayExtensions module
 ---------------------------------
 
-.. automodule:: lavuelib.displayParameters
+.. automodule:: lavuelib.displayExtensions
     :members:
     :undoc-members:
     :show-inheritance:
@@ -67,6 +75,14 @@ lavuelib.geometryDialog module
     :undoc-members:
     :show-inheritance:
 
+lavuelib.h5cppwriter
+--------------------
+
+.. automodule:: lavuelib.h5cppwriter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lavuelib.h5pywriter
 -------------------
 
@@ -79,6 +95,14 @@ lavuelib.hidraServerList module
 -------------------------------
 
 .. automodule:: lavuelib.hidraServerList
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lavuelib.highValueMaskWidget module
+-----------------------------------
+
+.. automodule:: lavuelib.highValueMaskWidget
     :members:
     :undoc-members:
     :show-inheritance:
@@ -131,6 +155,14 @@ lavuelib.imageWidget module
     :undoc-members:
     :show-inheritance:
 
+lavuelib.intervalsDialog module
+-------------------------------
+
+.. automodule:: lavuelib.intervalsDialog
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lavuelib.levelsGroupBox module
 ------------------------------
 
@@ -163,6 +195,14 @@ lavuelib.messageBox module
     :undoc-members:
     :show-inheritance:
 
+lavuelib.motorWatchThread module
+--------------------------------
+
+.. automodule:: lavuelib.motorWatchThread
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lavuelib.pniwriter
 ------------------
 
@@ -172,9 +212,25 @@ lavuelib.pniwriter
     :show-inheritance:
 
 lavuelib.preparationGroupBox module
-------------------------------------
+-----------------------------------
 
 .. automodule:: lavuelib.preparationGroupBox
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lavuelib.rangeDialog module
+---------------------------
+
+.. automodule:: lavuelib.rangeDialog
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lavuelib.release module
+-----------------------
+
+.. automodule:: lavuelib.release
     :members:
     :undoc-members:
     :show-inheritance:
@@ -188,7 +244,7 @@ lavuelib.sardanaUtils module
     :show-inheritance:
 
 lavuelib.scalingGroupBox module
---------------------------------------
+-------------------------------
 
 .. automodule:: lavuelib.scalingGroupBox
     :members:
@@ -226,6 +282,15 @@ lavuelib.statisticsGroupBox module
     :members:
     :undoc-members:
     :show-inheritance:
+
+lavuelib.takeMotorsDialog module
+--------------------------------
+
+.. automodule:: lavuelib.takeMotorsDialog
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 lavuelib.toolWidget module
 --------------------------
