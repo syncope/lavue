@@ -847,7 +847,7 @@ class CutExtension(DisplayExtension):
 class MeshExtension(DisplayExtension):
 
     #: (:class:`PyQt4.QtCore.pyqtSignal`) roi coordinate changed signal
-    meshCoordsChanged = QtCore.pyqtSignal()
+    roiCoordsChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         """ constructor
@@ -887,7 +887,6 @@ class MeshExtension(DisplayExtension):
         self.__roitext.append(text)
         self._mainwidget.viewbox().addItem(self.__roi[0])
         self.__roi[0].hide()
-        self.setROIsColors()
 
         self.__roiregionmapper.mapped.connect(self.changeROIRegion)
         self.__currentroimapper.mapped.connect(self._emitROICoordsChanged)

@@ -66,6 +66,8 @@ class ImageWidget(QtGui.QWidget):
     roiNumberChanged = QtCore.pyqtSignal(int)
     #: (:class:`PyQt4.QtCore.pyqtSignal`) roi coordinate changed signal
     roiCoordsChanged = QtCore.pyqtSignal()
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) mesh coordinate changed signal
+    meshCoordsChanged = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) roi Line Edit changed signal
     roiLineEditChanged = QtCore.pyqtSignal()
     #: (:class:`PyQt4.QtCore.pyqtSignal`) roi aliases changed signal
@@ -151,7 +153,7 @@ class ImageWidget(QtGui.QWidget):
              displayExtensions.LockerExtension,
              displayExtensions.CenterExtension,
              displayExtensions.MarkExtension,
-            [displayExtensions.MeshExtension,
+             displayExtensions.MeshExtension,
              displayExtensions.MaximaExtension]
         )
 
@@ -1192,6 +1194,15 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__displaywidget.extension('rois').roiCoords()
 
+    def meshCoords(self):
+        """ provides rois coordinates
+
+        :return: rois coordinates
+        :rtype: :obj:`list`
+               < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
+        return self.__displaywidget.extension('mesh').roiCoords()
+
     def cutCoords(self):
         """ provides cuts coordinates
 
@@ -1221,6 +1232,11 @@ class ImageWidget(QtGui.QWidget):
         """ changes the current roi region
         """
         return self.__displaywidget.extension('rois').changeROIRegion()
+
+    def changeMeshRegion(self):
+        """ changes the current roi region
+        """
+        return self.__displaywidget.extension('mesh').changeROIRegion()
 
     def cutData(self, cid=None):
         """ provides the current cut data

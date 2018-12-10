@@ -601,13 +601,13 @@ class MeshToolWidget(ToolWidget):
     def activate(self):
         """ activates tool widget
         """
-        self._mainwidget.changeROIRegion()
+        self._mainwidget.changeMeshRegion()
         # self._mainwidget.updateROIs(1)
 
     def disactivate(self):
         """ disactivates tool widget
         """
-        self._mainwidget.roiCoordsChanged.emit()
+        self._mainwidget.meshCoordsChanged.emit()
 
     @QtCore.pyqtSlot(str, int, str)
     def updateROIDisplayText(self, text, currentroi, roiVal):
@@ -706,10 +706,9 @@ class MeshToolWidget(ToolWidget):
         :returns: motors started
         :rtype: :obj:`bool`
         """
-        current = self._mainwidget.currentROI()
-        coords = self._mainwidget.roiCoords()
-        if current > -1 and current < len(coords):
-            curcoords = coords[current]
+        coords = self._mainwidget.meshCoords()
+        if 0 < len(coords):
+            curcoords = coords[0]
         else:
             return False
 
@@ -833,13 +832,12 @@ class MeshToolWidget(ToolWidget):
 
     @QtCore.pyqtSlot()
     def _message(self):
-        """ provides roi message
+        """ provides mesh message
         """
         message = ""
-        current = self._mainwidget.currentROI()
-        coords = self._mainwidget.roiCoords()
-        if current > -1 and current < len(coords):
-            message = "%s" % coords[current]
+        coords = self._mainwidget.meshCoords()
+        if 0 < len(coords):
+            message = "%s" % coords[0]
         self._mainwidget.setDisplayedText(message)
 
 
