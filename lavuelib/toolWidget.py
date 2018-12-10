@@ -96,6 +96,8 @@ class ToolParameters(object):
         self.rois = False
         #: (:obj:`bool`) cuts enabled
         self.cuts = False
+        #: (:obj:`bool`) mesh enabled
+        self.mesh = False
         #: (:obj:`bool`) axes scale enabled
         self.scale = False
         #: (:obj:`bool`) polar axes scale enabled
@@ -576,7 +578,9 @@ class MeshToolWidget(ToolWidget):
         self.__ui.setupUi(self)
         self.__showLabels()
 
-        self.parameters.rois = True
+        self.parameters.scale = True
+        self.parameters.rois = False
+        self.parameters.mesh = True
         self.parameters.infolineedit = ""
         self.parameters.infolabel = "[x1, y1, x2, y2], sum: "
         self.parameters.infotips = \
@@ -585,6 +589,7 @@ class MeshToolWidget(ToolWidget):
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
+            [self.__ui.axesPushButton.clicked, self._mainwidget.setTicks],
             [self.__ui.takePushButton.clicked, self._setMotors],
             [self.__ui.intervalsPushButton.clicked, self._setIntervals],
             [self.__ui.scanPushButton.clicked, self._scanStopMotors],

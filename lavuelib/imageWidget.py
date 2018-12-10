@@ -151,6 +151,7 @@ class ImageWidget(QtGui.QWidget):
              displayExtensions.LockerExtension,
              displayExtensions.CenterExtension,
              displayExtensions.MarkExtension,
+            [displayExtensions.MeshExtension,
              displayExtensions.MaximaExtension]
         )
 
