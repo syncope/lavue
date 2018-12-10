@@ -273,6 +273,7 @@ class MotorsToolWidget(ToolWidget):
         self.__ui.ycurLineEdit.hide()
 
         #: (:obj:`bool`) position lines enabled
+        self.parameters.scale = True
         self.parameters.marklines = True
         self.parameters.infolineedit = ""
         self.parameters.infotips = \
@@ -281,6 +282,7 @@ class MotorsToolWidget(ToolWidget):
         #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
+            [self.__ui.axesPushButton.clicked, self._mainwidget.setTicks],
             [self.__ui.takePushButton.clicked, self._setMotors],
             [self.__ui.movePushButton.clicked, self._moveStopMotors],
             [self._mainwidget.mouseImageDoubleClicked, self._updateFinal],
@@ -306,8 +308,14 @@ class MotorsToolWidget(ToolWidget):
         :type ydata: :obj:`float`
         """
         if not self.__moving:
-            self.__xfinal = float(xdata)
-            self.__yfinal = float(ydata)
+            x, y = self._mainwidget.scaledxy(float(xdata), float(ydata))
+            if x is not None:
+                    self.__xfinal = x
+                    self.__yfinal = y
+            else:
+                    self.__xfinal = float(xdata)
+                    self.__yfinal = float(ydata)
+
             self.__ui.xLineEdit.setText(str(self.__xfinal))
             self.__ui.yLineEdit.setText(str(self.__yfinal))
             self.__ui.movePushButton.setToolTip(
@@ -361,6 +369,7 @@ class MotorsToolWidget(ToolWidget):
         self.__ui.xcurLineEdit.hide()
         self.__ui.ycurLineEdit.hide()
         self.__ui.takePushButton.show()
+        self.__ui.axesPushButton.show()
         self.__moving = False
         self.__ui.xLineEdit.setReadOnly(False)
         self.__ui.yLineEdit.setReadOnly(False)
@@ -420,6 +429,7 @@ class MotorsToolWidget(ToolWidget):
         self.__ui.xcurLineEdit.show()
         self.__ui.ycurLineEdit.show()
         self.__ui.takePushButton.hide()
+        self.__ui.axesPushButton.hide()
         self.__ui.xLineEdit.setReadOnly(True)
         self.__ui.yLineEdit.setReadOnly(True)
         self.__moving = True
@@ -495,8 +505,25 @@ class MotorsToolWidget(ToolWidget):
         """
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
         ilabel = self._mainwidget.scalingLabel()
-        message = "x = %.2f, y = %.2f, %s = %.2f" % (
-            x, y, ilabel, intensity)
+        txdata, tydata = self._mainwidget.scaledxy(x, y)
+        xunits, yunits = self._mainwidget.axesunits()
+        if txdata is not None:
+            message = "x = %f%s, y = %f%s, %s = %.2f" % (
+                txdata,
+                (" %s" % xunits) if xunits else "",
+                tydata,
+                (" %s" % yunits) if yunits else "",
+                ilabel,
+                intensity
+            )
+        else:
+            message = "x = %f%s, y = %f%s, %s = %.2f" % (
+                x,
+                (" %s" % xunits) if xunits else "",
+                y,
+                (" %s" % yunits) if yunits else "",
+                ilabel,
+                intensity)
         self._mainwidget.setDisplayedText(message)
 
 
@@ -647,6 +674,7 @@ class MeshToolWidget(ToolWidget):
         self.__ui.xcurLineEdit.hide()
         self.__ui.ycurLineEdit.hide()
         self.__ui.takePushButton.show()
+        self.__ui.axesPushButton.show()
         self.__ui.intervalsPushButton.show()
         self.__ui.xLabel.setText("X: %s" % (self.__xintervals))
         self.__ui.yLabel.setText("Y: %s" % (self.__yintervals))
@@ -660,6 +688,7 @@ class MeshToolWidget(ToolWidget):
         self.__ui.xcurLineEdit.show()
         self.__ui.ycurLineEdit.show()
         self.__ui.takePushButton.hide()
+        self.__ui.axesPushButton.hide()
         self.__ui.intervalsPushButton.hide()
         self.__ui.xLabel.setText("X: %s" % (self.__xintervals))
         self.__ui.yLabel.setText("Y: %s" % (self.__yintervals))

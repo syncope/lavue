@@ -1141,12 +1141,21 @@ class MarkExtension(DisplayExtension):
         :type y: float
         """
         if not self.__markcoordinates:
-            if not self._mainwidget.transformations()[0]:
-                self.__markVLine.setPos(x)
-                self.__markHLine.setPos(y)
+            pos0, pos1, scale0, scale1 = self._mainwidget.scale()
+            if pos0 is not None:
+                if not self._mainwidget.transformations()[0]:
+                    self.__markVLine.setPos((x) * scale0 + pos0)
+                    self.__markHLine.setPos((y) * scale1 + pos1)
+                else:
+                    self.__markVLine.setPos((y) * scale1 + pos1)
+                    self.__markHLine.setPos((x) * scale0 + pos0)
             else:
-                self.__markVLine.setPos(y)
-                self.__markHLine.setPos(x)
+                if not self._mainwidget.transformations()[0]:
+                    self.__markVLine.setPos(x)
+                    self.__markHLine.setPos(y)
+                else:
+                    self.__markVLine.setPos(y)
+                    self.__markHLine.setPos(x)
 
     def mouse_doubleclick(self, x, y, locked):
         """  sets vLine and hLine positions
@@ -1171,12 +1180,21 @@ class MarkExtension(DisplayExtension):
         :type ydata: :obj:`float`
         """
         self.__markcoordinates = [xdata, ydata]
-        if not self._mainwidget.transformations()[0]:
-            self.__markVLine.setPos(xdata)
-            self.__markHLine.setPos(ydata)
+        pos0, pos1, scale0, scale1 = self._mainwidget.scale()
+        if pos0 is not None:
+            if not self._mainwidget.transformations()[0]:
+                self.__markVLine.setPos((xdata) * scale0 + pos0)
+                self.__markHLine.setPos((ydata) * scale1 + pos1)
+            else:
+                self.__markVLine.setPos((ydata) * scale1 + pos1)
+                self.__markHLine.setPos((xdata) * scale0 + pos0)
         else:
-            self.__markVLine.setPos(ydata)
-            self.__markHLine.setPos(xdata)
+            if not self._mainwidget.transformations()[0]:
+                self.__markVLine.setPos(xdata)
+                self.__markHLine.setPos(ydata)
+            else:
+                self.__markVLine.setPos(ydata)
+                self.__markHLine.setPos(xdata)
 
     def transpose(self):
         """ transposes Mark Position lines
