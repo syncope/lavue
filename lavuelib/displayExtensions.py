@@ -844,6 +844,227 @@ class CutExtension(DisplayExtension):
             crd.setAngle(270-angle)
 
 
+class MeshExtension(DisplayExtension):
+
+    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi coordinate changed signal
+    roiCoordsChanged = QtCore.pyqtSignal()
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`PyQt4.QtCore.QObject`
+        """
+        DisplayExtension.__init__(self, parent)
+
+        #: (:obj:`str`) tool name
+        self.name = "mesh"
+
+        #: (:class:`PyQt4.QtCore.QSignalMapper`) current roi mapper
+        self.__currentroimapper = QtCore.QSignalMapper(self)
+        #: (:class:`PyQt4.QtCore.QSignalMapper`) roi region mapper
+        self.__roiregionmapper = QtCore.QSignalMapper(self)
+
+        #: (:obj:`int`) current roi id
+        self.__current = 0
+        #: (:obj:`list` < [int, int, int, int] > )
+        #: x1,y1,x2,y2 rois coordinates
+        self.__coords = [[10, 10, 60, 60]]
+        #: (:obj:`list` < (int, int, int) > ) list with roi colors
+        self.__colors = []
+
+        #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.TextItem`>)
+        #:            list of roi widgets
+        self.__roitext = []
+        #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.ROI`>)
+        #:            list of roi widgets
+        self.__roi = []
+        self.__roi.append(ROI(0, _pg.Point(50, 50)))
+        self.__roi[0].addScaleHandle([1, 1], [0, 0])
+        self.__roi[0].addScaleHandle([0, 0], [1, 1])
+        text = _pg.TextItem("1.", anchor=(1, 1))
+        text.setParentItem(self.__roi[0])
+        self.__roitext.append(text)
+        self._mainwidget.viewbox().addItem(self.__roi[0])
+        self.__roi[0].hide()
+
+        self.__roiregionmapper.mapped.connect(self.changeROIRegion)
+        self.__currentroimapper.mapped.connect(self._emitROICoordsChanged)
+        self._getROI().sigHoverEvent.connect(
+            self.__currentroimapper.map)
+        self._getROI().sigRegionChanged.connect(
+            self.__roiregionmapper.map)
+        self.__currentroimapper.setMapping(self._getROI(), 0)
+        self.__roiregionmapper.setMapping(self._getROI(), 0)
+
+    def show(self, parameters):
+        """ set subwidget properties
+
+        :param parameters: tool parameters
+        :type parameters: :class:`lavuelib.toolWidget.ToolParameters`
+        """
+        if parameters.mesh is not None:
+            self.__showROIs(parameters.mesh)
+            self._enabled = parameters.mesh
+
+    def scalingLabel(self):
+        """ provides scaling label
+
+        :returns:  scaling label
+        :rtype: str
+        """
+        return "intensity"
+
+    def _getROI(self, rid=-1):
+        """ get the given or the last ROI
+
+        :param rid: roi id
+        :type rid: :obj:`int`
+        """
+        if self.__roi and len(self.__roi) > rid:
+            return self.__roi[rid]
+        else:
+            return None
+
+    def __showROIs(self, status):
+        """ shows or hides rois
+
+        :param status: will be shown
+        :type status: :obj:`bool`
+        """
+        if status:
+            for roi in self.__roi:
+                roi.show()
+        else:
+            for roi in self.__roi:
+                roi.hide()
+
+    def __addROICoords(self, coords):
+        """ adds ROI coorinates
+
+        :param coords: roi coordinates
+        :type coords: :obj:`list`
+                < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
+        if coords:
+            for i, crd in enumerate(self.__roi):
+                if i < len(coords):
+                    self.__coords[i] = coords[i]
+                    if not self._mainwidget.transformations()[0]:
+                        crd.setPos([coords[i][0], coords[i][1]])
+                        crd.setSize(
+                            [coords[i][2] - coords[i][0],
+                             coords[i][3] - coords[i][1]])
+                    else:
+                        crd.setPos([coords[i][1], coords[i][0]])
+                        crd.setSize(
+                            [coords[i][3] - coords[i][1],
+                             coords[i][2] - coords[i][0]])
+
+    @QtCore.pyqtSlot(int)
+    def changeROIRegion(self, _=None):
+        """ changes the current roi region
+        """
+        try:
+            rid = self.__current
+            roi = self._getROI(rid)
+            if roi is not None:
+                state = roi.state
+                if not self._mainwidget.transformations()[0]:
+                    ptx = int(math.floor(state['pos'].x()))
+                    pty = int(math.floor(state['pos'].y()))
+                    szx = int(math.floor(state['size'].x()))
+                    szy = int(math.floor(state['size'].y()))
+                else:
+                    pty = int(math.floor(state['pos'].x()))
+                    ptx = int(math.floor(state['pos'].y()))
+                    szy = int(math.floor(state['size'].x()))
+                    szx = int(math.floor(state['size'].y()))
+                crd = [ptx, pty, ptx + szx, pty + szy]
+                if self.__coords[rid] != crd:
+                    self.__coords[rid] = crd
+                    self.roiCoordsChanged.emit()
+        except Exception as e:
+            print("Warning: %s" % str(e))
+
+    @QtCore.pyqtSlot(int)
+    def _emitROICoordsChanged(self, rid):
+        """ emits roiCoordsChanged signal
+
+        :param rid: roi id
+        :type rid: :obj:`int`
+        """
+        oldrid = self.__current
+        if rid != oldrid:
+            self.__current = rid
+            self.roiCoordsChanged.emit()
+
+    def updateROIs(self, rid, coords):
+        """ update ROIs
+
+        :param rid: roi id
+        :type rid: :obj:`int`
+        :param coords: roi coordinates
+        :type coords: :obj:`list`
+                 < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
+        self.__addROICoords(coords)
+        while rid > len(self.__roi):
+            if coords and len(coords) >= len(self.__roi):
+                self.__addROI(coords[len(self.__roi)])
+            else:
+                self.__addROI()
+            self._getROI().sigHoverEvent.connect(self.__currentroimapper.map)
+            self._getROI().sigRegionChanged.connect(self.__roiregionmapper.map)
+            self.__currentroimapper.setMapping(
+                self._getROI(), len(self.__roi) - 1)
+            self.__roiregionmapper.setMapping(
+                self._getROI(), len(self.__roi) - 1)
+        if rid <= 0:
+            self.__current = -1
+        elif self.__current >= rid:
+            self.__current = 0
+        while self._getROI(max(rid, 0)) is not None:
+            self.__currentroimapper.removeMappings(self._getROI())
+            self.__roiregionmapper.removeMappings(self._getROI())
+            self.__removeROI()
+        self.__showROIs(self._enabled)
+
+    def roiCoords(self):
+        """ provides rois coordinates
+
+        :return: rois coordinates
+        :rtype: :obj:`list`
+               < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
+        return self.__coords
+
+    def isROIsEnabled(self):
+        """ provides flag rois enabled
+
+        :return: roi enabled flag
+        :rtype: :obj:`bool`
+        """
+        return self._enabled
+
+    def currentROI(self):
+        """ provides current roi id
+
+        :return: roi id
+        :rtype: :obj:`int`
+        """
+        return self.__current
+
+    def transpose(self):
+        """ transposes ROIs
+        """
+        for crd in self.__roi:
+            pos = crd.pos()
+            size = crd.size()
+            crd.setPos([pos[1], pos[0]])
+            crd.setSize([size[1], size[0]])
+
+
 class LockerExtension(DisplayExtension):
 
     def __init__(self, parent=None):
@@ -1141,12 +1362,21 @@ class MarkExtension(DisplayExtension):
         :type y: float
         """
         if not self.__markcoordinates:
-            if not self._mainwidget.transformations()[0]:
-                self.__markVLine.setPos(x)
-                self.__markHLine.setPos(y)
+            pos0, pos1, scale0, scale1 = self._mainwidget.scale()
+            if pos0 is not None:
+                if not self._mainwidget.transformations()[0]:
+                    self.__markVLine.setPos((x) * scale0 + pos0)
+                    self.__markHLine.setPos((y) * scale1 + pos1)
+                else:
+                    self.__markVLine.setPos((y) * scale1 + pos1)
+                    self.__markHLine.setPos((x) * scale0 + pos0)
             else:
-                self.__markVLine.setPos(y)
-                self.__markHLine.setPos(x)
+                if not self._mainwidget.transformations()[0]:
+                    self.__markVLine.setPos(x)
+                    self.__markHLine.setPos(y)
+                else:
+                    self.__markVLine.setPos(y)
+                    self.__markHLine.setPos(x)
 
     def mouse_doubleclick(self, x, y, locked):
         """  sets vLine and hLine positions
@@ -1171,12 +1401,21 @@ class MarkExtension(DisplayExtension):
         :type ydata: :obj:`float`
         """
         self.__markcoordinates = [xdata, ydata]
-        if not self._mainwidget.transformations()[0]:
-            self.__markVLine.setPos(xdata)
-            self.__markHLine.setPos(ydata)
+        pos0, pos1, scale0, scale1 = self._mainwidget.scale()
+        if pos0 is not None:
+            if not self._mainwidget.transformations()[0]:
+                self.__markVLine.setPos((xdata) * scale0 + pos0)
+                self.__markHLine.setPos((ydata) * scale1 + pos1)
+            else:
+                self.__markVLine.setPos((ydata) * scale1 + pos1)
+                self.__markHLine.setPos((xdata) * scale0 + pos0)
         else:
-            self.__markVLine.setPos(ydata)
-            self.__markHLine.setPos(xdata)
+            if not self._mainwidget.transformations()[0]:
+                self.__markVLine.setPos(xdata)
+                self.__markHLine.setPos(ydata)
+            else:
+                self.__markVLine.setPos(ydata)
+                self.__markHLine.setPos(xdata)
 
     def transpose(self):
         """ transposes Mark Position lines

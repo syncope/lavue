@@ -20,6 +20,16 @@
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
+      <widget class="QPushButton" name="axesPushButton">
+       <property name="toolTip">
+        <string>set axes start postion, scale labels and units</string>
+       </property>
+       <property name="text">
+        <string>Axes ...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="xLabel">
        <property name="toolTip">
         <string>x-motor position</string>
@@ -104,6 +114,7 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>axesPushButton</tabstop>
   <tabstop>xLineEdit</tabstop>
   <tabstop>xcurLineEdit</tabstop>
   <tabstop>yLineEdit</tabstop>

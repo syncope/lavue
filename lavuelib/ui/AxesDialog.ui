@@ -232,6 +232,17 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>xpositionLineEdit</tabstop>
+  <tabstop>ypositionLineEdit</tabstop>
+  <tabstop>xscaleLineEdit</tabstop>
+  <tabstop>yscaleLineEdit</tabstop>
+  <tabstop>xtextLineEdit</tabstop>
+  <tabstop>ytextLineEdit</tabstop>
+  <tabstop>xunitsLineEdit</tabstop>
+  <tabstop>yunitsLineEdit</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
