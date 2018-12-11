@@ -971,15 +971,15 @@ class MeshExtension(DisplayExtension):
             if roi is not None:
                 state = roi.state
                 if not self._mainwidget.transformations()[0]:
-                    ptx = int(math.floor(state['pos'].x()))
-                    pty = int(math.floor(state['pos'].y()))
-                    szx = int(math.floor(state['size'].x()))
-                    szy = int(math.floor(state['size'].y()))
+                    ptx = state['pos'].x()
+                    pty = state['pos'].y()
+                    szx = state['size'].x()
+                    szy = state['size'].y()
                 else:
-                    pty = int(math.floor(state['pos'].x()))
-                    ptx = int(math.floor(state['pos'].y()))
-                    szy = int(math.floor(state['size'].x()))
-                    szx = int(math.floor(state['size'].y()))
+                    pty = state['pos'].x()
+                    ptx = state['pos'].y()
+                    szy = state['size'].x()
+                    szx = state['size'].y()
                 crd = [ptx, pty, ptx + szx, pty + szy]
                 if self.__coords[rid] != crd:
                     self.__coords[rid] = crd

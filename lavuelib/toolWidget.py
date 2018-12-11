@@ -582,7 +582,7 @@ class MeshToolWidget(ToolWidget):
         self.parameters.rois = False
         self.parameters.mesh = True
         self.parameters.infolineedit = ""
-        self.parameters.infolabel = "[x1, y1, x2, y2], sum: "
+        self.parameters.infolabel = "[x1, y1, x2, y2]: "
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
 
