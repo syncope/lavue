@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Dec 07, 2018" "1.29" "lavuelib"
+.TH "LAVUELIB" "1" "Dec 12, 2018" "1.30" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -1302,6 +1302,117 @@ set subwidget properties
 .TP
 .B transpose()
 transposes maxima
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.displayExtensions.MeshExtension(parent=None)
+Bases: \fI\%lavuelib.displayExtensions.DisplayExtension\fP
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B changeROIRegion(_=None)
+changes the current roi region
+.UNINDENT
+.INDENT 7.0
+.TP
+.B currentROI()
+provides current roi id
+.INDENT 7.0
+.TP
+.B Returns
+roi id
+.TP
+.B Return type
+\fI\%int\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B isROIsEnabled()
+provides flag rois enabled
+.INDENT 7.0
+.TP
+.B Returns
+roi enabled flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) tool name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B roiCoords()
+provides rois coordinates
+.INDENT 7.0
+.TP
+.B Returns
+rois coordinates
+.TP
+.B Return type
+\fBlist\fP
+< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B roiCoordsChanged
+(\fBPyQt4.QtCore.pyqtSignal\fP) roi coordinate changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B scalingLabel()
+provides scaling label
+.INDENT 7.0
+.TP
+.B Returns
+scaling label
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B show(parameters)
+set subwidget properties
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparameters\fP (\fI\%lavuelib.toolWidget.ToolParameters\fP) – tool parameters
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B transpose()
+transposes ROIs
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateROIs(rid, coords)
+update ROIs
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBrid\fP (\fI\%int\fP) – roi id
+.IP \(bu 2
+\fBcoords\fP (\fBlist\fP
+< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >) – roi coordinates
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -5465,6 +5576,11 @@ sum roi value, roi id
 .UNINDENT
 .INDENT 7.0
 .TP
+.B changeMeshRegion()
+changes the current roi region
+.UNINDENT
+.INDENT 7.0
+.TP
 .B changeROIRegion()
 changes the current roi region
 .UNINDENT
@@ -5667,6 +5783,25 @@ image object
 .TP
 .B imagePlotted
 (\fBPyQt4.QtCore.pyqtSignal\fP) image plotted signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B meshCoords()
+provides rois coordinates
+.INDENT 7.0
+.TP
+.B Returns
+rois coordinates
+.TP
+.B Return type
+\fBlist\fP
+< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B meshCoordsChanged
+(\fBPyQt4.QtCore.pyqtSignal\fP) mesh coordinate changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9978,6 +10113,11 @@ constructor
 .TP
 .B maxima = None
 (\fI\%str\fP) show maxima
+.UNINDENT
+.INDENT 7.0
+.TP
+.B mesh = None
+(\fI\%bool\fP) mesh enabled
 .UNINDENT
 .INDENT 7.0
 .TP
