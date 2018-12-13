@@ -13,10 +13,10 @@
 import sys
 import os
 import subprocess
-import numpy as np
 import time
 import unittest
 import PyTango
+# import numpy as np
 
 # Path
 path = os.path.join(os.path.dirname(__file__), os.pardir)
@@ -41,7 +41,7 @@ class LavueControllerTest(unittest.TestCase):
         self.new_device_info_controller = PyTango.DbDevInfo()
         self.new_device_info_controller._class = "LavueController"
         self.new_device_info_controller.server = "LavueController/%s" % \
-                                                self.instance
+                                                 self.instance
         self.new_device_info_controller.name = self.device
         self.proxy = None
 
