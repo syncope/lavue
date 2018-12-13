@@ -29,8 +29,8 @@ import string
 import h5py
 import time
 
-import nxstools.filewriter as FileWriter
-import nxstools.h5pywriter as H5PYWriter
+import lavuelib.filewriter as FileWriter
+import lavuelib.h5pywriter as H5PYWriter
 
 H5PYMAJOR, H5PYMINOR, H5PYPATCH = h5py.__version__.split(".", 2)
 
