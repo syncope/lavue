@@ -15,8 +15,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with nexdatas.  If not, see <http://www.gnu.org/licenses/>.
-# \package test nexdatas
-# \file runtest.py
+#
 # the unittest runner
 #
 
@@ -26,6 +25,7 @@ import sys
 try:
     import PyTango
     # if module PyTango avalable
+    PyTango.Database()
     PYTANGO_AVAILABLE = True
 except ImportError as e:
     PYTANGO_AVAILABLE = False
@@ -72,7 +72,9 @@ if not PNI_AVAILABLE and not H5PY_AVAILABLE:
 # list of available databases
 DB_AVAILABLE = []
 
-db = PyTango.Database()
+if PYTANGO_AVAILABLE:
+    import LavueController_test
+
 
 if PNI_AVAILABLE:
     import FileWriter_test
@@ -121,6 +123,10 @@ def main():
         suite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(
                 FileWriterPNIH5PY_test))
+    if PYTANGO_AVAILABLE:
+        suite.addTests(
+            unittest.defaultTestLoader.loadTestsFromModule(
+                LavueController_test))
 
     # test runner
     runner = unittest.TextTestRunner()
