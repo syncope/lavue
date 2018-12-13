@@ -159,9 +159,9 @@ class LavueController (PyTango.Device_4Impl):
                 self.requested_rois_aliases.append(det.title())
 
         if self.attr_DetectorROIs_read != data:
+            self.attr_DetectorROIs_read = data
             if self.DynamicROIs:
                 self.initialize_dynamic_attributes()
-            self.attr_DetectorROIs_read = data
             self.push_change_event("DetectorROIs", self.attr_DetectorROIs_read)
 
     def read_DetectorROIsValues(self, attr):
@@ -260,6 +260,106 @@ class LavueController (PyTango.Device_4Impl):
                 dtrois = []
         attr.set_value(dtrois)
 
+    def initialize_dynamic_rois_sums_attributes(self):
+        """ initialize rois dynamic attributes
+        """
+        if self.current_scalar_aliases != self.requested_scalar_aliases or \
+           self.current_spectrum_aliases != self.requested_spectrum_aliases:
+            for alias in self.current_scalar_aliases:
+                if alias not in self.requested_scalar_aliases:
+                    aalias = ("%sSum" % alias) \
+                             if alias != "__Null__" else "Sum"
+                    if aalias not in self.ROIAttributesNames:
+                        self.remove_attribute(str(aalias))
+            for alias in self.current_spectrum_aliases:
+                if alias not in self.requested_spectrum_aliases:
+                    aalias = ("%sSums" % alias) \
+                             if alias != "__Null__" else "Sums"
+                    if aalias not in self.ROIAttributesNames:
+                        self.remove_attribute(str(aalias))
+
+            for alias in self.requested_scalar_aliases:
+                if alias not in self.current_scalar_aliases:
+                    myAttr = PyTango.Attr(
+                        ("%sSum" % alias) if alias != "__Null__" else "Sum",
+                        PyTango.DevDouble, PyTango.READ)
+                    self.add_attribute(
+                        myAttr, LavueController.read_ScalarDynamicAttr,
+                        None, None)
+            for alias in self.requested_spectrum_aliases:
+                if alias not in self.current_spectrum_aliases:
+                    myAttr = PyTango.SpectrumAttr(
+                        str("%sSums" % alias)
+                        if alias != "__Null__" else "Sums",
+                        PyTango.DevDouble,
+                        PyTango.AttrWriteType.READ, 4096)
+                    self.add_attribute(
+                        myAttr, LavueController.read_SpectrumDynamicAttr,
+                        None, None)
+
+            for alias in self.ROIAttributesNames:
+                if alias.endswith("Sum"):
+                    salias = alias[:-3]
+                    if not salias:
+                        salias = "__Null__"
+                    if salias not in self.current_scalar_aliases:
+                        myAttr = PyTango.Attr(
+                            str(alias),
+                            PyTango.DevDouble, PyTango.READ)
+                        self.add_attribute(
+                            myAttr, LavueController.read_ScalarDynamicAttr,
+                            None, None)
+                if alias.endswith("Sums"):
+                    salias = alias[:-3]
+                    if not salias:
+                        salias = "__Null__"
+                    if salias not in self.current_spectrum_aliases:
+                        myAttr = PyTango.SpectrumAttr(
+                            str(alias), PyTango.DevDouble,
+                            PyTango.AttrWriteType.READ, 4096)
+                        self.add_attribute(
+                            myAttr,
+                            LavueController.read_SpectrumDynamicAttr,
+                            None, None)
+            self.current_scalar_aliases = self.requested_scalar_aliases
+            self.current_spectrum_aliases = self.requested_spectrum_aliases
+
+    def initialize_dynamic_rois_attributes(self):
+        """ initialize rois dynamic attributes
+        """
+        if self.current_rois_aliases != \
+           self.requested_rois_aliases:
+            for alias in self.current_rois_aliases:
+                if alias not in self.requested_rois_aliases:
+                    aalias = "%sROI" % alias \
+                             if alias != "__Null__" else "ROI"
+                    if aalias not in self.ROIAttributesNames:
+                        self.remove_attribute(str(aalias))
+
+            for alias in self.requested_rois_aliases:
+                if alias not in self.current_rois_aliases:
+                    myAttr = PyTango.SpectrumAttr(
+                        str("%sROI" % alias)
+                        if alias != "__Null__" else "ROI",
+                        PyTango.DevLong,
+                        PyTango.AttrWriteType.READ, 4096)
+                    self.add_attribute(
+                        myAttr, LavueController.read_ROIsDynamicAttr,
+                        None, None)
+            for alias in self.ROIAttributesNames:
+                if alias.endswith("ROI"):
+                    salias = alias[:-3]
+                    if not salias:
+                        salias = "__Null__"
+                    if salias not in self.current_rois_aliases:
+                        myAttr = PyTango.SpectrumAttr(
+                            str(alias), PyTango.DevLong,
+                            PyTango.AttrWriteType.READ, 4096)
+                        self.add_attribute(
+                            myAttr, LavueController.read_ROIsDynamicAttr,
+                            None, None)
+            self.current_rois_aliases = self.requested_rois_aliases
+
     def initialize_dynamic_attributes(self):
         self.debug_stream("In initialize_dynamic_attributes()")
 
@@ -283,62 +383,9 @@ class LavueController (PyTango.Device_4Impl):
         self.attr_SpectrumDynamicAttr_read = [0.0]
         """
         if self.DynamicROIsValues:
-            if self.current_scalar_aliases != \
-               self.requested_scalar_aliases or \
-               self.current_spectrum_aliases != \
-               self.requested_spectrum_aliases:
-                for alias in self.current_scalar_aliases:
-                    if alias not in self.requested_scalar_aliases:
-                        self.remove_attribute(
-                            str("%sSum" % alias)
-                            if alias != "__Null__" else "Sum")
-                for alias in self.current_spectrum_aliases:
-                    if alias not in self.requested_spectrum_aliases:
-                        self.remove_attribute(
-                            str("%sSums" % alias)
-                            if alias != "__Null__" else "Sums")
-
-                for alias in self.requested_scalar_aliases:
-                    if alias not in self.current_scalar_aliases:
-                        myAttr = PyTango.Attr(
-                            str("%sSum" % alias)
-                            if alias != "__Null__" else "Sum",
-                            PyTango.DevDouble, PyTango.READ)
-                        self.add_attribute(
-                            myAttr, LavueController.read_ScalarDynamicAttr,
-                            None, None)
-                for alias in self.requested_spectrum_aliases:
-                    if alias not in self.current_spectrum_aliases:
-                        myAttr = PyTango.SpectrumAttr(
-                            str("%sSums" % alias)
-                            if alias != "__Null__" else "Sums",
-                            PyTango.DevDouble,
-                            PyTango.AttrWriteType.READ, 4096)
-                        self.add_attribute(
-                            myAttr, LavueController.read_SpectrumDynamicAttr,
-                            None, None)
-                self.current_scalar_aliases = self.requested_scalar_aliases
-                self.current_spectrum_aliases = self.requested_spectrum_aliases
+            self.initialize_dynamic_rois_sums_attributes()
         if self.DynamicROIs:
-            if self.current_rois_aliases != \
-               self.requested_rois_aliases :
-                for alias in self.current_rois_aliases:
-                    if alias not in self.requested_rois_aliases:
-                        self.remove_attribute(
-                            str("%sROI" % alias)
-                            if alias != "__Null__" else "ROI")
-
-                for alias in self.requested_rois_aliases:
-                    if alias not in self.current_rois_aliases:
-                        myAttr = PyTango.SpectrumAttr(
-                            str("%sROI" % alias)
-                            if alias != "__Null__" else "ROI",
-                            PyTango.DevLong,
-                            PyTango.AttrWriteType.READ, 4096)
-                        self.add_attribute(
-                            myAttr, LavueController.read_ROIsDynamicAttr,
-                            None, None)
-                self.current_rois_aliases = self.requested_rois_aliases
+            self.initialize_dynamic_rois_attributes()
 
     def read_attr_hardware(self, data):
         self.debug_stream("In read_attr_hardware()")
@@ -404,13 +451,17 @@ class LavueControllerClass(PyTango.DeviceClass):
     device_property_list = {
         'DynamicROIs':
         [PyTango.DevBoolean,
-         "create dynamically Attributes for ROIs aliases with their regions",
+         "create dynamically Attributes for ROIs aliases with their bounds",
          [True]],
         'DynamicROIsValues':
         [PyTango.DevBoolean,
          "create dynamically Attributes for ROIs aliases with their sums",
          [True]],
-        }
+        'ROIAttributesNames':
+        [PyTango.DevVarStringArray,
+         "fixed ROI attributes names, They should ends with ROI, Sum or Sums",
+         []],
+    }
 
     #    Command definitions
     cmd_list = {
