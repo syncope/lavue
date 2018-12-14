@@ -18,12 +18,32 @@ import unittest
 import PyTango
 import numpy as np
 
+if sys.version_info > (3,):
+    import queue as Queue
+else:
+    import Queue
+
 # Path
 path = os.path.join(os.path.dirname(__file__), os.pardir)
 sys.path.insert(0, os.path.abspath(path))
 
 #: python3 running
 PY3 = (sys.version_info > (3,))
+
+
+class TangoCB(object):
+
+    def __init__(self, queue):
+        self.__queue = queue
+
+    def push_event(self, *args, **kwargs):
+        event_data = args[0]
+        if event_data.err:
+            result = event_data.errors
+            print(result)
+        else:
+            result = event_data.attr_value.value
+        self.__queue.put(result)
 
 
 # Device test case
@@ -150,30 +170,66 @@ class LavueControllerTest(unittest.TestCase):
         print("Run: %s.%s() " % (
             self.__class__.__name__, sys._getframe().f_code.co_name))
         testvalues = [12.3, 123.2, -3.43, 0., 23423.]
+
+        queue = Queue.Queue()
+        cb = TangoCB(queue)
+        cb_id = self.proxy.subscribe_event(
+            "BeamCenterX", PyTango.EventType.CHANGE_EVENT, cb)
+        elem = queue.get(block=True, timeout=3)
+
         for wvl in testvalues:
             self.proxy.BeamCenterX = wvl
             rvl = self.proxy.BeamCenterX
             self.assertEqual(wvl, rvl)
+
+            elem = queue.get(block=True, timeout=3)
+            self.assertEqual(elem, wvl)
+
+        self.proxy.unsubscribe_event(cb_id)
 
     def test_BeamCenterY(self):
         """Test for BeamCenterY"""
         print("Run: %s.%s() " % (
             self.__class__.__name__, sys._getframe().f_code.co_name))
         testvalues = [12.3, 123.2, -3.43, 0., 23423.]
+
+        queue = Queue.Queue()
+        cb = TangoCB(queue)
+        cb_id = self.proxy.subscribe_event(
+            "BeamCenterY", PyTango.EventType.CHANGE_EVENT, cb)
+        elem = queue.get(block=True, timeout=3)
+
         for wvl in testvalues:
             self.proxy.BeamCenterY = wvl
             rvl = self.proxy.BeamCenterY
             self.assertEqual(wvl, rvl)
+
+            elem = queue.get(block=True, timeout=3)
+            self.assertEqual(elem, wvl)
+
+        self.proxy.unsubscribe_event(cb_id)
 
     def test_DetectorDistance(self):
         """Test for DetectorDistance"""
         print("Run: %s.%s() " % (
             self.__class__.__name__, sys._getframe().f_code.co_name))
         testvalues = [12.3, 123.2, -3.43, 0., 23423.]
+
+        queue = Queue.Queue()
+        cb = TangoCB(queue)
+        cb_id = self.proxy.subscribe_event(
+            "DetectorDistance", PyTango.EventType.CHANGE_EVENT, cb)
+        elem = queue.get(block=True, timeout=3)
+
         for wvl in testvalues:
             self.proxy.DetectorDistance = wvl
             rvl = self.proxy.DetectorDistance
             self.assertEqual(wvl, rvl)
+
+            elem = queue.get(block=True, timeout=3)
+            self.assertEqual(elem, wvl)
+
+        self.proxy.unsubscribe_event(cb_id)
 
     def test_DetectorROIs(self):
         """Test for DetectorROIs"""
@@ -205,6 +261,12 @@ class LavueControllerTest(unittest.TestCase):
              [["ROI",
                [61, 91, 83, 146, 1, 21, 33, 146]]]],
         ]
+        queue = Queue.Queue()
+        cb = TangoCB(queue)
+        cb_id = self.proxy.subscribe_event(
+            "DetectorROIs", PyTango.EventType.CHANGE_EVENT, cb)
+        elem = queue.get(block=True, timeout=3)
+
         for wvl in testvalues:
             self.proxy.DetectorROIs = str(wvl[0])
             rvl = self.proxy.DetectorROIs
@@ -212,6 +274,11 @@ class LavueControllerTest(unittest.TestCase):
             for at, vl in wvl[1]:
                 rvl = self.proxy.read_attribute(at).value
                 self.assertTrue(np.array_equal(np.array(vl), rvl))
+
+                elem = queue.get(block=True, timeout=3)
+                self.assertEqual(elem, wvl[0])
+
+        self.proxy.unsubscribe_event(cb_id)
 
     def test_DetectorROIsValues(self):
         """Test for DetectorROIsValues"""
@@ -240,6 +307,13 @@ class LavueControllerTest(unittest.TestCase):
              [["Sums",
                [12312., 1232131.]]]],
         ]
+
+        queue = Queue.Queue()
+        cb = TangoCB(queue)
+        cb_id = self.proxy.subscribe_event(
+            "DetectorROIsValues", PyTango.EventType.CHANGE_EVENT, cb)
+        elem = queue.get(block=True, timeout=3)
+
         for wvl in testvalues:
             self.proxy.DetectorROIsValues = str(wvl[0])
             rvl = self.proxy.DetectorROIsValues
@@ -251,15 +325,31 @@ class LavueControllerTest(unittest.TestCase):
                 else:
                     self.assertEqual(vl[0], rvl)
 
+                elem = queue.get(block=True, timeout=3)
+                self.assertEqual(elem, wvl[0])
+
+        self.proxy.unsubscribe_event(cb_id)
+
     def test_Energy(self):
         """Test for Energy"""
         print("Run: %s.%s() " % (
             self.__class__.__name__, sys._getframe().f_code.co_name))
         testvalues = [12.3, 123.2, -3.43, 0., 23423.]
+
+        queue = Queue.Queue()
+        cb = TangoCB(queue)
+        cb_id = self.proxy.subscribe_event(
+            "Energy", PyTango.EventType.CHANGE_EVENT, cb)
+        elem = queue.get(block=True, timeout=3)
+
         for wvl in testvalues:
             self.proxy.Energy = wvl
             rvl = self.proxy.Energy
             self.assertEqual(wvl, rvl)
+            elem = queue.get(block=True, timeout=3)
+            self.assertEqual(wvl, elem)
+
+        self.proxy.unsubscribe_event(cb_id)
 
 
 def main():

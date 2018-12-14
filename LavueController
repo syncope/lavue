@@ -76,6 +76,7 @@ class LavueController (PyTango.Device_4Impl):
         self.set_change_event("BeamCenterY", True, False)
         self.set_change_event("DetectorDistance", True, False)
         self.set_change_event("DetectorROIs", True, False)
+        self.set_change_event("DetectorROIsValues", True, False)
         self.set_change_event("Energy", True, False)
         self.attr_DetectorROIs_read = "{}"
         self.attr_DetectorROIsValues_read = "{}"
