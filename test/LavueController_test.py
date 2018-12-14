@@ -333,6 +333,9 @@ class LavueControllerTest(unittest.TestCase):
             attrs = [el for el in dir(self.proxy)
                      if (el.endswith("ROI") or el.endswith("Sum")
                          or el.endswith("Sums"))]
+            print('do')
+            print(str(wvl))
+            print(str(attrs))
             self.assertEqual(set(attrs), set(wvl[4]))
 
     def test_State(self):
