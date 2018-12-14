@@ -28,8 +28,8 @@ import binascii
 import string
 import time
 
-import nxstools.filewriter as FileWriter
-import nxstools.h5pywriter as H5PYWriter
+import lavuelib.filewriter as FileWriter
+import lavuelib.h5pywriter as H5PYWriter
 import h5py
 
 if sys.version_info > (3,):
