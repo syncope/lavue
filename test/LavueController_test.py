@@ -288,21 +288,34 @@ class LavueControllerTest(unittest.TestCase):
         print("Run: %s.%s() " % (
             self.__class__.__name__, sys._getframe().f_code.co_name))
 
+        DetectorROIsValues = \
+            '{"Pilatus1": [1.23, 12.321, 83.323], "Pilatus2": [146.32]}'
+        DetectorROIs = \
+            '{"Pilatus1": [[61, 91, 83, 146], [332, 93, 382, 141], ' \
+            '[116, 69, 279, 94]], "Pilatus2": [[91, 155, 157, 199]]}'
         testvalues = [
-            [[], True, True, []],
-            [["MyROI"], True, True, ["MyROI"]],
-            [["MySum"], True, True, ["MySum"]],
-            [["MySums"], True, True, ["MySums"]],
-            [["MySuma"], True, True, []],
-            [["YROI", "YSum", "YSums", "YSuma"], True, True,
+            [[], True, True, False, []],
+            [["MyROI"], True, True, False, ["MyROI"]],
+            [["MyROI"], True, True, False, ["MyROI"]],
+            [["MySum"], True, True, False, ["MySum"]],
+            [["MySums"], True, True, False, ["MySums"]],
+            [["MySuma"], True, True, False, []],
+            [["YROI", "YSum", "YSums", "YSuma"], True, True, False,
              ["YROI", "YSum", "YSums"]],
-            [[], False, False, []],
-            [["MyROI"], False, False, ["MyROI"]],
-            [["MySum"], False, False, ["MySum"]],
-            [["MySums"], False, False, ["MySums"]],
-            [["MySuma"], False, False, []],
-            [["YROI", "YSum", "YSums", "YSuma"], False, False,
+            [["YROI", "YSum", "YSums", "YSuma"], True, True, False,
              ["YROI", "YSum", "YSums"]],
+            [[], False, False, False, []],
+            [["MyROI"], False, False, False, ["MyROI"]],
+            [["MySum"], False, False, False, ["MySum"]],
+            [["MySums"], False, False, False, ["MySums"]],
+            [["MySuma"], False, False, False, []],
+            [["YROI", "YSum", "YSums", "YSuma"], False, False, False,
+             ["YROI", "YSum", "YSums"]],
+            [["Pilatus1ROI", "Pilatus2ROI", "Pilatus1Sum", "Pilatus2Sum"],
+             False, False, False,
+             ["Pilatus1ROI", "Pilatus2ROI", "Pilatus1Sum", "Pilatus2Sum"]],
+            [[], True, True, True,
+             ["Pilatus1ROI", "Pilatus2ROI", "Pilatus1Sums", "Pilatus2Sum"]],
         ]
         db = PyTango.Database()
 
@@ -313,9 +326,17 @@ class LavueControllerTest(unittest.TestCase):
             db.put_device_property(
                 self.proxy.name(), {'DynamicROIsValues': wvl[2]})
             self.proxy.Init()
-            for at in wvl[3]:
+            self.proxy.DetectorROIs = DetectorROIs if wvl[3] else "{}"
+            self.proxy.DetectorROIsValues = DetectorROIsValues \
+                if wvl[3] else "{}"
+
+            attrs = [el for el in dir(self.proxy)
+                     if (el.endswith("ROI") or el.endswith("Sum")
+                         or el.endswith("Sums"))]
+            self.assertTrue(not (set(attrs) - set(wvl[4])))
+            for at in wvl[4]:
                 self.assertTrue(hasattr(self.proxy, at))
-            for at in list(set(wvl[0]) - set(wvl[3])):
+            for at in list(set(wvl[0]) - set(wvl[4])):
                 self.assertTrue(not hasattr(self.proxy, at))
 
     def test_State(self):
