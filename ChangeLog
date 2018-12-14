@@ -1,6 +1,7 @@
-2018-12-XX Jan Kotanski <jan.kotanski@desy.de>
+2018-12-14 Jan Kotanski <jan.kotanski@desy.de>
 	* add ROIAttributesNames property
-	* changel LavueController to pythonHL
+	* add tests for LavueController
+	* fix Init Command
 	* tagged as 1.32.0
 
 2018-12-12 Jan Kotanski <jan.kotanski@desy.de>
