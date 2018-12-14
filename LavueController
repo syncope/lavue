@@ -58,6 +58,11 @@ class LavueController (PyTango.Device_4Impl):
     def __init__(self, cl, name):
         PyTango.Device_4Impl.__init__(self, cl, name)
         self.debug_stream("In __init__()")
+        
+        self.current_scalar_aliases = []
+        self.current_spectrum_aliases = []
+        self.current_rois_aliases = []
+        
         LavueController.init_device(self)
 
     def delete_device(self):
@@ -84,9 +89,33 @@ class LavueController (PyTango.Device_4Impl):
         self.requested_scalar_aliases = []
         self.requested_spectrum_aliases = []
         self.requested_rois_aliases = []
-        self.current_scalar_aliases = []
-        self.current_spectrum_aliases = []
-        self.current_rois_aliases = []
+
+        if not self.DynamicROIsValues and self.current_scalar_aliases:
+            for alias in self.current_scalar_aliases:
+                if alias not in self.requested_scalar_aliases:
+                    aalias = ("%sSum" % alias) \
+                             if alias != "__Null__" else "Sum"
+                    if aalias not in self.ROIAttributesNames:
+                        self.remove_attribute(str(aalias))
+            self.current_scalar_aliases = []
+                        
+        if not self.DynamicROIsValues and self.current_spectrum_aliases:
+            for alias in self.current_spectrum_aliases:
+                if alias not in self.requested_spectrum_aliases:
+                    aalias = ("%sSums" % alias) \
+                             if alias != "__Null__" else "Sums"
+                    if aalias not in self.ROIAttributesNames:
+                        self.remove_attribute(str(aalias))
+            self.current_spectrum_aliases = []
+                        
+        if not self.DynamicROIs and self.current_rois_aliases:
+            for alias in self.current_rois_aliases:
+                aalias = "%sROI" % alias \
+                         if alias != "__Null__" else "ROI"
+                if aalias not in self.ROIAttributesNames:
+                    self.remove_attribute(str(aalias))
+            self.current_rois_aliases = []
+        self.initialize_dynamic_attributes()
 
     def always_executed_hook(self):
         self.debug_stream("In always_excuted_hook()")
@@ -265,7 +294,9 @@ class LavueController (PyTango.Device_4Impl):
         """ initialize rois dynamic attributes
         """
         if self.current_scalar_aliases != self.requested_scalar_aliases or \
-           self.current_spectrum_aliases != self.requested_spectrum_aliases:
+           self.current_spectrum_aliases != \
+                self.requested_spectrum_aliases or \
+                self.ROIAttributesNames:
             for alias in self.current_scalar_aliases:
                 if alias not in self.requested_scalar_aliases:
                     aalias = ("%sSum" % alias) \
@@ -329,7 +360,7 @@ class LavueController (PyTango.Device_4Impl):
         """ initialize rois dynamic attributes
         """
         if self.current_rois_aliases != \
-           self.requested_rois_aliases:
+           self.requested_rois_aliases or self.ROIAttributesNames:
             for alias in self.current_rois_aliases:
                 if alias not in self.requested_rois_aliases:
                     aalias = "%sROI" % alias \

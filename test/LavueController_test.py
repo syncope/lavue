@@ -148,10 +148,175 @@ class LavueControllerTest(unittest.TestCase):
 
         self.proxy = None
 
-    def test_properties(self):
-        # test the properties
+    def test_property_DynamicROIs(self):
+        """ test the property DynamicROIs """
         print("Run: %s.%s() " % (
             self.__class__.__name__, sys._getframe().f_code.co_name))
+
+        testvalues = [
+            ['{"Pilatus": [[61, 91, 83, 146], [332, 93, 382, 141], '
+             '[116, 69, 279, 94], [91, 155, 157, 199]]}',
+             [["PilatusROI",
+               [61, 91, 83, 146, 332, 93, 382, 141,
+                116, 69, 279, 94, 91, 155, 157, 199]]]],
+            ['{"Pilatus1": [[61, 91, 83, 146], [332, 93, 382, 141], '
+             '[116, 69, 279, 94]], "Pilatus2": [[91, 155, 157, 199]]}',
+             [["Pilatus1ROI",
+               [61, 91, 83, 146, 332, 93, 382, 141,
+                116, 69, 279, 94]]],
+             [["Pilatus2ROI",
+               [91, 155, 157, 199]]]],
+            ['{"lambda": [[61, 91, 83, 146]]}',
+             [["LambdaROI",
+               [61, 91, 83, 146]]]],
+            ['{"lambda2": [[61, 91, 83, 146], [1, 21, 33, 146]]}',
+             [["Lambda2ROI",
+               [61, 91, 83, 146, 1, 21, 33, 146]]]],
+            ['{"__null__": [[61, 91, 83, 146]]}',
+             [["ROI",
+               [61, 91, 83, 146]]]],
+            ['{"__null__": [[61, 91, 83, 146], [1, 21, 33, 146]]}',
+             [["ROI",
+               [61, 91, 83, 146, 1, 21, 33, 146]]]],
+        ]
+
+        db = PyTango.Database()
+        db.put_device_property(self.proxy.name(), {'DynamicROIs': True})
+        self.proxy.Init()
+
+        for wvl in testvalues:
+            self.proxy.DetectorROIs = str(wvl[0])
+            rvl = self.proxy.DetectorROIs
+            self.assertEqual(wvl[0], rvl)
+            for at, vl in wvl[1]:
+                self.assertTrue(hasattr(self.proxy, at))
+                rvl = self.proxy.read_attribute(at).value
+                self.assertTrue(np.array_equal(np.array(vl), rvl))
+
+        db.put_device_property(self.proxy.name(), {'DynamicROIs': False})
+        self.proxy.Init()
+
+        for wvl in testvalues:
+            self.proxy.DetectorROIs = str(wvl[0])
+            rvl = self.proxy.DetectorROIs
+            self.assertEqual(wvl[0], rvl)
+            for at, vl in wvl[1]:
+                self.assertTrue(not hasattr(self.proxy, at))
+
+        db.put_device_property(self.proxy.name(), {'DynamicROIs': True})
+        self.proxy.Init()
+
+        for wvl in testvalues:
+            self.proxy.DetectorROIs = str(wvl[0])
+            rvl = self.proxy.DetectorROIs
+            self.assertEqual(wvl[0], rvl)
+            for at, vl in wvl[1]:
+                self.assertTrue(hasattr(self.proxy, at))
+                rvl = self.proxy.read_attribute(at).value
+                self.assertTrue(np.array_equal(np.array(vl), rvl))
+
+    def test_property_DynamicROIsValues(self):
+        """ test the property DynamicROIsValues """
+        print("Run: %s.%s() " % (
+            self.__class__.__name__, sys._getframe().f_code.co_name))
+
+        testvalues = [
+            ['{"Pilatus": [1.23, 12.321, 83.323, 146.32]}',
+             [["PilatusSums",
+               [1.23, 12.321, 83.323, 146.32]]]],
+            ['{"Pilatus1": [1.23, 12.321, 83.323], '
+             '"Pilatus2": [146.32]}',
+             [["Pilatus1Sums",
+               [1.23, 12.321, 83.323]]],
+             [["Pilatus2Sum",
+               [146.32]]]],
+            ['{"lambda": [16.1]}',
+             [["LambdaSum",
+               [16.1]]]],
+            ['{"lambda2": [1231.61, 14.6]}',
+             [["Lambda2Sums",
+               [1231.61, 14.6]]]],
+            ['{"__null__": [12323.0]}',
+             [["Sum",
+               [12323.]]]],
+            ['{"__null__": [12312.0, 1232131.0]}',
+             [["Sums",
+               [12312., 1232131.]]]],
+        ]
+
+        db = PyTango.Database()
+        db.put_device_property(self.proxy.name(), {'DynamicROIsValues': True})
+        self.proxy.Init()
+
+        for wvl in testvalues:
+            self.proxy.DetectorROIsValues = str(wvl[0])
+            rvl = self.proxy.DetectorROIsValues
+            self.assertEqual(wvl[0], rvl)
+            for at, vl in wvl[1]:
+                rvl = self.proxy.read_attribute(at).value
+                if at.endswith("Sums"):
+                    self.assertTrue(np.array_equal(np.array(vl), rvl))
+                else:
+                    self.assertEqual(vl[0], rvl)
+
+        db.put_device_property(self.proxy.name(), {'DynamicROIsValues': False})
+        self.proxy.Init()
+
+        for wvl in testvalues:
+            self.proxy.DetectorROIsValues = str(wvl[0])
+            rvl = self.proxy.DetectorROIsValues
+            self.assertEqual(wvl[0], rvl)
+            for at, vl in wvl[1]:
+                self.assertTrue(not hasattr(self.proxy, at))
+
+        db.put_device_property(self.proxy.name(), {'DynamicROIsValues': True})
+        self.proxy.Init()
+
+        for wvl in testvalues:
+            self.proxy.DetectorROIsValues = str(wvl[0])
+            rvl = self.proxy.DetectorROIsValues
+            self.assertEqual(wvl[0], rvl)
+            for at, vl in wvl[1]:
+                rvl = self.proxy.read_attribute(at).value
+                if at.endswith("Sums"):
+                    self.assertTrue(np.array_equal(np.array(vl), rvl))
+                else:
+                    self.assertEqual(vl[0], rvl)
+
+    def test_property_ROIAttributesNames(self):
+        """ test the property ROIAttributesNames """
+        print("Run: %s.%s() " % (
+            self.__class__.__name__, sys._getframe().f_code.co_name))
+
+        testvalues = [
+            [[], True, True, []],
+            [["MyROI"], True, True, ["MyROI"]],
+            [["MySum"], True, True, ["MySum"]],
+            [["MySums"], True, True, ["MySums"]],
+            [["MySuma"], True, True, []],
+            [["YROI", "YSum", "YSums", "YSuma"], True, True,
+             ["YROI", "YSum", "YSums"]],
+            [[], False, False, []],
+            [["MyROI"], False, False, ["MyROI"]],
+            [["MySum"], False, False, ["MySum"]],
+            [["MySums"], False, False, ["MySums"]],
+            [["MySuma"], False, False, []],
+            [["YROI", "YSum", "YSums", "YSuma"], False, False,
+             ["YROI", "YSum", "YSums"]],
+        ]
+        db = PyTango.Database()
+
+        for wvl in testvalues:
+            db.put_device_property(
+                self.proxy.name(), {'ROIAttributesNames': wvl[0]})
+            db.put_device_property(self.proxy.name(), {'DynamicROIs': wvl[1]})
+            db.put_device_property(
+                self.proxy.name(), {'DynamicROIsValues': wvl[2]})
+            self.proxy.Init()
+            for at in wvl[3]:
+                self.assertTrue(hasattr(self.proxy, at))
+            for at in list(set(wvl[0]) - set(wvl[3])):
+                self.assertTrue(not hasattr(self.proxy, at))
 
     def test_State(self):
         """Test for State"""
@@ -235,6 +400,7 @@ class LavueControllerTest(unittest.TestCase):
         """Test for DetectorROIs"""
         print("Run: %s.%s() " % (
             self.__class__.__name__, sys._getframe().f_code.co_name))
+
         testvalues = [
             ['{"Pilatus": [[61, 91, 83, 146], [332, 93, 382, 141], '
              '[116, 69, 279, 94], [91, 155, 157, 199]]}',
