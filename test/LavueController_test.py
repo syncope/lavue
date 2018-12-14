@@ -336,7 +336,11 @@ class LavueControllerTest(unittest.TestCase):
             print('do')
             print(str(wvl))
             print(str(attrs))
-            self.assertEqual(set(attrs), set(wvl[4]))
+            self.assertTrue(not (set(attrs) - set(wvl[4])))
+            for at in wvl[4]:
+                self.assertTrue(hasattr(self.proxy, at))
+            for at in list(set(wvl[0]) - set(wvl[4])):
+                self.assertTrue(not hasattr(self.proxy, at))
 
     def test_State(self):
         """Test for State"""
