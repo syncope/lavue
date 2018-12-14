@@ -90,6 +90,7 @@ class LavueController (PyTango.Device_4Impl):
         self.requested_spectrum_aliases = []
         self.requested_rois_aliases = []
 
+        print("IN %s" % (self.ROIAttributesNames))
         if not self.DynamicROIsValues and self.current_scalar_aliases:
             for alias in self.current_scalar_aliases:
                 if alias not in self.requested_scalar_aliases:
@@ -115,6 +116,7 @@ class LavueController (PyTango.Device_4Impl):
                 if aalias not in self.ROIAttributesNames:
                     self.remove_attribute(str(aalias))
             self.current_rois_aliases = []
+        print("IN2 %s" % (self.ROIAttributesNames))
         self.initialize_dynamic_attributes()
 
     def always_executed_hook(self):
@@ -414,10 +416,8 @@ class LavueController (PyTango.Device_4Impl):
               LavueController.read_SpectrumDynamicAttr, None, None)
         self.attr_SpectrumDynamicAttr_read = [0.0]
         """
-        if self.DynamicROIsValues:
-            self.initialize_dynamic_rois_sums_attributes()
-        if self.DynamicROIs:
-            self.initialize_dynamic_rois_attributes()
+        self.initialize_dynamic_rois_sums_attributes()
+        self.initialize_dynamic_rois_attributes()
 
     def read_attr_hardware(self, data):
         self.debug_stream("In read_attr_hardware()")

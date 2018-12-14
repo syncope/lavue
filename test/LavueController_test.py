@@ -288,6 +288,11 @@ class LavueControllerTest(unittest.TestCase):
         print("Run: %s.%s() " % (
             self.__class__.__name__, sys._getframe().f_code.co_name))
 
+        DetectorROIsValues = \
+            '{"Pilatus1": [1.23, 12.321, 83.323], "Pilatus2": [146.32]}'
+        DetectorROIs = \
+            '{"Pilatus1": [[61, 91, 83, 146], [332, 93, 382, 141], ' \
+            '[116, 69, 279, 94]], "Pilatus2": [[91, 155, 157, 199]]}'
         testvalues = [
             [[], True, True, []],
             [["MyROI"], True, True, ["MyROI"]],
@@ -303,20 +308,38 @@ class LavueControllerTest(unittest.TestCase):
             [["MySuma"], False, False, []],
             [["YROI", "YSum", "YSums", "YSuma"], False, False,
              ["YROI", "YSum", "YSums"]],
+            [["Pilatus1ROI", "Pilatus2ROI", "Pilatus1Sum", "Pilatus2Sum"],
+             False, False,
+             ["Pilatus1ROI", "Pilatus2ROI", "Pilatus1Sum", "Pilatus2Sum"]],
+            [[], True, True, []],
         ]
         db = PyTango.Database()
 
         for wvl in testvalues:
-            db.put_device_property(
-                self.proxy.name(), {'ROIAttributesNames': wvl[0]})
-            db.put_device_property(self.proxy.name(), {'DynamicROIs': wvl[1]})
-            db.put_device_property(
-                self.proxy.name(), {'DynamicROIsValues': wvl[2]})
-            self.proxy.Init()
-            for at in wvl[3]:
-                self.assertTrue(hasattr(self.proxy, at))
-            for at in list(set(wvl[0]) - set(wvl[3])):
-                self.assertTrue(not hasattr(self.proxy, at))
+            for i in range(2):
+                db.put_device_property(
+                    self.proxy.name(), {'ROIAttributesNames': wvl[0]})
+                db.put_device_property(self.proxy.name(), {'DynamicROIs': wvl[1]})
+                db.put_device_property(
+                    self.proxy.name(), {'DynamicROIsValues': wvl[2]})
+                self.proxy.Init()
+
+                print(wvl[0])
+                attrs = [el for el in dir(self.proxy)
+                         if (el.endswith("ROI") or el.endswith("Sum")
+                             or el.endswith("Sums"))]
+                print("COMP")
+                print(attrs)
+                print(wvl[3])
+                self.assertEqual(set(attrs), set(wvl[3]))
+                
+                self.proxy.DetectorROIs = DetectorROIs if False else "{}"
+                self.proxy.DetectorROIsValues = DetectorROIsValues if False else "{}"
+                for at in wvl[3]:
+                    print(at)
+                    self.assertTrue(hasattr(self.proxy, at))
+                for at in list(set(wvl[0]) - set(wvl[3])):
+                    self.assertTrue(not hasattr(self.proxy, at))
 
     def test_State(self):
         """Test for State"""
