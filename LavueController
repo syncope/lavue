@@ -58,11 +58,11 @@ class LavueController (PyTango.Device_4Impl):
     def __init__(self, cl, name):
         PyTango.Device_4Impl.__init__(self, cl, name)
         self.debug_stream("In __init__()")
-        
+
         self.current_scalar_aliases = []
         self.current_spectrum_aliases = []
         self.current_rois_aliases = []
-        
+
         LavueController.init_device(self)
 
     def delete_device(self):
@@ -98,7 +98,7 @@ class LavueController (PyTango.Device_4Impl):
                     if aalias not in self.ROIAttributesNames:
                         self.remove_attribute(str(aalias))
             self.current_scalar_aliases = []
-                        
+
         if not self.DynamicROIsValues and self.current_spectrum_aliases:
             for alias in self.current_spectrum_aliases:
                 if alias not in self.requested_spectrum_aliases:
@@ -107,7 +107,7 @@ class LavueController (PyTango.Device_4Impl):
                     if aalias not in self.ROIAttributesNames:
                         self.remove_attribute(str(aalias))
             self.current_spectrum_aliases = []
-                        
+
         if not self.DynamicROIs and self.current_rois_aliases:
             for alias in self.current_rois_aliases:
                 aalias = "%sROI" % alias \
