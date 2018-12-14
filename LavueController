@@ -62,6 +62,7 @@ class LavueController (PyTango.Device_4Impl):
         self.current_scalar_aliases = []
         self.current_spectrum_aliases = []
         self.current_rois_aliases = []
+        self.current_attributes = set()
 
         LavueController.init_device(self)
 
@@ -90,7 +91,6 @@ class LavueController (PyTango.Device_4Impl):
         self.requested_spectrum_aliases = []
         self.requested_rois_aliases = []
 
-        print("IN %s" % (self.ROIAttributesNames))
         if not self.DynamicROIsValues and self.current_scalar_aliases:
             for alias in self.current_scalar_aliases:
                 if alias not in self.requested_scalar_aliases:
@@ -98,6 +98,10 @@ class LavueController (PyTango.Device_4Impl):
                              if alias != "__Null__" else "Sum"
                     if aalias not in self.ROIAttributesNames:
                         self.remove_attribute(str(aalias))
+                        if aalias in self.current_attributes:
+                            self.current_attributes = \
+                                set([at for at in self.current_attributes
+                                     if at != aalias])
             self.current_scalar_aliases = []
 
         if not self.DynamicROIsValues and self.current_spectrum_aliases:
@@ -107,6 +111,10 @@ class LavueController (PyTango.Device_4Impl):
                              if alias != "__Null__" else "Sums"
                     if aalias not in self.ROIAttributesNames:
                         self.remove_attribute(str(aalias))
+                        if aalias in self.current_attributes:
+                            self.current_attributes = \
+                                set([at for at in self.current_attributes
+                                     if at != aalias])
             self.current_spectrum_aliases = []
 
         if not self.DynamicROIs and self.current_rois_aliases:
@@ -115,8 +123,20 @@ class LavueController (PyTango.Device_4Impl):
                          if alias != "__Null__" else "ROI"
                 if aalias not in self.ROIAttributesNames:
                     self.remove_attribute(str(aalias))
+                    if aalias in self.current_attributes:
+                        self.current_attributes = \
+                            set([at for at in self.current_attributes
+                                 if at != aalias])
             self.current_rois_aliases = []
-        print("IN2 %s" % (self.ROIAttributesNames))
+
+        attrs = []
+        for alias in list(self.current_attributes):
+            if alias not in self.ROIAttributesNames:
+                self.remove_attribute(str(alias))
+            else:
+                attrs.append(alias)
+        self.current_attributes = set(attrs)
+
         self.initialize_dynamic_attributes()
 
     def always_executed_hook(self):
@@ -343,6 +363,7 @@ class LavueController (PyTango.Device_4Impl):
                         self.add_attribute(
                             myAttr, LavueController.read_ScalarDynamicAttr,
                             None, None)
+                        self.current_attributes.add(str(alias))
                 if alias.endswith("Sums"):
                     salias = alias[:-3]
                     if not salias:
@@ -355,6 +376,7 @@ class LavueController (PyTango.Device_4Impl):
                             myAttr,
                             LavueController.read_SpectrumDynamicAttr,
                             None, None)
+                        self.current_attributes.add(str(alias))
             self.current_scalar_aliases = self.requested_scalar_aliases
             self.current_spectrum_aliases = self.requested_spectrum_aliases
 
@@ -392,6 +414,7 @@ class LavueController (PyTango.Device_4Impl):
                         self.add_attribute(
                             myAttr, LavueController.read_ROIsDynamicAttr,
                             None, None)
+                        self.current_attributes.add(str(alias))
             self.current_rois_aliases = self.requested_rois_aliases
 
     def initialize_dynamic_attributes(self):
