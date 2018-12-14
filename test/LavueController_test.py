@@ -333,9 +333,6 @@ class LavueControllerTest(unittest.TestCase):
             attrs = [el for el in dir(self.proxy)
                      if (el.endswith("ROI") or el.endswith("Sum")
                          or el.endswith("Sums"))]
-            print('do')
-            print(str(wvl))
-            print(str(attrs))
             self.assertTrue(not (set(attrs) - set(wvl[4])))
             for at in wvl[4]:
                 self.assertTrue(hasattr(self.proxy, at))
