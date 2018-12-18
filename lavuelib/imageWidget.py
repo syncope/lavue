@@ -300,7 +300,11 @@ class ImageWidget(QtGui.QWidget):
                     rois[alias] = []
                 lastcrdlist = rois[alias]
                 if rid < len(rvalues):
-                    lastcrdlist.append(np.asscalar(rvalues[rid]))
+                    lastcrdlist.append(
+                        np.asscalar(rvalues[rid])
+                        if hasattr(rvalues[rid], "item")
+                        else rvalues[rid]
+                    )
                     rid += 1
                     if alias not in toadd:
                         toadd.append(alias)
@@ -311,7 +315,11 @@ class ImageWidget(QtGui.QWidget):
                 lastalias = alias
             if rid > 0:
                 while rid < len(rvalues):
-                    lastcrdlist.append(np.asscalar(rvalues[rid]))
+                    lastcrdlist.append(
+                        np.asscalar(rvalues[rid])
+                        if hasattr(rvalues[rid], "item")
+                        else rvalues[rid]
+                    )
                     rid += 1
                 if not lastcrdlist:
                     if lastalias in rois.keys():
