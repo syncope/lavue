@@ -33,6 +33,7 @@ import re
 import os
 import json
 import types
+import numpy as np
 
 from . import imageDisplayWidget
 from . import displayExtensions
@@ -299,7 +300,7 @@ class ImageWidget(QtGui.QWidget):
                     rois[alias] = []
                 lastcrdlist = rois[alias]
                 if rid < len(rvalues):
-                    lastcrdlist.append(rvalues[rid])
+                    lastcrdlist.append(np.asscalar(rvalues[rid]))
                     rid += 1
                     if alias not in toadd:
                         toadd.append(alias)
@@ -310,7 +311,7 @@ class ImageWidget(QtGui.QWidget):
                 lastalias = alias
             if rid > 0:
                 while rid < len(rvalues):
-                    lastcrdlist.append(rvalues[rid])
+                    lastcrdlist.append(np.asscalar(rvalues[rid]))
                     rid += 1
                 if not lastcrdlist:
                     if lastalias in rois.keys():

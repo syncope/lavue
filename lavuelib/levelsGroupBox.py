@@ -241,12 +241,10 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 ffactor = 0
                 self.__ui.autofactorLineEdit.setText("0")
             self.__histogram.setAutoFactor(ffactor)
+            self.autoLevelsChanged.emit(1)
         except Exception:
             self.__histogram.setAutoFactor(None)
-        if factor is "":
             self.autoLevelsChanged.emit(self.__auto)
-        else:
-            self.autoLevelsChanged.emit(1)
         self.levelsChanged.emit()
 
     @QtCore.pyqtSlot(int)
