@@ -1,3 +1,7 @@
+2018-12-18 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for setting auto levels
+	* tagged as 1.32.2
+
 2018-12-14 Jan Kotanski <jan.kotanski@desy.de>
 	* second fix for Init Command
 	* tagged as 1.32.1
