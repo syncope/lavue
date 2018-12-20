@@ -1552,9 +1552,13 @@ class OneDToolWidget(ToolWidget):
                self.__buffer.shape[1] == newrow.shape[0]:
                 if self.__buffer.shape[0] >= self.__buffersize:
                     self.__buffer = np.vstack(
-                        [newrow, self.__buffer[:self.__buffersize - 1, :]])
+                        [self.__buffer[
+                            self.__buffer.shape[0] - self.__buffersize + 1:,
+                            :],
+                         newrow]
+                    )
                 else:
-                    self.__buffer = np.vstack([newrow, self.__buffer])
+                    self.__buffer = np.vstack([self.__buffer, newrow])
             else:
                 self.__buffer = np.array([newrow])
             return np.transpose(self.__buffer), rawarray
