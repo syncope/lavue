@@ -1505,6 +1505,12 @@ class OneDToolWidget(ToolWidget):
         self.__rows = [0]
         #: ((:obj:`bool`) x in first row
         self.__xinfirstrow = False
+        #: ((:obj:`bool`) accumalate status
+        self.__accumulate = False
+        #: ((:obj:`int`) buffer size
+        self.__buffersize = 1024
+        #: ((:class:`ndarray`) buffer
+        self.__buffer = None
 
         self.__ui.rowsLineEdit.setText("0")
         self.parameters.bottomplot = True
@@ -1516,7 +1522,10 @@ class OneDToolWidget(ToolWidget):
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.rowsLineEdit.textChanged, self._updateRows],
+            [self.__ui.sizeLineEdit.textChanged, self._setBufferSize],
             [self.__ui.xCheckBox.stateChanged, self._updateXRow],
+            [self.__ui.accuPushButton.clicked, self._startStopAccu],
+            [self.__ui.resetPushButton.clicked, self._resetAccu],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
@@ -1525,9 +1534,39 @@ class OneDToolWidget(ToolWidget):
         """
         self._plotCurves()
 
+    def beforeplot(self, array, rawarray):
+        """ command  before plot
+
+        :param array: 2d image array
+        :type array: :class:`numpy.ndarray`
+        :param rawarray: 2d raw image array
+        :type rawarray: :class:`numpy.ndarray`
+        :return: 2d image array and raw image
+        :rtype: (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
+        """
+
+        if self.__accumulate:
+            dts = rawarray
+            newrow = np.sum(dts[:, self.__rows], axis=1)
+            if self.__buffer is not None and \
+               self.__buffer.shape[1] == newrow.shape[0]:
+                if self.__buffer.shape[0] >= self.__buffersize:
+                    self.__buffer = np.vstack(
+                        [self.__buffer[
+                            self.__buffer.shape[0] - self.__buffersize + 1:,
+                            :],
+                         newrow]
+                    )
+                else:
+                    self.__buffer = np.vstack([self.__buffer, newrow])
+            else:
+                self.__buffer = np.array([newrow])
+            return np.transpose(self.__buffer), rawarray
+
     def activate(self):
         """ activates tool widget
         """
+        self.__ui.sizeLineEdit.setText(str(self.__buffersize))
         self._updateRows()
 
     def disactivate(self):
@@ -1539,6 +1578,35 @@ class OneDToolWidget(ToolWidget):
             self._mainwidget.removebottomplot(cr)
         self.__curves = []
         self.__nrplots = 0
+
+    @QtCore.pyqtSlot()
+    def _resetAccu(self):
+        """ reset accumulation buffer
+        """
+        self.__buffer = None
+
+    @QtCore.pyqtSlot()
+    def _startStopAccu(self):
+        """ start/stop accumulation buffer
+        """
+        if not self.__accumulate:
+            self.__accumulate = True
+            self.__ui.accuPushButton.setText("Stop")
+        else:
+            self.__accumulate = False
+            self.__ui.accuPushButton.setText("Collect")
+
+    @QtCore.pyqtSlot(str)
+    @QtCore.pyqtSlot()
+    def _setBufferSize(self):
+        """ start/stop accumulation buffer
+
+        """
+        try:
+            self.__buffersize = int(self.__ui.sizeLineEdit.text())
+        except Exception as e:
+            print(str(e))
+            self.__buffersize = 1024
 
     @QtCore.pyqtSlot(int)
     def _updateXRow(self, value):
