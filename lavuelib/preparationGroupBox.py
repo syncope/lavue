@@ -25,7 +25,7 @@
 
 """ preparationbox widget """
 
-from PyQt4 import QtGui
+from pyqtgraph import QtGui
 
 from . import transformationsWidget
 from . import maskWidget
@@ -54,7 +54,7 @@ class PreparationGroupBox(QtGui.QGroupBox):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         :param settings: lavue configuration settings
         :type settings: :class:`lavuelib.settings.Settings`
         """

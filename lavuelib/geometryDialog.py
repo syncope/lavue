@@ -25,7 +25,8 @@
 
 """ detector geometry widget """
 
-from PyQt4 import QtGui, QtCore, uic
+from PyQt5 import uic
+from pyqtgraph import QtCore, QtGui
 import os
 
 _formclass, _baseclass = uic.loadUiType(
@@ -41,7 +42,7 @@ class GeometryDialog(QtGui.QDialog):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         QtGui.QDialog.__init__(self, parent)
 

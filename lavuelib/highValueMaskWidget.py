@@ -25,7 +25,8 @@
 
 """ mask widget """
 
-from PyQt4 import QtCore, QtGui, uic
+from PyQt5 import uic
+from pyqtgraph import QtCore, QtGui
 import os
 
 _formclass, _baseclass = uic.loadUiType(
@@ -39,14 +40,14 @@ class HighValueMaskWidget(QtGui.QWidget):
     Define and apply masking of the displayed image.
     """
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) mask high value changed signal
+    #: (:class:`PyQt5.QtCore.pyqtSignal`) mask high value changed signal
     maskHighValueChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None, settings=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         :param settings: lavue configuration settings
         :type settings: :class:`lavuelib.settings.Settings`
         """

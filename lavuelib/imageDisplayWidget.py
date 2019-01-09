@@ -26,18 +26,10 @@
 """ image display widget """
 
 import pyqtgraph as _pg
+from pyqtgraph import QtCore, QtGui
 import math
-import types
-from PyQt4 import QtCore, QtGui
 
 from . import axesDialog
-
-from .external.pyqtgraph_0_10 import (
-    viewbox_updateMatrix, viewbox_invertX,
-    viewbox_xInverted, axisitem_linkedViewChanged,
-    viewbox_linkedViewChanged,
-    imageitem_getHistogram
-)
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
     if _pg.__version__ else ("0", "9", "0")
@@ -100,23 +92,23 @@ class TransformationParameters(object):
 
 class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) aspect locked toggled signal
+    #: (:class:`PyQt5.QtCore.pyqtSignal`) aspect locked toggled signal
     aspectLockedToggled = QtCore.pyqtSignal(bool)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse position changed signal
+    #: (:class:`PyQt5.QtCore.pyqtSignal`) mouse position changed signal
     mouseImagePositionChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse double clicked
+    #: (:class:`PyQt5.QtCore.pyqtSignal`) mouse double clicked
     mouseImageDoubleClicked = QtCore.pyqtSignal(float, float)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse single clicked
+    #: (:class:`PyQt5.QtCore.pyqtSignal`) mouse single clicked
     mouseImageSingleClicked = QtCore.pyqtSignal(float, float)
 
     def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         _pg.GraphicsLayoutWidget.__init__(self, parent)
-        #: (:class:`PyQt4.QtGui.QLayout`) the main layout
+        #: (:class:`PyQt5.QtGui.QLayout`) the main layout
         self.__layout = self.ci
 
         #: (:class:`lavuelib.imageDisplayWidget.AxesParameters`)
@@ -140,9 +132,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
         #: (:class:`pyqtgraph.ImageItem`) image item
         self.__image = _pg.ImageItem()
-        if _VMAJOR == '0' and int(_VMINOR) < 10:
-            self.__image.getHistogram = types.MethodType(
-                imageitem_getHistogram, self.__image)
 
         #: (:class:`pyqtgraph.ViewBox`) viewbox item
         self.__viewbox = self.__layout.addViewBox(row=0, col=1)
@@ -167,7 +156,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         #: (:obj:`dict` < :obj:`str`, :obj:`DisplayExtension` >)
         #          extension dictionary with name keys
         self.__extensions = {}
-        #: (:class:`PyQt4.QtGui.QAction`) set aspect ration locked action
+        #: (:class:`PyQt5.QtGui.QAction`) set aspect ration locked action
         self.__setaspectlocked = QtGui.QAction(
             "Set Aspect Locked", self.__viewbox.menu)
         self.__setaspectlocked.setCheckable(True)
@@ -175,7 +164,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__viewbox.menu.axes.insert(0, self.__setaspectlocked)
         self.__viewbox.menu.addAction(self.__setaspectlocked)
 
-        #: (:class:`PyQt4.QtGui.QAction`) view one to one pixel action
+        #: (:class:`PyQt5.QtGui.QAction`) view one to one pixel action
         self.__viewonetoone = QtGui.QAction(
             "View 1:1 pixels", self.__viewbox.menu)
         self.__viewonetoone.triggered.connect(self._oneToOneRange)
@@ -188,24 +177,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
         #: (:class:`pyqtgraph.AxisItem`) bottom axis
         self.__bottomaxis = _pg.AxisItem('bottom')
-
-        #: dirty hooks for v0.9.10 to support invertX
-        if not hasattr(self.__viewbox, "invertX"):
-            self.__viewbox.state["xInverted"] = False
-            self.__viewbox.invertX = types.MethodType(
-                viewbox_invertX, self.__viewbox)
-            self.__viewbox.xInverted = types.MethodType(
-                viewbox_xInverted, self.__viewbox)
-            self.__viewbox.updateMatrix = types.MethodType(
-                viewbox_updateMatrix, self.__viewbox)
-            self.__viewbox.linkedViewChanged = types.MethodType(
-                viewbox_linkedViewChanged, self.__viewbox)
-
-            self.__bottomaxis.linkedViewChanged = types.MethodType(
-                axisitem_linkedViewChanged, self.__bottomaxis)
-            self.__leftaxis.linkedViewChanged = types.MethodType(
-                axisitem_linkedViewChanged, self.__leftaxis)
-            #: dirty hooks for v0.9.10 to fix getHistogram
 
         self.__leftaxis.linkToView(self.__viewbox)
         self.__layout.addItem(self.__leftaxis, row=0, col=0)
@@ -518,7 +489,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """ updates image widget after mouse position change
 
         :param event: mouse move event
-        :type event: :class:`PyQt4.QtCore.QEvent`
+        :type event: :class:`PyQt5.QtCore.QEvent`
         """
         try:
             if event is not None:
@@ -581,7 +552,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """ updates image widget after mouse click
 
         :param event: mouse click event
-        :type event: :class:`PyQt4.QtCore.QEvent`
+        :type event: :class:`PyQt5.QtCore.QEvent`
         """
 
         mousePoint = self.__image.mapFromScene(event.scenePos())

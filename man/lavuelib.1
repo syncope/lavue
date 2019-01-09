@@ -223,7 +223,7 @@ detector axis widget
 .INDENT 0.0
 .TP
 .B class lavuelib.axesDialog.AxesDialog(parent=None)
-Bases: \fBPyQt4.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtGui.QDialog\fP
 .sp
 detector axis widget class
 .sp
@@ -231,7 +231,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -290,7 +290,7 @@ background subtreaction widget
 .INDENT 0.0
 .TP
 .B class lavuelib.bkgSubtractionWidget.BkgSubtractionWidget(parent=None, settings=None)
-Bases: \fBPyQt4.QtGui.QWidget\fP
+Bases: \fBPyQt5.QtGui.QWidget\fP
 .sp
 Define bkg image and subtract from displayed image.
 .sp
@@ -300,7 +300,7 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .IP \(bu 2
 \fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) – lavue configuration settings
 .UNINDENT
@@ -308,12 +308,12 @@ constructor
 .INDENT 7.0
 .TP
 .B applyStateChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) apply state change signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) apply state change signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B bkgFileSelected
-(\fBPyQt4.QtCore.pyqtSignal\fP) bkg file selected signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) bkg file selected signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -356,7 +356,7 @@ sets displayed file name
 .INDENT 7.0
 .TP
 .B useCurrentImageAsBkg
-(\fBPyQt4.QtCore.pyqtSignal\fP) use current image signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) use current image signal
 .UNINDENT
 .UNINDENT
 .SS lavuelib.configDialog module
@@ -365,13 +365,13 @@ configuration widget
 .INDENT 0.0
 .TP
 .B class lavuelib.configDialog.ConfigDialog(parent=None)
-Bases: \fBPyQt4.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtGui.QDialog\fP
 .sp
 constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -555,7 +555,7 @@ tango lavue controller client
 .INDENT 0.0
 .TP
 .B class lavuelib.controllerClient.ControllerClient(device)
-Bases: \fBPyQt4.QtCore.QObject\fP
+Bases: \fBPyQt5.QtCore.QObject\fP
 .sp
 lavue controller client
 .sp
@@ -568,27 +568,27 @@ constructor
 .INDENT 7.0
 .TP
 .B beamCenterXChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) beam Center X changed siganal
+(\fBPyQt5.QtCore.pyqtSignal\fP) beam Center X changed siganal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B beamCenterYChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) beam Center Y changed siganal
+(\fBPyQt5.QtCore.pyqtSignal\fP) beam Center Y changed siganal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B detectorDistanceChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) detector distance changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) detector distance changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B detectorROIsChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) detector ROIs changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) detector ROIs changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B energyChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) energy changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) energy changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -633,7 +633,7 @@ constructor
 .IP \(bu 2
 \fBname\fP (\fI\%str\fP) – attribute name
 .IP \(bu 2
-\fBsignal\fP (\fBPyQt4.QtCore.pyqtSignal\fP) – signal to emit
+\fBsignal\fP (\fBPyQt5.QtCore.pyqtSignal\fP) – signal to emit
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -648,7 +648,7 @@ data fetch thread
 .INDENT 0.0
 .TP
 .B class lavuelib.dataFetchThread.DataFetchThread(datasource, alist)
-Bases: \fBPyQt4.QtCore.QThread\fP
+Bases: \fBPyQt5.QtCore.QThread\fP
 .sp
 constructor
 .INDENT 7.0
@@ -687,7 +687,7 @@ if datasource source connected
 .INDENT 7.0
 .TP
 .B newDataNameFetched
-(\fBPyQt4.QtCore.pyqtSignal\fP) new data name signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) new data name signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -768,7 +768,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -847,7 +847,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -884,7 +884,7 @@ cuts coordinates
 .INDENT 7.0
 .TP
 .B cutCoordsChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) cut coordinate changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) cut coordinate changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -954,7 +954,7 @@ update Cuts
 .INDENT 0.0
 .TP
 .B class lavuelib.displayExtensions.DisplayExtension(parent=None)
-Bases: \fBPyQt4.QtCore.QObject\fP
+Bases: \fBPyQt5.QtCore.QObject\fP
 .sp
 display extension for ImageDisplayWidget
 .sp
@@ -962,7 +962,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -1090,13 +1090,13 @@ hover event
 .INDENT 7.0
 .TP
 .B Parameters
-\fBev\fP (\fBPyQt4.QtCore.QEvent\fP:) – close event
+\fBev\fP (\fBPyQt5.QtCore.QEvent\fP:) – close event
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
 .B hovered
-(\fBPyQt4.QtCore.pyqtSignal\fP) hover event emitted
+(\fBPyQt5.QtCore.pyqtSignal\fP) hover event emitted
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -1108,7 +1108,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -1192,7 +1192,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -1271,7 +1271,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -1313,7 +1313,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -1368,7 +1368,7 @@ rois coordinates
 .INDENT 7.0
 .TP
 .B roiCoordsChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) roi coordinate changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) roi coordinate changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -1424,7 +1424,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -1505,7 +1505,7 @@ rois coordinates
 .INDENT 7.0
 .TP
 .B roiCoordsChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) roi coordinate changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) roi coordinate changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -2424,7 +2424,7 @@ detector geometry widget
 .INDENT 0.0
 .TP
 .B class lavuelib.geometryDialog.GeometryDialog(parent=None)
-Bases: \fBPyQt4.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtGui.QDialog\fP
 .sp
 detector geometry widget class
 .sp
@@ -2432,7 +2432,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -4200,7 +4200,7 @@ mask widget
 .INDENT 0.0
 .TP
 .B class lavuelib.highValueMaskWidget.HighValueMaskWidget(parent=None, settings=None)
-Bases: \fBPyQt4.QtGui.QWidget\fP
+Bases: \fBPyQt5.QtGui.QWidget\fP
 .sp
 Define and apply masking of the displayed image.
 .sp
@@ -4210,7 +4210,7 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .IP \(bu 2
 \fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) – lavue configuration settings
 .UNINDENT
@@ -4231,7 +4231,7 @@ high pixel value for masking
 .INDENT 7.0
 .TP
 .B maskHighValueChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) mask high value changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) mask high value changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -4275,7 +4275,7 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .IP \(bu 2
 \fBargs\fP (\fBlist\fP < \fI\%any\fP>) – HistogramHLUTItem parameters list
 .IP \(bu 2
@@ -4354,7 +4354,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -4366,7 +4366,7 @@ provides viewbox
 .INDENT 7.0
 .TP
 .B aspectLockedToggled
-(\fBPyQt4.QtCore.pyqtSignal\fP) aspect locked toggled signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) aspect locked toggled signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -4442,17 +4442,17 @@ image object
 .INDENT 7.0
 .TP
 .B mouseImageDoubleClicked
-(\fBPyQt4.QtCore.pyqtSignal\fP) mouse double clicked
+(\fBPyQt5.QtCore.pyqtSignal\fP) mouse double clicked
 .UNINDENT
 .INDENT 7.0
 .TP
 .B mouseImagePositionChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) mouse position changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) mouse position changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B mouseImageSingleClicked
-(\fBPyQt4.QtCore.pyqtSignal\fP) mouse single clicked
+(\fBPyQt5.QtCore.pyqtSignal\fP) mouse single clicked
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -4461,7 +4461,7 @@ updates image widget after mouse click
 .INDENT 7.0
 .TP
 .B Parameters
-\fBevent\fP (\fBPyQt4.QtCore.QEvent\fP) – mouse click event
+\fBevent\fP (\fBPyQt5.QtCore.QEvent\fP) – mouse click event
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4471,7 +4471,7 @@ updates image widget after mouse position change
 .INDENT 7.0
 .TP
 .B Parameters
-\fBevent\fP (\fBPyQt4.QtCore.QEvent\fP) – mouse move event
+\fBevent\fP (\fBPyQt5.QtCore.QEvent\fP) – mouse move event
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4825,13 +4825,13 @@ configuration widget
 .INDENT 0.0
 .TP
 .B class lavuelib.imageField.ImageField(parent=None)
-Bases: \fBPyQt4.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtGui.QDialog\fP
 .sp
 constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5494,7 +5494,7 @@ image widget
 .INDENT 0.0
 .TP
 .B class lavuelib.imageWidget.ImageWidget(parent=None, tooltypes=None, settings=None)
-Bases: \fBPyQt4.QtGui.QWidget\fP
+Bases: \fBPyQt5.QtGui.QWidget\fP
 .sp
 The part of the GUI that incorporates the image view.
 .sp
@@ -5504,7 +5504,7 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .IP \(bu 2
 \fBtooltypes\fP (\fBlist\fP <\fI\%str\fP>) – tool class names
 .IP \(bu 2
@@ -5529,12 +5529,12 @@ saves ROIs in sardana and add them to the measurement group
 .INDENT 7.0
 .TP
 .B applyTipsChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) apply tips changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) apply tips changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B aspectLockedToggled
-(\fBPyQt4.QtCore.pyqtSignal\fP) aspect locked toggled signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) aspect locked toggled signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5652,7 +5652,7 @@ current tool name
 .INDENT 7.0
 .TP
 .B currentToolChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) current tool changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) current tool changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5671,7 +5671,7 @@ cuts coordinates
 .INDENT 7.0
 .TP
 .B cutCoordsChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) cut coordinate changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) cut coordinate changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5692,7 +5692,7 @@ current cut data
 .INDENT 7.0
 .TP
 .B cutNumberChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) cut number changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) cut number changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5727,7 +5727,7 @@ loads ROIs from sardana
 .INDENT 7.0
 .TP
 .B geometryChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) geometry changed
+(\fBPyQt5.QtCore.pyqtSignal\fP) geometry changed
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5782,7 +5782,7 @@ image object
 .INDENT 7.0
 .TP
 .B imagePlotted
-(\fBPyQt4.QtCore.pyqtSignal\fP) image plotted signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) image plotted signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5801,22 +5801,22 @@ rois coordinates
 .INDENT 7.0
 .TP
 .B meshCoordsChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) mesh coordinate changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) mesh coordinate changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B mouseImageDoubleClicked
-(\fBPyQt4.QtCore.pyqtSignal\fP) mouse double clicked
+(\fBPyQt5.QtCore.pyqtSignal\fP) mouse double clicked
 .UNINDENT
 .INDENT 7.0
 .TP
 .B mouseImagePositionChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) mouse image position changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) mouse image position changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B mouseImageSingleClicked
-(\fBPyQt4.QtCore.pyqtSignal\fP) mouse single clicked
+(\fBPyQt5.QtCore.pyqtSignal\fP) mouse single clicked
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5927,12 +5927,12 @@ removes right plot
 .INDENT 7.0
 .TP
 .B replotImage
-(\fBPyQt4.QtCore.pyqtSignal\fP) replot image signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) replot image signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B roiAliasesChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) roi aliases changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) roi aliases changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5951,22 +5951,22 @@ rois coordinates
 .INDENT 7.0
 .TP
 .B roiCoordsChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) roi coordinate changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) roi coordinate changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B roiLineEditChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) roi Line Edit changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) roi Line Edit changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B roiNumberChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) roi number changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) roi number changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B roiValueChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) roi value changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) roi value changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5992,7 +5992,7 @@ macro runned
 .INDENT 7.0
 .TP
 .B sardanaEnabled
-(\fBPyQt4.QtCore.pyqtSignal\fP) sardana enabled signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) sardana enabled signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6511,7 +6511,7 @@ interval device widget
 .INDENT 0.0
 .TP
 .B class lavuelib.intervalsDialog.IntervalsDialog(parent=None)
-Bases: \fBPyQt4.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtGui.QDialog\fP
 .sp
 interval widget class
 .sp
@@ -6519,7 +6519,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6553,7 +6553,7 @@ level widget
 .INDENT 0.0
 .TP
 .B class lavuelib.levelsGroupBox.LevelsGroupBox(parent=None)
-Bases: \fBPyQt4.QtGui.QGroupBox\fP
+Bases: \fBPyQt5.QtGui.QGroupBox\fP
 .sp
 Set minimum and maximum displayed values and its color.
 .sp
@@ -6561,7 +6561,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6579,7 +6579,7 @@ factor for automatic levels
 .INDENT 7.0
 .TP
 .B autoLevelsChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) automatic levels changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) automatic levels changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6599,7 +6599,7 @@ shows or hides the histogram widget
 .INDENT 7.0
 .TP
 .B channelChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) color channel changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) color channel changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6656,17 +6656,17 @@ configuration string: lowlim,uplim
 .INDENT 7.0
 .TP
 .B levelsChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) levels changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) levels changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B maxLevelChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) maximum level changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) maximum level changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B minLevelChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) minimum level changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) minimum level changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6778,7 +6778,7 @@ live viewer settings
 .INDENT 0.0
 .TP
 .B class lavuelib.liveViewer.LiveViewer(options, parent=None)
-Bases: \fBPyQt4.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtGui.QDialog\fP
 .sp
 The master class for the dialog, contains all other
 widget and handles communication.
@@ -6791,7 +6791,7 @@ constructor
 .IP \(bu 2
 \fBoptions\fP (\fI\%argparse.Namespace\fP) – commandline options
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -6801,14 +6801,14 @@ stores the setting before finishing the application
 .INDENT 7.0
 .TP
 .B Parameters
-\fBevent\fP (\fBPyQt4.QtCore.QEvent\fP:) – close event
+\fBevent\fP (\fBPyQt5.QtCore.QEvent\fP:) – close event
 .UNINDENT
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
 .B class lavuelib.liveViewer.MainWindow(options, parent=None)
-Bases: \fBPyQt4.QtGui.QMainWindow\fP
+Bases: \fBPyQt5.QtGui.QMainWindow\fP
 .sp
 constructor
 .INDENT 7.0
@@ -6818,7 +6818,7 @@ constructor
 .IP \(bu 2
 \fBoptions\fP (\fI\%argparse.Namespace\fP) – commandline options
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -6828,7 +6828,7 @@ mask widget
 .INDENT 0.0
 .TP
 .B class lavuelib.maskWidget.MaskWidget(parent=None, settings=None)
-Bases: \fBPyQt4.QtGui.QWidget\fP
+Bases: \fBPyQt5.QtGui.QWidget\fP
 .sp
 Define and apply masking of the displayed image.
 .sp
@@ -6838,7 +6838,7 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .IP \(bu 2
 \fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) – lavue configuration settings
 .UNINDENT
@@ -6846,7 +6846,7 @@ constructor
 .INDENT 7.0
 .TP
 .B applyStateChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) apply state change signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) apply state change signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6858,7 +6858,7 @@ if background subtraction applied
 .INDENT 7.0
 .TP
 .B maskFileSelected
-(\fBPyQt4.QtCore.pyqtSignal\fP) mask file selected signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) mask file selected signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6892,7 +6892,7 @@ error message box
 .INDENT 0.0
 .TP
 .B class lavuelib.messageBox.MessageBox(parent)
-Bases: \fBPyQt4.QtCore.QObject\fP
+Bases: \fBPyQt5.QtCore.QObject\fP
 .sp
 error message box
 .sp
@@ -6900,7 +6900,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6932,7 +6932,7 @@ creates warning messagebox
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .IP \(bu 2
 \fBtitle\fP (\fI\%str\fP) – message box title
 .IP \(bu 2
@@ -6940,7 +6940,7 @@ creates warning messagebox
 .IP \(bu 2
 \fBdetailedText\fP (\fI\%str\fP) – message box detailed text
 .IP \(bu 2
-\fBicon\fP (\fBPyQt4.QtCore.QIcon\fP) – message box icon
+\fBicon\fP (\fBPyQt5.QtCore.QIcon\fP) – message box icon
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -6961,7 +6961,7 @@ motor watch thread
 .INDENT 0.0
 .TP
 .B class lavuelib.motorWatchThread.MotorWatchThread(motor1, motor2, server=None)
-Bases: \fBPyQt4.QtCore.QThread\fP
+Bases: \fBPyQt5.QtCore.QThread\fP
 .sp
 constructor
 .INDENT 7.0
@@ -6992,7 +6992,7 @@ if datasource source connected
 .INDENT 7.0
 .TP
 .B motorStatusSignal
-(\fBPyQt4.QtCore.pyqtSignal\fP) signal with motor status
+(\fBPyQt5.QtCore.pyqtSignal\fP) signal with motor status
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7007,7 +7007,7 @@ stops loop
 .INDENT 7.0
 .TP
 .B watchingFinished
-(\fBPyQt4.QtCore.pyqtSignal\fP) watching finished
+(\fBPyQt5.QtCore.pyqtSignal\fP) watching finished
 .UNINDENT
 .UNINDENT
 .SS lavuelib.pniwriter
@@ -7846,7 +7846,7 @@ preparationbox widget
 .INDENT 0.0
 .TP
 .B class lavuelib.preparationGroupBox.PreparationGroupBox(parent=None, settings=None)
-Bases: \fBPyQt4.QtGui.QGroupBox\fP
+Bases: \fBPyQt5.QtGui.QGroupBox\fP
 .sp
 colection of image preperation widgets
 .sp
@@ -7856,7 +7856,7 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .IP \(bu 2
 \fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) – lavue configuration settings
 .UNINDENT
@@ -7894,7 +7894,7 @@ show or hide widgets in the preparation colection
 .INDENT 0.0
 .TP
 .B class lavuelib.preparationGroupBox.QHLine
-Bases: \fBPyQt4.QtGui.QFrame\fP
+Bases: \fBPyQt5.QtGui.QFrame\fP
 .sp
 horizontal line
 .sp
@@ -7906,7 +7906,7 @@ detector range widget
 .INDENT 0.0
 .TP
 .B class lavuelib.rangeDialog.RangeDialog(parent=None)
-Bases: \fBPyQt4.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtGui.QDialog\fP
 .sp
 detector range widget class
 .sp
@@ -7914,7 +7914,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8203,7 +8203,7 @@ scalingGroupBox
 .INDENT 0.0
 .TP
 .B class lavuelib.scalingGroupBox.ScalingGroupBox(parent=None)
-Bases: \fBPyQt4.QtGui.QGroupBox\fP
+Bases: \fBPyQt5.QtGui.QGroupBox\fP
 .sp
 Select how the image intensity is supposed to be scaled.
 .sp
@@ -8211,7 +8211,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8239,7 +8239,7 @@ current scaline
 .INDENT 7.0
 .TP
 .B scalingChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) scaling changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) scaling changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8254,7 +8254,7 @@ sets scaling from string
 .INDENT 7.0
 .TP
 .B simpleScalingChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) simple scaling changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) simple scaling changed signal
 .UNINDENT
 .UNINDENT
 .SS lavuelib.settings module
@@ -8360,7 +8360,7 @@ load settings
 .INDENT 7.0
 .TP
 .B Parameters
-\fBsettings\fP (\fBPyQt4.QtCore.QSettings\fP) – QSettings object
+\fBsettings\fP (\fBPyQt5.QtCore.QSettings\fP) – QSettings object
 .TP
 .B Returns
 error messages list
@@ -8524,7 +8524,7 @@ Stores settings in QSettings object
 .INDENT 7.0
 .TP
 .B Parameters
-\fBsettings\fP (\fBPyQt4.QtCore.QSettings\fP) – QSettings object
+\fBsettings\fP (\fBPyQt5.QtCore.QSettings\fP) – QSettings object
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -8554,7 +8554,7 @@ image source selection
 .INDENT 0.0
 .TP
 .B class lavuelib.sourceGroupBox.SourceGroupBox(parent=None, sourcetypes=None)
-Bases: \fBPyQt4.QtGui.QGroupBox\fP
+Bases: \fBPyQt5.QtGui.QGroupBox\fP
 .sp
 image source selection
 .sp
@@ -8564,7 +8564,7 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .IP \(bu 2
 \fBsourcetypes\fP (\fBlist\fP <\fI\%str\fP>) – source type class names
 .UNINDENT
@@ -8572,7 +8572,7 @@ constructor
 .INDENT 7.0
 .TP
 .B configurationChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) source server name signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) source server name signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8663,27 +8663,27 @@ set target name
 .INDENT 7.0
 .TP
 .B sourceChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) source state signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) source state signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B sourceConnected
-(\fBPyQt4.QtCore.pyqtSignal\fP) source connected signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) source connected signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B sourceDisconnected
-(\fBPyQt4.QtCore.pyqtSignal\fP) source disconnected signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) source disconnected signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B sourceLabelChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) source label name signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) source label name signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B sourceStateChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) source state signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) source state signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8722,7 +8722,7 @@ image source selection
 .INDENT 0.0
 .TP
 .B class lavuelib.sourceWidget.BaseSourceWidget(parent=None)
-Bases: \fBPyQt4.QtGui.QWidget\fP
+Bases: \fBPyQt5.QtGui.QWidget\fP
 .sp
 general source widget
 .sp
@@ -8730,7 +8730,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8740,12 +8740,12 @@ constructor
 .INDENT 7.0
 .TP
 .B buttonEnabled
-(\fBPyQt4.QtCore.pyqtSignal\fP) push button enabled signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) push button enabled signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B configurationChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) source server name signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) source server name signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8793,12 +8793,12 @@ label of the current detector
 .INDENT 7.0
 .TP
 .B sourceLabelChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) source label name signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) source label name signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B sourceStateChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) source state signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) source state signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8823,7 +8823,7 @@ update source input parameters
 .INDENT 7.0
 .TP
 .B widgets = None
-(\fBlist\fP <\fBPyQt4.QtGui.QWidget\fP>) subwidget objects
+(\fBlist\fP <\fBPyQt5.QtGui.QWidget\fP>) subwidget objects
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -8837,7 +8837,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8861,7 +8861,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8944,7 +8944,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9026,7 +9026,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9110,7 +9110,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9193,7 +9193,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9282,7 +9282,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -9296,7 +9296,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9382,7 +9382,7 @@ statistics widget
 .INDENT 0.0
 .TP
 .B class lavuelib.statisticsGroupBox.StatisticsGroupBox(parent=None)
-Bases: \fBPyQt4.QtGui.QGroupBox\fP
+Bases: \fBPyQt5.QtGui.QGroupBox\fP
 .sp
 Display some general image statistics.
 .sp
@@ -9390,7 +9390,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9424,7 +9424,7 @@ motor device widget
 .INDENT 0.0
 .TP
 .B class lavuelib.takeMotorsDialog.TakeMotorsDialog(parent=None)
-Bases: \fBPyQt4.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtGui.QDialog\fP
 .sp
 detector geometry widget class
 .sp
@@ -9432,7 +9432,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9489,7 +9489,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9530,7 +9530,7 @@ disactivates tool widget
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBPyQt4.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fBlist\fP < [\fBPyQt5.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .INDENT 7.0
@@ -9555,7 +9555,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9565,7 +9565,7 @@ constructor
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBPyQt4.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fBlist\fP < [\fBPyQt5.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .UNINDENT
@@ -9580,7 +9580,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9605,7 +9605,7 @@ activates tool widget
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBPyQt4.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fBlist\fP < [\fBPyQt5.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .UNINDENT
@@ -9620,7 +9620,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9661,7 +9661,7 @@ disactivates tool widget
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBPyQt4.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fBlist\fP < [\fBPyQt5.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .INDENT 7.0
@@ -9681,7 +9681,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9701,12 +9701,12 @@ disactivates tool widget
 .INDENT 7.0
 .TP
 .B roiInfoChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) roi info Changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) roi info Changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBPyQt4.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fBlist\fP < [\fBPyQt5.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .INDENT 7.0
@@ -9738,7 +9738,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9753,7 +9753,7 @@ activates tool widget
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBPyQt4.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fBlist\fP < [\fBPyQt5.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .UNINDENT
@@ -9768,7 +9768,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9814,7 +9814,7 @@ activates tool widget
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBPyQt4.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fBlist\fP < [\fBPyQt5.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .UNINDENT
@@ -9829,7 +9829,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9854,7 +9854,7 @@ activates tool widget
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBPyQt4.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fBlist\fP < [\fBPyQt5.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .UNINDENT
@@ -9869,7 +9869,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9884,7 +9884,7 @@ command after plot
 .INDENT 7.0
 .TP
 .B applyROIPressed
-(\fBPyQt4.QtCore.pyqtSignal\fP) apply ROI pressed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) apply ROI pressed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9894,7 +9894,7 @@ disactivates tool widget
 .INDENT 7.0
 .TP
 .B fetchROIPressed
-(\fBPyQt4.QtCore.pyqtSignal\fP) fetch ROI pressed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) fetch ROI pressed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9904,7 +9904,7 @@ disactivates tool widget
 .INDENT 7.0
 .TP
 .B roiInfoChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) roi info Changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) roi info Changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9919,7 +9919,7 @@ sets a number of rois
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBPyQt4.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fBlist\fP < [\fBPyQt5.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .INDENT 7.0
@@ -9986,7 +9986,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9996,7 +9996,7 @@ activates tool widget
 .INDENT 7.0
 .TP
 .B applyROIPressed
-(\fBPyQt4.QtCore.pyqtSignal\fP) apply ROI pressed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) apply ROI pressed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10006,7 +10006,7 @@ disactivates tool widget
 .INDENT 7.0
 .TP
 .B fetchROIPressed
-(\fBPyQt4.QtCore.pyqtSignal\fP) fetch ROI pressed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) fetch ROI pressed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10016,7 +10016,7 @@ disactivates tool widget
 .INDENT 7.0
 .TP
 .B roiInfoChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) roi info Changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) roi info Changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10031,7 +10031,7 @@ sets a number of rois
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBPyQt4.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fBlist\fP < [\fBPyQt5.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .INDENT 7.0
@@ -10164,7 +10164,7 @@ constructor
 .INDENT 0.0
 .TP
 .B class lavuelib.toolWidget.ToolWidget(parent=None)
-Bases: \fBPyQt4.QtGui.QWidget\fP
+Bases: \fBPyQt5.QtGui.QWidget\fP
 .sp
 tool widget
 .sp
@@ -10172,7 +10172,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10223,7 +10223,7 @@ disactivates tool widget
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBPyQt4.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fBlist\fP < [\fBPyQt5.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .UNINDENT
@@ -10233,7 +10233,7 @@ transformation widget
 .INDENT 0.0
 .TP
 .B class lavuelib.transformationsWidget.TransformationsWidget(parent=None)
-Bases: \fBPyQt4.QtGui.QWidget\fP
+Bases: \fBPyQt5.QtGui.QWidget\fP
 .sp
 Select how an image should be transformed.
 .sp
@@ -10241,7 +10241,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBparent\fP (\fBPyQt4.QtCore.QObject\fP) – parent object
+\fBparent\fP (\fBPyQt5.QtCore.QObject\fP) – parent object
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10289,7 +10289,7 @@ transfromation name
 .INDENT 7.0
 .TP
 .B transformationChanged
-(\fBPyQt4.QtCore.pyqtSignal\fP) transformation changed signal
+(\fBPyQt5.QtCore.pyqtSignal\fP) transformation changed signal
 .UNINDENT
 .UNINDENT
 .SS Module contents

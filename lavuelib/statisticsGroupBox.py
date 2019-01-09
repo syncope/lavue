@@ -26,7 +26,8 @@
 
 """ statistics widget """
 
-from PyQt4 import QtGui, uic
+from PyQt5 import uic
+from pyqtgraph import QtGui
 import os
 
 _formclass, _baseclass = uic.loadUiType(
@@ -44,7 +45,7 @@ class StatisticsGroupBox(QtGui.QGroupBox):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         QtGui.QGroupBox.__init__(self, parent)
 
@@ -60,7 +61,7 @@ class StatisticsGroupBox(QtGui.QGroupBox):
         """ update image statistic values
 
         :param meanparent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         if self.__scaling is not scaling:
             self.__scaling = scaling

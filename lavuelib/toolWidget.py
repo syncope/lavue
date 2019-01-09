@@ -26,7 +26,7 @@
 """ image widget """
 
 
-from PyQt4 import QtCore, QtGui, uic
+from PyQt5 import uic
 
 import os
 import re
@@ -35,6 +35,8 @@ import numpy as np
 import scipy.interpolate
 import pyqtgraph as _pg
 import warnings
+from pyqtgraph import QtCore, QtGui
+
 
 from . import geometryDialog
 from . import rangeDialog
@@ -129,12 +131,12 @@ class ToolWidget(QtGui.QWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         QtGui.QWidget.__init__(self, parent)
         #: (:obj:`str`) tool name
         self.name = "None"
-        #: (:class:`PyQt4.QtCore.QObject`) mainwidget
+        #: (:class:`PyQt5.QtCore.QObject`) mainwidget
         self._mainwidget = parent
         #: (:class:`Ui_ToolWidget')
         #:     ui_toolwidget object from qtdesigner
@@ -142,7 +144,7 @@ class ToolWidget(QtGui.QWidget):
         #: (:class:`ToolParameters`) tool parameters
         self.parameters = ToolParameters()
 
-        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: (:obj:`list` < [:class:`PyQt5.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = []
 
@@ -178,7 +180,7 @@ class IntensityToolWidget(ToolWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         ToolWidget.__init__(self, parent)
 
@@ -196,7 +198,7 @@ class IntensityToolWidget(ToolWidget):
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
 
-        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: (:obj:`list` < [:class:`PyQt5.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.axesPushButton.clicked, self._mainwidget.setTicks],
@@ -239,7 +241,7 @@ class MotorsToolWidget(ToolWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         ToolWidget.__init__(self, parent)
 
@@ -281,7 +283,7 @@ class MotorsToolWidget(ToolWidget):
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
 
-        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: (:obj:`list` < [:class:`PyQt5.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.axesPushButton.clicked, self._mainwidget.setTicks],
@@ -532,14 +534,14 @@ class MotorsToolWidget(ToolWidget):
 class MeshToolWidget(ToolWidget):
     """ mesh tool widget
     """
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi info Changed signal
+    #: (:class:`PyQt5.QtCore.pyqtSignal`) roi info Changed signal
     roiInfoChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         ToolWidget.__init__(self, parent)
 
@@ -586,7 +588,7 @@ class MeshToolWidget(ToolWidget):
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
 
-        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: (:obj:`list` < [:class:`PyQt5.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.axesPushButton.clicked, self._mainwidget.setTicks],
@@ -844,18 +846,18 @@ class MeshToolWidget(ToolWidget):
 class ROIToolWidget(ToolWidget):
     """ roi tool widget
     """
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) apply ROI pressed signal
+    #: (:class:`PyQt5.QtCore.pyqtSignal`) apply ROI pressed signal
     applyROIPressed = QtCore.pyqtSignal(str, int)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) fetch ROI pressed signal
+    #: (:class:`PyQt5.QtCore.pyqtSignal`) fetch ROI pressed signal
     fetchROIPressed = QtCore.pyqtSignal(str)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi info Changed signal
+    #: (:class:`PyQt5.QtCore.pyqtSignal`) roi info Changed signal
     roiInfoChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         ToolWidget.__init__(self, parent)
 
@@ -880,7 +882,7 @@ class ROIToolWidget(ToolWidget):
         self.__ui.fetchROIPushButton.clicked.connect(self._emitFetchROIPressed)
 
         self._updateApplyButton()
-        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: (:obj:`list` < [:class:`PyQt5.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.applyROIPressed, self._mainwidget.applyROIs],
@@ -1072,7 +1074,7 @@ class LineCutToolWidget(ToolWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         ToolWidget.__init__(self, parent)
 
@@ -1100,7 +1102,7 @@ class LineCutToolWidget(ToolWidget):
         #: (:obj:`int`) current plot number
         self.__nrplots = 0
 
-        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: (:obj:`list` < [:class:`PyQt5.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.cutSpinBox.valueChanged, self._updateCuts],
@@ -1280,7 +1282,7 @@ class ProjectionToolWidget(ToolWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         ToolWidget.__init__(self, parent)
 
@@ -1310,7 +1312,7 @@ class ProjectionToolWidget(ToolWidget):
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
 
-        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: (:obj:`list` < [:class:`PyQt5.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.funComboBox.currentIndexChanged,
@@ -1485,7 +1487,7 @@ class OneDToolWidget(ToolWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         ToolWidget.__init__(self, parent)
 
@@ -1518,7 +1520,7 @@ class OneDToolWidget(ToolWidget):
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
 
-        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: (:obj:`list` < [:class:`PyQt5.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.rowsLineEdit.textChanged, self._updateRows],
@@ -1722,7 +1724,7 @@ class AngleQToolWidget(ToolWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         ToolWidget.__init__(self, parent)
 
@@ -1811,7 +1813,7 @@ class AngleQToolWidget(ToolWidget):
         #: (:obj:`float`) polar coordinate factor
         self.__polmax = 1.
 
-        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: (:obj:`list` < [:class:`PyQt5.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.angleqPushButton.clicked, self._setGeometry],
@@ -2378,7 +2380,7 @@ class MaximaToolWidget(ToolWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         ToolWidget.__init__(self, parent)
 
@@ -2425,7 +2427,7 @@ class MaximaToolWidget(ToolWidget):
         #: (:obj:`list`) last combo items
         self.__lastcomboitems = []
 
-        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: (:obj:`list` < [:class:`PyQt5.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.angleqPushButton.clicked, self._setGeometry],
@@ -2697,18 +2699,18 @@ class QROIProjToolWidget(ToolWidget):
     """ angle/q +roi + projections tool widget
     """
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) apply ROI pressed signal
+    #: (:class:`PyQt5.QtCore.pyqtSignal`) apply ROI pressed signal
     applyROIPressed = QtCore.pyqtSignal(str, int)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) fetch ROI pressed signal
+    #: (:class:`PyQt5.QtCore.pyqtSignal`) fetch ROI pressed signal
     fetchROIPressed = QtCore.pyqtSignal(str)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi info Changed signal
+    #: (:class:`PyQt5.QtCore.pyqtSignal`) roi info Changed signal
     roiInfoChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         ToolWidget.__init__(self, parent)
 
@@ -2753,7 +2755,7 @@ class QROIProjToolWidget(ToolWidget):
         self.__ui.fetchROIPushButton.clicked.connect(self._emitFetchROIPressed)
 
         self._updateApplyButton()
-        #: (:obj:`list` < [:class:`PyQt4.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: (:obj:`list` < [:class:`PyQt5.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.angleqPushButton.clicked, self._setGeometry],

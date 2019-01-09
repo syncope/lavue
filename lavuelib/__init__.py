@@ -26,5 +26,13 @@
 """ Live Viewer widgets """
 
 from .release import __version__
+import os
+
+if "GNOME_DESKTOP_SESSION_ID" not in os.environ:
+    os.environ["GNOME_DESKTOP_SESSION_ID"] = "qtconfig"
+if os.path.isdir("/usr/lib/kde4/plugins/") and \
+   "QT_PLUGIN_PATH" not in os.environ:
+    os.environ["QT_PLUGIN_PATH"] = "/usr/lib/kde4/plugins/"
+
 
 __all__ = ["__version__"]

@@ -25,10 +25,11 @@
 
 """ configuration widget """
 
-from PyQt4 import QtGui, QtCore, uic
+from PyQt5 import uic
+import pyqtgraph as _pg
+from pyqtgraph import QtCore, QtGui
 import os
 import json
-import pyqtgraph as _pg
 
 
 _formclass, _baseclass = uic.loadUiType(
@@ -42,7 +43,7 @@ class ConfigDialog(QtGui.QDialog):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         QtGui.QDialog.__init__(self, parent)
 
