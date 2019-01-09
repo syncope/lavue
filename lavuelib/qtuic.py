@@ -23,11 +23,11 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
-""" Live Viewer widgets """
+""" uic support """
+uic = None
+try:
+    from PyQt5 import uic
+except:
+    from PyQt4 import uic
 
-from .release import __version__
-
-# os.environ['DEFAULT_QT_API'] = 'pyqt5'
-# os.environ['QT_API'] = 'pyqt5'
-
-__all__ = ["__version__"]
+__all__ = [uic]

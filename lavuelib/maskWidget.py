@@ -25,7 +25,7 @@
 
 """ mask widget """
 
-from PyQt5 import uic
+from .qtuic import uic
 import os
 from pyqtgraph import QtCore, QtGui
 
@@ -41,16 +41,16 @@ class MaskWidget(QtGui.QWidget):
     Define and apply masking of the displayed image.
     """
 
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) mask file selected signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) mask file selected signal
     maskFileSelected = QtCore.pyqtSignal(str)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) apply state change signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) apply state change signal
     applyStateChanged = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None, settings=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         :param settings: lavue configuration settings
         :type settings: :class:`lavuelib.settings.Settings`
         """

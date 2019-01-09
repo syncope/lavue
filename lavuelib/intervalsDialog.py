@@ -25,7 +25,7 @@
 
 """ interval device widget """
 
-from PyQt5 import uic
+from .qtuic import uic
 from pyqtgraph import QtCore, QtGui
 import os
 
@@ -42,7 +42,7 @@ class IntervalsDialog(QtGui.QDialog):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QDialog.__init__(self, parent)
 

@@ -25,7 +25,7 @@
 
 """ image source selection """
 
-from PyQt5 import uic
+from .qtuic import uic
 from pyqtgraph import QtCore, QtGui
 import os
 import socket
@@ -65,20 +65,20 @@ class BaseSourceWidget(QtGui.QWidget):
 
     """ general source widget """
 
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) push button enabled signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) push button enabled signal
     buttonEnabled = QtCore.pyqtSignal(bool)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) source state signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source state signal
     sourceStateChanged = QtCore.pyqtSignal(int)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) source server name signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source server name signal
     configurationChanged = QtCore.pyqtSignal(str)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) source label name signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source label name signal
     sourceLabelChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QWidget.__init__(self, parent)
 
@@ -162,7 +162,7 @@ class TestSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
 
@@ -180,7 +180,7 @@ class FixTestSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
         #: (:obj:`str`) source name
@@ -202,7 +202,7 @@ class HTTPSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
 
@@ -350,7 +350,7 @@ class HidraSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
 
@@ -502,7 +502,7 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
 
@@ -643,7 +643,7 @@ class TangoFileSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
 
@@ -846,7 +846,7 @@ class NXSFileSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
 
@@ -968,7 +968,7 @@ class ZMQSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
 
@@ -996,7 +996,7 @@ class ZMQSourceWidget(BaseSourceWidget):
         #: (:obj:`list` <:obj:`str`>) user servers
         self.__userservers = []
 
-        #: (:class:`PyQt5.QtCore.QMutex`) zmq datasource mutex
+        #: (:class:`pyqtgraph.QtCore.QMutex`) zmq datasource mutex
         self.__mutex = QtCore.QMutex()
 
         self._detachWidgets()

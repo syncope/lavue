@@ -33,7 +33,7 @@ from __future__ import unicode_literals
 import time
 import json
 import numpy as np
-from PyQt5 import uic
+from .qtuic import uic
 import pyqtgraph as _pg
 from pyqtgraph import QtCore, QtGui
 import os
@@ -91,7 +91,7 @@ class MainWindow(QtGui.QMainWindow):
         :param options: commandline options
         :type options: :class:`argparse.Namespace`
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QMainWindow.__init__(self, parent)
         self.__lavue = LiveViewer(options, self)
@@ -110,7 +110,7 @@ class LiveViewer(QtGui.QDialog):
     '''The master class for the dialog, contains all other
     widget and handles communication.'''
 
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) state updated signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) state updated signal
     _stateUpdated = QtCore.pyqtSignal(bool)
 
     def __init__(self, options, parent=None):
@@ -119,7 +119,7 @@ class LiveViewer(QtGui.QDialog):
         :param options: commandline options
         :type options: :class:`argparse.Namespace`
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QDialog.__init__(self, parent)
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -604,7 +604,7 @@ class LiveViewer(QtGui.QDialog):
         """ stores the setting before finishing the application
 
         :param event: close event
-        :type event:  :class:`PyQt5.QtCore.QEvent`:
+        :type event:  :class:`pyqtgraph.QtCore.QEvent`:
         """
         if self.__tangoclient:
             self.__tangoclient.unsubscribe()

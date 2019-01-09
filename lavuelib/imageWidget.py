@@ -26,7 +26,7 @@
 """ image widget """
 
 
-from PyQt5 import uic
+from .qtuic import uic
 import pyqtgraph as _pg
 from pyqtgraph import QtCore, QtGui
 
@@ -56,48 +56,49 @@ class ImageWidget(QtGui.QWidget):
     The part of the GUI that incorporates the image view.
     """
 
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) current tool changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) current tool changed signal
     currentToolChanged = QtCore.pyqtSignal(str)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) roi number changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi number changed signal
     roiNumberChanged = QtCore.pyqtSignal(int)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) roi coordinate changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi coordinate changed signal
     roiCoordsChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) mesh coordinate changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) mesh coordinate changed signal
     meshCoordsChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) roi Line Edit changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi Line Edit changed signal
     roiLineEditChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) roi aliases changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi aliases changed signal
     roiAliasesChanged = QtCore.pyqtSignal(str)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) roi value changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi value changed signal
     roiValueChanged = QtCore.pyqtSignal(str, int, str)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) cut number changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) cut number changed signal
     cutNumberChanged = QtCore.pyqtSignal(int)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) cut coordinate changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) cut coordinate changed signal
     cutCoordsChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) image plotted signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) image plotted signal
     imagePlotted = QtCore.pyqtSignal()
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) replot image signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) replot image signal
     replotImage = QtCore.pyqtSignal(bool)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) sardana enabled signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) sardana enabled signal
     sardanaEnabled = QtCore.pyqtSignal(bool)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) aspect locked toggled signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) aspect locked toggled signal
     aspectLockedToggled = QtCore.pyqtSignal(bool)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) apply tips changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) apply tips changed signal
     applyTipsChanged = QtCore.pyqtSignal(int)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) mouse image position changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`)
+    #         mouse image position changed signal
     mouseImagePositionChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) mouse double clicked
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) mouse double clicked
     mouseImageDoubleClicked = QtCore.pyqtSignal(float, float)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) mouse single clicked
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) mouse single clicked
     mouseImageSingleClicked = QtCore.pyqtSignal(float, float)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) geometry changed
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) geometry changed
     geometryChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, tooltypes=None, settings=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         :param tooltypes: tool class names
         :type tooltypes: :obj:`list` <:obj:`str`>
         :param settings: lavue configuration settings

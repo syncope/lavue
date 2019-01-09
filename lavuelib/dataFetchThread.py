@@ -45,7 +45,7 @@ class ExchangeList(object):
         #: (:obj:`list` <:obj:`str`, :class:`numpy.ndarray`, :obj:`str` >)
         #:      exchange object
         self.__elist = [None, None, None]
-        #: (:obj:`PyQt5.QtCore.QMutex`) mutex lock
+        #: (:obj:`pyqtgraph.QtCore.QMutex`) mutex lock
         self.__mutex = QtCore.QMutex()
 
     def addData(self, name, data, metadata=""):
@@ -77,7 +77,7 @@ class ExchangeList(object):
 # subclass for threading
 class DataFetchThread(QtCore.QThread):
 
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) new data name signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) new data name signal
     newDataNameFetched = QtCore.pyqtSignal(str, str)
 
     def __init__(self, datasource, alist):
@@ -99,7 +99,7 @@ class DataFetchThread(QtCore.QThread):
         self.__loop = False
         #: (:obj:`bool`) ready flag
         self.__ready = True
-        #: (:class:`PyQt5.QtCore.QMutex`) thread mutex
+        #: (:class:`pyqtgraph.QtCore.QMutex`) thread mutex
         self.__mutex = QtCore.QMutex()
 
     def run(self):

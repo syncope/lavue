@@ -39,9 +39,9 @@ GLOBALREFRESHRATE = .1
 # subclass for threading
 class MotorWatchThread(QtCore.QThread):
 
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) signal with motor status
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) signal with motor status
     motorStatusSignal = QtCore.pyqtSignal(float, str, float, str)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) watching finished
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) watching finished
     watchingFinished = QtCore.pyqtSignal()
 
     def __init__(self, motor1, motor2, server=None):

@@ -43,7 +43,7 @@ class TangoCB(object):
         :param name: attribute name
         :type name: :obj:`str`
         :param signal: signal to emit
-        :type signal: :class:`PyQt5.QtCore.pyqtSignal`
+        :type signal: :class:`pyqtgraph.QtCore.pyqtSignal`
         """
         self.__client = client
         self.__name = name
@@ -64,15 +64,15 @@ class ControllerClient(QtCore.QObject):
 
     """ lavue controller client """
 
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) energy changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) energy changed signal
     energyChanged = QtCore.pyqtSignal(float)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) detector distance changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) detector distance changed signal
     detectorDistanceChanged = QtCore.pyqtSignal(float)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) detector ROIs changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) detector ROIs changed signal
     detectorROIsChanged = QtCore.pyqtSignal(str)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) beam Center X changed siganal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) beam Center X changed siganal
     beamCenterXChanged = QtCore.pyqtSignal(float)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) beam Center Y changed siganal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) beam Center Y changed siganal
     beamCenterYChanged = QtCore.pyqtSignal(float)
 
     def __init__(self, device):

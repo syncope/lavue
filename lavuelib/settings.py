@@ -157,7 +157,7 @@ class Settings(object):
         #                source display dictionary
         self.__sourcedisplay = {}
 
-        #: (:class:`PyQt5.QtCore.QMutex`) zmq bind address
+        #: (:class:`pyqtgraph.QtCore.QMutex`) zmq bind address
         self.__mutex = QtCore.QMutex()
 
     def setSourceDisplay(self, source, values):
@@ -188,7 +188,7 @@ class Settings(object):
         """ load settings
 
         :param settings: QSettings object
-        :type settings: :class:`PyQt5.QtCore.QSettings`
+        :type settings: :class:`pyqtgraph.QtCore.QSettings`
         :returns: error messages list
         :rtype: :obj:`list` < (:obj:`str`, :obj:`str`) >
         """
@@ -429,7 +429,7 @@ class Settings(object):
         """ Stores settings in QSettings object
 
         :param settings: QSettings object
-        :type settings: :class:`PyQt5.QtCore.QSettings`
+        :type settings: :class:`pyqtgraph.QtCore.QSettings`
         """
         settings.setValue(
             "Configuration/AddROIs",
@@ -587,7 +587,7 @@ class Settings(object):
         """ Stores display parameters settings in QSettings object
 
         :param settings: QSettings object
-        :type settings: :class:`PyQt5.QtCore.QSettings`
+        :type settings: :class:`pyqtgraph.QtCore.QSettings`
         """
         with QtCore.QMutexLocker(self.__mutex):
             for source, dct in self.__sourcedisplay.items():
@@ -608,7 +608,7 @@ class Settings(object):
         """ loads display parameters settings
 
         :param settings: QSettings object
-        :type settings: :class:`PyQt5.QtCore.QSettings`
+        :type settings: :class:`pyqtgraph.QtCore.QSettings`
         :returns: error messages list
         :rtype: :obj:`list` < (:obj:`str`, :obj:`str`) >
         """

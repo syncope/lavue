@@ -54,7 +54,7 @@ class PreparationGroupBox(QtGui.QGroupBox):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         :param settings: lavue configuration settings
         :type settings: :class:`lavuelib.settings.Settings`
         """

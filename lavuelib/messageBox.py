@@ -46,7 +46,7 @@ class MessageBox(QtCore.QObject):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtCore.QObject.__init__(self, parent)
 
@@ -78,7 +78,7 @@ class MessageBox(QtCore.QObject):
         """ creates warning messagebox
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         :param title: message box title
         :type title: :obj:`str`
         :param text: message box text
@@ -86,7 +86,7 @@ class MessageBox(QtCore.QObject):
         :param detailedText: message box detailed text
         :type detailedText: :obj:`str`
         :param icon: message box icon
-        :type icon:  :class:`PyQt5.QtCore.QIcon`
+        :type icon:  :class:`pyqtgraph.QtCore.QIcon`
         """
         msgBox = QtGui.QMessageBox(parent)
         msgBox.setText(title)

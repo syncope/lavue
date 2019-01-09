@@ -67,7 +67,7 @@ class HistogramHLUTWidget(_pg.widgets.GraphicsView.GraphicsView):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         :param args: HistogramHLUTItem parameters list
         :type args: :obj:`list` < :obj:`any`>
         :param kargs:  HistogramHLUTItem parameter dictionary
@@ -111,7 +111,7 @@ class GradientEditorItemWS(
 
     """ gradient editor item with a signal on loadPreset """
 
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) minimum level changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) minimum level changed signal
     sigNameChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, *args, **kargs):
@@ -138,7 +138,7 @@ class GradientEditorItemWS(
 
 class HistogramHLUTItem(_pg.HistogramLUTItem):
 
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) automatic levels changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) automatic levels changed signal
     autoLevelsChanged = QtCore.pyqtSignal(int)  # bool does not work...
 
     """ Horizontal HistogramItem """

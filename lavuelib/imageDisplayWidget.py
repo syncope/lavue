@@ -92,20 +92,20 @@ class TransformationParameters(object):
 
 class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) aspect locked toggled signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) aspect locked toggled signal
     aspectLockedToggled = QtCore.pyqtSignal(bool)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) mouse position changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) mouse position changed signal
     mouseImagePositionChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) mouse double clicked
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) mouse double clicked
     mouseImageDoubleClicked = QtCore.pyqtSignal(float, float)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) mouse single clicked
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) mouse single clicked
     mouseImageSingleClicked = QtCore.pyqtSignal(float, float)
 
     def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         _pg.GraphicsLayoutWidget.__init__(self, parent)
         #: (:class:`PyQt5.QtGui.QLayout`) the main layout
@@ -489,7 +489,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """ updates image widget after mouse position change
 
         :param event: mouse move event
-        :type event: :class:`PyQt5.QtCore.QEvent`
+        :type event: :class:`pyqtgraph.QtCore.QEvent`
         """
         try:
             if event is not None:
@@ -552,7 +552,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """ updates image widget after mouse click
 
         :param event: mouse click event
-        :type event: :class:`PyQt5.QtCore.QEvent`
+        :type event: :class:`pyqtgraph.QtCore.QEvent`
         """
 
         mousePoint = self.__image.mapFromScene(event.scenePos())

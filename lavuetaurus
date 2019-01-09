@@ -24,23 +24,27 @@
 #     Christoph Rosemann <christoph.rosemann@desy.de>
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
+
+import sys
+import os
+import lavuelib
+import lavuelib.qtuic
+import lavuelib.qrc as qrc
+
+from PyQt4 import uic
+lavuelib.qtuic.uic = uic
+
 try:
     from taurus.external.qt import Qt
 except:
     from taurus.qt import Qt
 
 from taurus.qt.qtgui.base import TaurusBaseWidget
-
 import taurus.qt.qtgui.application
 import taurus.core.util.argparse
 
-import lavuelib
 import lavuelib.liveViewer
-import sys
-import os
-# from PyQt5 import QtGui, QtCore
 
-import lavuelib.qrc as qrc
 
 dialog = None
 

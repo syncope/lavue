@@ -25,7 +25,7 @@
 
 """ image source selection """
 
-from PyQt5 import uic
+from .qtuic import uic
 from pyqtgraph import QtCore, QtGui
 import os
 
@@ -40,24 +40,24 @@ class SourceGroupBox(QtGui.QGroupBox):
     """ image source selection
     """
 
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) source disconnected signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source disconnected signal
     sourceDisconnected = QtCore.pyqtSignal()
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) source connected signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source connected signal
     sourceConnected = QtCore.pyqtSignal(int)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) source state signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source state signal
     sourceStateChanged = QtCore.pyqtSignal(int)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) source state signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source state signal
     sourceChanged = QtCore.pyqtSignal(int)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) source server name signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source server name signal
     configurationChanged = QtCore.pyqtSignal(str)
-    #: (:class:`PyQt5.QtCore.pyqtSignal`) source label name signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source label name signal
     sourceLabelChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None, sourcetypes=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt5.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         :param sourcetypes: source type class names
         :type sourcetypes: :obj:`list` <:obj:`str`>
         """
