@@ -76,6 +76,13 @@ GUISCRIPTS = ['lavue', 'lavuetaurus']
 needs_pytest = set(['test']).intersection(sys.argv)
 pytest_runner = ['pytest-runner'] if needs_pytest else []
 
+install_requires = [
+    'pyqtgraph>=0.10.0',
+    'numpy>1.6.0',
+    'pyzmq',
+    'scipy',
+]
+
 
 class toolBuild(build_py):
     """ ui and qrc builder for python
@@ -181,6 +188,7 @@ SETUPDATA = dict(
     version=release,
     description='Live image viewer application for photon science detectors.',
     long_description=read('README.rst'),
+    install_requires=install_requires,
     url='https://github.com/syncope/lavue',
     author='Ch.Rosemann, J.Kotanski, A.Rothkirch',
     author_email='christoph.rosemann@desy.de, '

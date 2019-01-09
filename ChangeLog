@@ -1,3 +1,8 @@
+2019-01-XX Jan Kotanski <jan.kotanski@desy.de>
+	* switch to pyqt5
+	* needs pyqtgraph >=0.10.0
+	* tagged as 2.0.0
+
 2019-01-08 Jan Kotanski <jan.kotanski@desy.de>
 	* add accumalation of the 1d plot
 	* tagged as 1.33.0
