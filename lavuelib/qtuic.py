@@ -27,7 +27,7 @@
 uic = None
 try:
     from PyQt5 import uic
-except:
+except Exception:
     from PyQt4 import uic
 
 __all__ = [uic]
