@@ -28,11 +28,11 @@
 import sys
 import os
 import lavuelib
+
+os.environ['QT_API'] = 'pyqt4'
+
 import lavuelib.qtuic
 import lavuelib.qrc as qrc
-
-from PyQt4 import uic
-lavuelib.qtuic.uic = uic
 
 try:
     from taurus.external.qt import Qt

@@ -24,10 +24,17 @@
 #
 
 """ uic support """
+import os
+
+
 uic = None
-try:
-    from PyQt5 import uic
-except Exception:
+qt_api = os.getenv("QT_API", os.getenv('DEFAULT_QT_API', 'pyqt5'))
+if qt_api != 'pyqt4':
+    try:
+        from PyQt5 import uic
+    except Exception:
+        from PyQt4 import uic
+else:
     from PyQt4 import uic
 
 __all__ = [uic]

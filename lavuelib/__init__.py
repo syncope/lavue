@@ -27,6 +27,7 @@
 
 from .release import __version__
 
+# import os
 # os.environ['DEFAULT_QT_API'] = 'pyqt5'
 # os.environ['QT_API'] = 'pyqt5'
 
