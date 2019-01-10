@@ -26,7 +26,8 @@
 """ transformation widget """
 
 
-from PyQt4 import QtCore, QtGui, uic
+from .qtuic import uic
+from pyqtgraph import QtCore, QtGui
 import os
 
 _formclass, _baseclass = uic.loadUiType(
@@ -39,14 +40,14 @@ class TransformationsWidget(QtGui.QWidget):
     Select how an image should be transformed.
     """
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) transformation changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) transformation changed signal
     transformationChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QWidget.__init__(self, parent)
 

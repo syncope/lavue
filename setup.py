@@ -67,8 +67,6 @@ version = ".".join(release.split(".")[:2])
 UIDIR = os.path.join(NAME, "ui")
 #: (:obj:`str`) .qrc file directory
 QRCDIR = os.path.join(NAME, "qrc")
-#: (:obj:`str`) .qrc file directory
-EXTERNAL = os.path.join(NAME, "external")
 #: (:obj:`list` < :obj:`str` >) executable scripts
 SCRIPTS = ['lavuemonitor', 'lavuezmqstreamfromtango',
            'LavueController', 'lavuezmqstreamtest']
@@ -77,6 +75,13 @@ GUISCRIPTS = ['lavue', 'lavuetaurus']
 
 needs_pytest = set(['test']).intersection(sys.argv)
 pytest_runner = ['pytest-runner'] if needs_pytest else []
+
+install_requires = [
+    'pyqtgraph>=0.10.0',
+    'numpy>1.6.0',
+    'pyzmq',
+    'scipy',
+]
 
 
 class toolBuild(build_py):
@@ -183,6 +188,7 @@ SETUPDATA = dict(
     version=release,
     description='Live image viewer application for photon science detectors.',
     long_description=read('README.rst'),
+    install_requires=install_requires,
     url='https://github.com/syncope/lavue',
     author='Ch.Rosemann, J.Kotanski, A.Rothkirch',
     author_email='christoph.rosemann@desy.de, '
@@ -201,7 +207,7 @@ SETUPDATA = dict(
         'Programming Language :: Python :: 3.5',
     ],
     keywords='live viewer photon science detector',
-    packages=[NAME, QRCDIR, EXTERNAL],
+    packages=[NAME, QRCDIR],
     package_data=package_data,
     # package_dir={'lauvelib': 'lavuelib'},
     # include_package_data=True, # do not include image an qrc files

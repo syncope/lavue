@@ -25,8 +25,10 @@
 
 """ level widget """
 
-from PyQt4 import QtCore, QtGui, uic
-from .histogramWidget import HistogramHLUTWidget, HistogramHLUTItem
+from .qtuic import uic
+from pyqtgraph import QtCore, QtGui
+from .histogramWidget import HistogramHLUTWidget
+# from .histogramWidget import HistogramHLUTItem
 import math
 import os
 
@@ -41,22 +43,22 @@ class LevelsGroupBox(QtGui.QGroupBox):
     Set minimum and maximum displayed values and its color.
     """
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) minimum level changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) minimum level changed signal
     minLevelChanged = QtCore.pyqtSignal(float)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) maximum level changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) maximum level changed signal
     maxLevelChanged = QtCore.pyqtSignal(float)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) automatic levels changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) automatic levels changed signal
     autoLevelsChanged = QtCore.pyqtSignal(int)  # bool does not work...
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) levels changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) levels changed signal
     levelsChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) color channel changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) color channel changed signal
     channelChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QGroupBox.__init__(self, parent)
 
@@ -275,7 +277,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self._checkAndEmit()
         self.levelsChanged.emit()
 
-    @QtCore.pyqtSlot(HistogramHLUTItem)
+    @QtCore.pyqtSlot(object)
     def _onLevelsChanged(self, histogram):
         """ set min/max level spinboxes according to histogram
 

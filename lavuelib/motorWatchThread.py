@@ -30,7 +30,7 @@ from __future__ import unicode_literals
 
 import time
 
-from PyQt4 import QtCore
+from pyqtgraph import QtCore
 
 #: (:obj:`float`) refresh rate in seconds
 GLOBALREFRESHRATE = .1
@@ -39,9 +39,9 @@ GLOBALREFRESHRATE = .1
 # subclass for threading
 class MotorWatchThread(QtCore.QThread):
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) signal with motor status
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) signal with motor status
     motorStatusSignal = QtCore.pyqtSignal(float, str, float, str)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) watching finished
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) watching finished
     watchingFinished = QtCore.pyqtSignal()
 
     def __init__(self, motor1, motor2, server=None):

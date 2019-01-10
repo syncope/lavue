@@ -26,7 +26,9 @@
 """ background subtreaction widget """
 
 
-from PyQt4 import QtCore, QtGui, uic
+from .qtuic import uic
+from pyqtgraph import QtCore, QtGui
+
 import os
 
 _formclass, _baseclass = uic.loadUiType(
@@ -40,18 +42,18 @@ class BkgSubtractionWidget(QtGui.QWidget):
     Define bkg image and subtract from displayed image.
     """
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) bkg file selected signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) bkg file selected signal
     bkgFileSelected = QtCore.pyqtSignal(str)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) use current image signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) use current image signal
     useCurrentImageAsBkg = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) apply state change signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) apply state change signal
     applyStateChanged = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None, settings=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         :param settings: lavue configuration settings
         :type settings: :class:`lavuelib.settings.Settings`
         """
@@ -75,14 +77,14 @@ class BkgSubtractionWidget(QtGui.QWidget):
         self.__ui.applyBkgCheckBox.clicked.connect(
             self._emitApplyStateChanged)
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot(bool)
     def _emitApplyStateChanged(self, state):
         """ emits state of apply button
 
         :param state: apply button state
-        :type state: :obj:`int`
+        :type state: :obj:`bool`
         """
-        self.applyStateChanged.emit(state)
+        self.applyStateChanged.emit(int(state))
 
     @QtCore.pyqtSlot()
     def _showFileDialog(self):

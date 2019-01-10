@@ -25,7 +25,8 @@
 
 """ detector axis widget """
 
-from PyQt4 import QtGui, QtCore, uic
+from .qtuic import uic
+from pyqtgraph import QtCore, QtGui
 import os
 
 
@@ -42,7 +43,7 @@ class AxesDialog(QtGui.QDialog):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QDialog.__init__(self, parent)
 

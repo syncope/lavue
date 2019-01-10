@@ -29,16 +29,18 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
+
 import time
 import json
 import numpy as np
+from .qtuic import uic
 import pyqtgraph as _pg
+from pyqtgraph import QtCore, QtGui
 import os
 import zmq
 import sys
 import argparse
 
-from PyQt4 import QtCore, QtGui, uic
 
 from . import imageSource as isr
 from . import messageBox
@@ -89,7 +91,7 @@ class MainWindow(QtGui.QMainWindow):
         :param options: commandline options
         :type options: :class:`argparse.Namespace`
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QMainWindow.__init__(self, parent)
         self.__lavue = LiveViewer(options, self)
@@ -108,7 +110,7 @@ class LiveViewer(QtGui.QDialog):
     '''The master class for the dialog, contains all other
     widget and handles communication.'''
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) state updated signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) state updated signal
     _stateUpdated = QtCore.pyqtSignal(bool)
 
     def __init__(self, options, parent=None):
@@ -117,7 +119,7 @@ class LiveViewer(QtGui.QDialog):
         :param options: commandline options
         :type options: :class:`argparse.Namespace`
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QDialog.__init__(self, parent)
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -514,9 +516,8 @@ class LiveViewer(QtGui.QDialog):
         if self.parent() is not None:
             self.parent().restoreGeometry(settings.value(
                 "Layout/Geometry", type=QtCore.QByteArray))
-        else:
-            self.restoreGeometry(settings.value(
-                "Layout/Geometry", type=QtCore.QByteArray))
+        self.restoreGeometry(settings.value(
+            "Layout/DialogGeometry", type=QtCore.QByteArray))
         status = self.__settings.load(settings)
 
         for topic, value in status:
@@ -572,10 +573,9 @@ class LiveViewer(QtGui.QDialog):
             settings.setValue(
                 "Layout/Geometry",
                 QtCore.QByteArray(self.parent().parent().saveGeometry()))
-        else:
-            settings.setValue(
-                "Layout/Geometry",
-                QtCore.QByteArray(self.saveGeometry()))
+        settings.setValue(
+            "Layout/DialogGeometry",
+            QtCore.QByteArray(self.saveGeometry()))
 
         self.__settings.refreshrate = dataFetchThread.GLOBALREFRESHRATE
         self.__settings.sardana = True if self.__sardana is not None else False
@@ -602,7 +602,7 @@ class LiveViewer(QtGui.QDialog):
         """ stores the setting before finishing the application
 
         :param event: close event
-        :type event:  :class:`PyQt4.QtCore.QEvent`:
+        :type event:  :class:`pyqtgraph.QtCore.QEvent`:
         """
         if self.__tangoclient:
             self.__tangoclient.unsubscribe()

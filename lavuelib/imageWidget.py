@@ -26,13 +26,13 @@
 """ image widget """
 
 
-from PyQt4 import QtCore, QtGui, uic
-
+from .qtuic import uic
 import pyqtgraph as _pg
+from pyqtgraph import QtCore, QtGui
+
 import re
 import os
 import json
-import types
 import numpy as np
 
 from . import imageDisplayWidget
@@ -40,11 +40,6 @@ from . import displayExtensions
 from . import messageBox
 from . import imageSource as isr
 from . import toolWidget
-
-from .external.pyqtgraph_0_10 import (
-    viewbox_updateMatrix, viewbox_invertX,
-    viewbox_xInverted, axisitem_linkedViewChanged,
-    viewbox_linkedViewChanged)
 
 
 # _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
@@ -61,48 +56,49 @@ class ImageWidget(QtGui.QWidget):
     The part of the GUI that incorporates the image view.
     """
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) current tool changed signal
-    currentToolChanged = QtCore.pyqtSignal(int)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi number changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) current tool changed signal
+    currentToolChanged = QtCore.pyqtSignal(str)
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi number changed signal
     roiNumberChanged = QtCore.pyqtSignal(int)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi coordinate changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi coordinate changed signal
     roiCoordsChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) mesh coordinate changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) mesh coordinate changed signal
     meshCoordsChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi Line Edit changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi Line Edit changed signal
     roiLineEditChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi aliases changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi aliases changed signal
     roiAliasesChanged = QtCore.pyqtSignal(str)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi value changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi value changed signal
     roiValueChanged = QtCore.pyqtSignal(str, int, str)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) cut number changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) cut number changed signal
     cutNumberChanged = QtCore.pyqtSignal(int)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) cut coordinate changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) cut coordinate changed signal
     cutCoordsChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) image plotted signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) image plotted signal
     imagePlotted = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) replot image signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) replot image signal
     replotImage = QtCore.pyqtSignal(bool)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) sardana enabled signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) sardana enabled signal
     sardanaEnabled = QtCore.pyqtSignal(bool)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) aspect locked toggled signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) aspect locked toggled signal
     aspectLockedToggled = QtCore.pyqtSignal(bool)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) apply tips changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) apply tips changed signal
     applyTipsChanged = QtCore.pyqtSignal(int)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse image position changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`)
+    #         mouse image position changed signal
     mouseImagePositionChanged = QtCore.pyqtSignal()
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse double clicked
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) mouse double clicked
     mouseImageDoubleClicked = QtCore.pyqtSignal(float, float)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) mouse single clicked
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) mouse single clicked
     mouseImageSingleClicked = QtCore.pyqtSignal(float, float)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) geometry changed
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) geometry changed
     geometryChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, tooltypes=None, settings=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         :param tooltypes: tool class names
         :type tooltypes: :obj:`list` <:obj:`str`>
         :param settings: lavue configuration settings
@@ -160,21 +156,6 @@ class ImageWidget(QtGui.QWidget):
 
         #: (:class:`pyqtgraph.PlotWidget`) bottom 1D plot widget
         self.__bottomplot = _pg.PlotWidget(self)
-        vb = self.__bottomplot.getViewBox()
-        if not hasattr(vb, "invertX"):
-            vb.state["xInverted"] = False
-            vb.invertX = types.MethodType(viewbox_invertX, vb)
-            vb.xInverted = types.MethodType(viewbox_xInverted, vb)
-            vb.updateMatrix = types.MethodType(viewbox_updateMatrix, vb)
-            vb.linkedViewChanged = types.MethodType(
-                viewbox_linkedViewChanged, vb)
-            ba = self.__bottomplot.getAxis("bottom")
-            vb.sigResized.disconnect(ba.linkedViewChanged)
-            vb.sigXRangeChanged.disconnect(ba.linkedViewChanged)
-            ba.linkedViewChanged = types.MethodType(
-                axisitem_linkedViewChanged, ba)
-            vb.sigXRangeChanged.connect(ba.linkedViewChanged)
-            vb.sigResized.connect(ba.linkedViewChanged)
 
         #: (:class:`pyqtgraph.PlotWidget`) right 1D plot widget
         self.__rightplot = _pg.PlotWidget(self)

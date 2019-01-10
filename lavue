@@ -25,17 +25,17 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
-
-import lavuelib
-import lavuelib.liveViewer
-import sys
 import os
+import sys
 import argparse
 import signal
 
 from argparse import RawTextHelpFormatter
 
+import lavuelib
+import lavuelib.liveViewer
 import lavuelib.qrc as qrc
+from pyqtgraph import QtCore, QtGui
 
 dialog = None
 
@@ -83,8 +83,6 @@ if __name__ == "__main__":
     if os.path.isdir("/usr/lib/kde4/plugins/") and \
        "QT_PLUGIN_PATH" not in os.environ:
         os.environ["QT_PLUGIN_PATH"] = "/usr/lib/kde4/plugins/"
-
-    from PyQt4 import QtGui, QtCore
 
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
     QtCore.QResource.registerResource(

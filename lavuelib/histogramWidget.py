@@ -27,8 +27,8 @@
 
 
 import pyqtgraph as _pg
+from pyqtgraph import QtCore, QtGui
 import numpy as np
-from PyQt4 import QtCore, QtGui
 
 #: ( (:obj:`str`,:obj:`str`,:obj:`str`) )
 #:         pg major version, pg minor verion, pg patch version
@@ -67,7 +67,7 @@ class HistogramHLUTWidget(_pg.widgets.GraphicsView.GraphicsView):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         :param args: HistogramHLUTItem parameters list
         :type args: :obj:`list` < :obj:`any`>
         :param kargs:  HistogramHLUTItem parameter dictionary
@@ -111,7 +111,7 @@ class GradientEditorItemWS(
 
     """ gradient editor item with a signal on loadPreset """
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) minimum level changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) minimum level changed signal
     sigNameChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, *args, **kargs):
@@ -138,7 +138,7 @@ class GradientEditorItemWS(
 
 class HistogramHLUTItem(_pg.HistogramLUTItem):
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) automatic levels changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) automatic levels changed signal
     autoLevelsChanged = QtCore.pyqtSignal(int)  # bool does not work...
 
     """ Horizontal HistogramItem """
@@ -162,7 +162,7 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         else:
             self.imageItem = lambda: None
 
-        #: (:class:`PyQt4.QtGui.QGraphicsGridLayout`) grid layout
+        #: (:class:`PyQt5.QtGui.QGraphicsGridLayout`) grid layout
         self.layout = QtGui.QGraphicsGridLayout()
         self.setLayout(self.layout)
         self.layout.setContentsMargins(1, 1, 1, 1)
@@ -233,7 +233,7 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         """ paints the histogram item
 
         :param p: QPainter painter
-        :type p: :class:`PyQt4.QtGui.QPainter`
+        :type p: :class:`PyQt5.QtGui.QPainter`
         :param args: paint argument
         :type args: :obj:`list` < :obj:`any`>
         """

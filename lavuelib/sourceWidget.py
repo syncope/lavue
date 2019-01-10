@@ -25,7 +25,8 @@
 
 """ image source selection """
 
-from PyQt4 import QtCore, QtGui, uic
+from .qtuic import uic
+from pyqtgraph import QtCore, QtGui
 import os
 import socket
 import json
@@ -64,20 +65,20 @@ class BaseSourceWidget(QtGui.QWidget):
 
     """ general source widget """
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) push button enabled signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) push button enabled signal
     buttonEnabled = QtCore.pyqtSignal(bool)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) source state signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source state signal
     sourceStateChanged = QtCore.pyqtSignal(int)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) source server name signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source server name signal
     configurationChanged = QtCore.pyqtSignal(str)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) source label name signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source label name signal
     sourceLabelChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QWidget.__init__(self, parent)
 
@@ -87,7 +88,7 @@ class BaseSourceWidget(QtGui.QWidget):
         self.datasource = "BaseSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = []
-        #: (:obj:`list` <:class:`PyQt4.QtGui.QWidget`>) subwidget objects
+        #: (:obj:`list` <:class:`PyQt5.QtGui.QWidget`>) subwidget objects
         self.widgets = []
         #: (:obj:`bool`) source widget active
         self.active = False
@@ -161,7 +162,7 @@ class TestSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
 
@@ -179,7 +180,7 @@ class FixTestSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
         #: (:obj:`str`) source name
@@ -201,7 +202,7 @@ class HTTPSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
 
@@ -349,7 +350,7 @@ class HidraSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
 
@@ -501,7 +502,7 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
 
@@ -642,7 +643,7 @@ class TangoFileSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
 
@@ -845,7 +846,7 @@ class NXSFileSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
 
@@ -967,7 +968,7 @@ class ZMQSourceWidget(BaseSourceWidget):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         BaseSourceWidget.__init__(self, parent)
 
@@ -995,7 +996,7 @@ class ZMQSourceWidget(BaseSourceWidget):
         #: (:obj:`list` <:obj:`str`>) user servers
         self.__userservers = []
 
-        #: (:class:`PyQt4.QtCore.QMutex`) zmq datasource mutex
+        #: (:class:`pyqtgraph.QtCore.QMutex`) zmq datasource mutex
         self.__mutex = QtCore.QMutex()
 
         self._detachWidgets()

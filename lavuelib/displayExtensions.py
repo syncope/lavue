@@ -26,11 +26,11 @@
 """ image display widget """
 
 import pyqtgraph as _pg
+from pyqtgraph import QtCore
 import numpy as np
 import math
 import json
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI, Handle
-from PyQt4 import QtCore
 
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
@@ -41,7 +41,7 @@ class HandleWithSignals(Handle):
     """ handle with signals
 
     """
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) hover event emitted
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) hover event emitted
     hovered = QtCore.pyqtSignal()
 
     def __init__(self, pos, center, parent):
@@ -68,7 +68,7 @@ class HandleWithSignals(Handle):
         """ hover event
 
         :param ev: close event
-        :type ev: :class:`PyQt4.QtCore.QEvent`:
+        :type ev: :class:`pyqtgraph.QtCore.QEvent`:
         """
         Handle.hoverEvent(self, ev)
         self.hovered.emit()
@@ -141,12 +141,12 @@ class DisplayExtension(QtCore.QObject):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtCore.QObject.__init__(self)
         #: (:obj:`str`) extension name
         self.name = "none"
-        #: (:class:`PyQt4.QtCore.QObject`) mainwidget
+        #: (:class:`pyqtgraph.QtCore.QObject`) mainwidget
         self._mainwidget = parent
         #: (:obj:`bool`) enabled flag
         self._enabled = False
@@ -213,23 +213,23 @@ class DisplayExtension(QtCore.QObject):
 
 class ROIExtension(DisplayExtension):
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi coordinate changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi coordinate changed signal
     roiCoordsChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         DisplayExtension.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "rois"
 
-        #: (:class:`PyQt4.QtCore.QSignalMapper`) current roi mapper
+        #: (:class:`pyqtgraph.QtCore.QSignalMapper`) current roi mapper
         self.__currentroimapper = QtCore.QSignalMapper(self)
-        #: (:class:`PyQt4.QtCore.QSignalMapper`) roi region mapper
+        #: (:class:`pyqtgraph.QtCore.QSignalMapper`) roi region mapper
         self.__roiregionmapper = QtCore.QSignalMapper(self)
 
         #: (:obj:`int`) current roi id
@@ -577,23 +577,23 @@ class ROIExtension(DisplayExtension):
 
 class CutExtension(DisplayExtension):
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) cut coordinate changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) cut coordinate changed signal
     cutCoordsChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         DisplayExtension.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "cuts"
 
-        #: (:class:`PyQt4.QtCore.QSignalMapper`) current cut mapper
+        #: (:class:`pyqtgraph.QtCore.QSignalMapper`) current cut mapper
         self.__currentcutmapper = QtCore.QSignalMapper(self)
-        #: (:class:`PyQt4.QtCore.QSignalMapper`) cut region mapper
+        #: (:class:`pyqtgraph.QtCore.QSignalMapper`) cut region mapper
         self.__cutregionmapper = QtCore.QSignalMapper(self)
 
         #: (:obj:`int`) current cut id
@@ -846,23 +846,23 @@ class CutExtension(DisplayExtension):
 
 class MeshExtension(DisplayExtension):
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) roi coordinate changed signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi coordinate changed signal
     roiCoordsChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         DisplayExtension.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "mesh"
 
-        #: (:class:`PyQt4.QtCore.QSignalMapper`) current roi mapper
+        #: (:class:`pyqtgraph.QtCore.QSignalMapper`) current roi mapper
         self.__currentroimapper = QtCore.QSignalMapper(self)
-        #: (:class:`PyQt4.QtCore.QSignalMapper`) roi region mapper
+        #: (:class:`pyqtgraph.QtCore.QSignalMapper`) roi region mapper
         self.__roiregionmapper = QtCore.QSignalMapper(self)
 
         #: (:obj:`int`) current roi id
@@ -1071,7 +1071,7 @@ class LockerExtension(DisplayExtension):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         DisplayExtension.__init__(self, parent)
 
@@ -1203,7 +1203,7 @@ class CenterExtension(DisplayExtension):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         DisplayExtension.__init__(self, parent)
 
@@ -1309,7 +1309,7 @@ class MarkExtension(DisplayExtension):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         DisplayExtension.__init__(self, parent)
 
@@ -1432,7 +1432,7 @@ class MaximaExtension(DisplayExtension):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         DisplayExtension.__init__(self, parent)
 

@@ -25,23 +25,26 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
+import sys
+import os
+import lavuelib
+
+os.environ['QT_API'] = 'pyqt4'
+
+import lavuelib.qtuic
+import lavuelib.qrc as qrc
+
 try:
     from taurus.external.qt import Qt
 except:
     from taurus.qt import Qt
 
 from taurus.qt.qtgui.base import TaurusBaseWidget
-
 import taurus.qt.qtgui.application
 import taurus.core.util.argparse
 
-import lavuelib
 import lavuelib.liveViewer
-import sys
-import os
-# from PyQt4 import QtGui, QtCore
 
-import lavuelib.qrc as qrc
 
 dialog = None
 
@@ -56,7 +59,7 @@ class TaurusLavue(lavuelib.liveViewer.LiveViewer, TaurusBaseWidget):
         :param options: commandline options
         :type options: :class:`argparse.Namespace`
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`PyQt5.QtCore.QObject`
         """
         lavuelib.liveViewer.LiveViewer.__init__(self, options, parent)
         TaurusBaseWidget.__init__(self, 'TaurusLauve')

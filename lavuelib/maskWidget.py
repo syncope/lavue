@@ -25,8 +25,10 @@
 
 """ mask widget """
 
-from PyQt4 import QtCore, QtGui, uic
+from .qtuic import uic
 import os
+from pyqtgraph import QtCore, QtGui
+
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -39,16 +41,16 @@ class MaskWidget(QtGui.QWidget):
     Define and apply masking of the displayed image.
     """
 
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) mask file selected signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) mask file selected signal
     maskFileSelected = QtCore.pyqtSignal(str)
-    #: (:class:`PyQt4.QtCore.pyqtSignal`) apply state change signal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) apply state change signal
     applyStateChanged = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None, settings=None):
         """ constructor
 
         :param parent: parent object
-        :type parent: :class:`PyQt4.QtCore.QObject`
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
         :param settings: lavue configuration settings
         :type settings: :class:`lavuelib.settings.Settings`
         """
@@ -67,14 +69,14 @@ class MaskWidget(QtGui.QWidget):
             self._emitApplyStateChanged)
         self.__ui.fileSelectPushButton.clicked.connect(self._showFileDialog)
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot(bool)
     def _emitApplyStateChanged(self, state):
         """ emits state of apply button
 
         :param state: apply button state
-        :type state: :obj:`int`
+        :type state: :obj:`bool`
         """
-        self.applyStateChanged.emit(state)
+        self.applyStateChanged.emit(int(state))
 
     def setMask(self, fname):
         """ sets the image mask
