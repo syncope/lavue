@@ -29,6 +29,7 @@ import sys
 import os
 import lavuelib
 
+# workaround for not supported pyqt5 in taurus
 os.environ['QT_API'] = 'pyqt4'
 
 import lavuelib.qtuic
@@ -44,7 +45,6 @@ import taurus.qt.qtgui.application
 import taurus.core.util.argparse
 
 import lavuelib.liveViewer
-
 
 dialog = None
 

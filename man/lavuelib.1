@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Jan 08, 2019" "1.33" "lavuelib"
+.TH "LAVUELIB" "1" "Jan 14, 2019" "2.0" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -223,7 +223,7 @@ detector axis widget
 .INDENT 0.0
 .TP
 .B class lavuelib.axesDialog.AxesDialog(parent=None)
-Bases: \fBpyqtgraph.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtWidgets.QDialog\fP
 .sp
 detector axis widget class
 .sp
@@ -290,7 +290,7 @@ background subtreaction widget
 .INDENT 0.0
 .TP
 .B class lavuelib.bkgSubtractionWidget.BkgSubtractionWidget(parent=None, settings=None)
-Bases: \fBpyqtgraph.QtGui.QWidget\fP
+Bases: \fBPyQt5.QtWidgets.QWidget\fP
 .sp
 Define bkg image and subtract from displayed image.
 .sp
@@ -365,7 +365,7 @@ configuration widget
 .INDENT 0.0
 .TP
 .B class lavuelib.configDialog.ConfigDialog(parent=None)
-Bases: \fBpyqtgraph.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtWidgets.QDialog\fP
 .sp
 constructor
 .INDENT 7.0
@@ -555,7 +555,7 @@ tango lavue controller client
 .INDENT 0.0
 .TP
 .B class lavuelib.controllerClient.ControllerClient(device)
-Bases: \fBpyqtgraph.QtCore.QObject\fP
+Bases: \fBPyQt5.QtCore.QObject\fP
 .sp
 lavue controller client
 .sp
@@ -648,7 +648,7 @@ data fetch thread
 .INDENT 0.0
 .TP
 .B class lavuelib.dataFetchThread.DataFetchThread(datasource, alist)
-Bases: \fBpyqtgraph.QtCore.QThread\fP
+Bases: \fBPyQt5.QtCore.QThread\fP
 .sp
 constructor
 .INDENT 7.0
@@ -954,7 +954,7 @@ update Cuts
 .INDENT 0.0
 .TP
 .B class lavuelib.displayExtensions.DisplayExtension(parent=None)
-Bases: \fBpyqtgraph.QtCore.QObject\fP
+Bases: \fBPyQt5.QtCore.QObject\fP
 .sp
 display extension for ImageDisplayWidget
 .sp
@@ -2424,7 +2424,7 @@ detector geometry widget
 .INDENT 0.0
 .TP
 .B class lavuelib.geometryDialog.GeometryDialog(parent=None)
-Bases: \fBpyqtgraph.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtWidgets.QDialog\fP
 .sp
 detector geometry widget class
 .sp
@@ -4200,7 +4200,7 @@ mask widget
 .INDENT 0.0
 .TP
 .B class lavuelib.highValueMaskWidget.HighValueMaskWidget(parent=None, settings=None)
-Bases: \fBpyqtgraph.QtGui.QWidget\fP
+Bases: \fBPyQt5.QtWidgets.QWidget\fP
 .sp
 Define and apply masking of the displayed image.
 .sp
@@ -4825,7 +4825,7 @@ configuration widget
 .INDENT 0.0
 .TP
 .B class lavuelib.imageField.ImageField(parent=None)
-Bases: \fBpyqtgraph.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtWidgets.QDialog\fP
 .sp
 constructor
 .INDENT 7.0
@@ -5494,7 +5494,7 @@ image widget
 .INDENT 0.0
 .TP
 .B class lavuelib.imageWidget.ImageWidget(parent=None, tooltypes=None, settings=None)
-Bases: \fBpyqtgraph.QtGui.QWidget\fP
+Bases: \fBPyQt5.QtWidgets.QWidget\fP
 .sp
 The part of the GUI that incorporates the image view.
 .sp
@@ -5811,7 +5811,6 @@ rois coordinates
 .INDENT 7.0
 .TP
 .B mouseImagePositionChanged
-(\fBpyqtgraph.QtCore.pyqtSignal\fP) mouse image position changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6511,7 +6510,7 @@ interval device widget
 .INDENT 0.0
 .TP
 .B class lavuelib.intervalsDialog.IntervalsDialog(parent=None)
-Bases: \fBpyqtgraph.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtWidgets.QDialog\fP
 .sp
 interval widget class
 .sp
@@ -6553,7 +6552,7 @@ level widget
 .INDENT 0.0
 .TP
 .B class lavuelib.levelsGroupBox.LevelsGroupBox(parent=None)
-Bases: \fBpyqtgraph.QtGui.QGroupBox\fP
+Bases: \fBPyQt5.QtWidgets.QGroupBox\fP
 .sp
 Set minimum and maximum displayed values and its color.
 .sp
@@ -6778,7 +6777,7 @@ live viewer settings
 .INDENT 0.0
 .TP
 .B class lavuelib.liveViewer.LiveViewer(options, parent=None)
-Bases: \fBpyqtgraph.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtWidgets.QDialog\fP
 .sp
 The master class for the dialog, contains all other
 widget and handles communication.
@@ -6808,7 +6807,7 @@ stores the setting before finishing the application
 .INDENT 0.0
 .TP
 .B class lavuelib.liveViewer.MainWindow(options, parent=None)
-Bases: \fBpyqtgraph.QtGui.QMainWindow\fP
+Bases: \fBPyQt5.QtWidgets.QMainWindow\fP
 .sp
 constructor
 .INDENT 7.0
@@ -6828,7 +6827,7 @@ mask widget
 .INDENT 0.0
 .TP
 .B class lavuelib.maskWidget.MaskWidget(parent=None, settings=None)
-Bases: \fBpyqtgraph.QtGui.QWidget\fP
+Bases: \fBPyQt5.QtWidgets.QWidget\fP
 .sp
 Define and apply masking of the displayed image.
 .sp
@@ -6892,7 +6891,7 @@ error message box
 .INDENT 0.0
 .TP
 .B class lavuelib.messageBox.MessageBox(parent)
-Bases: \fBpyqtgraph.QtCore.QObject\fP
+Bases: \fBPyQt5.QtCore.QObject\fP
 .sp
 error message box
 .sp
@@ -6961,7 +6960,7 @@ motor watch thread
 .INDENT 0.0
 .TP
 .B class lavuelib.motorWatchThread.MotorWatchThread(motor1, motor2, server=None)
-Bases: \fBpyqtgraph.QtCore.QThread\fP
+Bases: \fBPyQt5.QtCore.QThread\fP
 .sp
 constructor
 .INDENT 7.0
@@ -7846,7 +7845,7 @@ preparationbox widget
 .INDENT 0.0
 .TP
 .B class lavuelib.preparationGroupBox.PreparationGroupBox(parent=None, settings=None)
-Bases: \fBpyqtgraph.QtGui.QGroupBox\fP
+Bases: \fBPyQt5.QtWidgets.QGroupBox\fP
 .sp
 colection of image preperation widgets
 .sp
@@ -7894,7 +7893,7 @@ show or hide widgets in the preparation colection
 .INDENT 0.0
 .TP
 .B class lavuelib.preparationGroupBox.QHLine
-Bases: \fBpyqtgraph.QtGui.QFrame\fP
+Bases: \fBPyQt5.QtWidgets.QFrame\fP
 .sp
 horizontal line
 .sp
@@ -7906,7 +7905,7 @@ detector range widget
 .INDENT 0.0
 .TP
 .B class lavuelib.rangeDialog.RangeDialog(parent=None)
-Bases: \fBpyqtgraph.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtWidgets.QDialog\fP
 .sp
 detector range widget class
 .sp
@@ -8203,7 +8202,7 @@ scalingGroupBox
 .INDENT 0.0
 .TP
 .B class lavuelib.scalingGroupBox.ScalingGroupBox(parent=None)
-Bases: \fBpyqtgraph.QtGui.QGroupBox\fP
+Bases: \fBPyQt5.QtWidgets.QGroupBox\fP
 .sp
 Select how the image intensity is supposed to be scaled.
 .sp
@@ -8554,7 +8553,7 @@ image source selection
 .INDENT 0.0
 .TP
 .B class lavuelib.sourceGroupBox.SourceGroupBox(parent=None, sourcetypes=None)
-Bases: \fBpyqtgraph.QtGui.QGroupBox\fP
+Bases: \fBPyQt5.QtWidgets.QGroupBox\fP
 .sp
 image source selection
 .sp
@@ -8722,7 +8721,7 @@ image source selection
 .INDENT 0.0
 .TP
 .B class lavuelib.sourceWidget.BaseSourceWidget(parent=None)
-Bases: \fBpyqtgraph.QtGui.QWidget\fP
+Bases: \fBPyQt5.QtWidgets.QWidget\fP
 .sp
 general source widget
 .sp
@@ -8823,7 +8822,7 @@ update source input parameters
 .INDENT 7.0
 .TP
 .B widgets = None
-(\fBlist\fP <\fBpyqtgraph.QtGui.QWidget\fP>) subwidget objects
+(\fBlist\fP <\fBPyQt5.QtGui.QWidget\fP>) subwidget objects
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -9382,7 +9381,7 @@ statistics widget
 .INDENT 0.0
 .TP
 .B class lavuelib.statisticsGroupBox.StatisticsGroupBox(parent=None)
-Bases: \fBpyqtgraph.QtGui.QGroupBox\fP
+Bases: \fBPyQt5.QtWidgets.QGroupBox\fP
 .sp
 Display some general image statistics.
 .sp
@@ -9424,7 +9423,7 @@ motor device widget
 .INDENT 0.0
 .TP
 .B class lavuelib.takeMotorsDialog.TakeMotorsDialog(parent=None)
-Bases: \fBpyqtgraph.QtGui.QDialog\fP
+Bases: \fBPyQt5.QtWidgets.QDialog\fP
 .sp
 detector geometry widget class
 .sp
@@ -10164,7 +10163,7 @@ constructor
 .INDENT 0.0
 .TP
 .B class lavuelib.toolWidget.ToolWidget(parent=None)
-Bases: \fBpyqtgraph.QtGui.QWidget\fP
+Bases: \fBPyQt5.QtWidgets.QWidget\fP
 .sp
 tool widget
 .sp
@@ -10233,7 +10232,7 @@ transformation widget
 .INDENT 0.0
 .TP
 .B class lavuelib.transformationsWidget.TransformationsWidget(parent=None)
-Bases: \fBpyqtgraph.QtGui.QWidget\fP
+Bases: \fBPyQt5.QtWidgets.QWidget\fP
 .sp
 Select how an image should be transformed.
 .sp

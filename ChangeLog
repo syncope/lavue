@@ -1,4 +1,4 @@
-2019-01-XX Jan Kotanski <jan.kotanski@desy.de>
+2019-01-14 Jan Kotanski <jan.kotanski@desy.de>
 	* switch to pyqt5
 	* needs pyqtgraph >=0.10.0
 	* tagged as 2.0.0
