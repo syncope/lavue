@@ -94,10 +94,13 @@ class MaskWidget(QtGui.QWidget):
         """ shows file dialog and select the file name
         """
         fileDialog = QtGui.QFileDialog()
-        fileName = str(
-            fileDialog.getOpenFileName(
-                self, 'Open mask file',
-                self.__settings.maskimagename or '/ramdisk/'))
+        fileout = fileDialog.getOpenFileName(
+            self, 'Open mask file',
+            self.__settings.maskimagename or '/ramdisk/')
+        if isinstance(fileout, tuple):
+            fileName = str(fileout[0])
+        else:
+            fileName = str(fileout)
         if fileName:
             self.__fileName = fileName
             self.__settings.maskimagename = fileName
