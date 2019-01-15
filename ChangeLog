@@ -1,4 +1,8 @@
 2019-01-15 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for loading files
+	* tagged as 2.0.2
+
+2019-01-15 Jan Kotanski <jan.kotanski@desy.de>
 	* fixes for py3 prints
 	* add qt5 detection support in  taurus
 	* tagged as 2.0.1

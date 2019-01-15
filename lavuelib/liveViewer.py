@@ -647,9 +647,12 @@ class LiveViewer(QtGui.QDialog):
         newimage = None
         if fid is None:
             fileDialog = QtGui.QFileDialog()
-            imagename = str(
-                fileDialog.getOpenFileName(
-                    self, 'Load file', self.__settings.imagename or '.'))
+            fileout = fileDialog.getOpenFileName(
+                    self, 'Load file', self.__settings.imagename or '.')
+            if isinstance(fileout, tuple):
+                imagename = str(fileout[0])
+            else:
+                imagename = str(fileout)
         else:
             self.__frame = int(fid)
             imagename = self.__settings.imagename

@@ -92,9 +92,12 @@ class BkgSubtractionWidget(QtGui.QWidget):
         """
         fileDialog = QtGui.QFileDialog()
 
-        fileName = str(
-            fileDialog.getOpenFileName(
-                self, 'Open file', self.__settings.bkgimagename or '.'))
+        fileout = fileDialog.getOpenFileName(
+            self, 'Open file', self.__settings.bkgimagename or '.')
+        if isinstance(fileout, tuple):
+            fileName = str(fileout[0])
+        else:
+            fileName = str(fileout)
         if fileName:
             self.__settings.bkgimagename = fileName
             self.setDisplayedName(self.__settings.bkgimagename)
