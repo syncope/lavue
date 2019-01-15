@@ -6,7 +6,6 @@ exclude=
     .eggs,
     dist,
     __pycache__,
-#     test,
     nxstest,
     build,
     lavuetaurus

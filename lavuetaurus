@@ -30,7 +30,10 @@ import os
 import lavuelib
 
 # workaround for not supported pyqt5 in taurus
-os.environ['QT_API'] = 'pyqt4'
+from taurus.core.release import version as taurusversion
+tv = taurusversion.split(".")
+if int(tv[0]) <= 3 or (int(tv[0]) == 4 and int(tv[1]) < 5):
+    os.environ['QT_API'] = 'pyqt4'
 
 import lavuelib.qtuic
 import lavuelib.qrc as qrc
