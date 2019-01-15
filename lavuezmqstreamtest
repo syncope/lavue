@@ -191,9 +191,9 @@ if __name__ == "__main__":
     try:
         port = int(options.port)
     except Exception as e:
-        # print str(e)
-        print >> sys.stderr, \
-            "lavuemonitor: Invalid --port parameter\n"
+        # print(str(e))
+        sys.stderr.write("lavuemonitor: Invalid --port parameter\n")
+        sys.stderr.flush()
         parser.print_help()
         sys.exit(255)
     try:
@@ -204,8 +204,8 @@ if __name__ == "__main__":
     try:
         maxtimegap = float(options.timegap)
     except:
-        print >> sys.stderr, \
-            "lavuemonitor: Invalid --time-gap parameter\n"
+        sys.stderr.write("lavuemonitor: Invalid --time-gap parameter\n")
+        sys.stderr.flush()
         parser.print_help()
         sys.exit(255)
     debug = options.debug

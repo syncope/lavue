@@ -73,12 +73,12 @@ def stophardware():
 
 def stop(pid, calctime, **args):
     stophardware()
-    print "STOP !!!", calctime, "LiveView stopped"
+    print("STOP !!! %s LiveView stopped" % calctime)
 
 
 def start(pid, calctime, **args):
     if debug:
-        print "  START:", calctime
+        print("  START: %s" % calctime)
 
 
 def alive(pid, calctime, maxrawval, maxval, minval, scaling,  meanval, **args):
@@ -94,9 +94,10 @@ def alive(pid, calctime, maxrawval, maxval, minval, scaling,  meanval, **args):
         elif scaling != "linear":
             raise Exception("Unknown scaling: %s" % scaling)
     if debug:
-        print "  ELIVE !!!", calctime, scaling, maxval, maxrawval, val
+        print("  ELIVE !!! %s %s %s %s %s" % (
+            calctime, scaling, maxval, maxrawval, val))
     if val > maximumval:
-        print "STOP !!!", calctime, "maxval = %s > %s" % (val, maximumval)
+        print("STOP !!! %s maxval = %s > %s" % (calctime, val, maximumval))
         stophardware()
     lasttime = float(calctime)
 
@@ -104,10 +105,10 @@ def alive(pid, calctime, maxrawval, maxval, minval, scaling,  meanval, **args):
 def checktime(calctime):
     ltime = time.time()
     # if debug:
-    #    print "GAP", ltime - calctime, maxtimegap
+    #    print("GAP %s %s" % (ltime - calctime, maxtimegap))
     if calctime + maxtimegap < ltime:
-        print "STOP !!!", calctime, "Time GAP = %s > %s" % (
-            ltime - calctime, maxtimegap)
+        print("STOP !!! %s Time GAP = %s > %s" % (
+             calctime, ltime - calctime, maxtimegap))
         stophardware()
 
 
@@ -211,10 +212,10 @@ if __name__ == "__main__":
                 if len(ports) == 1:
                     port = ports[0]
                 elif len(ports) > 1:
-
-                    print >> sys.stderr, \
-                        "lavuemonitor: Select one of the ports: ", ", ".join(
-                            ports)
+                    sys.stderr.write(
+                        "lavuemonitor: Select one of the ports: %s\n" %
+                        ", ".join(ports))
+                    sys.stderr.flush()
                     parser.print_help()
                     sys.exit(255)
                 else:
@@ -222,37 +223,42 @@ if __name__ == "__main__":
             else:
                 raise Exception("Cannot find the lavue port")
         except Exception as e:
-            # print str(e)
-            print >> sys.stderr, \
-                "lavuemonitor: Invalid --port parameter\n"
+            sys.stderr.write(
+                "lavuemonitor: Invalid --port parameter\n")
+            sys.stderr.flush()
+            # print(str(e))
             parser.print_help()
             sys.exit(255)
     try:
         maximumval = float(options.maxval)
     except:
-        print >> sys.stderr, \
-            "lavuemonitor: Invalid --maxval parameter\n"
+        sys.stderr.write(
+            "lavuemonitor: Invalid --maxval parameter\n")
+        sys.stderr.flush()
         parser.print_help()
         sys.exit(255)
     try:
         topicfilter = str(options.topic)
     except:
-        print >> sys.stderr, \
-            "lavuemonitor: Invalid --topic parameter\n"
+        sys.stderr.write(
+            "lavuemonitor: Invalid --topic parameter\n")
+        sys.stderr.flush()
         parser.print_help()
         sys.exit(255)
     try:
         command = str(options.command)
     except:
-        print >> sys.stderr, \
-            "lavuemonitor: Invalid --stop-command parameter\n"
+        sys.stderr.write(
+            "lavuemonitor: Invalid --stop-command parameter\n")
+        sys.stderr.flush()
         parser.print_help()
         sys.exit(255)
     try:
         maxtimegap = float(options.timegap)
     except:
-        print >> sys.stderr, \
-            "lavuemonitor: Invalid --time-gap parameter\n"
+        sys.stderr.write(
+            "lavuemonitor: Invalid --time-gap parameter\n")
+        sys.stderr.flush()
         parser.print_help()
         sys.exit(255)
     debug = options.debug
