@@ -1,3 +1,7 @@
+2019-01-XX Jan Kotanski <jan.kotanski@desy.de>
+	* fixes for py3 prints
+	* tagged as 2.0.1
+
 2019-01-14 Jan Kotanski <jan.kotanski@desy.de>
 	* switch to pyqt5
 	* needs pyqtgraph >=0.10.0
