@@ -104,7 +104,8 @@ class toolBuild(build_py):
         if compiled == 0:
             print("Built: %s -> %s" % (qrcfile, rccfile))
         else:
-            print >> sys.stderr, "Error: Cannot build  %s" % (rccfile)
+            sys.stderr.write("Error: Cannot build  %s\n" % (rccfile))
+            sys.stderr.flush()
 
     def run(self):
         """ runner
@@ -119,7 +120,8 @@ class toolBuild(build_py):
                 if not qrc[0] in (".", ".."):
                     self.makeqrc(qrc[0], qrc[1])
         except TypeError:
-            print >> sys.stderr, "No .qrc files to build"
+            sys.stderr.write("No .qrc files to build\n")
+            sys.stderr.flush()
 
         if get_platform()[:3] == 'win':
             for script in SCRIPTS:
