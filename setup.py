@@ -120,7 +120,7 @@ class toolBuild(build_py):
                 if not qrc[0] in (".", ".."):
                     self.makeqrc(qrc[0], qrc[1])
         except TypeError:
-            sys.stderr.write("No .qrc files to build\n" % (rccfile))
+            sys.stderr.write("No .qrc files to build\n")
             sys.stderr.flush()
 
         if get_platform()[:3] == 'win':
