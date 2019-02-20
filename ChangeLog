@@ -1,3 +1,7 @@
+2019-02-20 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for wrong image rotation by ROI tool
+	* tagged as 2.0.3
+
 2019-01-15 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for loading files
 	* tagged as 2.0.2
