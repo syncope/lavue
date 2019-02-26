@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>622</width>
-    <height>797</height>
+    <height>851</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -797,7 +797,66 @@
          <string>Image Sources</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_13">
-         <item row="3" column="0">
+         <item row="9" column="0">
+          <widget class="QGroupBox" name="nexusGroupBox">
+           <property name="title">
+            <string>Nexus File</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_21">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_20">
+              <item row="0" column="1">
+               <widget class="QCheckBox" name="nxsopenCheckBox">
+                <property name="toolTip">
+                 <string>nexus source keeps the file open</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="nxsopenLabel">
+                <property name="toolTip">
+                 <string>nexus source keeps the file open</string>
+                </property>
+                <property name="text">
+                 <string>Keep the file open:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>nxsopenCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="nxslastLabel">
+                <property name="toolTip">
+                 <string>nexus source starts from the last image</string>
+                </property>
+                <property name="text">
+                 <string>Start from the last image:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>nxslastCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QCheckBox" name="nxslastCheckBox">
+                <property name="toolTip">
+                 <string>nexus source starts from the last image</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="4" column="0">
           <widget class="QGroupBox" name="tangoFileGroupBox">
            <property name="title">
             <string>Tango File</string>
@@ -868,6 +927,19 @@ in the file name and the file directory for Tango File Source</string>
             </item>
            </layout>
           </widget>
+         </item>
+         <item row="10" column="0">
+          <spacer name="verticalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
          </item>
          <item row="1" column="0">
           <widget class="QGroupBox" name="httpGroupBox">
@@ -975,7 +1047,7 @@ in the file name and the file directory for Tango File Source</string>
            </layout>
           </widget>
          </item>
-         <item row="4" column="0">
+         <item row="5" column="0">
           <widget class="QGroupBox" name="zmqGroupBox">
            <property name="title">
             <string>ZMQ Stream</string>
@@ -1051,19 +1123,6 @@ in the file name and the file directory for Tango File Source</string>
            </layout>
           </widget>
          </item>
-         <item row="9" column="0">
-          <spacer name="verticalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
          <item row="2" column="0">
           <widget class="QGroupBox" name="tangoattrGroupBox">
            <property name="title">
@@ -1097,59 +1156,23 @@ in the file name and the file directory for Tango File Source</string>
            </layout>
           </widget>
          </item>
-         <item row="8" column="0">
-          <widget class="QGroupBox" name="nexusGroupBox">
+         <item row="3" column="0">
+          <widget class="QGroupBox" name="tangoeventsGroupBox">
            <property name="title">
-            <string>Nexus File</string>
+            <string>Tango Events</string>
            </property>
-           <layout class="QGridLayout" name="gridLayout_21">
+           <layout class="QGridLayout" name="gridLayout_3">
             <item row="0" column="0">
-             <layout class="QGridLayout" name="gridLayout_20">
-              <item row="0" column="1">
-               <widget class="QCheckBox" name="nxsopenCheckBox">
-                <property name="toolTip">
-                 <string>nexus source keeps the file open</string>
-                </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <widget class="QLabel" name="evattrLabel">
                 <property name="text">
-                 <string/>
+                 <string>Attributes:</string>
                 </property>
                </widget>
               </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="nxsopenLabel">
-                <property name="toolTip">
-                 <string>nexus source keeps the file open</string>
-                </property>
-                <property name="text">
-                 <string>Keep the file open:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>nxsopenCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="nxslastLabel">
-                <property name="toolTip">
-                 <string>nexus source starts from the last image</string>
-                </property>
-                <property name="text">
-                 <string>Start from the last image:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>nxslastCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QCheckBox" name="nxslastCheckBox">
-                <property name="toolTip">
-                 <string>nexus source starts from the last image</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
+              <item>
+               <widget class="QLineEdit" name="evattrLineEdit"/>
               </item>
              </layout>
             </item>

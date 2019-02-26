@@ -132,6 +132,7 @@ class LiveViewer(QtGui.QDialog):
             self.__sourcetypes.append("HTTPSourceWidget")
         if isr.PYTANGO:
             self.__sourcetypes.append("TangoAttrSourceWidget")
+            self.__sourcetypes.append("TangoEventsSourceWidget")
             self.__sourcetypes.append("TangoFileSourceWidget")
         self.__sourcetypes.append("ZMQSourceWidget")
         self.__sourcetypes.append("NXSFileSourceWidget")
@@ -539,6 +540,7 @@ class LiveViewer(QtGui.QDialog):
             zmqtopics=self.__settings.zmqtopics,
             dirtrans=self.__settings.dirtrans,
             tangoattrs=self.__settings.tangoattrs,
+            tangoevattrs=self.__settings.tangoevattrs,
             tangofileattrs=self.__settings.tangofileattrs,
             tangodirattrs=self.__settings.tangodirattrs,
             zmqservers=self.__settings.zmqservers,
@@ -751,6 +753,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.interruptonerror = self.__settings.interruptonerror
         cnfdlg.dirtrans = self.__settings.dirtrans
         cnfdlg.tangoattrs = self.__settings.tangoattrs
+        cnfdlg.tangoevattrs = self.__settings.tangoevattrs
         cnfdlg.tangofileattrs = self.__settings.tangofileattrs
         cnfdlg.tangodirattrs = self.__settings.tangodirattrs
         cnfdlg.httpurls = self.__settings.httpurls
@@ -859,6 +862,9 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.tangoattrs != dialog.tangoattrs:
             self.__settings.tangoattrs = dialog.tangoattrs
             setsrc = True
+        if self.__settings.tangoevattrs != dialog.tangoevattrs:
+            self.__settings.tangoevattrs = dialog.tangoevattrs
+            setsrc = True
         if self.__settings.tangofileattrs != dialog.tangofileattrs:
             self.__settings.tangofileattrs = dialog.tangofileattrs
             setsrc = True
@@ -899,6 +905,7 @@ class LiveViewer(QtGui.QDialog):
                 zmqtopics=self.__settings.zmqtopics,
                 dirtrans=self.__settings.dirtrans,
                 tangoattrs=self.__settings.tangoattrs,
+                tangoevattrs=self.__settings.tangoevattrs,
                 tangofileattrs=self.__settings.tangofileattrs,
                 tangodirattrs=self.__settings.tangodirattrs,
                 zmqservers=self.__settings.zmqservers,

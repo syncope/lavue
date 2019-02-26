@@ -107,6 +107,9 @@ class Settings(object):
         #: (:obj:`str`) JSON dictionary with {label: tango attribute}
         #  for Tango Attribute source
         self.tangoattrs = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: tango attribute}
+        #  for Tango Attribute Events source
+        self.tangoevattrs = '{}'
         #: (:obj:`str`) JSON dictionary with {label: file tango attribute}
         #  for Tango Attribute source
         self.tangofileattrs = '{}'
@@ -356,6 +359,11 @@ class Settings(object):
             self.tangoattrs = qstval
 
         qstval = str(
+            settings.value("Configuration/TangoEventsAttributes", type=str))
+        if qstval:
+            self.tangoevattrs = qstval
+
+        qstval = str(
             settings.value("Configuration/TangoFileAttributes", type=str))
         if qstval:
             self.tangofileattrs = qstval
@@ -521,6 +529,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/TangoAttributes",
             self.tangoattrs)
+        settings.setValue(
+            "Configuration/TangoEventsAttributes",
+            self.tangoevattrs)
         settings.setValue(
             "Configuration/TangoFileAttributes",
             self.tangofileattrs)
