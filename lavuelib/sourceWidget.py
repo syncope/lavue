@@ -48,6 +48,10 @@ _tangoattrformclass, _tangoattrbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "TangoAttrSourceWidget.ui"))
 
+_tangoeventsformclass, _tangoeventsbaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "TangoEventsSourceWidget.ui"))
+
 _tangofileformclass, _tangofilebaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "TangoFileSourceWidget.ui"))
@@ -632,6 +636,147 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         :rtype: :obj:`str`
         """
         label = str(self._ui.attrComboBox.currentText()).strip()
+        return re.sub("[^a-zA-Z0-9_]+", "_", label)
+
+
+class TangoEventsSourceWidget(BaseSourceWidget):
+
+    """ test source widget """
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
+        """
+        BaseSourceWidget.__init__(self, parent)
+
+        self._ui = _tangoeventsformclass()
+        self._ui.setupUi(self)
+
+        #: (:obj:`str`) source name
+        self.name = "Tango Events"
+        #: (:obj:`str`) datasource class name
+        self.datasource = "TangoEventsSource"
+        #: (:obj:`list` <:obj:`str`>) subwidget object names
+        self.widgetnames = [
+            "evattrLabel", "evattrComboBox"
+        ]
+
+        #: (:obj:`dict` <:obj:`str`, :obj:`str`>) dictionary with
+        #:                     (label, tango attribute) items
+        self.__tangoevattrs = {}
+        #: (:obj:`list` <:obj:`str`>) user tango attributes
+        self.__userevattrs = []
+
+        self._detachWidgets()
+
+        #: (:obj:`str`) default tip
+        self.__defaulttip = self._ui.evattrComboBox.toolTip()
+
+        self.__connectComboBox()
+
+    def __connectComboBox(self):
+        self._ui.evattrComboBox.lineEdit().textEdited.connect(
+            self.updateButton)
+        self._ui.evattrComboBox.currentIndexChanged.connect(
+            self.updateButton)
+
+    def __disconnectComboBox(self):
+        self._ui.evattrComboBox.lineEdit().textEdited.disconnect(
+            self.updateButton)
+        self._ui.evattrComboBox.currentIndexChanged.disconnect(
+            self.updateButton)
+
+    def __updateComboBox(self):
+        """ updates a value of attr combo box
+        """
+        self.__disconnectComboBox()
+        currentattr = str(self._ui.evattrComboBox.currentText()).strip()
+        self._ui.evattrComboBox.clear()
+        attrs = sorted(self.__tangoevattrs.keys())
+        for mt in attrs:
+            self._ui.evattrComboBox.addItem(mt)
+            iid = self._ui.evattrComboBox.findText(mt)
+            self._ui.evattrComboBox.setItemData(
+                iid, str(self.__tangoevattrs[mt]), QtCore.Qt.ToolTipRole)
+        for mt in self.__userevattrs:
+            self._ui.evattrComboBox.addItem(mt)
+        if currentattr not in attrs and currentattr not in self.__userevattrs:
+            self._ui.evattrComboBox.addItem(currentattr)
+        ind = self._ui.evattrComboBox.findText(currentattr)
+        self._ui.evattrComboBox.setCurrentIndex(ind)
+        self.__connectComboBox()
+
+    @QtCore.pyqtSlot()
+    def updateButton(self):
+        """ update slot for Tango attribute source
+        """
+        if not self.active:
+            return
+        currentattr = str(self._ui.evattrComboBox.currentText()).strip()
+        if not currentattr:
+            self.buttonEnabled.emit(False)
+        else:
+            self.buttonEnabled.emit(True)
+            if currentattr in self.__tangoevattrs.keys():
+                currentattr = str(self.__tangoevattrs[currentattr]).strip()
+            self.configurationChanged.emit(currentattr)
+            self.sourceLabelChanged.emit(self.label())
+        self._ui.evattrComboBox.setToolTip(currentattr or self.__defaulttip)
+
+    def updateMetaData(self, tangoevattrs=None, **kargs):
+        """ update source input parameters
+
+        :param tangoevattrs: json dictionary with
+                           (label, tango attribute) items
+        :type tangoevattrs: :obj:`str`
+        :param kargs:  source widget input parameter dictionary
+        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        if tangoevattrs is not None:
+            self.__tangoevattrs = json.loads(tangoevattrs)
+            self.__updateComboBox()
+        self.sourceLabelChanged.emit(self.label())
+
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        iid = self._ui.evattrComboBox.findText(configuration)
+        if iid == -1:
+            self._ui.evattrComboBox.addItem(configuration)
+            iid = self._ui.evattrComboBox.findText(configuration)
+        self._ui.evattrComboBox.setCurrentIndex(iid)
+
+    def disconnectWidget(self):
+        """ disconnects widget
+        """
+        self._connected = False
+        self._ui.evattrComboBox.lineEdit().setReadOnly(False)
+        self._ui.evattrComboBox.setEnabled(True)
+
+    def connectWidget(self):
+        """ connects widget
+        """
+        self._connected = True
+        self._ui.evattrComboBox.lineEdit().setReadOnly(True)
+        self._ui.evattrComboBox.setEnabled(False)
+        currentattr = str(self._ui.evattrComboBox.currentText()).strip()
+        attrs = self.__tangoevattrs.keys()
+        if currentattr not in attrs and currentattr not in self.__userevattrs:
+            self.__userevattrs.append(currentattr)
+            self.__updateComboBox()
+
+    def label(self):
+        """ return a label of the current detector
+
+        :return: label of the current detector
+        :rtype: :obj:`str`
+        """
+        label = str(self._ui.evattrComboBox.currentText()).strip()
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
