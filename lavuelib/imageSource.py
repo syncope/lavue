@@ -573,7 +573,6 @@ class TangoAttrSource(BaseSource):
         except Exception as e:
             print(str(e))
             return str(e), "__ERROR__", ""
-            pass  # this needs a bit more care
         return None, None, None
 
     def connect(self):
@@ -609,24 +608,22 @@ class TangoEventsCB(object):
         self.__mutex = mutex
 
     def push_event(self, *args, **kwargs):
-        '''callback method receiving the event'''
-        print("PUSH EVENT")
+        """callback method receiving the event
+        """
+
         event_data = args[0]
         if event_data.err:
             result = event_data.errors
-            print(result)
+            print(str(result))
         else:
             if not self.__client.reading:
-                print("M1")
                 with QtCore.QMutexLocker(self.__mutex):
                     try:
-                        print("M1a")
                         self.__client.reading = True
                         self.__client.attr = event_data.attr_value
                         self.__client.fresh = True
                     finally:
                         self.__client.reading = False
-        print("PUSH EVENT END")
 
 
 class TangoEventsSource(BaseSource):
@@ -674,41 +671,40 @@ class TangoEventsSource(BaseSource):
         """
 
         try:
-            # attr = self.__aproxy.read()
-            print("GETDATA")
             with QtCore.QMutexLocker(self.__mutex):
-                self.fresh = False
-                if self.attr is None:
+                if self.attr is None or not self.fresh:
                     return None, None, None
+                self.fresh = False
                 if str(self.attr.type) == "DevEncoded":
                     avalue = self.attr.value
                     if avalue[0] in self.__tangodecoders:
-                        pass
                         # da = self.__aproxy.read(
                         #     extract_as=PyTango.ExtractAs.Nothing)
-                        # enc = PyTango.EncodedAttribute()
-                        # data = getattr(enc, self.__tangodecoders[avalue[0]])(da)
-                        # return (np.transpose(data),
-                        #         '%s  (%s)' % (
-                        #             self._configuration, str(self.attr.time)), "")
+                        enc = PyTango.EncodedAttribute()
+                        data = getattr(
+                            enc, self.__tangodecoders[avalue[0]])(self.attr)
+                        return (np.transpose(data),
+                                '%s  (%s)' % (
+                                    self._configuration,
+                                    str(self.attr.time)),
+                                "")
                     else:
                         dec = self.__decoders[avalue[0]]
                         dec.load(avalue)
                         # no need to transpose
-                        print("SH1")
                         shape = dec.shape()
-                        print("SH2 %s" % shape)
                         if shape is None or shape[0] <= 0 or shape[1] <= 0:
-                            print("SH3")
                             return None, None, None
                         return (dec.decode(),
                                 '%s  (%s)' % (
-                                    self._configuration, str(self.attr.time)), "")
+                                    self._configuration, str(self.attr.time)),
+                                "")
                 else:
                     if self.attr.value is not None:
                         return (np.transpose(self.attr.value),
                                 '%s  (%s)' % (
-                                    self._configuration, str(self.attr.time)), "")
+                                    self._configuration, str(self.attr.time)),
+                                "")
         except Exception as e:
             print(str(e))
             return str(e), "__ERROR__", ""
@@ -718,24 +714,18 @@ class TangoEventsSource(BaseSource):
     def connect(self):
         """ connects the source
         """
-        print("CONNECT")
         try:
             if not self._initiated:
-                print("CON1")
+                self.disconnect()
                 # with QtCore.QMutexLocker(self.__mutex):
-                print("C1")
                 dvname, atname = str(self._configuration).rsplit('/', 1)
                 attr_cb = TangoEventsCB(self, atname, self.__mutex)
-                print("C2")
                 self.__proxy = PyTango.DeviceProxy(dvname)
-                print("C3")
                 self.__attrid = self.__proxy.subscribe_event(
                     atname,
                     PyTango.EventType.CHANGE_EVENT,
                     attr_cb)
-                print("C3")
                 self._initiated = True
-                print("CON1 END")
             return True
         except Exception as e:
             print(str(e))
@@ -747,12 +737,10 @@ class TangoEventsSource(BaseSource):
         """
         try:
             if not self._initiated:
-                print("DIS1")
                 with QtCore.QMutexLocker(self.__mutex):
                     self._initiated = False
                     if self.__proxy is not None and self.__attrid is not None:
                         self.__proxy.unsubscribe_event(self.__attrid)
-                print("DIS1 END")
         except Exception:
             self._updaterror()
 
