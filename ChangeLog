@@ -1,3 +1,7 @@
+2019-02-27 Jan Kotanski <jan.kotanski@desy.de>
+	* add Tango Events kimage source
+	* tagged as 2.1.0
+
 2019-02-26 Jan Kotanski <jan.kotanski@desy.de>
 	* hide empty images from limaccds
 	* tagged as 2.0.5
