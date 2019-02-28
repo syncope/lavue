@@ -31,6 +31,7 @@ from pyqtgraph import QtCore, QtGui
 import os
 import json
 
+from . import edDictDialog
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -149,6 +150,42 @@ class ConfigDialog(QtGui.QDialog):
         self.sendrois = False
         #: (:obj:`bool`) store display parameters for specific sources
         self.sourcedisplay = False
+        #: (:obj:`list` <:class: `pyqtgraph.QtWidgets.QLineEdit` >)
+        self.__withfilter = []
+        #: (:obj:`str`) last object
+        self.__lastfilteredobj = None
+
+    def eventFilter(self, obj, event):
+        """ event filter
+
+        :param obj: qt object
+        :type obj: :class: `pyqtgraph.QtCore.QObject`
+        :param event: qt event
+        :type event: :class: `pyqtgraph.QtCore.QEvent`
+        :returns: status flag
+        :rtype: :obj:`bool`
+        """
+        if obj in self.__withfilter and \
+           event.type() in \
+           [QtCore.QEvent.FocusIn, QtCore.QEvent.MouseButtonDblClick]:
+            if self.__lastfilteredobj and self.__lastfilteredobj == repr(obj):
+                self.__lastfilteredobj = None
+            else:
+                self.__lastfilteredobj = repr(obj)
+                record = json.loads(str(obj.text()).strip() or "{}")
+                if not isinstance(record, dict):
+                    record = {}
+                dform = edDictDialog.EdDictDialog(self)
+                dform.record = record
+                dform.createGUI()
+                dform.exec_()
+                if dform.dirty:
+                    for key in list(record.keys()):
+                        if not str(key).strip():
+                            record.pop(key)
+                    obj.setText(json.dumps(record))
+
+        return QtGui.QDialog.eventFilter(self, obj, event)
 
     def createGUI(self):
         """ create GUI
@@ -192,6 +229,21 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.sendroisCheckBox.setChecked(self.sendrois)
         self.__ui.showallroisCheckBox.setChecked(self.showallrois)
         self.__ui.sourcedisplayCheckBox.setChecked(self.sourcedisplay)
+
+        self.__ui.urlsLineEdit.installEventFilter(self)
+        self.__withfilter.append(self.__ui.urlsLineEdit)
+        self.__ui.attrLineEdit.installEventFilter(self)
+        self.__withfilter.append(self.__ui.attrLineEdit)
+        self.__ui.evattrLineEdit.installEventFilter(self)
+        self.__withfilter.append(self.__ui.evattrLineEdit)
+        self.__ui.fileattrLineEdit.installEventFilter(self)
+        self.__withfilter.append(self.__ui.fileattrLineEdit)
+        self.__ui.dirattrLineEdit.installEventFilter(self)
+        self.__withfilter.append(self.__ui.dirattrLineEdit)
+        self.__ui.dirtransLineEdit.installEventFilter(self)
+        self.__withfilter.append(self.__ui.dirtransLineEdit)
+        self.__ui.zmqserversLineEdit.installEventFilter(self)
+        self.__withfilter.append(self.__ui.zmqserversLineEdit)
 
         self._updateSecPortLineEdit(self.secautoport)
         self.__ui.secautoportCheckBox.stateChanged.connect(

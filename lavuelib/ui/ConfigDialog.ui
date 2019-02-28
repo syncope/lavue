@@ -894,6 +894,9 @@ in the file name and the file directory for Tango File Source</string>
                 <property name="text">
                  <string>Dir Attributes:</string>
                 </property>
+                <property name="buddy">
+                 <cstring>dirattrLineEdit</cstring>
+                </property>
                </widget>
               </item>
               <item row="0" column="1">
@@ -1169,6 +1172,9 @@ in the file name and the file directory for Tango File Source</string>
                 <property name="text">
                  <string>Attributes:</string>
                 </property>
+                <property name="buddy">
+                 <cstring>evattrLineEdit</cstring>
+                </property>
                </widget>
               </item>
               <item>
@@ -1232,6 +1238,7 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>hidraportLineEdit</tabstop>
   <tabstop>urlsLineEdit</tabstop>
   <tabstop>attrLineEdit</tabstop>
+  <tabstop>evattrLineEdit</tabstop>
   <tabstop>fileattrLineEdit</tabstop>
   <tabstop>dirattrLineEdit</tabstop>
   <tabstop>dirtransLineEdit</tabstop>
@@ -1250,8 +1257,8 @@ in the file name and the file directory for Tango File Source</string>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>278</x>
-     <y>739</y>
+     <x>288</x>
+     <y>840</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -1266,8 +1273,8 @@ in the file name and the file directory for Tango File Source</string>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>346</x>
-     <y>739</y>
+     <x>356</x>
+     <y>840</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
