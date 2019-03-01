@@ -62,6 +62,8 @@ class EdDictDialog(QtGui.QDialog):
         self.title = False
         #: (:obj:`list` <:obj:`str`>) table headers
         self.headers = ["Label", "Value"]
+        #: (:obj:`list` <:obj:`str`>) table headers
+        self.newvalues = []
         #: (:obj:`dict` <:obj:`str`, `any`>) data (name, value) dictionary
         self.record = {}
 
@@ -120,8 +122,11 @@ class EdDictDialog(QtGui.QDialog):
         item = self.__ui.tableWidget.item(
             self.__ui.tableWidget.currentRow(), 0)
         if item is None:
-            return None
-        return item.data(QtCore.Qt.UserRole)
+            return ""
+        name = item.data(QtCore.Qt.UserRole)
+        if hasattr(name, "toString"):
+            name = name.toString()
+        return name
 
     def __currentValue(self):
         """ provides currently selected name
@@ -132,31 +137,95 @@ class EdDictDialog(QtGui.QDialog):
         item = self.__ui.tableWidget.item(
             self.__ui.tableWidget.currentRow(), 1)
         if item is None:
-            return None
-        return item.data(QtCore.Qt.UserRole)
+            return ""
+        value = item.data(QtCore.Qt.UserRole)
+        if hasattr(value, "toString"):
+            value = value.toString()
+        return value
 
+    @QtCore.pyqtSlot("QTableWidgetItem*")
     def __tableItemChanged(self, item):
         """ changes the current value of the variable
 
         :param item: current item
         :type item: :class:`QtGui.QTableWidgetItem`
         """
-        var = self.__currentName()
-        if str(var) not in self.record.keys():
+        record = dict(self.record)
+        newvalues = list(self.newvalues)
+        oldname = str(self.__currentName() or "").strip()
+        if oldname and \
+           oldname not in self.record.keys():
             return
         column = self.__ui.tableWidget.currentColumn()
         if column == 1:
-            self.record[str(var)] = str(item.text())
+            value = str(item.text() or "").strip()
+            if not oldname:
+                oldvalue = str(self.__currentValue() or "").strip()
+                self.newvalues = [
+                    str(vl).strip() for vl in self.newvalues
+                    if str(vl).strip() != oldvalue]
+                if value not in self.newvalues:
+                    self.newvalues.append(value)
+                else:
+                    return
+            else:
+                self.record[oldname] = value
             self.dirty = True
         if column == 0:
-            name = str(item.text())
-            value = self.record.pop(str(var))
-            if not name.strip():
-                name = " "
-                while name in self.record.keys():
-                    name += " "
-            self.record[name] = value
+            name = str(item.text()).strip()
+            if oldname:
+                value = self.record.pop(oldname)
+            else:
+                value = str(self.__currentValue() or "").strip()
+                self.newvalues = [
+                    str(vl).strip() for vl in self.newvalues
+                    if str(vl).strip() != value]
+            if not name:
+                if oldname:
+                    if value not in self.newvalues:
+                        self.newvalues.append(value)
+                else:
+                    return
+            else:
+                if name in self.record.keys() and self.record[name] != value:
+                    oldvalue = self.record[name]
+                    if oldvalue not in self.newvalues:
+                        self.newvalues.append(oldvalue)
+                self.record[name] = value
             self.dirty = True
+        if record != self.record or newvalues != self.newvalues:
+            self.__populateTable()
+
+    @QtCore.pyqtSlot()
+    def __add(self):
+        """ adds a new record into the table
+        """
+        self.newvalues.append("")
+        self.dirty = True
+        self.__populateTable()
+
+    @QtCore.pyqtSlot()
+    def __remove(self):
+        """ removes the current record from the table
+        """
+        name = str(self.__currentName()).strip()
+        if name and \
+           name not in self.record.keys():
+            return
+        value = str(self.__currentValue()).strip()
+        if QtGui.QMessageBox.question(
+                self, "Removing Data",
+                'Would you like  to remove "%s": "%s" ?' % (name, value),
+                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
+                QtGui.QMessageBox.Yes) == QtGui.QMessageBox.No:
+            return
+        if not name:
+            self.newvalues = [
+                str(vl).strip() for vl in self.newvalues
+                if str(vl).strip() != value]
+        else:
+            self.record.pop(name)
+        self.dirty = True
         self.__populateTable()
 
     def __populateTable(self, selected=None):
@@ -169,10 +238,22 @@ class EdDictDialog(QtGui.QDialog):
         sitem = None
         self.__ui.tableWidget.setSortingEnabled(False)
         names = sorted(self.record.keys())
-        self.__ui.tableWidget.setRowCount(len(names))
+        self.__ui.tableWidget.setRowCount(len(names) + len(self.newvalues))
         self.__ui.tableWidget.setColumnCount(len(self.headers))
         self.__ui.tableWidget.setHorizontalHeaderLabels(self.headers)
-        for row, name in enumerate(names):
+        row = 0
+        for value in self.newvalues:
+            name = ""
+            item = QtGui.QTableWidgetItem(" ")
+            item.setData(QtCore.Qt.UserRole, (name))
+            self.__ui.tableWidget.setItem(row, 0, item)
+            item2 = QtGui.QTableWidgetItem(value)
+            item2.setData(QtCore.Qt.UserRole, (value))
+            self.__ui.tableWidget.setItem(row, 1, item2)
+            if selected is not None and selected == name:
+                sitem = item
+            row += 1
+        for name in names:
             item = QtGui.QTableWidgetItem(name)
             item.setData(QtCore.Qt.UserRole, (name))
             self.__ui.tableWidget.setItem(row, 0, item)
@@ -183,41 +264,21 @@ class EdDictDialog(QtGui.QDialog):
 
             if selected is not None and selected == name:
                 sitem = item
+            row += 1
         self.__ui.tableWidget.setSortingEnabled(True)
         self.__ui.tableWidget.resizeColumnsToContents()
         # self.__ui.tableWidget.horizontalHeader().\
         #     setStretchLastSection(True)
-        self.__ui.tableWidget.horizontalHeader().\
-            setResizeMode(1, QtGui.QHeaderView.Stretch)
+        if hasattr(self.__ui.tableWidget.horizontalHeader(),
+                   "setSectionResizeMode"):
+            self.__ui.tableWidget.horizontalHeader().\
+                setSectionResizeMode(1, QtGui.QHeaderView.Stretch)
+        else:
+            self.__ui.tableWidget.horizontalHeader().\
+                setResizeMode(1, QtGui.QHeaderView.Stretch)
         if sitem is not None:
             sitem.setSelected(True)
             self.__ui.tableWidget.setCurrentItem(sitem)
-
-    @QtCore.pyqtSlot()
-    def __add(self):
-        """ adds a new record into the table
-        """
-        self.record[" "] = ""
-        self.__populateTable()
-        self.dirty = True
-
-    @QtCore.pyqtSlot()
-    def __remove(self):
-        """ removes the current record from the table
-        """
-        name = self.__currentName()
-        if name not in self.record:
-            return
-
-        if QtGui.QMessageBox.question(
-                self, "Removing Data",
-                "Would you like  to remove '%s'?" % name,
-                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
-                QtGui.QMessageBox.Yes) == QtGui.QMessageBox.No:
-            return
-        self.record.pop(name)
-        self.dirty = True
-        self.__populateTable()
 
     @QtCore.pyqtSlot()
     def accept(self):
