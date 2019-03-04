@@ -90,7 +90,7 @@ class EdDictDialog(QtGui.QDialog):
                     "&Remove", QtGui.QDialogButtonBox.ActionRole)
 
         if len(self.newvalues) > 0:
-            item  = ""
+            item = ""
         elif self.record:
             item = sorted(self.record.keys())[0]
         else:
