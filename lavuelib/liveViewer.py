@@ -54,6 +54,7 @@ from . import imageWidget
 from . import imageField
 from . import configDialog
 from . import release
+from . import edDictDialog
 try:
     from . import controllerClient
     TANGOCLIENT = True
@@ -384,7 +385,20 @@ class LiveViewer(QtGui.QDialog):
         :param value: text value
         :type value: :obj:`str`
         """
-        self.configurationChanged.emit(name, value)
+        labelvalues = json.loads(getattr(self.__settings, name) or '{}')
+        dform = edDictDialog.EdDictDialog(self)
+        dform.record = labelvalues
+        dform.newvalues = [value]
+        # dform.title = self.__objtitles[repr(obj)]
+        dform.createGUI()
+        dform.exec_()
+        if dform.dirty:
+            labelvalues = dform.record
+            for key in list(labelvalues.keys()):
+                if not str(key).strip():
+                    labelvalues.pop(key)
+            setattr(self.__settings, name, json.dumps(labelvalues))
+            self.__updateSource()
 
     @QtCore.pyqtSlot(str, str)
     def _removeLabel(self, name, label):
@@ -398,6 +412,7 @@ class LiveViewer(QtGui.QDialog):
         labelvalues = json.loads(getattr(self.__settings, name) or '{}')
         if label in labelvalues.keys():
             labelvalues.pop(label)
+            setattr(self.__settings, name, json.dumps(labelvalues))
             self.__updateSource()
 
     def __updateSource(self):
@@ -420,7 +435,7 @@ class LiveViewer(QtGui.QDialog):
             serverdict=serverdict,
             hidraport=self.__settings.hidraport
         )
-            
+
     def __applyoptions(self, options):
         """ apply options
 

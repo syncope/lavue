@@ -89,7 +89,9 @@ class EdDictDialog(QtGui.QDialog):
                 self.__ui.addEditRemoveButtonBox.addButton(
                     "&Remove", QtGui.QDialogButtonBox.ActionRole)
 
-        if self.record:
+        if len(self.newvalues) > 0:
+            item  = ""
+        elif self.record:
             item = sorted(self.record.keys())[0]
         else:
             item = None
@@ -250,7 +252,7 @@ class EdDictDialog(QtGui.QDialog):
             item2 = QtGui.QTableWidgetItem(value)
             item2.setData(QtCore.Qt.UserRole, (value))
             self.__ui.tableWidget.setItem(row, 1, item2)
-            if selected is not None and selected == name:
+            if selected is None or selected == name:
                 sitem = item
             row += 1
         for name in names:

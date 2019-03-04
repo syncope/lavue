@@ -560,9 +560,8 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         if event.type() in \
            [QtCore.QEvent.MouseButtonPress]:
             if event.buttons() and QtCore.Qt.LeftButton and \
-               self._ui.attrComboBox.isEnabled() and self.expertmode:
-                print(event)
-                print(obj)
+               self._ui.attrComboBox.isEnabled() and self.expertmode and \
+               event.x() < 30:
                 currentattr = str(self._ui.attrComboBox.currentText()).strip()
                 attrs = sorted(self.__tangoattrs.keys())
                 # self.__userattrs
@@ -579,14 +578,10 @@ class TangoAttrSourceWidget(BaseSourceWidget):
                         self.__userattrs.append(value)
                     self.__updateComboBox(value)
                     self.removeIconClicked.emit("tangoattrs", currentattr)
-                    print("REMOVE %s" % currentattr)
                 elif currentattr in self.__userattrs:
-                    print("ADD USER %s" % currentattr)
                     self.addIconClicked.emit("tangoattrs", currentattr)
                 elif currentattr:
-                    print("ADD  %s" % currentattr)
                     self.addIconClicked.emit("tangoattrs", currentattr)
-                    #  print("%s %s" % (event.x(), event.y()))
 
         return False
 
@@ -616,10 +611,18 @@ class TangoAttrSourceWidget(BaseSourceWidget):
             self._ui.attrComboBox.setItemData(
                 iid, str(self.__tangoattrs[mt]), QtCore.Qt.ToolTipRole)
             self._ui.attrComboBox.setItemIcon(iid, QtGui.QIcon(":/star2.png"))
-        for mt in self.__userattrs:
-            self._ui.attrComboBox.addItem(mt)
-            iid = self._ui.attrComboBox.findText(mt)
-            self._ui.attrComboBox.setItemIcon(iid, QtGui.QIcon(":/star1.png"))
+        for mt in list(self.__userattrs):
+            if mt not in self.__tangoattrs.values():
+                self._ui.attrComboBox.addItem(mt)
+                iid = self._ui.attrComboBox.findText(mt)
+                self._ui.attrComboBox.setItemIcon(iid, QtGui.QIcon(":/star1.png"))
+            else:
+                self.__userattrs = [mmt for mmt in self.__userattrs if mmt != mt]
+                if mt == currentattr:
+                    for nm, vl in self.__tangoattrs.items():
+                        if mt == vl:
+                            currentattr = nm
+                            break
         if currentattr not in attrs and currentattr not in self.__userattrs:
             self._ui.attrComboBox.addItem(currentattr)
             iid = self._ui.attrComboBox.findText(currentattr)

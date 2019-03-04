@@ -165,6 +165,8 @@ class ConfigDialog(QtGui.QDialog):
         """
         if repr(obj) not in self.__objtitles.keys():
             return False
+        if event.type() in \
+           [QtCore.QEvent.MouseButtonPress, QtCore.QEvent.KeyPress]:
             if event.type() == QtCore.QEvent.KeyPress:
                 if event.key() != QtCore.Qt.Key_Space:
                     return False
