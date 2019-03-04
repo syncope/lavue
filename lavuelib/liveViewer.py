@@ -195,7 +195,8 @@ class LiveViewer(QtGui.QDialog):
         # WIDGET DEFINITIONS
         #: (:class:`lavuelib.sourceGroupBox.SourceGroupBox`) source groupbox
         self.__sourcewg = sourceGroupBox.SourceGroupBox(
-            parent=self, sourcetypes=self.__sourcetypes)
+            parent=self, sourcetypes=self.__sourcetypes,
+            expertmode=(self.__umode == 'expert'))
 
         #: (:class:`lavuelib.preparationGroupBox.PreparationGroupBox`)
         #: preparation groupbox
@@ -353,6 +354,10 @@ class LiveViewer(QtGui.QDialog):
             self._setSourceConfiguration)
         self.__sourcewg.sourceLabelChanged.connect(
             self._switchSourceDisplay)
+        self.__sourcewg.addIconClicked.connect(
+            self._addLabel)
+        self.__sourcewg.removeIconClicked.connect(
+            self._removeLabel)
         self.__ui.frameSpinBox.valueChanged.connect(self._reloadfile)
         self.__sourcewg.updateLayout()
         self.__sourcewg.emitSourceChanged()
@@ -370,6 +375,52 @@ class LiveViewer(QtGui.QDialog):
         if options.tool:
             QtCore.QTimer.singleShot(10, self.__imagewg.showCurrentTool)
 
+    @QtCore.pyqtSlot(str, str)
+    def _addLabel(self, name, value):
+        """ emits addIconClicked signal
+
+        :param name: object name
+        :type name: :obj:`str`
+        :param value: text value
+        :type value: :obj:`str`
+        """
+        self.configurationChanged.emit(name, value)
+
+    @QtCore.pyqtSlot(str, str)
+    def _removeLabel(self, name, label):
+        """ emits addIconClicked signal
+
+        :param name: object name
+        :type name: :obj:`str`
+        :param value: text value label to remove
+        :type value: :obj:`str`
+        """
+        labelvalues = json.loads(getattr(self.__settings, name) or '{}')
+        if label in labelvalues.keys():
+            labelvalues.pop(label)
+            self.__updateSource()
+
+    def __updateSource(self):
+        if self.__settings.detservers:
+            serverdict = {"pool": list(self.__settings.detservers)}
+        else:
+            serverdict = HIDRASERVERLIST
+        self.__sourcewg.updateMetaData(
+            zmqtopics=self.__settings.zmqtopics,
+            dirtrans=self.__settings.dirtrans,
+            tangoattrs=self.__settings.tangoattrs,
+            tangoevattrs=self.__settings.tangoevattrs,
+            tangofileattrs=self.__settings.tangofileattrs,
+            tangodirattrs=self.__settings.tangodirattrs,
+            zmqservers=self.__settings.zmqservers,
+            httpurls=self.__settings.httpurls,
+            autozmqtopics=self.__settings.autozmqtopics,
+            nxslast=self.__settings.nxslast,
+            nxsopen=self.__settings.nxsopen,
+            serverdict=serverdict,
+            hidraport=self.__settings.hidraport
+        )
+            
     def __applyoptions(self, options):
         """ apply options
 
@@ -897,26 +948,7 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.showallrois != dialog.showallrois:
             self.__settings.showallrois = dialog.showallrois
         if setsrc:
-            if self.__settings.detservers:
-                serverdict = {"pool": list(self.__settings.detservers)}
-            else:
-                serverdict = HIDRASERVERLIST
-            self.__sourcewg.updateMetaData(
-                zmqtopics=self.__settings.zmqtopics,
-                dirtrans=self.__settings.dirtrans,
-                tangoattrs=self.__settings.tangoattrs,
-                tangoevattrs=self.__settings.tangoevattrs,
-                tangofileattrs=self.__settings.tangofileattrs,
-                tangodirattrs=self.__settings.tangodirattrs,
-                zmqservers=self.__settings.zmqservers,
-                httpurls=self.__settings.httpurls,
-                autozmqtopics=self.__settings.autozmqtopics,
-                nxslast=self.__settings.nxslast,
-                nxsopen=self.__settings.nxsopen,
-                serverdict=serverdict,
-                hidraport=self.__settings.hidraport
-            )
-            self.__sourcewg.updateLayout()
+            self.__updateSource()
 
         self.__settings.statswoscaling = dialog.statswoscaling
         replot = replot or \

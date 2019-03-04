@@ -77,6 +77,10 @@ class BaseSourceWidget(QtGui.QWidget):
     configurationChanged = QtCore.pyqtSignal(str)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source label name signal
     sourceLabelChanged = QtCore.pyqtSignal(str)
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) add Icon Clicked
+    addIconClicked = QtCore.pyqtSignal(str, str)
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) remove Icon Clicked
+    removeIconClicked = QtCore.pyqtSignal(str, str)
 
     def __init__(self, parent=None):
         """ constructor
@@ -96,6 +100,8 @@ class BaseSourceWidget(QtGui.QWidget):
         self.widgets = []
         #: (:obj:`bool`) source widget active
         self.active = False
+        #: (:obj:`bool`) expertmode flag
+        self.expertmode = False
         #: (:obj:`bool`) source widget connected
         self._connected = False
         #: (:class:`Ui_BaseSourceWidget')
@@ -255,12 +261,17 @@ class HTTPSourceWidget(BaseSourceWidget):
         for mt in urls:
             self._ui.httpComboBox.addItem(mt)
             iid = self._ui.httpComboBox.findText(mt)
+            self._ui.httpComboBox.setItemIcon(iid, QtGui.QIcon(":/star2.png"))
             self._ui.httpComboBox.setItemData(
                 iid, str(self.__urls[mt]), QtCore.Qt.ToolTipRole)
         for mt in self.__userurls:
             self._ui.httpComboBox.addItem(mt)
+            iid = self._ui.httpComboBox.findText(mt)
+            self._ui.httpComboBox.setItemIcon(iid, QtGui.QIcon(":/star1.png"))
         if currenturl not in urls and currenturl not in self.__userurls:
             self._ui.httpComboBox.addItem(currenturl)
+            iid = self._ui.httpComboBox.findText(currenturl)
+            self._ui.httpComboBox.setItemIcon(iid, QtGui.QIcon(":/star1.png"))
         ind = self._ui.httpComboBox.findText(currenturl)
         self._ui.httpComboBox.setCurrentIndex(ind)
 
@@ -534,6 +545,50 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         self.__defaulttip = self._ui.attrComboBox.toolTip()
 
         self.__connectComboBox()
+        self._ui.attrComboBox.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        """ event filter
+
+        :param obj: qt object
+        :type obj: :class: `pyqtgraph.QtCore.QObject`
+        :param event: qt event
+        :type event: :class: `pyqtgraph.QtCore.QEvent`
+        :returns: status flag
+        :rtype: :obj:`bool`
+        """
+        if event.type() in \
+           [QtCore.QEvent.MouseButtonPress]:
+            if event.buttons() and QtCore.Qt.LeftButton and \
+               self._ui.attrComboBox.isEnabled() and self.expertmode:
+                print(event)
+                print(obj)
+                currentattr = str(self._ui.attrComboBox.currentText()).strip()
+                attrs = sorted(self.__tangoattrs.keys())
+                # self.__userattrs
+                if currentattr in attrs:
+                    if QtGui.QMessageBox.question(
+                            self._ui.attrComboBox, "Removing Label",
+                            'Would you like  to remove "%s"" ?' %
+                            (currentattr),
+                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
+                            QtGui.QMessageBox.Yes) == QtGui.QMessageBox.No:
+                        return False
+                    value = str(self.__tangoattrs.pop(currentattr)).strip()
+                    if value not in self.__userattrs:
+                        self.__userattrs.append(value)
+                    self.__updateComboBox(value)
+                    self.removeIconClicked.emit("tangoattrs", currentattr)
+                    print("REMOVE %s" % currentattr)
+                elif currentattr in self.__userattrs:
+                    print("ADD USER %s" % currentattr)
+                    self.addIconClicked.emit("tangoattrs", currentattr)
+                elif currentattr:
+                    print("ADD  %s" % currentattr)
+                    self.addIconClicked.emit("tangoattrs", currentattr)
+                    #  print("%s %s" % (event.x(), event.y()))
+
+        return False
 
     def __connectComboBox(self):
         self._ui.attrComboBox.lineEdit().textEdited.connect(
@@ -547,11 +602,12 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         self._ui.attrComboBox.currentIndexChanged.disconnect(
             self.updateButton)
 
-    def __updateComboBox(self):
+    def __updateComboBox(self, currentattr=None):
         """ updates a value of attr combo box
         """
         self.__disconnectComboBox()
-        currentattr = str(self._ui.attrComboBox.currentText()).strip()
+        currentattr = currentattr or \
+            str(self._ui.attrComboBox.currentText()).strip()
         self._ui.attrComboBox.clear()
         attrs = sorted(self.__tangoattrs.keys())
         for mt in attrs:
@@ -559,10 +615,15 @@ class TangoAttrSourceWidget(BaseSourceWidget):
             iid = self._ui.attrComboBox.findText(mt)
             self._ui.attrComboBox.setItemData(
                 iid, str(self.__tangoattrs[mt]), QtCore.Qt.ToolTipRole)
+            self._ui.attrComboBox.setItemIcon(iid, QtGui.QIcon(":/star2.png"))
         for mt in self.__userattrs:
             self._ui.attrComboBox.addItem(mt)
+            iid = self._ui.attrComboBox.findText(mt)
+            self._ui.attrComboBox.setItemIcon(iid, QtGui.QIcon(":/star1.png"))
         if currentattr not in attrs and currentattr not in self.__userattrs:
             self._ui.attrComboBox.addItem(currentattr)
+            iid = self._ui.attrComboBox.findText(currentattr)
+            self._ui.attrComboBox.setItemIcon(iid, QtGui.QIcon(":/star1.png"))
         ind = self._ui.attrComboBox.findText(currentattr)
         self._ui.attrComboBox.setCurrentIndex(ind)
         self.__connectComboBox()
@@ -700,10 +761,18 @@ class TangoEventsSourceWidget(BaseSourceWidget):
             iid = self._ui.evattrComboBox.findText(mt)
             self._ui.evattrComboBox.setItemData(
                 iid, str(self.__tangoevattrs[mt]), QtCore.Qt.ToolTipRole)
+            self._ui.evattrComboBox.setItemIcon(
+                iid, QtGui.QIcon(":/star2.png"))
         for mt in self.__userevattrs:
             self._ui.evattrComboBox.addItem(mt)
+            iid = self._ui.evattrComboBox.findText(mt)
+            self._ui.evattrComboBox.setItemIcon(
+                iid, QtGui.QIcon(":/star1.png"))
         if currentattr not in attrs and currentattr not in self.__userevattrs:
             self._ui.evattrComboBox.addItem(currentattr)
+            iid = self._ui.evattrComboBox.findText(currentattr)
+            self._ui.evattrComboBox.setItemIcon(
+                iid, QtGui.QIcon(":/star1.png"))
         ind = self._ui.evattrComboBox.findText(currentattr)
         self._ui.evattrComboBox.setCurrentIndex(ind)
         self.__connectComboBox()
@@ -856,10 +925,15 @@ class TangoFileSourceWidget(BaseSourceWidget):
             iid = combobox.findText(mt)
             combobox.setItemData(
                 iid, str(atdict[mt]), QtCore.Qt.ToolTipRole)
+            combobox.setItemIcon(iid, QtGui.QIcon(":/star2.png"))
         for mt in atlist:
             combobox.addItem(mt)
+            iid = combobox.findText(mt)
+            combobox.setItemIcon(iid, QtGui.QIcon(":/star1.png"))
         if currentattr not in attrs and currentattr not in atlist:
             combobox.addItem(currentattr)
+            iid = combobox.findText(currentattr)
+            combobox.setItemIcon(iid, QtGui.QIcon(":/star1.png"))
         ind = combobox.findText(currentattr)
         combobox.setCurrentIndex(ind)
         self.__connectComboBox(combobox)
@@ -1176,10 +1250,18 @@ class ZMQSourceWidget(BaseSourceWidget):
             iid = self._ui.pickleComboBox.findText(mt)
             self._ui.pickleComboBox.setItemData(
                 iid, str(self.__servers[mt]), QtCore.Qt.ToolTipRole)
+            self._ui.pickleComboBox.setItemIcon(
+                iid, QtGui.QIcon(":/star2.png"))
         for mt in self.__userservers:
             self._ui.pickleComboBox.addItem(mt)
+            iid = self._ui.pickleComboBox.findText(mt)
+            self._ui.pickleComboBox.setItemIcon(
+                iid, QtGui.QIcon(":/star1.png"))
         if server not in servers and server not in self.__userservers:
             self._ui.pickleComboBox.addItem(server)
+            iid = self._ui.pickleComboBox.findText(server)
+            self._ui.pickleComboBox.setItemIcon(
+                iid, QtGui.QIcon(":/star1.png"))
         ind = self._ui.pickleComboBox.findText(server)
         self._ui.pickleComboBox.setCurrentIndex(ind)
         self.__connectComboBox()
