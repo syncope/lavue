@@ -221,11 +221,11 @@ class BaseSourceWidget(QtGui.QWidget):
         attrs = sorted(atdict.keys())
         try:
             mkicon = QtGui.QIcon.fromTheme("starred")
-        except:
+        except Exception:
             mkicon = QtGui.QIcon(":/star2.png")
         try:
             umkicon = QtGui.QIcon.fromTheme("non-starred")
-        except:
+        except Exception:
             umkicon = QtGui.QIcon(":/star1.png")
         for mt in attrs:
             combobox.addItem(mt)
