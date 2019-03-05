@@ -1,5 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
 <file alias="lavue.png">../images/lavue.png</file>
+<file alias="star1.png">../images/star1.png</file>
+<file alias="star2.png">../images/star2.png</file>
 </qresource>
 </RCC>

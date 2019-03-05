@@ -77,6 +77,10 @@ class BaseSourceWidget(QtGui.QWidget):
     configurationChanged = QtCore.pyqtSignal(str)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source label name signal
     sourceLabelChanged = QtCore.pyqtSignal(str)
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) add Icon Clicked
+    addIconClicked = QtCore.pyqtSignal(str, str)
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) remove Icon Clicked
+    removeIconClicked = QtCore.pyqtSignal(str, str)
 
     def __init__(self, parent=None):
         """ constructor
@@ -96,6 +100,8 @@ class BaseSourceWidget(QtGui.QWidget):
         self.widgets = []
         #: (:obj:`bool`) source widget active
         self.active = False
+        #: (:obj:`bool`) expertmode flag
+        self.expertmode = False
         #: (:obj:`bool`) source widget connected
         self._connected = False
         #: (:class:`Ui_BaseSourceWidget')
@@ -156,6 +162,96 @@ class BaseSourceWidget(QtGui.QWidget):
         :rtype: :obj:`str`
         """
         return self.name
+
+    def eventObjectFilter(self, event, combobox, varname, atdict, atlist):
+        """ event filter
+
+        :param obj: qt object
+        :type obj: :class: `pyqtgraph.QtCore.QObject`
+        :param event: qt event
+        :type event: :class: `pyqtgraph.QtCore.QEvent`
+        :returns: status flag
+        :rtype: :obj:`bool`
+        """
+        if event.type() in \
+           [QtCore.QEvent.MouseButtonPress]:
+            if event.buttons() and QtCore.Qt.LeftButton and \
+               combobox.isEnabled() and self.expertmode and \
+               event.x() < 30:
+                currentattr = str(combobox.currentText()).strip()
+                attrs = sorted(atdict.keys())
+                if currentattr in attrs:
+                    if QtGui.QMessageBox.question(
+                            combobox, "Removing Label",
+                            'Would you like  to remove "%s"" ?' %
+                            (currentattr),
+                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
+                            QtGui.QMessageBox.Yes) == QtGui.QMessageBox.No:
+                        return False
+                    value = str(atdict.pop(currentattr)).strip()
+                    if value not in atlist:
+                        atlist.append(value)
+                    self._updateComboBox(combobox, atdict, atlist, value)
+                    self.removeIconClicked.emit(varname, currentattr)
+                elif currentattr in atlist:
+                    self.addIconClicked.emit(varname, currentattr)
+                elif currentattr:
+                    self.addIconClicked.emit(varname, currentattr)
+
+        return False
+
+    def _connectComboBox(self, combobox):
+        combobox.lineEdit().textEdited.connect(
+            self.updateButton)
+        combobox.currentIndexChanged.connect(
+            self.updateButton)
+
+    def _disconnectComboBox(self, combobox):
+        combobox.lineEdit().textEdited.disconnect(
+            self.updateButton)
+        combobox.currentIndexChanged.disconnect(
+            self.updateButton)
+
+    def _updateComboBox(self, combobox, atdict, atlist, currentattr=None):
+        """ updates a value of attr combo box
+        """
+        self._disconnectComboBox(combobox)
+        currentattr = currentattr or str(combobox.currentText()).strip()
+        combobox.clear()
+        attrs = sorted(atdict.keys())
+        try:
+            mkicon = QtGui.QIcon.fromTheme("starred")
+        except Exception:
+            mkicon = QtGui.QIcon(":/star2.png")
+        try:
+            umkicon = QtGui.QIcon.fromTheme("non-starred")
+        except Exception:
+            umkicon = QtGui.QIcon(":/star1.png")
+        for mt in attrs:
+            combobox.addItem(mt)
+            iid = combobox.findText(mt)
+            combobox.setItemData(
+                iid, str(atdict[mt]), QtCore.Qt.ToolTipRole)
+            combobox.setItemIcon(iid, mkicon)
+        for mt in list(atlist):
+            if mt not in atdict.values():
+                combobox.addItem(mt)
+                iid = combobox.findText(mt)
+                combobox.setItemIcon(iid, umkicon)
+            else:
+                atlist = [mmt for mmt in atlist if mmt != mt]
+                if mt == currentattr:
+                    for nm, vl in atdict.items():
+                        if mt == vl:
+                            currentattr = nm
+                            break
+        if currentattr not in attrs and currentattr not in atlist:
+            combobox.addItem(currentattr)
+            iid = combobox.findText(currentattr)
+            combobox.setItemIcon(iid, umkicon)
+        ind = combobox.findText(currentattr)
+        combobox.setCurrentIndex(ind)
+        self._connectComboBox(combobox)
 
 
 class TestSourceWidget(BaseSourceWidget):
@@ -231,40 +327,26 @@ class HTTPSourceWidget(BaseSourceWidget):
         #: (:obj:`str`) default tip
         self.__defaulttip = self._ui.httpComboBox.toolTip()
 
-        self.__connectComboBox()
+        self._connectComboBox(self._ui.httpComboBox)
+        self._ui.httpComboBox.installEventFilter(self)
 
-    def __connectComboBox(self):
-        self._ui.httpComboBox.lineEdit().textEdited.connect(
-            self.updateButton)
-        self._ui.httpComboBox.currentIndexChanged.connect(
-            self.updateButton)
+    def eventFilter(self, obj, event):
+        """ event filter
 
-    def __disconnectComboBox(self):
-        self._ui.httpComboBox.lineEdit().textEdited.disconnect(
-            self.updateButton)
-        self._ui.httpComboBox.currentIndexChanged.disconnect(
-            self.updateButton)
-
-    def __updateComboBox(self):
-        """ updates a value of attr combo box
+        :param obj: qt object
+        :type obj: :class: `pyqtgraph.QtCore.QObject`
+        :param event: qt event
+        :type event: :class: `pyqtgraph.QtCore.QEvent`
+        :returns: status flag
+        :rtype: :obj:`bool`
         """
-        self.__disconnectComboBox()
-        currenturl = str(self._ui.httpComboBox.currentText()).strip()
-        self._ui.httpComboBox.clear()
-        urls = sorted(self.__urls.keys())
-        for mt in urls:
-            self._ui.httpComboBox.addItem(mt)
-            iid = self._ui.httpComboBox.findText(mt)
-            self._ui.httpComboBox.setItemData(
-                iid, str(self.__urls[mt]), QtCore.Qt.ToolTipRole)
-        for mt in self.__userurls:
-            self._ui.httpComboBox.addItem(mt)
-        if currenturl not in urls and currenturl not in self.__userurls:
-            self._ui.httpComboBox.addItem(currenturl)
-        ind = self._ui.httpComboBox.findText(currenturl)
-        self._ui.httpComboBox.setCurrentIndex(ind)
-
-        self.__connectComboBox()
+        return self.eventObjectFilter(
+            event,
+            combobox=self._ui.httpComboBox,
+            varname="httpurls",
+            atdict=self.__urls,
+            atlist=self.__userurls
+        )
 
     @QtCore.pyqtSlot()
     def updateButton(self):
@@ -302,7 +384,8 @@ class HTTPSourceWidget(BaseSourceWidget):
         """
         if httpurls is not None:
             self.__urls = json.loads(httpurls)
-            self.__updateComboBox()
+            self._updateComboBox(
+                self._ui.httpComboBox, self.__urls, self.__userurls)
         self.sourceLabelChanged.emit(self.label())
 
     def configure(self, configuration):
@@ -327,7 +410,8 @@ class HTTPSourceWidget(BaseSourceWidget):
         urls = self.__urls.keys()
         if currenturl not in urls and currenturl not in self.__userurls:
             self.__userurls.append(currenturl)
-            self.__updateComboBox()
+            self._updateComboBox(
+                self._ui.httpComboBox, self.__urls, self.__userurls)
 
     def disconnectWidget(self):
         """ disconnects widget
@@ -533,39 +617,26 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         #: (:obj:`str`) default tip
         self.__defaulttip = self._ui.attrComboBox.toolTip()
 
-        self.__connectComboBox()
+        self._connectComboBox(self._ui.attrComboBox)
+        self._ui.attrComboBox.installEventFilter(self)
 
-    def __connectComboBox(self):
-        self._ui.attrComboBox.lineEdit().textEdited.connect(
-            self.updateButton)
-        self._ui.attrComboBox.currentIndexChanged.connect(
-            self.updateButton)
+    def eventFilter(self, obj, event):
+        """ event filter
 
-    def __disconnectComboBox(self):
-        self._ui.attrComboBox.lineEdit().textEdited.disconnect(
-            self.updateButton)
-        self._ui.attrComboBox.currentIndexChanged.disconnect(
-            self.updateButton)
-
-    def __updateComboBox(self):
-        """ updates a value of attr combo box
+        :param obj: qt object
+        :type obj: :class: `pyqtgraph.QtCore.QObject`
+        :param event: qt event
+        :type event: :class: `pyqtgraph.QtCore.QEvent`
+        :returns: status flag
+        :rtype: :obj:`bool`
         """
-        self.__disconnectComboBox()
-        currentattr = str(self._ui.attrComboBox.currentText()).strip()
-        self._ui.attrComboBox.clear()
-        attrs = sorted(self.__tangoattrs.keys())
-        for mt in attrs:
-            self._ui.attrComboBox.addItem(mt)
-            iid = self._ui.attrComboBox.findText(mt)
-            self._ui.attrComboBox.setItemData(
-                iid, str(self.__tangoattrs[mt]), QtCore.Qt.ToolTipRole)
-        for mt in self.__userattrs:
-            self._ui.attrComboBox.addItem(mt)
-        if currentattr not in attrs and currentattr not in self.__userattrs:
-            self._ui.attrComboBox.addItem(currentattr)
-        ind = self._ui.attrComboBox.findText(currentattr)
-        self._ui.attrComboBox.setCurrentIndex(ind)
-        self.__connectComboBox()
+        return self.eventObjectFilter(
+            event,
+            combobox=self._ui.attrComboBox,
+            varname="tangoattrs",
+            atdict=self.__tangoattrs,
+            atlist=self.__userattrs
+        )
 
     @QtCore.pyqtSlot()
     def updateButton(self):
@@ -595,7 +666,8 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         """
         if tangoattrs is not None:
             self.__tangoattrs = json.loads(tangoattrs)
-            self.__updateComboBox()
+            self._updateComboBox(
+                self._ui.attrComboBox, self.__tangoattrs, self.__userattrs)
         self.sourceLabelChanged.emit(self.label())
 
     def configure(self, configuration):
@@ -627,7 +699,8 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         attrs = self.__tangoattrs.keys()
         if currentattr not in attrs and currentattr not in self.__userattrs:
             self.__userattrs.append(currentattr)
-            self.__updateComboBox()
+            self._updateComboBox(
+                self._ui.attrComboBox, self.__tangoattrs, self.__userattrs)
 
     def label(self):
         """ return a label of the current detector
@@ -674,39 +747,26 @@ class TangoEventsSourceWidget(BaseSourceWidget):
         #: (:obj:`str`) default tip
         self.__defaulttip = self._ui.evattrComboBox.toolTip()
 
-        self.__connectComboBox()
+        self._connectComboBox(self._ui.evattrComboBox)
+        self._ui.evattrComboBox.installEventFilter(self)
 
-    def __connectComboBox(self):
-        self._ui.evattrComboBox.lineEdit().textEdited.connect(
-            self.updateButton)
-        self._ui.evattrComboBox.currentIndexChanged.connect(
-            self.updateButton)
+    def eventFilter(self, obj, event):
+        """ event filter
 
-    def __disconnectComboBox(self):
-        self._ui.evattrComboBox.lineEdit().textEdited.disconnect(
-            self.updateButton)
-        self._ui.evattrComboBox.currentIndexChanged.disconnect(
-            self.updateButton)
-
-    def __updateComboBox(self):
-        """ updates a value of attr combo box
+        :param obj: qt object
+        :type obj: :class: `pyqtgraph.QtCore.QObject`
+        :param event: qt event
+        :type event: :class: `pyqtgraph.QtCore.QEvent`
+        :returns: status flag
+        :rtype: :obj:`bool`
         """
-        self.__disconnectComboBox()
-        currentattr = str(self._ui.evattrComboBox.currentText()).strip()
-        self._ui.evattrComboBox.clear()
-        attrs = sorted(self.__tangoevattrs.keys())
-        for mt in attrs:
-            self._ui.evattrComboBox.addItem(mt)
-            iid = self._ui.evattrComboBox.findText(mt)
-            self._ui.evattrComboBox.setItemData(
-                iid, str(self.__tangoevattrs[mt]), QtCore.Qt.ToolTipRole)
-        for mt in self.__userevattrs:
-            self._ui.evattrComboBox.addItem(mt)
-        if currentattr not in attrs and currentattr not in self.__userevattrs:
-            self._ui.evattrComboBox.addItem(currentattr)
-        ind = self._ui.evattrComboBox.findText(currentattr)
-        self._ui.evattrComboBox.setCurrentIndex(ind)
-        self.__connectComboBox()
+        return self.eventObjectFilter(
+            event,
+            combobox=self._ui.evattrComboBox,
+            varname="tangoevattrs",
+            atdict=self.__tangoevattrs,
+            atlist=self.__userevattrs
+        )
 
     @QtCore.pyqtSlot()
     def updateButton(self):
@@ -736,7 +796,9 @@ class TangoEventsSourceWidget(BaseSourceWidget):
         """
         if tangoevattrs is not None:
             self.__tangoevattrs = json.loads(tangoevattrs)
-            self.__updateComboBox()
+            self._updateComboBox(
+                self._ui.evattrComboBox,
+                self.__tangoevattrs, self.__userevattrs)
         self.sourceLabelChanged.emit(self.label())
 
     def configure(self, configuration):
@@ -768,7 +830,9 @@ class TangoEventsSourceWidget(BaseSourceWidget):
         attrs = self.__tangoevattrs.keys()
         if currentattr not in attrs and currentattr not in self.__userevattrs:
             self.__userevattrs.append(currentattr)
-            self.__updateComboBox()
+            self._updateComboBox(
+                self._ui.evattrComboBox,
+                self.__tangoevattrs, self.__userevattrs)
 
     def label(self):
         """ return a label of the current detector
@@ -829,40 +893,38 @@ class TangoFileSourceWidget(BaseSourceWidget):
         #: (:obj:`str`) default dir tip
         self.__defaultdirtip = self._ui.dirattrComboBox.toolTip()
 
-        self.__connectComboBox(self._ui.fileattrComboBox)
-        self.__connectComboBox(self._ui.dirattrComboBox)
+        self._connectComboBox(self._ui.fileattrComboBox)
+        self._connectComboBox(self._ui.dirattrComboBox)
+        self._ui.fileattrComboBox.installEventFilter(self)
+        self._ui.dirattrComboBox.installEventFilter(self)
 
-    def __connectComboBox(self, combobox):
-        combobox.lineEdit().textEdited.connect(
-            self.updateButton)
-        combobox.currentIndexChanged.connect(
-            self.updateButton)
+    def eventFilter(self, obj, event):
+        """ event filter
 
-    def __disconnectComboBox(self, combobox):
-        combobox.lineEdit().textEdited.disconnect(
-            self.updateButton)
-        combobox.currentIndexChanged.disconnect(
-            self.updateButton)
-
-    def __updateComboBox(self, combobox, atdict, atlist):
-        """ updates a value of attr combo box
+        :param obj: qt object
+        :type obj: :class: `pyqtgraph.QtCore.QObject`
+        :param event: qt event
+        :type event: :class: `pyqtgraph.QtCore.QEvent`
+        :returns: status flag
+        :rtype: :obj:`bool`
         """
-        self.__disconnectComboBox(combobox)
-        currentattr = str(combobox.currentText()).strip()
-        combobox.clear()
-        attrs = sorted(atdict.keys())
-        for mt in attrs:
-            combobox.addItem(mt)
-            iid = combobox.findText(mt)
-            combobox.setItemData(
-                iid, str(atdict[mt]), QtCore.Qt.ToolTipRole)
-        for mt in atlist:
-            combobox.addItem(mt)
-        if currentattr not in attrs and currentattr not in atlist:
-            combobox.addItem(currentattr)
-        ind = combobox.findText(currentattr)
-        combobox.setCurrentIndex(ind)
-        self.__connectComboBox(combobox)
+        if obj == self._ui.fileattrComboBox:
+            return self.eventObjectFilter(
+                event,
+                combobox=self._ui.fileattrComboBox,
+                varname="tangofileattrs",
+                atdict=self.__tangofileattrs,
+                atlist=self.__userfileattrs
+            )
+        if obj == self._ui.dirattrComboBox:
+            return self.eventObjectFilter(
+                event,
+                combobox=self._ui.dirattrComboBox,
+                varname="tangodirattrs",
+                atdict=self.__tangodirattrs,
+                atlist=self.__userdirattrs
+            )
+        return False
 
     @QtCore.pyqtSlot()
     def updateButton(self):
@@ -907,12 +969,12 @@ class TangoFileSourceWidget(BaseSourceWidget):
         """
         if tangofileattrs is not None:
             self.__tangofileattrs = json.loads(tangofileattrs)
-            self.__updateComboBox(
+            self._updateComboBox(
                 self._ui.fileattrComboBox, self.__tangofileattrs,
                 self.__userfileattrs)
         if tangodirattrs is not None:
             self.__tangodirattrs = json.loads(tangodirattrs)
-            self.__updateComboBox(
+            self._updateComboBox(
                 self._ui.dirattrComboBox, self.__tangodirattrs,
                 self.__userdirattrs)
         if dirtrans is not None:
@@ -929,7 +991,7 @@ class TangoFileSourceWidget(BaseSourceWidget):
         attrs = self.__tangofileattrs.keys()
         if fattr not in attrs and fattr not in self.__userfileattrs:
             self.__userfileattrs.append(fattr)
-            self.__updateComboBox(
+            self._updateComboBox(
                 self._ui.fileattrComboBox, self.__tangofileattrs,
                 self.__userfileattrs)
         self._ui.dirattrComboBox.lineEdit().setReadOnly(True)
@@ -938,7 +1000,7 @@ class TangoFileSourceWidget(BaseSourceWidget):
         attrs = self.__tangodirattrs.keys()
         if dattr not in attrs and dattr not in self.__userdirattrs:
             self.__userdirattrs.append(dattr)
-            self.__updateComboBox(
+            self._updateComboBox(
                 self._ui.dirattrComboBox, self.__tangodirattrs,
                 self.__userdirattrs)
 
@@ -1148,41 +1210,29 @@ class ZMQSourceWidget(BaseSourceWidget):
 
         #: (:obj:`str`) default tip
         self.__defaulttip = self._ui.pickleComboBox.toolTip()
-        self.__connectComboBox()
+        self._connectComboBox(self._ui.pickleComboBox)
+        self._ui.pickleComboBox.installEventFilter(self)
+
         self._ui.pickleTopicComboBox.currentIndexChanged.connect(
             self._updateZMQComboBox)
 
-    def __connectComboBox(self):
-        self._ui.pickleComboBox.lineEdit().textEdited.connect(
-            self.updateButton)
-        self._ui.pickleComboBox.currentIndexChanged.connect(
-            self.updateButton)
+    def eventFilter(self, obj, event):
+        """ event filter
 
-    def __disconnectComboBox(self):
-        self._ui.pickleComboBox.lineEdit().textEdited.disconnect(
-            self.updateButton)
-        self._ui.pickleComboBox.currentIndexChanged.disconnect(
-            self.updateButton)
-
-    def __updateComboBox(self):
-        """ updates a value of attr combo box
+        :param obj: qt object
+        :type obj: :class: `pyqtgraph.QtCore.QObject`
+        :param event: qt event
+        :type event: :class: `pyqtgraph.QtCore.QEvent`
+        :returns: status flag
+        :rtype: :obj:`bool`
         """
-        self.__disconnectComboBox()
-        server = str(self._ui.pickleComboBox.currentText()).strip()
-        self._ui.pickleComboBox.clear()
-        servers = sorted(self.__servers.keys())
-        for mt in servers:
-            self._ui.pickleComboBox.addItem(mt)
-            iid = self._ui.pickleComboBox.findText(mt)
-            self._ui.pickleComboBox.setItemData(
-                iid, str(self.__servers[mt]), QtCore.Qt.ToolTipRole)
-        for mt in self.__userservers:
-            self._ui.pickleComboBox.addItem(mt)
-        if server not in servers and server not in self.__userservers:
-            self._ui.pickleComboBox.addItem(server)
-        ind = self._ui.pickleComboBox.findText(server)
-        self._ui.pickleComboBox.setCurrentIndex(ind)
-        self.__connectComboBox()
+        return self.eventObjectFilter(
+            event,
+            combobox=self._ui.pickleComboBox,
+            varname="zmqservers",
+            atdict=self.__servers,
+            atlist=self.__userservers
+        )
 
     @QtCore.pyqtSlot()
     def updateButton(self, disconnect=True):
@@ -1266,7 +1316,8 @@ class ZMQSourceWidget(BaseSourceWidget):
         updatecombo = False
         if zmqservers is not None:
             self.__servers = json.loads(zmqservers)
-            self.__updateComboBox()
+            self._updateComboBox(
+                self._ui.pickleComboBox, self.__servers, self.__userservers)
         if isinstance(zmqtopics, list):
             with QtCore.QMutexLocker(self.__mutex):
                 text = str(self._ui.pickleTopicComboBox.currentText())
@@ -1312,7 +1363,8 @@ class ZMQSourceWidget(BaseSourceWidget):
         servers = self.__servers.keys()
         if server not in servers and server not in self.__userservers:
             self.__userservers.append(server)
-            self.__updateComboBox()
+            self._updateComboBox(
+                self._ui.pickleComboBox, self.__servers, self.__userservers)
 
     def disconnectWidget(self):
         """ disconnects widget

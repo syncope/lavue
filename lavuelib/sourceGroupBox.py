@@ -52,14 +52,20 @@ class SourceGroupBox(QtGui.QGroupBox):
     configurationChanged = QtCore.pyqtSignal(str)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source label name signal
     sourceLabelChanged = QtCore.pyqtSignal(str)
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) add Icon Clicked
+    addIconClicked = QtCore.pyqtSignal(str, str)
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) remove Icon Clicked
+    removeIconClicked = QtCore.pyqtSignal(str, str)
 
-    def __init__(self, parent=None, sourcetypes=None):
+    def __init__(self, parent=None, sourcetypes=None, expertmode=False):
         """ constructor
 
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         :param sourcetypes: source type class names
         :type sourcetypes: :obj:`list` <:obj:`str`>
+        :param expertmode: expert mode flag
+        :type expertmode: :obj:`bool`
         """
         QtGui.QGroupBox.__init__(self, parent)
 
@@ -78,6 +84,8 @@ class SourceGroupBox(QtGui.QGroupBox):
         self.__types = sourcetypes or []
         #:  (:obj:`str`) default datasource
         self.__defaultsource = "Hidra"
+        #:  (:obj:`bool`) expert mode flag
+        self.__expertmode = expertmode
 
         #: (:obj:`list` < :obj:`str` > ) source names
         self.__sourcenames = []
@@ -119,6 +127,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         self.__ui.gridLayout.removeWidget(self.__ui.pushButton)
         for st in self.__types:
             swg = getattr(swgm, st)()
+            swg.expertmode = self.__expertmode
             self.__sourcewidgets[swg.name] = swg
             self.__sourcenames.append(swg.name)
             self.__ui.sourceTypeComboBox.addItem(swg.name)
@@ -185,6 +194,10 @@ class SourceGroupBox(QtGui.QGroupBox):
                 self._emitSourceLabelChanged)
             self.__currentSource.sourceStateChanged.disconnect(
                 self._emitSourceStateChanged)
+            self.__currentSource.addIconClicked.disconnect(
+                self._emitAddIconClicked)
+            self.__currentSource.removeIconClicked.disconnect(
+                self._emitRemoveIconClicked)
             self.__currentSource.active = False
             self.__currentSource.disconnectWidget()
         if name is not None and name in self.__sourcewidgets.keys():
@@ -198,6 +211,10 @@ class SourceGroupBox(QtGui.QGroupBox):
                 self._emitConfigurationChanged)
             self.__currentSource.sourceStateChanged.connect(
                 self._emitSourceStateChanged)
+            self.__currentSource.addIconClicked.connect(
+                self._emitAddIconClicked)
+            self.__currentSource.removeIconClicked.connect(
+                self._emitRemoveIconClicked)
         self.updateLayout()
         self.updateMetaData(disconnect=disconnect)
         self.emitSourceChanged()
@@ -207,6 +224,28 @@ class SourceGroupBox(QtGui.QGroupBox):
         """
         status = self.__ui.sourceTypeComboBox.currentIndex() + 1
         self.sourceChanged.emit(status)
+
+    @QtCore.pyqtSlot(str, str)
+    def _emitAddIconClicked(self, name, value):
+        """ emits addIconClicked signal
+
+        :param name: object name
+        :type name: :obj:`str`
+        :param value: text value
+        :type value: :obj:`str`
+        """
+        self.addIconClicked.emit(name, value)
+
+    @QtCore.pyqtSlot(str, str)
+    def _emitRemoveIconClicked(self, name, label):
+        """ emits addIconClicked signal
+
+        :param name: object name
+        :type name: :obj:`str`
+        :param value: text value label to remove
+        :type value: :obj:`str`
+        """
+        self.removeIconClicked.emit(name, label)
 
     @QtCore.pyqtSlot(str)
     def _emitConfigurationChanged(self,  name):

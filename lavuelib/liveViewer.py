@@ -54,6 +54,7 @@ from . import imageWidget
 from . import imageField
 from . import configDialog
 from . import release
+from . import edDictDialog
 try:
     from . import controllerClient
     TANGOCLIENT = True
@@ -103,6 +104,15 @@ class MainWindow(QtGui.QMainWindow):
         self.setCentralWidget(self.centralwidget)
         self.setWindowTitle(
             "laVue: Live Image Viewer (v%s)" % str(release.__version__))
+
+    def closeEvent(self, event):
+        """ stores the setting before finishing the application
+
+        :param event: close event
+        :type event:  :class:`pyqtgraph.QtCore.QEvent`:
+        """
+        self.__lavue.closeEvent(event)
+        QtGui.QMainWindow.closeEvent(self, event)
 
 
 class LiveViewer(QtGui.QDialog):
@@ -195,7 +205,8 @@ class LiveViewer(QtGui.QDialog):
         # WIDGET DEFINITIONS
         #: (:class:`lavuelib.sourceGroupBox.SourceGroupBox`) source groupbox
         self.__sourcewg = sourceGroupBox.SourceGroupBox(
-            parent=self, sourcetypes=self.__sourcetypes)
+            parent=self, sourcetypes=self.__sourcetypes,
+            expertmode=(self.__umode == 'expert'))
 
         #: (:class:`lavuelib.preparationGroupBox.PreparationGroupBox`)
         #: preparation groupbox
@@ -353,6 +364,10 @@ class LiveViewer(QtGui.QDialog):
             self._setSourceConfiguration)
         self.__sourcewg.sourceLabelChanged.connect(
             self._switchSourceDisplay)
+        self.__sourcewg.addIconClicked.connect(
+            self._addLabel)
+        self.__sourcewg.removeIconClicked.connect(
+            self._removeLabel)
         self.__ui.frameSpinBox.valueChanged.connect(self._reloadfile)
         self.__sourcewg.updateLayout()
         self.__sourcewg.emitSourceChanged()
@@ -369,6 +384,70 @@ class LiveViewer(QtGui.QDialog):
 
         if options.tool:
             QtCore.QTimer.singleShot(10, self.__imagewg.showCurrentTool)
+
+    @QtCore.pyqtSlot(str, str)
+    def _addLabel(self, name, value):
+        """ emits addIconClicked signal
+
+        :param name: object name
+        :type name: :obj:`str`
+        :param value: text value
+        :type value: :obj:`str`
+        """
+        name = str(name)
+        value = str(value)
+        labelvalues = json.loads(getattr(self.__settings, name) or '{}')
+        dform = edDictDialog.EdDictDialog(self)
+        dform.record = labelvalues
+        dform.newvalues = [value]
+        # dform.title = self.__objtitles[repr(obj)]
+        dform.createGUI()
+        dform.exec_()
+        if dform.dirty:
+            labelvalues = dform.record
+            for key in list(labelvalues.keys()):
+                if not str(key).strip():
+                    labelvalues.pop(key)
+            setattr(self.__settings, name, json.dumps(labelvalues))
+            self.__updateSource()
+
+    @QtCore.pyqtSlot(str, str)
+    def _removeLabel(self, name, label):
+        """ emits addIconClicked signal
+
+        :param name: object name
+        :type name: :obj:`str`
+        :param value: text value label to remove
+        :type value: :obj:`str`
+        """
+        name = str(name)
+        label = str(label)
+        labelvalues = json.loads(getattr(self.__settings, name) or '{}')
+        if label in labelvalues.keys():
+            labelvalues.pop(label)
+            setattr(self.__settings, name, json.dumps(labelvalues))
+            self.__updateSource()
+
+    def __updateSource(self):
+        if self.__settings.detservers:
+            serverdict = {"pool": list(self.__settings.detservers)}
+        else:
+            serverdict = HIDRASERVERLIST
+        self.__sourcewg.updateMetaData(
+            zmqtopics=self.__settings.zmqtopics,
+            dirtrans=self.__settings.dirtrans,
+            tangoattrs=self.__settings.tangoattrs,
+            tangoevattrs=self.__settings.tangoevattrs,
+            tangofileattrs=self.__settings.tangofileattrs,
+            tangodirattrs=self.__settings.tangodirattrs,
+            zmqservers=self.__settings.zmqservers,
+            httpurls=self.__settings.httpurls,
+            autozmqtopics=self.__settings.autozmqtopics,
+            nxslast=self.__settings.nxslast,
+            nxsopen=self.__settings.nxsopen,
+            serverdict=serverdict,
+            hidraport=self.__settings.hidraport
+        )
 
     def __applyoptions(self, options):
         """ apply options
@@ -610,7 +689,8 @@ class LiveViewer(QtGui.QDialog):
         self.__dataFetcher.wait()
         self.__settings.seccontext.destroy()
         QtGui.QApplication.closeAllWindows()
-        event.accept()
+        if event is not None:
+            event.accept()
 
     @QtCore.pyqtSlot(int)
     @QtCore.pyqtSlot()
@@ -897,26 +977,7 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.showallrois != dialog.showallrois:
             self.__settings.showallrois = dialog.showallrois
         if setsrc:
-            if self.__settings.detservers:
-                serverdict = {"pool": list(self.__settings.detservers)}
-            else:
-                serverdict = HIDRASERVERLIST
-            self.__sourcewg.updateMetaData(
-                zmqtopics=self.__settings.zmqtopics,
-                dirtrans=self.__settings.dirtrans,
-                tangoattrs=self.__settings.tangoattrs,
-                tangoevattrs=self.__settings.tangoevattrs,
-                tangofileattrs=self.__settings.tangofileattrs,
-                tangodirattrs=self.__settings.tangodirattrs,
-                zmqservers=self.__settings.zmqservers,
-                httpurls=self.__settings.httpurls,
-                autozmqtopics=self.__settings.autozmqtopics,
-                nxslast=self.__settings.nxslast,
-                nxsopen=self.__settings.nxsopen,
-                serverdict=serverdict,
-                hidraport=self.__settings.hidraport
-            )
-            self.__sourcewg.updateLayout()
+            self.__updateSource()
 
         self.__settings.statswoscaling = dialog.statswoscaling
         replot = replot or \
@@ -1642,3 +1703,14 @@ class LiveViewer(QtGui.QDialog):
             self.__trafowg.setKeepCoordsLabel(
                 self.__settings.keepcoords, False)
         self._plot()
+
+    def keyPressEvent(self,  event):
+        """ skips escape key action
+
+        :param event: close event
+        :type event:  :class:`pyqtgraph.QtCore.QEvent`:
+        """
+        if event.key() != QtCore.Qt.Key_Escape:
+            QtGui.QDialog.keyPressEvent(self, event)
+        # else:
+        #     self.closeEvent(None)
