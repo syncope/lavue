@@ -219,17 +219,25 @@ class BaseSourceWidget(QtGui.QWidget):
         currentattr = currentattr or str(combobox.currentText()).strip()
         combobox.clear()
         attrs = sorted(atdict.keys())
+        try:
+            mkicon = QtGui.QIcon.fromTheme("starred")
+        except:
+            mkicon = QtGui.QIcon(":/star2.png")
+        try:
+            umkicon = QtGui.QIcon.fromTheme("non-starred")
+        except:
+            umkicon = QtGui.QIcon(":/star1.png")
         for mt in attrs:
             combobox.addItem(mt)
             iid = combobox.findText(mt)
             combobox.setItemData(
                 iid, str(atdict[mt]), QtCore.Qt.ToolTipRole)
-            combobox.setItemIcon(iid, QtGui.QIcon(":/star2.png"))
+            combobox.setItemIcon(iid, mkicon)
         for mt in list(atlist):
             if mt not in atdict.values():
                 combobox.addItem(mt)
                 iid = combobox.findText(mt)
-                combobox.setItemIcon(iid, QtGui.QIcon(":/star1.png"))
+                combobox.setItemIcon(iid, umkicon)
             else:
                 atlist = [mmt for mmt in atlist if mmt != mt]
                 if mt == currentattr:
@@ -240,7 +248,7 @@ class BaseSourceWidget(QtGui.QWidget):
         if currentattr not in attrs and currentattr not in atlist:
             combobox.addItem(currentattr)
             iid = combobox.findText(currentattr)
-            combobox.setItemIcon(iid, QtGui.QIcon(":/star1.png"))
+            combobox.setItemIcon(iid, umkicon)
         ind = combobox.findText(currentattr)
         combobox.setCurrentIndex(ind)
         self._connectComboBox(combobox)

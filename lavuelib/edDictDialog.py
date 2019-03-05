@@ -112,6 +112,10 @@ class EdDictDialog(QtGui.QDialog):
             if item is not None and item2 is not None:
                 name = item.data(QtCore.Qt.UserRole)
                 value = item2.data(QtCore.Qt.UserRole)
+                if hasattr(name, "toString"):
+                    name = name.toString()
+                if hasattr(value, "toString"):
+                    value = value.toString()
                 record[str(name)] = str(value)
         self.record = record
 

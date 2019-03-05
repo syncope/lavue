@@ -385,6 +385,9 @@ class LiveViewer(QtGui.QDialog):
         :param value: text value
         :type value: :obj:`str`
         """
+        name = str(name)
+        value = str(value)
+        print(name)
         labelvalues = json.loads(getattr(self.__settings, name) or '{}')
         dform = edDictDialog.EdDictDialog(self)
         dform.record = labelvalues
@@ -409,6 +412,8 @@ class LiveViewer(QtGui.QDialog):
         :param value: text value label to remove
         :type value: :obj:`str`
         """
+        name = str(name)
+        label = str(label)
         labelvalues = json.loads(getattr(self.__settings, name) or '{}')
         if label in labelvalues.keys():
             labelvalues.pop(label)
