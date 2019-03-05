@@ -387,7 +387,6 @@ class LiveViewer(QtGui.QDialog):
         """
         name = str(name)
         value = str(value)
-        print(name)
         labelvalues = json.loads(getattr(self.__settings, name) or '{}')
         dform = edDictDialog.EdDictDialog(self)
         dform.record = labelvalues
