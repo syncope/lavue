@@ -1,4 +1,8 @@
 2019-03-18 Jan Kotanski <jan.kotanski@desy.de>
+	* do not show image on empty plot
+	* tagged as 2.3.3
+
+2019-03-18 Jan Kotanski <jan.kotanski@desy.de>
 	* fix on reopening nexus server
 	* improve startup of test servers
 	* update hidra host list
