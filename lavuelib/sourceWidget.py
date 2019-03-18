@@ -249,7 +249,10 @@ class BaseSourceWidget(QtGui.QWidget):
             combobox.addItem(currentattr)
             iid = combobox.findText(currentattr)
             combobox.setItemIcon(iid, umkicon)
-        ind = combobox.findText(currentattr)
+        if currentattr:
+            ind = combobox.findText(currentattr)
+        else:
+            ind = 0
         combobox.setCurrentIndex(ind)
         self._connectComboBox(combobox)
 

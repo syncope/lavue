@@ -1,4 +1,5 @@
-2019-03-XX Jan Kotanski <jan.kotanski@desy.de>
+2019-03-18 Jan Kotanski <jan.kotanski@desy.de>
+	* fix on reopening nexus server
 	* improve startup of test servers
 	* update hidra host list
 	* tagged as 2.3.2
