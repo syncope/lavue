@@ -1,6 +1,7 @@
 2019-03-21 Jan Kotanski <jan.kotanski@desy.de>
 	* fix conventions rois coordinates for analysisdevice
 	* fix rois coordinate selection
+	* set default ROIs alias name
 	* tagged as 2.3.4
 
 2019-03-18 Jan Kotanski <jan.kotanski@desy.de>
