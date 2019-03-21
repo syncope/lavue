@@ -1074,14 +1074,17 @@ class ImageWidget(QtGui.QWidget):
             if self.__settings.analysisdevice:
                 flatrois = []
                 for crds in roicoords:
+                    if hasattr(self.__rawdata, "shape"):
+                        sh = self.__rawdata.shape
+                    else:
+                        sh = (0, 0)
                     if self.__settings.keepcoords:
+                        trans, leftright, updown = \
+                            self.__displaywidget.transformations()
+
                         flatrois.extend(
                             [crds[1], crds[3] + 1, crds[0], crds[2] + 1])
                     else:
-                        if hasattr(self.__rawdata, "shape"):
-                            sh = self.__rawdata.shape
-                        else:
-                            sh = (0, 0)
                         trans, leftright, updown = self.__selectedtrans
                         if not trans and not leftright and not updown:
                             flatrois.extend(
@@ -1120,6 +1123,16 @@ class ImageWidget(QtGui.QWidget):
                                  sh[1] - crds[3] - 1, sh[1] - crds[1]])
                         else:
                             raise Exception("Dead end")
+                    flatrois = [max(cr, 0) for cr in flatrois]
+                    if trans:
+                        sha, shb = sh
+                    else:
+                        shb, sha = sh
+                    for i in range(len(flatrois) // 4):
+                        flatrois[4 * i] = min(flatrois[4 * i], sha)
+                        flatrois[4 * i + 1] = min(flatrois[4 * i + 1], sha)
+                        flatrois[4 * i + 2] = min(flatrois[4 * i + 2], shb)
+                        flatrois[4 * i + 3] = min(flatrois[4 * i + 3], shb)
                 try:
                     adp = self.__sardana.openProxy(
                         str(self.__settings.analysisdevice))
