@@ -77,12 +77,14 @@ class LavueController (PyTango.Device_4Impl):
         self.attr_DetectorDistance_read = 0.0
         self.attr_DetectorROIs_read = ""
         self.attr_DetectorROIsValues_read = ""
+        self.attr_DetectorROIsParams_read = ""
         self.attr_Energy_read = 0.0
         self.set_change_event("BeamCenterX", True, False)
         self.set_change_event("BeamCenterY", True, False)
         self.set_change_event("DetectorDistance", True, False)
         self.set_change_event("DetectorROIs", True, False)
         self.set_change_event("DetectorROIsValues", True, False)
+        self.set_change_event("DetectorROIsParams", True, False)
         self.set_change_event("Energy", True, False)
         self.attr_DetectorROIs_read = "{}"
         self.attr_DetectorROIsValues_read = "{}"
@@ -252,6 +254,18 @@ class LavueController (PyTango.Device_4Impl):
                 self.initialize_dynamic_attributes()
             self.push_change_event(
                 "DetectorROIsValues", self.attr_DetectorROIsValues_read)
+
+    def read_DetectorROIsParams(self, attr):
+        self.debug_stream("In read_DetectorROIsParams()")
+        attr.set_value(self.attr_DetectorROIsParams_read)
+
+    def write_DetectorROIsParams(self, attr):
+        self.debug_stream("In write_DetectorROIsParams()")
+        data = attr.get_write_value()
+        if self.attr_DetectorROIsParams_read != str(data):
+            self.attr_DetectorROIsParams_read = str(data)
+            self.push_change_event(
+                "DetectorROIsParams", self.attr_DetectorROIsParams_read)
 
     def read_Energy(self, attr):
         self.debug_stream("In read_Energy()")
@@ -576,6 +590,17 @@ class LavueControllerClass(PyTango.DeviceClass):
                  "json dictionary with detector ROIs values, e.g.  "
                  "{'pilatusroi1': [26.3], 'lambdarois': [54.3, 434.30]]}",
                  'Memorized': "true"
+             }],
+        'DetectorROIsParams':
+            [[PyTango.DevString,
+              PyTango.SCALAR,
+              PyTango.READ_WRITE],
+             {
+                 'label': "detector ROIs parameters",
+                 'description': "json dictionary with detector ROIs "
+                 "parameters, e.g.  {`transpose`: False, "
+                 "`flip-lr`: True,  `flip-ud`: False}",
+                 'Memorized':"true"
              }],
         'Energy':
             [[PyTango.DevDouble,
