@@ -124,6 +124,8 @@ class ImageWidget(QtGui.QWidget):
         self.__lastrois = []
         #: (obj`list`) collection of last writing rois values
         self.__lastroisvalues = []
+        #: (obj`list`) collection of last writing rois parameters
+        self.__lastroisparams = tuple()
         #: (obj`str`) last text
         self.__lasttext = ""
         #: (obj`str`) roi labels
@@ -611,6 +613,22 @@ class ImageWidget(QtGui.QWidget):
         self.__selectedtrans = (orgtranspose, orgleftrightflip, orgupdownflip)
         self.__displaywidget.setTransformations(
             transpose, leftrightflip, updownflip)
+        if self.__tangoclient:
+            if self.__selectedtrans != self.__lastroisparams or \
+               self.__lastkeepcoords != self.__settings.keepcoords:
+                if not self.__settings.keepcoords:
+                    selectedtrans = self.__selectedtrans
+                else:
+                    selectedtrans = (False, False, False)
+                pars = {
+                    "transpose": selectedtrans[0],
+                    "flip-lr": selectedtrans[1],
+                    "flip-ud": selectedtrans[2]
+                }
+                self.__tangoclient.writeAttribute(
+                    "DetectorROIsParams", json.dumps(pars))
+                self.__lastroisparams = self.__selectedtrans
+                self.__lastkeepcoords = self.__settings.keepcoords
 
     def transformations(self):
         """ povides coordinates transformations
@@ -1039,7 +1057,16 @@ class ImageWidget(QtGui.QWidget):
                         toadd.append(lastalias)
                     else:
                         toremove.append(lastalias)
-
+            if not self.__settings.keepcoords:
+                selectedtrans = self.__selectedtrans
+            else:
+                selectedtrans = (False, False, False)
+            pars = {
+                "transpose": selectedtrans[0],
+                "flip-lr": selectedtrans[1],
+                "flip-ud": selectedtrans[2]
+            }
+            rois["DetectorROIsParams"] = pars
             self.__sardana.setScanEnv(
                 str(self.__settings.doorname), json.dumps(rois))
             warns = []
