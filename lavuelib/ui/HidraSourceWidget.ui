@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>280</width>
-    <height>72</height>
+    <height>76</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,6 +33,9 @@
       <widget class="QComboBox" name="serverComboBox">
        <property name="toolTip">
         <string>detector tangohost name</string>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
