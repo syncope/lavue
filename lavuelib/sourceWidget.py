@@ -473,8 +473,7 @@ class HidraSourceWidget(BaseSourceWidget):
         self._ui.currenthostLabel.setText(
             "%s:%s" % (self.__targetname, self.__portnumber))
 
-        self._ui.serverComboBox.currentIndexChanged.connect(
-            self.updateButton)
+        self._connectComboBox(self._ui.serverComboBox)
 
     def updateButton(self):
         """ update slot for Hidra source
