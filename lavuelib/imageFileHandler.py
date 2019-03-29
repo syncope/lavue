@@ -368,13 +368,15 @@ class CBFLoader(object):
         """
         image = np.array([0])
         inpoint = np.array([26, 4, 213], dtype='uint8')
+
+        # array with '--CIF-BINARY-FORMAT-SECTION---'
         outpoint = np.array(
             [45, 45, 67, 73, 70, 45, 66, 73, 78, 65, 82, 89, 45, 70,
              79, 82, 77, 65, 84, 45, 83, 69, 67, 84, 73, 79, 78, 45, 45, 45],
             dtype='uint8')
         flag = 0
 
-        # check if byte offset compress
+        # check if byte offset compress ('x-CBF_BYTE_OFFSET')
         boc = np.array(
             [120, 45, 67, 66, 70, 95, 66, 89, 84,
              69, 95, 79, 70, 70, 83, 69, 84],
@@ -387,19 +389,23 @@ class CBFLoader(object):
             flag = 1
 
         # additional parms for cross check if decompress worked out
+        # ('X-Binary-Number-of-Elements:')
         dset_num_ele = np.array(
             [88, 45, 66, 105, 110, 97, 114, 121, 45, 78, 117, 109, 98,
              101, 114, 45, 111, 102, 45, 69, 108, 101, 109, 101, 110,
              116, 115, 58],
             dtype='uint8')
+        # array with 'X-Binary-Size-Fastest-Dimension:'
         dset_fast_dim = np.array(
             [88, 45, 66, 105, 110, 97, 114, 121, 45, 83, 105, 122, 101, 45, 70,
              97, 115, 116, 101, 115, 116, 45, 68, 105, 109, 101, 110, 115, 105,
              111, 110, 58], dtype='uint8')
+        # array with 'X-Binary-Size-Second-Dimension:'
         dset_sec_dim = np.array(
             [88, 45, 66, 105, 110, 97, 114, 121, 45, 83, 105, 122, 101, 45, 83,
              101, 99, 111, 110, 100, 45, 68, 105, 109, 101, 110, 115, 105, 111,
              110, 58], dtype='uint8')
+        # array with 'X-Binary-Size-Padding:'
         dset_pad = np.array(
             [88, 45, 66, 105, 110, 97, 114, 121, 45, 83, 105, 122, 101, 45, 80,
              97, 100, 100, 105, 110, 103, 58], dtype='uint8')
