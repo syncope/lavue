@@ -389,13 +389,14 @@ class TangoFileSource(BaseSource):
                 filename = "%s/%s" % (dattr, filename)
                 for key, val in self.__dirtrans.items():
                     filename = filename.replace(key, val)
-            image = imageFileHandler.ImageFileHandler(
-                str(filename)).getImage()
+            fh = imageFileHandler.ImageFileHandler(str(filename))
+            image = fh.getImage()
+            mdata = fh.getMetaData()
             if image is not None:
                 if hasattr(image, "size"):
                     if image.size == 0:
                         return None, None, None
-                return (np.transpose(image), '%s' % (filename), "")
+                return (np.transpose(image), '%s' % (filename), mdata)
         except Exception as e:
             print(str(e))
             return str(e), "__ERROR__", ""
@@ -1182,11 +1183,14 @@ class HiDRASource(BaseSource):
 
             if data[:10] == "###CBF: VE":
                 print("[cbf source module]::metadata", metadata["filename"])
-                img = imageFileHandler.CBFLoader().load(
-                    np.fromstring(data[:], dtype=np.uint8))
+                npdata = np.fromstring(data[:], dtype=np.uint8)
+                img = imageFileHandler.CBFLoader().load(npdata)
+                
+                mdata = imageFileHandler.CBFLoader().metadata(npdata)
+                
                 if hasattr(img, "size") and img.size == 0:
                     return None, None, None
-                return np.transpose(img), metadata["filename"], ""
+                return np.transpose(img), metadata["filename"], mdata
             else:
                 # elif data[:2] in ["II\x2A\x00", "MM\x00\x2A"]:
                 print("[tif source module]::metadata", metadata["filename"])
