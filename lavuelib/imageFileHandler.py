@@ -386,9 +386,11 @@ class CBFLoader(object):
         headerend = '_array_data.data'
         mdata = {}
         try:
-            if hasattr(flbuffer, "tostring"): 
-                hspos = flbuffer.tostring().index(headerstart) // flbuffer.itemsize
-                hepos = flbuffer.tostring().index(headerend) // flbuffer.itemsize
+            if hasattr(flbuffer, "tostring"):
+                hspos = flbuffer.tostring().index(headerstart) // \
+                    flbuffer.itemsize
+                hepos = flbuffer.tostring().index(headerend) // \
+                    flbuffer.itemsize
                 flbuffer = flbuffer[hspos:hepos + 1].tostring()
         except Exception as e:
             print(str(e))
@@ -406,7 +408,7 @@ class CBFLoader(object):
                     dt = hd.split(" ")[3:]
                     if dt and len(dt) == 2:
                         dt = (float(dt[0]), dt[1])
-                    mdata["silicon_sensor_thickness"] = dt 
+                    mdata["silicon_sensor_thickness"] = dt
                 else:
                     dt = hd.split(" ")
                     name = dt[0].strip().lower()
@@ -461,19 +463,19 @@ class CBFLoader(object):
                         elif dt[3] == '=':
                             try:
                                 dt = [dt[0], dt[1],
-                                      {dt[2].strip("(), "): float(dt[4].strip("(), "))}]
+                                      {dt[2].strip("(), "):
+                                       float(dt[4].strip("(), "))}]
                             except ValueError:
                                 pass
-                            
+
                     mdata[name] = dt
             except Exception as e:
                 print(str(e))
-        if mdata:        
+        if mdata:
             return json.dumps(mdata)
         else:
             return ""
-            
-        
+
     @classmethod
     def load(cls, flbuffer):
         """ loads CBF file image data into numpy array

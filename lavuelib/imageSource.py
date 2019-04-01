@@ -1185,9 +1185,9 @@ class HiDRASource(BaseSource):
                 print("[cbf source module]::metadata", metadata["filename"])
                 npdata = np.fromstring(data[:], dtype=np.uint8)
                 img = imageFileHandler.CBFLoader().load(npdata)
-                
+
                 mdata = imageFileHandler.CBFLoader().metadata(npdata)
-                
+
                 if hasattr(img, "size") and img.size == 0:
                     return None, None, None
                 return np.transpose(img), metadata["filename"], mdata
