@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>622</width>
-    <height>851</height>
+    <height>871</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -252,6 +252,16 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="0" column="1">
+                     <widget class="QDoubleSpinBox" name="rateDoubleSpinBox">
+                      <property name="toolTip">
+                       <string>refresh rate of the image in seconds</string>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="3" column="1">
                      <widget class="QCheckBox" name="keepCoordsCheckBox">
                       <property name="text">
@@ -269,16 +279,6 @@
                       </property>
                       <property name="buddy">
                        <cstring>rateDoubleSpinBox</cstring>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="1">
-                     <widget class="QDoubleSpinBox" name="rateDoubleSpinBox">
-                      <property name="toolTip">
-                       <string>refresh rate of the image in seconds</string>
-                      </property>
-                      <property name="singleStep">
-                       <double>0.010000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -312,6 +312,29 @@
                       </property>
                       <property name="buddy">
                        <cstring>sourcedisplayCheckBox</cstring>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="1">
+                     <widget class="QCheckBox" name="fetchgeometryCheckBox">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fetch geometry from an image source, e.g. CBF files&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="0">
+                     <widget class="QLabel" name="fetchgeometryLabel">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fetch geometry from an image source, e.g. CBF files&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string>Geometry from a source:</string>
+                      </property>
+                      <property name="buddy">
+                       <cstring>fetchgeometryCheckBox</cstring>
                       </property>
                      </widget>
                     </item>
@@ -1217,6 +1240,7 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>sendroisCheckBox</tabstop>
   <tabstop>interruptCheckBox</tabstop>
   <tabstop>sourcedisplayCheckBox</tabstop>
+  <tabstop>fetchgeometryCheckBox</tabstop>
   <tabstop>statsscaleCheckBox</tabstop>
   <tabstop>secstreamCheckBox</tabstop>
   <tabstop>secautoportCheckBox</tabstop>

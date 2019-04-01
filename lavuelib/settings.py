@@ -134,6 +134,8 @@ class Settings(object):
         self.detservers = []
         #: (:obj:`bool`) store detector geometry
         self.storegeometry = False
+        #: (:obj:`bool`) fetch geometry from source
+        self.geometryfromsource = False
         #: (:obj:`str`) json list with roi colors
         self.roiscolors = "[]"
 
@@ -389,6 +391,11 @@ class Settings(object):
             self.storegeometry = True
 
         qstval = str(
+            settings.value("Configuration/GeometryFromSource", type=str))
+        if qstval.lower() == "true":
+            self.geometryfromsource = True
+
+        qstval = str(
             settings.value("Configuration/ROIsColors", type=str))
         if qstval:
             self.roiscolors = qstval
@@ -554,6 +561,9 @@ class Settings(object):
             "Configuration/StoreGeometry",
             self.storegeometry)
         settings.setValue(
+            "Configuration/GeometryFromSource",
+            self.geometryfromsource)
+        settings.setValue(
             "Configuration/ROIsColors",
             self.roiscolors)
         settings.setValue(
@@ -593,6 +603,223 @@ class Settings(object):
             "Tools/DetectorDistance",
             self.detdistance)
         self.__storeDisplayParams(settings)
+
+    def length2ev(self, length):
+        """ converts length to energy  in eV
+
+        :param length: length as value in A or tuple with units
+        :type length: :obj:`float` or (:obj:`float`, :obj:`str`)
+        :returns: energy in eV
+        :rtype: :obj:`float`
+        """
+        energy = None
+        #: :obj:`float`  value of hc in eV * um
+        hc = 1.23984193
+        if length is not None:
+            if isinstance(length, [list, tuple]):
+                if len(length) == 1:
+                    energy = hc * 10000 / length[0]
+                elif len(length) > 1:
+                    if length[1] == 'A':
+                        energy = hc * 10000 / length[0]
+                    elif length[1] == 'um':
+                        energy = hc / length[0]
+                    elif length[1] == 'm':
+                        energy = hc * 10e-6 / length[0]
+                    elif length[1] == 'mm':
+                        energy = hc * 10e-3 / length[0]
+                    elif length[1] == 'cm':
+                        energy = hc * 10e-4 / length[0]
+            else:
+                energy = hc * 10000 / length
+        return energy
+
+    def distance2mm(self, distance):
+        """ converts distance to mm units
+
+        :param distance: distance as value in m or tuple with units
+        :type distance: :obj:`float` or (:obj:`float`, :obj:`str`)
+        :returns: distance in mm
+        :rtype: :obj:`float`
+        """
+        res = None
+        if distance is not None:
+            if isinstance(distance, [list, tuple]):
+                if len(distance) == 1:
+                    res = distance[0] * 10e+3
+                elif len(distance) > 1:
+                    if distance[1] == 'A':
+                        res = distance[0] * 10e-7
+                    elif distance[1] == 'um':
+                        res = distance[0] * 10e-3
+                    elif distance[1] == 'km':
+                        res = distance[0] * 10e+6
+                    elif distance[1] == 'm':
+                        res = distance[0] * 10e+3
+                    elif distance[1] == 'mm':
+                        res = distance[0]
+                    elif distance[1] == 'cm':
+                        res = distance * 10e-1
+            else:
+                res = distance * 10e+3
+        return res
+
+    def distance2um(self, distance):
+        """ converts distance to um units
+
+        :param distance: distance as value in m or tuple with units
+        :type distance: :obj:`float` or (:obj:`float`, :obj:`str`)
+        :returns: distance in um
+        :rtype: :obj:`float`
+        """
+        res = None
+        if distance is not None:
+            if isinstance(distance, [list, tuple]):
+                if len(distance) == 1:
+                    res = distance[0] * 10e+6
+                elif len(distance) > 1:
+                    if distance[1] == 'A':
+                        res = distance[0] * 10e-4
+                    elif distance[1] == 'um':
+                        res = distance[0]
+                    elif distance[1] == 'km':
+                        res = distance[0] * 10e+9
+                    elif distance[1] == 'm':
+                        res = distance[0] * 10e+6
+                    elif distance[1] == 'mm':
+                        res = distance[0] * 10e+3
+                    elif distance[1] == 'cm':
+                        res = distance * 10e+4
+            else:
+                res = distance * 10e+6
+        return res
+
+    def distance2pixels(self, distance, psize):
+        """ converts distance to pixels
+
+        :param distance: distance as value in pixels or tuple with units
+        :type distance: :obj:`float` or (:obj:`float`, :obj:`str`)
+        :param psize: pixel size
+        :type psize: :obj:`float`
+        :returns: distance in pixels
+        :rtype: :obj:`float`
+        """
+        res = None
+        if distance is not None:
+            if isinstance(distance, [list, tuple]):
+                if len(distance) == 1:
+                    res = distance[0]
+                elif len(distance) > 1:
+                    if distance[1] in ['pixels', 'pixel']:
+                        res = distance[0]
+                    elif distance[1] == 'um':
+                        res = distance[0] / psize
+                    elif distance[1] == 'm':
+                        res = distance[0] * 10e-6 / psize
+                    if distance[1] == 'A':
+                        res = distance[0] * 10e+4 / psize
+                    elif distance[1] == 'mm':
+                        res = distance[0] * 10e-3 / psize
+                    elif distance[1] == 'cm':
+                        res = distance[0] * 10e-4 / psize
+            else:
+                res = distance
+        return res
+
+    def pixelsize2um(self, psize):
+        """ converts pixel size to um units
+
+        :param psize: pixelsize as value in m or tuple with units
+        :type psize: :obj:`float` or
+               (:obj:`float`, :obj:`str`, :obj:`float`, :obj:`str`)
+        :returns: pixelsize in  um
+        :rtype: (:obj:`float`, :obj:`float`)
+        """
+        resx = None
+        resy = None
+        if psize is not None:
+            if isinstance(psize, [list, tuple]):
+                if len(psize) == 2:
+                    resx, resy = (psize[0] * 10e+6, psize[1] * 10e+6)
+                elif len(psize) > 2:
+                    if len(psize) == 3:
+                        px, py, ux = psize
+                        uy = ux
+                    elif len(psize) >= 4:
+                        px, ux,  py, uy = psize
+                    resx = self.distance2um([px, ux])
+                    resy = self.distance2um([py, uy])
+        return resx, resy
+
+    def xyposition2um(self, xypos):
+        """ converts xy position to pixel units
+
+        :param xypos: xy-position a tuple value or tuple with units
+        :type xypos: :obj:`float` or
+               (:obj:`float`, :obj:`str`, :obj:`float`, :obj:`str`)
+        :returns: xy-position in  pixels
+        :rtype: (:obj:`float`, :obj:`float`)
+        """
+        resx = None
+        resy = None
+        if xypos is not None:
+            if isinstance(xypos, [list, tuple]):
+                if len(xypos) == 2:
+                    resx, resy = xypos
+                elif len(xypos) > 2:
+                    if len(xypos) == 3:
+                        px, py, ux = xypos
+                        uy = ux
+                    elif len(xypos) >= 4:
+                        px, ux,  py, uy = xypos
+                    resx = self.distance2pixels([px, ux], self.pixelsizex)
+                    resy = self.distance2pixels([py, uy], self.pixelsizey)
+        return resx, resy
+
+    def updateMetaData(self, **kargs):
+        """ update physical parameters
+
+        :param kargs:  physical parameter dictionary
+        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        # #: (:obj:`float`) x-coordinates of the center of the image
+        # self.centerx = 0.0
+        # #: (:obj:`float`) y-coordinates of the center of the image
+        # self.centery = 0.0
+        # #: (:obj:`float`) energy in eV
+        # self.energy = 0.0
+        # #: (:obj:`float`) pixel x-size in um
+        # self.pixelsizex = 0.0
+        # #: (:obj:`float`) pixel y-size in um
+        # self.pixelsizey = 0.0
+        # #: (:obj:`float`) detector distance in mm
+        # self.detdistance = 0.0
+        # beam_xy pixels
+        # wavelength A
+        # detector_distance m
+        # pixel_size m
+
+        if "wavelength" in kargs.keys():
+            energy = self.length2ev(kargs["wavelength"])
+            if energy is not None:
+                self.energy = energy
+
+        if "detector_distance" in kargs.keys():
+            detdistance = self.distance2mm(kargs["detector_distance"])
+            if detdistance is not None:
+                self.detdistance = detdistance
+
+        if "pixel_size" in kargs.keys():
+            psizex, psizey = self.pixelsize2um(kargs["pixel_size"])
+            if psizex is not None and psizey is not None:
+                self.pixelsizex = psizex
+                self.pixelsizey = psizey
+
+        if "beam_xy" in kargs.keys():
+            cx, cy = self.xyposition2pixel(kargs["beam_xy"])
+            if psizex is not None and psizey is not None:
+                self.centerx = cx
+                self.centery = cy
 
     def __storeDisplayParams(self, settings):
         """ Stores display parameters settings in QSettings object

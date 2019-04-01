@@ -139,6 +139,8 @@ class ConfigDialog(QtGui.QDialog):
         self.nxslast = False
         #: (:obj:`bool`) store detector geometry
         self.storegeometry = False
+        #: (:obj:`bool`) fetch geometry from source
+        self.geometryfromsource = False
         #: (:obj:`str`) json list with rois colors
         self.roiscolors = "[]"
         #: (:obj:`list`<:class:`pyqtgraph.ColorButton`>)
@@ -225,6 +227,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.nxsopenCheckBox.setChecked(self.nxsopen)
         self.__ui.nxslastCheckBox.setChecked(self.nxslast)
         self.__ui.storegeometryCheckBox.setChecked(self.storegeometry)
+        self.__ui.fetchgeometryCheckBox.setChecked(self.geometryfromsource)
         self.__ui.sendroisCheckBox.setChecked(self.sendrois)
         self.__ui.showallroisCheckBox.setChecked(self.showallrois)
         self.__ui.sourcedisplayCheckBox.setChecked(self.sourcedisplay)
@@ -339,6 +342,7 @@ class ConfigDialog(QtGui.QDialog):
         self.nxsopen = self.__ui.nxsopenCheckBox.isChecked()
         self.nxslast = self.__ui.nxslastCheckBox.isChecked()
         self.storegeometry = self.__ui.storegeometryCheckBox.isChecked()
+        self.geometryfromsource = self.__ui.fetchgeometryCheckBox.isChecked()
         self.sendrois = self.__ui.sendroisCheckBox.isChecked()
         self.showallrois = self.__ui.showallroisCheckBox.isChecked()
         self.sourcedisplay = self.__ui.sourcedisplayCheckBox.isChecked()

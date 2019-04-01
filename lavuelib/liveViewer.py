@@ -850,6 +850,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.sendrois = self.__settings.sendrois
         cnfdlg.showallrois = self.__settings.showallrois
         cnfdlg.storegeometry = self.__settings.storegeometry
+        cnfdlg.geometryfromsource = self.__settings.geometryfromsource
         cnfdlg.roiscolors = self.__settings.roiscolors
         cnfdlg.sourcedisplay = self.__settings.sourcedisplay
         cnfdlg.createGUI()
@@ -937,6 +938,7 @@ class LiveViewer(QtGui.QDialog):
 
         self.__settings.secstream = dialog.secstream
         self.__settings.storegeometry = dialog.storegeometry
+        self.__settings.geometryfromsource = dialog.geometryfromsource
         self.__settings.interruptonerror = dialog.interruptonerror
         self.__settings.sourcedisplay = dialog.sourcedisplay
         setsrc = False
@@ -1329,6 +1331,8 @@ class LiveViewer(QtGui.QDialog):
                         self.__imagewg.updateMetaData(**wgdata)
                     if resdata:
                         self.__sourcewg.updateMetaData(**resdata)
+                    if self.__settings.geometryfromsource:
+                        self.__settings.updateMetaData(**mdata)
             except Exception as e:
                 print(str(e))
         elif str(name).strip():
