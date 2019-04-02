@@ -1210,7 +1210,7 @@ class LiveViewer(QtGui.QDialog):
 
         # if needed, update the level display
         if auto:
-            self.__levelswg.updateLevels(minval, maxsval)
+            self.__levelswg.updateAutoLevels(minval, maxsval)
 
     @QtCore.pyqtSlot()
     def _startPlotting(self):

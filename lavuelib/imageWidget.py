@@ -665,8 +665,8 @@ class ImageWidget(QtGui.QWidget):
     def setAutoLevels(self, autolevels):
         """ sets auto levels
 
-        :param autolevels: auto levels enabled
-        :type autolevels: :obj:`bool`
+        :param autolevels: 2: auto levels enabled 1: with autofactor
+        :type autolevels: :obj:'int`
         """
         self.__displaywidget.setAutoLevels(autolevels)
 

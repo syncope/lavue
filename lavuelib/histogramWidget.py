@@ -280,6 +280,32 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         else:
             return self.imageItem()
 
+    def getFactorRegion(self):
+        """ provides auto levels calculated from autofactor
+
+        :returns: minlevel, maxlevel
+        :rtype: (float, float)
+
+        """
+
+        hx = None
+        hy = None
+        if self.autolevelfactor is not None:
+            hx, hy = self.__imageItem().getHistogram()
+            if hy is not None and hx is not None and hx.any() and hy.any():
+                if abs(hx[0]) < 1.e-3 or abs(hx[0]+2.) < 1.e-3:
+                    hx = hx[1:]
+                    hy = hy[1:]
+                if hx.any() and hy.any():
+                    hmax = max(hy)
+                    hmin = self.autolevelfactor*hmax/100.
+                    mn, mx = self.__imageItem().levels
+                    indexes = np.where(hy >= hmin)
+                    ind1 = indexes[0][0]
+                    ind2 = indexes[-1][-1]
+                    return hx[ind1], hx[ind2]
+        return None, None
+
     def imageChanged(self, autoLevel=False, autoRange=False):
 
         hx = None

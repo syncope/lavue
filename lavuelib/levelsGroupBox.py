@@ -246,7 +246,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.autoLevelsChanged.emit(1)
         except Exception:
             self.__histogram.setAutoFactor(None)
-            self.autoLevelsChanged.emit(self.__auto)
+            self.autoLevelsChanged.emit(2 if self.__auto else 0)
         self.levelsChanged.emit()
 
     @QtCore.pyqtSlot(int)
@@ -268,7 +268,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 self.__histogram.setAutoFactor(ffactor)
             except Exception:
                 self.__histogram.setAutoFactor(None)
-                self.autoLevelsChanged.emit(1)
+                self.autoLevelsChanged.emit(2)
         else:
             self.__histogram.setAutoFactor(None)
             self.__auto = False
@@ -327,6 +327,27 @@ class LevelsGroupBox(QtGui.QGroupBox):
             levels = self.__histogram.region.getRegion()
             if levels[0] != lowlim or levels[1] != uplim:
                 self.__histogram.region.setRegion([lowlim, uplim])
+
+    def updateAutoLevels(self, lowlim, uplim):
+        """ set min/max level spinboxes and histogram from the parameters
+
+        :param lowlim: minimum intensity value
+        :type lowlim: :obj:`float`
+        :param uplim:  maximum intensity value
+        :type uplim: :obj:`float`
+        """
+        try:
+            factor = str(self.__ui.autofactorLineEdit.text())
+            float(factor)
+            llim, ulim = self.__histogram.getFactorRegion()
+            if llim is not None and ulim is not None:
+                self.updateLevels(llim, ulim)
+                self.minLevelChanged.emit(llim)
+                self.maxLevelChanged.emit(ulim)
+            else:
+                self.updateLevels(lowlim, uplim)
+        except Exception:
+            self.updateLevels(lowlim, uplim)
 
     def __hideControls(self):
         """ disables spinboxes
