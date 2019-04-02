@@ -791,13 +791,14 @@ class LiveViewer(QtGui.QDialog):
                     print(str(e))
             if newimage is not None:
                 self.__metadata = metadata
-                mdata = json.loads(str(metadata))
-                if self.__settings.geometryfromsource:
-                    self.__settings.updateMetaData(**mdata)
-                    self.__imagewg.updateCenter(
-                        self.__settings.centerx, self.__settings.centery)
-                    self.__imagewg.mouseImagePositionChanged.emit()
-                    self.__imagewg.geometryChanged.emit()
+                if metadata:
+                    mdata = json.loads(str(metadata))
+                    if self.__settings.geometryfromsource:
+                        self.__settings.updateMetaData(**mdata)
+                        self.__imagewg.updateCenter(
+                            self.__settings.centerx, self.__settings.centery)
+                        self.__imagewg.mouseImagePositionChanged.emit()
+                        self.__imagewg.geometryChanged.emit()
                 self.__imagename = imagename
                 self.__rawimage = np.transpose(newimage)
                 self._plot()
