@@ -782,12 +782,22 @@ class LiveViewer(QtGui.QDialog):
                 self.__fieldpath = None
                 self.__settings.imagename = imagename
                 try:
-                    newimage = imageFileHandler.ImageFileHandler(
-                        str(self.__settings.imagename)).getImage()
+                    fh = imageFileHandler.ImageFileHandler(
+                        str(self.__settings.imagename))
+                    newimage = fh.getImage()
+                    metadata = fh.getMetaData()
                     self.__updateframeview()
                 except Exception as e:
                     print(str(e))
             if newimage is not None:
+                self.__metadata = metadata
+                mdata = json.loads(str(metadata))
+                if self.__settings.geometryfromsource:
+                    self.__settings.updateMetaData(**mdata)
+                    self.__imagewg.updateCenter(
+                        self.__settings.centerx, self.__settings.centery)
+                    self.__imagewg.mouseImagePositionChanged.emit()
+                    self.__imagewg.geometryChanged.emit()
                 self.__imagename = imagename
                 self.__rawimage = np.transpose(newimage)
                 self._plot()
@@ -1333,6 +1343,10 @@ class LiveViewer(QtGui.QDialog):
                         self.__sourcewg.updateMetaData(**resdata)
                     if self.__settings.geometryfromsource:
                         self.__settings.updateMetaData(**mdata)
+                        self.__imagewg.updateCenter(
+                            self.__settings.centerx, self.__settings.centery)
+                        self.__imagewg.mouseImagePositionChanged.emit()
+                        self.__imagewg.geometryChanged.emit()
             except Exception as e:
                 print(str(e))
         elif str(name).strip():

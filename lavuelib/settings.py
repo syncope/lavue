@@ -616,7 +616,7 @@ class Settings(object):
         #: :obj:`float`  value of hc in eV * um
         hc = 1.23984193
         if length is not None:
-            if isinstance(length, [list, tuple]):
+            if type(length) in [list, tuple]:
                 if len(length) == 1:
                     energy = hc * 10000 / length[0]
                 elif len(length) > 1:
@@ -625,11 +625,11 @@ class Settings(object):
                     elif length[1] == 'um':
                         energy = hc / length[0]
                     elif length[1] == 'm':
-                        energy = hc * 10e-6 / length[0]
+                        energy = hc * 1e-6 / length[0]
                     elif length[1] == 'mm':
-                        energy = hc * 10e-3 / length[0]
+                        energy = hc * 1e-3 / length[0]
                     elif length[1] == 'cm':
-                        energy = hc * 10e-4 / length[0]
+                        energy = hc * 1e-4 / length[0]
             else:
                 energy = hc * 10000 / length
         return energy
@@ -644,24 +644,24 @@ class Settings(object):
         """
         res = None
         if distance is not None:
-            if isinstance(distance, [list, tuple]):
+            if type(distance) in [list, tuple]:
                 if len(distance) == 1:
-                    res = distance[0] * 10e+3
+                    res = distance[0] * 1e+3
                 elif len(distance) > 1:
                     if distance[1] == 'A':
-                        res = distance[0] * 10e-7
+                        res = distance[0] * 1e-7
                     elif distance[1] == 'um':
-                        res = distance[0] * 10e-3
+                        res = distance[0] * 1e-3
                     elif distance[1] == 'km':
-                        res = distance[0] * 10e+6
+                        res = distance[0] * 1e+6
                     elif distance[1] == 'm':
-                        res = distance[0] * 10e+3
+                        res = distance[0] * 1e+3
                     elif distance[1] == 'mm':
                         res = distance[0]
                     elif distance[1] == 'cm':
-                        res = distance * 10e-1
+                        res = distance * 1e-1
             else:
-                res = distance * 10e+3
+                res = distance * 1e+3
         return res
 
     def distance2um(self, distance):
@@ -674,24 +674,24 @@ class Settings(object):
         """
         res = None
         if distance is not None:
-            if isinstance(distance, [list, tuple]):
+            if type(distance) in [list, tuple]:
                 if len(distance) == 1:
-                    res = distance[0] * 10e+6
+                    res = distance[0] * 1e+6
                 elif len(distance) > 1:
                     if distance[1] == 'A':
-                        res = distance[0] * 10e-4
+                        res = distance[0] * 1e-4
                     elif distance[1] == 'um':
                         res = distance[0]
                     elif distance[1] == 'km':
-                        res = distance[0] * 10e+9
+                        res = distance[0] * 1e+9
                     elif distance[1] == 'm':
-                        res = distance[0] * 10e+6
+                        res = distance[0] * 1e+6
                     elif distance[1] == 'mm':
-                        res = distance[0] * 10e+3
+                        res = distance[0] * 1e+3
                     elif distance[1] == 'cm':
-                        res = distance * 10e+4
+                        res = distance * 1e+4
             else:
-                res = distance * 10e+6
+                res = distance * 1e+6
         return res
 
     def distance2pixels(self, distance, psize):
@@ -706,7 +706,7 @@ class Settings(object):
         """
         res = None
         if distance is not None:
-            if isinstance(distance, [list, tuple]):
+            if type(distance) in [list, tuple]:
                 if len(distance) == 1:
                     res = distance[0]
                 elif len(distance) > 1:
@@ -715,13 +715,13 @@ class Settings(object):
                     elif distance[1] == 'um':
                         res = distance[0] / psize
                     elif distance[1] == 'm':
-                        res = distance[0] * 10e-6 / psize
+                        res = distance[0] * 1e-6 / psize
                     if distance[1] == 'A':
-                        res = distance[0] * 10e+4 / psize
+                        res = distance[0] * 1e+4 / psize
                     elif distance[1] == 'mm':
-                        res = distance[0] * 10e-3 / psize
+                        res = distance[0] * 1e-3 / psize
                     elif distance[1] == 'cm':
-                        res = distance[0] * 10e-4 / psize
+                        res = distance[0] * 1e-4 / psize
             else:
                 res = distance
         return res
@@ -738,9 +738,16 @@ class Settings(object):
         resx = None
         resy = None
         if psize is not None:
-            if isinstance(psize, [list, tuple]):
+            if type(psize) in [list, tuple]:
                 if len(psize) == 2:
-                    resx, resy = (psize[0] * 10e+6, psize[1] * 10e+6)
+                    if type(psize[0]) in [list, tuple]:
+                        resx = self.distance2um(psize[0])
+                    else:
+                        resx = psize[0] * 1e+6
+                    if type(psize[1]) in [list, tuple]:
+                        resy = self.distance2um(psize[1])
+                    else:
+                        resy = psize[1] * 1e+6
                 elif len(psize) > 2:
                     if len(psize) == 3:
                         px, py, ux = psize
@@ -751,7 +758,7 @@ class Settings(object):
                     resy = self.distance2um([py, uy])
         return resx, resy
 
-    def xyposition2um(self, xypos):
+    def xyposition2pixels(self, xypos):
         """ converts xy position to pixel units
 
         :param xypos: xy-position a tuple value or tuple with units
@@ -763,9 +770,17 @@ class Settings(object):
         resx = None
         resy = None
         if xypos is not None:
-            if isinstance(xypos, [list, tuple]):
+            if type(xypos) in [list, tuple]:
                 if len(xypos) == 2:
-                    resx, resy = xypos
+                    if type(xypos[0]) in [list, tuple]:
+                        resx = self.distance2pixels(xypos[0], self.pixelsizex)
+                    else:
+                        resx = xypos[0]
+                    if type(xypos[1]) in [list, tuple]:
+                        resy = self.distance2pixels(xypos[1], self.pixelsizey)
+                    else:
+                        resy = xypos[1]
+
                 elif len(xypos) > 2:
                     if len(xypos) == 3:
                         px, py, ux = xypos
@@ -816,7 +831,7 @@ class Settings(object):
                 self.pixelsizey = psizey
 
         if "beam_xy" in kargs.keys():
-            cx, cy = self.xyposition2pixel(kargs["beam_xy"])
+            cx, cy = self.xyposition2pixels(kargs["beam_xy"])
             if psizex is not None and psizey is not None:
                 self.centerx = cx
                 self.centery = cy
