@@ -646,14 +646,14 @@ class TangoEventsSource(BaseSource):
         :type timeout: :obj:`int`
         """
         BaseSource.__init__(self, timeout)
-        #: (:class`PyTango.AttributeProxy`:)
-        #:      device proxy for the image attribute
         #: (:obj:`bool`) reading flag
         self.reading = False
-        # (:obj:`bool`) fresh attribute flag
+        #: (:obj:`bool`) fresh attribute flag
         self.fresh = False
         #: (:class:`pyqtgraph.QtCore.QMutex`) mutex lock for CB
         self.__mutex = QtCore.QMutex()
+        #: (:class`PyTango.DeviceProxy`:)
+        #:      device proxy for the image attribute
         self.__proxy = None
         self.__attrid = None
         self.attr = None

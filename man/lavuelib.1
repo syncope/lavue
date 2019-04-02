@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Jan 14, 2019" "2.0" "lavuelib"
+.TH "LAVUELIB" "1" "Apr 02, 2019" "2.5" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -412,6 +412,32 @@ create GUI
 .TP
 .B door = None
 (\fI\%str\fP) device name of sardana door
+.UNINDENT
+.INDENT 7.0
+.TP
+.B eventFilter(obj, event)
+event filter
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – qt object
+.IP \(bu 2
+\fBevent\fP – qt event
+.UNINDENT
+.TP
+.B Returns
+status flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B geometryfromsource = None
+(\fI\%bool\fP) fetch geometry from source
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -4190,7 +4216,7 @@ file object
 A list of possible hidra servers. Take your pick.
 .INDENT 0.0
 .TP
-.B lavuelib.hidraServerList.HIDRASERVERLIST = {\(aqp03\(aq: [\(aqhaspp03pilatus.desy.de\(aq], \(aqp08\(aq: [\(aqhaspp08pil100.desy.de\(aq, \(aqhaspp08perk01.desy.de\(aq], \(aqp09\(aq: [\(aqhaspp09pilatus.desy.de\(aq], \(aqp10\(aq: [\(aqhaspp10pilatus.desy.de\(aq], \(aqp11\(aq: [\(aqhaspp11pilatus.desy.de\(aq], \(aqpool\(aq: [\(aqhaspilatus300k.desy.de\(aq, \(aqhaspilatus1m.desy.de\(aq, \(aqhaso233det.desy.de\(aq]}
+.B lavuelib.hidraServerList.HIDRASERVERLIST = {\(aqp03\(aq: [\(aqhaspp03pilatus.desy.de\(aq], \(aqp08\(aq: [\(aqhaspp08pil100.desy.de\(aq, \(aqhaspp08perk01.desy.de\(aq], \(aqp09\(aq: [\(aqhaspp09pilatus.desy.de\(aq], \(aqp10\(aq: [\(aqhaspp10pilatus.desy.de\(aq], \(aqp11\(aq: [\(aqhaspp11pilatus.desy.de\(aq], \(aqpool\(aq: [\(aqhaspilatus300k.desy.de\(aq, \(aqhaspilatus1m.desy.de\(aq, \(aqhaspilatus100k.desy.de\(aq]}
 (\fI\%dict\fP < \fI\%str\fP, \fBlist\fP <\fI\%str\fP> >)
 server dictionary
 .UNINDENT
@@ -4891,6 +4917,22 @@ image data
 \fI\%numpy.ndarray\fP
 .UNINDENT
 .UNINDENT
+.INDENT 7.0
+.TP
+.B classmethod metadata(flbuffer)
+extract header_contents from CBF file image data
+.INDENT 7.0
+.TP
+.B Parameters
+\fBflbuffer\fP (\fI\%numpy.ndarray\fP or \fI\%str\fP) – numpy array with CBF file image data
+.TP
+.B Returns
+metadata dictionary
+.TP
+.B Return type
+\fI\%numpy.ndarray\fP
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
@@ -4922,6 +4964,19 @@ image data
 .TP
 .B Return type
 \fI\%numpy.ndarray\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B getMetaData()
+provides the image metadata
+.INDENT 7.0
+.TP
+.B Returns
+JSON dictionary with image metadata
+.TP
+.B Return type
+\fI\%str\fP
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5331,6 +5386,79 @@ image name, image data, json dictionary with metadata
 .B Return type
 (\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
 .UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.imageSource.TangoEventsCB(client, name, mutex)
+Bases: \fI\%object\fP
+.sp
+tango attribute callback class
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBclient\fP (\fI\%str\fP) – tango controller client
+.IP \(bu 2
+\fBname\fP (\fI\%str\fP) – attribute name
+.IP \(bu 2
+\fBmutex\fP – mutex lock for CB
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B push_event(*args, **kwargs)
+callback method receiving the event
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.imageSource.TangoEventsSource(timeout=None)
+Bases: \fI\%lavuelib.imageSource.BaseSource\fP
+.sp
+image source as IMAGE Tango attribute
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.UNINDENT
+.INDENT 7.0
+.TP
+.B connect()
+connects the source
+.UNINDENT
+.INDENT 7.0
+.TP
+.B disconnect()
+disconnects the source
+.UNINDENT
+.INDENT 7.0
+.TP
+.B fresh = None
+(\fI\%bool\fP) fresh attribute flag
+.UNINDENT
+.INDENT 7.0
+.TP
+.B getData()
+provides image name, image data and metadata
+.INDENT 7.0
+.TP
+.B Returns
+image name, image data, json dictionary with metadata
+.TP
+.B Return type
+(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B reading = None
+(\fI\%bool\fP) reading flag
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -6073,7 +6201,7 @@ sets auto levels
 .INDENT 7.0
 .TP
 .B Parameters
-\fBautolevels\fP (\fI\%bool\fP) – auto levels enabled
+\fBautolevels\fP (\fI:obj:\(aqint\(ga\fP) – 2: auto levels enabled 1: with autofactor
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -6238,7 +6366,7 @@ sets tool from string
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setTransformations(transpose, leftrightflip, updownflip)
+.B setTransformations(transpose, leftrightflip, updownflip, orgtranspose, orgleftrightflip, orgupdownflip)
 sets coordinate transformations
 .INDENT 7.0
 .TP
@@ -6250,6 +6378,12 @@ sets coordinate transformations
 \fBleftrightflip\fP (\fI\%bool\fP) – left\-right flip coordinates flag
 .IP \(bu 2
 \fBupdownflip\fP (\fI\%bool\fP) – up\-down flip coordinates flag
+.IP \(bu 2
+\fBorgtranspose\fP (\fI\%bool\fP) – selected transpose coordinates flag
+.IP \(bu 2
+\fBorgleftrightflip\fP (\fI\%bool\fP) – selected left\-right flip coordinates flag
+.IP \(bu 2
+\fBorgupdownflip\fP (\fI\%bool\fP) – selected up\-down flip coordinates flag
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -6747,6 +6881,21 @@ sets scaling label
 .UNINDENT
 .INDENT 7.0
 .TP
+.B updateAutoLevels(lowlim, uplim)
+set min/max level spinboxes and histogram from the parameters
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBlowlim\fP (\fI\%float\fP) – minimum intensity value
+.IP \(bu 2
+\fBuplim\fP (\fI\%float\fP) – maximum intensity value
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B updateHistoImage(autoLevel=None)
 executes imageChanged of histogram with the givel autoLevel
 .INDENT 7.0
@@ -6803,6 +6952,16 @@ stores the setting before finishing the application
 \fBevent\fP (\fBpyqtgraph.QtCore.QEvent\fP:) – close event
 .UNINDENT
 .UNINDENT
+.INDENT 7.0
+.TP
+.B keyPressEvent(event)
+skips escape key action
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fBpyqtgraph.QtCore.QEvent\fP:) – close event
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
@@ -6818,6 +6977,16 @@ constructor
 \fBoptions\fP (\fI\%argparse.Namespace\fP) – commandline options
 .IP \(bu 2
 \fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B closeEvent(event)
+stores the setting before finishing the application
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fBpyqtgraph.QtCore.QEvent\fP:) – close event
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -8324,6 +8493,59 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B distance2mm(distance)
+converts distance to mm units
+.INDENT 7.0
+.TP
+.B Parameters
+\fBdistance\fP (\fI\%float\fP or (\fI\%float\fP, \fI\%str\fP)) – distance as value in m or tuple with units
+.TP
+.B Returns
+distance in mm
+.TP
+.B Return type
+\fI\%float\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B distance2pixels(distance, psize)
+converts distance to pixels
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBdistance\fP (\fI\%float\fP or (\fI\%float\fP, \fI\%str\fP)) – distance as value in pixels or tuple with units
+.IP \(bu 2
+\fBpsize\fP (\fI\%float\fP) – pixel size
+.UNINDENT
+.TP
+.B Returns
+distance in pixels
+.TP
+.B Return type
+\fI\%float\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B distance2um(distance)
+converts distance to um units
+.INDENT 7.0
+.TP
+.B Parameters
+\fBdistance\fP (\fI\%float\fP or (\fI\%float\fP, \fI\%str\fP)) – distance as value in m or tuple with units
+.TP
+.B Returns
+distance in um
+.TP
+.B Return type
+\fI\%float\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B doorname = None
 (\fI\%str\fP) door device name
 .UNINDENT
@@ -8331,6 +8553,11 @@ constructor
 .TP
 .B energy = None
 (\fI\%float\fP) energy in eV
+.UNINDENT
+.INDENT 7.0
+.TP
+.B geometryfromsource = None
+(\fI\%bool\fP) fetch geometry from source
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8351,6 +8578,22 @@ constructor
 .TP
 .B keepcoords = None
 (\fI\%bool\fP) keep original coordinates
+.UNINDENT
+.INDENT 7.0
+.TP
+.B length2ev(length)
+converts length to energy  in eV
+.INDENT 7.0
+.TP
+.B Parameters
+\fBlength\fP (\fI\%float\fP or (\fI\%float\fP, \fI\%str\fP)) – length as value in A or tuple with units
+.TP
+.B Returns
+energy in eV
+.TP
+.B Return type
+\fI\%float\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8382,6 +8625,23 @@ error messages list
 .TP
 .B nxsopen = None
 (\fI\%bool\fP) nexus file source keeps the file open
+.UNINDENT
+.INDENT 7.0
+.TP
+.B pixelsize2um(psize)
+converts pixel size to um units
+.INDENT 7.0
+.TP
+.B Parameters
+\fBpsize\fP (\fI\%float\fP or
+(\fI\%float\fP, \fI\%str\fP, \fI\%float\fP, \fI\%str\fP)) – pixelsize as value in m or tuple with units
+.TP
+.B Returns
+pixelsize in  um
+.TP
+.B Return type
+(\fI\%float\fP, \fI\%float\fP)
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8538,6 +8798,33 @@ Stores settings in QSettings object
 .UNINDENT
 .INDENT 7.0
 .TP
+.B updateMetaData(**kargs)
+update physical parameters
+.INDENT 7.0
+.TP
+.B Parameters
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – physical parameter dictionary
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B xyposition2pixels(xypos)
+converts xy position to pixel units
+.INDENT 7.0
+.TP
+.B Parameters
+\fBxypos\fP (\fI\%float\fP or
+(\fI\%float\fP, \fI\%str\fP, \fI\%float\fP, \fI\%str\fP)) – xy\-position a tuple value or tuple with units
+.TP
+.B Returns
+xy\-position in  pixels
+.TP
+.B Return type
+(\fI\%float\fP, \fI\%float\fP)
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B zeromask = None
 (\fI\%bool\fP) zero mask enabled
 .UNINDENT
@@ -8552,7 +8839,7 @@ Stores settings in QSettings object
 image source selection
 .INDENT 0.0
 .TP
-.B class lavuelib.sourceGroupBox.SourceGroupBox(parent=None, sourcetypes=None)
+.B class lavuelib.sourceGroupBox.SourceGroupBox(parent=None, sourcetypes=None, expertmode=False)
 Bases: \fBPyQt5.QtWidgets.QGroupBox\fP
 .sp
 image source selection
@@ -8566,7 +8853,14 @@ constructor
 \fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
 .IP \(bu 2
 \fBsourcetypes\fP (\fBlist\fP <\fI\%str\fP>) – source type class names
+.IP \(bu 2
+\fBexpertmode\fP (\fI\%bool\fP) – expert mode flag
 .UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B addIconClicked
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) add Icon Clicked
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8628,6 +8922,11 @@ if datasource source connected
 .B Return type
 \fI\%bool\fP
 .UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B removeIconClicked
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) remove Icon Clicked
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8738,6 +9037,11 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B addIconClicked
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) add Icon Clicked
+.UNINDENT
+.INDENT 7.0
+.TP
 .B buttonEnabled
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) push button enabled signal
 .UNINDENT
@@ -8773,6 +9077,32 @@ disconnects widget
 .UNINDENT
 .INDENT 7.0
 .TP
+.B eventObjectFilter(event, combobox, varname, atdict, atlist)
+event filter
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – qt object
+.IP \(bu 2
+\fBevent\fP – qt event
+.UNINDENT
+.TP
+.B Returns
+status flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B expertmode = None
+(\fI\%bool\fP) expertmode flag
+.UNINDENT
+.INDENT 7.0
+.TP
 .B label()
 return a label of the current detector
 .INDENT 7.0
@@ -8788,6 +9118,11 @@ label of the current detector
 .TP
 .B name = None
 (\fI\%str\fP) source name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B removeIconClicked
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) remove Icon Clicked
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8886,6 +9221,27 @@ connects widget
 .TP
 .B disconnectWidget()
 disconnects widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B eventFilter(obj, event)
+event filter
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – qt object
+.IP \(bu 2
+\fBevent\fP – qt event
+.UNINDENT
+.TP
+.B Returns
+status flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9138,6 +9494,27 @@ disconnects widget
 .UNINDENT
 .INDENT 7.0
 .TP
+.B eventFilter(obj, event)
+event filter
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – qt object
+.IP \(bu 2
+\fBevent\fP – qt event
+.UNINDENT
+.TP
+.B Returns
+status flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B label()
 return a label of the current detector
 .INDENT 7.0
@@ -9169,6 +9546,110 @@ update source input parameters
 .INDENT 7.0
 .IP \(bu 2
 \fBtangoattrs\fP (\fI\%str\fP) – json dictionary with
+(label, tango attribute) items
+.IP \(bu 2
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B widgetnames = None
+(\fBlist\fP <\fI\%str\fP>) subwidget object names
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.sourceWidget.TangoEventsSourceWidget(parent=None)
+Bases: \fI\%lavuelib.sourceWidget.BaseSourceWidget\fP
+.sp
+test source widget
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current image source
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B connectWidget()
+connects widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B datasource = None
+(\fI\%str\fP) datasource class name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B disconnectWidget()
+disconnects widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B eventFilter(obj, event)
+event filter
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – qt object
+.IP \(bu 2
+\fBevent\fP – qt event
+.UNINDENT
+.TP
+.B Returns
+status flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B label()
+return a label of the current detector
+.INDENT 7.0
+.TP
+.B Returns
+label of the current detector
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) source name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateButton()
+update slot for Tango attribute source
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateMetaData(tangoevattrs=None, **kargs)
+update source input parameters
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBtangoevattrs\fP (\fI\%str\fP) – json dictionary with
 (label, tango attribute) items
 .IP \(bu 2
 \fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
@@ -9218,6 +9699,27 @@ connects widget
 .TP
 .B disconnectWidget()
 disconnects widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B eventFilter(obj, event)
+event filter
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – qt object
+.IP \(bu 2
+\fBevent\fP – qt event
+.UNINDENT
+.TP
+.B Returns
+status flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9321,6 +9823,27 @@ connects widget
 .TP
 .B disconnectWidget()
 disconnects widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B eventFilter(obj, event)
+event filter
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – qt object
+.IP \(bu 2
+\fBevent\fP – qt event
+.UNINDENT
+.TP
+.B Returns
+status flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
