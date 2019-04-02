@@ -622,11 +622,12 @@ class ImageWidget(QtGui.QWidget):
                     selectedtrans = (False, False, False)
                 pars = {
                     "transpose": selectedtrans[0],
-                    "flip-lr": selectedtrans[1],
-                    "flip-ud": selectedtrans[2]
+                    "flip-left-right": selectedtrans[1],
+                    "flip-up-down": selectedtrans[2]
                 }
+                lpars = [tr for tr in sorted(pars.keys()) if pars[tr]]
                 self.__tangoclient.writeAttribute(
-                    "DetectorROIsParams", json.dumps(pars))
+                    "DetectorROIsParams", json.dumps(lpars))
                 self.__lastroisparams = self.__selectedtrans
                 self.__lastkeepcoords = self.__settings.keepcoords
 
@@ -1063,10 +1064,11 @@ class ImageWidget(QtGui.QWidget):
                 selectedtrans = (False, False, False)
             pars = {
                 "transpose": selectedtrans[0],
-                "flip-lr": selectedtrans[1],
-                "flip-ud": selectedtrans[2]
+                "flip-left-right": selectedtrans[1],
+                "flip-up-down": selectedtrans[2]
             }
-            rois["DetectorROIsParams"] = pars
+            lpars = [tr for tr in sorted(pars.keys()) if pars[tr]]
+            rois["DetectorROIsParams"] = lpars
             self.__sardana.setScanEnv(
                 str(self.__settings.doorname), json.dumps(rois))
             warns = []
