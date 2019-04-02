@@ -782,12 +782,22 @@ class LiveViewer(QtGui.QDialog):
                 self.__fieldpath = None
                 self.__settings.imagename = imagename
                 try:
-                    newimage = imageFileHandler.ImageFileHandler(
-                        str(self.__settings.imagename)).getImage()
+                    fh = imageFileHandler.ImageFileHandler(
+                        str(self.__settings.imagename))
+                    newimage = fh.getImage()
+                    metadata = fh.getMetaData()
                     self.__updateframeview()
                 except Exception as e:
                     print(str(e))
             if newimage is not None:
+                self.__metadata = metadata
+                mdata = json.loads(str(metadata))
+                if self.__settings.geometryfromsource:
+                    self.__settings.updateMetaData(**mdata)
+                    self.__imagewg.updateCenter(
+                        self.__settings.centerx, self.__settings.centery)
+                    self.__imagewg.mouseImagePositionChanged.emit()
+                    self.__imagewg.geometryChanged.emit()
                 self.__imagename = imagename
                 self.__rawimage = np.transpose(newimage)
                 self._plot()
@@ -850,6 +860,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.sendrois = self.__settings.sendrois
         cnfdlg.showallrois = self.__settings.showallrois
         cnfdlg.storegeometry = self.__settings.storegeometry
+        cnfdlg.geometryfromsource = self.__settings.geometryfromsource
         cnfdlg.roiscolors = self.__settings.roiscolors
         cnfdlg.sourcedisplay = self.__settings.sourcedisplay
         cnfdlg.createGUI()
@@ -937,6 +948,7 @@ class LiveViewer(QtGui.QDialog):
 
         self.__settings.secstream = dialog.secstream
         self.__settings.storegeometry = dialog.storegeometry
+        self.__settings.geometryfromsource = dialog.geometryfromsource
         self.__settings.interruptonerror = dialog.interruptonerror
         self.__settings.sourcedisplay = dialog.sourcedisplay
         setsrc = False
@@ -1198,7 +1210,7 @@ class LiveViewer(QtGui.QDialog):
 
         # if needed, update the level display
         if auto:
-            self.__levelswg.updateLevels(minval, maxsval)
+            self.__levelswg.updateAutoLevels(minval, maxsval)
 
     @QtCore.pyqtSlot()
     def _startPlotting(self):
@@ -1329,6 +1341,12 @@ class LiveViewer(QtGui.QDialog):
                         self.__imagewg.updateMetaData(**wgdata)
                     if resdata:
                         self.__sourcewg.updateMetaData(**resdata)
+                    if self.__settings.geometryfromsource:
+                        self.__settings.updateMetaData(**mdata)
+                        self.__imagewg.updateCenter(
+                            self.__settings.centerx, self.__settings.centery)
+                        self.__imagewg.mouseImagePositionChanged.emit()
+                        self.__imagewg.geometryChanged.emit()
             except Exception as e:
                 print(str(e))
         elif str(name).strip():

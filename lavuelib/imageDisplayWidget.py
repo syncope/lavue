@@ -146,7 +146,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         #: (:obj:`float`) current y-position
         self.__ydata = 0
         #: (:obj:`bool`) auto display level flag
-        self.__autodisplaylevels = True
+        self.__autodisplaylevels = 2
         #: (:obj:`bool`) auto down sample
         self.__autodownsample = True
         #: ([:obj:`float`, :obj:`float`]) minimum and maximum intensity levels
@@ -585,7 +585,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :param autolevels: auto levels enabled
         :type autolevels: :obj:`bool`
         """
-        if autolevels:
+        if autolevels == 2:
             self.__autodisplaylevels = True
         else:
             self.__autodisplaylevels = False

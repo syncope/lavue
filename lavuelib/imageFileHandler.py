@@ -30,6 +30,7 @@
 import struct
 import numpy as np
 import sys
+import json
 
 from . import filewriter
 
@@ -322,10 +323,16 @@ class ImageFileHandler(object):
         self.__image = None
         #: (:obj:`numpy.ndarray`) image data
         self.__data = None
+        #: (:obj:`str`) json dictionary with metadata or empty string
+        self.__metadata = ""
         try:
             if FABIO:
                 self.__image = fabio.open(fname)
                 self.__data = self.__image.data
+                if "_array_data.header_convention" \
+                   in self.__image.header.keys():
+                    rmeta = self.__image.header["_array_data.header_contents"]
+                    self.__metadata = CBFLoader().metadata(rmeta)
             elif PILLOW:
                 self.__image = PIL.Image.open(fname)
                 self.__data = np.array(self.__image)
@@ -339,6 +346,7 @@ class ImageFileHandler(object):
                     self.__image = np.fromfile(str(fname), dtype='uint8')
                     if fname.endswith(".cbf"):
                         self.__data = CBFLoader().load(self.__image)
+                        self.__metadata = CBFLoader().metadata(self.__image)
                     else:
                         self.__data = TIFLoader().load(self.__image)
                 except Exception as e:
@@ -352,10 +360,121 @@ class ImageFileHandler(object):
         """
         return self.__data
 
+    def getMetaData(self):
+        """  provides the image metadata
+
+        :returns: JSON dictionary with image metadata
+        :rtype: :obj:`str`
+        """
+        return self.__metadata
+
 
 class CBFLoader(object):
 
     """ CBF loader """
+
+    @classmethod
+    def metadata(cls, flbuffer):
+        """ extract header_contents from CBF file image data
+
+        :param flbuffer: numpy array with CBF file image data
+        :type flbuffer: :class:`numpy.ndarray` or :obj:`str`
+        :returns: metadata dictionary
+        :rtype: :class:`numpy.ndarray`
+        """
+        headerstart = '_array_data.header_convention'
+        headerend = '_array_data.data'
+        mdata = {}
+        try:
+            if hasattr(flbuffer, "tostring"):
+                hspos = flbuffer.tostring().index(headerstart) // \
+                    flbuffer.itemsize
+                hepos = flbuffer.tostring().index(headerend) // \
+                    flbuffer.itemsize
+                flbuffer = flbuffer[hspos:hepos + 1].tostring()
+        except Exception as e:
+            print(str(e))
+        header = str(flbuffer).strip()
+        sheader = [hd[2:] for hd in str(header).split("\r\n")
+                   if hd.startswith("# ")]
+
+        if sheader and sheader[0].startswith("Detector: "):
+            mdata["detector"] = " ".join(sheader[0].split(" ", 1)[1:])
+        if sheader and len(sheader) > 1:
+            mdata["timestamp"] = sheader[1]
+        for hd in sheader[2:]:
+            try:
+                if hd.startswith("Silicon sensor, thickness "):
+                    dt = hd.split(" ")[3:]
+                    if dt and len(dt) == 2:
+                        dt = (float(dt[0]), dt[1])
+                    mdata["silicon_sensor_thickness"] = dt
+                else:
+                    dt = hd.split(" ")
+                    name = dt[0].strip().lower()
+                    if name.endswith(":"):
+                        name = name[:-1]
+                    if dt:
+                        dt = dt[1:]
+                    if dt and dt[0] == '=':
+                        dt = dt[1:]
+                    if dt and len(dt) == 1:
+                        try:
+                            dt = [float(dt[0])][0]
+                        except ValueError:
+                            dt = dt[0]
+                    elif dt and len(dt) == 2:
+                        try:
+                            dt[0] = float(dt[0])
+                            try:
+                                dt[1] = float(dt[1])
+                            except ValueError:
+                                dt = tuple(dt)
+                        except ValueError:
+                            pass
+                    elif dt and len(dt) == 3:
+                        try:
+                            dt[0] = float(dt[0])
+                            try:
+                                dt[1] = float(dt[1])
+                                try:
+                                    dt[2] = float(dt[2])
+                                except ValueError:
+                                    dt = [(dt[0], dt[2]), (dt[1], dt[2])]
+                            except ValueError:
+                                if dt[1] == 'x':
+                                    try:
+                                        dt = [dt[0], float(dt[2])]
+                                    except ValueError:
+                                        pass
+                        except ValueError:
+                            try:
+                                dt = [(float(dt[0].strip("(), ")), dt[2]),
+                                      (float(dt[1].strip("(), ")), dt[2])]
+                            except Exception:
+                                pass
+                    elif dt and len(dt) == 5:
+                        if dt[2] == 'x':
+                            try:
+                                dt = [(float(dt[0]), dt[1]),
+                                      (float(dt[3]), dt[4])]
+                            except ValueError:
+                                pass
+                        elif dt[3] == '=':
+                            try:
+                                dt = [dt[0], dt[1],
+                                      {dt[2].strip("(), "):
+                                       float(dt[4].strip("(), "))}]
+                            except ValueError:
+                                pass
+
+                    mdata[name] = dt
+            except Exception as e:
+                print(str(e))
+        if mdata:
+            return json.dumps(mdata)
+        else:
+            return ""
 
     @classmethod
     def load(cls, flbuffer):
@@ -368,13 +487,15 @@ class CBFLoader(object):
         """
         image = np.array([0])
         inpoint = np.array([26, 4, 213], dtype='uint8')
+
+        # array with '--CIF-BINARY-FORMAT-SECTION---'
         outpoint = np.array(
             [45, 45, 67, 73, 70, 45, 66, 73, 78, 65, 82, 89, 45, 70,
              79, 82, 77, 65, 84, 45, 83, 69, 67, 84, 73, 79, 78, 45, 45, 45],
             dtype='uint8')
         flag = 0
 
-        # check if byte offset compress
+        # check if byte offset compress ('x-CBF_BYTE_OFFSET')
         boc = np.array(
             [120, 45, 67, 66, 70, 95, 66, 89, 84,
              69, 95, 79, 70, 70, 83, 69, 84],
@@ -387,19 +508,23 @@ class CBFLoader(object):
             flag = 1
 
         # additional parms for cross check if decompress worked out
+        # ('X-Binary-Number-of-Elements:')
         dset_num_ele = np.array(
             [88, 45, 66, 105, 110, 97, 114, 121, 45, 78, 117, 109, 98,
              101, 114, 45, 111, 102, 45, 69, 108, 101, 109, 101, 110,
              116, 115, 58],
             dtype='uint8')
+        # array with 'X-Binary-Size-Fastest-Dimension:'
         dset_fast_dim = np.array(
             [88, 45, 66, 105, 110, 97, 114, 121, 45, 83, 105, 122, 101, 45, 70,
              97, 115, 116, 101, 115, 116, 45, 68, 105, 109, 101, 110, 115, 105,
              111, 110, 58], dtype='uint8')
+        # array with 'X-Binary-Size-Second-Dimension:'
         dset_sec_dim = np.array(
             [88, 45, 66, 105, 110, 97, 114, 121, 45, 83, 105, 122, 101, 45, 83,
              101, 99, 111, 110, 100, 45, 68, 105, 109, 101, 110, 115, 105, 111,
              110, 58], dtype='uint8')
+        # array with 'X-Binary-Size-Padding:'
         dset_pad = np.array(
             [88, 45, 66, 105, 110, 97, 114, 121, 45, 83, 105, 122, 101, 45, 80,
              97, 100, 100, 105, 110, 103, 58], dtype='uint8')
