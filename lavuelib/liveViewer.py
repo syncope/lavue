@@ -713,6 +713,7 @@ class LiveViewer(QtGui.QDialog):
         :type showmessage: :obj:`bool`
          """
         newimage = None
+        metadata = None
         if fid is None:
             fileDialog = QtGui.QFileDialog()
             fileout = fileDialog.getOpenFileName(
