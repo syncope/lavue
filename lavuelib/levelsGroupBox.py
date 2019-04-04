@@ -93,13 +93,16 @@ class LevelsGroupBox(QtGui.QGroupBox):
 
         #: (:class: `lavuelib.histogramWidget.HistogramHLUTWidget`)
         #:      intensity histogram widget
-        self.__histogram = HistogramHLUTWidget()
+        self.__histogram = HistogramHLUTWidget(bins='auto', step='auto')
         self.__ui.histogramLayout.addWidget(self.__histogram)
 
         self.__ui.gradientComboBox.currentIndexChanged.connect(
             self._updateGradient)
         self.setNumberOfChannels(-1)
         self.__ui.channelComboBox.currentIndexChanged.connect(self.setChannel)
+        self.__ui.binsComboBox.currentIndexChanged.connect(self.setBins)
+        self.__ui.binsComboBox.hide()
+        self.__ui.binsLabel.hide()
 
         self.__hideControls()
         self.__ui.autoLevelsCheckBox.stateChanged.connect(
@@ -428,6 +431,17 @@ class LevelsGroupBox(QtGui.QGroupBox):
             if channel >= 0 and channel <= self.__numberofchannels + 1:
                 self.__colorchannel = channel
                 self.channelChanged.emit()
+
+    @QtCore.pyqtSlot(int)
+    def setBins(self, index):
+        """ sets bins edges algorithm for histogram
+
+        :param index: bins edges algorithm index for histogram
+        :type index: :obj:`int`
+        """
+        self.__histogram.setBins(
+            self.__ui.binsComboBox.itemText(index))
+        self.levelsChanged.emit()
 
     def colorChannel(self):
         """ provides color channel

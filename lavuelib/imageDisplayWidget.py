@@ -373,15 +373,18 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :param rawimg: 2d raw image array
         :type rawimg: :class:`numpy.ndarray`
         """
-        if self.__autodisplaylevels:
-            self.__image.setImage(
-                img, autoLevels=True,
-                autoDownsample=self.__autodownsample)
-        else:
-            self.__image.setImage(
-                img, autoLevels=False,
-                levels=self.__displaylevels,
-                autoDownsample=self.__autodownsample)
+        try:
+            if self.__autodisplaylevels:
+                self.__image.setImage(
+                    img, autoLevels=True,
+                    autoDownsample=self.__autodownsample)
+            else:
+                self.__image.setImage(
+                    img, autoLevels=False,
+                    levels=self.__displaylevels,
+                    autoDownsample=self.__autodownsample)
+        except Exception as e:
+            print(str(e))
         self.__data = img
         self.__rawdata = rawimg
         self.mouse_position()

@@ -754,6 +754,15 @@ class LiveViewer(QtGui.QDialog):
 
                     self.__ui.frameSpinBox.valueChanged.disconnect(
                         self._reloadfile)
+                    try:
+                        gsize = currentfield["shape"][self.__growing] - 1
+                        if gsize >= 0:
+                            self.__ui.frameSpinBox.setToolTip(
+                                "current frame (max: %s)" % gsize)
+                        else:
+                            self.__ui.frameSpinBox.setToolTip("current frame")
+                    except Exception:
+                        self.__ui.frameSpinBox.setToolTip("current frame")
                     while newimage is None and self.__frame > 0:
                         self.__frame -= 1
                         self.__updateframeview(True)
