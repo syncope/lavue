@@ -1,3 +1,8 @@
+2019-04-04 Jan Kotanski <jan.kotanski@desy.de>
+	* impove auto levels finding
+	* add tips with number of nexus frames
+	* tagged as 2.5.2
+
 2019-04-02 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for loading metadata
 	* tagged as 2.5.1
