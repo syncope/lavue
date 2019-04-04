@@ -63,11 +63,17 @@ class HistogramHLUTWidget(_pg.widgets.GraphicsView.GraphicsView):
 
     """ Horizontal HistogramWidget """
 
-    def __init__(self, parent=None, *args, **kargs):
+    def __init__(self, parent=None, bins=None, step=None,
+                 *args, **kargs):
         """ constructor
 
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
+        :param bins: bins edges algorithm for histogram, default: 'auto'
+        :type bins: :obj:`str`
+        :param step: data step for calculation of histogram levels,
+                     default: 'auto'
+        :type step: :obj:`str` or :obj:`int`
         :param args: HistogramHLUTItem parameters list
         :type args: :obj:`list` < :obj:`any`>
         :param kargs:  HistogramHLUTItem parameter dictionary
@@ -77,7 +83,7 @@ class HistogramHLUTWidget(_pg.widgets.GraphicsView.GraphicsView):
         _pg.widgets.GraphicsView.GraphicsView.__init__(
             self, parent, useOpenGL=False, background=background)
         #: (:class:`HistogramHLUTItem`) histogram item
-        self.item = HistogramHLUTItem(*args, **kargs)
+        self.item = HistogramHLUTItem(bins, step, *args, **kargs)
         self.setCentralItem(self.item)
         self.setSizePolicy(
             QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Expanding)
@@ -104,6 +110,14 @@ class HistogramHLUTWidget(_pg.widgets.GraphicsView.GraphicsView):
         :type factor: :obj:`float`
         """
         self.item.autolevelfactor = factor
+
+    def setBins(self, bins):
+        """ sets bins edges algorithm for histogram
+
+        :param channel: bins edges algorithm for histogram
+        :type channel: :obj:`str`
+        """
+        self.item.setBins(bins)
 
 
 class GradientEditorItemWS(
@@ -143,9 +157,14 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
 
     """ Horizontal HistogramItem """
 
-    def __init__(self, image=None, fillHistogram=True):
+    def __init__(self, bins=None, step=None, image=None, fillHistogram=True):
         """ constructor
 
+        :param bins: bins edges algorithm for histogram, default: 'auto'
+        :type bins: :obj:`str`
+        :param step: data step for calculation of histogram levels,
+                     default: 'auto'
+        :type step: :obj:`str` or :obj:`int`
         :param image: 2d image
         :type image: :class:`pyqtgraph.ImageItem`
         :param fillHistogram: histogram will be filled in
@@ -198,6 +217,8 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         self.range = None
 
         self.autolevelfactor = None
+        self.__step = step or 'auto'
+        self.__bins = bins or 'auto'
         self.gradient.setFlag(self.gradient.ItemStacksBehindParent)
         self.vb.setFlag(self.gradient.ItemStacksBehindParent)
 
@@ -217,6 +238,14 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         if image is not None:
             self.setImageItem(image)
         # self.background = None
+
+    def setBins(self, bins):
+        """ sets bins edges algorithm for histogram
+
+        :param channel: bins edges algorithm for histogram
+        :type channel: :obj:`str`
+        """
+        self.__bins = bins
 
     def setGradientByName(self, name):
         """ sets gradient by name
@@ -291,7 +320,8 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         hx = None
         hy = None
         if self.autolevelfactor is not None:
-            hx, hy = self.__imageItem().getHistogram()
+            hx, hy = self.__imageItem().getHistogram(
+                step=self.__step, bins=self.__bins)
             if hy is not None and hx is not None and hx.any() and hy.any():
                 if abs(hx[0]) < 1.e-3 or abs(hx[0]+2.) < 1.e-3:
                     hx = hx[1:]
@@ -307,26 +337,38 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         return None, None
 
     def imageChanged(self, autoLevel=False, autoRange=False):
+        """ overload imageChange method
+
+        :param autoLevel: auto level flag
+        :type autoLevel: :obj:`bool`
+        :param autoRange: auto range flag
+        :type autoRange: :obj:`bool`
+        """
 
         hx = None
         hy = None
         if self.autolevelfactor is not None:
-            hx, hy = self.__imageItem().getHistogram()
+            hx, hy = self.__imageItem().getHistogram(
+                step=self.__step, bins=self.__bins)
             if hy is not None and hx is not None and hx.any() and hy.any():
                 if abs(hx[0]) < 1.e-3 or abs(hx[0]+2.) < 1.e-3:
-                    hx = hx[1:]
-                    hy = hy[1:]
+                    hhx = hx[1:]
+                    hhy = hy[1:]
+                else:
+                    hhx = hx
+                    hhy = hy
                 if hx.any() and hy.any():
-                    hmax = max(hy)
-                    hmin = self.autolevelfactor*hmax/100.
+                    hmax = max(hhy)
+                    hmin = self.autolevelfactor * hmax / 100.
                     mn, mx = self.__imageItem().levels
-                    indexes = np.where(hy >= hmin)
+                    indexes = np.where(hhy >= hmin)
                     ind1 = indexes[0][0]
                     ind2 = indexes[-1][-1]
-                    self.region.setRegion([hx[ind1], hx[ind2]])
+                    self.region.setRegion([hhx[ind1], hhx[ind2]])
                     _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.\
                         imageChanged(
                             self, autoLevel=False, autoRange=autoRange)
+                    return
         if hx is None or hy is None or not hx.any() or not hy.any():
             try:
                 _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.\
