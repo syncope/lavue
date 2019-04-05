@@ -101,12 +101,14 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self.setNumberOfChannels(-1)
         self.__ui.channelComboBox.currentIndexChanged.connect(self.setChannel)
         self.__ui.binsComboBox.currentIndexChanged.connect(self.setBins)
-        self.__ui.binsComboBox.hide()
-        self.__ui.binsLabel.hide()
+        # self.__ui.binsComboBox.hide()
+        # self.__ui.binsLabel.hide()
 
         self.__hideControls()
         self.__ui.autoLevelsCheckBox.stateChanged.connect(
             self._onAutoLevelsChanged)
+        self.__ui.stepLineEdit.textChanged.connect(
+            self._onStepChanged)
         self.__ui.autofactorLineEdit.textChanged.connect(
             self._onAutoFactorChanged)
         self.__connectHistogram()
@@ -156,13 +158,16 @@ class LevelsGroupBox(QtGui.QGroupBox):
             finally:
                 self.__connectMinMax()
 
-    def changeView(self, showhistogram=None, showlevels=None):
+    def changeView(self, showhistogram=None, showlevels=None,
+                   showadd=None):
         """ shows or hides the histogram widget
 
         :param showhistogram: if histogram should be shown
         :type showhistogram: :obj:`bool`
         :param showlevels: if levels should be shown
         :type showlevels: :obj:`bool`
+        :param showadd: if additional histogram should be shown
+        :type showadd: :obj:`bool`
         """
 
         if showhistogram is True and self.__histo is False:
@@ -173,6 +178,16 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.__histogram.hide()
             self.__histogram.fillHistogram(False)
             self.__disconnectHistogram()
+        if showadd is True:
+            self.__ui.binsComboBox.show()
+            self.__ui.binsLabel.show()
+            self.__ui.stepLineEdit.show()
+            self.__ui.stepLabel.show()
+        elif showadd is False:
+            self.__ui.binsComboBox.hide()
+            self.__ui.binsLabel.hide()
+            self.__ui.stepLineEdit.hide()
+            self.__ui.stepLabel.hide()
 
         if showlevels is True and self.__levels is False:
             if self.__colors:
@@ -232,6 +247,24 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self.__ui.autoLevelsCheckBox.setChecked(
             2 if auto else 0)
         self._onAutoLevelsChanged(auto)
+
+    @QtCore.pyqtSlot(str)
+    def _onStepChanged(self, step):
+        """sets step for  automatic levels
+
+        :param step: if automatics levels to be set
+        :type step: :obj:`str`
+        """
+        try:
+            fstep = float(step)
+            if fstep <= 0:
+                fstep = None
+                self.__ui.stepLineEdit.setText("")
+            self.__histogram.setStep(fstep)
+        except Exception:
+            self.__histogram.setStep(None)
+            self.__ui.stepLineEdit.setText("")
+        self.levelsChanged.emit()
 
     @QtCore.pyqtSlot(str)
     def _onAutoFactorChanged(self, factor):

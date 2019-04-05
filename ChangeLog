@@ -1,3 +1,8 @@
+2019-04-XX Jan Kotanski <jan.kotanski@desy.de>
+	* add addtional histogram options: bins and data step
+	* impove auto levels finding
+	* tagged as 2.6.0
+
 2019-04-04 Jan Kotanski <jan.kotanski@desy.de>
 	* impove auto levels finding
 	* add tips with number of nexus frames

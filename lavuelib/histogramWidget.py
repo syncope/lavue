@@ -119,6 +119,14 @@ class HistogramHLUTWidget(_pg.widgets.GraphicsView.GraphicsView):
         """
         self.item.setBins(bins)
 
+    def setStep(self, step):
+        """ sets image step data for algorithm of histogram
+
+        :param channel: image step data for algorithm of histogram
+        :type channel: :obj:`int`
+        """
+        self.item.setStep(step)
+
 
 class GradientEditorItemWS(
         _pg.graphicsItems.GradientEditorItem.GradientEditorItem):
@@ -247,6 +255,20 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         """
         self.__bins = bins
 
+    def setStep(self, step):
+        """ sets image step data for algorithm of histogram
+
+        :param channel: image step data for algorithm of histogram
+        :type channel: :obj:`int`
+        """
+        try:
+            if self.__step:
+                self.__step = int(step)
+            else:
+                self.__step = "auto"
+        except Exception:
+            self.__step = "auto"
+
     def setGradientByName(self, name):
         """ sets gradient by name
 
@@ -345,6 +367,7 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         :type autoRange: :obj:`bool`
         """
 
+        mn, mx = self.__imageItem().levels
         hx = None
         hy = None
         if self.autolevelfactor is not None:
@@ -369,10 +392,18 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
                         imageChanged(
                             self, autoLevel=False, autoRange=autoRange)
                     return
-        if hx is None or hy is None or not hx.any() or not hy.any():
-            try:
-                _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.\
-                    imageChanged(
-                        self, autoLevel=autoLevel, autoRange=autoRange)
-            except Exception:
-                pass
+        try:
+            # _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.\
+            #     imageChanged(
+            #         self, autoLevel=autoLevel, autoRange=autoRange)
+            h = self.imageItem().getHistogram(
+                step=self.__step, bins=self.__bins)
+            if h[0] is None:
+                return
+            self.plot.setData(*h)
+            if autoLevel:
+                mn = h[0][0]
+                mx = h[0][-1]
+                self.region.setRegion([mn, mx])
+        except Exception:
+            pass

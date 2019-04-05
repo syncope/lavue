@@ -374,7 +374,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type rawimg: :class:`numpy.ndarray`
         """
         try:
-            if self.__autodisplaylevels:
+            if self.__autodisplaylevels or self.__displaylevels[0] is None \
+               or self.__displaylevels[1] is None:
                 self.__image.setImage(
                     img, autoLevels=True,
                     autoDownsample=self.__autodownsample)
