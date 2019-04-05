@@ -380,7 +380,7 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
                 else:
                     hhx = hx
                     hhy = hy
-                if hx.any() and hy.any():
+                if hhx.any() and hhy.any():
                     hmax = max(hhy)
                     hmin = self.autolevelfactor * hmax / 100.
                     mn, mx = self.__imageItem().levels
