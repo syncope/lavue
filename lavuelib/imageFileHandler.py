@@ -268,7 +268,8 @@ class NexusFieldHandler(object):
         """
         metadata = {}
         pgroup = node.parent
-        mnames = ['distance', 'wavelength', 'x_pixel_size', 'y_pixel_size',
+        mnames = ['distance', 'wavelength',
+                  'x_pixel_size', 'y_pixel_size',
                   'beam_center_x', 'beam_center_y']
         names = pgroup.names()
 
@@ -288,8 +289,7 @@ class NexusFieldHandler(object):
                         metadata[nm] = value
                 except Exception as e:
                     metadata[nm] = value
-                
-        print(metadata)
+
         return json.dumps(metadata)
 
     @classmethod
@@ -297,8 +297,8 @@ class NexusFieldHandler(object):
         if isinstance(value, np.ndarray):
             if len(value.shape) == 1 and value.shape[0] == 1:
                 value = value[0]
-
         return value
+
     @classmethod
     def getImage(cls, node, frame=-1, growing=0, refresh=True):
         """parses the field and add it into the description list
