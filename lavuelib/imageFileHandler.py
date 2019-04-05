@@ -287,7 +287,7 @@ class NexusFieldHandler(object):
                         metadata[nm] = (value, units)
                     else:
                         metadata[nm] = value
-                except Exception as e:
+                except Exception:
                     metadata[nm] = value
 
         return json.dumps(metadata)
