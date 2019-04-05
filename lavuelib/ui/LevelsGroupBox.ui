@@ -136,6 +136,11 @@ for color distribution of the image</string>
          </item>
          <item>
           <property name="text">
+           <string>fd</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>doane</string>
           </property>
          </item>
@@ -159,6 +164,26 @@ for color distribution of the image</string>
            <string>sqrt</string>
           </property>
          </item>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLabel" name="stepLabel">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;image data step to create histogram, e.g. 20&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Step:</string>
+         </property>
+         <property name="buddy">
+          <cstring>stepLineEdit</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QLineEdit" name="stepLineEdit">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;image data step to create histogram, e.g. 20&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
         </widget>
        </item>
       </layout>
@@ -304,9 +329,12 @@ for color distribution of the image</string>
  <tabstops>
   <tabstop>autoLevelsCheckBox</tabstop>
   <tabstop>autofactorLineEdit</tabstop>
+  <tabstop>binsComboBox</tabstop>
+  <tabstop>stepLineEdit</tabstop>
   <tabstop>minDoubleSpinBox</tabstop>
   <tabstop>maxDoubleSpinBox</tabstop>
   <tabstop>gradientComboBox</tabstop>
+  <tabstop>channelComboBox</tabstop>
  </tabstops>
  <resources/>
  <connections/>

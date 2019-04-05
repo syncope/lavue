@@ -50,6 +50,8 @@ class Settings(object):
         self.secautoport = True
         #: (:obj:`bool`) show intensity hostogram
         self.showhisto = True
+        #: (:obj:`bool`) show intensity hostogram
+        self.showaddhisto = False
         #: (:obj:`bool`) show mask widget
         self.showmask = False
         #: (:obj:`bool`) show mask widget
@@ -228,6 +230,10 @@ class Settings(object):
         qstval = str(settings.value("Configuration/ShowHistogram", type=str))
         if qstval.lower() == "false":
             self.showhisto = False
+        qstval = str(settings.value("Configuration/ShowAdditionalHistogram",
+                                    type=str))
+        if qstval.lower() == "true":
+            self.showaddhisto = True
         qstval = str(settings.value("Configuration/ShowMaskWidget", type=str))
         if qstval.lower() == "true":
             self.showmask = True
@@ -464,6 +470,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ShowHistogram",
             self.showhisto)
+        settings.setValue(
+            "Configuration/ShowAdditionalHistogram",
+            self.showaddhisto)
         settings.setValue(
             "Configuration/ShowMaskWidget",
             self.showmask)

@@ -634,7 +634,9 @@ class LiveViewer(QtGui.QDialog):
         self.__statswg.changeView(self.__settings.showstats)
         self.__levelswg.changeView(
             self.__settings.showhisto,
-            self.__settings.showlevels)
+            self.__settings.showlevels,
+            self.__settings.showaddhisto
+        )
         self.__prepwg.changeView(
             self.__settings.showmask,
             self.__settings.showsub,
@@ -841,6 +843,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.showscale = self.__settings.showscale
         cnfdlg.showlevels = self.__settings.showlevels
         cnfdlg.showhisto = self.__settings.showhisto
+        cnfdlg.showaddhisto = self.__settings.showaddhisto
         cnfdlg.showmask = self.__settings.showmask
         cnfdlg.showhighvaluemask = self.__settings.showhighvaluemask
         cnfdlg.showstats = self.__settings.showstats
@@ -913,6 +916,9 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.showhisto != dialog.showhisto:
             self.__levelswg.changeView(dialog.showhisto)
             self.__settings.showhisto = dialog.showhisto
+        if self.__settings.showaddhisto != dialog.showaddhisto:
+            self.__levelswg.changeView(showadd=dialog.showaddhisto)
+            self.__settings.showaddhisto = dialog.showaddhisto
         if self.__settings.showstats != dialog.showstats:
             self.__statswg.changeView(dialog.showstats)
             self.__settings.showstats = dialog.showstats

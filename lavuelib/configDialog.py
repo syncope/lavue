@@ -70,6 +70,8 @@ class ConfigDialog(QtGui.QDialog):
         self.refreshrate = 0.2
         #: (:obj:`bool`) show color distribution histogram widget
         self.showhisto = True
+        #: (:obj:`bool`) show color distribution additional histogram widget
+        self.showaddhisto = False
         #: (:obj:`bool`) show mask widget
         self.showmask = False
         #: (:obj:`bool`) show high value mask widget
@@ -205,6 +207,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.secportLineEdit.setText(self.secport)
         self.__ui.hidraportLineEdit.setText(self.hidraport)
         self.__ui.showhistoCheckBox.setChecked(self.showhisto)
+        self.__ui.showaddhistoCheckBox.setChecked(self.showaddhisto)
         self.__ui.showmaskCheckBox.setChecked(self.showmask)
         self.__ui.showmaskhighCheckBox.setChecked(self.showhighvaluemask)
         self.__ui.showstatsCheckBox.setChecked(self.showstats)
@@ -332,6 +335,7 @@ class ConfigDialog(QtGui.QDialog):
         self.showscale = self.__ui.showscaleCheckBox.isChecked()
         self.showlevels = self.__ui.showlevelsCheckBox.isChecked()
         self.showhisto = self.__ui.showhistoCheckBox.isChecked()
+        self.showaddhisto = self.__ui.showaddhistoCheckBox.isChecked()
         self.showmask = self.__ui.showmaskCheckBox.isChecked()
         self.showhighvaluemask = self.__ui.showmaskhighCheckBox.isChecked()
         self.showstats = self.__ui.showstatsCheckBox.isChecked()
