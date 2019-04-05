@@ -753,7 +753,7 @@ class LiveViewer(QtGui.QDialog):
                     newimage = handler.getImage(
                         currentfield["node"],
                         self.__frame, self.__growing, refresh=False)
-
+                    handler.getMetaData(currentfield["node"])
                     self.__ui.frameSpinBox.valueChanged.disconnect(
                         self._reloadfile)
                     try:

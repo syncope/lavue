@@ -629,15 +629,15 @@ class Settings(object):
                 if len(length) == 1:
                     energy = hc * 10000 / length[0]
                 elif len(length) > 1:
-                    if length[1] == 'A':
+                    if length[1] in ['A', 'Angstrom']:
                         energy = hc * 10000 / length[0]
-                    elif length[1] == 'um':
+                    elif length[1] in ['um', 'micrometer']:
                         energy = hc / length[0]
-                    elif length[1] == 'm':
+                    elif length[1] in ['m', 'meter']:
                         energy = hc * 1e-6 / length[0]
-                    elif length[1] == 'mm':
+                    elif length[1] in ['mm', 'millimeter']:
                         energy = hc * 1e-3 / length[0]
-                    elif length[1] == 'cm':
+                    elif length[1] in ['cm', 'centimeter']:
                         energy = hc * 1e-4 / length[0]
             else:
                 energy = hc * 10000 / length
@@ -657,17 +657,17 @@ class Settings(object):
                 if len(distance) == 1:
                     res = distance[0] * 1e+3
                 elif len(distance) > 1:
-                    if distance[1] == 'A':
+                    if distance[1] in ['A', 'Angstrom']:
                         res = distance[0] * 1e-7
-                    elif distance[1] == 'um':
+                    elif distance[1] in ['um', 'micrometer']:
                         res = distance[0] * 1e-3
-                    elif distance[1] == 'km':
+                    elif distance[1] in ['km', 'kilometer']:
                         res = distance[0] * 1e+6
-                    elif distance[1] == 'm':
+                    elif distance[1] in ['m', 'meter']:
                         res = distance[0] * 1e+3
-                    elif distance[1] == 'mm':
+                    elif distance[1] in ['mm', 'millimeter']:
                         res = distance[0]
-                    elif distance[1] == 'cm':
+                    elif distance[1] in ['cm', 'centimeter']:
                         res = distance * 1e-1
             else:
                 res = distance * 1e+3
@@ -687,17 +687,17 @@ class Settings(object):
                 if len(distance) == 1:
                     res = distance[0] * 1e+6
                 elif len(distance) > 1:
-                    if distance[1] == 'A':
+                    if distance[1] in ['A', 'Angstrom']:
                         res = distance[0] * 1e-4
-                    elif distance[1] == 'um':
+                    elif distance[1] in ['um', 'micrometer']:
                         res = distance[0]
-                    elif distance[1] == 'km':
+                    elif distance[1] in ['km', 'kilometer']:
                         res = distance[0] * 1e+9
-                    elif distance[1] == 'm':
+                    elif distance[1] in ['m', 'meter']:
                         res = distance[0] * 1e+6
-                    elif distance[1] == 'mm':
+                    elif distance[1] in ['mm', 'millimeter']:
                         res = distance[0] * 1e+3
-                    elif distance[1] == 'cm':
+                    elif distance[1] in ['cm', 'centimeter']:
                         res = distance * 1e+4
             else:
                 res = distance * 1e+6
@@ -721,15 +721,15 @@ class Settings(object):
                 elif len(distance) > 1:
                     if distance[1] in ['pixels', 'pixel']:
                         res = distance[0]
-                    elif distance[1] == 'um':
+                    elif distance[1] in ['um', 'micrometer']:
                         res = distance[0] / psize
-                    elif distance[1] == 'm':
+                    elif distance[1] in ['m', 'meter']:
                         res = distance[0] * 1e-6 / psize
-                    if distance[1] == 'A':
+                    if distance[1] in ['A', 'Angstrom']:
                         res = distance[0] * 1e+4 / psize
-                    elif distance[1] == 'mm':
+                    elif distance[1] in ['mm', 'millimeter']:
                         res = distance[0] * 1e-3 / psize
-                    elif distance[1] == 'cm':
+                    elif distance[1] in ['cm', 'centimeter']:
                         res = distance[0] * 1e-4 / psize
             else:
                 res = distance
