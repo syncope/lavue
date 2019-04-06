@@ -164,6 +164,16 @@ class Settings(object):
         #                source display dictionary
         self.__sourcedisplay = {}
 
+        self.__units = {
+            'A': ['A', 'Angstrom'],
+            'm': ['m', 'meter', 'metre'],
+            'um': ['um', 'micrometer', 'micrometre'],
+            'mm': ['mm', 'millimeter', 'millimetre'],
+            'cm': ['cm', 'centimeter', 'centimetre'],
+            'km': ['km', 'kilometer', 'kilometre'],
+            'pixel': ['pixels', 'pixel'],
+        }
+
         #: (:class:`pyqtgraph.QtCore.QMutex`) zmq bind address
         self.__mutex = QtCore.QMutex()
 
@@ -629,15 +639,15 @@ class Settings(object):
                 if len(length) == 1:
                     energy = hc * 10000 / length[0]
                 elif len(length) > 1:
-                    if length[1] == 'A':
+                    if length[1] in self.__units['A']:
                         energy = hc * 10000 / length[0]
-                    elif length[1] == 'um':
+                    elif length[1] in self.__units['um']:
                         energy = hc / length[0]
-                    elif length[1] == 'm':
+                    elif length[1] in self.__units['m']:
                         energy = hc * 1e-6 / length[0]
-                    elif length[1] == 'mm':
+                    elif length[1] in self.__units['mm']:
                         energy = hc * 1e-3 / length[0]
-                    elif length[1] == 'cm':
+                    elif length[1] in self.__units['cm']:
                         energy = hc * 1e-4 / length[0]
             else:
                 energy = hc * 10000 / length
@@ -657,17 +667,17 @@ class Settings(object):
                 if len(distance) == 1:
                     res = distance[0] * 1e+3
                 elif len(distance) > 1:
-                    if distance[1] == 'A':
+                    if distance[1] in self.__units['A']:
                         res = distance[0] * 1e-7
-                    elif distance[1] == 'um':
+                    elif distance[1] in self.__units['um']:
                         res = distance[0] * 1e-3
-                    elif distance[1] == 'km':
+                    elif distance[1] in self.__units['km']:
                         res = distance[0] * 1e+6
-                    elif distance[1] == 'm':
+                    elif distance[1] in self.__units['m']:
                         res = distance[0] * 1e+3
-                    elif distance[1] == 'mm':
+                    elif distance[1] in self.__units['mm']:
                         res = distance[0]
-                    elif distance[1] == 'cm':
+                    elif distance[1] in self.__units['cm']:
                         res = distance * 1e-1
             else:
                 res = distance * 1e+3
@@ -687,17 +697,17 @@ class Settings(object):
                 if len(distance) == 1:
                     res = distance[0] * 1e+6
                 elif len(distance) > 1:
-                    if distance[1] == 'A':
+                    if distance[1] in self.__units['A']:
                         res = distance[0] * 1e-4
-                    elif distance[1] == 'um':
+                    elif distance[1] in self.__units['um']:
                         res = distance[0]
-                    elif distance[1] == 'km':
+                    elif distance[1] in self.__units['km']:
                         res = distance[0] * 1e+9
-                    elif distance[1] == 'm':
+                    elif distance[1] in self.__units['m']:
                         res = distance[0] * 1e+6
-                    elif distance[1] == 'mm':
+                    elif distance[1] in self.__units['mm']:
                         res = distance[0] * 1e+3
-                    elif distance[1] == 'cm':
+                    elif distance[1] in self.__units['cm']:
                         res = distance * 1e+4
             else:
                 res = distance * 1e+6
@@ -719,17 +729,17 @@ class Settings(object):
                 if len(distance) == 1:
                     res = distance[0]
                 elif len(distance) > 1:
-                    if distance[1] in ['pixels', 'pixel']:
+                    if distance[1] in self.__units['pixel']:
                         res = distance[0]
-                    elif distance[1] == 'um':
+                    elif distance[1] in self.__units['um']:
                         res = distance[0] / psize
-                    elif distance[1] == 'm':
+                    elif distance[1] in self.__units['m']:
                         res = distance[0] * 1e-6 / psize
-                    if distance[1] == 'A':
+                    if distance[1] in self.__units['A']:
                         res = distance[0] * 1e+4 / psize
-                    elif distance[1] == 'mm':
+                    elif distance[1] in self.__units['mm']:
                         res = distance[0] * 1e-3 / psize
-                    elif distance[1] == 'cm':
+                    elif distance[1] in self.__units['cm']:
                         res = distance[0] * 1e-4 / psize
             else:
                 res = distance
@@ -822,7 +832,6 @@ class Settings(object):
         # wavelength A
         # detector_distance m
         # pixel_size m
-
         if "wavelength" in kargs.keys():
             energy = self.length2ev(kargs["wavelength"])
             if energy is not None:
@@ -832,6 +841,10 @@ class Settings(object):
             detdistance = self.distance2mm(kargs["detector_distance"])
             if detdistance is not None:
                 self.detdistance = detdistance
+        if "distance" in kargs.keys():
+            detdistance = self.distance2mm(kargs["distance"])
+            if detdistance is not None:
+                self.detdistance = detdistance
 
         if "pixel_size" in kargs.keys():
             psizex, psizey = self.pixelsize2um(kargs["pixel_size"])
@@ -839,10 +852,28 @@ class Settings(object):
                 self.pixelsizex = psizex
                 self.pixelsizey = psizey
 
+        if "x_pixel_size" in kargs.keys():
+            psizex = self.distance2um(kargs["x_pixel_size"])
+            if psizex is not None:
+                self.pixelsizex = psizex
+        if "y_pixel_size" in kargs.keys():
+            psizey = self.distance2um(kargs["y_pixel_size"])
+            if psizey is not None:
+                self.pixelsizey = psizey
+
         if "beam_xy" in kargs.keys():
             cx, cy = self.xyposition2pixels(kargs["beam_xy"])
             if psizex is not None and psizey is not None:
                 self.centerx = cx
+                self.centery = cy
+
+        if "beam_center_x" in kargs.keys():
+            cx = self.distance2pixels(kargs["beam_center_x"])
+            if cx is not None:
+                self.centerx = cx
+        if "beam_center_y" in kargs.keys():
+            cy = self.distance2pixels(kargs["beam_center_y"])
+            if cy is not None:
                 self.centery = cy
 
     def __storeDisplayParams(self, settings):

@@ -268,12 +268,14 @@ class NXSFileSource(BaseSource):
 
         try:
             image = None
+            metadata = ""
             try:
                 if self.__handler is None:
                     self.__handler = imageFileHandler.NexusFieldHandler(
                         str(self.__nxsfile))
                 if self.__node is None:
                     self.__node = self.__handler.getNode(self.__nxsfield)
+                    metadata = self.__handler.getMetaData(self.__node)
                 if self.__nxslast:
                     fid = self.__handler.getLastFrame(self.__node, self.__gdim)
                     if fid > self.__frame or fid < self.__frame:
@@ -307,7 +309,7 @@ class NXSFileSource(BaseSource):
                 filename = "%s/%s:%s" % (
                     self.__nxsfile, self.__nxsfield, self.__frame)
                 self.__frame += 1
-                return (np.transpose(image), '%s' % (filename), "")
+                return (np.transpose(image), '%s' % (filename), metadata)
         except Exception as e:
             self.__handler = None
             if hasattr(self.__node, "close"):

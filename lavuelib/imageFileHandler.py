@@ -96,6 +96,8 @@ class NexusFieldHandler(object):
         self.__fields = {}
         # (:class:`lavuelib.filewriter.root`) nexus file root
         self.__root = None
+        #: (:obj:`str`) json dictionary with metadata or empty string
+        self.__metadata = ""
 
         if not writer:
             if "h5cpp" in WRITERS.keys():
@@ -256,6 +258,46 @@ class NexusFieldHandler(object):
             if len(shape) > growing and growing > -1:
                 return shape[growing]
         return 0
+
+    @classmethod
+    def getMetaData(cls, node):
+        """  provides the image metadata
+
+        :returns: JSON dictionary with image metadata
+        :rtype: :obj:`str`
+        """
+        metadata = {}
+        pgroup = node.parent
+        mnames = ['distance', 'wavelength',
+                  'x_pixel_size', 'y_pixel_size',
+                  'beam_center_x', 'beam_center_y']
+        names = pgroup.names()
+
+        for nm in mnames:
+            if nm in names:
+                fld = pgroup.open(nm)
+                value = cls.extract(fld.read())
+                if isinstance(value, np.ndarray):
+                    continue
+                try:
+                    units = cls.extract(fld.attributes["units"].read())
+                    if isinstance(units, np.ndarray):
+                        continue
+                    if units:
+                        metadata[nm] = (value, units)
+                    else:
+                        metadata[nm] = value
+                except Exception:
+                    metadata[nm] = value
+
+        return json.dumps(metadata)
+
+    @classmethod
+    def extract(cls, value):
+        if isinstance(value, np.ndarray):
+            if len(value.shape) == 1 and value.shape[0] == 1:
+                value = value[0]
+        return value
 
     @classmethod
     def getImage(cls, node, frame=-1, growing=0, refresh=True):
