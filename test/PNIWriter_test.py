@@ -541,6 +541,15 @@ class PNIWriterTest(unittest.TestCase):
                 set(['strimage', 'intvec', 'floatimage',
                      'floatvec', 'intimage', 'strvec']))
 
+            ins_lk = entry.open_link("instrument")
+            self.assertTrue(
+                isinstance(ins_lk, PNIWriter.PNILink))
+            self.assertEqual(ins_lk.name, "instrument")
+            self.assertEqual(
+                ins_lk.path, "/entry12345:NXentry/instrument:NXinstrument")
+            self.assertEqual(ins_lk.is_valid, True)
+            self.assertEqual(ins_lk.parent, entry)
+
             self.assertTrue(isinstance(strscalar, PNIWriter.PNIField))
             self.assertTrue(isinstance(strscalar.h5object, nx._nxh5.nxfield))
             self.assertEqual(strscalar.name, 'strscalar')

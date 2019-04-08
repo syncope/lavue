@@ -1027,6 +1027,15 @@ class FileWriterH5CppTest(unittest.TestCase):
             self.assertEqual(kids, set(["detector", "floatspec",
                                         "intspec", "strspec"]))
 
+            ins_lk = entry.open_link("instrument")
+            self.assertTrue(
+                isinstance(ins_lk, H5CppWriter.H5CppLink))
+            self.assertEqual(ins_lk.name, "instrument")
+            self.assertEqual(
+                ins_lk.path, "/entry12345:NXentry/instrument")
+            self.assertEqual(ins_lk.is_valid, True)
+            self.assertEqual(ins_lk.parent, entry)
+
             self.assertTrue(
                 isinstance(det, H5CppWriter.H5CppGroup))
             self.assertEqual(det.name, "detector")
