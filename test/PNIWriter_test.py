@@ -506,7 +506,6 @@ class PNIWriterTest(unittest.TestCase):
             self.assertEqual(kids, set(["detector", "floatspec",
                                         "intspec", "strspec"]))
 
-
             self.assertTrue(
                 isinstance(det, PNIWriter.PNIGroup))
             self.assertEqual(det.name, "detector")
