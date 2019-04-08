@@ -730,7 +730,7 @@ class H5PYLink(filewriter.FTLink):
         filename = self.getfilename(self)
         try:
             path = self.h5object.path
-        except:
+        except Exception:
             path = self.path
 
         if filename and ":/" not in path:
