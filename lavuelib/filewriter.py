@@ -374,6 +374,15 @@ class FTGroup(FTObject):
         :rtype: :class:`FTObject`
         """
 
+    def open_link(self, name):
+        """ open a file tree element as link
+
+        :param name: element name
+        :type name: :obj:`str`
+        :returns: file tree object
+        :rtype: :class:`FTObject`
+        """
+
     def create_group(self, n, nxclass=""):
         """ open a file tree element
 

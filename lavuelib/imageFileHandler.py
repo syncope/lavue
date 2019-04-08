@@ -260,13 +260,13 @@ class NexusFieldHandler(object):
         return 0
 
     @classmethod
-    def getMetaData(cls, node):
+    def getMetaData(cls, node, mdata=None, maxrec=4):
         """  provides the image metadata
 
         :returns: JSON dictionary with image metadata
         :rtype: :obj:`str`
         """
-        metadata = {}
+        metadata = mdata if mdata is not None else {}
         pgroup = node.parent
         mnames = ['distance', 'wavelength',
                   'x_pixel_size', 'y_pixel_size',
@@ -274,7 +274,7 @@ class NexusFieldHandler(object):
         names = pgroup.names()
 
         for nm in mnames:
-            if nm in names:
+            if nm in names and nm not in metadata.keys():
                 fld = pgroup.open(nm)
                 value = cls.extract(fld.read())
                 if isinstance(value, np.ndarray):
@@ -289,7 +289,33 @@ class NexusFieldHandler(object):
                         metadata[nm] = value
                 except Exception:
                     metadata[nm] = value
+        lfld = pgroup.open_link(node.name)
+        file_path, lpath = str(lfld.target_path).split(":/")
+        opath = "/".join([gr.split(":")[0]
+                          for gr in node.path.split("/") if gr != '.'])
+        lpath = lpath.replace("//", "/")
+        lfile = lfld.getfilename(lfld)
+        if maxrec and lfile == file_path and str(lpath) != str(opath):
+            try:
+                root = None
+                par = pgroup
+                child = node
+                while not root:
+                    if isinstance(par, filewriter.FTFile):
+                        root = child
+                    else:
+                        child = par
+                        par = par.parent
 
+                grps = str(lpath).split("/")
+                lnode = root
+                for gr in grps:
+                    if not gr:
+                        continue
+                    lnode = lnode.open(gr)
+                cls.getMetaData(lnode, metadata, maxrec - 1)
+            except Exception as e:
+                print(str(e))
         return json.dumps(metadata)
 
     @classmethod
