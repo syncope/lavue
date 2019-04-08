@@ -754,6 +754,7 @@ class LiveViewer(QtGui.QDialog):
                         currentfield["node"],
                         self.__frame, self.__growing, refresh=False)
                     metadata = handler.getMetaData(currentfield["node"])
+                    print("Metadata = %s" % str(metadata))
                     self.__ui.frameSpinBox.valueChanged.disconnect(
                         self._reloadfile)
                     try:

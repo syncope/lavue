@@ -215,6 +215,17 @@ class PNIGroup(filewriter.FTGroup):
             return filewriter.FTObject(itm, self)
         return el
 
+    def open_link(self, name):
+        """ open a file tree element as link
+
+        :param name: element name
+        :type name: :obj:`str`
+        :returns: file tree object
+        :rtype: :class:`FTObject`
+        """
+        itm = self._h5object.open(name)
+        return PNILink(itm, self)
+
     def create_group(self, n, nxclass=""):
         """ open a file tree element
 

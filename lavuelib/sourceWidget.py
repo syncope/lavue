@@ -1127,10 +1127,17 @@ class NXSFileSourceWidget(BaseSourceWidget):
         :param kargs:  source widget input parameter dictionary
         :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
         """
+        update = False
         if nxsopen is not None:
-            self.__nxsopen = nxsopen
+            if self.__nxsopen != nxsopen:
+                self.__nxsopen = nxsopen
+                update = True
         if nxslast is not None:
-            self.__nxslast = nxslast
+            if self.__nxslast != nxslast:
+                self.__nxslast = nxslast
+                update = True
+        if update:
+            self.updateButton()
         self.sourceLabelChanged.emit(self.label())
 
     def configure(self, configuration):

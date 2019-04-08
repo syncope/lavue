@@ -486,6 +486,18 @@ class H5CppGroup(filewriter.FTGroup):
                 [lk for lk in self._h5object.links
                  if lk.path.name == name][0], self)
 
+    def open_link(self, name):
+        """ open a file tree element as link
+
+        :param name: element name
+        :type name: :obj:`str`
+        :returns: file tree object
+        :rtype: :class:`FTObject`
+        """
+        return H5CppLink(
+            [lk for lk in self._h5object.links
+             if lk.path.name == name][0], self)
+
     def create_group(self, n, nxclass=None):
         """ open a file tree element
 

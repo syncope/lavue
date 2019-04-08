@@ -293,6 +293,17 @@ class H5PYGroup(filewriter.FTGroup):
             el = H5PYLink(itm, self).setname(name)
         return el
 
+    def open_link(self, name):
+        """ open a file tree element as link
+
+        :param name: element name
+        :type name: :obj:`str`
+        :returns: file tree object
+        :rtype: :class:`FTObject`
+        """
+        itm = self._h5object.get(name, getlink=True)
+        return H5PYLink(itm, self).setname(name)
+
     class H5PYGroupIter(object):
 
         def __init__(self, group):
@@ -717,10 +728,15 @@ class H5PYLink(filewriter.FTLink):
         :rtype: :obj:`str`
         """
         filename = self.getfilename(self)
-        if filename and ":" not in self._h5object.path:
-            return filename + ":/" + "/".join(
-                self._h5object.path.split("/"))
-        return self._h5object.path
+        try:
+            path = self.h5object.path
+        except Exception:
+            path = self.path
+
+        if filename and ":/" not in path:
+            path = "/".join([gr.split(":")[0] for gr in path.split("/")])
+            path = filename + ":/" + path
+        return path
 
     def reopen(self):
         """ reopen field
