@@ -1224,6 +1224,14 @@ class FileWriterTest(unittest.TestCase):
             self.assertEqual(kids, set(["detector", "floatspec",
                                         "intspec", "strspec"]))
 
+            ins_lk = entry.open_link("instrument")
+            self.assertTrue(
+                isinstance(ins_lk, PNIWriter.PNILink))
+            self.assertEqual(ins_lk.name, "instrument")
+            self.assertEqual(
+                ins_lk.path, "/entry12345:NXentry/instrument:NXinstrument")
+            self.assertEqual(ins_lk.is_valid, True)
+            self.assertEqual(ins_lk.parent, entry)
             self.assertTrue(
                 isinstance(det, PNIWriter.PNIGroup))
             self.assertEqual(det.name, "detector")
