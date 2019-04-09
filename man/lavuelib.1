@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Apr 02, 2019" "2.5" "lavuelib"
+.TH "LAVUELIB" "1" "Apr 09, 2019" "2.6" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -498,6 +498,11 @@ status flag
 .TP
 .B sendrois = None
 (\fI\%bool\fP) send rois to LavueController flag
+.UNINDENT
+.INDENT 7.0
+.TP
+.B showaddhisto = None
+(\fI\%bool\fP) show color distribution additional histogram widget
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -2160,6 +2165,22 @@ file tree object
 .UNINDENT
 .INDENT 7.0
 .TP
+.B open_link(name)
+open a file tree element as link
+.INDENT 7.0
+.TP
+.B Parameters
+\fBname\fP (\fI\%str\fP) – element name
+.TP
+.B Returns
+file tree object
+.TP
+.B Return type
+\fI\%FTObject\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B reopen()
 reopen attribute
 .UNINDENT
@@ -3125,6 +3146,22 @@ file tree object
 .UNINDENT
 .INDENT 7.0
 .TP
+.B open_link(name)
+open a file tree element as link
+.INDENT 7.0
+.TP
+.B Parameters
+\fBname\fP (\fI\%str\fP) – element name
+.TP
+.B Returns
+file tree object
+.TP
+.B Return type
+\fBFTObject\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B path = None
 (\fI\%str\fP) object nexus path
 .UNINDENT
@@ -3231,7 +3268,7 @@ target path
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.h5cppwriter.create_file(filename, overwrite=False, libver=None)
+.B lavuelib.h5cppwriter.create_file(filename, overwrite=False, libver=None, swmr=None)
 create a new file
 .INDENT 7.0
 .TP
@@ -3983,6 +4020,22 @@ file tree object
 .UNINDENT
 .INDENT 7.0
 .TP
+.B open_link(name)
+open a file tree element as link
+.INDENT 7.0
+.TP
+.B Parameters
+\fBname\fP (\fI\%str\fP) – element name
+.TP
+.B Returns
+file tree object
+.TP
+.B Return type
+\fBFTObject\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B reopen()
 reopen file
 .UNINDENT
@@ -4290,7 +4343,7 @@ sets the image mask high value
 Horizontal HistogramWidget
 .INDENT 0.0
 .TP
-.B class lavuelib.histogramWidget.HistogramHLUTWidget(parent=None, *args, **kargs)
+.B class lavuelib.histogramWidget.HistogramHLUTWidget(parent=None, bins=None, step=None, *args, **kargs)
 Bases: \fBpyqtgraph.widgets.GraphicsView.GraphicsView\fP
 .sp
 Horizontal HistogramWidget
@@ -4302,6 +4355,11 @@ constructor
 .INDENT 7.0
 .IP \(bu 2
 \fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.IP \(bu 2
+\fBbins\fP (\fI\%str\fP) – bins edges algorithm for histogram, default: ‘auto’
+.IP \(bu 2
+\fBstep\fP (\fI\%str\fP or \fI\%int\fP) – data step for calculation of histogram levels,
+default: ‘auto’
 .IP \(bu 2
 \fBargs\fP (\fBlist\fP < \fI\%any\fP>) – HistogramHLUTItem parameters list
 .IP \(bu 2
@@ -4321,6 +4379,26 @@ sets auto level factor
 .TP
 .B Parameters
 \fBfactor\fP (\fI\%float\fP) – auto level factor of maximal peak
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setBins(bins)
+sets bins edges algorithm for histogram
+.INDENT 7.0
+.TP
+.B Parameters
+\fBchannel\fP (\fI\%str\fP) – bins edges algorithm for histogram
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setStep(step)
+sets image step data for algorithm of histogram
+.INDENT 7.0
+.TP
+.B Parameters
+\fBchannel\fP (\fI\%int\fP) – image step data for algorithm of histogram
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5001,6 +5079,10 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B classmethod extract(value)
+.UNINDENT
+.INDENT 7.0
+.TP
 .B findImageFields()
 provides a dictionary with of all image fields
 .INDENT 7.0
@@ -5062,6 +5144,19 @@ a number of frames
 .UNINDENT
 .INDENT 7.0
 .TP
+.B classmethod getMetaData(node, mdata=None, maxrec=4)
+provides the image metadata
+.INDENT 7.0
+.TP
+.B Returns
+JSON dictionary with image metadata
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B getNode(field)
 get node
 :param field: field path
@@ -5100,7 +5195,7 @@ image data
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.pyc\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.pyc\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.pyc\(aq>}
+.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.py\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.py\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.pyc\(aq>}
 (\fI\%dict\fP <\fI\%str\fP, \fBmodule\fP> ) nexus writer modules
 .UNINDENT
 .SS lavuelib.imageSource module
@@ -5566,7 +5661,7 @@ the data shape if data was loaded
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageSource.ZMQMINOR = 2
+.B lavuelib.imageSource.ZMQMINOR = 3
 (\fI\%str\fP,:obj:\fIstr\fP) zmq major version, zmq minor version
 .UNINDENT
 .INDENT 0.0
@@ -6716,7 +6811,7 @@ factor for automatic levels
 .UNINDENT
 .INDENT 7.0
 .TP
-.B changeView(showhistogram=None, showlevels=None)
+.B changeView(showhistogram=None, showlevels=None, showadd=None)
 shows or hides the histogram widget
 .INDENT 7.0
 .TP
@@ -6726,6 +6821,8 @@ shows or hides the histogram widget
 \fBshowhistogram\fP (\fI\%bool\fP) – if histogram should be shown
 .IP \(bu 2
 \fBshowlevels\fP (\fI\%bool\fP) – if levels should be shown
+.IP \(bu 2
+\fBshowadd\fP (\fI\%bool\fP) – if additional histogram should be shown
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -6819,6 +6916,16 @@ enables or disables automatic levels
 .TP
 .B Parameters
 \fBauto\fP (\fI\%bool\fP or \fI\%int\fP) – if automatics levels to be set
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setBins(index)
+sets bins edges algorithm for histogram
+.INDENT 7.0
+.TP
+.B Parameters
+\fBindex\fP (\fI\%int\fP) – bins edges algorithm index for histogram
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7802,6 +7909,22 @@ file tree object
 .UNINDENT
 .INDENT 7.0
 .TP
+.B open_link(name)
+open a file tree element as link
+.INDENT 7.0
+.TP
+.B Parameters
+\fBname\fP (\fI\%str\fP) – element name
+.TP
+.B Returns
+file tree object
+.TP
+.B Return type
+\fBFTObject\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B path = None
 (\fI\%str\fP) object nexus path
 .UNINDENT
@@ -8711,6 +8834,11 @@ sets source display parameters
 :type source: \fI\%str\fP
 :param values: display parameter dictionary
 :type values: \fI\%dict\fP <\fI\%str\fP, \fIany\fP>
+.UNINDENT
+.INDENT 7.0
+.TP
+.B showaddhisto = None
+(\fI\%bool\fP) show intensity hostogram
 .UNINDENT
 .INDENT 7.0
 .TP
