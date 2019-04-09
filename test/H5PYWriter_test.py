@@ -420,7 +420,7 @@ class H5PYWriterTest(unittest.TestCase):
                 isinstance(nt, H5PYWriter.H5PYGroup))
             self.assertEqual(nt.name, "notype")
             self.assertEqual(nt.path, "/notype")
-            print(nt.h5object.attrs.keys())
+            print(list(nt.h5object.attrs.keys()))
             self.assertEqual(
                 len(nt.h5object.attrs), 0)
             attr = nt.attributes

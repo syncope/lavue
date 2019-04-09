@@ -12,6 +12,7 @@ dset = f.create_dataset(
 f.swmr_mode = True
 
 for i in range(50):
+    print(i)
     new_shape = ((i+1), 2, 3)
     dset.resize(new_shape)
     dset[i,:,:] = arr + i

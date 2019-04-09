@@ -276,7 +276,8 @@ class NXSFileSource(BaseSource):
                 if self.__node is None:
                     self.__node = self.__handler.getNode(self.__nxsfield)
                     metadata = self.__handler.getMetaData(self.__node)
-                    print("IMAGE Metadata = %s" % str(metadata))
+                    # if metadata:
+                    #     print("IMAGE Metadata = %s" % str(metadata))
                 if self.__nxslast:
                     fid = self.__handler.getLastFrame(self.__node, self.__gdim)
                     if fid > self.__frame or fid < self.__frame:
