@@ -77,7 +77,7 @@ def create_file(filename, overwrite=False, **pars):
     :returns: file object
     :rtype: :class:`H5PYFile`
     """
-    fl = h5py.File(filename, "a" if overwrite else "w-", **pars)
+    fl = h5py.File(filename, "w" if overwrite else "w-", **pars)
     fl.attrs["file_time"] = unicode(H5PYFile.currenttime())
     fl.attrs["HDF5_version"] = u""
     fl.attrs["NX_class"] = u"NXroot"
@@ -427,7 +427,7 @@ class H5PYGroup(filewriter.FTGroup):
         :returns: group size
         :rtype: :obj:`int`
         """
-        return len(self._h5object.keys())
+        return len(list(self._h5object.keys()))
 
     def exists(self, name):
         """ if child exists
@@ -875,7 +875,7 @@ class H5PYAttributeManager(filewriter.FTAttributeManager):
         :returns: number of attributes
         :rtype: :obj:`int`
         """
-        return len(self._h5object.keys())
+        return len(list(self._h5object.keys()))
 
     class H5PYAttrIter(object):
 
