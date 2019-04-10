@@ -206,8 +206,13 @@ def open_file(filename, readonly=False, libver=None, swmr=False):
     else:
         flag = h5cpp.file.AccessFlags.READWRITE
     if swmr:
-        if hasattr(h5cpp.file.AccessFlags, "SWMRREAD"):
-            flag = flag | h5cpp.file.AccessFlags.SWMRREAD
+        if readonly:
+            if hasattr(h5cpp.file.AccessFlags, "SWMRREAD"):
+                flag = flag | h5cpp.file.AccessFlags.SWMRREAD
+        else:
+            if hasattr(h5cpp.file.AccessFlags, "SWMRWRITE"):
+                flag = flag | h5cpp.file.AccessFlags.SWMRWRITE
+
     if libver is None or libver == 'lastest':
         fapl.library_version_bounds(
             h5cpp.property.LibVersion.LATEST,

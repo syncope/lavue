@@ -278,10 +278,14 @@ class NXSFileSource(BaseSource):
                     metadata = self.__handler.getMetaData(self.__node)
                     # if metadata:
                     #     print("IMAGE Metadata = %s" % str(metadata))
+                fid = self.__handler.getLastFrame(self.__node, self.__gdim)
                 if self.__nxslast:
-                    fid = self.__handler.getLastFrame(self.__node, self.__gdim)
                     if fid > self.__frame or fid < self.__frame:
-                        self.__frame = fid - 1
+                        self.__frame = fid
+                else:
+                    if fid < self.__frame:
+                        self.__frame = fid
+
                 image = self.__handler.getImage(
                     self.__node, self.__frame, self.__gdim)
             # except Exception:
@@ -290,11 +294,14 @@ class NXSFileSource(BaseSource):
                     self.__handler = imageFileHandler.NexusFieldHandler(
                         str(self.__nxsfile))
                     self.__node = self.__handler.getNode(self.__nxsfield)
+                    fid = self.__handler.getLastFrame(
+                        self.__node, self.__gdim)
                     if self.__nxslast:
-                        fid = self.__handler.getLastFrame(
-                            self.__node, self.__gdim)
                         if fid > self.__frame or fid < self.__frame:
-                            self.__frame = fid - 1
+                            self.__frame = fid
+                    else:
+                        if fid < self.__frame:
+                            self.__frame = fid
                     image = self.__handler.getImage(
                         self.__node, self.__frame, self.__gdim)
                 except Exception:

@@ -1,3 +1,7 @@
+2019-04-10 Jan Kotanski <jan.kotanski@desy.de>
+	* fixes for NeXus image sources with 1D data
+	* tagged as 2.6.1
+
 2019-04-09 Jan Kotanski <jan.kotanski@desy.de>
 	* add addtional histogram options: bins and data step
 	* impove auto levels finding
