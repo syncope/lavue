@@ -866,6 +866,14 @@ class Settings(object):
             if psizex is not None and psizey is not None:
                 self.centerx = cx
                 self.centery = cy
+        if "beam_x" in kargs.keys():
+            cx = self.distance2pixels(kargs["beam_x"])
+            if cx is not None:
+                self.centerx = cx
+        if "beam_y" in kargs.keys():
+            cy = self.distance2pixels(kargs["beam_y"])
+            if cy is not None:
+                self.centery = cy
 
         if "beam_center_x" in kargs.keys():
             cx = self.distance2pixels(kargs["beam_center_x"])
