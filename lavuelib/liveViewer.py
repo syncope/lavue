@@ -410,6 +410,7 @@ class LiveViewer(QtGui.QDialog):
                     labelvalues.pop(key)
             setattr(self.__settings, name, json.dumps(labelvalues))
             self.__updateSource()
+            self.__storeSettings()
 
     @QtCore.pyqtSlot(str, str)
     def _removeLabel(self, name, label):
@@ -427,6 +428,7 @@ class LiveViewer(QtGui.QDialog):
             labelvalues.pop(label)
             setattr(self.__settings, name, json.dumps(labelvalues))
             self.__updateSource()
+            self.__storeSettings()
 
     def __updateSource(self):
         if self.__settings.detservers:
