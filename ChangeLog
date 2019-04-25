@@ -1,4 +1,8 @@
 2019-04-12 Jan Kotanski <jan.kotanski@desy.de>
+	* save/load custom color gradients in configuration
+	* tagged as 2.7.0
+
+2019-04-12 Jan Kotanski <jan.kotanski@desy.de>
 	* add beam_x and beam_y parameters from CBF
 	* save settings to file on change star label change
 	* tagged as 2.6.2

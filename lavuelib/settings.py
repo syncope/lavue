@@ -157,6 +157,9 @@ class Settings(object):
         self.showallrois = False
         #: (:obj:`bool`) send rois to LavueController flag
         self.sendrois = False
+        #: (:obj:`dict` < :obj:`str`, :obj:`dict` < :obj:`str`,`any`> >
+        #                custom gradients
+        self.__customgradients = {}
         #: (:obj:`bool`) store display parameters for specific sources
         self.sourcedisplay = False
 
@@ -177,8 +180,30 @@ class Settings(object):
         #: (:class:`pyqtgraph.QtCore.QMutex`) zmq bind address
         self.__mutex = QtCore.QMutex()
 
+    def setCustomGradients(self, gradients):
+        """ sets custom gradients
+
+        :param gradients: custom gradients
+        :type gradients: :obj:`dict` <:obj:`str`, `any`>
+        """
+        with QtCore.QMutexLocker(self.__mutex):
+            self.__customgradients = dict(gradients)
+
+    def customGradients(self):
+        """ sets source display parameters
+
+        :returns: custom gradients
+        :rtype: :obj:`dict` <:obj:`str`, `any`>
+        """
+
+        gradients = {}
+        with QtCore.QMutexLocker(self.__mutex):
+            gradients = dict(self.__customgradients)
+        return gradients
+
     def setSourceDisplay(self, source, values):
         """ sets source display parameters
+
         :param source: source name
         :type source: :obj:`str`
         :param values: display parameter dictionary
@@ -189,7 +214,8 @@ class Settings(object):
                 self.__sourcedisplay[str(source)] = values
 
     def sourceDisplay(self, source):
-        """ sets source display parameters
+        """ gets source display parameters
+
         :param source: source name
         :type source: :obj:`str`
         :returns: display parameter dictionary
@@ -454,6 +480,7 @@ class Settings(object):
         except Exception:
             pass
         self.__loadDisplayParams(settings)
+        self.__loadCustomGradients(settings)
         return status
 
     def store(self, settings):
@@ -622,6 +649,7 @@ class Settings(object):
             "Tools/DetectorDistance",
             self.detdistance)
         self.__storeDisplayParams(settings)
+        self.__storeCustomGradients(settings)
 
     def length2ev(self, length):
         """ converts length to energy  in eV
@@ -884,6 +912,42 @@ class Settings(object):
             if cy is not None:
                 self.centery = cy
 
+    def __storeCustomGradients(self, settings):
+        """ Stores custom color gradients settings in QSettings object
+
+        :param settings: QSettings object
+        :type settings: :class:`pyqtgraph.QtCore.QSettings`
+        """
+        with QtCore.QMutexLocker(self.__mutex):
+            for name, value in self.__customgradients.items():
+                settings.setValue(
+                    "CustomColorGradients/%s" % (name), str(value))
+            try:
+                settings.beginGroup("CustomColorGradients")
+                oldkeys = set([str(key) for key in settings.allKeys()]) - \
+                    set(self.__customgradients.keys())
+                for key in oldkeys:
+                    settings.remove(key)
+            finally:
+                settings.endGroup()
+
+    def __loadCustomGradients(self, settings):
+        """ Loads custom color gradients settings in QSettings object
+
+        :param settings: QSettings object
+        :type settings: :class:`pyqtgraph.QtCore.QSettings`
+        """
+        with QtCore.QMutexLocker(self.__mutex):
+            settings.beginGroup("CustomColorGradients")
+            try:
+                for key in settings.allKeys():
+                    qstval = str(
+                        settings.value(
+                            "%s" % str(key), type=str))
+                    self.__customgradients[str(key)] = eval(str(qstval))
+            finally:
+                settings.endGroup()
+
     def __storeDisplayParams(self, settings):
         """ Stores display parameters settings in QSettings object
 
@@ -910,8 +974,6 @@ class Settings(object):
 
         :param settings: QSettings object
         :type settings: :class:`pyqtgraph.QtCore.QSettings`
-        :returns: error messages list
-        :rtype: :obj:`list` < (:obj:`str`, :obj:`str`) >
         """
         with QtCore.QMutexLocker(self.__mutex):
             qgroups = list(settings.childGroups())

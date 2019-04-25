@@ -56,12 +56,18 @@ class LevelsGroupBox(QtGui.QGroupBox):
     levelsChanged = QtCore.pyqtSignal()
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) color channel changed signal
     channelChanged = QtCore.pyqtSignal()
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) store settings requested
+    storeSettingsRequested = QtCore.pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, settings=None, expertmode=False):
         """ constructor
 
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
+        :param settings: lavue configuration settings
+        :type settings: :class:`lavuelib.settings.Settings`
+        :param expertmode: expert mode flag
+        :type expertmode: :obj:`bool`
         """
         QtGui.QGroupBox.__init__(self, parent)
 
@@ -83,6 +89,16 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self.__colorchannel = 0
         #: (:obj: `int`) number of color channels
         self.__numberofchannels = 0
+        #: (:class:`lavuelib.settings.Settings`) settings
+        self.__settings = settings
+        #: (:obj:`bool`) expert mode
+        self.__expertmode = expertmode
+        #: (:obj:`dict` < :obj:`str`, :obj:`dict` < :obj:`str`,`any`> >
+        #                custom gradients
+        self.__customgradients = self.__settings.customGradients()
+        for name, gradient in self.__customgradients.items():
+            _pg.graphicsItems.GradientEditorItem.Gradients[name] = gradient
+            self._addGradientItem(name)
 
         #: (:obj: `float`) minimum intensity level value
         self.__minval = 0.1
@@ -96,7 +112,9 @@ class LevelsGroupBox(QtGui.QGroupBox):
 
         #: (:class: `lavuelib.histogramWidget.HistogramHLUTWidget`)
         #:      intensity histogram widget
-        self.__histogram = HistogramHLUTWidget(bins='auto', step='auto')
+        self.__histogram = HistogramHLUTWidget(
+            bins='auto', step='auto',
+            expertmode=expertmode)
         self.__ui.histogramLayout.addWidget(self.__histogram)
 
         self.__ui.gradientComboBox.currentIndexChanged.connect(
@@ -117,7 +135,6 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self.__connectHistogram()
         self.updateLevels(self.__minval, self.__maxval)
         self.__connectMinMax()
-        self.__customizeGradients = {}
 
     def __connectHistogram(self):
         """ create histogram object and connect its signals
@@ -138,6 +155,13 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self._saveGradient)
         self.__histogram.removeGradientRequested.disconnect(
             self._removeGradient)
+
+    def updateCustomGradients(self, gradients):
+        self.__customgradients = dict(gradients)
+        for name, gradient in self.__customgradients.items():
+            _pg.graphicsItems.GradientEditorItem.Gradients[name] = gradient
+            self._addGradientItem(name)
+        self.__histogram.resetGradient()
 
     def __connectMinMax(self):
         """ connects mix/max spinboxes
@@ -529,31 +553,35 @@ class LevelsGroupBox(QtGui.QGroupBox):
         """
         return str(self.__ui.gradientComboBox.currentText())
 
+    @QtCore.pyqtSlot()
     def _saveGradient(self):
         """ saves the current gradient
         """
         graddlg = gradientDialog.GradientDialog()
         graddlg.protectednames = list(
             set(_pg.graphicsItems.GradientEditorItem.Gradients.keys()) -
-            set(self.__customizeGradients.keys())
+            set(self.__customgradients.keys())
         )
         graddlg.createGUI()
         if graddlg.exec_():
             if graddlg.name:
                 name = graddlg.name
                 gradient = self.__histogram.gradient.getCurrentGradient()
-                self.__customizeGradients[name] = gradient
+                self.__customgradients[name] = gradient
                 _pg.graphicsItems.GradientEditorItem.Gradients[name] = gradient
                 self._addGradientItem(name)
                 self.__histogram.resetGradient()
                 self.setGradient(name)
+                self.__settings.setCustomGradients(self.__customgradients)
+                self.storeSettingsRequested.emit()
 
+    @QtCore.pyqtSlot()
     def _removeGradient(self):
         """ removes the current gradient
         """
         name = str(self.gradient())
 
-        if name in self.__customizeGradients:
+        if name in self.__customgradients:
             if QtGui.QMessageBox.question(
                     self, "Removing Label",
                     'Would you like  to remove "%s"" ?' %
@@ -561,16 +589,16 @@ class LevelsGroupBox(QtGui.QGroupBox):
                     QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
                     QtGui.QMessageBox.Yes) == QtGui.QMessageBox.No:
                 return False
-            self.__customizeGradients.pop(name)
+            self.__customgradients.pop(name)
             _pg.graphicsItems.GradientEditorItem.Gradients.pop(name)
             self._removeGradientItem(name)
             self.__histogram.resetGradient()
+            self.__settings.setCustomGradients(self.__customgradients)
+            self.storeSettingsRequested.emit()
         else:
             messageBox.MessageBox.warning(
-                self,
-                "Gradient: '%s' cannot be removed" % str(name),
-                None,
-                None)
+                self, "Gradient: '%s' cannot be removed" % str(name),
+                None, None)
 
     def _addGradientItem(self, name):
         """ sets gradient

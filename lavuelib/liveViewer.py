@@ -215,7 +215,9 @@ class LiveViewer(QtGui.QDialog):
         #: (:class:`lavuelib.scalingGroupBox.ScalingGroupBox`) scaling groupbox
         self.__scalingwg = scalingGroupBox.ScalingGroupBox(parent=self)
         #: (:class:`lavuelib.levelsGroupBox.LevelsGroupBox`) level groupbox
-        self.__levelswg = levelsGroupBox.LevelsGroupBox(parent=self)
+        self.__levelswg = levelsGroupBox.LevelsGroupBox(
+            parent=self, settings=self.__settings,
+            expertmode=(self.__umode == 'expert'))
         #: (:class:`lavuelib.statisticsGroupBox.StatisticsGroupBox`)
         #:     statistic groupbox
         self.__statswg = statisticsGroupBox.StatisticsGroupBox(parent=self)
@@ -326,6 +328,8 @@ class LiveViewer(QtGui.QDialog):
         # gradient selector
         self.__levelswg.channelChanged.connect(self._plot)
         self.__imagewg.aspectLockedToggled.connect(self._setAspectLocked)
+        self.__levelswg.storeSettingsRequested.connect(
+            self._storeSettings)
 
         self.__imagewg.replotImage.connect(self._replot)
         # simple mutable caching object for data exchange with thread
@@ -410,7 +414,7 @@ class LiveViewer(QtGui.QDialog):
                     labelvalues.pop(key)
             setattr(self.__settings, name, json.dumps(labelvalues))
             self.__updateSource()
-            self.__storeSettings()
+            self._storeSettings()
 
     @QtCore.pyqtSlot(str, str)
     def _removeLabel(self, name, label):
@@ -428,7 +432,7 @@ class LiveViewer(QtGui.QDialog):
             labelvalues.pop(label)
             setattr(self.__settings, name, json.dumps(labelvalues))
             self.__updateSource()
-            self.__storeSettings()
+            self._storeSettings()
 
     def __updateSource(self):
         if self.__settings.detservers:
@@ -599,7 +603,8 @@ class LiveViewer(QtGui.QDialog):
         self.restoreGeometry(settings.value(
             "Layout/DialogGeometry", type=QtCore.QByteArray))
         status = self.__settings.load(settings)
-
+        self.__levelswg.updateCustomGradients(
+            self.__settings.customGradients())
         for topic, value in status:
             text = messageBox.MessageBox.getText(topic)
             messageBox.MessageBox.warning(self, topic, text, str(value))
@@ -648,7 +653,8 @@ class LiveViewer(QtGui.QDialog):
         self.__scalingwg.changeView(self.__settings.showscale)
         self.__levelswg.changeView()
 
-    def __storeSettings(self):
+    @QtCore.pyqtSlot()
+    def _storeSettings(self):
         """ stores settings in QSettings object
         """
         settings = QtCore.QSettings()
@@ -677,7 +683,7 @@ class LiveViewer(QtGui.QDialog):
         """
         if self.__tangoclient:
             self.__tangoclient.unsubscribe()
-        self.__storeSettings()
+        self._storeSettings()
         self.__settings.secstream = False
         try:
             self.__dataFetcher.newDataNameFetched.disconnect(self._getNewData)
@@ -884,7 +890,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
-            self.__storeSettings()
+            self._storeSettings()
 
     def __updateConfig(self, dialog):
         """ updates the configuration
