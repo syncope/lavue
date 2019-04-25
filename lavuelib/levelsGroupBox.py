@@ -26,8 +26,11 @@
 """ level widget """
 
 from .qtuic import uic
+import pyqtgraph as _pg
 from pyqtgraph import QtCore, QtGui
 from .histogramWidget import HistogramHLUTWidget
+from . import messageBox
+from . import gradientDialog
 # from .histogramWidget import HistogramHLUTItem
 import math
 import os
@@ -114,20 +117,27 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self.__connectHistogram()
         self.updateLevels(self.__minval, self.__maxval)
         self.__connectMinMax()
+        self.__customizeGradients = {}
 
     def __connectHistogram(self):
         """ create histogram object and connect its signals
         """
         self.__histogram.item.sigLevelsChanged.connect(self._onLevelsChanged)
-        self.__histogram.gradient.sigNameChanged.connect(self._changeGradient)
+        self.__histogram.sigNameChanged.connect(self._changeGradient)
+        self.__histogram.saveGradientRequested.connect(self._saveGradient)
+        self.__histogram.removeGradientRequested.connect(self._removeGradient)
 
     def __disconnectHistogram(self):
         """ remove histogram object and disconnect its signals
         """
         self.__histogram.item.sigLevelsChanged.disconnect(
             self._onLevelsChanged)
-        self.__histogram.gradient.sigNameChanged.disconnect(
+        self.__histogram.sigNameChanged.disconnect(
             self._changeGradient)
+        self.__histogram.saveGradientRequested.disconnect(
+            self._saveGradient)
+        self.__histogram.removeGradientRequested.disconnect(
+            self._removeGradient)
 
     def __connectMinMax(self):
         """ connects mix/max spinboxes
@@ -518,6 +528,70 @@ class LevelsGroupBox(QtGui.QGroupBox):
         :rtype: :obj:`str`
         """
         return str(self.__ui.gradientComboBox.currentText())
+
+    def _saveGradient(self):
+        """ saves the current gradient
+        """
+        graddlg = gradientDialog.GradientDialog()
+        graddlg.protectednames = list(
+            set(_pg.graphicsItems.GradientEditorItem.Gradients.keys()) -
+            set(self.__customizeGradients.keys())
+        )
+        graddlg.createGUI()
+        if graddlg.exec_():
+            if graddlg.name:
+                name = graddlg.name
+                gradient = self.__histogram.gradient.getCurrentGradient()
+                self.__customizeGradients[name] = gradient
+                _pg.graphicsItems.GradientEditorItem.Gradients[name] = gradient
+                self._addGradientItem(name)
+                self.__histogram.resetGradient()
+                self.setGradient(name)
+
+    def _removeGradient(self):
+        """ removes the current gradient
+        """
+        name = str(self.gradient())
+
+        if name in self.__customizeGradients:
+            if QtGui.QMessageBox.question(
+                    self, "Removing Label",
+                    'Would you like  to remove "%s"" ?' %
+                    (name),
+                    QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
+                    QtGui.QMessageBox.Yes) == QtGui.QMessageBox.No:
+                return False
+            self.__customizeGradients.pop(name)
+            _pg.graphicsItems.GradientEditorItem.Gradients.pop(name)
+            self._removeGradientItem(name)
+            self.__histogram.resetGradient()
+        else:
+            messageBox.MessageBox.warning(
+                self,
+                "Gradient: '%s' cannot be removed" % str(name),
+                None,
+                None)
+
+    def _addGradientItem(self, name):
+        """ sets gradient
+
+        :param name  gradient name
+        :type name: :obj:`str`
+        """
+        self.__ui.gradientComboBox.addItem(name)
+
+    def _removeGradientItem(self, name):
+        """ removes gradient
+
+        :param name  gradient name
+        :type name: :obj:`str`
+        """
+        cid = self.__ui.gradientComboBox.findText(name)
+        if cid > -1:
+            self.__ui.gradientComboBox.removeItem(cid)
+            self._updateGradient(0)
+        else:
+            print("Error %s" % name)
 
     def setGradient(self, name):
         """ sets gradient
