@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Apr 09, 2019" "2.6" "lavuelib"
+.TH "LAVUELIB" "1" "Apr 25, 2019" "2.7" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -5195,7 +5195,7 @@ image data
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.py\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.py\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.pyc\(aq>}
+.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.pyc\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.pyc\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.pyc\(aq>}
 (\fI\%dict\fP <\fI\%str\fP, \fBmodule\fP> ) nexus writer modules
 .UNINDENT
 .SS lavuelib.imageSource module
@@ -6780,7 +6780,7 @@ create GUI
 level widget
 .INDENT 0.0
 .TP
-.B class lavuelib.levelsGroupBox.LevelsGroupBox(parent=None)
+.B class lavuelib.levelsGroupBox.LevelsGroupBox(parent=None, settings=None, expertmode=False)
 Bases: \fBPyQt5.QtWidgets.QGroupBox\fP
 .sp
 Set minimum and maximum displayed values and its color.
@@ -6789,7 +6789,14 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
+.INDENT 7.0
+.IP \(bu 2
 \fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.IP \(bu 2
+\fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) – lavue configuration settings
+.IP \(bu 2
+\fBexpertmode\fP (\fI\%bool\fP) – expert mode flag
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6988,6 +6995,11 @@ sets scaling label
 .UNINDENT
 .INDENT 7.0
 .TP
+.B storeSettingsRequested
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) store settings requested
+.UNINDENT
+.INDENT 7.0
+.TP
 .B updateAutoLevels(lowlim, uplim)
 set min/max level spinboxes and histogram from the parameters
 .INDENT 7.0
@@ -7000,6 +7012,10 @@ set min/max level spinboxes and histogram from the parameters
 \fBuplim\fP (\fI\%float\fP) – maximum intensity value
 .UNINDENT
 .UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateCustomGradients(gradients)
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8601,6 +8617,19 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B customGradients()
+sets source display parameters
+.INDENT 7.0
+.TP
+.B Returns
+custom gradients
+.TP
+.B Return type
+\fI\%dict\fP <\fI\%str\fP, \fIany\fP>
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B detdistance = None
 (\fI\%float\fP) detector distance in mm
 .UNINDENT
@@ -8828,12 +8857,28 @@ pixelsize in  um
 .UNINDENT
 .INDENT 7.0
 .TP
+.B setCustomGradients(gradients)
+sets custom gradients
+.INDENT 7.0
+.TP
+.B Parameters
+\fBgradients\fP (\fI\%dict\fP <\fI\%str\fP, \fIany\fP>) – custom gradients
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B setSourceDisplay(source, values)
 sets source display parameters
-:param source: source name
-:type source: \fI\%str\fP
-:param values: display parameter dictionary
-:type values: \fI\%dict\fP <\fI\%str\fP, \fIany\fP>
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBsource\fP (\fI\%str\fP) – source name
+.IP \(bu 2
+\fBvalues\fP (\fI\%dict\fP <\fI\%str\fP, \fIany\fP>) – display parameter dictionary
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8888,11 +8933,18 @@ sets source display parameters
 .INDENT 7.0
 .TP
 .B sourceDisplay(source)
-sets source display parameters
-:param source: source name
-:type source: \fI\%str\fP
-:returns: display parameter dictionary
-:rtype: \fI\%dict\fP <\fI\%str\fP, \fIany\fP>
+gets source display parameters
+.INDENT 7.0
+.TP
+.B Parameters
+\fBsource\fP (\fI\%str\fP) – source name
+.TP
+.B Returns
+display parameter dictionary
+.TP
+.B Return type
+\fI\%dict\fP <\fI\%str\fP, \fIany\fP>
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
