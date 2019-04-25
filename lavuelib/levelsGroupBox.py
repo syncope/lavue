@@ -162,6 +162,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
             _pg.graphicsItems.GradientEditorItem.Gradients[name] = gradient
             self._addGradientItem(name)
         self.__histogram.resetGradient()
+        self._updateGradient()
 
     def __connectMinMax(self):
         """ connects mix/max spinboxes
@@ -572,6 +573,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 self._addGradientItem(name)
                 self.__histogram.resetGradient()
                 self.setGradient(name)
+                self._updateGradient()
                 self.__settings.setCustomGradients(self.__customgradients)
                 self.storeSettingsRequested.emit()
 
@@ -606,7 +608,9 @@ class LevelsGroupBox(QtGui.QGroupBox):
         :param name  gradient name
         :type name: :obj:`str`
         """
-        self.__ui.gradientComboBox.addItem(name)
+        cid = self.__ui.gradientComboBox.findText(name)
+        if cid < 0:
+            self.__ui.gradientComboBox.addItem(name)
 
     def _removeGradientItem(self, name):
         """ removes gradient
@@ -630,12 +634,15 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self._changeGradient(name)
 
     @QtCore.pyqtSlot(int)
-    def _updateGradient(self, index):
+    def _updateGradient(self, index=-1):
         """ updates gradient in the intensity histogram
 
         :param index: gradient index
         :type index: :obj:`int`
         """
+        if index == -1:
+            name = self.__ui.gradientComboBox.currentText()
+            index = self.__ui.gradientComboBox.findText(name)
         self.__histogram.setGradientByName(
             self.__ui.gradientComboBox.itemText(index))
 
