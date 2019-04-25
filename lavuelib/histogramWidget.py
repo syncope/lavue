@@ -52,9 +52,14 @@ _pg.graphicsItems.GradientEditorItem.Gradients['spectrumclip'] = {
 _pg.graphicsItems.GradientEditorItem.Gradients['inverted'] = {
     'ticks': [(0.0, (255, 255, 255, 255)),
               (1.0, (0, 0, 0, 255)), ], 'mode': 'rgb'}
-# _pg.graphicsItems.GradientEditorItem.Gradients['highcontrast'] = {
-#    'ticks': [(0.0, (0, 0, 0, 255)),
-#              (1.0, (255, 255, 0, 255)), ], 'mode': 'rgb'}
+_pg.graphicsItems.GradientEditorItem.Gradients['highcontrastclip'] = {
+    'ticks': [(0.0, (255, 255, 255, 255)),
+              (0.15, (0, 0, 0, 255)),
+              (0.4, (255, 0, 0, 255)),
+              (0.7, (255, 255, 0, 255)),
+              (0.99, (255, 255, 255, 255)),
+              (1.0, (0, 0, 255, 255)), ], 'mode': 'rgb'}
+
 
 __all__ = ['HistogramHLUTWidget']
 
@@ -144,8 +149,65 @@ class GradientEditorItemWS(
         :param kargs:  GradientEditorItem parameter dictionary
         :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
         """
+        self.__skipupdate = True
         _pg.graphicsItems.GradientEditorItem.GradientEditorItem.__init__(
             self, *args, **kargs)
+        self.__skipupdate = False
+        self.saveAction = QtGui.QAction('Save ...', self)
+        self.removeAction = QtGui.QAction('Remove', self)
+
+    def addMenuActions(self):
+        """ add save/remove actions
+        """
+
+        self.menu.addAction(self.saveAction)
+        self.menu.addAction(self.removeAction)
+
+    def removeTick(self, tick, finish=True):
+        """ removes ticks with hook
+
+        :param tick: ticks to remove
+        :type tick:  :obj:`list` < :obj:`any`>
+        :param finish: finish remove flag
+        :type finish: :obj:`bool`
+        """
+        if not self.__skipupdate:
+            _pg.graphicsItems.GradientEditorItem.GradientEditorItem.\
+                removeTick(
+                    self, tick=tick, finish=finish)
+        else:
+            _pg.graphicsItems.GradientEditorItem.TickSliderItem.\
+                removeTick(self, tick)
+            if finish:
+                # hook for a pyqtgraph bug
+                # self.updateGradient()
+                self.sigGradientChangeFinished.emit(self)
+
+    def getCurrentGradient(self):
+        """ provides dictionary with the current gradient
+
+        :returns: gradient dictionary with:
+           {"mode": <colorMode>,
+            "ticks": [
+                (<pos>, (<r>, <g>, <b>, <a>)),
+                (<pos>, (<r>, <g>, <b>, <a>)),
+                      ...
+                (<pos>, (<r>, <g>, <b>, <a>)),
+            ]
+           }
+        :rtype: :obj:`dict` < :obj:`str`:,  :obj:`str`: or :obj:`list`:>
+        """
+        tlist = self.listTicks()
+        tdct = {}
+        tdct['ticks'] = []
+        tdct['mode'] = self.colorMode
+        for tck, pos in tlist:
+            clr = tck.color
+            tdct['ticks'].append(
+                (pos,
+                 (clr.red(), clr.green(), clr.blue(), clr.alpha()))
+                )
+        return tdct
 
     def loadPreset(self, name):
         """ loads a predefined gradient and emits sigNameChanged
@@ -162,10 +224,17 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
 
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) automatic levels changed signal
     autoLevelsChanged = QtCore.pyqtSignal(int)  # bool does not work...
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) minimum level changed signal
+    sigNameChanged = QtCore.pyqtSignal(str)
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) save gradient requested
+    saveGradientRequested = QtCore.pyqtSignal()
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) remove gradient requested
+    removeGradientRequested = QtCore.pyqtSignal()
 
     """ Horizontal HistogramItem """
 
-    def __init__(self, bins=None, step=None, image=None, fillHistogram=True):
+    def __init__(self, bins=None, step=None, image=None, fillHistogram=True,
+                 expertmode=False):
         """ constructor
 
         :param bins: bins edges algorithm for histogram, default: 'auto'
@@ -177,8 +246,13 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         :type image: :class:`pyqtgraph.ImageItem`
         :param fillHistogram: histogram will be filled in
         :type fillHistogram: :obj:`bool`
+        :param expertmode: expert mode flag
+        :type expertmode: :obj:`bool`
         """
         _pg.graphicsItems.GraphicsWidget.GraphicsWidget.__init__(self)
+
+        #: (:obj:`bool`) expert mode
+        self.__expertmode = expertmode
 
         #: (:class:`numpy.ndarray`) look up table
         self.lut = None
@@ -204,6 +278,8 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
 
         #: (:class:`GradientEditorItemWS`) gradient editor item with a signal
         self.gradient = GradientEditorItemWS()
+        if self.__expertmode:
+            self.gradient.addMenuActions()
         self.gradient.setOrientation('bottom')
         self.gradient.loadPreset('grey')
 
@@ -231,9 +307,15 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         self.vb.setFlag(self.gradient.ItemStacksBehindParent)
 
         self.gradient.sigGradientChanged.connect(self.gradientChanged)
+        self.gradient.sigNameChanged.connect(self._emitSigNameChanged)
+        self.gradient.saveAction.triggered.connect(
+            self._emitSaveGradientRequested)
+        self.gradient.removeAction.triggered.connect(
+            self._emitRemoveGradientRequested)
         self.region.sigRegionChanged.connect(self.regionChanging)
         self.region.sigRegionChangeFinished.connect(self.regionChanged)
         self.vb.sigRangeChanged.connect(self.viewRangeChanged)
+
         self.plot = _pg.graphicsItems.PlotDataItem.PlotDataItem()
         # self.plot.dataBounds(1, 0.9)
         # self.plot.dataBounds(0, 0.9)
@@ -246,6 +328,52 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         if image is not None:
             self.setImageItem(image)
         # self.background = None
+
+    def resetGradient(self):
+        """ resets gradient widget
+        """
+        self.gradient.sigGradientChanged.connect(self.gradientChanged)
+        self.gradient.sigNameChanged.connect(self._emitSigNameChanged)
+        self.gradient.saveAction.triggered.connect(
+            self._emitSaveGradientRequested)
+        self.gradient.removeAction.triggered.connect(
+            self._emitRemoveGradientRequested)
+        self.gradient.hide()
+        self.layout.removeItem(self.gradient)
+        self.gradient = GradientEditorItemWS()
+        if self.__expertmode:
+            self.gradient.addMenuActions()
+        self.gradient.setOrientation('bottom')
+        self.gradient.loadPreset('grey')
+        self.layout.addItem(self.gradient, 2, 0)
+
+        self.gradient.sigGradientChanged.connect(self.gradientChanged)
+        self.gradient.sigNameChanged.connect(self._emitSigNameChanged)
+        self.gradient.saveAction.triggered.connect(
+            self._emitSaveGradientRequested)
+        self.gradient.removeAction.triggered.connect(
+            self._emitRemoveGradientRequested)
+
+    @QtCore.pyqtSlot(str)
+    def _emitSigNameChanged(self, name):
+        """ emits SigNameChanged
+
+        :param name: gradient name
+        :type name: :obj:`str`
+        """
+        self.sigNameChanged.emit(name)
+
+    @QtCore.pyqtSlot()
+    def _emitSaveGradientRequested(self):
+        """ emits saveGradientRequested
+        """
+        self.saveGradientRequested.emit()
+
+    @QtCore.pyqtSlot()
+    def _emitRemoveGradientRequested(self):
+        """ emits removeGradientRequested
+        """
+        self.removeGradientRequested.emit()
 
     def setBins(self, bins):
         """ sets bins edges algorithm for histogram
@@ -278,7 +406,7 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         try:
             self.gradient.loadPreset(str(name))
         except Exception:
-            self.gradient.loadPreset("highContrast")
+            self.gradient.loadPreset("highcontrast")
 
     def paint(self, p, *args):
         """ paints the histogram item
