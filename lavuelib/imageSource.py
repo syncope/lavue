@@ -853,10 +853,10 @@ class HTTPSource(BaseSource):
                     sconf = self._configuration.split("/")
                     if len(sconf) > 4:
                         version = sconf[-3]
-                        l = [int(x, 10) for x in version.split('.')]
-                        l.reverse()
+                        lst = [int(x, 10) for x in version.split('.')]
+                        lst.reverse()
                         lversion = sum(
-                            x * (100 ** i) for i, x in enumerate(l))
+                            x * (100 ** i) for i, x in enumerate(lst))
                         if lversion >= 10800:
                             self.__header = {'Accept': 'application/tiff'}
                 if self.__header:
