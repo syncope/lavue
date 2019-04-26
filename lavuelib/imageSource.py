@@ -781,6 +781,7 @@ class HTTPSource(BaseSource):
         BaseSource.__init__(self, timeout)
         #: (:obj:`bool`) use tiff loader
         self.__tiffloader = True
+        #: (:obj:`dict` <:obj:`str`, :obj:`any` > ) HTTP header data
         self.__header = {}
 
     def getData(self):
