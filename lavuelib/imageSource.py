@@ -781,6 +781,7 @@ class HTTPSource(BaseSource):
         BaseSource.__init__(self, timeout)
         #: (:obj:`bool`) use tiff loader
         self.__tiffloader = True
+        self.__header = {}
 
     def getData(self):
         """ provides image name, image data and metadata
@@ -790,7 +791,10 @@ class HTTPSource(BaseSource):
         """
         if self._configuration:
             try:
-                response = requests.get(self._configuration)
+                if self.__header:
+                    response = requests.get(self._configuration, headers=self.__header)
+                else:
+                    response = requests.get(self._configuration)
                 if response.ok:
                     name = self._configuration
                     data = response.content
@@ -843,7 +847,21 @@ class HTTPSource(BaseSource):
         self.__tiffloader = False
         try:
             if self._configuration:
-                requests.get(self._configuration)
+                self.__header = {}
+                if self._configuration.endswith("/images/monitor"):
+                    sconf = self._configuration.split("/")
+                    if len(sconf) > 4:
+                        version = sconf[-3]
+                        l = [int(x, 10) for x in version.split('.')]
+                        l.reverse()
+                        lversion = sum(
+                            x * (100 ** i) for i, x in enumerate(l))
+                        if lversion >= 10800:
+                            self.__header = {'Accept': 'application/tiff'}
+                if self.__header:
+                    requests.get(self._configuration, headers=self.__header)
+                else:
+                    requests.get(self._configuration)
             return True
         except Exception as e:
             print(str(e))
