@@ -793,7 +793,8 @@ class HTTPSource(BaseSource):
         if self._configuration:
             try:
                 if self.__header:
-                    response = requests.get(self._configuration, headers=self.__header)
+                    response = requests.get(
+                        self._configuration, headers=self.__header)
                 else:
                     response = requests.get(self._configuration)
                 if response.ok:
