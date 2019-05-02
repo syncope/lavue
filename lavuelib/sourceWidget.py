@@ -110,6 +110,7 @@ class BaseSourceWidget(QtGui.QWidget):
         #: (:obj:`bool`) source widget detached
         self.__detached = False
 
+    @QtCore.pyqtSlot()
     def updateButton(self):
         """ update slot for test source
         """
@@ -125,6 +126,7 @@ class BaseSourceWidget(QtGui.QWidget):
         """
         self.sourceLabelChanged.emit(self.label())
 
+    @QtCore.pyqtSlot()
     def updateComboBox(self):
         """ abstract updateComboBox
         """
@@ -398,6 +400,7 @@ class HTTPSourceWidget(BaseSourceWidget):
             self.updateComboBox()
         self.sourceLabelChanged.emit(self.label())
 
+    @QtCore.pyqtSlot()
     def updateComboBox(self):
         """ updates ComboBox
         """
@@ -488,6 +491,7 @@ class HidraSourceWidget(BaseSourceWidget):
 
         self._connectComboBox(self._ui.serverComboBox)
 
+    @QtCore.pyqtSlot()
     def updateButton(self):
         """ update slot for Hidra source
         """
@@ -697,6 +701,7 @@ class TangoAttrSourceWidget(BaseSourceWidget):
             iid = self._ui.attrComboBox.findText(configuration)
         self._ui.attrComboBox.setCurrentIndex(iid)
 
+    @QtCore.pyqtSlot()
     def updateComboBox(self):
         """ updates ComboBox
         """
@@ -820,6 +825,7 @@ class TangoEventsSourceWidget(BaseSourceWidget):
             self.updateComboBox()
         self.sourceLabelChanged.emit(self.label())
 
+    @QtCore.pyqtSlot()
     def updateComboBox(self):
         """ updates ComboBox
         """
@@ -1007,6 +1013,7 @@ class TangoFileSourceWidget(BaseSourceWidget):
             self.__dirtrans = dirtrans
         self.sourceLabelChanged.emit(self.label())
 
+    @QtCore.pyqtSlot()
     def updateComboBox(self):
         """ updates ComboBox
         """
@@ -1409,6 +1416,7 @@ class ZMQSourceWidget(BaseSourceWidget):
             self._updateComboBox(
                 self._ui.pickleComboBox, self.__servers, self.__userservers)
 
+    @QtCore.pyqtSlot()
     def updateComboBox(self):
         """ updates ComboBox
         """
