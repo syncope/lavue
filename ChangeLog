@@ -1,3 +1,7 @@
+2019-05-02 Jan Kotanski <jan.kotanski@desy.de>
+	* add update of icons on combobox editing finished
+	* tagged as 2.8.1
+
 2019-04-26 Jan Kotanski <jan.kotanski@desy.de>
 	* add support for eiger2 and 1.8.0 API
 	* tagged as 2.8.0
