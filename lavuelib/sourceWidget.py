@@ -497,7 +497,8 @@ class HidraSourceWidget(BaseSourceWidget):
         """
         if not self.active:
             return
-        if self._ui.serverComboBox.currentText() == "Pick a server":
+        if self._ui.serverComboBox.currentText() == "Pick a server" \
+           or not self._ui.serverComboBox.currentText():
             self.buttonEnabled.emit(False)
         else:
             self.configurationChanged.emit(
