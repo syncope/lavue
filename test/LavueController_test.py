@@ -350,7 +350,7 @@ class LavueControllerTest(unittest.TestCase):
         """Test for State"""
         print("Run: %s.%s() " % (
             self.__class__.__name__, sys._getframe().f_code.co_name))
-        self.assertEqual(self.proxy.State(), PyTango.DevState.ON)
+        self.assertEqual(self.proxy.state(), PyTango.DevState.ON)
 
     def test_Status(self):
         """Test for Status"""
