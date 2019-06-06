@@ -86,6 +86,37 @@ from . import imageFileHandler
 
 if sys.version_info > (3,):
     buffer = memoryview
+    unicode = str
+else:
+    bytes = str
+
+def tobytes(x):
+    """ decode str to  bytes
+    :param x: string
+    :type x: :obj:`str`
+    :returns:  decode string in byte array
+    :rtype: :obj:``bytes
+    """
+    if isinstance(x, bytes):
+        return x
+    if sys.version_info > (3,):
+        return bytes(x, "utf8")
+    else:
+        return bytes(x)
+
+def tostr(x):
+    """ decode bytes to str
+    :param x: string
+    :type x: :obj:`bytes`
+    :returns:  decode string in byte array
+    :rtype: :obj:``str
+    """
+    if isinstance(x, str):
+        return x
+    if sys.version_info > (3,):
+        return str(x, "utf8")
+    else:
+        return str(x)
 
 
 class BaseSource(object):
@@ -869,8 +900,8 @@ class ZMQSource(BaseSource):
         self.__socket = None
         #: (:obj:`int`) internal counter
         self.__counter = 0
-        #: (:obj:`str`) zmq topic
-        self.__topic = "10001"
+        #: (:obj:`bytes`) zmq topic
+        self.__topic = b"10001"
         #: (:obj:`str`) zmq bind address
         self.__bindaddress = None
         #: (:class:`pyqtgraph.QtCore.QMutex`) mutex lock for zmq source
@@ -891,11 +922,15 @@ class ZMQSource(BaseSource):
                     shost = str(self._configuration).split("/")
                     topic = shost[1] if len(shost) > 1 else ""
                     self.__socket.unbind(self.__bindaddress)
-                    self.__socket.setsockopt(zmq.UNSUBSCRIBE, self.__topic)
-                    self.__socket.setsockopt(zmq.UNSUBSCRIBE, "datasources")
-                    self.__socket.setsockopt(zmq.SUBSCRIBE, "datasources")
-                    self.__socket.setsockopt(zmq.SUBSCRIBE, topic)
-                    self.__topic = topic
+                    self.__socket.setsockopt(
+                        zmq.UNSUBSCRIBE, self.__topic)
+                    self.__socket.setsockopt(
+                        zmq.UNSUBSCRIBE, b"datasources")
+                    self.__socket.setsockopt(
+                        zmq.SUBSCRIBE, b"datasources")
+                    self.__socket.setsockopt(
+                        zmq.SUBSCRIBE, tobytes(topic))
+                    self.__topic = tobytes(topic)
                     self.__socket.connect(self.__bindaddress)
 
     def __loads(self, message, encoding=None):
@@ -910,12 +945,13 @@ class ZMQSource(BaseSource):
         """
 
         if encoding == "JSON":
-            metadata = json.loads(message)
+            smessage = tostr(message)
+            metadata = json.loads(smessage)
         else:
             try:
-                metadata = cPickle.loads(message)
+                metadata = cPickle.loads(smessage)
             except Exception:
-                metadata = json.loads(message)
+                metadata = json.loads(smessage)
         return metadata
 
     def getData(self):
@@ -939,17 +975,17 @@ class ZMQSource(BaseSource):
             if isinstance(message, tuple) or isinstance(message, list):
                 lmsg = len(message)
                 topic = message[0]
-            if message[-1] == "JSON":
+            if message[-1] == b"JSON":
                 encoding = "JSON"
                 lmsg -= 1
                 message.pop()
-            elif message[-1] == "PICKLE":
+            elif message[-1] == b"PICKLE":
                 encoding = "PICKLE"
                 lmsg -= 1
                 message.pop()
 
             # print("topic %s %s" % (topic, self.__topic))
-            if topic == "datasources" and lmsg == 2:
+            if topic == b"datasources" and lmsg == 2:
                 (topic, _metadata) = message
                 metadata = self.__loads(_metadata, encoding)
                 if "shape" in metadata:
@@ -960,7 +996,7 @@ class ZMQSource(BaseSource):
                 if metadata:
                     jmetadata = json.dumps(metadata)
                 return ("", "", jmetadata)
-            elif topic == "datasources" and lmsg == 3:
+            elif topic == b"datasources" and lmsg == 3:
                 (topic, _, _metadata) = message
                 metadata = self.__loads(_metadata, encoding)
                 if "shape" in metadata:
@@ -971,7 +1007,7 @@ class ZMQSource(BaseSource):
                 if metadata:
                     jmetadata = json.dumps(metadata)
                 return ("", "", jmetadata)
-            elif self.__topic == "" or topic == self.__topic:
+            elif self.__topic == b"" or tobytes(topic) == self.__topic:
                 if lmsg == 3:
                     (topic, _array, _metadata) = message
                     metadata = self.__loads(_metadata, encoding)
@@ -981,12 +1017,12 @@ class ZMQSource(BaseSource):
                         name = metadata["name"]
                     else:
                         name = '%s/%s (%s)' % (
-                            self.__bindaddress, topic, self.__counter)
+                            self.__bindaddress, tostr(topic), self.__counter)
                 else:
                     if lmsg == 4:
                         (topic, _array, _shape, _dtype) = message
                         name = '%s/%s (%s)' % (
-                            self.__bindaddress, topic, self.__counter)
+                            self.__bindaddress, tostr(topic), self.__counter)
                     elif lmsg == 5:
                         (topic, _array, _shape, _dtype, name) = message
                     dtype = self.__loads(_dtype, encoding)
@@ -1022,7 +1058,7 @@ class ZMQSource(BaseSource):
         try:
             shost = str(self._configuration).split("/")
             host, port = str(shost[0]).split(":")
-            self.__topic = shost[1] if len(shost) > 1 else ""
+            self.__topic = tobytes(shost[1] if len(shost) > 1 else "")
             hwm = int(shost[2]) if (len(shost) > 2 and shost[2]) else 2
             if not self._initiated:
                 if self.__socket:
@@ -1037,8 +1073,9 @@ class ZMQSource(BaseSource):
                         + ':'
                         + str(port)
                     )
-                    self.__socket.setsockopt(zmq.SUBSCRIBE, self.__topic)
-                    self.__socket.setsockopt(zmq.SUBSCRIBE, "datasources")
+                    self.__socket.setsockopt(zmq.SUBSCRIBE,
+                                             self.__topic)
+                    self.__socket.setsockopt(zmq.SUBSCRIBE, b"datasources")
                     # self.__socket.setsockopt(zmq.SUBSCRIBE, "")
                     self.__socket.connect(self.__bindaddress)
                 time.sleep(0.2)
