@@ -90,6 +90,7 @@ if sys.version_info > (3,):
 else:
     bytes = str
 
+
 def tobytes(x):
     """ decode str to  bytes
     :param x: string
@@ -103,6 +104,7 @@ def tobytes(x):
         return bytes(x, "utf8")
     else:
         return bytes(x)
+
 
 def tostr(x):
     """ decode bytes to str
