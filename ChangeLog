@@ -1,6 +1,18 @@
 2019-06-06 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for ZMQ sources and python3
-	* tagged as 2.7.2
+	* tagged as 2.8.3
+
+2019-05-15 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for crash on empty hidra server lineedit
+	* tagged as 2.8.2
+
+2019-05-02 Jan Kotanski <jan.kotanski@desy.de>
+	* add update of icons on combobox editing finished
+	* tagged as 2.8.1
+
+2019-04-26 Jan Kotanski <jan.kotanski@desy.de>
+	* add support for eiger2 and 1.8.0 API
+	* tagged as 2.8.0
 
 2019-04-25 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for update custom color gradient

@@ -110,6 +110,7 @@ class BaseSourceWidget(QtGui.QWidget):
         #: (:obj:`bool`) source widget detached
         self.__detached = False
 
+    @QtCore.pyqtSlot()
     def updateButton(self):
         """ update slot for test source
         """
@@ -124,6 +125,11 @@ class BaseSourceWidget(QtGui.QWidget):
         :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
         """
         self.sourceLabelChanged.emit(self.label())
+
+    @QtCore.pyqtSlot()
+    def updateComboBox(self):
+        """ abstract updateComboBox
+        """
 
     def connectWidget(self):
         """ connects widget
@@ -203,12 +209,16 @@ class BaseSourceWidget(QtGui.QWidget):
     def _connectComboBox(self, combobox):
         combobox.lineEdit().textEdited.connect(
             self.updateButton)
+        combobox.lineEdit().editingFinished.connect(
+            self.updateComboBox)
         combobox.currentIndexChanged.connect(
             self.updateButton)
 
     def _disconnectComboBox(self, combobox):
         combobox.lineEdit().textEdited.disconnect(
             self.updateButton)
+        combobox.lineEdit().editingFinished.disconnect(
+            self.updateComboBox)
         combobox.currentIndexChanged.disconnect(
             self.updateButton)
 
@@ -387,9 +397,15 @@ class HTTPSourceWidget(BaseSourceWidget):
         """
         if httpurls is not None:
             self.__urls = json.loads(httpurls)
-            self._updateComboBox(
-                self._ui.httpComboBox, self.__urls, self.__userurls)
+            self.updateComboBox()
         self.sourceLabelChanged.emit(self.label())
+
+    @QtCore.pyqtSlot()
+    def updateComboBox(self):
+        """ updates ComboBox
+        """
+        self._updateComboBox(
+            self._ui.httpComboBox, self.__urls, self.__userurls)
 
     def configure(self, configuration):
         """ set configuration for the current image source
@@ -475,12 +491,14 @@ class HidraSourceWidget(BaseSourceWidget):
 
         self._connectComboBox(self._ui.serverComboBox)
 
+    @QtCore.pyqtSlot()
     def updateButton(self):
         """ update slot for Hidra source
         """
         if not self.active:
             return
-        if self._ui.serverComboBox.currentText() == "Pick a server":
+        if self._ui.serverComboBox.currentText() == "Pick a server" \
+           or not self._ui.serverComboBox.currentText():
             self.buttonEnabled.emit(False)
         else:
             self.configurationChanged.emit(
@@ -684,6 +702,13 @@ class TangoAttrSourceWidget(BaseSourceWidget):
             iid = self._ui.attrComboBox.findText(configuration)
         self._ui.attrComboBox.setCurrentIndex(iid)
 
+    @QtCore.pyqtSlot()
+    def updateComboBox(self):
+        """ updates ComboBox
+        """
+        self._updateComboBox(
+            self._ui.attrComboBox, self.__tangoattrs, self.__userattrs)
+
     def disconnectWidget(self):
         """ disconnects widget
         """
@@ -798,10 +823,16 @@ class TangoEventsSourceWidget(BaseSourceWidget):
         """
         if tangoevattrs is not None:
             self.__tangoevattrs = json.loads(tangoevattrs)
-            self._updateComboBox(
-                self._ui.evattrComboBox,
-                self.__tangoevattrs, self.__userevattrs)
+            self.updateComboBox()
         self.sourceLabelChanged.emit(self.label())
+
+    @QtCore.pyqtSlot()
+    def updateComboBox(self):
+        """ updates ComboBox
+        """
+        self._updateComboBox(
+            self._ui.evattrComboBox,
+            self.__tangoevattrs, self.__userevattrs)
 
     def configure(self, configuration):
         """ set configuration for the current image source
@@ -982,6 +1013,17 @@ class TangoFileSourceWidget(BaseSourceWidget):
         if dirtrans is not None:
             self.__dirtrans = dirtrans
         self.sourceLabelChanged.emit(self.label())
+
+    @QtCore.pyqtSlot()
+    def updateComboBox(self):
+        """ updates ComboBox
+        """
+        self._updateComboBox(
+            self._ui.fileattrComboBox, self.__tangofileattrs,
+            self.__userfileattrs)
+        self._updateComboBox(
+            self._ui.dirattrComboBox, self.__tangodirattrs,
+            self.__userdirattrs)
 
     def connectWidget(self):
         """ connects widget
@@ -1374,6 +1416,13 @@ class ZMQSourceWidget(BaseSourceWidget):
             self.__userservers.append(server)
             self._updateComboBox(
                 self._ui.pickleComboBox, self.__servers, self.__userservers)
+
+    @QtCore.pyqtSlot()
+    def updateComboBox(self):
+        """ updates ComboBox
+        """
+        self._updateComboBox(
+            self._ui.pickleComboBox, self.__servers, self.__userservers)
 
     def disconnectWidget(self):
         """ disconnects widget
