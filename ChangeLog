@@ -1,3 +1,7 @@
+2019-06-06 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for ZMQ sources and python3
+	* tagged as 2.8.3
+
 2019-05-15 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for crash on empty hidra server lineedit
 	* tagged as 2.8.2
