@@ -971,7 +971,7 @@ class ZMQSource(BaseSource):
             metadata = json.loads(smessage)
         else:
             try:
-                metadata = cPickle.loads(smessage)
+                metadata = cPickle.loads(message)
             except Exception:
                 metadata = json.loads(smessage)
         return metadata
