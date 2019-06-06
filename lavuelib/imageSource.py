@@ -944,8 +944,8 @@ class ZMQSource(BaseSource):
         :rtype: :obj:`any`
         """
 
+        smessage = tostr(message)
         if encoding == "JSON":
-            smessage = tostr(message)
             metadata = json.loads(smessage)
         else:
             try:
