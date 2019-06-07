@@ -279,6 +279,14 @@ class LiveViewer(QtGui.QDialog):
         #: (:obj:`str`) transformation name
         self.__trafoname = "None"
 
+        #: (:obj: dict < :obj:`str` , :obj:`str` >) unsigned/signed int map
+        self.__unsignedmap = {
+            "uint8": "int16",
+            "uint16": "int32",
+            "uint32": "int64",
+            "uint64": "int64"
+            # "uint64": "float64"
+        }
         #: (:class:`Ui_LevelsGroupBox') ui_groupbox object from qtdesigner
         self.__ui = _formclass()
         self.__ui.setupUi(self)
@@ -1448,8 +1456,19 @@ class LiveViewer(QtGui.QDialog):
         if self.__dobkgsubtraction and self.__backgroundimage is not None:
             # simple subtraction
             try:
-                self.__displayimage = \
-                    self.__rawgreyimage - self.__backgroundimage
+                if (hasattr(self.__rawgreyimage, "dtype") and
+                   self.__rawgreyimage.dtype.name in
+                    self.__unsignedmap.keys()) \
+                   and (hasattr(self.__backgroundimage, "dtype") and
+                   self.__backgroundimage.dtype.name in
+                        self.__unsignedmap.keys()):
+                    self.__displayimage = np.subtract(
+                        self.__rawgreyimage, self.__backgroundimage,
+                        dtype=self.__unsignedmap[
+                            self.__rawgreyimage.dtype.name])
+                else:
+                    self.__displayimage = \
+                        self.__rawgreyimage - self.__backgroundimage
             except Exception:
                 self._checkBkgSubtraction(False)
                 self.__backgroundimage = None
