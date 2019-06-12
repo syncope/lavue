@@ -1667,14 +1667,24 @@ class LiveViewer(QtGui.QDialog):
         """
         if self.__settings.showfilters and self.__filterstate:
             for flt in self.__filters:
-                displayimage = flt(
-                    self.__displayimage,
-                    self.__imagename,
-                    self.__metadata,
-                    self.__imagewg
-                )
-                if displayimage is not None:
-                    self.__displayimage = displayimage
+                try:
+                    displayimage = flt(
+                        self.__displayimage,
+                        self.__imagename,
+                        self.__metadata,
+                        self.__imagewg
+                    )
+                    if displayimage is not None:
+                        self.__displayimage = displayimage
+                except Exception as e:
+                    self.__filterswg.setState(0)
+                    import traceback
+                    value = traceback.format_exc()
+                    messageBox.MessageBox.warning(
+                        self, "lavue: problems in applying filters",
+                        "%s" % str(e),
+                        "%s" % value)
+                    # print(str(e))
 
     def __scale(self, scalingtype):
         """ sets scaletype on the image
