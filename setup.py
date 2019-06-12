@@ -67,6 +67,8 @@ version = ".".join(release.split(".")[:2])
 UIDIR = os.path.join(NAME, "ui")
 #: (:obj:`str`) .qrc file directory
 QRCDIR = os.path.join(NAME, "qrc")
+#: (:obj:`str`) .qrc file directory
+PLGNSDIR = os.path.join(NAME, "plugins")
 #: (:obj:`list` < :obj:`str` >) executable scripts
 SCRIPTS = ['lavuemonitor', 'lavuezmqstreamfromtango',
            'LavueController', 'lavuezmqstreamtest']
@@ -209,7 +211,7 @@ SETUPDATA = dict(
         'Programming Language :: Python :: 3.5',
     ],
     keywords='live viewer photon science detector',
-    packages=[NAME, QRCDIR],
+    packages=[NAME, QRCDIR, PLGNSDIR],
     package_data=package_data,
     # package_dir={'lauvelib': 'lavuelib'},
     # include_package_data=True, # do not include image an qrc files
