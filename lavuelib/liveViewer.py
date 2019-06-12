@@ -402,10 +402,7 @@ class LiveViewer(QtGui.QDialog):
 
         self.__loadSettings()
 
-        try:
-            self.__filters.reset(json.loads(self.__settings.filters))
-        except Exception as e:
-            print(str(e))
+        self.__resetFilters(self.__settings.filters)
 
         self.__updateframeview()
 
@@ -416,6 +413,39 @@ class LiveViewer(QtGui.QDialog):
 
         if options.tool:
             QtCore.QTimer.singleShot(10, self.__imagewg.showCurrentTool)
+
+    def __resetFilters(self, filters):
+        """ resets filters
+
+        :param filters: filters settings
+        :type filters: :obj:`str`
+        """
+        try:
+            fsettings = json.loads(filters)
+            self.__filters.reset(fsettings)
+            label = "|".join([flt[0].split(".")[-1]
+                              for flt in fsettings if flt[0]])
+            if len(label) > 32:
+                label = label[:32] + " ..."
+            self.__filterswg.setLabel(label)
+            self.__filterswg.setToolTip(
+                "\n".join(
+                    ["%s(%s)" %
+                     (flt[0],
+                      ("'%s'" % flt[1]) if flt[1] else "")
+                     for flt in fsettings if flt[0]])
+            )
+            if self.__settings.filters != filters:
+                self.__settings.filters = filters
+        except Exception as e:
+            self.__filterswg.setState(0)
+            import traceback
+            value = traceback.format_exc()
+            messageBox.MessageBox.warning(
+                self, "lavue: problems in setting filters",
+                "%s" % str(e),
+                "%s" % value)
+            # print(str(e))
 
     @QtCore.pyqtSlot(str, str)
     def _addLabel(self, name, value):
@@ -970,11 +1000,7 @@ class LiveViewer(QtGui.QDialog):
         dataFetchThread.GLOBALREFRESHRATE = dialog.refreshrate
         self.__settings.refreshrate = dialog.refreshrate
         if self.__settings.filters != dialog.filters:
-            try:
-                self.__filters.reset(json.loads(dialog.filters))
-                self.__settings.filters = dialog.filters
-            except Exception as e:
-                print(str(e))
+            self.__resetFilters(dialog.filters)
 
         if self.__settings.secstream != dialog.secstream or (
                 self.__settings.secautoport != dialog.secautoport

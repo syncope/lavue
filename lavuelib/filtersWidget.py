@@ -66,3 +66,30 @@ class FiltersWidget(QtGui.QWidget):
         :type state: :obj:`int`
         """
         self.filtersChanged.emit(state)
+
+    def setState(self, state):
+        """ sets filter state
+
+        :param tname: filter state
+        :type tname: :obj:`int`
+        """
+        if state:
+            self.__ui.checkBox.setChecked(True)
+        else:
+            self.__ui.checkBox.setChecked(False)
+
+    def setLabel(self, text):
+        """ sets filter label
+
+        :param text: label text
+        :type text: :obj:`str`
+        """
+        self.__ui.label.setText(text)
+
+    def setToolTip(self, text):
+        """ sets filter label
+
+        :param text: tool tip text
+        :type text: :obj:`str`
+        """
+        self.__ui.label.setToolTip(text)

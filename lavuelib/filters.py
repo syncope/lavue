@@ -26,6 +26,7 @@
 
 import sys
 
+
 def _tostr(text):
     """ converts text  to str type
 
@@ -40,6 +41,7 @@ def _tostr(text):
         return str(text, "utf8")
     else:
         return str(text)
+
 
 class BaseFilter(object):
 

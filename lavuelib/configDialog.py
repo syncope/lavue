@@ -359,7 +359,6 @@ class ConfigDialog(QtGui.QDialog):
             self.filters = json.dumps(fltlist)
             self.__populateTable()
             self.__updateRecord()
-            print("UP FIL %s" % self.filters)
 
     def __populateTable(self, selected=None):
         """ populates the group table
