@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>996</width>
+    <width>862</width>
     <height>557</height>
    </rect>
   </property>
@@ -610,7 +610,7 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="tab">
+       <widget class="QWidget" name="layoutTab">
         <attribute name="title">
          <string>Layout</string>
         </attribute>
@@ -623,14 +623,27 @@
            <layout class="QGridLayout" name="gridLayout_42">
             <item row="0" column="0">
              <layout class="QGridLayout" name="viewGridLayout">
-              <item row="5" column="1">
+              <item row="9" column="0">
+               <widget class="QLabel" name="showhistoLabel">
+                <property name="toolTip">
+                 <string>show histogram to set range and color distribution</string>
+                </property>
+                <property name="text">
+                 <string>Histogram:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showhistoCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="1">
                <widget class="QCheckBox" name="showlevelsCheckBox">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="8" column="1">
+              <item row="10" column="1">
                <widget class="QCheckBox" name="showstatsCheckBox">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -640,7 +653,7 @@
                 </property>
                </widget>
               </item>
-              <item row="8" column="0">
+              <item row="10" column="0">
                <widget class="QLabel" name="showstatsLabel">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -663,19 +676,6 @@
                 </property>
                 <property name="buddy">
                  <cstring>showmaskCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="7" column="0">
-               <widget class="QLabel" name="showhistoLabel">
-                <property name="toolTip">
-                 <string>show histogram to set range and color distribution</string>
-                </property>
-                <property name="text">
-                 <string>Histogram:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showhistoCheckBox</cstring>
                 </property>
                </widget>
               </item>
@@ -702,7 +702,7 @@
                 </property>
                </widget>
               </item>
-              <item row="5" column="0">
+              <item row="7" column="0">
                <widget class="QLabel" name="showlevelsLabel">
                 <property name="toolTip">
                  <string>show widgets to select the image intensity levels</string>
@@ -715,7 +715,7 @@
                 </property>
                </widget>
               </item>
-              <item row="4" column="0">
+              <item row="6" column="0">
                <widget class="QLabel" name="showscaleLabel">
                 <property name="toolTip">
                  <string>show widgets to select the image intensity scale</string>
@@ -728,7 +728,7 @@
                 </property>
                </widget>
               </item>
-              <item row="4" column="1">
+              <item row="6" column="1">
                <widget class="QCheckBox" name="showscaleCheckBox">
                 <property name="toolTip">
                  <string>show widgets to select the image intensity scale</string>
@@ -738,7 +738,7 @@
                 </property>
                </widget>
               </item>
-              <item row="7" column="1">
+              <item row="9" column="1">
                <widget class="QCheckBox" name="showhistoCheckBox">
                 <property name="toolTip">
                  <string>show histogram to set range and color distribution</string>
@@ -771,7 +771,7 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="0">
+              <item row="4" column="0">
                <widget class="QLabel" name="showtransLabel">
                 <property name="toolTip">
                  <string>show widgets to select the image transformations</string>
@@ -794,17 +794,7 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="1">
-               <widget class="QCheckBox" name="showtransCheckBox">
-                <property name="toolTip">
-                 <string>show widgets to select the image transformations</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="0">
+              <item row="8" column="0">
                <widget class="QLabel" name="showaddhistoLabel">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show additional histogram options like image data step and bin edges algorithm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -817,10 +807,40 @@
                 </property>
                </widget>
               </item>
-              <item row="6" column="1">
+              <item row="8" column="1">
                <widget class="QCheckBox" name="showaddhistoCheckBox">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show additional histogram options like image data step and bin edges algorithm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QCheckBox" name="showtransCheckBox">
+                <property name="toolTip">
+                 <string>show widgets to select the image transformations</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="showfiltersLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select image filters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Filters:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1">
+               <widget class="QCheckBox" name="showfiltersCheckBox">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select image filters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
                  <string/>
@@ -1108,7 +1128,7 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="tab_2">
+       <widget class="QWidget" name="tangosourceTab">
         <attribute name="title">
          <string>Tango Image Sources</string>
         </attribute>
@@ -1266,6 +1286,27 @@ in the file name and the file directory for Tango File Source</string>
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="filterTab">
+        <attribute name="title">
+         <string>Filters</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_18">
+         <item row="0" column="0">
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QDialogButtonBox" name="filterButtonBox">
+             <property name="standardButtons">
+              <set>QDialogButtonBox::NoButton</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QTableWidget" name="filterTableWidget"/>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
      <item>
@@ -1305,10 +1346,11 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>sardanaCheckBox</tabstop>
   <tabstop>doorLineEdit</tabstop>
   <tabstop>addroisCheckBox</tabstop>
-  <tabstop>showtransCheckBox</tabstop>
   <tabstop>showsubCheckBox</tabstop>
   <tabstop>showmaskCheckBox</tabstop>
   <tabstop>showmaskhighCheckBox</tabstop>
+  <tabstop>showtransCheckBox</tabstop>
+  <tabstop>showfiltersCheckBox</tabstop>
   <tabstop>showscaleCheckBox</tabstop>
   <tabstop>showlevelsCheckBox</tabstop>
   <tabstop>showaddhistoCheckBox</tabstop>
@@ -1328,6 +1370,8 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>fileattrLineEdit</tabstop>
   <tabstop>dirattrLineEdit</tabstop>
   <tabstop>dirtransLineEdit</tabstop>
+  <tabstop>filterButtonBox</tabstop>
+  <tabstop>filterTableWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>

@@ -55,6 +55,8 @@ from . import imageField
 from . import configDialog
 from . import release
 from . import edDictDialog
+from . import filters
+
 try:
     from . import controllerClient
     TANGOCLIENT = True
@@ -202,6 +204,12 @@ class LiveViewer(QtGui.QDialog):
         #: (:obj:`str`) nexus field path
         self.__fieldpath = None
 
+        #: (:class:`filters.FilterList` ) user filters
+        self.__filters = filters.FilterList()
+
+        #: (:obj:`int`) filter state
+        self.__filterstate = 0
+
         # WIDGET DEFINITIONS
         #: (:class:`lavuelib.sourceGroupBox.SourceGroupBox`) source groupbox
         self.__sourcewg = sourceGroupBox.SourceGroupBox(
@@ -239,6 +247,9 @@ class LiveViewer(QtGui.QDialog):
         #: (:class:`lavuelib.transformationsWidget.TransformationsWidget`)
         #:    transformations widget
         self.__trafowg = self.__prepwg.trafoWidget
+        #: (:class:`lavuelib.filtersWidget.FiltersWidget`)
+        #:    filters widget
+        self.__filterswg = self.__prepwg.filtersWidget
 
         # keep a reference to the "raw" image and the current filename
         #: (:class:`numpy.ndarray`) raw image
@@ -370,6 +381,10 @@ class LiveViewer(QtGui.QDialog):
         self.__trafowg.transformationChanged.connect(
             self._assessTransformation)
 
+        # signals from transformation widget
+        self.__filterswg.filtersChanged.connect(
+            self._assessFilters)
+
         # set the right target name for the source display at initialization
 
         self.__sourcewg.configurationChanged.connect(
@@ -386,6 +401,11 @@ class LiveViewer(QtGui.QDialog):
         self.__imagewg.showCurrentTool()
 
         self.__loadSettings()
+
+        try:
+            self.__filters.reset(json.loads(self.__settings.filters))
+        except Exception as e:
+            print(str(e))
 
         self.__updateframeview()
 
@@ -656,7 +676,8 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showmask,
             self.__settings.showsub,
             self.__settings.showtrans,
-            self.__settings.showhighvaluemask
+            self.__settings.showhighvaluemask,
+            self.__settings.showfilters
         )
         self.__scalingwg.changeView(self.__settings.showscale)
         self.__levelswg.changeView()
@@ -864,7 +885,9 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.showaddhisto = self.__settings.showaddhisto
         cnfdlg.showmask = self.__settings.showmask
         cnfdlg.showhighvaluemask = self.__settings.showhighvaluemask
+        cnfdlg.showfilters = self.__settings.showfilters
         cnfdlg.showstats = self.__settings.showstats
+        cnfdlg.filters = self.__settings.filters
         cnfdlg.secautoport = self.__settings.secautoport
         cnfdlg.secport = self.__settings.secport
         cnfdlg.hidraport = self.__settings.hidraport
@@ -922,6 +945,10 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showhighvaluemask = dialog.showhighvaluemask
             self.__prepwg.changeView(
                 showhighvaluemask=dialog.showhighvaluemask)
+        if self.__settings.showfilters != dialog.showfilters:
+            self.__settings.showfilters = dialog.showfilters
+            self.__prepwg.changeView(
+                showfilters=dialog.showfilters)
 
         if self.__settings.showscale != dialog.showscale:
             self.__scalingwg.changeView(dialog.showscale)
@@ -942,6 +969,13 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showstats = dialog.showstats
         dataFetchThread.GLOBALREFRESHRATE = dialog.refreshrate
         self.__settings.refreshrate = dialog.refreshrate
+        if self.__settings.filters != dialog.filters:
+            try:
+                self.__filters.reset(json.loads(dialog.filters))
+                self.__settings.filters = dialog.filters
+            except Exception as e:
+                print(str(e))
+
         if self.__settings.secstream != dialog.secstream or (
                 self.__settings.secautoport != dialog.secautoport
                 and dialog.secautoport):
@@ -1172,6 +1206,9 @@ class LiveViewer(QtGui.QDialog):
         # orgtranspose, orgleftrightflip, orgupdownflip)
         allcrds = self.__transform()
         self.__imagewg.setTransformations(*allcrds)
+
+        # apply user filters
+        self.__applyFilters()
 
         # use the internal raw image to create a display image with chosen
         # scaling
@@ -1599,6 +1636,20 @@ class LiveViewer(QtGui.QDialog):
         return (crdtranspose, crdleftrightflip, crdupdownflip,
                 orgtranspose, orgleftrightflip, orgupdownflip)
 
+    def __applyFilters(self):
+        """ applies user filters
+        """
+        if self.__settings.showfilters and self.__filterstate:
+            for flt in self.__filters:
+                displayimage = flt(
+                    self.__displayimage,
+                    self.__imagename,
+                    self.__metadata,
+                    self.__imagewg
+                )
+                if displayimage is not None:
+                    self.__displayimage = displayimage
+
     def __scale(self, scalingtype):
         """ sets scaletype on the image
 
@@ -1781,6 +1832,12 @@ class LiveViewer(QtGui.QDialog):
             self.__bkgsubwg.setDisplayedName(str(self.__imagename))
         else:
             self.__bkgsubwg.setDisplayedName("")
+
+    @QtCore.pyqtSlot(int)
+    def _assessFilters(self, state):
+        """ assesses the filter on/off state
+        """
+        self.__filterstate = state
 
     @QtCore.pyqtSlot(str)
     def _assessTransformation(self, trafoname):

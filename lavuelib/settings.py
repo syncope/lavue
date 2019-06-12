@@ -62,6 +62,8 @@ class Settings(object):
         self.showsub = True
         #: (:obj:`bool`) show transformation widget
         self.showtrans = True
+        #: (:obj:`bool`) show filter widget
+        self.showfilters = False
         #: (:obj:`bool`) show intensity scale widget
         self.showscale = True
         #: (:obj:`bool`) show intensity levels widget
@@ -140,6 +142,9 @@ class Settings(object):
         self.geometryfromsource = False
         #: (:obj:`str`) json list with roi colors
         self.roiscolors = "[]"
+
+        #: (:obj:`str`) json list with filters
+        self.filters = "[]"
 
         #: (:obj:`float`) x-coordinates of the center of the image
         self.centerx = 0.0
@@ -266,6 +271,10 @@ class Settings(object):
         qstval = str(settings.value("Configuration/ShowHistogram", type=str))
         if qstval.lower() == "false":
             self.showhisto = False
+        qstval = str(settings.value("Configuration/ShowFilterWidget",
+                                    type=str))
+        if qstval.lower() == "true":
+            self.showfilters = True
         qstval = str(settings.value("Configuration/ShowAdditionalHistogram",
                                     type=str))
         if qstval.lower() == "true":
@@ -443,6 +452,11 @@ class Settings(object):
             self.roiscolors = qstval
 
         qstval = str(
+            settings.value("Configuration/Filters", type=str))
+        if qstval:
+            self.filters = qstval
+
+        qstval = str(
             settings.value(
                 "Configuration/SourceDisplayParams", type=str))
         if qstval.lower() == "true":
@@ -513,6 +527,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ShowMaskWidget",
             self.showmask)
+        settings.setValue(
+            "Configuration/ShowFilterWidget",
+            self.showfilters)
         settings.setValue(
             "Configuration/ShowHighValueMaskWidget",
             self.showhighvaluemask)
@@ -612,6 +629,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ROIsColors",
             self.roiscolors)
+        settings.setValue(
+            "Configuration/Filters",
+            self.filters)
         settings.setValue(
             "Configuration/SendROIs",
             self.sendrois)
