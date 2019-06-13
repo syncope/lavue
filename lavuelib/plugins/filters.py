@@ -26,6 +26,7 @@
 
 import json
 import numpy as np
+from scipy import ndimage
 
 
 class HGap(object):
@@ -35,8 +36,8 @@ class HGap(object):
     def __init__(self, configuration=None):
         """ constructor
 
-        :param name: image name
-        :type metadata: :obj:`str`
+        :param configuration: JSON list with horizontal gap pixels to add
+        :type configuration: :obj:`str`
         """
         #: (:obj:`list` <:obj: `str`>) list of indexes for gap
         self.__indexes = [
@@ -56,7 +57,8 @@ class HGap(object):
         :returns: numpy array with an image
         :rtype: :class:`numpy.ndarray` or `None`
         """
-        return np.insert(image, self.__indexes, 0, axis=1)
+        if image is not None:
+            return np.insert(image, self.__indexes, 0, axis=1)
 
 
 class VGap(object):
@@ -66,8 +68,8 @@ class VGap(object):
     def __init__(self, configuration=None):
         """ constructor
 
-        :param name: image name
-        :type metadata: :obj:`str`
+        :param configuration: JSON list with vertical gap pixels to add
+        :type configuration: :obj:`str`
         """
         #: (:obj:`list` <:obj: `str`>) list of indexes for gap
         self.__indexes = [
@@ -87,4 +89,23 @@ class VGap(object):
         :returns: numpy array with an image
         :rtype: :class:`numpy.ndarray` or `None`
         """
-        return np.insert(image, self.__indexes, 0, axis=0)
+        if image is not None:
+            return np.insert(image, self.__indexes, 0, axis=0)
+
+
+def rot45(image, imagename, metadata, imagewg):
+    """ get metadata
+
+    :param image: numpy array with an image
+    :type image: :class:`numpy.ndarray`
+    :param imagename: image name
+    :type imagename: :obj:`str`
+    :param metadata: JSON dictionary with metadata
+    :type metadata: :obj:`str`
+    :param imagewg: image wigdet
+    :type imagewg: :class:`lavuelib.imageWidget.ImageWidget`
+    :returns: numpy array with an image
+    :rtype: :class:`numpy.ndarray` or `None`
+    """
+    if image is not None:
+        return ndimage.rotate(image, 45)

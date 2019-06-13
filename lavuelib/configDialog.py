@@ -276,14 +276,17 @@ class ConfigDialog(QtGui.QDialog):
     def __setFiltersWidget(self):
         """ updates filter tab  widget
         """
-        self.__ui.addPushButton = self.__ui.filterButtonBox.addButton(
-            "&Add", QtGui.QDialogButtonBox.ActionRole)
+        self.__ui.addupPushButton = self.__ui.filterButtonBox.addButton(
+            "&Insert Row Above", QtGui.QDialogButtonBox.ActionRole)
+        self.__ui.adddownPushButton = self.__ui.filterButtonBox.addButton(
+            "&Insert Row Below", QtGui.QDialogButtonBox.ActionRole)
         # self.__ui.editPushButton = self.__ui.filterButtonBox.addButton(
         #     "&Edit", QtGui.QDialogButtonBox.ActionRole)
         self.__ui.removePushButton = self.__ui.filterButtonBox.addButton(
-            "&Remove", QtGui.QDialogButtonBox.ActionRole)
+            "&Delete Row", QtGui.QDialogButtonBox.ActionRole)
         self.__populateTable(0)
-        self.__ui.addPushButton.clicked.connect(self.__add)
+        self.__ui.addupPushButton.clicked.connect(self.__addup)
+        self.__ui.adddownPushButton.clicked.connect(self.__adddown)
         # self.__ui.editPushButton.clicked.connect(self.__edit)
         self.__ui.filterTableWidget.itemChanged.connect(
             self.__tableItemChanged)
@@ -324,17 +327,30 @@ class ConfigDialog(QtGui.QDialog):
         self.__updateRecord()
 
     @QtCore.pyqtSlot()
-    def __add(self):
+    def __addup(self):
         """ adds a new record into the table
         """
         row = self.__ui.filterTableWidget.currentRow()
         fltlist = json.loads(self.filters)
-        if row < 0:
+        if row >= 0 and row <= len(fltlist):
+            fltlist.insert(row, ["", ""])
+        else:
             fltlist.insert(0, ["", ""])
-        elif row <= 0 and row <= len(fltlist):
+
+        self.filters = json.dumps(fltlist)
+        self.__populateTable()
+        self.__updateRecord()
+
+    @QtCore.pyqtSlot()
+    def __adddown(self):
+        """ adds a new record into the table
+        """
+        row = self.__ui.filterTableWidget.currentRow()
+        fltlist = json.loads(self.filters)
+        if row >= 0 and row <= len(fltlist):
             fltlist.insert(row + 1, ["", ""])
         else:
-            fltlist.insert(len(fltlist), ["", ""])
+            fltlist.append(["", ""])
 
         self.filters = json.dumps(fltlist)
         self.__populateTable()
