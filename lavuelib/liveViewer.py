@@ -423,8 +423,8 @@ class LiveViewer(QtGui.QDialog):
         try:
             fsettings = json.loads(filters)
             self.__filters.reset(fsettings)
-            label = "|".join([flt[0].split(".")[-1]
-                              for flt in fsettings if flt[0]])
+            label = " | ".join([flt[0].split(".")[-1]
+                                for flt in fsettings if flt[0]])
             if len(label) > 32:
                 label = label[:32] + " ..."
             self.__filterswg.setLabel(label)
