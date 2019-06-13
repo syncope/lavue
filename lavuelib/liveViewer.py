@@ -998,9 +998,12 @@ class LiveViewer(QtGui.QDialog):
             self.__statswg.changeView(dialog.showstats)
             self.__settings.showstats = dialog.showstats
         dataFetchThread.GLOBALREFRESHRATE = dialog.refreshrate
+        replot = False
+
         self.__settings.refreshrate = dialog.refreshrate
         if self.__settings.filters != dialog.filters:
             self.__resetFilters(dialog.filters)
+            replot = True
 
         if self.__settings.secstream != dialog.secstream or (
                 self.__settings.secautoport != dialog.secautoport
@@ -1034,7 +1037,6 @@ class LiveViewer(QtGui.QDialog):
         self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
         self.__settings.autodownsample = dialog.autodownsample
         self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
-        replot = False
         remasking = False
         if self.__settings.keepcoords != dialog.keepcoords:
             self.__settings.keepcoords = dialog.keepcoords
@@ -1665,17 +1667,18 @@ class LiveViewer(QtGui.QDialog):
     def __applyFilters(self):
         """ applies user filters
         """
-        if self.__settings.showfilters and self.__filterstate:
+        if self.__filterstate:
             for flt in self.__filters:
                 try:
-                    displayimage = flt(
+                    image = flt(
                         self.__displayimage,
                         self.__imagename,
                         self.__metadata,
                         self.__imagewg
                     )
-                    if displayimage is not None:
-                        self.__displayimage = displayimage
+                    if image is not None and (
+                            hasattr(image, "size") and image.size > 1):
+                        self.__displayimage = image
                 except Exception as e:
                     self.__filterswg.setState(0)
                     import traceback
@@ -1874,6 +1877,8 @@ class LiveViewer(QtGui.QDialog):
         """ assesses the filter on/off state
         """
         self.__filterstate = state
+        if self.__displayimage is not None:
+            self._plot()
 
     @QtCore.pyqtSlot(str)
     def _assessTransformation(self, trafoname):

@@ -56,7 +56,6 @@ class HGap(object):
         :returns: numpy array with an image
         :rtype: :class:`numpy.ndarray` or `None`
         """
-
         return np.insert(image, self.__indexes, 0, axis=1)
 
 
@@ -88,5 +87,4 @@ class VGap(object):
         :returns: numpy array with an image
         :rtype: :class:`numpy.ndarray` or `None`
         """
-
         return np.insert(image, self.__indexes, 0, axis=0)
