@@ -277,9 +277,9 @@ class ConfigDialog(QtGui.QDialog):
         """ updates filter tab  widget
         """
         self.__ui.addupPushButton = self.__ui.filterButtonBox.addButton(
-            "&Insert Row Above", QtGui.QDialogButtonBox.ActionRole)
+            "Insert Row &Above", QtGui.QDialogButtonBox.ActionRole)
         self.__ui.adddownPushButton = self.__ui.filterButtonBox.addButton(
-            "&Insert Row Below", QtGui.QDialogButtonBox.ActionRole)
+            "Insert Row &Below", QtGui.QDialogButtonBox.ActionRole)
         # self.__ui.editPushButton = self.__ui.filterButtonBox.addButton(
         #     "&Edit", QtGui.QDialogButtonBox.ActionRole)
         self.__ui.removePushButton = self.__ui.filterButtonBox.addButton(
