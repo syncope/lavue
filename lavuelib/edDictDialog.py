@@ -261,11 +261,11 @@ class EdDictDialog(QtGui.QDialog):
             row += 1
         for name in names:
             item = QtGui.QTableWidgetItem(name)
-            item.setData(QtCore.Qt.EditRole, (name))
+            item.setData(QtCore.Qt.UserRole, (name))
             self.__ui.tableWidget.setItem(row, 0, item)
             value = self.record[name] or ""
             item2 = QtGui.QTableWidgetItem(value)
-            item2.setData(QtCore.Qt.EditRole, (value))
+            item2.setData(QtCore.Qt.UserRole, (value))
             self.__ui.tableWidget.setItem(row, 1, item2)
 
             if selected is not None and selected == name:
