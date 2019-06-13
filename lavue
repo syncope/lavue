@@ -145,6 +145,10 @@ if __name__ == "__main__":
         "  rot90, rot180, rot270, rot180+transpose"
     )
     parser.add_argument(
+        "-z", "--filters", action="store_true", default=False,
+        dest="filters",
+        help="apply image filters")
+    parser.add_argument(
         "-i", "--scaling", dest="scaling",
         help="intensity scaling, i.e. sqrt, linear, log"
     )

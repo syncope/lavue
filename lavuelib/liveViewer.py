@@ -577,6 +577,10 @@ class LiveViewer(QtGui.QDialog):
            options.transformation is not None:
             self.__trafowg.setTransformation(options.transformation)
 
+        if hasattr(options, "filters") and \
+           options.filters is True:
+            self.__filterswg.setState(2)
+
         if hasattr(options, "scaling") and options.scaling is not None:
             self.__scalingwg.setScaling(options.scaling)
 
@@ -1670,15 +1674,16 @@ class LiveViewer(QtGui.QDialog):
         if self.__filterstate:
             for flt in self.__filters:
                 try:
-                    image = flt(
-                        self.__displayimage,
-                        self.__imagename,
-                        self.__metadata,
-                        self.__imagewg
-                    )
-                    if image is not None and (
-                            hasattr(image, "size") and image.size > 1):
-                        self.__displayimage = image
+                    if self.__displayimage is not None:
+                        image = flt(
+                            self.__displayimage,
+                            self.__imagename,
+                            self.__metadata,
+                            self.__imagewg
+                        )
+                        if image is not None and (
+                                hasattr(image, "size") and image.size > 1):
+                            self.__displayimage = image
                 except Exception as e:
                     self.__filterswg.setState(0)
                     import traceback

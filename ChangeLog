@@ -1,3 +1,8 @@
+2019-06-XX Jan Kotanski <jan.kotanski@desy.de>
+	* add --filters option
+	* fix manpages
+	* tagged as 2.9.2
+
 2019-06-13 Jan Kotanski <jan.kotanski@desy.de>
 	* make filter widget more visible
 	* tagged as 2.9.1

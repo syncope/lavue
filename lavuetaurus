@@ -144,6 +144,11 @@ def main():
         "  rot90, rot180, rot270, rot180+transpose"
     )
     parser.add_option(
+        "-z", "--filters", action="store_true", default=False,
+        dest="filters",
+        help="apply image filters"
+    )
+    parser.add_option(
         "-i", "--scaling", dest="scaling",
         help="intensity scaling, i.e. sqrt, linear, log"
     )
