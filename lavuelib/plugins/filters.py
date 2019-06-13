@@ -57,8 +57,7 @@ class HGap(object):
         :returns: numpy array with an image
         :rtype: :class:`numpy.ndarray` or `None`
         """
-        if image is not None:
-            return np.insert(image, self.__indexes, 0, axis=1)
+        return np.insert(image, self.__indexes, 0, axis=1)
 
 
 class VGap(object):
@@ -89,8 +88,7 @@ class VGap(object):
         :returns: numpy array with an image
         :rtype: :class:`numpy.ndarray` or `None`
         """
-        if image is not None:
-            return np.insert(image, self.__indexes, 0, axis=0)
+        return np.insert(image, self.__indexes, 0, axis=0)
 
 
 def rot45(image, imagename, metadata, imagewg):
@@ -107,5 +105,4 @@ def rot45(image, imagename, metadata, imagewg):
     :returns: numpy array with an image
     :rtype: :class:`numpy.ndarray` or `None`
     """
-    if image is not None:
-        return ndimage.rotate(image, 45)
+    return ndimage.rotate(image, 45)
