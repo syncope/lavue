@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Apr 26, 2019" "2.8" "lavuelib"
+.TH "LAVUELIB" "1" "Jun 13, 2019" "2.9" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -216,6 +216,63 @@ More information can be found at: \fI\%LaVue\fP
 .SS Subpackages
 .SS lavuelib.qrc package
 .SS Module contents
+.SS lavuelib.plugins package
+.SS lavuelib.plugins.filters module
+.sp
+set of image sources
+.INDENT 0.0
+.TP
+.B class lavuelib.plugins.filters.HGap(configuration=None)
+Bases: \fI\%object\fP
+.sp
+Horizontal gap filter
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – JSON list with horizontal gap pixels to add
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.plugins.filters.VGap(configuration=None)
+Bases: \fI\%object\fP
+.sp
+Vertical gap filter
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – JSON list with vertical gap pixels to add
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.plugins.filters.rot45(image, imagename, metadata, imagewg)
+get metadata
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBimage\fP (\fI\%numpy.ndarray\fP) – numpy array with an image
+.IP \(bu 2
+\fBimagename\fP (\fI\%str\fP) – image name
+.IP \(bu 2
+\fBmetadata\fP (\fI\%str\fP) – JSON dictionary with metadata
+.IP \(bu 2
+\fBimagewg\fP (\fBlavuelib.imageWidget.ImageWidget\fP) – image wigdet
+.UNINDENT
+.TP
+.B Returns
+numpy array with an image
+.TP
+.B Return type
+\fI\%numpy.ndarray\fP or \fINone\fP
+.UNINDENT
+.UNINDENT
 .SS Submodules
 .SS lavuelib.axesDialog module
 .sp
@@ -436,6 +493,11 @@ status flag
 .UNINDENT
 .INDENT 7.0
 .TP
+.B filters = None
+(\fI\%str\fP) json list with filters
+.UNINDENT
+.INDENT 7.0
+.TP
 .B geometryfromsource = None
 (\fI\%bool\fP) fetch geometry from source
 .UNINDENT
@@ -508,6 +570,11 @@ status flag
 .TP
 .B showallrois = None
 (\fI\%bool\fP) show all rois flag
+.UNINDENT
+.INDENT 7.0
+.TP
+.B showfilters = None
+(\fI\%bool\fP) show filter widget
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -1636,6 +1703,63 @@ x1, y1, x2, y2 positions of the roi
 .UNINDENT
 .UNINDENT
 .UNINDENT
+.SS lavuelib.edDictDialog module
+.sp
+editable list dialog
+.INDENT 0.0
+.TP
+.B class lavuelib.edDictDialog.EdDictDialog(parent=None)
+Bases: \fBPyQt5.QtWidgets.QDialog\fP
+.sp
+editable list dialog
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBQtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B accept()
+updates class variables with the form content
+.UNINDENT
+.INDENT 7.0
+.TP
+.B createGUI()
+creates widget GUI
+.UNINDENT
+.INDENT 7.0
+.TP
+.B dirty = None
+(\fI\%bool\fP) dirty flag
+.UNINDENT
+.INDENT 7.0
+.TP
+.B headers = None
+(\fBlist\fP <\fI\%str\fP>) table headers
+.UNINDENT
+.INDENT 7.0
+.TP
+.B newvalues = None
+(\fBlist\fP <\fI\%str\fP>) table headers
+.UNINDENT
+.INDENT 7.0
+.TP
+.B record = None
+(\fI\%dict\fP <\fI\%str\fP, \fIany\fP>) data (name, value) dictionary
+.UNINDENT
+.INDENT 7.0
+.TP
+.B title = None
+(\fI\%str\fP) dialog title
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.edDictDialog.logger = <logging.Logger object>
+(\fI\%logging.Logger\fP) logger object
+.UNINDENT
 .SS lavuelib.filewriter module
 .sp
 Provides abstraction for file writer
@@ -2464,6 +2588,109 @@ sets writer
 .TP
 .B lavuelib.filewriter.writerlock = <thread.lock object>
 (\fBthreading.Lock\fP) writer module
+.UNINDENT
+.SS lavuelib.filters module
+.sp
+set of image sources
+.INDENT 0.0
+.TP
+.B class lavuelib.filters.BaseFilter(configuration=None)
+Bases: \fI\%object\fP
+.sp
+filter base class
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBname\fP – image name
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.filters.FilterList(configlist=None)
+Bases: \fBlist\fP
+.sp
+Filter list
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiglist\fP (:    \fBlist\fP < [\fI\%str\fP , \fI\%str\fP] >) – list with filter configuration
+.UNINDENT
+.INDENT 7.0
+.TP
+.B appendFilters(configlist)
+appends filters
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiglist\fP (:    \fBlist\fP < [\fI\%str\fP , \fI\%str\fP] >) – list with filter configuration
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B reset(configlist)
+reset filters
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiglist\fP (:    \fBlist\fP < [\fI\%str\fP , \fI\%str\fP] >) – list with filter configuration
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS lavuelib.filtersWidget module
+.sp
+filter widget
+.INDENT 0.0
+.TP
+.B class lavuelib.filtersWidget.FiltersWidget(parent=None)
+Bases: \fBPyQt5.QtWidgets.QWidget\fP
+.sp
+Select how an image should be transformed.
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B filtersChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) filter changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setLabel(text)
+sets filter label
+.INDENT 7.0
+.TP
+.B Parameters
+\fBtext\fP (\fI\%str\fP) – label text
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setState(state)
+sets filter state
+.INDENT 7.0
+.TP
+.B Parameters
+\fBtname\fP (\fI\%int\fP) – filter state
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setToolTip(text)
+sets filter label
+.INDENT 7.0
+.TP
+.B Parameters
+\fBtext\fP (\fI\%str\fP) – tool tip text
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .SS lavuelib.geometryDialog module
 .sp
@@ -5711,6 +5938,38 @@ set configuration
 .UNINDENT
 .UNINDENT
 .UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.imageSource.tobytes(x)
+decode str to bytes
+.INDENT 7.0
+.TP
+.B Parameters
+\fBx\fP (\fI\%str\fP) – string
+.TP
+.B Returns
+decode string in byte array
+.TP
+.B Return type
+\fBbytes\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.imageSource.tostr(x)
+decode bytes to str
+.INDENT 7.0
+.TP
+.B Parameters
+\fBx\fP (\fBbytes\fP) – string
+.TP
+.B Returns
+decode string in byte array
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
 .SS lavuelib.imageWidget module
 .sp
 image widget
@@ -8170,7 +8429,7 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
-.B changeView(showmask=None, showsub=None, showtrans=None, showhighvaluemask=None)
+.B changeView(showmask=None, showsub=None, showtrans=None, showhighvaluemask=None, showfilters=None)
 show or hide widgets in the preparation colection
 .INDENT 7.0
 .TP
@@ -8184,6 +8443,8 @@ show or hide widgets in the preparation colection
 \fBshowtrans\fP (\fI\%bool\fP) – transformation widget shown
 .IP \(bu 2
 \fBshowhighvaluemask\fP (\fI\%bool\fP) – mask widget shown
+.IP \(bu 2
+\fBshowfilters\fP (\fI\%bool\fP) – filter widget shown
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -8207,6 +8468,9 @@ horizontal line
 .sp
 constructor
 .UNINDENT
+.SS lavuelib.qtuic module
+.sp
+uic support
 .SS lavuelib.rangeDialog module
 .sp
 detector range widget
@@ -8708,6 +8972,11 @@ distance in um
 .UNINDENT
 .INDENT 7.0
 .TP
+.B filters = None
+(\fI\%str\fP) json list with filters
+.UNINDENT
+.INDENT 7.0
+.TP
 .B geometryfromsource = None
 (\fI\%bool\fP) fetch geometry from source
 .UNINDENT
@@ -8889,6 +9158,11 @@ sets source display parameters
 .TP
 .B showallrois = None
 (\fI\%bool\fP) show all rois flag
+.UNINDENT
+.INDENT 7.0
+.TP
+.B showfilters = None
+(\fI\%bool\fP) show filter widget
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9321,6 +9595,11 @@ update slot for test source
 .UNINDENT
 .INDENT 7.0
 .TP
+.B updateComboBox()
+abstract updateComboBox
+.UNINDENT
+.INDENT 7.0
+.TP
 .B updateMetaData(**kargs)
 update source input parameters
 .INDENT 7.0
@@ -9445,6 +9724,11 @@ label of the current detector
 .TP
 .B updateButton()
 update slot for HTTP response source
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateComboBox()
+updates ComboBox
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9718,6 +10002,11 @@ update slot for Tango attribute source
 .UNINDENT
 .INDENT 7.0
 .TP
+.B updateComboBox()
+updates ComboBox
+.UNINDENT
+.INDENT 7.0
+.TP
 .B updateMetaData(tangoattrs=None, **kargs)
 update source input parameters
 .INDENT 7.0
@@ -9822,6 +10111,11 @@ update slot for Tango attribute source
 .UNINDENT
 .INDENT 7.0
 .TP
+.B updateComboBox()
+updates ComboBox
+.UNINDENT
+.INDENT 7.0
+.TP
 .B updateMetaData(tangoevattrs=None, **kargs)
 update source input parameters
 .INDENT 7.0
@@ -9923,6 +10217,11 @@ label of the current detector
 .TP
 .B updateButton()
 update slot for Tango file source
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateComboBox()
+updates ComboBox
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10047,6 +10346,11 @@ label of the current detector
 .TP
 .B updateButton(disconnect=True)
 update slot for ZMQ source
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateComboBox()
+updates ComboBox
 .UNINDENT
 .INDENT 7.0
 .TP
