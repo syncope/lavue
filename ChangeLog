@@ -1,6 +1,7 @@
-2019-06-XX Jan Kotanski <jan.kotanski@desy.de>
+2019-06-13 Jan Kotanski <jan.kotanski@desy.de>
 	* add --filters option
 	* fix manpages
+	* fix adding labels
 	* tagged as 2.9.2
 
 2019-06-13 Jan Kotanski <jan.kotanski@desy.de>
