@@ -92,11 +92,12 @@ else:
 
 
 def tobytes(x):
-    """ decode str to  bytes
+    """ decode str to bytes
+
     :param x: string
     :type x: :obj:`str`
     :returns:  decode string in byte array
-    :rtype: :obj:``bytes
+    :rtype: :obj:`bytes`
     """
     if isinstance(x, bytes):
         return x
@@ -108,10 +109,11 @@ def tobytes(x):
 
 def tostr(x):
     """ decode bytes to str
+
     :param x: string
     :type x: :obj:`bytes`
     :returns:  decode string in byte array
-    :rtype: :obj:``str
+    :rtype: :obj:`str`
     """
     if isinstance(x, str):
         return x

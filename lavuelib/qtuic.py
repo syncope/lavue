@@ -37,4 +37,4 @@ if qt_api != 'pyqt4':
 else:
     from PyQt4 import uic
 
-__all__ = [uic]
+__all__ = ['uic']

@@ -85,6 +85,8 @@ class ConfigDialog(QtGui.QDialog):
         self.showsub = True
         #: (:obj:`bool`) show transformation widget
         self.showtrans = True
+        #: (:obj:`bool`) show filter widget
+        self.showfilters = False
         #: (:obj:`bool`) show intensity scale widget
         self.showscale = True
         #: (:obj:`bool`) show intensity levels widget
@@ -143,6 +145,8 @@ class ConfigDialog(QtGui.QDialog):
         self.storegeometry = False
         #: (:obj:`bool`) fetch geometry from source
         self.geometryfromsource = False
+        #: (:obj:`str`) json list with filters
+        self.filters = "[]"
         #: (:obj:`str`) json list with rois colors
         self.roiscolors = "[]"
         #: (:obj:`list`<:class:`pyqtgraph.ColorButton`>)
@@ -213,6 +217,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.showstatsCheckBox.setChecked(self.showstats)
         self.__ui.showsubCheckBox.setChecked(self.showsub)
         self.__ui.showtransCheckBox.setChecked(self.showtrans)
+        self.__ui.showfiltersCheckBox.setChecked(self.showfilters)
         self.__ui.showscaleCheckBox.setChecked(self.showscale)
         self.__ui.showlevelsCheckBox.setChecked(self.showlevels)
         self.__ui.timeoutLineEdit.setText(str(self.timeout))
@@ -266,6 +271,150 @@ class ConfigDialog(QtGui.QDialog):
             self._removeROIColorWidget)
 
         self.__setROIsColorsWidgets()
+        self.__setFiltersWidget()
+
+    def __setFiltersWidget(self):
+        """ updates filter tab  widget
+        """
+        self.__ui.addupPushButton = self.__ui.filterButtonBox.addButton(
+            "&Insert Row Above", QtGui.QDialogButtonBox.ActionRole)
+        self.__ui.adddownPushButton = self.__ui.filterButtonBox.addButton(
+            "&Insert Row Below", QtGui.QDialogButtonBox.ActionRole)
+        # self.__ui.editPushButton = self.__ui.filterButtonBox.addButton(
+        #     "&Edit", QtGui.QDialogButtonBox.ActionRole)
+        self.__ui.removePushButton = self.__ui.filterButtonBox.addButton(
+            "&Delete Row", QtGui.QDialogButtonBox.ActionRole)
+        self.__populateTable(0)
+        self.__ui.addupPushButton.clicked.connect(self.__addup)
+        self.__ui.adddownPushButton.clicked.connect(self.__adddown)
+        # self.__ui.editPushButton.clicked.connect(self.__edit)
+        self.__ui.filterTableWidget.itemChanged.connect(
+            self.__tableItemChanged)
+        # self.__ui.filterTableWidget.itemDoubleClicked.connect(self.__edit)
+        self.__ui.removePushButton.clicked.connect(self.__remove)
+
+    def __updateRecord(self):
+        fltlist = []
+        for i in range(self.__ui.filterTableWidget.rowCount()):
+            item = self.__ui.filterTableWidget.item(i, 0)
+            if item is not None:
+                fltname = item.data(QtCore.Qt.EditRole)
+                if hasattr(fltname, "toString"):
+                    fltname = fltname.toString()
+            else:
+                fltname = ""
+            item2 = self.__ui.filterTableWidget.item(i, 1)
+            if item2 is not None:
+                params = item2.data(QtCore.Qt.EditRole)
+                if hasattr(params, "toString"):
+                    params = params.toString()
+            else:
+                params = ""
+            fltlist.append([fltname or "", params or ""])
+        filters = json.dumps(fltlist)
+        if self.filters != filters:
+            self.filters = filters
+            return True
+        return False
+
+    @QtCore.pyqtSlot("QTableWidgetItem*")
+    def __tableItemChanged(self, item):
+        """ changes the current value of the variable
+
+        :param item: current item
+        :type item: :class:`QtGui.QTableWidgetItem`
+        """
+        self.__updateRecord()
+
+    @QtCore.pyqtSlot()
+    def __addup(self):
+        """ adds a new record into the table
+        """
+        row = self.__ui.filterTableWidget.currentRow()
+        fltlist = json.loads(self.filters)
+        if row >= 0 and row <= len(fltlist):
+            fltlist.insert(row, ["", ""])
+        else:
+            fltlist.insert(0, ["", ""])
+
+        self.filters = json.dumps(fltlist)
+        self.__populateTable()
+        self.__updateRecord()
+
+    @QtCore.pyqtSlot()
+    def __adddown(self):
+        """ adds a new record into the table
+        """
+        row = self.__ui.filterTableWidget.currentRow()
+        fltlist = json.loads(self.filters)
+        if row >= 0 and row <= len(fltlist):
+            fltlist.insert(row + 1, ["", ""])
+        else:
+            fltlist.append(["", ""])
+
+        self.filters = json.dumps(fltlist)
+        self.__populateTable()
+        self.__updateRecord()
+
+    @QtCore.pyqtSlot()
+    def __remove(self):
+        """ removes the current record from the table
+        """
+        row = self.__ui.filterTableWidget.currentRow()
+        fltlist = json.loads(self.filters)
+        if row >= 0 and row < len(fltlist):
+
+            flt, params = fltlist[row]
+            if QtGui.QMessageBox.question(
+                    self, "Removing Filter",
+                    'Would you like  to remove "%s": "%s" ?' % (flt, params),
+                    QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
+                    QtGui.QMessageBox.Yes) == QtGui.QMessageBox.No:
+                return
+            fltlist.pop(row)
+            self.filters = json.dumps(fltlist)
+            self.__populateTable()
+            self.__updateRecord()
+
+    def __populateTable(self, selected=None):
+        """ populates the group table
+
+        :param selected: selected property
+        :type selected: :obj:`str`
+        """
+        fltlist = json.loads(self.filters)
+        self.__ui.filterTableWidget.clear()
+        sitem = None
+        self.__ui.filterTableWidget.setSortingEnabled(False)
+        self.__ui.filterTableWidget.setRowCount(len(fltlist))
+        headers = ["package.module.class or package.module.function",
+                   "initialization parameters"]
+        self.__ui.filterTableWidget.setColumnCount(len(headers))
+        self.__ui.filterTableWidget.setHorizontalHeaderLabels(headers)
+        for row, fltparams in enumerate(fltlist):
+            flt, params = fltparams
+            item = QtGui.QTableWidgetItem(flt or "")
+            item.setData(QtCore.Qt.EditRole, (flt or ""))
+            self.__ui.filterTableWidget.setItem(row, 0, item)
+
+            item2 = QtGui.QTableWidgetItem(params or "")
+            item2.setData(QtCore.Qt.EditRole, (params or ""))
+            self.__ui.filterTableWidget.setItem(row, 1, item2)
+        self.__ui.filterTableWidget.resizeColumnsToContents()
+        self.__ui.filterTableWidget.setSelectionMode(
+            QtGui.QAbstractItemView.SingleSelection)
+        # self.__ui.filterTableWidget.horizontalHeader(
+        # ).setStretchLastSection(True)
+        if hasattr(self.__ui.filterTableWidget.horizontalHeader(),
+                   "setSectionResizeMode"):
+            self.__ui.filterTableWidget.horizontalHeader().\
+                setSectionResizeMode(1, QtGui.QHeaderView.Stretch)
+        else:
+            self.__ui.filterTableWidget.horizontalHeader().\
+                setResizeMode(1, QtGui.QHeaderView.Stretch)
+        if sitem is not None:
+            sitem.setSelected(True)
+            self.__ui.filterTableWidget.setCurrentItem(sitem)
 
     def __setROIsColorsWidgets(self):
         """ updates ROIs colors widgets
@@ -332,6 +481,7 @@ class ConfigDialog(QtGui.QDialog):
         self.refreshrate = float(self.__ui.rateDoubleSpinBox.value())
         self.showsub = self.__ui.showsubCheckBox.isChecked()
         self.showtrans = self.__ui.showtransCheckBox.isChecked()
+        self.showfilters = self.__ui.showfiltersCheckBox.isChecked()
         self.showscale = self.__ui.showscaleCheckBox.isChecked()
         self.showlevels = self.__ui.showlevelsCheckBox.isChecked()
         self.showhisto = self.__ui.showhistoCheckBox.isChecked()

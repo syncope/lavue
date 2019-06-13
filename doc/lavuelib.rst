@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     lavuelib.qrc
+    lavuelib.plugins
 
 Submodules
 ----------
@@ -59,10 +60,34 @@ lavuelib.displayExtensions module
     :undoc-members:
     :show-inheritance:
 
+lavuelib.edDictDialog module
+----------------------------
+
+.. automodule:: lavuelib.edDictDialog
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lavuelib.filewriter module
 --------------------------
 
 .. automodule:: lavuelib.filewriter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lavuelib.filters module
+-----------------------
+
+.. automodule:: lavuelib.filters
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lavuelib.filtersWidget module
+-----------------------------
+
+.. automodule:: lavuelib.filtersWidget
     :members:
     :undoc-members:
     :show-inheritance:
@@ -215,6 +240,14 @@ lavuelib.preparationGroupBox module
 -----------------------------------
 
 .. automodule:: lavuelib.preparationGroupBox
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lavuelib.qtuic module
+---------------------
+
+.. automodule:: lavuelib.qtuic
     :members:
     :undoc-members:
     :show-inheritance:
