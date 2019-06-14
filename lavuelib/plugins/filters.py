@@ -44,7 +44,7 @@ class HGap(object):
             int(idx) for idx in json.loads(configuration)]
 
     def __call__(self, image, imagename, metadata, imagewg):
-        """ get metadata
+        """ call method
 
         :param image: numpy array with an image
         :type image: :class:`numpy.ndarray`
@@ -75,7 +75,7 @@ class VGap(object):
             int(idx) for idx in json.loads(configuration)]
 
     def __call__(self, image, imagename, metadata, imagewg):
-        """ get metadata
+        """ call method
 
         :param image: numpy array with an image
         :type image: :class:`numpy.ndarray`
