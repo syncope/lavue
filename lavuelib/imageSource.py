@@ -586,6 +586,8 @@ class TangoAttrSource(BaseSource):
             "JPEG_RGB": "decode_rgb32",
             "RGB24": "decode_rgb32"
         }
+        #: (:obj:`bool`) bytearray flag
+        self.__bytearray = False
 
     def getData(self):
         """ provides image name, image data and metadata
@@ -596,10 +598,18 @@ class TangoAttrSource(BaseSource):
 
         try:
             try:
-                attr = self.__aproxy.read()
+                if not self.__bytearray:
+                    attr = self.__aproxy.read()
+                else:
+                    attr = self.__aproxy.read(
+                        extract_as=PyTango.ExtractAs.ByteArray)
             except Exception:
-                attr = self.__aproxy.read(
-                    extract_as=PyTango.ExtractAs.ByteArray)
+                if sys.version_info > (3,):
+                    attr = self.__aproxy.read(
+                        extract_as=PyTango.ExtractAs.ByteArray)
+                    self.__bytearray = True
+                else:
+                    attr = self.__aproxy.read()
             if str(attr.type) == "DevEncoded":
                 avalue = attr.value
                 if avalue[0] in ["RGB24", "JPEG_RGB"]:
@@ -646,6 +656,7 @@ class TangoAttrSource(BaseSource):
     def connect(self):
         """ connects the source
         """
+        self.__bytearray = False
         try:
             if not self._initiated:
                 self.__aproxy = PyTango.AttributeProxy(
