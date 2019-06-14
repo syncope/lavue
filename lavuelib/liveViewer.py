@@ -1877,7 +1877,7 @@ class LiveViewer(QtGui.QDialog):
         else:
             self.__bkgsubwg.setDisplayedName("")
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot(bool)
     def _assessFilters(self, state):
         """ assesses the filter on/off state
         """

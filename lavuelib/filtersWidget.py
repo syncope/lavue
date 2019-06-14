@@ -41,7 +41,7 @@ class FiltersWidget(QtGui.QWidget):
     """
 
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) filter changed signal
-    filtersChanged = QtCore.pyqtSignal(int)
+    filtersChanged = QtCore.pyqtSignal(bool)
 
     def __init__(self, parent=None):
         """ constructor
@@ -55,10 +55,10 @@ class FiltersWidget(QtGui.QWidget):
         self.__ui = _formclass()
         self.__ui.setupUi(self)
 
-        self.__ui.checkBox.stateChanged.connect(
+        self.__ui.checkBox.toggled.connect(
             self._onFilterChanged)
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot(bool)
     def _onFilterChanged(self, state):
         """ emits filter changed
 
@@ -77,6 +77,7 @@ class FiltersWidget(QtGui.QWidget):
             self.__ui.checkBox.setChecked(True)
         else:
             self.__ui.checkBox.setChecked(False)
+        self.filtersChanged.emit(state)
 
     def setLabel(self, text):
         """ sets filter label
