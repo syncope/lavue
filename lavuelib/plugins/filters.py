@@ -92,7 +92,7 @@ class VGap(object):
 
 
 def rot45(image, imagename, metadata, imagewg):
-    """ get metadata
+    """ rotate image by 45 deg
 
     :param image: numpy array with an image
     :type image: :class:`numpy.ndarray`
