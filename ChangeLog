@@ -1,3 +1,7 @@
+2019-06-XX Jan Kotanski <jan.kotanski@desy.de>
+	* add bytearray flag for TangoAttribute source
+	* tagged as 2.9.4
+
 2019-06-14 Jan Kotanski <jan.kotanski@desy.de>
 	* workaround for a bug in the JPEG_RGB tango decoder
 	* tagged as 2.9.3
