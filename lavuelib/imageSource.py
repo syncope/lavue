@@ -26,7 +26,7 @@
 
 """ set of image sources """
 
-from pyqtgraph import QtCore
+from pyqtgraph import QtCore, QtGui
 import json
 import struct
 
@@ -595,10 +595,24 @@ class TangoAttrSource(BaseSource):
         """
 
         try:
-            attr = self.__aproxy.read()
+            try:
+                attr = self.__aproxy.read()
+            except Exception:
+                attr = self.__aproxy.read(
+                    extract_as=PyTango.ExtractAs.ByteArray)
             if str(attr.type) == "DevEncoded":
                 avalue = attr.value
-                if avalue[0] in self.__tangodecoders:
+                if avalue[0] in ["RGB24", "JPEG_RGB"]:
+                    image = QtGui.QImage.fromData(avalue[1])
+                    width = image.width()
+                    height = image.height()
+                    st = image.bits().asstring(width * height * 4)
+                    data = np.fromstring(st, dtype=np.uint8).reshape(
+                        (height, width, 4))
+                    return (np.transpose(data),
+                            '%s  (%s)' % (
+                                self._configuration, str(attr.time)), "")
+                elif avalue[0] in self.__tangodecoders:
                     da = self.__aproxy.read(
                         extract_as=PyTango.ExtractAs.Nothing)
                     enc = PyTango.EncodedAttribute()
@@ -731,7 +745,18 @@ class TangoEventsSource(BaseSource):
                 self.fresh = False
                 if str(self.attr.type) == "DevEncoded":
                     avalue = self.attr.value
-                    if avalue[0] in self.__tangodecoders:
+                    if avalue[0] in ["RGB24", "JPEG_RGB"]:
+                        image = QtGui.QImage.fromData(avalue[1])
+                        width = image.width()
+                        height = image.height()
+                        st = image.bits().asstring(width * height * 4)
+                        data = np.fromstring(st, dtype=np.uint8).reshape(
+                            (height, width, 4))
+                        return (np.transpose(data),
+                                '%s  (%s)' % (
+                                    self._configuration, str(self.attr.time)),
+                                "")
+                    elif avalue[0] in self.__tangodecoders:
                         # da = self.__aproxy.read(
                         #     extract_as=PyTango.ExtractAs.Nothing)
                         enc = PyTango.EncodedAttribute()
