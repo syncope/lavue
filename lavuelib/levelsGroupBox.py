@@ -506,12 +506,14 @@ class LevelsGroupBox(QtGui.QGroupBox):
                     self.__colorchannel = channel
                     self.__ui.gradientComboBox.hide()
                     self.__ui.gradientLabel.hide()
+                    self.__histogram.gradient.hide()
                     self.rgbChanged.emit(True)
                 elif (self.__colorchannel == self.__numberofchannels + 2
                       and self.__colorchannel != channel):
                     self.__colorchannel = channel
                     self.__ui.gradientComboBox.show()
                     self.__ui.gradientLabel.show()
+                    self.__histogram.gradient.show()
                     self.rgbChanged.emit(False)
                 else:
                     self.__colorchannel = channel
