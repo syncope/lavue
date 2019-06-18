@@ -374,8 +374,16 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type rawimg: :class:`numpy.ndarray`
         """
         try:
-            if self.__autodisplaylevels or self.__displaylevels[0] is None \
-               or self.__displaylevels[1] is None:
+            if len(img.shape) == 3:
+                print("UP1 %s" % str(img.shape))
+                self.__image.setImage(
+                    img, lut=None,
+                    levels=[[0, 255], [0, 255], [0, 255]],
+                    autoLevels=False)
+                print("UP2")
+            elif (self.__autodisplaylevels
+                  or self.__displaylevels[0] is None
+                  or self.__displaylevels[1] is None):
                 self.__image.setImage(
                     img, autoLevels=True,
                     autoDownsample=self.__autodownsample)

@@ -495,8 +495,10 @@ class LevelsGroupBox(QtGui.QGroupBox):
         :param channel: color channel
         :type channel: :obj:`int`
         """
+        print(channel)
+        print("N %s" % self.__numberofchannels)
         if self.__colorchannel != channel:
-            if channel >= 0 and channel <= self.__numberofchannels + 1:
+            if channel >= 0 and channel <= self.__numberofchannels + 2:
                 self.__colorchannel = channel
                 self.channelChanged.emit()
 
@@ -538,6 +540,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
                      for ch in range(self.__numberofchannels)])
 
                 self.__ui.channelComboBox.addItem("mean")
+                self.__ui.channelComboBox.addItem("RGB")
                 self.__ui.channelLabel.show()
                 self.__ui.channelComboBox.show()
                 self.__colors = True

@@ -170,6 +170,7 @@ class LiveViewer(QtGui.QDialog):
         self.__tooltypes.append("ProjectionToolWidget")
         self.__tooltypes.append("MaximaToolWidget")
         self.__tooltypes.append("QROIProjToolWidget")
+        self.__tooltypes.append("ToolWidget")
 
         if options.mode and options.mode.lower() in ["expert"]:
             #: (:obj:`str`) execution mode: expert or user
@@ -1497,8 +1498,23 @@ class LiveViewer(QtGui.QDialog):
                     if len(self.__rawimage) >= self.__levelswg.colorChannel():
                         self.__rawgreyimage = self.__rawimage[
                             self.__levelswg.colorChannel() - 1]
-                    else:
+                    elif (len(self.__rawimage) + 1 ==
+                          self.__levelswg.colorChannel()):
                         self.__rawgreyimage = np.mean(self.__rawimage, 0)
+                    elif self.__rawimage.shape[0] > 1:
+                        self.__rawgreyimage = np.moveaxis(
+                            self.__rawimage, 0, -1)
+                        if self.__rawgreyimage.shape[-1] > 3:
+                            self.__rawgreyimage = self.__rawgreyimage[:, :, :3]
+                        elif self.__rawimage.shape[-1] == 2:
+                            self.__rawgreyimage = np.concatinate(
+                                self.__rawgreyimage, np.zeros(
+                                    shape=self.__rawgreyimage.shape[:, :, -1],
+                                    dtype=self.__rawgreyimage.dtype
+                                ), axis=2)
+                    elif self.__rawimage.shape[0] == 1:
+                        self.__rawgreyimage = self.__rawimage[:, :, 0]
+
                 except Exception:
                     import traceback
                     value = traceback.format_exc()
@@ -1513,7 +1529,6 @@ class LiveViewer(QtGui.QDialog):
                         % self.__levelswg.colorChannel(),
                         text, str(value))
                     self.__levelswg.setChannel(0)
-                    self.__rawgreyimage = np.sum(self.__rawimage, 0)
         elif len(self.__rawimage.shape) == 2:
             if self.__applymask:
                 self.__rawgreyimage = np.array(self.__rawimage)
@@ -1624,7 +1639,9 @@ class LiveViewer(QtGui.QDialog):
         elif self.__trafoname == "transpose":
             orgtranspose = True
             if self.__displayimage is not None:
-                self.__displayimage = np.transpose(self.__displayimage)
+                self.__displayimage = np.swapaxes(
+                    self.__displayimage, 0, 1)
+                # self.__displayimage = np.transpose(self.__displayimage)
             if self.__settings.keepcoords:
                 crdtranspose = True
         elif self.__trafoname == "rot90 (clockwise)":
@@ -1634,10 +1651,14 @@ class LiveViewer(QtGui.QDialog):
                 crdtranspose = True
                 crdupdownflip = True
                 if self.__displayimage is not None:
-                    self.__displayimage = np.transpose(self.__displayimage)
+                    self.__displayimage = np.swapaxes(
+                        self.__displayimage, 0, 1)
+                    # self.__displayimage = np.transpose(self.__displayimage)
             elif self.__displayimage is not None:
-                self.__displayimage = np.transpose(
-                    np.flipud(self.__displayimage))
+                # self.__displayimage = np.transpose(
+                #     np.flipud(self.__displayimage))
+                self.__displayimage = np.swapaxes(
+                    np.flipud(self.__displayimage), 0, 1)
         elif self.__trafoname == "rot180":
             orgupdownflip = True
             orgleftrightflip = True
@@ -1654,10 +1675,14 @@ class LiveViewer(QtGui.QDialog):
                 crdtranspose = True
                 crdleftrightflip = True
                 if self.__displayimage is not None:
-                    self.__displayimage = np.transpose(self.__displayimage)
+                    self.__displayimage = np.swapaxes(
+                        self.__displayimage, 0, 1)
+                    # self.__displayimage = np.transpose(self.__displayimage)
             elif self.__displayimage is not None:
-                self.__displayimage = np.transpose(
-                    np.fliplr(self.__displayimage))
+                self.__displayimage = np.swapaxes(
+                    np.fliplr(self.__displayimage), 0, 1)
+                # self.__displayimage = np.transpose(
+                #     np.fliplr(self.__displayimage))
         elif self.__trafoname == "rot180 + transpose":
             orgtranspose = True
             orgupdownflip = True
@@ -1667,10 +1692,14 @@ class LiveViewer(QtGui.QDialog):
                 crdupdownflip = True
                 crdleftrightflip = True
                 if self.__displayimage is not None:
-                    self.__displayimage = np.transpose(self.__displayimage)
+                    # self.__displayimage = np.transpose(self.__displayimage)
+                    self.__displayimage = np.swapaxes(
+                        self.__displayimage, 0, 1)
             elif self.__displayimage is not None:
-                self.__displayimage = np.transpose(
-                    np.fliplr(np.flipud(self.__displayimage)))
+                self.__displayimage = np.swapaxes(
+                    np.fliplr(np.flipud(self.__displayimage)), 0, 1)
+                # self.__displayimage = np.transpose(
+                #     np.fliplr(np.flipud(self.__displayimage)))
         return (crdtranspose, crdleftrightflip, crdupdownflip,
                 orgtranspose, orgleftrightflip, orgupdownflip)
 

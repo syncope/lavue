@@ -479,7 +479,7 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
                 if hx.any() and hy.any():
                     hmax = max(hy)
                     hmin = self.autolevelfactor*hmax/100.
-                    mn, mx = self.__imageItem().levels
+                    mn, mx = self.__imageItem().levels[:2]
                     indexes = np.where(hy >= hmin)
                     ind1 = indexes[0][0]
                     ind2 = indexes[-1][-1]
@@ -495,7 +495,7 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         :type autoRange: :obj:`bool`
         """
 
-        mn, mx = self.__imageItem().levels
+        mn, mx = self.__imageItem().levels[:2]
         hx = None
         hy = None
         if self.autolevelfactor is not None:
@@ -511,7 +511,7 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
                 if hhx.any() and hhy.any():
                     hmax = max(hhy)
                     hmin = self.autolevelfactor * hmax / 100.
-                    mn, mx = self.__imageItem().levels
+                    mn, mx = self.__imageItem().levels[:2]
                     indexes = np.where(hhy >= hmin)
                     ind1 = indexes[0][0]
                     ind2 = indexes[-1][-1]
