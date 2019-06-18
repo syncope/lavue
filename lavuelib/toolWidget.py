@@ -233,6 +233,53 @@ class IntensityToolWidget(ToolWidget):
         self._mainwidget.setDisplayedText(message)
 
 
+class RGBIntensityToolWidget(IntensityToolWidget):
+    """ intensity tool widget
+    """
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
+        """
+        IntensityToolWidget.__init__(self, parent)
+
+        #: (:obj:`str`) tool name
+        self.name = "RGB Intensity"
+
+    @QtCore.pyqtSlot()
+    def _message(self):
+        """ provides intensity message
+        """
+        x, y, intensity = self._mainwidget.currentIntensity()[:3]
+        ilabel = self._mainwidget.scalingLabel()
+        txdata, tydata = self._mainwidget.scaledxy(x, y)
+        xunits, yunits = self._mainwidget.axesunits()
+        if isinstance(intensity, np.ndarray) and \
+           intensity.size <= 3:
+            itn = intensity.tolist()
+            if txdata is not None:
+                message = "x = %f%s, y = %f%s, " \
+                          "%s = (%.2f, %.2f, %.2f)" % (
+                              txdata,
+                              (" %s" % xunits) if xunits else "",
+                              tydata,
+                              (" %s" % yunits) if yunits else "",
+                              ilabel,
+                              itn[0], itn[1], itn[2])
+            else:
+                message = "x = %i%s, y = %i%s, " \
+                          "%s = (%.2f, %.2f, %.2f)" % (
+                              x,
+                              (" %s" % xunits) if xunits else "",
+                              y,
+                              (" %s" % yunits) if yunits else "",
+                              ilabel,
+                              itn[0], itn[1], itn[2])
+            self._mainwidget.setDisplayedText(message)
+
+
 class MotorsToolWidget(ToolWidget):
     """ motors tool widget
     """

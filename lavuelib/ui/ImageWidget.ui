@@ -150,9 +150,22 @@
           </widget>
          </item>
          <item>
+          <widget class="QComboBox" name="rgbtoolComboBox">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;select the an &lt;span style=&quot; text-decoration: underline;&quot;&gt;RGB IMAGE TOOL&lt;/span&gt; for the mouse pointer:&lt;/p&gt;&lt;p&gt;RGB - shows intensity of the selected rgb pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QComboBox" name="toolComboBox">
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;select the an &lt;/span&gt;&lt;span style=&quot; font-weight:400; text-decoration: underline;&quot;&gt;IMAGE TOOL&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt; for the mouse pointer:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Intensity&lt;span style=&quot; font-weight:400;&quot;&gt; - shows intensity of the selected pixels&lt;/span&gt;&lt;/p&gt;&lt;p&gt;ROI &lt;span style=&quot; font-weight:400;&quot;&gt;- selects Regions Of Interest and culculates a sum of their pixel intensities&lt;/span&gt;&lt;/p&gt;&lt;p&gt;LineCut&lt;span style=&quot; font-weight:400;&quot;&gt; - selects Line Cuts and shows their 1d intensity plots&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Angle/Q&lt;span style=&quot; font-weight:400;&quot;&gt; - shows pixel coordinates in q-space or theta-angles&lt;/span&gt;&lt;/p&gt;&lt;p&gt;MoveMotor &lt;span style=&quot; font-weight:400;&quot;&gt;- moves the selected motors to the position pointed by mouse&lt;/span&gt;&lt;/p&gt;&lt;p&gt;MeshScan&lt;span style=&quot; font-weight:400;&quot;&gt; - performs sardana mesh scan on the selected ROI region&lt;/span&gt;&lt;/p&gt;&lt;p&gt;1d-Plot &lt;span style=&quot; font-weight:400;&quot;&gt;- plots 1d-plots of the selected image rows&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Projections &lt;span style=&quot; font-weight:400;&quot;&gt;- plots horizontal and vertical projections of the current image&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Q+ROI+Proj &lt;span style=&quot; font-weight:400;&quot;&gt;- combines &lt;/span&gt;Angle/Q&lt;span style=&quot; font-weight:400;&quot;&gt;,&lt;/span&gt; ROI&lt;span style=&quot; font-weight:400;&quot;&gt; and &lt;/span&gt;Projections&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;select the an &lt;/span&gt;&lt;span style=&quot; font-weight:400; text-decoration: underline;&quot;&gt;IMAGE TOOL&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt; for the mouse pointer:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Intensity&lt;span style=&quot; font-weight:400;&quot;&gt; - shows intensity of the selected pixels&lt;/span&gt;&lt;/p&gt;&lt;p&gt;ROI &lt;span style=&quot; font-weight:400;&quot;&gt;- selects Regions Of Interest and culculates a sum of their pixel intensities&lt;/span&gt;&lt;/p&gt;&lt;p&gt;LineCut&lt;span style=&quot; font-weight:400;&quot;&gt; - selects Line Cuts and shows their 1d intensity plots&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Angle/Q&lt;span style=&quot; font-weight:400;&quot;&gt; - shows pixel coordinates in q-space or theta-angles&lt;/span&gt;&lt;/p&gt;&lt;p&gt;MoveMotor &lt;span style=&quot; font-weight:400;&quot;&gt;- moves the selected motors to the position pointed by mouse&lt;/span&gt;&lt;/p&gt;&lt;p&gt;MeshScan&lt;span style=&quot; font-weight:400;&quot;&gt; - performs sardana mesh scan on the selected ROI region&lt;/span&gt;&lt;/p&gt;&lt;p&gt;1d-Plot &lt;span style=&quot; font-weight:400;&quot;&gt;- plots 1d-plots of the selected image rows&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Projections &lt;span style=&quot; font-weight:400;&quot;&gt;- plots horizontal and vertical projections of the current image&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Q+ROI+Proj &lt;span style=&quot; font-weight:400;&quot;&gt;- combines &lt;/span&gt;Angle/Q&lt;span style=&quot; font-weight:400;&quot;&gt;,&lt;/span&gt; ROI&lt;span style=&quot; font-weight:400;&quot;&gt; and &lt;/span&gt;Projections&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="styleSheet">
             <string notr="true">font: bold;</string>

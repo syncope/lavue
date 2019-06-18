@@ -170,7 +170,9 @@ class LiveViewer(QtGui.QDialog):
         self.__tooltypes.append("ProjectionToolWidget")
         self.__tooltypes.append("MaximaToolWidget")
         self.__tooltypes.append("QROIProjToolWidget")
-        self.__tooltypes.append("ToolWidget")
+        #: (:obj:`list` < :obj:`str` > ) rgb tool class names
+        self.__rgbtooltypes = []
+        self.__rgbtooltypes.append("RGBIntensityToolWidget")
 
         if options.mode and options.mode.lower() in ["expert"]:
             #: (:obj:`str`) execution mode: expert or user
@@ -238,7 +240,9 @@ class LiveViewer(QtGui.QDialog):
         self.__statswg = statisticsGroupBox.StatisticsGroupBox(parent=self)
         #: (:class:`lavuelib.imageWidget.ImageWidget`) image widget
         self.__imagewg = imageWidget.ImageWidget(
-            parent=self, tooltypes=self.__tooltypes, settings=self.__settings)
+            parent=self, tooltypes=self.__tooltypes,
+            settings=self.__settings,
+            rgbtooltypes=self.__rgbtooltypes)
 
         self.__levelswg.setImageItem(self.__imagewg.image())
         self.__levelswg.updateHistoImage(autoLevel=True)
@@ -352,6 +356,7 @@ class LiveViewer(QtGui.QDialog):
         self.__sourcewg.sourceDisconnected.connect(self._disconnectSource)
 
         # gradient selector
+        self.__levelswg.rgbChanged.connect(self.setrgb)
         self.__levelswg.channelChanged.connect(self._plot)
         self.__imagewg.aspectLockedToggled.connect(self._setAspectLocked)
         self.__levelswg.storeSettingsRequested.connect(
@@ -1945,3 +1950,21 @@ class LiveViewer(QtGui.QDialog):
             QtGui.QDialog.keyPressEvent(self, event)
         # else:
         #     self.closeEvent(None)
+
+    @QtCore.pyqtSlot(bool)
+    def setrgb(self, status=True):
+        """ sets RGB on/off
+
+        :param status: True for on and False for off
+        :type status: :obj:`bool`
+        """
+        self.__imagewg.setrgb(status)
+        self._plot()
+
+    def rgb(self):
+        """ gets RGB on/off
+
+        :returns: True for on and False for off
+        :rtype: :obj:`bool`
+        """
+        return self.__imagewg.rgb()

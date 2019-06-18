@@ -56,6 +56,8 @@ class LevelsGroupBox(QtGui.QGroupBox):
     levelsChanged = QtCore.pyqtSignal()
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) color channel changed signal
     channelChanged = QtCore.pyqtSignal()
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) rgb color channel changed signal
+    rgbChanged = QtCore.pyqtSignal(bool)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) store settings requested
     storeSettingsRequested = QtCore.pyqtSignal()
 
@@ -83,6 +85,8 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self.__histo = True
         #: (:obj: `bool`) levels shown
         self.__levels = True
+        #: (:obj: `bool`) rgb flag
+        self.__rgb = False
         #: (:obj: `str`) scale label
         self.__scaling = ""
         #: (:obj: `int`) current color channel
@@ -495,12 +499,23 @@ class LevelsGroupBox(QtGui.QGroupBox):
         :param channel: color channel
         :type channel: :obj:`int`
         """
-        print(channel)
-        print("N %s" % self.__numberofchannels)
         if self.__colorchannel != channel:
             if channel >= 0 and channel <= self.__numberofchannels + 2:
-                self.__colorchannel = channel
-                self.channelChanged.emit()
+                if channel == self.__numberofchannels + 2 \
+                   and self.__colorchannel != channel:
+                    self.__colorchannel = channel
+                    self.__ui.gradientComboBox.hide()
+                    self.__ui.gradientLabel.hide()
+                    self.rgbChanged.emit(True)
+                elif (self.__colorchannel == self.__numberofchannels + 2
+                      and self.__colorchannel != channel):
+                    self.__colorchannel = channel
+                    self.__ui.gradientComboBox.show()
+                    self.__ui.gradientLabel.show()
+                    self.rgbChanged.emit(False)
+                else:
+                    self.__colorchannel = channel
+                    self.channelChanged.emit()
 
     @QtCore.pyqtSlot(int)
     def setBins(self, index):
