@@ -66,9 +66,13 @@ class TaurusLavue(lavuelib.liveViewer.LiveViewer, TaurusBaseWidget):
         """
         lavuelib.liveViewer.LiveViewer.__init__(self, options, parent)
         TaurusBaseWidget.__init__(self, 'TaurusLauve')
-        self.setWindowTitle(
-            "laVue: Live Image Viewer (v%s)" % str(lavuelib.__version__))
-
+        if hasattr(options, "instance") and options.instance:
+            self.setWindowTitle(
+                "laVue: Live Image Viewer (v%s) [%s]" %
+                (str(lavuelib.__version__), options.instance))
+        else:
+            self.setWindowTitle(
+                "laVue: Live Image Viewer (v%s)" % str(lavuelib.__version__))
 
 def main():
     """ the main function
@@ -105,6 +109,9 @@ def main():
     parser.add_option(
         "-e", "--stylesheet", dest="stylesheet",
         help="Qt stylesheet")
+    parser.add_option(
+        "-j", "--instance", dest="instance",
+        help="LaVue instance")
     parser.add_option(
         "-f", "--image-file", dest="imagefile",
         help="image file name to show")
@@ -201,10 +208,14 @@ def main():
         print(lavuelib.__version__)
         sys.exit(0)
 
+    app_name = "Lavue: Live Viewer"
+    if hasattr(options, "instance") and options.instance:
+        app_name = "%s [%s]" % (app_name, options.instance)
+
     app = Application(
         sys.argv,
         cmd_line_parser=parser,
-        app_name="Lavue: Live Viewer",
+        app_name=app_name,
         app_version=lavuelib.__version__,
         org_domain="desy.de",
         org_name="DESY")

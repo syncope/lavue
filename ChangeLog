@@ -1,3 +1,7 @@
+2019-06-XX Jan Kotanski <jan.kotanski@desy.de>
+	* add instance option
+	* tagged as 2.10.0
+
 2019-06-14 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for switching off filters on an error
 	* tagged as 2.9.5
