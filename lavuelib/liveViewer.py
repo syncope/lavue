@@ -104,8 +104,14 @@ class MainWindow(QtGui.QMainWindow):
         self.gridLayout.setSpacing(0)
         self.gridLayout.addWidget(self.__lavue, 0, 0, 1, 1)
         self.setCentralWidget(self.centralwidget)
-        self.setWindowTitle(
-            "laVue: Live Image Viewer (v%s)" % str(release.__version__))
+        if hasattr(options, "instance") and options.instance:
+            self.setWindowTitle(
+                "laVue: Live Image Viewer (v%s) [%s]" %
+                (str(release.__version__), options.instance))
+        else:
+            self.setWindowTitle(
+                "laVue: Live Image Viewer (v%s)" %
+                str(release.__version__))
 
     def closeEvent(self, event):
         """ stores the setting before finishing the application

@@ -107,6 +107,9 @@ if __name__ == "__main__":
         "-e", "--stylesheet", dest="stylesheet",
         help="Qt stylesheet")
     parser.add_argument(
+        "-j", "--instance", dest="instance",
+        help="LaVue instance")
+    parser.add_argument(
         "-f", "--image-file", dest="imagefile",
         help="image file name to show")
     parser.add_argument(
@@ -221,7 +224,10 @@ if __name__ == "__main__":
     app.setWindowIcon(QtGui.QIcon(":/lavue.png"))
     app.setOrganizationName("DESY")
     app.setOrganizationDomain("desy.de")
-    app.setApplicationName("LaVue")
+    if options.instance:
+        app.setApplicationName("LaVue: %s" % options.instance)
+    else:
+        app.setApplicationName("LaVue")
     dialog = lavuelib.liveViewer.MainWindow(options=options)
 
     dialog.show()
