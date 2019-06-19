@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Jun 13, 2019" "2.9" "lavuelib"
+.TH "LAVUELIB" "1" "Jun 19, 2019" "2.10" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -251,7 +251,7 @@ constructor
 .INDENT 0.0
 .TP
 .B lavuelib.plugins.filters.rot45(image, imagename, metadata, imagewg)
-get metadata
+rotate image by 45 deg
 .INDENT 7.0
 .TP
 .B Parameters
@@ -4820,6 +4820,19 @@ current raw data
 .UNINDENT
 .INDENT 7.0
 .TP
+.B rgb()
+gets RGB on/off
+.INDENT 7.0
+.TP
+.B Returns
+True for on and False for off
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B scale()
 provides scale and position of the axes
 :rtype: [int, int, int, int]
@@ -5036,6 +5049,16 @@ set view range values
 .TP
 .B Parameters
 \fBrangelist\fP (\fI\%str\fP) – xmin,ymin,xsize,ysize
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setrgb(status=True)
+sets RGB on/off
+.INDENT 7.0
+.TP
+.B Parameters
+\fBstatus\fP (\fI\%bool\fP) – True for on and False for off
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5975,7 +5998,7 @@ decode string in byte array
 image widget
 .INDENT 0.0
 .TP
-.B class lavuelib.imageWidget.ImageWidget(parent=None, tooltypes=None, settings=None)
+.B class lavuelib.imageWidget.ImageWidget(parent=None, tooltypes=None, settings=None, rgbtooltypes=None)
 Bases: \fBPyQt5.QtWidgets.QWidget\fP
 .sp
 The part of the GUI that incorporates the image view.
@@ -5991,6 +6014,8 @@ constructor
 \fBtooltypes\fP (\fBlist\fP <\fI\%str\fP>) – tool class names
 .IP \(bu 2
 \fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) – lavue configuration settings
+.IP \(bu 2
+\fBrgbtooltypes\fP (\fBlist\fP <\fI\%str\fP>) – tool class names
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -6412,6 +6437,19 @@ removes right plot
 .UNINDENT
 .INDENT 7.0
 .TP
+.B rgb()
+gets RGB on/off
+.INDENT 7.0
+.TP
+.B Returns
+True for on and False for off
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B roiAliasesChanged
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) roi aliases changed signal
 .UNINDENT
@@ -6753,6 +6791,16 @@ set view range values
 .UNINDENT
 .INDENT 7.0
 .TP
+.B setrgb(status=True)
+sets RGB on/off
+.INDENT 7.0
+.TP
+.B Parameters
+\fBstatus\fP (\fI\%bool\fP) – True for on and False for off
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B settings()
 provides settings
 .INDENT 7.0
@@ -6766,6 +6814,11 @@ setting object
 .UNINDENT
 .INDENT 7.0
 .TP
+.B showCurrentRGBTool()
+shows the current tool
+.UNINDENT
+.INDENT 7.0
+.TP
 .B showCurrentTool()
 shows the current tool
 .UNINDENT
@@ -6773,6 +6826,11 @@ shows the current tool
 .TP
 .B showDoorError()
 show door error
+.UNINDENT
+.INDENT 7.0
+.TP
+.B showTool(text)
+shows the current tool
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7166,6 +7224,11 @@ configuration string: lowlim,uplim
 .UNINDENT
 .INDENT 7.0
 .TP
+.B rgbChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) rgb color channel changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
 .B setAutoFactor(factor)
 sets factor for automatic levels
 .INDENT 7.0
@@ -7342,6 +7405,29 @@ skips escape key action
 .TP
 .B Parameters
 \fBevent\fP (\fBpyqtgraph.QtCore.QEvent\fP:) – close event
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B rgb()
+gets RGB on/off
+.INDENT 7.0
+.TP
+.B Returns
+True for on and False for off
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setrgb(status=True)
+sets RGB on/off
+.INDENT 7.0
+.TP
+.B Parameters
+\fBstatus\fP (\fI\%bool\fP) – True for on and False for off
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -10979,6 +11065,25 @@ updates ROI line edit text
 .B Parameters
 \fBtext\fP (\fI\%str\fP) – text to update
 .UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.toolWidget.RGBIntensityToolWidget(parent=None)
+Bases: \fI\%lavuelib.toolWidget.IntensityToolWidget\fP
+.sp
+intensity tool widget
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) tool name
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
