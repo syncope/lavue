@@ -515,6 +515,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
                     self.__ui.gradientLabel.show()
                     self.__histogram.gradient.show()
                     self.rgbChanged.emit(False)
+                    self._updateGradient()
                 else:
                     self.__colorchannel = channel
                     self.channelChanged.emit()
