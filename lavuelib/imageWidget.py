@@ -94,7 +94,8 @@ class ImageWidget(QtGui.QWidget):
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) geometry changed
     geometryChanged = QtCore.pyqtSignal()
 
-    def __init__(self, parent=None, tooltypes=None, settings=None):
+    def __init__(self, parent=None, tooltypes=None, settings=None,
+                 rgbtooltypes=None):
         """ constructor
 
         :param parent: parent object
@@ -103,18 +104,29 @@ class ImageWidget(QtGui.QWidget):
         :type tooltypes: :obj:`list` <:obj:`str`>
         :param settings: lavue configuration settings
         :type settings: :class:`lavuelib.settings.Settings`
+        :param rgbtooltypes: tool class names
+        :type rgbtooltypes: :obj:`list` <:obj:`str`>
         """
         QtGui.QWidget.__init__(self, parent)
 
         #: (:obj:`list` < :obj:`str` > ) tool class names
         self.__tooltypes = tooltypes or []
-
         #: (:obj:`list` < :obj:`str` > ) tool names
         self.__toolnames = []
         #: (:obj:`dict` < :obj:`str`,
         #:      :class:`lavuelib.toolWidget.BaseToolWidget` > )
         #:           tool names
         self.__toolwidgets = {}
+
+        #: (:obj:`list` < :obj:`str` > ) rgb tool class names
+        self.__rgbtooltypes = rgbtooltypes or []
+        #: (:obj:`list` < :obj:`str` > ) tool names
+        self.__rgbtoolnames = []
+        #: (:obj:`dict` < :obj:`str`,
+        #:      :class:`lavuelib.toolWidget.BaseToolWidget` > )
+        #:           tool names
+        self.__rgbtoolwidgets = {}
+
         #: (:class:`lavuelib.settings.Settings`) settings
         self.__settings = settings
         #: (:class:`lavuelib.controllerClient.ControllerClient`)
@@ -179,11 +191,12 @@ class ImageWidget(QtGui.QWidget):
             self.__displaywidget.sizePolicy().hasHeightForWidth())
         self.__displaywidget.setSizePolicy(sizePolicy)
         self.__ui.upperPlotWidget.setSizePolicy(sizePolicy)
-
+        self.__ui.rgbtoolComboBox.hide()
         # if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
         #     self.__bottomplot.setMinimumSize(QtCore.QSize(0, 170))
 
         self.__addToolWidgets()
+        self.__addRGBToolWidgets()
 
         self.__ui.plotSplitter.setStretchFactor(0, 50)
         self.__ui.plotSplitter.setStretchFactor(1, 1)
@@ -194,6 +207,8 @@ class ImageWidget(QtGui.QWidget):
             self.emitCutCoordsChanged)
         self.__ui.toolComboBox.currentIndexChanged.connect(
             self.showCurrentTool)
+        self.__ui.rgbtoolComboBox.currentIndexChanged.connect(
+            self.showCurrentRGBTool)
         self.__displaywidget.aspectLockedToggled.connect(
             self.emitAspectLockedToggled)
         self.__displaywidget.mouseImagePositionChanged.connect(
@@ -421,6 +436,16 @@ class ImageWidget(QtGui.QWidget):
             self.__ui.toolComboBox.addItem(twg.name)
             self.__ui.toolVerticalLayout.addWidget(twg)
 
+    def __addRGBToolWidgets(self):
+        """ add rgb tool subwidgets into grid layout
+        """
+        for tt in self.__rgbtooltypes:
+            twg = getattr(toolWidget, tt)(self)
+            self.__rgbtoolwidgets[twg.name] = twg
+            self.__rgbtoolnames.append(twg.name)
+            self.__ui.rgbtoolComboBox.addItem(twg.name)
+            self.__ui.toolVerticalLayout.addWidget(twg)
+
     def settings(self):
         """ provides settings
 
@@ -508,6 +533,53 @@ class ImageWidget(QtGui.QWidget):
         """ shows the current tool
         """
         text = self.__ui.toolComboBox.currentText()
+        stwg = None
+        self.__ui.rgbtoolComboBox.hide()
+        self.__ui.toolComboBox.show()
+        for nm, twg in self.__rgbtoolwidgets.items():
+            twg.hide()
+        for nm, twg in self.__toolwidgets.items():
+            if text == nm:
+                stwg = twg
+            else:
+                twg.hide()
+        self.__disconnecttool()
+        self.__currenttool = stwg
+        if stwg is not None:
+            stwg.show()
+            self.updateinfowidgets(stwg.parameters)
+
+        self.__connecttool()
+        self.currentToolChanged.emit(text)
+
+    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot()
+    def showCurrentRGBTool(self):
+        """ shows the current tool
+        """
+        text = self.__ui.rgbtoolComboBox.currentText()
+        stwg = None
+        self.__ui.toolComboBox.hide()
+        self.__ui.rgbtoolComboBox.show()
+        for nm, twg in self.__toolwidgets.items():
+            twg.hide()
+        for nm, twg in self.__rgbtoolwidgets.items():
+            if text == nm:
+                stwg = twg
+            else:
+                twg.hide()
+        self.__disconnecttool()
+        self.__currenttool = stwg
+        if stwg is not None:
+            stwg.show()
+            self.updateinfowidgets(stwg.parameters)
+
+        self.__connecttool()
+        self.currentToolChanged.emit(text)
+
+    def showTool(self, text):
+        """ shows the current tool
+        """
         stwg = None
         for nm, twg in self.__toolwidgets.items():
             if text == nm:
@@ -1393,11 +1465,16 @@ class ImageWidget(QtGui.QWidget):
         :type tool: :obj:`str`
         """
         tools = [k.lower() for k in self.__toolnames]
+        rgbtools = [k.lower() for k in self.__rgbtoolnames]
         ltool = tool.lower()
         if ltool in tools:
             tid = tools.index(ltool)
             self.__ui.toolComboBox.setCurrentIndex(tid)
             self.showCurrentTool()
+        if ltool in rgbtools:
+            tid = rgbtools.index(ltool)
+            self.__ui.toolComboBox.setCurrentIndex(tid)
+            self.showCurrentRGBTool()
 
     def tool(self):
         """ provices tool from string
@@ -1546,3 +1623,23 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__displaywidget.extension('maxima').\
             setMaximaPos(positionlist)
+
+    def setrgb(self, status=True):
+        """ sets RGB on/off
+
+        :param status: True for on and False for off
+        :type status: :obj:`bool`
+        """
+        if status:
+            self.setTool("RGB Intensity")
+        else:
+            self.setTool("Intensity")
+        self.__displaywidget.setrgb(status)
+
+    def rgb(self):
+        """ gets RGB on/off
+
+        :returns: True for on and False for off
+        :rtype: :obj:`bool`
+        """
+        return self.__displaywidget.rgb()

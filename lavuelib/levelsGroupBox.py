@@ -56,6 +56,8 @@ class LevelsGroupBox(QtGui.QGroupBox):
     levelsChanged = QtCore.pyqtSignal()
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) color channel changed signal
     channelChanged = QtCore.pyqtSignal()
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) rgb color channel changed signal
+    rgbChanged = QtCore.pyqtSignal(bool)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) store settings requested
     storeSettingsRequested = QtCore.pyqtSignal()
 
@@ -83,6 +85,8 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self.__histo = True
         #: (:obj: `bool`) levels shown
         self.__levels = True
+        #: (:obj: `bool`) rgb flag
+        self.__rgb = False
         #: (:obj: `str`) scale label
         self.__scaling = ""
         #: (:obj: `int`) current color channel
@@ -496,9 +500,24 @@ class LevelsGroupBox(QtGui.QGroupBox):
         :type channel: :obj:`int`
         """
         if self.__colorchannel != channel:
-            if channel >= 0 and channel <= self.__numberofchannels + 1:
-                self.__colorchannel = channel
-                self.channelChanged.emit()
+            if channel >= 0 and channel <= self.__numberofchannels + 2:
+                if channel == self.__numberofchannels + 2 \
+                   and self.__colorchannel != channel:
+                    self.__colorchannel = channel
+                    self.__ui.gradientComboBox.hide()
+                    self.__ui.gradientLabel.hide()
+                    self.__histogram.gradient.hide()
+                    self.rgbChanged.emit(True)
+                elif (self.__colorchannel == self.__numberofchannels + 2
+                      and self.__colorchannel != channel):
+                    self.__colorchannel = channel
+                    self.__ui.gradientComboBox.show()
+                    self.__ui.gradientLabel.show()
+                    self.__histogram.gradient.show()
+                    self.rgbChanged.emit(False)
+                else:
+                    self.__colorchannel = channel
+                    self.channelChanged.emit()
 
     @QtCore.pyqtSlot(int)
     def setBins(self, index):
@@ -538,6 +557,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
                      for ch in range(self.__numberofchannels)])
 
                 self.__ui.channelComboBox.addItem("mean")
+                self.__ui.channelComboBox.addItem("RGB")
                 self.__ui.channelLabel.show()
                 self.__ui.channelComboBox.show()
                 self.__colors = True

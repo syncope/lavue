@@ -153,6 +153,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__displaylevels = [None, None]
         #: (:obj:`bool`) lock for double click
         self.__doubleclicklock = False
+        #: (:obj:`bool`) rgb on flag
+        self.__rgb = False
         #: (:obj:`dict` < :obj:`str`, :obj:`DisplayExtension` >)
         #          extension dictionary with name keys
         self.__extensions = {}
@@ -374,8 +376,15 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type rawimg: :class:`numpy.ndarray`
         """
         try:
-            if self.__autodisplaylevels or self.__displaylevels[0] is None \
-               or self.__displaylevels[1] is None:
+            # if self.__rgb:
+            if len(img.shape) == 3:
+                self.__image.setImage(
+                    img, lut=None,
+                    # levels=[[0,255], [0, 255], [0, 255]],
+                    autoLevels=False)
+            elif (self.__autodisplaylevels
+                  or self.__displaylevels[0] is None
+                  or self.__displaylevels[1] is None):
                 self.__image.setImage(
                     img, autoLevels=True,
                     autoDownsample=self.__autodownsample)
@@ -872,3 +881,19 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         self.__viewbox.autoRange()
         self.__viewbox.enableAutoRange('xy', True)
+
+    def setrgb(self, status=True):
+        """ sets RGB on/off
+
+        :param status: True for on and False for off
+        :type status: :obj:`bool`
+        """
+        self.__rgb = status
+
+    def rgb(self):
+        """ gets RGB on/off
+
+        :returns: True for on and False for off
+        :rtype: :obj:`bool`
+        """
+        return self.__rgb
