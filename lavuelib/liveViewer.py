@@ -1498,15 +1498,23 @@ class LiveViewer(QtGui.QDialog):
             self.__levelswg.setNumberOfChannels(self.__rawimage.shape[0])
             if not self.__levelswg.colorChannel():
                 self.__rawgreyimage = np.sum(self.__rawimage, 0)
+                if self.rgb():
+                    self.setrgb(False)
             else:
                 try:
                     if len(self.__rawimage) >= self.__levelswg.colorChannel():
                         self.__rawgreyimage = self.__rawimage[
                             self.__levelswg.colorChannel() - 1]
+                        if self.rgb():
+                            self.setrgb(False)
                     elif (len(self.__rawimage) + 1 ==
                           self.__levelswg.colorChannel()):
+                        if self.rgb():
+                            self.setrgb(False)
                         self.__rawgreyimage = np.mean(self.__rawimage, 0)
                     elif self.__rawimage.shape[0] > 1:
+                        if not self.rgb():
+                            self.setrgb(True)
                         self.__rawgreyimage = np.moveaxis(
                             self.__rawimage, 0, -1)
                         if self.__rawgreyimage.shape[-1] > 3:
@@ -1518,6 +1526,8 @@ class LiveViewer(QtGui.QDialog):
                                     dtype=self.__rawgreyimage.dtype
                                 ), axis=2)
                     elif self.__rawimage.shape[0] == 1:
+                        if self.rgb():
+                            self.setrgb(False)
                         self.__rawgreyimage = self.__rawimage[:, :, 0]
 
                 except Exception:
