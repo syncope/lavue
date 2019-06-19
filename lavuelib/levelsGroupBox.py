@@ -520,6 +520,22 @@ class LevelsGroupBox(QtGui.QGroupBox):
                     self.__colorchannel = channel
                     self.channelChanged.emit()
 
+    def showGradient(self, status=True):
+        """ resets color channel
+
+        :param status: show gradient flag
+        :type status: :obj:`bool`
+        """
+        if status:
+            self.__ui.gradientComboBox.show()
+            self.__ui.gradientLabel.show()
+            self.__histogram.gradient.show()
+            self._updateGradient()
+        else:
+            self.__ui.gradientComboBox.hide()
+            self.__ui.gradientLabel.hide()
+            self.__histogram.gradient.hide()
+
     @QtCore.pyqtSlot(int)
     def setBins(self, index):
         """ sets bins edges algorithm for histogram

@@ -475,8 +475,11 @@ class ImageWidget(QtGui.QWidget):
                     signal = getattr(self, signal)
                 if isinstance(slot, str):
                     slot = getattr(self, slot)
-                signal.disconnect(slot)
-            self.__currenttool.disactivate()
+                try:
+                    signal.disconnect(slot)
+                except Exception as e:
+                    print(str(e))
+                self.__currenttool.disactivate()
 
     def updateMetaData(self, axisscales=None, axislabels=None):
         """ update Metadata informations

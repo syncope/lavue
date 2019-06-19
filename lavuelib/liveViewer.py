@@ -1507,14 +1507,17 @@ class LiveViewer(QtGui.QDialog):
                             self.__levelswg.colorChannel() - 1]
                         if self.rgb():
                             self.setrgb(False)
+                            self.__levelswg.showGradient(True)
                     elif (len(self.__rawimage) + 1 ==
                           self.__levelswg.colorChannel()):
                         if self.rgb():
                             self.setrgb(False)
+                            self.__levelswg.showGradient(True)
                         self.__rawgreyimage = np.mean(self.__rawimage, 0)
                     elif self.__rawimage.shape[0] > 1:
                         if not self.rgb():
                             self.setrgb(True)
+                            self.__levelswg.showGradient(False)
                         self.__rawgreyimage = np.moveaxis(
                             self.__rawimage, 0, -1)
                         if self.__rawgreyimage.shape[-1] > 3:
@@ -1528,6 +1531,7 @@ class LiveViewer(QtGui.QDialog):
                     elif self.__rawimage.shape[0] == 1:
                         if self.rgb():
                             self.setrgb(False)
+                            self.__levelswg.showGradient(True)
                         self.__rawgreyimage = self.__rawimage[:, :, 0]
 
                 except Exception:
@@ -1545,6 +1549,9 @@ class LiveViewer(QtGui.QDialog):
                         text, str(value))
                     self.__levelswg.setChannel(0)
         elif len(self.__rawimage.shape) == 2:
+            if self.rgb():
+                self.setrgb(False)
+                self.__levelswg.showGradient(True)
             if self.__applymask:
                 self.__rawgreyimage = np.array(self.__rawimage)
             else:
@@ -1552,6 +1559,9 @@ class LiveViewer(QtGui.QDialog):
             self.__levelswg.setNumberOfChannels(0)
 
         elif len(self.__rawimage.shape) == 1:
+            if self.rgb():
+                self.setrgb(False)
+                self.__levelswg.showGradient(True)
             self.__rawgreyimage = np.array(
                 self.__rawimage).reshape((self.__rawimage.shape[0], 1))
             self.__levelswg.setNumberOfChannels(0)
