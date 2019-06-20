@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Jun 19, 2019" "2.10" "lavuelib"
+.TH "LAVUELIB" "1" "Jun 20, 2019" "2.11" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -2604,6 +2604,16 @@ constructor
 .TP
 .B Parameters
 \fBname\fP – image name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B initialize()
+initialize the filter
+.UNINDENT
+.INDENT 7.0
+.TP
+.B terminate()
+stop filter
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -7317,6 +7327,16 @@ sets scaling label
 .UNINDENT
 .INDENT 7.0
 .TP
+.B showGradient(status=True)
+resets color channel
+.INDENT 7.0
+.TP
+.B Parameters
+\fBstatus\fP (\fI\%bool\fP) – show gradient flag
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B storeSettingsRequested
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) store settings requested
 .UNINDENT
@@ -9957,6 +9977,27 @@ connects widget
 .TP
 .B disconnectWidget()
 disconnects widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B eventFilter(obj, event)
+event filter
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – qt object
+.IP \(bu 2
+\fBevent\fP – qt event
+.UNINDENT
+.TP
+.B Returns
+status flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
