@@ -1,5 +1,6 @@
 2019-06-20 Jan Kotanski <jan.kotanski@desy.de>
 	* add file dialog for nexus source
+	* add initialize and terminate  methods for filters
 	* tagged as 2.11.0
 
 2019-06-19 Jan Kotanski <jan.kotanski@desy.de>

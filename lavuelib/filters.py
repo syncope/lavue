@@ -70,8 +70,17 @@ class BaseFilter(object):
         :returns: numpy array with an image
         :rtype: :class:`numpy.ndarray` or `None`
         """
-        # print(imagename)
         return None
+
+    def initialize(self):
+        """ initialize the filter
+        """
+        pass
+
+    def terminate(self):
+        """ stop filter
+        """
+        pass
 
 
 class FilterList(list):

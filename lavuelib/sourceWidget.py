@@ -1141,9 +1141,11 @@ class NXSFileSourceWidget(BaseSourceWidget):
         :returns: status flag
         :rtype: :obj:`bool`
         """
+        if not self._ui.nxsDimSpinBox.isEnabled():
+            return False
         if obj not in [self._ui.nxsFileLineEdit, self._ui.nxsFieldLineEdit]:
             return False
-        if event.type() in [QtCore.QEvent.MouseButtonPress]:
+        if event.type() in [QtCore.QEvent.MouseButtonDblClick]:
             fileDialog = QtGui.QFileDialog()
             fileout = fileDialog.getOpenFileName(
                 self._ui.nxsFileLineEdit, 'Load file', self.__nxslastfile)
