@@ -32,6 +32,8 @@ import socket
 import json
 import re
 
+from . import imageField
+from . import imageFileHandler
 _testformclass, _testbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "TestSourceWidget.ui"))
@@ -1118,12 +1120,68 @@ class NXSFileSourceWidget(BaseSourceWidget):
         self.__nxsopen = False
         #: (:obj:`bool`) nexus file source starts from the last image
         self.__nxslast = False
+        #: (:obj:`str`) the last nexus file
+        self.__nxslastfile = "."
 
         self._detachWidgets()
 
         self._ui.nxsFileLineEdit.textEdited.connect(self.updateButton)
         self._ui.nxsFieldLineEdit.textEdited.connect(self.updateButton)
         self._ui.nxsDimSpinBox.valueChanged.connect(self.updateButton)
+        self._ui.nxsFileLineEdit.installEventFilter(self)
+        self._ui.nxsFieldLineEdit.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        """ event filter
+
+        :param obj: qt object
+        :type obj: :class: `pyqtgraph.QtCore.QObject`
+        :param event: qt event
+        :type event: :class: `pyqtgraph.QtCore.QEvent`
+        :returns: status flag
+        :rtype: :obj:`bool`
+        """
+        if not self._ui.nxsDimSpinBox.isEnabled():
+            return False
+        if obj not in [self._ui.nxsFileLineEdit, self._ui.nxsFieldLineEdit]:
+            return False
+        if event.type() in [QtCore.QEvent.MouseButtonDblClick]:
+            fileDialog = QtGui.QFileDialog()
+            fileout = fileDialog.getOpenFileName(
+                self._ui.nxsFileLineEdit, 'Load file', self.__nxslastfile)
+            if isinstance(fileout, tuple):
+                filename = str(fileout[0])
+            else:
+                filename = str(fileout)
+            fieldpath = ""
+            growing = 0
+            if filename:
+                if filename.endswith(".nxs") or filename.endswith(".h5") \
+                   or filename.endswith(".nx") or filename.endswith(".ndf"):
+                    try:
+                        # self.__settings.filename = filename
+                        handler = imageFileHandler.NexusFieldHandler(
+                            str(filename))
+                        fields = handler.findImageFields()
+                    except Exception as e:
+                        print(str(e))
+                        fields = None
+                    if fields:
+                        imgfield = imageField.ImageField(self)
+                        imgfield.fields = fields
+                        imgfield.createGUI()
+                        if imgfield.exec_():
+                            fieldpath = imgfield.field
+                            growing = imgfield.growing
+                            # frame = imgfield.frame
+                self._ui.nxsFileLineEdit.setText(filename)
+                self.__nxslastfile = filename
+                if fieldpath:
+                    self._ui.nxsFieldLineEdit.setText(fieldpath)
+                self._ui.nxsDimSpinBox.setValue(growing)
+                self.updateButton()
+            return True
+        return False
 
     @QtCore.pyqtSlot()
     def updateButton(self):

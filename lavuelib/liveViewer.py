@@ -1941,9 +1941,28 @@ class LiveViewer(QtGui.QDialog):
     def _assessFilters(self, state):
         """ assesses the filter on/off state
         """
-        self.__filterstate = state
-        if self.__displayimage is not None:
-            self._plot()
+        if self.__filterstate != state:
+            self.__filterstate = state
+            for flt in self.__filters:
+                try:
+                    if state:
+                        if hasattr(flt, "initialize"):
+                            flt.initialize()
+                    else:
+                        if hasattr(flt, "terminate"):
+                            flt.terminate()
+                except Exception as e:
+                    self.__filterswg.setState(0)
+                    import traceback
+                    value = traceback.format_exc()
+                    messageBox.MessageBox.warning(
+                        self, "lavue: problems in starting or stoping filters",
+                        "%s" % str(e),
+                        "%s" % value)
+                    # print(str(e))
+
+            if self.__displayimage is not None:
+                self._plot()
 
     @QtCore.pyqtSlot(str)
     def _assessTransformation(self, trafoname):
