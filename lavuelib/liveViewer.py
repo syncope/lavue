@@ -298,6 +298,9 @@ class LiveViewer(QtGui.QDialog):
         #: (:obj:`str`) source label
         self.__sourcelabel = None
 
+        #: (:obj:`str`) reload flag
+        self.__reloadflag = False
+
         #: (:obj:`str`) transformation name
         self.__trafoname = "None"
 
@@ -407,7 +410,9 @@ class LiveViewer(QtGui.QDialog):
             self._addLabel)
         self.__sourcewg.removeIconClicked.connect(
             self._removeLabel)
-        self.__ui.frameSpinBox.valueChanged.connect(self._reloadfile)
+        self.__ui.frameSpinBox.valueChanged.connect(self._spinreloadfile)
+        self.__ui.frameHorizontalSlider.valueChanged.connect(
+            self._sliderreloadfile)
         self.__sourcewg.updateLayout()
         self.__sourcewg.emitSourceChanged()
         self.__imagewg.showCurrentTool()
@@ -634,39 +639,6 @@ class LiveViewer(QtGui.QDialog):
         else:
             return False
 
-    @QtCore.pyqtSlot(int)
-    def _replotFrame(self, fid):
-        """ update ROIs
-
-        :param fid: frame id
-        :type fid: :obj:`int`
-        """
-        self.__ui.frameSpinBox.valueChanged.disconnect(self._replotFrame)
-        newimage = None
-        if self.__currentfield is not None:
-            self.__frame = int(fid)
-            try:
-                newimage = imageFileHandler.NexusFieldHandler("").getImage(
-                    self.__currentfield["node"],
-                    self.__frame, self.__growing)
-                while newimage is None and self.__frame > 0:
-                    self.__frame -= 1
-                    self.__updateframeview(True)
-                    newimage = imageFileHandler.NexusFieldHandler("").getImage(
-                        self.__currentfield["node"],
-                        self.__frame, self.__growing)
-            except Exception as e:
-                import traceback
-                value = traceback.format_exc()
-                messageBox.MessageBox.warning(
-                    self, "lavue: problems in reading the Nexus frame",
-                    "%s" % str(e),
-                    "%s" % value)
-            if newimage is not None:
-                self.__rawimage = np.transpose(newimage)
-                self._plot()
-        self.__ui.frameSpinBox.valueChanged.connect(self._replotFrame)
-
     def __loadSettings(self):
         """ loads settings from QSettings object
         """
@@ -789,6 +761,41 @@ class LiveViewer(QtGui.QDialog):
 
     @QtCore.pyqtSlot(int)
     @QtCore.pyqtSlot()
+    def _spinreloadfile(self, fid=None, showmessage=False):
+        """ reloads the image file
+
+        :param fid: frame id
+        :type fid: :obj:`int`
+        :param showmessage: no image message
+        :type showmessage: :obj:`bool`
+         """
+        try:
+            if not self.__reloadflag:
+                self.__reloadflag = True
+                self._reloadfile(fid, showmessage)
+                time.sleep(0.1)
+        finally:
+                self.__reloadflag = False
+
+    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot()
+    def _sliderreloadfile(self, fid=None, showmessage=False):
+        """ reloads the image file
+
+        :param fid: frame id
+        :type fid: :obj:`int`
+        :param showmessage: no image message
+        :type showmessage: :obj:`bool`
+         """
+        try:
+            if not self.__reloadflag:
+                self.__reloadflag = True
+                self._reloadfile(fid, showmessage)
+        finally:
+                self.__reloadflag = False
+
+    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot()
     def _reloadfile(self, fid=None, showmessage=False):
         """ reloads the image file
 
@@ -840,14 +847,18 @@ class LiveViewer(QtGui.QDialog):
                     # if metadata:
                     #     print("Metadata = %s" % str(metadata))
                     self.__ui.frameSpinBox.valueChanged.disconnect(
-                        self._reloadfile)
+                        self._spinreloadfile)
+                    self.__ui.frameHorizontalSlider.valueChanged.disconnect(
+                        self._sliderreloadfile)
                     try:
                         gsize = currentfield["shape"][self.__growing] - 1
                         if gsize >= 0:
                             self.__ui.frameSpinBox.setToolTip(
                                 "current frame (max: %s)" % gsize)
+                            self.__ui.frameHorizontalSlider.setMaximum(gsize)
                         else:
                             self.__ui.frameSpinBox.setToolTip("current frame")
+                            self.__ui.frameHorizontalSlider.setMaximum(0)
                     except Exception:
                         self.__ui.frameSpinBox.setToolTip("current frame")
                     while newimage is None and self.__frame > 0:
@@ -857,7 +868,9 @@ class LiveViewer(QtGui.QDialog):
                             currentfield["node"],
                             self.__frame, self.__growing, refresh=False)
                     self.__ui.frameSpinBox.valueChanged.connect(
-                        self._reloadfile)
+                        self._spinreloadfile)
+                    self.__ui.frameHorizontalSlider.valueChanged.connect(
+                        self._sliderreloadfile)
                 else:
                     if showmessage:
                         text = messageBox.MessageBox.getText(
@@ -1482,10 +1495,17 @@ class LiveViewer(QtGui.QDialog):
         if status:
             if self.__frame is not None:
                 self.__ui.frameSpinBox.setValue(self.__frame)
-            self.__ui.frameSpinBox.show()
+                if self.__frame >= 0:
+                    self.__ui.frameHorizontalSlider.setValue(self.__frame)
+                else:
+                    self.__ui.frameHorizontalSlider.setValue(
+                        self.__ui.frameHorizontalSlider.maximum())
+                self.__ui.frameSpinBox.show()
+            self.__ui.frameHorizontalSlider.show()
         else:
             self.__fieldpath = None
             self.__ui.frameSpinBox.hide()
+            self.__ui.frameHorizontalSlider.hide()
 
     def __prepareImage(self):
         """applies: make image gray, substracke the background image and
