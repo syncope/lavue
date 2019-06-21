@@ -775,7 +775,7 @@ class LiveViewer(QtGui.QDialog):
                 self._reloadfile(fid, showmessage)
                 time.sleep(0.1)
         finally:
-                self.__reloadflag = False
+            self.__reloadflag = False
 
     @QtCore.pyqtSlot(int)
     @QtCore.pyqtSlot()
@@ -792,7 +792,7 @@ class LiveViewer(QtGui.QDialog):
                 self.__reloadflag = True
                 self._reloadfile(fid, showmessage)
         finally:
-                self.__reloadflag = False
+            self.__reloadflag = False
 
     @QtCore.pyqtSlot(int)
     @QtCore.pyqtSlot()
