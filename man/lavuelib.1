@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Jun 20, 2019" "2.11" "lavuelib"
+.TH "LAVUELIB" "1" "Jun 25, 2019" "2.12" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -515,6 +515,11 @@ status flag
 .TP
 .B keepcoords = None
 (\fI\%bool\fP) keep original coordinates
+.UNINDENT
+.INDENT 7.0
+.TP
+.B lazyimageslider = None
+(\fI\%bool\fP) lazy image slider
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5455,7 +5460,7 @@ image data
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.pyc\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.pyc\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.pyc\(aq>}
+.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.py\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.pyc\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.pyc\(aq>}
 (\fI\%dict\fP <\fI\%str\fP, \fBmodule\fP> ) nexus writer modules
 .UNINDENT
 .SS lavuelib.imageSource module
@@ -9105,6 +9110,11 @@ distance in um
 .TP
 .B keepcoords = None
 (\fI\%bool\fP) keep original coordinates
+.UNINDENT
+.INDENT 7.0
+.TP
+.B lazyimageslider = None
+(\fI\%bool\fP) lazy image slider
 .UNINDENT
 .INDENT 7.0
 .TP
