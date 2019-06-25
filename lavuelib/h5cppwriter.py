@@ -105,7 +105,7 @@ def _slice2selection(t, shape):
             it += 1
             if isinstance(tel, (int, long)):
                 if tel < 0:
-                    offset.append(shape[it] + tel)
+                    offset.append(max(shape[it] + tel, 0))
                 else:
                     offset.append(tel)
                 block.append(1)
@@ -115,9 +115,9 @@ def _slice2selection(t, shape):
                 start = tel.start if tel.start is not None else 0
                 stop = tel.stop if tel.stop is not None else shape[it]
                 if start < 0:
-                    start == shape[it] + start
+                    start == max(shape[it] + start, 0)
                 if stop < 0:
-                    stop == shape[it] + stop
+                    stop == max(shape[it] + stop, 0)
                 if tel.step in [None, 1]:
                     offset.append(start)
                     block.append(stop - start)

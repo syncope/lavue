@@ -304,6 +304,9 @@ class LiveViewer(QtGui.QDialog):
         #: (:obj:`str`) transformation name
         self.__trafoname = "None"
 
+        #: (:obj:`bool`) lazy image slider
+        self.__lazyimageslider = False
+
         #: (:obj: dict < :obj:`str` , :obj:`str` >) unsigned/signed int map
         self.__unsignedmap = {
             "uint8": "int16",
@@ -410,9 +413,12 @@ class LiveViewer(QtGui.QDialog):
             self._addLabel)
         self.__sourcewg.removeIconClicked.connect(
             self._removeLabel)
+
         self.__ui.frameSpinBox.valueChanged.connect(self._spinreloadfile)
         self.__ui.frameHorizontalSlider.valueChanged.connect(
-            self._sliderreloadfile)
+            self._sliderreloadfilelazy)
+        self.__connectslider()
+
         self.__sourcewg.updateLayout()
         self.__sourcewg.emitSourceChanged()
         self.__imagewg.showCurrentTool()
@@ -430,6 +436,41 @@ class LiveViewer(QtGui.QDialog):
 
         if options.tool:
             QtCore.QTimer.singleShot(10, self.__imagewg.showCurrentTool)
+
+    def __switchlazysignals(self, lazy=False):
+        """switch lazy signals
+
+        :param lazy: lazy image slider flag
+        :type lazy: :obj:`bool`
+        """
+        if lazy:
+            self.__ui.frameHorizontalSlider.sliderReleased.connect(
+                self._sliderreloadfile)
+            self.__lazyimageslider = True
+        else:
+            self.__ui.frameHorizontalSlider.sliderReleased.disconnect(
+                self._sliderreloadfile)
+            self.__lazyimageslider = False
+
+    def __disconnectslider(self):
+        """switch lazy signals
+
+        :param lazy: lazy image slider flag
+        :type lazy: :obj:`bool`
+        """
+        if self.__lazyimageslider:
+            self.__ui.frameHorizontalSlider.sliderReleased.disconnect(
+                self._sliderreloadfile)
+
+    def __connectslider(self):
+        """switch lazy signals
+
+        :param lazy: lazy image slider flag
+        :type lazy: :obj:`bool`
+        """
+        if self.__lazyimageslider:
+            self.__ui.frameHorizontalSlider.sliderReleased.connect(
+                self._sliderreloadfile)
 
     def __resetFilters(self, filters):
         """ resets filters
@@ -699,6 +740,8 @@ class LiveViewer(QtGui.QDialog):
         )
         self.__scalingwg.changeView(self.__settings.showscale)
         self.__levelswg.changeView()
+        if self.__lazyimageslider != self.__settings.lazyimageslider:
+            self.__switchlazysignals(self.__settings.lazyimageslider)
 
     @QtCore.pyqtSlot()
     def _storeSettings(self):
@@ -772,10 +815,28 @@ class LiveViewer(QtGui.QDialog):
         try:
             if not self.__reloadflag:
                 self.__reloadflag = True
+                if fid is None:
+                    fid = self.__ui.frameSpinBox.value()
                 self._reloadfile(fid, showmessage)
                 time.sleep(0.1)
         finally:
             self.__reloadflag = False
+
+    @QtCore.pyqtSlot()
+    def _sliderreloadfilelazy(self):
+        """ reloads the image file or
+        if lazy flag it displays only splider value
+        """
+        if self.__lazyimageslider:
+
+            fid = self.__ui.frameHorizontalSlider.value()
+            self.__ui.frameSpinBox.valueChanged.disconnect(
+                self._spinreloadfile)
+            self.__ui.frameSpinBox.setValue(fid)
+            self.__ui.frameSpinBox.valueChanged.connect(
+                self._spinreloadfile)
+        else:
+            self._sliderreloadfile()
 
     @QtCore.pyqtSlot(int)
     @QtCore.pyqtSlot()
@@ -790,6 +851,8 @@ class LiveViewer(QtGui.QDialog):
         try:
             if not self.__reloadflag:
                 self.__reloadflag = True
+                if fid is None:
+                    fid = self.__ui.frameHorizontalSlider.value()
                 self._reloadfile(fid, showmessage)
         finally:
             self.__reloadflag = False
@@ -840,25 +903,34 @@ class LiveViewer(QtGui.QDialog):
                         else:
                             return
                     currentfield = fields[self.__fieldpath]
-                    newimage = handler.getImage(
-                        currentfield["node"],
-                        self.__frame, self.__growing, refresh=False)
+                    try:
+                        newimage = handler.getImage(
+                            currentfield["node"],
+                            self.__frame, self.__growing, refresh=False)
+                    except Exception as e:
+                        print(str(e))
+
                     metadata = handler.getMetaData(currentfield["node"])
                     # if metadata:
                     #     print("Metadata = %s" % str(metadata))
                     self.__ui.frameSpinBox.valueChanged.disconnect(
                         self._spinreloadfile)
+                    self.__disconnectslider()
                     self.__ui.frameHorizontalSlider.valueChanged.disconnect(
-                        self._sliderreloadfile)
+                        self._sliderreloadfilelazy)
                     try:
                         gsize = currentfield["shape"][self.__growing] - 1
                         if gsize >= 0:
                             self.__ui.frameSpinBox.setToolTip(
                                 "current frame (max: %s)" % gsize)
                             self.__ui.frameHorizontalSlider.setMaximum(gsize)
+                            self.__ui.frameHorizontalSlider.setToolTip(
+                                "current frame (max: %s)" % gsize)
                         else:
                             self.__ui.frameSpinBox.setToolTip("current frame")
                             self.__ui.frameHorizontalSlider.setMaximum(0)
+                            self.__ui.frameHorizontalSlider.setToolTip(
+                                "current frame")
                     except Exception:
                         self.__ui.frameSpinBox.setToolTip("current frame")
                     while newimage is None and self.__frame > 0:
@@ -870,7 +942,8 @@ class LiveViewer(QtGui.QDialog):
                     self.__ui.frameSpinBox.valueChanged.connect(
                         self._spinreloadfile)
                     self.__ui.frameHorizontalSlider.valueChanged.connect(
-                        self._sliderreloadfile)
+                        self._sliderreloadfilelazy)
+                    self.__connectslider()
                 else:
                     if showmessage:
                         text = messageBox.MessageBox.getText(
@@ -957,6 +1030,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.aspectlocked = self.__settings.aspectlocked
         cnfdlg.autodownsample = self.__settings.autodownsample
         cnfdlg.keepcoords = self.__settings.keepcoords
+        cnfdlg.lazyimageslider = self.__settings.lazyimageslider
         cnfdlg.statswoscaling = self.__settings.statswoscaling
         cnfdlg.zmqtopics = self.__settings.zmqtopics
         cnfdlg.detservers = self.__settings.detservers
@@ -1071,6 +1145,9 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.keepcoords = dialog.keepcoords
             self._assessTransformation(self.__trafoname)
             replot = True
+        if self.__settings.lazyimageslider != dialog.lazyimageslider:
+            self.__settings.lazyimageslider = dialog.lazyimageslider
+            self.__switchlazysignals(self.__settings.lazyimageslider)
 
         self.__settings.secstream = dialog.secstream
         self.__settings.storegeometry = dialog.storegeometry

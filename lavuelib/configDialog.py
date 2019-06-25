@@ -102,6 +102,8 @@ class ConfigDialog(QtGui.QDialog):
         self.autodownsample = False
         #: (:obj:`bool`) keep original coordinates
         self.keepcoords = False
+        #: (:obj:`bool`) lazy image slider
+        self.lazyimageslider = False
 
         #: (:obj:`list` < :obj:`str`>) hidra detector server list
         self.detservers = []
@@ -201,6 +203,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.aspectlockedCheckBox.setChecked(self.aspectlocked)
         self.__ui.downsampleCheckBox.setChecked(self.autodownsample)
         self.__ui.keepCoordsCheckBox.setChecked(self.keepcoords)
+        self.__ui.lazyimageCheckBox.setChecked(self.lazyimageslider)
         self.__ui.statsscaleCheckBox.setChecked(not self.statswoscaling)
         self.__ui.sardanaCheckBox.setChecked(self.sardana)
         self.__ui.doorLineEdit.setText(self.door)
@@ -492,6 +495,7 @@ class ConfigDialog(QtGui.QDialog):
         self.aspectlocked = self.__ui.aspectlockedCheckBox.isChecked()
         self.autodownsample = self.__ui.downsampleCheckBox.isChecked()
         self.keepcoords = self.__ui.keepCoordsCheckBox.isChecked()
+        self.lazyimageslider = self.__ui.lazyimageCheckBox.isChecked()
         self.statswoscaling = not self.__ui.statsscaleCheckBox.isChecked()
         self.nxsopen = self.__ui.nxsopenCheckBox.isChecked()
         self.nxslast = self.__ui.nxslastCheckBox.isChecked()
