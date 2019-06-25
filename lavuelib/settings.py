@@ -74,6 +74,8 @@ class Settings(object):
         self.autodownsample = False
         #: (:obj:`bool`) keep original coordinates
         self.keepcoords = False
+        #: (:obj:`bool`) lazy image slider
+        self.lazyimageslider = False
         #: (:obj:`str`) security stream port
         self.secport = "5657"
         #: (:obj:`str`) hidra data port
@@ -299,6 +301,10 @@ class Settings(object):
             "Configuration/KeepOriginalCoordinates", type=str))
         if qstval.lower() == "true":
             self.keepcoords = True
+        qstval = str(settings.value(
+            "Configuration/LazyImageSlider", type=str))
+        if qstval.lower() == "true":
+            self.lazyimageslider = True
         qstval = str(settings.value("Configuration/NXSFileOpen", type=str))
         if qstval.lower() == "true":
             self.nxsopen = True
@@ -572,6 +578,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/KeepOriginalCoordinates",
             self.keepcoords)
+        settings.setValue(
+            "Configuration/LazyImageSlider",
+            self.lazyimageslider)
         settings.setValue(
             "Configuration/LastImageFileName",
             self.imagename)

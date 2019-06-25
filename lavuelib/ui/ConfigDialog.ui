@@ -193,6 +193,29 @@
                     </property>
                    </widget>
                   </item>
+                  <item row="7" column="1">
+                   <widget class="QCheckBox" name="lazyimageCheckBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;load an image from the HdF5 file after stopping moving the slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="0">
+                   <widget class="QLabel" name="lazyimageLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;load an image from the HdF5 file after stopping moving the slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Lazy image slider:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>lazyimageCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </item>
                </layout>
@@ -1336,6 +1359,7 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>zeromaskCheckBox</tabstop>
   <tabstop>interruptCheckBox</tabstop>
   <tabstop>sourcedisplayCheckBox</tabstop>
+  <tabstop>lazyimageCheckBox</tabstop>
   <tabstop>plusroiPushButton</tabstop>
   <tabstop>minusroiPushButton</tabstop>
   <tabstop>showallroisCheckBox</tabstop>
@@ -1373,8 +1397,8 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>fileattrLineEdit</tabstop>
   <tabstop>dirattrLineEdit</tabstop>
   <tabstop>dirtransLineEdit</tabstop>
-  <tabstop>filterButtonBox</tabstop>
   <tabstop>filterTableWidget</tabstop>
+  <tabstop>filterButtonBox</tabstop>
  </tabstops>
  <resources/>
  <connections>
