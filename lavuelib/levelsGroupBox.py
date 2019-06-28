@@ -570,7 +570,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 self.__ui.channelComboBox.addItem("sum")
 
                 self.__ui.channelComboBox.addItems(
-                    ["channel %s" % (ch + 1)
+                    ["channel %s" % (ch)
                      for ch in range(self.__numberofchannels)])
 
                 self.__ui.channelComboBox.addItem("mean")
@@ -578,9 +578,40 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 self.__ui.channelLabel.show()
                 self.__ui.channelComboBox.show()
                 self.__colors = True
+                for i in reversed(
+                        range(0, self.__ui.rComboBox.count())):
+                    self.__ui.rComboBox.removeItem(i)
+                for i in reversed(
+                        range(0, self.__ui.gComboBox.count())):
+                    self.__ui.gComboBox.removeItem(i)
+                for i in reversed(
+                        range(0, self.__ui.bComboBox.count())):
+                    self.__ui.bComboBox.removeItem(i)
+
+                self.__ui.rComboBox.addItems(
+                    ["%s" % (ch)
+                     for ch in range(self.__numberofchannels)])
+                self.__ui.gComboBox.addItems(
+                    ["%s" % (ch)
+                     for ch in range(self.__numberofchannels)])
+                self.__ui.bComboBox.addItems(
+                    ["%s" % (ch)
+                     for ch in range(self.__numberofchannels)])
+                self.__ui.rLabel.show()
+                self.__ui.gLabel.show()
+                self.__ui.bLabel.show()
+                self.__ui.rComboBox.show()
+                self.__ui.gComboBox.show()
+                self.__ui.bComboBox.show()
             else:
                 self.__ui.channelLabel.hide()
                 self.__ui.channelComboBox.hide()
+                self.__ui.rLabel.hide()
+                self.__ui.gLabel.hide()
+                self.__ui.bLabel.hide()
+                self.__ui.rComboBox.hide()
+                self.__ui.gComboBox.hide()
+                self.__ui.bComboBox.hide()
                 self.__colors = False
 
     def gradient(self):

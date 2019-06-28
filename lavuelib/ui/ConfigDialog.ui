@@ -646,6 +646,16 @@
            <layout class="QGridLayout" name="gridLayout_42">
             <item row="0" column="0">
              <layout class="QGridLayout" name="viewGridLayout">
+              <item row="8" column="1">
+               <widget class="QCheckBox" name="showaddhistoCheckBox">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show additional histogram options like image data step and bin edges algorithm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
               <item row="9" column="0">
                <widget class="QLabel" name="showhistoLabel">
                 <property name="toolTip">
@@ -794,19 +804,6 @@
                 </property>
                </widget>
               </item>
-              <item row="4" column="0">
-               <widget class="QLabel" name="showtransLabel">
-                <property name="toolTip">
-                 <string>show widgets to select the image transformations</string>
-                </property>
-                <property name="text">
-                 <string>Transformations:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showtransCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
               <item row="2" column="1">
                <widget class="QCheckBox" name="showmaskCheckBox">
                 <property name="toolTip">
@@ -830,17 +827,33 @@
                 </property>
                </widget>
               </item>
-              <item row="8" column="1">
-               <widget class="QCheckBox" name="showaddhistoCheckBox">
+              <item row="5" column="0">
+               <widget class="QLabel" name="showtransLabel">
                 <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show additional histogram options like image data step and bin edges algorithm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>show widgets to select the image transformations</string>
                 </property>
                 <property name="text">
-                 <string/>
+                 <string>Transformations:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showtransCheckBox</cstring>
                 </property>
                </widget>
               </item>
-              <item row="4" column="1">
+              <item row="4" column="0">
+               <widget class="QLabel" name="showfiltersLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select image filters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Filters:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showfiltersCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1">
                <widget class="QCheckBox" name="showtransCheckBox">
                 <property name="toolTip">
                  <string>show widgets to select the image transformations</string>
@@ -850,17 +863,7 @@
                 </property>
                </widget>
               </item>
-              <item row="5" column="0">
-               <widget class="QLabel" name="showfiltersLabel">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select image filters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string>Filters:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="1">
+              <item row="4" column="1">
                <widget class="QCheckBox" name="showfiltersCheckBox">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select image filters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1376,8 +1379,8 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>showsubCheckBox</tabstop>
   <tabstop>showmaskCheckBox</tabstop>
   <tabstop>showmaskhighCheckBox</tabstop>
-  <tabstop>showtransCheckBox</tabstop>
   <tabstop>showfiltersCheckBox</tabstop>
+  <tabstop>showtransCheckBox</tabstop>
   <tabstop>showscaleCheckBox</tabstop>
   <tabstop>showlevelsCheckBox</tabstop>
   <tabstop>showaddhistoCheckBox</tabstop>
@@ -1397,8 +1400,8 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>fileattrLineEdit</tabstop>
   <tabstop>dirattrLineEdit</tabstop>
   <tabstop>dirtransLineEdit</tabstop>
-  <tabstop>filterTableWidget</tabstop>
   <tabstop>filterButtonBox</tabstop>
+  <tabstop>filterTableWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>

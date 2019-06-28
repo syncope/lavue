@@ -96,9 +96,9 @@ class PreparationGroupBox(QtGui.QGroupBox):
         vlayout.addWidget(self.maskWidget)
         vlayout.addWidget(self.highValueMaskWidget)
         vlayout.addWidget(self.__hline)
-        vlayout.addWidget(self.trafoWidget)
-        vlayout.addWidget(self.__hline2)
         vlayout.addWidget(self.filtersWidget)
+        vlayout.addWidget(self.__hline2)
+        vlayout.addWidget(self.trafoWidget)
 
         self.setLayout(vlayout)
 
@@ -153,8 +153,8 @@ class PreparationGroupBox(QtGui.QGroupBox):
             self.__filters = False
             self.filtersWidget.hide()
 
-        if self.__trans and (self.__bkgsub or self.__mask or
-                             self.__highvaluemask):
+        if self.__filters and (self.__bkgsub or self.__mask or
+                               self.__highvaluemask):
             self.__hline.show()
         else:
             self.__hline.hide()

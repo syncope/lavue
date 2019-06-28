@@ -265,6 +265,8 @@ class LiveViewer(QtGui.QDialog):
         # keep a reference to the "raw" image and the current filename
         #: (:class:`numpy.ndarray`) raw image
         self.__rawimage = None
+        #: (:class:`numpy.ndarray`) raw image
+        self.__filteredimage = None
         #: (:class:`numpy.ndarray`) raw gray image
         self.__rawgreyimage = None
         #: (:obj:`str`) image name
@@ -1586,48 +1588,49 @@ class LiveViewer(QtGui.QDialog):
         """applies: make image gray, substracke the background image and
            apply the mask
         """
-        if self.__rawimage is None:
+        if self.__filteredimage is None:
             return
 
-        if len(self.__rawimage.shape) == 3:
-            self.__levelswg.setNumberOfChannels(self.__rawimage.shape[0])
+        if len(self.__filteredimage.shape) == 3:
+            self.__levelswg.setNumberOfChannels(self.__filteredimage.shape[0])
             if not self.__levelswg.colorChannel():
-                self.__rawgreyimage = np.sum(self.__rawimage, 0)
+                self.__rawgreyimage = np.sum(self.__filteredimage, 0)
                 if self.rgb():
                     self.setrgb(False)
             else:
                 try:
-                    if len(self.__rawimage) >= self.__levelswg.colorChannel():
-                        self.__rawgreyimage = self.__rawimage[
+                    if len(self.__filteredimage) >= \
+                       self.__levelswg.colorChannel():
+                        self.__rawgreyimage = self.__filteredimage[
                             self.__levelswg.colorChannel() - 1]
                         if self.rgb():
                             self.setrgb(False)
                             self.__levelswg.showGradient(True)
-                    elif (len(self.__rawimage) + 1 ==
+                    elif (len(self.__filteredimage) + 1 ==
                           self.__levelswg.colorChannel()):
                         if self.rgb():
                             self.setrgb(False)
                             self.__levelswg.showGradient(True)
-                        self.__rawgreyimage = np.mean(self.__rawimage, 0)
-                    elif self.__rawimage.shape[0] > 1:
+                        self.__rawgreyimage = np.mean(self.__filteredimage, 0)
+                    elif self.__filteredimage.shape[0] > 1:
                         if not self.rgb():
                             self.setrgb(True)
                             self.__levelswg.showGradient(False)
                         self.__rawgreyimage = np.moveaxis(
-                            self.__rawimage, 0, -1)
+                            self.__filteredimage, 0, -1)
                         if self.__rawgreyimage.shape[-1] > 3:
                             self.__rawgreyimage = self.__rawgreyimage[:, :, :3]
-                        elif self.__rawimage.shape[-1] == 2:
+                        elif self.__filteredimage.shape[-1] == 2:
                             self.__rawgreyimage = np.concatinate(
                                 self.__rawgreyimage, np.zeros(
                                     shape=self.__rawgreyimage.shape[:, :, -1],
                                     dtype=self.__rawgreyimage.dtype
                                 ), axis=2)
-                    elif self.__rawimage.shape[0] == 1:
+                    elif self.__filteredimage.shape[0] == 1:
                         if self.rgb():
                             self.setrgb(False)
                             self.__levelswg.showGradient(True)
-                        self.__rawgreyimage = self.__rawimage[:, :, 0]
+                        self.__rawgreyimage = self.__filteredimage[:, :, 0]
 
                 except Exception:
                     import traceback
@@ -1643,22 +1646,23 @@ class LiveViewer(QtGui.QDialog):
                         % self.__levelswg.colorChannel(),
                         text, str(value))
                     self.__levelswg.setChannel(0)
-        elif len(self.__rawimage.shape) == 2:
+        elif len(self.__filteredimage.shape) == 2:
             if self.rgb():
                 self.setrgb(False)
                 self.__levelswg.showGradient(True)
             if self.__applymask:
-                self.__rawgreyimage = np.array(self.__rawimage)
+                self.__rawgreyimage = np.array(self.__filteredimage)
             else:
-                self.__rawgreyimage = self.__rawimage
+                self.__rawgreyimage = self.__filteredimage
             self.__levelswg.setNumberOfChannels(0)
 
-        elif len(self.__rawimage.shape) == 1:
+        elif len(self.__filteredimage.shape) == 1:
             if self.rgb():
                 self.setrgb(False)
                 self.__levelswg.showGradient(True)
             self.__rawgreyimage = np.array(
-                self.__rawimage).reshape((self.__rawimage.shape[0], 1))
+                self.__filteredimage).reshape(
+                    (self.__filteredimage.shape[0], 1))
             self.__levelswg.setNumberOfChannels(0)
 
         self.__displayimage = self.__rawgreyimage
@@ -1826,19 +1830,20 @@ class LiveViewer(QtGui.QDialog):
     def __applyFilters(self):
         """ applies user filters
         """
+        self.__filteredimage = self.__rawimage
         if self.__filterstate:
             for flt in self.__filters:
                 try:
-                    if self.__rawimage is not None:
+                    if self.__filteredimage is not None:
                         image = flt(
-                            self.__rawimage,
+                            self.__filteredimage,
                             self.__imagename,
                             self.__metadata,
                             self.__imagewg
                         )
                         if image is not None and (
                                 hasattr(image, "size") and image.size > 1):
-                            self.__rawimage = image
+                            self.__filteredimage = image
                 except Exception as e:
                     self.__filterswg.setState(0)
                     import traceback
