@@ -1332,6 +1332,9 @@ class LiveViewer(QtGui.QDialog):
         """ The main command of the live viewer class:
         draw a numpy array with the given name.
         """
+        # apply user filters
+        self.__applyFilters()
+
         # prepare or preprocess the raw image if present:
         self.__prepareImage()
 
@@ -1340,16 +1343,11 @@ class LiveViewer(QtGui.QDialog):
         # orgtranspose, orgleftrightflip, orgupdownflip)
         allcrds = self.__transform()
         self.__imagewg.setTransformations(*allcrds)
-
-        # apply user filters
-        self.__applyFilters()
-
         # use the internal raw image to create a display image with chosen
         # scaling
         self.__scale(self.__scalingwg.currentScaling())
         # calculate and update the stats for this
         self.__calcUpdateStats()
-
         # calls internally the plot function of the plot widget
         if self.__imagename is not None and self.__scaledimage is not None:
             self.__ui.fileNameLineEdit.setText(self.__imagename)
@@ -1831,16 +1829,16 @@ class LiveViewer(QtGui.QDialog):
         if self.__filterstate:
             for flt in self.__filters:
                 try:
-                    if self.__displayimage is not None:
+                    if self.__rawimage is not None:
                         image = flt(
-                            self.__displayimage,
+                            self.__rawimage,
                             self.__imagename,
                             self.__metadata,
                             self.__imagewg
                         )
                         if image is not None and (
                                 hasattr(image, "size") and image.size > 1):
-                            self.__displayimage = image
+                            self.__rawimage = image
                 except Exception as e:
                     self.__filterswg.setState(0)
                     import traceback
