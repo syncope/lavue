@@ -250,6 +250,12 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.__ui.gradientLabel.show()
             self.__ui.gradientComboBox.show()
             self.__ui.scalingLabel.show()
+            self.__ui.rLabel.hide()
+            self.__ui.gLabel.hide()
+            self.__ui.bLabel.hide()
+            self.__ui.rComboBox.hide()
+            self.__ui.gComboBox.hide()
+            self.__ui.bComboBox.hide()
             self.__ui.autoLevelsCheckBox.show()
             self.__ui.maxDoubleSpinBox.show()
             self.__ui.maxLabel.show()
@@ -261,6 +267,12 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.__ui.channelComboBox.hide()
             self.__ui.gradientLabel.hide()
             self.__ui.gradientComboBox.hide()
+            self.__ui.rLabel.show()
+            self.__ui.gLabel.show()
+            self.__ui.bLabel.show()
+            self.__ui.rComboBox.show()
+            self.__ui.gComboBox.show()
+            self.__ui.bComboBox.show()
 
             self.__ui.scalingLabel.hide()
             self.__ui.autoLevelsCheckBox.hide()
@@ -516,18 +528,13 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 if channel == self.__numberofchannels + 2 \
                    and self.__colorchannel != channel:
                     self.__colorchannel = channel
-                    self.__ui.gradientComboBox.hide()
-                    self.__ui.gradientLabel.hide()
-                    self.__histogram.gradient.hide()
+                    self.showGradient(False)
                     self.rgbChanged.emit(True)
                 elif (self.__colorchannel == self.__numberofchannels + 2
                       and self.__colorchannel != channel):
                     self.__colorchannel = channel
-                    self.__ui.gradientComboBox.show()
-                    self.__ui.gradientLabel.show()
-                    self.__histogram.gradient.show()
+                    self.showGradient(True)
                     self.rgbChanged.emit(False)
-                    self._updateGradient()
                 else:
                     self.__colorchannel = channel
                     self.channelChanged.emit()
@@ -542,11 +549,23 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.__ui.gradientComboBox.show()
             self.__ui.gradientLabel.show()
             self.__histogram.gradient.show()
+            self.__ui.rLabel.hide()
+            self.__ui.gLabel.hide()
+            self.__ui.bLabel.hide()
+            self.__ui.rComboBox.hide()
+            self.__ui.gComboBox.hide()
+            self.__ui.bComboBox.hide()
             self._updateGradient()
         else:
             self.__ui.gradientComboBox.hide()
             self.__ui.gradientLabel.hide()
             self.__histogram.gradient.hide()
+            self.__ui.rLabel.show()
+            self.__ui.gLabel.show()
+            self.__ui.bLabel.show()
+            self.__ui.rComboBox.show()
+            self.__ui.gComboBox.show()
+            self.__ui.bComboBox.show()
 
     @QtCore.pyqtSlot(int)
     def _onRChannelChanged(self, index):
@@ -684,21 +703,9 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 self.updateRChannel()
                 self.updateGChannel()
                 self.updateBChannel()
-                self.__ui.rLabel.show()
-                self.__ui.gLabel.show()
-                self.__ui.bLabel.show()
-                self.__ui.rComboBox.show()
-                self.__ui.gComboBox.show()
-                self.__ui.bComboBox.show()
             else:
                 self.__ui.channelLabel.hide()
                 self.__ui.channelComboBox.hide()
-                self.__ui.rLabel.hide()
-                self.__ui.gLabel.hide()
-                self.__ui.bLabel.hide()
-                self.__ui.rComboBox.hide()
-                self.__ui.gComboBox.hide()
-                self.__ui.bComboBox.hide()
                 self.__colors = False
 
     def gradient(self):
