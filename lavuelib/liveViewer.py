@@ -1618,14 +1618,42 @@ class LiveViewer(QtGui.QDialog):
                             self.__levelswg.showGradient(False)
                         self.__rawgreyimage = np.moveaxis(
                             self.__filteredimage, 0, -1)
-                        if self.__rawgreyimage.shape[-1] > 3:
-                            self.__rawgreyimage = self.__rawgreyimage[:, :, :3]
-                        elif self.__filteredimage.shape[-1] == 2:
-                            self.__rawgreyimage = np.concatinate(
-                                self.__rawgreyimage, np.zeros(
-                                    shape=self.__rawgreyimage.shape[:, :, -1],
-                                    dtype=self.__rawgreyimage.dtype
-                                ), axis=2)
+                        rgbs = self.__levelswg.rgbchannels()
+                        if rgbs == (0, 1, 2):
+                            if self.__rawgreyimage.shape[-1] > 3:
+                                self.__rawgreyimage = \
+                                    self.__rawgreyimage[:, :, :3]
+                            elif self.__filteredimage.shape[-1] == 2:
+                                nshape = list(self.__rawgreyimage.shape)
+                                nshape[-1] = 1
+                                self.__rawgreyimage = np.concatenate(
+                                    (self.__rawgreyimage,
+                                     np.zeros(
+                                         shape=nshape.
+                                         shape[:, :, -1],
+                                         dtype=self.__rawgreyimage.dtype)),
+                                    axis=2)
+                        else:
+                            zeros = None
+                            nshape = list(self.__rawgreyimage.shape)
+                            nshape[-1] = 1
+                            if -1 in rgbs:
+                                zeros = np.zeros(
+                                    shape=nshape,
+                                    dtype=self.__rawgreyimage.dtype)
+
+                            self.__rawgreyimage = np.concatenate(
+                                (self.__rawgreyimage[:, :, rgbs[0]].
+                                 reshape(nshape)
+                                 if rgbs[0] != -1 else zeros,
+                                 self.__rawgreyimage[:, :, rgbs[1]].
+                                 reshape(nshape)
+                                 if rgbs[1] != -1 else zeros,
+                                 self.__rawgreyimage[:, :, rgbs[2]].
+                                 reshape(nshape)
+                                 if rgbs[2] != -1 else zeros),
+                                axis=2)
+
                     elif self.__filteredimage.shape[0] == 1:
                         if self.rgb():
                             self.setrgb(False)
