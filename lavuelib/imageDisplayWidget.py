@@ -35,6 +35,35 @@ _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
     if _pg.__version__ else ("0", "9", "0")
 
 
+class SafeImageItem(_pg.ImageItem):
+
+    """ Image item which caught exceptions in paint"""
+
+    def __init__(self, *args, **kargs):
+        """ constructor
+
+        :param args: ImageItem parameters list
+        :type args: :obj:`list` < :obj:`any`>
+        :param kargs:  ImageItem parameter dictionary
+        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        _pg.ImageItem.__init__(self, *args, **kargs)
+
+    def paint(self, p, *args):
+        """ safe paint method
+
+        :param p: painter
+        :type p: :class:`PyQt5.QtGui.QPainter`
+        :param args: ImageItem parameters list
+        :type args: :obj:`list` < :obj:`any`>
+        """
+        try:
+            _pg.ImageItem.paint(self, p, *args)
+        except ValueError as e:
+            print(str(e))
+            # print("Shape mismatch: skip painting")
+
+
 class AxesParameters(object):
     """ axes parameters
     """
@@ -131,7 +160,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__rawdata = None
 
         #: (:class:`pyqtgraph.ImageItem`) image item
-        self.__image = _pg.ImageItem()
+        self.__image = SafeImageItem()
 
         #: (:class:`pyqtgraph.ViewBox`) viewbox item
         self.__viewbox = self.__layout.addViewBox(row=0, col=1)

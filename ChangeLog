@@ -1,4 +1,8 @@
 2019-07-01 Jan Kotanski <jan.kotanski@desy.de>
+	* add SafeImageItem to avoid painter crashes
+	* tagged as 2.13.1
+
+2019-07-01 Jan Kotanski <jan.kotanski@desy.de>
 	* add labels or image channels definable from metadata
 	* make default addrois to sardana mg to False
 	* make filter plugins to send metadata back

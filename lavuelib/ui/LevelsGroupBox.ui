@@ -324,7 +324,7 @@ for color distribution of the image</string>
         </sizepolicy>
        </property>
        <property name="toolTip">
-        <string>color channel for multi color images like RGB or CMYK</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;channel view for multi channel images, e.g. a separate color channel or RGB&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string>Channel:</string>
@@ -343,7 +343,7 @@ for color distribution of the image</string>
         </sizepolicy>
        </property>
        <property name="toolTip">
-        <string>color channel for multi color images like RGB or CMYK</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;channel view for multi channel images, e.g. a separate color channel or RGB&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
@@ -353,6 +353,9 @@ for color distribution of the image</string>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLabel" name="rLabel">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;red color channel for the RGB view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string>R:</string>
        </property>
@@ -369,10 +372,16 @@ for color distribution of the image</string>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;red color channel for the RGB view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="gLabel">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;green color channel for the RGB view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string>G:</string>
        </property>
@@ -389,10 +398,16 @@ for color distribution of the image</string>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;green color channel for the RGB view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="bLabel">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;blue color channel for the RGB view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string>B:</string>
        </property>
@@ -408,6 +423,9 @@ for color distribution of the image</string>
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;blue color channel for the RGB view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
