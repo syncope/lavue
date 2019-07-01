@@ -265,6 +265,8 @@ class LiveViewer(QtGui.QDialog):
         # keep a reference to the "raw" image and the current filename
         #: (:class:`numpy.ndarray`) raw image
         self.__rawimage = None
+        #: (:class:`numpy.ndarray`) raw image
+        self.__filteredimage = None
         #: (:class:`numpy.ndarray`) raw gray image
         self.__rawgreyimage = None
         #: (:obj:`str`) image name
@@ -273,6 +275,8 @@ class LiveViewer(QtGui.QDialog):
         self.__lastimagename = None
         #: (:obj:`str`) metadata JSON dictionary
         self.__metadata = ""
+        #: (:obj:`str`) metadata dictionary
+        self.__mdata = {}
         #: (:class:`numpy.ndarray`) displayed image after preparation
         self.__displayimage = None
         #: (:class:`numpy.ndarray`) scaled displayed image
@@ -975,13 +979,15 @@ class LiveViewer(QtGui.QDialog):
             if newimage is not None:
                 self.__metadata = metadata
                 if metadata:
-                    mdata = json.loads(str(metadata))
+                    self.__mdata = json.loads(str(metadata))
                     if self.__settings.geometryfromsource:
-                        self.__settings.updateMetaData(**mdata)
+                        self.__settings.updateMetaData(**self.__mdata)
                         self.__imagewg.updateCenter(
                             self.__settings.centerx, self.__settings.centery)
                         self.__imagewg.mouseImagePositionChanged.emit()
                         self.__imagewg.geometryChanged.emit()
+                else:
+                    self.__mdata = {}
                 self.__imagename = imagename
                 self.__rawimage = np.transpose(newimage)
                 self._plot()
@@ -1332,6 +1338,12 @@ class LiveViewer(QtGui.QDialog):
         """ The main command of the live viewer class:
         draw a numpy array with the given name.
         """
+        # apply user filters
+        self.__applyFilters()
+
+        if "channellabels" in self.__mdata:
+            self.__levelswg.updateChannelLabels(self.__mdata["channellabels"])
+
         # prepare or preprocess the raw image if present:
         self.__prepareImage()
 
@@ -1340,16 +1352,11 @@ class LiveViewer(QtGui.QDialog):
         # orgtranspose, orgleftrightflip, orgupdownflip)
         allcrds = self.__transform()
         self.__imagewg.setTransformations(*allcrds)
-
-        # apply user filters
-        self.__applyFilters()
-
         # use the internal raw image to create a display image with chosen
         # scaling
         self.__scale(self.__scalingwg.currentScaling())
         # calculate and update the stats for this
         self.__calcUpdateStats()
-
         # calls internally the plot function of the plot widget
         if self.__imagename is not None and self.__scaledimage is not None:
             self.__ui.fileNameLineEdit.setText(self.__imagename)
@@ -1537,18 +1544,18 @@ class LiveViewer(QtGui.QDialog):
                     self.__imagename = imagename
                     self.__rawimage = rawimage
             try:
-                mdata = json.loads(str(metadata))
-                if isinstance(mdata, dict):
-                    resdata = dict((k, v) for (k, v) in mdata.items()
+                self.__mdata = json.loads(str(metadata))
+                if isinstance(self.__mdata, dict):
+                    resdata = dict((k, v) for (k, v) in self.__mdata.items()
                                    if k in self.__allowedmdata)
-                    wgdata = dict((k, v) for (k, v) in mdata.items()
+                    wgdata = dict((k, v) for (k, v) in self.__mdata.items()
                                   if k in self.__allowedwgdata)
                     if wgdata:
                         self.__imagewg.updateMetaData(**wgdata)
                     if resdata:
                         self.__sourcewg.updateMetaData(**resdata)
                     if self.__settings.geometryfromsource:
-                        self.__settings.updateMetaData(**mdata)
+                        self.__settings.updateMetaData(**self.__mdata)
                         self.__imagewg.updateCenter(
                             self.__settings.centerx, self.__settings.centery)
                         self.__imagewg.mouseImagePositionChanged.emit()
@@ -1562,6 +1569,8 @@ class LiveViewer(QtGui.QDialog):
                 if not isinstance(rawimage, basestring):
                     if not hasattr(rawimage, "size") or rawimage.size != 0:
                         self.__rawimage = rawimage
+        if not str(metadata).strip():
+            self.__mdata = {}
 
         self.__updateframeview()
         self._plot()
@@ -1588,48 +1597,77 @@ class LiveViewer(QtGui.QDialog):
         """applies: make image gray, substracke the background image and
            apply the mask
         """
-        if self.__rawimage is None:
+        if self.__filteredimage is None:
             return
 
-        if len(self.__rawimage.shape) == 3:
-            self.__levelswg.setNumberOfChannels(self.__rawimage.shape[0])
+        if len(self.__filteredimage.shape) == 3:
+            self.__levelswg.setNumberOfChannels(self.__filteredimage.shape[0])
             if not self.__levelswg.colorChannel():
-                self.__rawgreyimage = np.sum(self.__rawimage, 0)
+                self.__rawgreyimage = np.sum(self.__filteredimage, 0)
                 if self.rgb():
                     self.setrgb(False)
             else:
                 try:
-                    if len(self.__rawimage) >= self.__levelswg.colorChannel():
-                        self.__rawgreyimage = self.__rawimage[
+                    if len(self.__filteredimage) >= \
+                       self.__levelswg.colorChannel():
+                        self.__rawgreyimage = self.__filteredimage[
                             self.__levelswg.colorChannel() - 1]
                         if self.rgb():
                             self.setrgb(False)
                             self.__levelswg.showGradient(True)
-                    elif (len(self.__rawimage) + 1 ==
+                    elif (len(self.__filteredimage) + 1 ==
                           self.__levelswg.colorChannel()):
                         if self.rgb():
                             self.setrgb(False)
                             self.__levelswg.showGradient(True)
-                        self.__rawgreyimage = np.mean(self.__rawimage, 0)
-                    elif self.__rawimage.shape[0] > 1:
+                        self.__rawgreyimage = np.mean(self.__filteredimage, 0)
+                    elif self.__filteredimage.shape[0] > 1:
                         if not self.rgb():
                             self.setrgb(True)
                             self.__levelswg.showGradient(False)
                         self.__rawgreyimage = np.moveaxis(
-                            self.__rawimage, 0, -1)
-                        if self.__rawgreyimage.shape[-1] > 3:
-                            self.__rawgreyimage = self.__rawgreyimage[:, :, :3]
-                        elif self.__rawimage.shape[-1] == 2:
-                            self.__rawgreyimage = np.concatinate(
-                                self.__rawgreyimage, np.zeros(
-                                    shape=self.__rawgreyimage.shape[:, :, -1],
-                                    dtype=self.__rawgreyimage.dtype
-                                ), axis=2)
-                    elif self.__rawimage.shape[0] == 1:
+                            self.__filteredimage, 0, -1)
+                        rgbs = self.__levelswg.rgbchannels()
+                        if rgbs == (0, 1, 2):
+                            if self.__rawgreyimage.shape[-1] > 3:
+                                self.__rawgreyimage = \
+                                    self.__rawgreyimage[:, :, :3]
+                            elif self.__filteredimage.shape[-1] == 2:
+                                nshape = list(self.__rawgreyimage.shape)
+                                nshape[-1] = 1
+                                self.__rawgreyimage = np.concatenate(
+                                    (self.__rawgreyimage,
+                                     np.zeros(
+                                         shape=nshape.
+                                         shape[:, :, -1],
+                                         dtype=self.__rawgreyimage.dtype)),
+                                    axis=2)
+                        else:
+                            zeros = None
+                            nshape = list(self.__rawgreyimage.shape)
+                            nshape[-1] = 1
+                            if -1 in rgbs:
+                                zeros = np.zeros(
+                                    shape=nshape,
+                                    dtype=self.__rawgreyimage.dtype)
+
+                            self.__rawgreyimage = np.concatenate(
+                                (self.__rawgreyimage[:, :, rgbs[0]].
+                                 reshape(nshape)
+                                 if rgbs[0] != -1 else zeros,
+                                 self.__rawgreyimage[:, :, rgbs[1]].
+                                 reshape(nshape)
+                                 if rgbs[1] != -1 else zeros,
+                                 self.__rawgreyimage[:, :, rgbs[2]].
+                                 reshape(nshape)
+                                 if rgbs[2] != -1 else zeros),
+                                axis=2)
+
+                    elif self.__filteredimage.shape[0] == 1:
                         if self.rgb():
                             self.setrgb(False)
                             self.__levelswg.showGradient(True)
-                        self.__rawgreyimage = self.__rawimage[:, :, 0]
+                        self.__rawgreyimage = self.__filteredimage[:, :, 0]
 
                 except Exception:
                     import traceback
@@ -1645,22 +1683,23 @@ class LiveViewer(QtGui.QDialog):
                         % self.__levelswg.colorChannel(),
                         text, str(value))
                     self.__levelswg.setChannel(0)
-        elif len(self.__rawimage.shape) == 2:
+        elif len(self.__filteredimage.shape) == 2:
             if self.rgb():
                 self.setrgb(False)
                 self.__levelswg.showGradient(True)
             if self.__applymask:
-                self.__rawgreyimage = np.array(self.__rawimage)
+                self.__rawgreyimage = np.array(self.__filteredimage)
             else:
-                self.__rawgreyimage = self.__rawimage
+                self.__rawgreyimage = self.__filteredimage
             self.__levelswg.setNumberOfChannels(0)
 
-        elif len(self.__rawimage.shape) == 1:
+        elif len(self.__filteredimage.shape) == 1:
             if self.rgb():
                 self.setrgb(False)
                 self.__levelswg.showGradient(True)
             self.__rawgreyimage = np.array(
-                self.__rawimage).reshape((self.__rawimage.shape[0], 1))
+                self.__filteredimage).reshape(
+                    (self.__filteredimage.shape[0], 1))
             self.__levelswg.setNumberOfChannels(0)
 
         self.__displayimage = self.__rawgreyimage
@@ -1828,19 +1867,28 @@ class LiveViewer(QtGui.QDialog):
     def __applyFilters(self):
         """ applies user filters
         """
+        self.__filteredimage = self.__rawimage
         if self.__filterstate:
             for flt in self.__filters:
                 try:
-                    if self.__displayimage is not None:
+                    if self.__filteredimage is not None:
                         image = flt(
-                            self.__displayimage,
+                            self.__filteredimage,
                             self.__imagename,
                             self.__metadata,
                             self.__imagewg
                         )
+                        fltmdata = None
+                        if isinstance(image, tuple):
+                            if len(image) >= 2:
+                                image, fltmdata = image[:2]
+                            if len(image) == 1:
+                                image = image
                         if image is not None and (
                                 hasattr(image, "size") and image.size > 1):
-                            self.__displayimage = image
+                            self.__filteredimage = image
+                        if isinstance(fltmdata, dict):
+                            self.__mdata.update(fltmdata)
                 except Exception as e:
                     self.__filterswg.setState(0)
                     import traceback

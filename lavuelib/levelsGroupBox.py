@@ -89,6 +89,12 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self.__rgb = False
         #: (:obj: `str`) scale label
         self.__scaling = ""
+        #: (:obj: `int`) red channel
+        self.__rindex = 0
+        #: (:obj: `int`) green channel
+        self.__gindex = 1
+        #: (:obj: `int`) blue channel
+        self.__bindex = 2
         #: (:obj: `int`) current color channel
         self.__colorchannel = 0
         #: (:obj: `int`) number of color channels
@@ -97,6 +103,9 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self.__settings = settings
         #: (:obj:`bool`) expert mode
         self.__expertmode = expertmode
+
+        #: (:obj:`dict`) channellabels
+        self.__channellabels = {}
         #: (:obj:`dict` < :obj:`str`, :obj:`dict` < :obj:`str`,`any`> >
         #                custom gradients
         self.__customgradients = self.__settings.customGradients()
@@ -126,6 +135,12 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self.setNumberOfChannels(-1)
         self.__ui.channelComboBox.currentIndexChanged.connect(self.setChannel)
         self.__ui.binsComboBox.currentIndexChanged.connect(self.setBins)
+        self.__ui.rComboBox.currentIndexChanged.connect(
+            self._onRChannelChanged)
+        self.__ui.gComboBox.currentIndexChanged.connect(
+            self._onGChannelChanged)
+        self.__ui.bComboBox.currentIndexChanged.connect(
+            self._onBChannelChanged)
         # self.__ui.binsComboBox.hide()
         # self.__ui.binsLabel.hide()
 
@@ -238,6 +253,12 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.__ui.gradientLabel.show()
             self.__ui.gradientComboBox.show()
             self.__ui.scalingLabel.show()
+            self.__ui.rLabel.hide()
+            self.__ui.gLabel.hide()
+            self.__ui.bLabel.hide()
+            self.__ui.rComboBox.hide()
+            self.__ui.gComboBox.hide()
+            self.__ui.bComboBox.hide()
             self.__ui.autoLevelsCheckBox.show()
             self.__ui.maxDoubleSpinBox.show()
             self.__ui.maxLabel.show()
@@ -249,6 +270,12 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.__ui.channelComboBox.hide()
             self.__ui.gradientLabel.hide()
             self.__ui.gradientComboBox.hide()
+            self.__ui.rLabel.show()
+            self.__ui.gLabel.show()
+            self.__ui.bLabel.show()
+            self.__ui.rComboBox.show()
+            self.__ui.gComboBox.show()
+            self.__ui.bComboBox.show()
 
             self.__ui.scalingLabel.hide()
             self.__ui.autoLevelsCheckBox.hide()
@@ -504,18 +531,13 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 if channel == self.__numberofchannels + 2 \
                    and self.__colorchannel != channel:
                     self.__colorchannel = channel
-                    self.__ui.gradientComboBox.hide()
-                    self.__ui.gradientLabel.hide()
-                    self.__histogram.gradient.hide()
+                    self.showGradient(False)
                     self.rgbChanged.emit(True)
                 elif (self.__colorchannel == self.__numberofchannels + 2
                       and self.__colorchannel != channel):
                     self.__colorchannel = channel
-                    self.__ui.gradientComboBox.show()
-                    self.__ui.gradientLabel.show()
-                    self.__histogram.gradient.show()
+                    self.showGradient(True)
                     self.rgbChanged.emit(False)
-                    self._updateGradient()
                 else:
                     self.__colorchannel = channel
                     self.channelChanged.emit()
@@ -530,11 +552,114 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.__ui.gradientComboBox.show()
             self.__ui.gradientLabel.show()
             self.__histogram.gradient.show()
+            self.__ui.rLabel.hide()
+            self.__ui.gLabel.hide()
+            self.__ui.bLabel.hide()
+            self.__ui.rComboBox.hide()
+            self.__ui.gComboBox.hide()
+            self.__ui.bComboBox.hide()
             self._updateGradient()
         else:
             self.__ui.gradientComboBox.hide()
             self.__ui.gradientLabel.hide()
             self.__histogram.gradient.hide()
+            self.__ui.rLabel.show()
+            self.__ui.gLabel.show()
+            self.__ui.bLabel.show()
+            self.__ui.rComboBox.show()
+            self.__ui.gComboBox.show()
+            self.__ui.bComboBox.show()
+
+    @QtCore.pyqtSlot(int)
+    def _onRChannelChanged(self, index):
+        """ set red channel
+        """
+        if index < self.__numberofchannels:
+            self.__rindex = index
+        else:
+            self.__rindex = -1
+
+    @QtCore.pyqtSlot(int)
+    def _onGChannelChanged(self, index):
+        """ set green channel
+        """
+        if index < self.__numberofchannels:
+            self.__gindex = index
+        else:
+            self.__gindex = -1
+
+    @QtCore.pyqtSlot(int)
+    def _onBChannelChanged(self, index):
+        """ set blue channel
+        """
+        if index < self.__numberofchannels:
+            self.__bindex = index
+        else:
+            self.__bindex = -1
+
+    def updateChannelLabels(self, chlabels):
+        """ update red channel
+
+        :param chlabels: dictionary with channel labels
+        :type chlabels: :obj:`dict` <:obj:`int` :obj:`str`>
+        """
+        if isinstance(chlabels, dict):
+            for ky, vl in chlabels.items():
+                if not vl:
+                    if ky in self.__channellabels.keys():
+                        self.__channellabels.pop(ky)
+                else:
+                    try:
+                        self.__channellabels[int(ky)] = vl
+                        self.setChannelItemText(ky, vl)
+                    except Exception as e:
+                        print(str(e))
+
+    def setChannelItemText(self, iid, text):
+        """ sets channel item text
+
+        :param iid: label id
+        :type iid: :obj:`int`
+        :param iid: label text
+        :type iid: :obj:`str`
+        """
+        self.__ui.channelComboBox.setItemText(
+            iid + 1, text)
+        self.__ui.channelComboBox.setItemData(
+            iid + 1, text, QtCore.Qt.ToolTipRole)
+
+    def updateRChannel(self):
+        """ update red channel
+        """
+        current = self.__ui.rComboBox.currentIndex()
+        if self.__rindex != self.__numberofchannels:
+            if self.__rindex != current:
+                self.__ui.rComboBox.setCurrentIndex(self.__rindex)
+        elif self.__rindex != -1:
+            self.__ui.rComboBox.setCurrentIndex(self.__numberofchannels)
+
+    def updateGChannel(self):
+        """ update green channel
+        """
+        current = self.__ui.gComboBox.currentIndex()
+        if self.__gindex != self.__numberofchannels:
+            if self.__gindex != current:
+                self.__ui.gComboBox.setCurrentIndex(self.__gindex)
+        elif self.__gindex != -1:
+            self.__ui.gComboBox.setCurrentIndex(self.__numberofchannels)
+
+    def updateBChannel(self):
+        """ update blue channel
+        """
+        current = self.__ui.bComboBox.currentIndex()
+        if self.__bindex != self.__numberofchannels:
+            if self.__bindex != current:
+                self.__ui.bComboBox.setCurrentIndex(self.__bindex)
+        elif self.__bindex != -1:
+            self.__ui.bComboBox.setCurrentIndex(self.__numberofchannels)
+
+    def rgbchannels(self):
+        return (self.__rindex, self.__gindex, self.__bindex)
 
     @QtCore.pyqtSlot(int)
     def setBins(self, index):
@@ -568,16 +693,57 @@ class LevelsGroupBox(QtGui.QGroupBox):
                         range(0, self.__ui.channelComboBox.count())):
                     self.__ui.channelComboBox.removeItem(i)
                 self.__ui.channelComboBox.addItem("sum")
-
-                self.__ui.channelComboBox.addItems(
-                    ["channel %s" % (ch + 1)
-                     for ch in range(self.__numberofchannels)])
-
-                self.__ui.channelComboBox.addItem("mean")
-                self.__ui.channelComboBox.addItem("RGB")
+                # self.__ui.channelComboBox.setSizeAdjustPolicy(
+                # QtGui.QComboBox.AdjustToMinimumContentsLength)
                 self.__ui.channelLabel.show()
                 self.__ui.channelComboBox.show()
+                self.__ui.channelComboBox.setSizeAdjustPolicy(
+                    QtGui.QComboBox.AdjustToContents)
+
+                self.__ui.channelComboBox.addItems(
+                    ["channel %s" % (ch)
+                     for ch in range(self.__numberofchannels)])
+
+                for ky, vl in self.__channellabels.items():
+                    if vl and ky < self.__numberofchannels:
+                        self.setChannelItemText(ky, vl)
+                self.__ui.channelComboBox.addItem("mean")
+                self.__ui.channelComboBox.addItem("RGB")
                 self.__colors = True
+                for i in reversed(
+                        range(0, self.__ui.rComboBox.count())):
+                    self.__ui.rComboBox.removeItem(i)
+                for i in reversed(
+                        range(0, self.__ui.gComboBox.count())):
+                    self.__ui.gComboBox.removeItem(i)
+                for i in reversed(
+                        range(0, self.__ui.bComboBox.count())):
+                    self.__ui.bComboBox.removeItem(i)
+
+                self.__ui.rComboBox.addItems(
+                    ["%s" % (ch)
+                     for ch in range(self.__numberofchannels)])
+                self.__ui.bComboBox.addItems(
+                    ["%s" % (ch)
+                     for ch in range(self.__numberofchannels)])
+                self.__ui.gComboBox.addItems(
+                    ["%s" % (ch)
+                     for ch in range(self.__numberofchannels)])
+                self.__ui.rComboBox.addItem("None")
+                self.__ui.bComboBox.addItem("None")
+                self.__ui.gComboBox.addItem("None")
+                self.__rindex = 0
+                if self.__numberofchannels > 1:
+                    self.__gindex = 1
+                else:
+                    self.__gindex = -1
+                if self.__numberofchannels > 2:
+                    self.__bindex = 2
+                else:
+                    self.__bindex = -1
+                self.updateRChannel()
+                self.updateGChannel()
+                self.updateBChannel()
             else:
                 self.__ui.channelLabel.hide()
                 self.__ui.channelComboBox.hide()

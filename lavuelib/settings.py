@@ -45,7 +45,7 @@ class Settings(object):
         #: (:obj:`bool`) sardana enabled
         self.sardana = True
         #: (:obj:`bool`) add rois to sardana
-        self.addrois = True
+        self.addrois = False
         #: (:obj:`bool`) search for security stream port automatically
         self.secautoport = True
         #: (:obj:`bool`) show intensity hostogram
@@ -249,8 +249,8 @@ class Settings(object):
         else:
             self.sardana = True
         qstval = str(settings.value("Configuration/AddROIs", type=str))
-        if qstval.lower() == "false":
-            self.addrois = False
+        if qstval.lower() == "true":
+            self.addrois = True
         qstval = str(settings.value("Configuration/SecAutoPort", type=str))
         if qstval.lower() == "false":
             self.secautoport = False

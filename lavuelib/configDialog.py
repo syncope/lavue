@@ -57,7 +57,7 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`bool`) sardana enabled
         self.sardana = True
         #: (:obj:`bool`) add rois enabled
-        self.addrois = True
+        self.addrois = False
         #: (:obj:`bool`) security stream enabled
         self.secstream = False
         #: (:obj:`str`) security stream port
