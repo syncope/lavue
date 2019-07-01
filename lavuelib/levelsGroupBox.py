@@ -103,6 +103,9 @@ class LevelsGroupBox(QtGui.QGroupBox):
         self.__settings = settings
         #: (:obj:`bool`) expert mode
         self.__expertmode = expertmode
+
+        #: (:obj:`dict`) channellabels
+        self.__channellabels = {}
         #: (:obj:`dict` < :obj:`str`, :obj:`dict` < :obj:`str`,`any`> >
         #                custom gradients
         self.__customgradients = self.__settings.customGradients()
@@ -594,6 +597,32 @@ class LevelsGroupBox(QtGui.QGroupBox):
         else:
             self.__bindex = -1
 
+    def updateChannelLabels(self, chlabels):
+        """ update red channel
+
+        :param chlabels: dictionary with channel labels
+        :type chlabels: :obj:`dict` <:obj:`int` :obj:`str`>
+        """
+        if isinstance(chlabels, dict):
+            for ky, vl in chlabels.items():
+                if not vl:
+                    if ky in self.__channellabels.keys():
+                        self.__channellabels.pop(ky)
+                else:
+                    try:
+                        self.__channellabels[int(ky)] = vl
+                        self.setChannelItemText(ky, vl)
+                    except Exception as e:
+                        print(str(e))
+
+    def setChannelItemText(self, iid, text):
+        """ sets channel item text
+        """
+        self.__ui.channelComboBox.setItemText(
+            iid + 1, text)
+        self.__ui.channelComboBox.setItemData(
+            iid + 1, text, QtCore.Qt.ToolTipRole)
+
     def updateRChannel(self):
         """ update red channel
         """
@@ -664,10 +693,17 @@ class LevelsGroupBox(QtGui.QGroupBox):
                     ["channel %s" % (ch)
                      for ch in range(self.__numberofchannels)])
 
+                for ky, vl in self.__channellabels.items():
+                    if vl and ky < self.__numberofchannels:
+                        self.setChannelItemText(ky, vl)
                 self.__ui.channelComboBox.addItem("mean")
                 self.__ui.channelComboBox.addItem("RGB")
                 self.__ui.channelLabel.show()
                 self.__ui.channelComboBox.show()
+                # self.__ui.channelComboBox.setSizeAdjustPolicy(
+                # QtGui.QComboBox.AdjustToMinimumContentsLength)
+                self.__ui.channelComboBox.setSizeAdjustPolicy(
+                    QtGui.QComboBox.AdjustToContents)
                 self.__colors = True
                 for i in reversed(
                         range(0, self.__ui.rComboBox.count())):

@@ -275,6 +275,8 @@ class LiveViewer(QtGui.QDialog):
         self.__lastimagename = None
         #: (:obj:`str`) metadata JSON dictionary
         self.__metadata = ""
+        #: (:obj:`str`) metadata dictionary
+        self.__mdata = {}
         #: (:class:`numpy.ndarray`) displayed image after preparation
         self.__displayimage = None
         #: (:class:`numpy.ndarray`) scaled displayed image
@@ -977,13 +979,15 @@ class LiveViewer(QtGui.QDialog):
             if newimage is not None:
                 self.__metadata = metadata
                 if metadata:
-                    mdata = json.loads(str(metadata))
+                    self.__mdata = json.loads(str(metadata))
                     if self.__settings.geometryfromsource:
-                        self.__settings.updateMetaData(**mdata)
+                        self.__settings.updateMetaData(**self.__mdata)
                         self.__imagewg.updateCenter(
                             self.__settings.centerx, self.__settings.centery)
                         self.__imagewg.mouseImagePositionChanged.emit()
                         self.__imagewg.geometryChanged.emit()
+                else:
+                    self.__mdata = {}
                 self.__imagename = imagename
                 self.__rawimage = np.transpose(newimage)
                 self._plot()
@@ -1337,6 +1341,9 @@ class LiveViewer(QtGui.QDialog):
         # apply user filters
         self.__applyFilters()
 
+        if "channellabels" in self.__mdata:
+            self.__levelswg.updateChannelLabels(self.__mdata["channellabels"])
+
         # prepare or preprocess the raw image if present:
         self.__prepareImage()
 
@@ -1537,18 +1544,18 @@ class LiveViewer(QtGui.QDialog):
                     self.__imagename = imagename
                     self.__rawimage = rawimage
             try:
-                mdata = json.loads(str(metadata))
-                if isinstance(mdata, dict):
-                    resdata = dict((k, v) for (k, v) in mdata.items()
+                self.__mdata = json.loads(str(metadata))
+                if isinstance(self.__mdata, dict):
+                    resdata = dict((k, v) for (k, v) in self.__mdata.items()
                                    if k in self.__allowedmdata)
-                    wgdata = dict((k, v) for (k, v) in mdata.items()
+                    wgdata = dict((k, v) for (k, v) in self.__mdata.items()
                                   if k in self.__allowedwgdata)
                     if wgdata:
                         self.__imagewg.updateMetaData(**wgdata)
                     if resdata:
                         self.__sourcewg.updateMetaData(**resdata)
                     if self.__settings.geometryfromsource:
-                        self.__settings.updateMetaData(**mdata)
+                        self.__settings.updateMetaData(**self.__mdata)
                         self.__imagewg.updateCenter(
                             self.__settings.centerx, self.__settings.centery)
                         self.__imagewg.mouseImagePositionChanged.emit()
@@ -1562,6 +1569,8 @@ class LiveViewer(QtGui.QDialog):
                 if not isinstance(rawimage, basestring):
                     if not hasattr(rawimage, "size") or rawimage.size != 0:
                         self.__rawimage = rawimage
+        if not str(metadata).strip():
+            self.__mdata = {}
 
         self.__updateframeview()
         self._plot()
@@ -1869,9 +1878,17 @@ class LiveViewer(QtGui.QDialog):
                             self.__metadata,
                             self.__imagewg
                         )
+                        fltmdata = None
+                        if isinstance(image, tuple):
+                            if len(image) >= 2:
+                                image, fltmdata = image[:2]
+                            if len(image) == 1:
+                                image = image
                         if image is not None and (
                                 hasattr(image, "size") and image.size > 1):
                             self.__filteredimage = image
+                        if isinstance(fltmdata, dict):
+                            self.__mdata.update(fltmdata)
                 except Exception as e:
                     self.__filterswg.setState(0)
                     import traceback

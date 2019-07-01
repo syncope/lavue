@@ -220,11 +220,17 @@ for color distribution of the image</string>
     <layout class="QGridLayout" name="colorGridLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="gradientLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="toolTip">
         <string>gradient for the color distribution of the image</string>
        </property>
        <property name="text">
-        <string>Color gradient:</string>
+        <string>Gradient:</string>
        </property>
        <property name="buddy">
         <cstring>gradientComboBox</cstring>
@@ -233,6 +239,12 @@ for color distribution of the image</string>
      </item>
      <item row="0" column="1">
       <widget class="QComboBox" name="gradientComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="toolTip">
         <string>gradient for the color distribution of the image</string>
        </property>
@@ -305,11 +317,17 @@ for color distribution of the image</string>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="channelLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="toolTip">
         <string>color channel for multi color images like RGB or CMYK</string>
        </property>
        <property name="text">
-        <string>Color channel:</string>
+        <string>Channel:</string>
        </property>
        <property name="buddy">
         <cstring>channelComboBox</cstring>
@@ -318,6 +336,12 @@ for color distribution of the image</string>
      </item>
      <item row="1" column="1">
       <widget class="QComboBox" name="channelComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="toolTip">
         <string>color channel for multi color images like RGB or CMYK</string>
        </property>
