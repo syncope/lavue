@@ -617,6 +617,11 @@ class LevelsGroupBox(QtGui.QGroupBox):
 
     def setChannelItemText(self, iid, text):
         """ sets channel item text
+
+        :param iid: label id
+        :type iid: :obj:`int`
+        :param iid: label text
+        :type iid: :obj:`str`
         """
         self.__ui.channelComboBox.setItemText(
             iid + 1, text)
@@ -688,6 +693,12 @@ class LevelsGroupBox(QtGui.QGroupBox):
                         range(0, self.__ui.channelComboBox.count())):
                     self.__ui.channelComboBox.removeItem(i)
                 self.__ui.channelComboBox.addItem("sum")
+                # self.__ui.channelComboBox.setSizeAdjustPolicy(
+                # QtGui.QComboBox.AdjustToMinimumContentsLength)
+                self.__ui.channelLabel.show()
+                self.__ui.channelComboBox.show()
+                self.__ui.channelComboBox.setSizeAdjustPolicy(
+                    QtGui.QComboBox.AdjustToContents)
 
                 self.__ui.channelComboBox.addItems(
                     ["channel %s" % (ch)
@@ -698,12 +709,6 @@ class LevelsGroupBox(QtGui.QGroupBox):
                         self.setChannelItemText(ky, vl)
                 self.__ui.channelComboBox.addItem("mean")
                 self.__ui.channelComboBox.addItem("RGB")
-                self.__ui.channelLabel.show()
-                self.__ui.channelComboBox.show()
-                # self.__ui.channelComboBox.setSizeAdjustPolicy(
-                # QtGui.QComboBox.AdjustToMinimumContentsLength)
-                self.__ui.channelComboBox.setSizeAdjustPolicy(
-                    QtGui.QComboBox.AdjustToContents)
                 self.__colors = True
                 for i in reversed(
                         range(0, self.__ui.rComboBox.count())):
