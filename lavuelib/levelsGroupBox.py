@@ -531,11 +531,13 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 if channel == self.__numberofchannels + 2 \
                    and self.__colorchannel != channel:
                     self.__colorchannel = channel
+                    self.__histogram.setRGB(True)
                     self.showGradient(False)
                     self.rgbChanged.emit(True)
                 elif (self.__colorchannel == self.__numberofchannels + 2
                       and self.__colorchannel != channel):
                     self.__colorchannel = channel
+                    self.__histogram.setRGB(False)
                     self.showGradient(True)
                     self.rgbChanged.emit(False)
                 else:

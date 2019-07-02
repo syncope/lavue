@@ -263,6 +263,9 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         else:
             self.imageItem = lambda: None
 
+        #: (:obj: `bool`) rgb flag
+        self.__rgb = False
+
         #: (:class:`PyQt5.QtGui.QGraphicsGridLayout`) grid layout
         self.layout = QtGui.QGraphicsGridLayout()
         self.setLayout(self.layout)
@@ -329,14 +332,31 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
             self.setImageItem(image)
         # self.background = None
 
+    def setRGB(self, rgb):
+        """ sets rgb flag
+
+        :param rgb: rgb lag
+        :type rgb: :obj:`bool`
+        """
+        self.__rgb = rgb
+
+    def gradientChanged(self):
+        """ gradient changed with rgb
+        """
+        if self.__rgb:
+            self.lut = None
+            self.sigLookupTableChanged.emit(self)
+        else:
+            _pg.HistogramLUTItem.gradientChanged(self)
+
     def resetGradient(self):
         """ resets gradient widget
         """
-        self.gradient.sigGradientChanged.connect(self.gradientChanged)
-        self.gradient.sigNameChanged.connect(self._emitSigNameChanged)
-        self.gradient.saveAction.triggered.connect(
+        self.gradient.sigGradientChanged.disconnect(self.gradientChanged)
+        self.gradient.sigNameChanged.disconnect(self._emitSigNameChanged)
+        self.gradient.saveAction.triggered.disconnect(
             self._emitSaveGradientRequested)
-        self.gradient.removeAction.triggered.connect(
+        self.gradient.removeAction.triggered.disconnect(
             self._emitRemoveGradientRequested)
         self.gradient.hide()
         self.layout.removeItem(self.gradient)

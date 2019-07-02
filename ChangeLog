@@ -1,3 +1,8 @@
+2019-07-02 Jan Kotanski <jan.kotanski@desy.de>
+	* make gradientChanged of histogram aware of rgb view
+	* improve resetGradient
+	* tagged as 2.13.2
+
 2019-07-01 Jan Kotanski <jan.kotanski@desy.de>
 	* add SafeImageItem to avoid painter crashes
 	* tagged as 2.13.1
