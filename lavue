@@ -108,7 +108,7 @@ if __name__ == "__main__":
         help="Qt stylesheet")
     parser.add_argument(
         "-j", "--instance", dest="instance",
-        help="LaVue instance")
+        help="LaVue instance with separate configuration")
     parser.add_argument(
         "-f", "--image-file", dest="imagefile",
         help="image file name to show")

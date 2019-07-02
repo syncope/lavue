@@ -111,7 +111,7 @@ def main():
         help="Qt stylesheet")
     parser.add_option(
         "-j", "--instance", dest="instance",
-        help="LaVue instance")
+        help="LaVue instance with separate configuration")
     parser.add_option(
         "-f", "--image-file", dest="imagefile",
         help="image file name to show")
