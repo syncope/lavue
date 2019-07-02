@@ -245,6 +245,7 @@ class LiveViewer(QtGui.QDialog):
             rgbtooltypes=self.__rgbtooltypes)
 
         self.__levelswg.setImageItem(self.__imagewg.image())
+        self.__levelswg.showGradient(True)
         self.__levelswg.updateHistoImage(autoLevel=True)
 
         #: (:class:`lavuelib.maskWidget.MaskWidget`) mask widget
@@ -2143,6 +2144,8 @@ class LiveViewer(QtGui.QDialog):
         :type status: :obj:`bool`
         """
         self.__imagewg.setrgb(status)
+        if not status:
+            self.__levelswg.setChannel(0)
         self._plot()
 
     def rgb(self):

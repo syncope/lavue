@@ -242,7 +242,6 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.__ui.binsLabel.hide()
             self.__ui.stepLineEdit.hide()
             self.__ui.stepLabel.hide()
-
         if showlevels is True and self.__levels is False:
             if self.__colors:
                 self.__ui.channelLabel.show()
@@ -542,6 +541,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
                     self.rgbChanged.emit(False)
                 else:
                     self.__colorchannel = channel
+                    self.__histogram.setRGB(False)
                     self.channelChanged.emit()
 
     def showGradient(self, status=True):
@@ -580,6 +580,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.__rindex = index
         else:
             self.__rindex = -1
+        self.channelChanged.emit()
 
     @QtCore.pyqtSlot(int)
     def _onGChannelChanged(self, index):
@@ -589,6 +590,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.__gindex = index
         else:
             self.__gindex = -1
+        self.channelChanged.emit()
 
     @QtCore.pyqtSlot(int)
     def _onBChannelChanged(self, index):
@@ -598,6 +600,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.__bindex = index
         else:
             self.__bindex = -1
+        self.channelChanged.emit()
 
     def updateChannelLabels(self, chlabels):
         """ update red channel
