@@ -407,6 +407,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         try:
             # if self.__rgb:
             if len(img.shape) == 3:
+                self.__image.setLookupTable(None)
                 self.__image.setImage(
                     img, lut=None,
                     # levels=[[0,255], [0, 255], [0, 255]],
