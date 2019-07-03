@@ -1456,14 +1456,16 @@ class ProjectionToolWidget(ToolWidget):
     def disactivate(self):
         """ activates tool widget
         """
-        self.__bottomplot.hide()
-        self.__rightplot.hide()
-        self.__bottomplot.setVisible(False)
-        self.__rightplot.setVisible(False)
-        self._mainwidget.removebottomplot(self.__bottomplot)
-        self.__bottomplot = None
-        self._mainwidget.removerightplot(self.__rightplot)
-        self.__rightplot = None
+        if self.__bottomplot is not None:
+            self.__bottomplot.hide()
+            self.__bottomplot.setVisible(False)
+            self._mainwidget.removebottomplot(self.__bottomplot)
+            self.__bottomplot = None
+        if self.__rightplot is not None:
+            self.__rightplot.hide()
+            self.__rightplot.setVisible(False)
+            self._mainwidget.removerightplot(self.__rightplot)
+            self.__rightplot = None
 
     @QtCore.pyqtSlot()
     def _plotCurves(self):
@@ -2871,14 +2873,16 @@ class QROIProjToolWidget(ToolWidget):
         """
         self._mainwidget.roiCoordsChanged.emit()
 
-        self.__bottomplot.hide()
-        self.__rightplot.hide()
-        self.__bottomplot.setVisible(False)
-        self.__rightplot.setVisible(False)
-        self._mainwidget.removebottomplot(self.__bottomplot)
-        self.__bottomplot = None
-        self._mainwidget.removerightplot(self.__rightplot)
-        self.__rightplot = None
+        if self.__bottomplot is not None:
+            self.__bottomplot.hide()
+            self.__bottomplot.setVisible(False)
+            self._mainwidget.removebottomplot(self.__bottomplot)
+            self.__bottomplot = None
+        if self.__rightplot is not None:
+            self.__rightplot.hide()
+            self.__rightplot.setVisible(False)
+            self._mainwidget.removerightplot(self.__rightplot)
+            self.__rightplot = None
 
     @QtCore.pyqtSlot()
     def _writeDetectorROIs(self):
