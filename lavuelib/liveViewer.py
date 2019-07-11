@@ -2144,8 +2144,6 @@ class LiveViewer(QtGui.QDialog):
         :type status: :obj:`bool`
         """
         self.__imagewg.setrgb(status)
-        if not status:
-            self.__levelswg.setChannel(0)
         self._plot()
 
     def rgb(self):
