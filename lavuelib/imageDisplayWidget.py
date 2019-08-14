@@ -31,7 +31,7 @@ import math
 
 from . import axesDialog
 
-_VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
+_VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
     if _pg.__version__ else ("0", "9", "0")
 
 

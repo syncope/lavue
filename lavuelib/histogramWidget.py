@@ -32,7 +32,7 @@ import numpy as np
 
 #: ( (:obj:`str`,:obj:`str`,:obj:`str`) )
 #:         pg major version, pg minor verion, pg patch version
-_VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
+_VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
     if _pg.__version__ else ("0", "9", "0")
 
 _pg.graphicsItems.GradientEditorItem.Gradients['reversegrey'] = {
@@ -320,9 +320,10 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         self.vb.sigRangeChanged.connect(self.viewRangeChanged)
 
         self.plot = _pg.graphicsItems.PlotDataItem.PlotDataItem()
+        self.plots = [self.plot]
         # self.plot.dataBounds(1, 0.9)
         # self.plot.dataBounds(0, 0.9)
-
+        self.levelMode = 'mono'
         self.fillHistogram(fillHistogram)
 
         self.vb.addItem(self.plot)
