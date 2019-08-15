@@ -32,8 +32,8 @@ from __future__ import unicode_literals
 
 import time
 import json
-import numpy as np
 from .qtuic import uic
+import numpy as np
 import pyqtgraph as _pg
 from pyqtgraph import QtCore, QtGui
 import os
@@ -78,7 +78,7 @@ if sys.version_info > (3,):
 
 #: ( (:obj:`str`,:obj:`str`,:obj:`str`) )
 #:         pg major version, pg minor verion, pg patch version
-_VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
+_VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
     if _pg.__version__ else ("0", "9", "0")
 
 _formclass, _baseclass = uic.loadUiType(

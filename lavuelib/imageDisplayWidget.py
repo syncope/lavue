@@ -31,7 +31,7 @@ import math
 
 from . import axesDialog
 
-_VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
+_VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
     if _pg.__version__ else ("0", "9", "0")
 
 
@@ -416,7 +416,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                   or self.__displaylevels[0] is None
                   or self.__displaylevels[1] is None):
                 self.__image.setImage(
-                    img, autoLevels=True,
+                    img, autoLevels=False,
                     autoDownsample=self.__autodownsample)
             else:
                 self.__image.setImage(
