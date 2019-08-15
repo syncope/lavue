@@ -32,8 +32,8 @@ from __future__ import unicode_literals
 
 import time
 import json
-import numpy as np
 from .qtuic import uic
+import numpy as np
 import pyqtgraph as _pg
 from pyqtgraph import QtCore, QtGui
 import os

@@ -416,7 +416,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                   or self.__displaylevels[0] is None
                   or self.__displaylevels[1] is None):
                 self.__image.setImage(
-                    img, autoLevels=True,
+                    img, autoLevels=False,
                     autoDownsample=self.__autodownsample)
             else:
                 self.__image.setImage(
