@@ -40,6 +40,7 @@ from . import displayExtensions
 from . import messageBox
 from . import imageSource as isr
 from . import toolWidget
+from . import memoExportDialog
 
 
 # _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
@@ -173,10 +174,10 @@ class ImageWidget(QtGui.QWidget):
         )
 
         #: (:class:`pyqtgraph.PlotWidget`) bottom 1D plot widget
-        self.__bottomplot = _pg.PlotWidget(self)
+        self.__bottomplot = memoExportDialog.MemoPlotWidget(self)
 
         #: (:class:`pyqtgraph.PlotWidget`) right 1D plot widget
-        self.__rightplot = _pg.PlotWidget(self)
+        self.__rightplot = memoExportDialog.MemoPlotWidget(self)
 
         self.__ui.twoDVerticalLayout.addWidget(self.__displaywidget)
         self.__ui.oneDBottomVerticalLayout.addWidget(self.__bottomplot)

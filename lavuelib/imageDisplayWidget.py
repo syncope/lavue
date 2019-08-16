@@ -28,8 +28,11 @@
 import pyqtgraph as _pg
 from pyqtgraph import QtCore, QtGui
 import math
+import types
 
 from . import axesDialog
+from . import memoExportDialog
+
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
     if _pg.__version__ else ("0", "9", "0")
@@ -218,6 +221,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__layout.scene().sigMouseClicked.connect(self.mouse_click)
 
         self.__setaspectlocked.triggered.connect(self.emitAspectLockedToggled)
+
+        sc = self.__layout.scene()
+        sc.contextMenu[0].triggered.disconnect(sc.showExportDialog)
+        sc.showExportDialog = types.MethodType(
+            memoExportDialog.GraphicsScene_showExportDialog, sc)
+        sc.contextMenu[0].triggered.connect(sc.showExportDialog)
 
     def viewbox(self):
         """provides viewbox
