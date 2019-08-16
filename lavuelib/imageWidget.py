@@ -173,10 +173,10 @@ class ImageWidget(QtGui.QWidget):
         )
 
         #: (:class:`pyqtgraph.PlotWidget`) bottom 1D plot widget
-        self.__bottomplot = _pg.PlotWidget(self)
+        self.__bottomplot = imageDisplayWidget.MemoPlotWidget(self)
 
         #: (:class:`pyqtgraph.PlotWidget`) right 1D plot widget
-        self.__rightplot = _pg.PlotWidget(self)
+        self.__rightplot = imageDisplayWidget.MemoPlotWidget(self)
 
         self.__ui.twoDVerticalLayout.addWidget(self.__displaywidget)
         self.__ui.oneDBottomVerticalLayout.addWidget(self.__bottomplot)

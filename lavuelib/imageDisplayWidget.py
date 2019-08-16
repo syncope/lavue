@@ -66,6 +66,18 @@ class SafeImageItem(_pg.ImageItem):
             # print("Shape mismatch: skip painting")
 
 
+class MemoPlotWidget(_pg.PlotWidget):
+
+    def __init__(self, parent=None, background='default', **kargs):
+        _pg.PlotWidget.__init__(
+            self, parent=parent, background=background, **kargs)
+        sc = self.scene()
+        sc.contextMenu[0].triggered.disconnect(sc.showExportDialog)
+        sc.showExportDialog = types.MethodType(
+            GraphicsScene_showExportDialog, sc)
+        sc.contextMenu[0].triggered.connect(sc.showExportDialog)
+
+
 class MemoExportDialog(exportDialog.ExportDialog):
 
     """ ExportDialog with bookkeeping  parameters """
@@ -263,8 +275,6 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__layout.scene().sigMouseClicked.connect(self.mouse_click)
 
         self.__setaspectlocked.triggered.connect(self.emitAspectLockedToggled)
-
-        self.__paramdict = {}
 
         sc = self.__layout.scene()
         sc.contextMenu[0].triggered.disconnect(sc.showExportDialog)
