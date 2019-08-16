@@ -1,8 +1,9 @@
-lavuelib package
-================
+==================
+ lavuelib package
+==================
 
 Subpackages
------------
+===========
 
 .. toctree::
 
@@ -10,10 +11,10 @@ Subpackages
     lavuelib.plugins
 
 Submodules
-----------
+==========
 
 lavuelib.axesDialog module
---------------------------
+==========================
 
 .. automodule:: lavuelib.axesDialog
     :members:
@@ -21,7 +22,7 @@ lavuelib.axesDialog module
     :show-inheritance:
 
 lavuelib.bkgSubtractionWidget module
-------------------------------------
+====================================
 
 .. automodule:: lavuelib.bkgSubtractionWidget
     :members:
@@ -29,7 +30,7 @@ lavuelib.bkgSubtractionWidget module
     :show-inheritance:
 
 lavuelib.configDialog module
-----------------------------
+============================
 
 .. automodule:: lavuelib.configDialog
     :members:
@@ -37,7 +38,7 @@ lavuelib.configDialog module
     :show-inheritance:
 
 lavuelib.controllerClient module
---------------------------------
+================================
 
 .. automodule:: lavuelib.controllerClient
     :members:
@@ -45,7 +46,7 @@ lavuelib.controllerClient module
     :show-inheritance:
 
 lavuelib.dataFetchThread module
--------------------------------
+===============================
 
 .. automodule:: lavuelib.dataFetchThread
     :members:
@@ -53,7 +54,7 @@ lavuelib.dataFetchThread module
     :show-inheritance:
 
 lavuelib.displayExtensions module
----------------------------------
+=================================
 
 .. automodule:: lavuelib.displayExtensions
     :members:
@@ -61,7 +62,7 @@ lavuelib.displayExtensions module
     :show-inheritance:
 
 lavuelib.edDictDialog module
-----------------------------
+============================
 
 .. automodule:: lavuelib.edDictDialog
     :members:
@@ -69,7 +70,7 @@ lavuelib.edDictDialog module
     :show-inheritance:
 
 lavuelib.filewriter module
---------------------------
+==========================
 
 .. automodule:: lavuelib.filewriter
     :members:
@@ -77,7 +78,7 @@ lavuelib.filewriter module
     :show-inheritance:
 
 lavuelib.filters module
------------------------
+=======================
 
 .. automodule:: lavuelib.filters
     :members:
@@ -85,7 +86,7 @@ lavuelib.filters module
     :show-inheritance:
 
 lavuelib.filtersWidget module
------------------------------
+=============================
 
 .. automodule:: lavuelib.filtersWidget
     :members:
@@ -93,7 +94,7 @@ lavuelib.filtersWidget module
     :show-inheritance:
 
 lavuelib.geometryDialog module
-------------------------------
+==============================
 
 .. automodule:: lavuelib.geometryDialog
     :members:
@@ -101,7 +102,7 @@ lavuelib.geometryDialog module
     :show-inheritance:
 
 lavuelib.h5cppwriter
---------------------
+====================
 
 .. automodule:: lavuelib.h5cppwriter
     :members:
@@ -109,7 +110,7 @@ lavuelib.h5cppwriter
     :show-inheritance:
 
 lavuelib.h5pywriter
--------------------
+===================
 
 .. automodule:: lavuelib.h5pywriter
     :members:
@@ -117,7 +118,7 @@ lavuelib.h5pywriter
     :show-inheritance:
 
 lavuelib.hidraServerList module
--------------------------------
+===============================
 
 .. automodule:: lavuelib.hidraServerList
     :members:
@@ -125,7 +126,7 @@ lavuelib.hidraServerList module
     :show-inheritance:
 
 lavuelib.highValueMaskWidget module
------------------------------------
+===================================
 
 .. automodule:: lavuelib.highValueMaskWidget
     :members:
@@ -133,7 +134,7 @@ lavuelib.highValueMaskWidget module
     :show-inheritance:
 
 lavuelib.histogramWidget module
--------------------------------
+===============================
 
 .. automodule:: lavuelib.histogramWidget
     :members:
@@ -141,7 +142,7 @@ lavuelib.histogramWidget module
     :show-inheritance:
 
 lavuelib.imageDisplayWidget module
-----------------------------------
+==================================
 
 .. automodule:: lavuelib.imageDisplayWidget
     :members:
@@ -149,7 +150,7 @@ lavuelib.imageDisplayWidget module
     :show-inheritance:
 
 lavuelib.imageField
--------------------
+===================
 
 .. automodule:: lavuelib.imageField
     :members:
@@ -157,7 +158,7 @@ lavuelib.imageField
     :show-inheritance:
 
 lavuelib.imageFileHandler module
---------------------------------
+================================
 
 .. automodule:: lavuelib.imageFileHandler
     :members:
@@ -165,7 +166,7 @@ lavuelib.imageFileHandler module
     :show-inheritance:
 
 lavuelib.imageSource module
----------------------------
+===========================
 
 .. automodule:: lavuelib.imageSource
     :members:
@@ -173,7 +174,7 @@ lavuelib.imageSource module
     :show-inheritance:
 
 lavuelib.imageWidget module
----------------------------
+===========================
 
 .. automodule:: lavuelib.imageWidget
     :members:
@@ -181,7 +182,7 @@ lavuelib.imageWidget module
     :show-inheritance:
 
 lavuelib.intervalsDialog module
--------------------------------
+===============================
 
 .. automodule:: lavuelib.intervalsDialog
     :members:
@@ -189,7 +190,7 @@ lavuelib.intervalsDialog module
     :show-inheritance:
 
 lavuelib.levelsGroupBox module
-------------------------------
+==============================
 
 .. automodule:: lavuelib.levelsGroupBox
     :members:
@@ -197,7 +198,7 @@ lavuelib.levelsGroupBox module
     :show-inheritance:
 
 lavuelib.liveViewer module
---------------------------
+==========================
 
 .. automodule:: lavuelib.liveViewer
     :members:
@@ -205,15 +206,23 @@ lavuelib.liveViewer module
     :show-inheritance:
 
 lavuelib.maskWidget module
---------------------------
+==========================
 
 .. automodule:: lavuelib.maskWidget
     :members:
     :undoc-members:
     :show-inheritance:
 
+lavuelib.memoExportDialog
+=========================
+
+.. automodule:: lavuelib.memoExportDialog
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lavuelib.messageBox module
---------------------------
+==========================
 
 .. automodule:: lavuelib.messageBox
     :members:
@@ -221,7 +230,7 @@ lavuelib.messageBox module
     :show-inheritance:
 
 lavuelib.motorWatchThread module
---------------------------------
+================================
 
 .. automodule:: lavuelib.motorWatchThread
     :members:
@@ -229,7 +238,7 @@ lavuelib.motorWatchThread module
     :show-inheritance:
 
 lavuelib.pniwriter
-------------------
+==================
 
 .. automodule:: lavuelib.pniwriter
     :members:
@@ -237,7 +246,7 @@ lavuelib.pniwriter
     :show-inheritance:
 
 lavuelib.preparationGroupBox module
------------------------------------
+===================================
 
 .. automodule:: lavuelib.preparationGroupBox
     :members:
@@ -245,7 +254,7 @@ lavuelib.preparationGroupBox module
     :show-inheritance:
 
 lavuelib.qtuic module
----------------------
+=====================
 
 .. automodule:: lavuelib.qtuic
     :members:
@@ -253,7 +262,7 @@ lavuelib.qtuic module
     :show-inheritance:
 
 lavuelib.rangeDialog module
----------------------------
+===========================
 
 .. automodule:: lavuelib.rangeDialog
     :members:
@@ -261,7 +270,7 @@ lavuelib.rangeDialog module
     :show-inheritance:
 
 lavuelib.release module
------------------------
+=======================
 
 .. automodule:: lavuelib.release
     :members:
@@ -269,7 +278,7 @@ lavuelib.release module
     :show-inheritance:
 
 lavuelib.sardanaUtils module
-----------------------------
+============================
 
 .. automodule:: lavuelib.sardanaUtils
     :members:
@@ -277,7 +286,7 @@ lavuelib.sardanaUtils module
     :show-inheritance:
 
 lavuelib.scalingGroupBox module
--------------------------------
+===============================
 
 .. automodule:: lavuelib.scalingGroupBox
     :members:
@@ -285,7 +294,7 @@ lavuelib.scalingGroupBox module
     :show-inheritance:
 
 lavuelib.settings module
-------------------------
+========================
 
 .. automodule:: lavuelib.settings
     :members:
@@ -293,7 +302,7 @@ lavuelib.settings module
     :show-inheritance:
 
 lavuelib.sourceGroupBox module
-------------------------------
+==============================
 
 .. automodule:: lavuelib.sourceGroupBox
     :members:
@@ -301,7 +310,7 @@ lavuelib.sourceGroupBox module
     :show-inheritance:
 
 lavuelib.sourceWidget module
-----------------------------
+============================
 
 .. automodule:: lavuelib.sourceWidget
     :members:
@@ -309,7 +318,7 @@ lavuelib.sourceWidget module
     :show-inheritance:
 
 lavuelib.statisticsGroupBox module
-----------------------------------
+==================================
 
 .. automodule:: lavuelib.statisticsGroupBox
     :members:
@@ -317,7 +326,7 @@ lavuelib.statisticsGroupBox module
     :show-inheritance:
 
 lavuelib.takeMotorsDialog module
---------------------------------
+================================
 
 .. automodule:: lavuelib.takeMotorsDialog
     :members:
@@ -326,7 +335,7 @@ lavuelib.takeMotorsDialog module
 
 
 lavuelib.toolWidget module
---------------------------
+==========================
 
 .. automodule:: lavuelib.toolWidget
     :members:
@@ -335,7 +344,7 @@ lavuelib.toolWidget module
 
 
 lavuelib.transformationsWidget module
--------------------------------------
+=====================================
 
 .. automodule:: lavuelib.transformationsWidget
     :members:
@@ -344,7 +353,7 @@ lavuelib.transformationsWidget module
 
 
 Module contents
----------------
+===============
 
 .. automodule:: lavuelib
     :members:

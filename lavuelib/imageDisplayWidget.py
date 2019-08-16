@@ -29,9 +29,10 @@ import pyqtgraph as _pg
 from pyqtgraph import QtCore, QtGui
 import math
 import types
-from pyqtgraph.GraphicsScene import exportDialog
 
 from . import axesDialog
+from . import memoExportDialog
+
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
     if _pg.__version__ else ("0", "9", "0")
@@ -64,61 +65,6 @@ class SafeImageItem(_pg.ImageItem):
         except ValueError as e:
             print(str(e))
             # print("Shape mismatch: skip painting")
-
-
-class MemoPlotWidget(_pg.PlotWidget):
-
-    def __init__(self, parent=None, background='default', **kargs):
-        _pg.PlotWidget.__init__(
-            self, parent=parent, background=background, **kargs)
-        sc = self.scene()
-        sc.contextMenu[0].triggered.disconnect(sc.showExportDialog)
-        sc.showExportDialog = types.MethodType(
-            GraphicsScene_showExportDialog, sc)
-        sc.contextMenu[0].triggered.connect(sc.showExportDialog)
-
-
-class MemoExportDialog(exportDialog.ExportDialog):
-
-    """ ExportDialog with bookkeeping  parameters """
-
-    def __init__(self, scene):
-        exportDialog.ExportDialog.__init__(self, scene)
-        self.dctparams = {}
-
-    def exportFormatChanged(self, item, prev):
-        if item is None:
-            self.currentExporter = None
-            self.ui.paramTree.clear()
-            return
-        expClass = self.exporterClasses[str(item.text())]
-        exp = expClass(item=self.ui.itemTree.currentItem().gitem)
-
-        if prev:
-            oldtext = str(prev.text())
-            self.dctparams[oldtext] = self.currentExporter.parameters()
-        newtext = str(item.text())
-        if newtext in self.dctparams.keys():
-            params = self.dctparams[newtext]
-            exp.params = params
-        else:
-            params = exp.parameters()
-            self.dctparams[newtext] = params
-
-        if params is None:
-            self.ui.paramTree.clear()
-        else:
-            self.ui.paramTree.setParameters(params)
-        self.currentExporter = exp
-        self.ui.copyBtn.setEnabled(exp.allowCopy)
-
-
-def GraphicsScene_showExportDialog(self):
-    """ dynamic replacement of GraphicsScene.showExportDialog
-    """
-    if self.exportDialog is None:
-        self.exportDialog = MemoExportDialog(self)
-    self.exportDialog.show(self.contextMenuItem)
 
 
 class AxesParameters(object):
@@ -279,7 +225,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         sc = self.__layout.scene()
         sc.contextMenu[0].triggered.disconnect(sc.showExportDialog)
         sc.showExportDialog = types.MethodType(
-            GraphicsScene_showExportDialog, sc)
+            memoExportDialog.GraphicsScene_showExportDialog, sc)
         sc.contextMenu[0].triggered.connect(sc.showExportDialog)
 
     def viewbox(self):

@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Jul 01, 2019" "2.13" "lavuelib"
+.TH "LAVUELIB" "1" "Aug 16, 2019" "2.14" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -467,6 +467,11 @@ create GUI
 .UNINDENT
 .INDENT 7.0
 .TP
+.B dirtrans = None
+(\fI\%str\fP) JSON dictionary with directory and filename translation
+.UNINDENT
+.INDENT 7.0
+.TP
 .B door = None
 (\fI\%str\fP) device name of sardana door
 .UNINDENT
@@ -505,6 +510,11 @@ status flag
 .TP
 .B hidraport = None
 (\fI\%str\fP) hidra data port
+.UNINDENT
+.INDENT 7.0
+.TP
+.B httpurls = None
+(\fI\%str\fP) JSON dictionary with {label: url}
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -638,6 +648,26 @@ status flag
 .UNINDENT
 .INDENT 7.0
 .TP
+.B tangoattrs = None
+(\fI\%str\fP) JSON dictionary with {label: tango attribute}
+.UNINDENT
+.INDENT 7.0
+.TP
+.B tangodirattrs = None
+(\fI\%str\fP) JSON dictionary with {label: dir tango attribute}
+.UNINDENT
+.INDENT 7.0
+.TP
+.B tangoevattrs = None
+(\fI\%str\fP) JSON dictionary with {label: tango attribute}
+.UNINDENT
+.INDENT 7.0
+.TP
+.B tangofileattrs = None
+(\fI\%str\fP) JSON dictionary with {label: file tango attribute}
+.UNINDENT
+.INDENT 7.0
+.TP
 .B timeout = None
 (\fI\%int\fP) image source timeout in ms
 .UNINDENT
@@ -645,6 +675,11 @@ status flag
 .TP
 .B zeromask = None
 (\fI\%bool\fP) zero mask enabled
+.UNINDENT
+.INDENT 7.0
+.TP
+.B zmqservers = None
+(\fI\%str\fP) JSON dictionary with {label: <server:port>}
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -1179,9 +1214,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBpos\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) \-\- position of handle
+\fBpos\fP (\fI[float, float]\fP) \-\- position of handle
 .IP \(bu 2
-\fBcenter\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) \-\- center of handle
+\fBcenter\fP (\fI[float, float]\fP) \-\- center of handle
 .IP \(bu 2
 \fBparent\fP (\fBpyqtgraph.graphicsItems.ROI.ROI\fP) \-\- roi object
 .UNINDENT
@@ -1539,7 +1574,7 @@ calculates the current roi sum
 sum roi value, roi id
 .TP
 .B Return type
-(\fI\%float\fP, \fI\%int\fP)
+(float, int)
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -1684,9 +1719,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBpos1\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) \-\- start position
+\fBpos1\fP (\fI[float, float]\fP) \-\- start position
 .IP \(bu 2
-\fBpos2\fP (\fI[\fP\fI\%float\fP\fI, \fP\fI\%float\fP\fI]\fP) \-\- end position
+\fBpos2\fP (\fI[float, float]\fP) \-\- end position
 .IP \(bu 2
 \fBargs\fP (\fBdict\(ga<:obj:\(gastr\fP, \fI\%any\fP>) \-\- dictionary with ROI parameters
 .UNINDENT
@@ -2167,6 +2202,11 @@ parent object
 \fI\%FTGroup\fP
 .UNINDENT
 .UNINDENT
+.INDENT 7.0
+.TP
+.B writer = None
+(\fBPNIWriter\fP or \fBH5PYWriter\fP or \fBH5CppWriter\fP)
+.UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
@@ -2588,6 +2628,11 @@ sets writer
 .B Parameters
 \fBwr\fP (\fBPNIWriter\fP or \fBH5PYWriter\fP or \fBH5CppWriter\fP) \-\- writer module
 .UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.filewriter.writer = None
+(\fBPNIWriter\fP or \fBH5PYWriter\(gaor :mod:\(gaH5CppWriter\fP)
 .UNINDENT
 .INDENT 0.0
 .TP
@@ -3259,7 +3304,7 @@ attribute object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B attributes
+.B H5CppGroup.attributes
 return the attribute manager
 .INDENT 7.0
 .TP
@@ -3272,12 +3317,12 @@ attribute manager
 .UNINDENT
 .INDENT 7.0
 .TP
-.B close()
+.B H5CppGroup.close()
 close group
 .UNINDENT
 .INDENT 7.0
 .TP
-.B create_field(name, type_code, shape=None, chunk=None, dfilter=None)
+.B H5CppGroup.create_field(name, type_code, shape=None, chunk=None, dfilter=None)
 open a file tree element
 .INDENT 7.0
 .TP
@@ -3304,7 +3349,7 @@ file tree field
 .UNINDENT
 .INDENT 7.0
 .TP
-.B create_group(n, nxclass=None)
+.B H5CppGroup.create_group(n, nxclass=None)
 open a file tree element
 .INDENT 7.0
 .TP
@@ -3325,7 +3370,7 @@ file tree group
 .UNINDENT
 .INDENT 7.0
 .TP
-.B exists(name)
+.B H5CppGroup.exists(name)
 if child exists
 .INDENT 7.0
 .TP
@@ -3341,7 +3386,7 @@ existing flag
 .UNINDENT
 .INDENT 7.0
 .TP
-.B is_valid
+.B H5CppGroup.is_valid
 check if field is valid
 .INDENT 7.0
 .TP
@@ -3354,12 +3399,12 @@ valid flag
 .UNINDENT
 .INDENT 7.0
 .TP
-.B name = None
+.B H5CppGroup.name = None
 (\fI\%str\fP) object name
 .UNINDENT
 .INDENT 7.0
 .TP
-.B names()
+.B H5CppGroup.names()
 read the child names
 .INDENT 7.0
 .TP
@@ -3372,7 +3417,7 @@ pni object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B open(name)
+.B H5CppGroup.open(name)
 open a file tree element
 .INDENT 7.0
 .TP
@@ -3388,7 +3433,7 @@ file tree object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B open_link(name)
+.B H5CppGroup.open_link(name)
 open a file tree element as link
 .INDENT 7.0
 .TP
@@ -3404,17 +3449,17 @@ file tree object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B path = None
+.B H5CppGroup.path = None
 (\fI\%str\fP) object nexus path
 .UNINDENT
 .INDENT 7.0
 .TP
-.B reopen()
+.B H5CppGroup.reopen()
 reopen group
 .UNINDENT
 .INDENT 7.0
 .TP
-.B size
+.B H5CppGroup.size
 group size
 .INDENT 7.0
 .TP
@@ -3769,12 +3814,12 @@ attribute object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B close()
+.B H5PYAttributeManager.close()
 close attribure manager
 .UNINDENT
 .INDENT 7.0
 .TP
-.B create(name, dtype, shape=None, overwrite=False)
+.B H5PYAttributeManager.create(name, dtype, shape=None, overwrite=False)
 create a new attribute
 .INDENT 7.0
 .TP
@@ -3799,7 +3844,7 @@ attribute object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B is_valid
+.B H5PYAttributeManager.is_valid
 check if link is valid
 .INDENT 7.0
 .TP
@@ -3812,17 +3857,17 @@ valid flag
 .UNINDENT
 .INDENT 7.0
 .TP
-.B name = None
+.B H5PYAttributeManager.name = None
 (\fI\%str\fP) object name
 .UNINDENT
 .INDENT 7.0
 .TP
-.B path = None
+.B H5PYAttributeManager.path = None
 (\fI\%str\fP) object nexus path
 .UNINDENT
 .INDENT 7.0
 .TP
-.B reopen()
+.B H5PYAttributeManager.reopen()
 reopen field
 .UNINDENT
 .UNINDENT
@@ -4138,7 +4183,7 @@ attribute object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B attributes
+.B H5PYGroup.attributes
 return the attribute manager
 .INDENT 7.0
 .TP
@@ -4151,12 +4196,12 @@ attribute manager
 .UNINDENT
 .INDENT 7.0
 .TP
-.B close()
+.B H5PYGroup.close()
 close group
 .UNINDENT
 .INDENT 7.0
 .TP
-.B create_field(name, type_code, shape=None, chunk=None, dfilter=None)
+.B H5PYGroup.create_field(name, type_code, shape=None, chunk=None, dfilter=None)
 open a file tree element
 .INDENT 7.0
 .TP
@@ -4183,7 +4228,7 @@ file tree field
 .UNINDENT
 .INDENT 7.0
 .TP
-.B create_group(n, nxclass=\(aq\(aq)
+.B H5PYGroup.create_group(n, nxclass=\(aq\(aq)
 open a file tree element
 .INDENT 7.0
 .TP
@@ -4204,7 +4249,7 @@ file tree group
 .UNINDENT
 .INDENT 7.0
 .TP
-.B exists(name)
+.B H5PYGroup.exists(name)
 if child exists
 .INDENT 7.0
 .TP
@@ -4220,7 +4265,7 @@ existing flag
 .UNINDENT
 .INDENT 7.0
 .TP
-.B is_valid
+.B H5PYGroup.is_valid
 check if group is valid
 .INDENT 7.0
 .TP
@@ -4233,7 +4278,7 @@ valid flag
 .UNINDENT
 .INDENT 7.0
 .TP
-.B names()
+.B H5PYGroup.names()
 read the child names
 .INDENT 7.0
 .TP
@@ -4246,7 +4291,7 @@ pni object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B open(name)
+.B H5PYGroup.open(name)
 open a file tree element
 .INDENT 7.0
 .TP
@@ -4262,7 +4307,7 @@ file tree object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B open_link(name)
+.B H5PYGroup.open_link(name)
 open a file tree element as link
 .INDENT 7.0
 .TP
@@ -4278,12 +4323,12 @@ file tree object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B reopen()
+.B H5PYGroup.reopen()
 reopen file
 .UNINDENT
 .INDENT 7.0
 .TP
-.B size
+.B H5PYGroup.size
 group size
 .INDENT 7.0
 .TP
@@ -4511,9 +4556,12 @@ file object
 A list of possible hidra servers. Take your pick.
 .INDENT 0.0
 .TP
-.B lavuelib.hidraServerList.HIDRASERVERLIST = {\(aqp03\(aq: [\(aqhaspp03pilatus.desy.de\(aq], \(aqp08\(aq: [\(aqhaspp08pil100.desy.de\(aq, \(aqhaspp08perk01.desy.de\(aq], \(aqp09\(aq: [\(aqhaspp09pilatus.desy.de\(aq], \(aqp10\(aq: [\(aqhaspp10pilatus.desy.de\(aq], \(aqp11\(aq: [\(aqhaspp11pilatus.desy.de\(aq], \(aqpool\(aq: [\(aqhaspilatus300k.desy.de\(aq, \(aqhaspilatus1m.desy.de\(aq, \(aqhaspilatus100k.desy.de\(aq]}
-(\fI\%dict\fP < \fI\%str\fP, \fBlist\fP <\fI\%str\fP> >)
+.B lavuelib.hidraServerList.HIDRASERVERLIST = {\(aqp10\(aq: [\(aqhaspp10pilatus.desy.de\(aq], \(aqp03\(aq: [\(aqhaspp03pilatus.desy.de\(aq], \(aqp11\(aq: [\(aqhaspp11pilatus.desy.de\(aq], \(aqp09\(aq: [\(aqhaspp09pilatus.desy.de\(aq], \(aqp08\(aq: [\(aqhaspp08pil100.desy.de\(aq, \(aqhaspp08perk01.desy.de\(aq], \(aqpool\(aq: [\(aqhaspilatus300k.desy.de\(aq, \(aqhaspilatus1m.desy.de\(aq, \(aqhaspilatus100k.desy.de\(aq]}
+.INDENT 7.0
+.TP
+.B (\fI\%dict\fP < \fI\%str\fP, \fBlist\fP <\fI\%str\fP> >)
 server dictionary
+.UNINDENT
 .UNINDENT
 .SS lavuelib.highValueMaskWidget module
 .sp
@@ -4667,6 +4715,11 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B position = None
+(\fI\%tuple\fP <\fI\%float\fP, \fI\%float\fP> )
+.UNINDENT
+.INDENT 7.0
+.TP
 .B scale = None
 (\fI\%tuple\fP <\fI\%float\fP, \fI\%float\fP> ) image scale (x,y)
 .UNINDENT
@@ -4750,7 +4803,7 @@ provides intensity for current mouse position
 x position, y position)
 .TP
 .B Return type
-(\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP)
+(float, float, float, float, float)
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4871,7 +4924,7 @@ provides scaled x,y positions
 scaled x,y position
 .TP
 .B Return type
-(\fI\%float\fP, \fI\%float\fP)
+(float, float)
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5162,6 +5215,40 @@ constructor
 .TP
 .B statswoscaling = None
 (\fI\%bool\fP) calculate statistics without scaling
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.imageDisplayWidget.SafeImageItem(*args, **kargs)
+Bases: \fBpyqtgraph.graphicsItems.ImageItem.ImageItem\fP
+.sp
+Image item which caught exceptions in paint
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBargs\fP (\fBlist\fP < \fI\%any\fP>) \-\- ImageItem parameters list
+.IP \(bu 2
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) \-\- ImageItem parameter dictionary
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B paint(p, *args)
+safe paint method
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBp\fP (\fBPyQt5.QtGui.QPainter\fP) \-\- painter
+.IP \(bu 2
+\fBargs\fP (\fBlist\fP < \fI\%any\fP>) \-\- ImageItem parameters list
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -5460,7 +5547,7 @@ image data
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.pyc\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.pyc\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.pyc\(aq>}
+.B lavuelib.imageFileHandler.WRITERS = {\(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/sources/lavue/lavuelib/pniwriter.pyc\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/sources/lavue/lavuelib/h5pywriter.pyc\(aq>, \(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/sources/lavue/lavuelib/h5cppwriter.pyc\(aq>}
 (\fI\%dict\fP <\fI\%str\fP, \fBmodule\fP> ) nexus writer modules
 .UNINDENT
 .SS lavuelib.imageSource module
@@ -5581,7 +5668,7 @@ image name, image data, json dictionary with metadata
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageSource.HIDRA = True
+.B lavuelib.imageSource.HIDRA = False
 (\fI\%bool\fP) hidra imported
 .UNINDENT
 .INDENT 0.0
@@ -5921,16 +6008,6 @@ the data shape if data was loaded
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageSource.ZMQMAJOR = 4
-(\fI\%str\fP,:obj:\fIstr\fP) zmq major version, zmq minor version
-.UNINDENT
-.INDENT 0.0
-.TP
-.B lavuelib.imageSource.ZMQMINOR = 3
-(\fI\%str\fP,:obj:\fIstr\fP) zmq major version, zmq minor version
-.UNINDENT
-.INDENT 0.0
-.TP
 .B class lavuelib.imageSource.ZMQSource(timeout=None)
 Bases: \fI\%lavuelib.imageSource.BaseSource\fP
 .sp
@@ -6142,7 +6219,7 @@ provides intensity for current mouse position
 x position, y position, pixel intensity
 .TP
 .B Return type
-(\fI\%float\fP, \fI\%float\fP, \fI\%float\fP)
+(float, float, float)
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -6333,6 +6410,7 @@ rois coordinates
 .INDENT 7.0
 .TP
 .B mouseImagePositionChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP)
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7591,6 +7669,30 @@ sets the image mask
 .UNINDENT
 .UNINDENT
 .UNINDENT
+.SS lavuelib.memoExportDialog
+.sp
+image display widget
+.INDENT 0.0
+.TP
+.B lavuelib.memoExportDialog.GraphicsScene_showExportDialog(self)
+dynamic replacement of GraphicsScene.showExportDialog
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.memoExportDialog.MemoExportDialog(scene)
+Bases: \fBpyqtgraph.GraphicsScene.exportDialog.ExportDialog\fP
+.sp
+ExportDialog with bookkeeping  parameters
+.INDENT 7.0
+.TP
+.B exportFormatChanged(item, prev)
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.memoExportDialog.MemoPlotWidget(parent=None, background=\(aqdefault\(aq, **kargs)
+Bases: \fBpyqtgraph.widgets.PlotWidget.PlotWidget\fP
+.UNINDENT
 .SS lavuelib.messageBox module
 .sp
 error message box
@@ -8210,7 +8312,7 @@ attribute object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B attributes
+.B PNIGroup.attributes
 return the attribute manager
 .INDENT 7.0
 .TP
@@ -8223,12 +8325,12 @@ attribute manager
 .UNINDENT
 .INDENT 7.0
 .TP
-.B close()
+.B PNIGroup.close()
 close group
 .UNINDENT
 .INDENT 7.0
 .TP
-.B create_field(name, type_code, shape=None, chunk=None, dfilter=None)
+.B PNIGroup.create_field(name, type_code, shape=None, chunk=None, dfilter=None)
 open a file tree element
 .INDENT 7.0
 .TP
@@ -8255,7 +8357,7 @@ file tree field
 .UNINDENT
 .INDENT 7.0
 .TP
-.B create_group(n, nxclass=\(aq\(aq)
+.B PNIGroup.create_group(n, nxclass=\(aq\(aq)
 open a file tree element
 .INDENT 7.0
 .TP
@@ -8276,7 +8378,7 @@ file tree group
 .UNINDENT
 .INDENT 7.0
 .TP
-.B exists(name)
+.B PNIGroup.exists(name)
 if child exists
 .INDENT 7.0
 .TP
@@ -8292,7 +8394,7 @@ existing flag
 .UNINDENT
 .INDENT 7.0
 .TP
-.B is_valid
+.B PNIGroup.is_valid
 check if field is valid
 .INDENT 7.0
 .TP
@@ -8305,12 +8407,12 @@ valid flag
 .UNINDENT
 .INDENT 7.0
 .TP
-.B name = None
+.B PNIGroup.name = None
 (\fI\%str\fP) object name
 .UNINDENT
 .INDENT 7.0
 .TP
-.B names()
+.B PNIGroup.names()
 read the child names
 .INDENT 7.0
 .TP
@@ -8323,7 +8425,7 @@ pni object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B open(name)
+.B PNIGroup.open(name)
 open a file tree element
 .INDENT 7.0
 .TP
@@ -8339,7 +8441,7 @@ file tree object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B open_link(name)
+.B PNIGroup.open_link(name)
 open a file tree element as link
 .INDENT 7.0
 .TP
@@ -8355,17 +8457,17 @@ file tree object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B path = None
+.B PNIGroup.path = None
 (\fI\%str\fP) object nexus path
 .UNINDENT
 .INDENT 7.0
 .TP
-.B reopen()
+.B PNIGroup.reopen()
 reopen group
 .UNINDENT
 .INDENT 7.0
 .TP
-.B size
+.B PNIGroup.size
 group size
 .INDENT 7.0
 .TP
@@ -8584,6 +8686,11 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B bkgSubWidget = None
+(\fI\%lavuelib.bkgSubtractionWidget.BkgSubtractionWidget\fP)
+.UNINDENT
+.INDENT 7.0
+.TP
 .B changeView(showmask=None, showsub=None, showtrans=None, showhighvaluemask=None, showfilters=None)
 show or hide widgets in the preparation colection
 .INDENT 7.0
@@ -8612,6 +8719,11 @@ show or hide widgets in the preparation colection
 .TP
 .B maskWidget = None
 (\fBlavuelib.maskWidget.Maskwidget\fP) mask widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B trafoWidget = None
+(\fI\%lavuelib.transformationsWidget.TransformationsWidget\fP)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -9142,6 +9254,11 @@ distance in um
 .UNINDENT
 .INDENT 7.0
 .TP
+.B httpurls = None
+(\fI\%str\fP) JSON dictionary with {label: url}
+.UNINDENT
+.INDENT 7.0
+.TP
 .B imagename = None
 (\fI\%str\fP) last image file name
 .UNINDENT
@@ -9407,6 +9524,26 @@ Stores settings in QSettings object
 .UNINDENT
 .INDENT 7.0
 .TP
+.B tangoattrs = None
+(\fI\%str\fP) JSON dictionary with {label: tango attribute}
+.UNINDENT
+.INDENT 7.0
+.TP
+.B tangodirattrs = None
+(\fI\%str\fP) JSON dictionary with {label: dir tango attribute}
+.UNINDENT
+.INDENT 7.0
+.TP
+.B tangoevattrs = None
+(\fI\%str\fP) JSON dictionary with {label: tango attribute}
+.UNINDENT
+.INDENT 7.0
+.TP
+.B tangofileattrs = None
+(\fI\%str\fP) JSON dictionary with {label: file tango attribute}
+.UNINDENT
+.INDENT 7.0
+.TP
 .B timeout = None
 (\fI\%int\fP) image source timeout for connection
 .UNINDENT
@@ -9441,6 +9578,11 @@ xy\-position in  pixels
 .TP
 .B zeromask = None
 (\fI\%bool\fP) zero mask enabled
+.UNINDENT
+.INDENT 7.0
+.TP
+.B zmqservers = None
+(\fI\%str\fP) JSON dictionary with {label: <server:port>}
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -11359,6 +11501,7 @@ constructor
 .INDENT 7.0
 .TP
 .B rois = None
+(\fI\%bool\fP) lines enabled
 (\fI\%bool\fP) rois enabled
 .UNINDENT
 .INDENT 7.0
