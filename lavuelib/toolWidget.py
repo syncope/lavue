@@ -925,6 +925,10 @@ class ROIToolWidget(ToolWidget):
         self.parameters.infolabel = "[x1, y1, x2, y2], sum: "
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
+
+        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        self.__settings = self._mainwidget.settings()
+
         self.__ui.applyROIPushButton.clicked.connect(self._emitApplyROIPressed)
         self.__ui.fetchROIPushButton.clicked.connect(self._emitFetchROIPressed)
 
@@ -958,6 +962,7 @@ class ROIToolWidget(ToolWidget):
         self.__aliases = self._mainwidget.getElementNames("ExpChannelList")
         self.updateROILineEdit(self._mainwidget.roilabels)
         self.__updateCompleter()
+        self.updateROIButton(self.__settings.sardana)
 
     def __updateCompleter(self):
         """ updates the labelROI help
@@ -1057,7 +1062,7 @@ class ROIToolWidget(ToolWidget):
         :param enable: buttons enabled
         :type enable: :obj:`bool`
         """
-        self.__ui.applyROIPushButton.setEnabled(enabled)
+        # self.__ui.applyROIPushButton.setEnabled(enabled)
         self.__ui.fetchROIPushButton.setEnabled(enabled)
 
     @QtCore.pyqtSlot(int)
@@ -2854,6 +2859,7 @@ class QROIProjToolWidget(ToolWidget):
         self.__aliases = self._mainwidget.getElementNames("ExpChannelList")
         self.updateROILineEdit(self._mainwidget.roilabels)
         self.__updateCompleter()
+        self.updateROIButton(self.__settings.sardana)
 
         if self.__bottomplot is None:
             self.__bottomplot = self._mainwidget.onedbarbottomplot()
@@ -3117,7 +3123,7 @@ class QROIProjToolWidget(ToolWidget):
         :param enable: buttons enabled
         :type enable: :obj:`bool`
         """
-        self.__ui.applyROIPushButton.setEnabled(enabled)
+        # self.__ui.applyROIPushButton.setEnabled(enabled)
         self.__ui.fetchROIPushButton.setEnabled(enabled)
 
     @QtCore.pyqtSlot(int)

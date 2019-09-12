@@ -41,7 +41,7 @@ from . import messageBox
 from . import imageSource as isr
 from . import toolWidget
 from . import memoExportDialog
-
+from . import sardanaUtils
 
 # _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
 #     if _pg.__version__ else ("0", "9", "0")
@@ -1079,20 +1079,25 @@ class ImageWidget(QtGui.QWidget):
         :type roispin: :obj:`int`
         """
         if isr.PYTANGO:
-            if not self.__settings.doorname:
-                self.__settings.doorname = self.__sardana.getDeviceName("Door")
-            try:
-                rois = json.loads(self.__sardana.getScanEnv(
-                    str(self.__settings.doorname), ["DetectorROIs"]))
-            except Exception:
-                import traceback
-                value = traceback.format_exc()
-                text = messageBox.MessageBox.getText(
-                    "Problems in connecting to Door or MacroServer")
-                messageBox.MessageBox.warning(
-                    self, "lavue: Error in connecting to Door or MacroServer",
-                    text, str(value))
-                return
+            if self.__settings.sardana:
+                if not self.__settings.doorname:
+                    self.__settings.doorname = self.__sardana.getDeviceName(
+                        "Door")
+                try:
+                    rois = json.loads(self.__sardana.getScanEnv(
+                        str(self.__settings.doorname), ["DetectorROIs"]))
+                except Exception:
+                    import traceback
+                    value = traceback.format_exc()
+                    text = messageBox.MessageBox.getText(
+                        "Problems in connecting to Door or MacroServer")
+                    messageBox.MessageBox.warning(
+                        self,
+                        "lavue: Error in connecting to Door or MacroServer",
+                        text, str(value))
+                    return
+            else:
+                rois = {}
 
             slabel = re.split(';|,| |\n', str(rlabel))
             slabel = [lb for lb in slabel if lb]
@@ -1145,37 +1150,42 @@ class ImageWidget(QtGui.QWidget):
             }
             lpars = [tr for tr in sorted(pars.keys()) if pars[tr]]
             rois["DetectorROIsParams"] = lpars
-            self.__sardana.setScanEnv(
-                str(self.__settings.doorname), json.dumps(rois))
-            warns = []
-            if self.__settings.addrois:
-                try:
-                    for alias in toadd:
-                        _, warn = self.__sardana.runMacro(
-                            str(self.__settings.doorname), ["nxsadd", alias])
-                        if warn:
-                            warns.extend(list(warn))
-                            print("Warning: %s" % str(warn))
-                    for alias in toremove:
-                        _, warn = self.__sardana.runMacro(
-                            str(self.__settings.doorname), ["nxsrm", alias])
-                        if warn:
-                            warns.extend(list(warn))
-                            print("Warning: %s" % str(warn))
-                    if warns:
-                        msg = "\n".join(set(warns))
-                        messageBox.MessageBox.warning(
-                            self, "lavue: Errors in setting Measurement group",
-                            msg, str(warns))
 
-                except Exception:
-                    import traceback
-                    value = traceback.format_exc()
-                    text = messageBox.MessageBox.getText(
-                        "Problems in setting Measurement group")
-                    messageBox.MessageBox.warning(
-                        self, "lavue: Error in Setting Measurement group",
-                        text, str(value))
+            if self.__settings.sardana:
+                self.__sardana.setScanEnv(
+                    str(self.__settings.doorname), json.dumps(rois))
+                warns = []
+                if self.__settings.addrois:
+                    try:
+                        for alias in toadd:
+                            _, warn = self.__sardana.runMacro(
+                                str(self.__settings.doorname),
+                                ["nxsadd", alias])
+                            if warn:
+                                warns.extend(list(warn))
+                                print("Warning: %s" % str(warn))
+                        for alias in toremove:
+                            _, warn = self.__sardana.runMacro(
+                                str(self.__settings.doorname),
+                                ["nxsrm", alias])
+                            if warn:
+                                warns.extend(list(warn))
+                                print("Warning: %s" % str(warn))
+                        if warns:
+                            msg = "\n".join(set(warns))
+                            messageBox.MessageBox.warning(
+                                self,
+                                "lavue: Errors in setting Measurement group",
+                                msg, str(warns))
+
+                    except Exception:
+                        import traceback
+                        value = traceback.format_exc()
+                        text = messageBox.MessageBox.getText(
+                            "Problems in setting Measurement group")
+                        messageBox.MessageBox.warning(
+                            self, "lavue: Error in Setting Measurement group",
+                            text, str(value))
             if self.__settings.analysisdevice:
                 flatrois = []
                 for crds in roicoords:
@@ -1239,7 +1249,7 @@ class ImageWidget(QtGui.QWidget):
                         flatrois[4 * i + 2] = min(flatrois[4 * i + 2], shb)
                         flatrois[4 * i + 3] = min(flatrois[4 * i + 3], shb)
                 try:
-                    adp = self.__sardana.openProxy(
+                    adp = sardanaUtils.SardanaUtils.openProxy(
                         str(self.__settings.analysisdevice))
                     adp.RoIs = flatrois
                 except Exception:

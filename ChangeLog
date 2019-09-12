@@ -1,3 +1,7 @@
+2019-09-12 Jan Kotanski <jan.kotanski@desy.de>
+	* allow for communication with AnalysisServer without sardana
+	* tagged as 2.14.1
+
 2019-08-16 Jan Kotanski <jan.kotanski@desy.de>
 	* add MemoPlotWidget and MemoExportDialog for params bookkeeping
 	* tagged as 2.14.0
