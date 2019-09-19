@@ -1,5 +1,6 @@
 2019-09-19 Jan Kotanski <jan.kotanski@desy.de>
 	* set maximal auto factor
+	* fix roi order labels after fetch
 	* tagged as 2.14.2
 
 2019-09-12 Jan Kotanski <jan.kotanski@desy.de>
