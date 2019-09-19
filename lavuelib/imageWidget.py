@@ -1286,7 +1286,7 @@ class ImageWidget(QtGui.QWidget):
                     text, str(value))
                 return
             slabel = re.split(';|,| |\n', str(rlabel))
-            slabel = [lb for lb in set(slabel) if lb]
+            slabel = [lb for lb in slabel if lb]
             detrois = {}
             if "DetectorROIs" in rois and isinstance(
                     rois["DetectorROIs"], dict):
@@ -1296,6 +1296,27 @@ class ImageWidget(QtGui.QWidget):
                         (k, v) for k, v in detrois.items() if k in slabel)
             coords = []
             aliases = []
+            if slabel:
+                for i, lb in enumerate(slabel):
+                    if lb in detrois.keys():
+                        if len(set(slabel[i:])) == 1:
+                            v = detrois.pop(lb)
+                            if isinstance(v, list):
+                                for cr in v:
+                                    if isinstance(cr, list):
+                                        coords.append(cr)
+                                        aliases.append(lb)
+                                        break
+                        else:
+                            v = detrois[lb]
+                            if isinstance(v, list) and v:
+                                cr = v[0]
+                                if isinstance(cr, list):
+                                    coords.append(cr)
+                                    aliases.append(lb)
+                                    detrois[lb] = v[1:]
+                            if not detrois[lb]:
+                                detrois.pop(lb)
             for k, v in detrois.items():
                 if isinstance(v, list):
                     for cr in v:
