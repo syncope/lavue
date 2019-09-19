@@ -1306,7 +1306,7 @@ class ImageWidget(QtGui.QWidget):
                                     if isinstance(cr, list):
                                         coords.append(cr)
                                         aliases.append(lb)
-                                        break
+                                break
                         else:
                             v = detrois[lb]
                             if isinstance(v, list) and v:
