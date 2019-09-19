@@ -343,6 +343,9 @@ class LevelsGroupBox(QtGui.QGroupBox):
             if ffactor < 0:
                 ffactor = 0
                 self.__ui.autofactorLineEdit.setText("0")
+            elif ffactor > 100:
+                ffactor = 100
+                self.__ui.autofactorLineEdit.setText("100")
             self.__histogram.setAutoFactor(ffactor)
             self.autoLevelsChanged.emit(1)
         except Exception:
@@ -366,6 +369,9 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 if ffactor < 0:
                     ffactor = 0
                     self.__ui.autofactorLineEdit.setText("0")
+                elif ffactor > 100:
+                    ffactor = 100
+                    self.__ui.autofactorLineEdit.setText("100")
                 self.__histogram.setAutoFactor(ffactor)
             except Exception:
                 self.__histogram.setAutoFactor(None)
