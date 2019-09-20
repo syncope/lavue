@@ -1150,6 +1150,7 @@ class ImageWidget(QtGui.QWidget):
             }
             lpars = [tr for tr in sorted(pars.keys()) if pars[tr]]
             rois["DetectorROIsParams"] = lpars
+            rois["DetectorROIsOrder"] = slabel
 
             if self.__settings.sardana:
                 self.__sardana.setScanEnv(
@@ -1275,7 +1276,8 @@ class ImageWidget(QtGui.QWidget):
                 self.__settings.doorname = self.__sardana.getDeviceName("Door")
             try:
                 rois = json.loads(self.__sardana.getScanEnv(
-                    str(self.__settings.doorname), ["DetectorROIs"]))
+                    str(self.__settings.doorname),
+                    ["DetectorROIs", "DetectorROIsOrder"]))
             except Exception:
                 import traceback
                 value = traceback.format_exc()
@@ -1285,7 +1287,11 @@ class ImageWidget(QtGui.QWidget):
                     self, "lavue: Error in connecting to Door or MacroServer",
                     text, str(value))
                 return
-            slabel = re.split(';|,| |\n', str(rlabel))
+            if self.__settings.orderrois and "DetectorROIsOrder" in rois \
+               and isinstance(rois["DetectorROIsOrder"], list):
+                slabel = rois["DetectorROIsOrder"]
+            else:
+                slabel = re.split(';|,| |\n', str(rlabel))
             slabel = [lb for lb in slabel if lb]
             detrois = {}
             if "DetectorROIs" in rois and isinstance(

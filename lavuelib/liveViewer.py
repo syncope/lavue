@@ -1016,6 +1016,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.sardana = True if self.__sardana is not None else False
         cnfdlg.door = self.__settings.doorname
         cnfdlg.addrois = self.__settings.addrois
+        cnfdlg.orderrois = self.__settings.orderrois
         cnfdlg.showsub = self.__settings.showsub
         cnfdlg.showtrans = self.__settings.showtrans
         cnfdlg.showscale = self.__settings.showscale
@@ -1071,6 +1072,7 @@ class LiveViewer(QtGui.QDialog):
             self.__setSardana(dialog.sardana)
             self.__settings.sardana = dialog.sardana
         self.__settings.addrois = dialog.addrois
+        self.__settings.orderrois = dialog.orderrois
 
         if self.__settings.showsub != dialog.showsub:
             self.__prepwg.changeView(showsub=dialog.showsub)
