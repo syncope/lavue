@@ -58,6 +58,8 @@ class ConfigDialog(QtGui.QDialog):
         self.sardana = True
         #: (:obj:`bool`) add rois enabled
         self.addrois = False
+        #: (:obj:`bool`) fetch rois order enabled
+        self.orderrois = False
         #: (:obj:`bool`) security stream enabled
         self.secstream = False
         #: (:obj:`str`) security stream port
@@ -208,6 +210,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.sardanaCheckBox.setChecked(self.sardana)
         self.__ui.doorLineEdit.setText(self.door)
         self.__ui.addroisCheckBox.setChecked(self.addrois)
+        self.__ui.orderroisCheckBox.setChecked(self.orderrois)
         self.__ui.secstreamCheckBox.setChecked(self.secstream)
         self.__ui.zeromaskCheckBox.setChecked(self.zeromask)
         self.__ui.secautoportCheckBox.setChecked(self.secautoport)
@@ -477,6 +480,7 @@ class ConfigDialog(QtGui.QDialog):
         self.sardana = self.__ui.sardanaCheckBox.isChecked()
         self.door = str(self.__ui.doorLineEdit.text()).strip()
         self.addrois = self.__ui.addroisCheckBox.isChecked()
+        self.orderrois = self.__ui.orderroisCheckBox.isChecked()
         self.hidraport = str(self.__ui.hidraportLineEdit.text()).strip()
         self.secstream = self.__ui.secstreamCheckBox.isChecked()
         self.zeromask = self.__ui.zeromaskCheckBox.isChecked()

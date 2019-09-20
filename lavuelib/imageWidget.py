@@ -1150,6 +1150,7 @@ class ImageWidget(QtGui.QWidget):
             }
             lpars = [tr for tr in sorted(pars.keys()) if pars[tr]]
             rois["DetectorROIsParams"] = lpars
+            rois["DetectorROIsOrder"] = slabel
 
             if self.__settings.sardana:
                 self.__sardana.setScanEnv(
@@ -1275,7 +1276,8 @@ class ImageWidget(QtGui.QWidget):
                 self.__settings.doorname = self.__sardana.getDeviceName("Door")
             try:
                 rois = json.loads(self.__sardana.getScanEnv(
-                    str(self.__settings.doorname), ["DetectorROIs"]))
+                    str(self.__settings.doorname),
+                    ["DetectorROIs", "DetectorROIsOrder"]))
             except Exception:
                 import traceback
                 value = traceback.format_exc()
@@ -1285,8 +1287,12 @@ class ImageWidget(QtGui.QWidget):
                     self, "lavue: Error in connecting to Door or MacroServer",
                     text, str(value))
                 return
-            slabel = re.split(';|,| |\n', str(rlabel))
-            slabel = [lb for lb in set(slabel) if lb]
+            if self.__settings.orderrois and "DetectorROIsOrder" in rois \
+               and isinstance(rois["DetectorROIsOrder"], list):
+                slabel = rois["DetectorROIsOrder"]
+            else:
+                slabel = re.split(';|,| |\n', str(rlabel))
+            slabel = [lb for lb in slabel if lb]
             detrois = {}
             if "DetectorROIs" in rois and isinstance(
                     rois["DetectorROIs"], dict):
@@ -1296,6 +1302,27 @@ class ImageWidget(QtGui.QWidget):
                         (k, v) for k, v in detrois.items() if k in slabel)
             coords = []
             aliases = []
+            if slabel:
+                for i, lb in enumerate(slabel):
+                    if lb in detrois.keys():
+                        if len(set(slabel[i:])) == 1:
+                            v = detrois.pop(lb)
+                            if isinstance(v, list):
+                                for cr in v:
+                                    if isinstance(cr, list):
+                                        coords.append(cr)
+                                        aliases.append(lb)
+                                break
+                        else:
+                            v = detrois[lb]
+                            if isinstance(v, list) and v:
+                                cr = v[0]
+                                if isinstance(cr, list):
+                                    coords.append(cr)
+                                    aliases.append(lb)
+                                    detrois[lb] = v[1:]
+                            if not detrois[lb]:
+                                detrois.pop(lb)
             for k, v in detrois.items():
                 if isinstance(v, list):
                     for cr in v:
