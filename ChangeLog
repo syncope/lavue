@@ -1,3 +1,7 @@
+2019-09-27 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for slider 0 flame number
+	* tagged as 2.15.1
+
 2019-09-20 Jan Kotanski <jan.kotanski@desy.de>
 	* set maximal auto factor
 	* fix roi order labels after fetch

@@ -924,7 +924,10 @@ class LiveViewer(QtGui.QDialog):
                     self.__ui.frameHorizontalSlider.valueChanged.disconnect(
                         self._sliderreloadfilelazy)
                     try:
-                        gsize = currentfield["shape"][self.__growing] - 1
+                        if len(currentfield["shape"]) < 3:
+                            gsize = 0
+                        else:
+                            gsize = currentfield["shape"][self.__growing] - 1
                         if gsize >= 0:
                             self.__ui.frameSpinBox.setToolTip(
                                 "current frame (max: %s)" % gsize)
