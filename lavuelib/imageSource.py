@@ -55,6 +55,14 @@ except ImportError:
     PYTANGO = False
 
 try:
+    import pydoocs
+    #: (:obj:`bool`) pydoocs imported
+    PYDOOCS = True
+except ImportError:
+    #: (:obj:`bool`) pydoocs imported
+    PYDOOCS = False
+
+try:
     import PIL
     import PIL.Image
     #: (:obj:`bool`) PIL imported
@@ -1325,3 +1333,43 @@ class HiDRASource(BaseSource):
             #       "[unknown source module]::metadata", metadata["filename"])
         else:
             return None, None, None
+
+
+class DOOCSPropSource(BaseSource):
+
+    """ image source as IMAGE DOOCS property
+    """
+
+    def __init__(self, timeout=None):
+        """ constructor
+
+        :param timeout: timeout for setting connection in ms
+        :type timeout: :obj:`int`
+        """
+        BaseSource.__init__(self, timeout)
+
+    def getData(self):
+        """ provides image name, image data and metadata
+
+        :returns:  image name, image data, json dictionary with metadata
+        :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
+        """
+
+        try:
+            dt = pydoocs.read(self._configuration)
+            npdata = dt['data']
+            tstamp = dt['timestamp']
+            return (np.transpose(npdata),
+                    '%s  (%s)' % (
+                        self._configuration, str(tstamp)),
+                    "")
+
+        except Exception as e:
+            print(str(e))
+            return str(e), "__ERROR__", ""
+        return None, None, None
+
+    def connect(self):
+        """ connects the source
+        """
+        return True
