@@ -54,7 +54,7 @@ class SardanaUtils(object):
         try:
             #: (:class:`PyTango.Database`) tango database
             self.__db = PyTango.Database()
-        except Exception as e:
+        except Exception:
             self.__db = None
 
     @classmethod
