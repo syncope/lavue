@@ -115,6 +115,9 @@ class Settings(object):
         #: (:obj:`str`) JSON dictionary with {label: tango attribute}
         #  for Tango Attribute source
         self.tangoattrs = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: doocs property}
+        #  for DOOCS Property source
+        self.doocsprops = '{}'
         #: (:obj:`str`) JSON dictionary with {label: tango attribute}
         #  for Tango Attribute Events source
         self.tangoevattrs = '{}'
@@ -423,6 +426,11 @@ class Settings(object):
             self.tangoattrs = qstval
 
         qstval = str(
+            settings.value("Configuration/DOOCSProperties", type=str))
+        if qstval:
+            self.doocsprops = qstval
+
+        qstval = str(
             settings.value("Configuration/TangoEventsAttributes", type=str))
         if qstval:
             self.tangoevattrs = qstval
@@ -616,6 +624,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/TangoAttributes",
             self.tangoattrs)
+        settings.setValue(
+            "Configuration/DOOCSProps",
+            self.doocsprops)
         settings.setValue(
             "Configuration/TangoEventsAttributes",
             self.tangoevattrs)

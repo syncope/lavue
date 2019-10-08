@@ -66,6 +66,11 @@ _zmqformclass, _zmqbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "ZMQSourceWidget.ui"))
 
+_doocspropformclass, _doocspropbaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "DOOCSPropSourceWidget.ui"))
+
+
 
 class BaseSourceWidget(QtGui.QWidget):
 
@@ -1519,4 +1524,142 @@ class ZMQSourceWidget(BaseSourceWidget):
         :rtype: :obj:`str`
         """
         label = str(self._ui.pickleComboBox.currentText()).strip()
+        return re.sub("[^a-zA-Z0-9_]+", "_", label)
+
+
+class DOOCSPropSourceWidget(BaseSourceWidget):
+
+    """ test source widget """
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
+        """
+        BaseSourceWidget.__init__(self, parent)
+
+        self._ui = _doocspropformclass()
+        self._ui.setupUi(self)
+
+        #: (:obj:`str`) source name
+        self.name = "DOOCS Property"
+        #: (:obj:`str`) datasource class name
+        self.datasource = "DOOCSPropSource"
+        #: (:obj:`list` <:obj:`str`>) subwidget object names
+        self.widgetnames = [
+            "doocspropLabel", "doocspropComboBox"
+        ]
+
+        #: (:obj:`dict` <:obj:`str`, :obj:`str`>) dictionary with
+        #:                     (label, doocs property) items
+        self.__doocsprops = {}
+        #: (:obj:`list` <:obj:`str`>) user doocs properites
+        self.__userprops = []
+
+        self._detachWidgets()
+
+        #: (:obj:`str`) default tip
+        self.__defaulttip = self._ui.doocspropComboBox.toolTip()
+
+        self._connectComboBox(self._ui.doocspropComboBox)
+        self._ui.doocspropComboBox.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        """ event filter
+
+        :param obj: qt object
+        :type obj: :class: `pyqtgraph.QtCore.QObject`
+        :param event: qt event
+        :type event: :class: `pyqtgraph.QtCore.QEvent`
+        :returns: status flag
+        :rtype: :obj:`bool`
+        """
+        return self.eventObjectFilter(
+            event,
+            combobox=self._ui.doocspropComboBox,
+            varname="doocsprops",
+            atdict=self.__doocsprops,
+            atlist=self.__userprops
+        )
+
+    @QtCore.pyqtSlot()
+    def updateButton(self):
+        """ update slot for Tango attribute source
+        """
+        if not self.active:
+            return
+        currentprop = str(self._ui.doocspropComboBox.currentText()).strip()
+        if not currentprop:
+            self.buttonEnabled.emit(False)
+        else:
+            self.buttonEnabled.emit(True)
+            if currentprop in self.__doocsprops.keys():
+                currentprop = str(self.__doocsprops[currentprop]).strip()
+            self.configurationChanged.emit(currentprop)
+            self.sourceLabelChanged.emit(self.label())
+        self._ui.doocspropComboBox.setToolTip(currentprop or self.__defaulttip)
+
+    def updateMetaData(self, doocsprops=None, **kargs):
+        """ update source input parameters
+
+        :param doocsprops: json dictionary with
+                           (label, tango attribute) items
+        :type doocsprops: :obj:`str`
+        :param kargs:  source widget input parameter dictionary
+        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        if doocsprops is not None:
+            self.__doocsprops = json.loads(doocsprops)
+            self._updateComboBox(
+                self._ui.doocspropComboBox, self.__doocsprops, self.__userprops)
+        self.sourceLabelChanged.emit(self.label())
+
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        iid = self._ui.doocspropComboBox.findText(configuration)
+        if iid == -1:
+            self._ui.doocspropComboBox.addItem(configuration)
+            iid = self._ui.doocspropComboBox.findText(configuration)
+        self._ui.doocspropComboBox.setCurrentIndex(iid)
+
+    @QtCore.pyqtSlot()
+    def updateComboBox(self):
+        """ updates ComboBox
+        """
+        self._updateComboBox(
+            self._ui.doocspropComboBox, self.__doocsprops, self.__userprops)
+
+    def disconnectWidget(self):
+        """ disconnects widget
+        """
+        self._connected = False
+        self._ui.doocspropComboBox.lineEdit().setReadOnly(False)
+        self._ui.doocspropComboBox.setEnabled(True)
+
+    def connectWidget(self):
+        """ connects widget
+        """
+        self._connected = True
+        self._ui.doocspropComboBox.lineEdit().setReadOnly(True)
+        self._ui.doocspropComboBox.setEnabled(False)
+        currentprop = str(self._ui.doocspropComboBox.currentText()).strip()
+        attrs = self.__doocsprops.keys()
+        if currentprop not in attrs and currentprop not in self.__userprops:
+            self.__userprops.append(currentprop)
+            self._updateComboBox(
+                self._ui.doocspropComboBox, self.__doocsprops,
+                self.__userprops)
+
+    def label(self):
+        """ return a label of the current detector
+
+        :return: label of the current detector
+        :rtype: :obj:`str`
+        """
+        label = str(self._ui.doocspropComboBox.currentText()).strip()
         return re.sub("[^a-zA-Z0-9_]+", "_", label)

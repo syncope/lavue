@@ -152,6 +152,8 @@ class LiveViewer(QtGui.QDialog):
             self.__sourcetypes.append("TangoAttrSourceWidget")
             self.__sourcetypes.append("TangoEventsSourceWidget")
             self.__sourcetypes.append("TangoFileSourceWidget")
+        if isr.PYDOOCS:
+            self.__sourcetypes.append("DOOCSPropSourceWidget")
         self.__sourcetypes.append("ZMQSourceWidget")
         self.__sourcetypes.append("NXSFileSourceWidget")
         self.__sourcetypes.append("TestSourceWidget")
@@ -573,7 +575,8 @@ class LiveViewer(QtGui.QDialog):
             nxslast=self.__settings.nxslast,
             nxsopen=self.__settings.nxsopen,
             serverdict=serverdict,
-            hidraport=self.__settings.hidraport
+            hidraport=self.__settings.hidraport,
+            doocsprops=self.__settings.doocsprops
         )
 
     def __applyoptions(self, options):
@@ -727,7 +730,8 @@ class LiveViewer(QtGui.QDialog):
             nxslast=self.__settings.nxslast,
             nxsopen=self.__settings.nxsopen,
             serverdict=serverdict,
-            hidraport=self.__settings.hidraport
+            hidraport=self.__settings.hidraport,
+            doocsprops=self.__settings.doocsprops
         )
 
         self.__statswg.changeView(self.__settings.showstats)
@@ -1049,6 +1053,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.interruptonerror = self.__settings.interruptonerror
         cnfdlg.dirtrans = self.__settings.dirtrans
         cnfdlg.tangoattrs = self.__settings.tangoattrs
+        cnfdlg.doocsprops = self.__settings.doocsprops
         cnfdlg.tangoevattrs = self.__settings.tangoevattrs
         cnfdlg.tangofileattrs = self.__settings.tangofileattrs
         cnfdlg.tangodirattrs = self.__settings.tangodirattrs
@@ -1175,6 +1180,9 @@ class LiveViewer(QtGui.QDialog):
             setsrc = True
         if self.__settings.tangoattrs != dialog.tangoattrs:
             self.__settings.tangoattrs = dialog.tangoattrs
+            setsrc = True
+        if self.__settings.doocsprops != dialog.doocsprops:
+            self.__settings.doocsprops = dialog.doocsprops
             setsrc = True
         if self.__settings.tangoevattrs != dialog.tangoevattrs:
             self.__settings.tangoevattrs = dialog.tangoevattrs

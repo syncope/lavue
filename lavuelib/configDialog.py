@@ -134,6 +134,9 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`str`) JSON dictionary with {label: dir tango attribute}
         #  for Tango Attribute source
         self.tangodirattrs = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: doocs property}
+        #  for DOOCS Property source
+        self.doocsprops = '{}'
         #: (:obj:`str`) JSON dictionary with {label: url}
         #  for HTTP responce source
         self.httpurls = '{}'
@@ -233,6 +236,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.interruptCheckBox.setChecked(self.interruptonerror)
         self.__ui.dirtransLineEdit.setText(self.dirtrans)
         self.__ui.attrLineEdit.setText(self.tangoattrs)
+        self.__ui.doocspropLineEdit.setText(self.doocsprops)
         self.__ui.evattrLineEdit.setText(self.tangoevattrs)
         self.__ui.fileattrLineEdit.setText(self.tangofileattrs)
         self.__ui.dirattrLineEdit.setText(self.tangodirattrs)
@@ -267,6 +271,9 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.zmqserversLineEdit.installEventFilter(self)
         self.__objtitles[repr(self.__ui.zmqserversLineEdit)] = \
             "zmq server:port name"
+        self.__ui.doocspropLineEdit.installEventFilter(self)
+        self.__objtitles[repr(self.__ui.doocspropLineEdit)] = \
+            "DOOCS facility/device/location/property name"
 
         self._updateSecPortLineEdit(self.secautoport)
         self.__ui.secautoportCheckBox.stateChanged.connect(
@@ -526,6 +533,15 @@ class ConfigDialog(QtGui.QDialog):
         except Exception as e:
             print(str(e))
             self.__ui.attrLineEdit.setFocus(True)
+            return
+        try:
+            prop = str(self.__ui.doocspropLineEdit.text()).strip()
+            mytr = json.loads(prop)
+            if isinstance(mytr, dict):
+                self.doocsprops = prop
+        except Exception as e:
+            print(str(e))
+            self.__ui.doocspropLineEdit.setFocus(True)
             return
         try:
             attr = str(self.__ui.evattrLineEdit.text()).strip()
