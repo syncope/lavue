@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Sep 20, 2019" "2.15" "lavuelib"
+.TH "LAVUELIB" "1" "Oct 08, 2019" "2.16" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -5582,6 +5582,38 @@ set timeout
 .UNINDENT
 .INDENT 0.0
 .TP
+.B class lavuelib.imageSource.DOOCSPropSource(timeout=None)
+Bases: \fI\%lavuelib.imageSource.BaseSource\fP
+.sp
+image source as IMAGE DOOCS property
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.UNINDENT
+.INDENT 7.0
+.TP
+.B connect()
+connects the source
+.UNINDENT
+.INDENT 7.0
+.TP
+.B getData()
+provides image name, image data and metadata
+.INDENT 7.0
+.TP
+.B Returns
+image name, image data, json dictionary with metadata
+.TP
+.B Return type
+(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
 .B class lavuelib.imageSource.FixTestSource(timeout=None)
 Bases: \fI\%lavuelib.imageSource.BaseSource\fP
 .sp
@@ -5744,6 +5776,11 @@ image name, image data, json dictionary with metadata
 .TP
 .B lavuelib.imageSource.PILLOW = True
 (\fI\%bool\fP) PIL imported
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.imageSource.PYDOOCS = False
+(\fI\%bool\fP) pydoocs imported
 .UNINDENT
 .INDENT 0.0
 .TP
@@ -9845,6 +9882,115 @@ update source input parameters
 .TP
 .B widgets = None
 (\fBlist\fP <\fBPyQt5.QtGui.QWidget\fP>) subwidget objects
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.sourceWidget.DOOCSPropSourceWidget(parent=None)
+Bases: \fI\%lavuelib.sourceWidget.BaseSourceWidget\fP
+.sp
+test source widget
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current image source
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B connectWidget()
+connects widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B datasource = None
+(\fI\%str\fP) datasource class name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B disconnectWidget()
+disconnects widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B eventFilter(obj, event)
+event filter
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – qt object
+.IP \(bu 2
+\fBevent\fP – qt event
+.UNINDENT
+.TP
+.B Returns
+status flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B label()
+return a label of the current detector
+.INDENT 7.0
+.TP
+.B Returns
+label of the current detector
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) source name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateButton()
+update slot for Tango attribute source
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateComboBox()
+updates ComboBox
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateMetaData(doocsprops=None, **kargs)
+update source input parameters
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBdoocsprops\fP (\fI\%str\fP) – json dictionary with
+(label, tango attribute) items
+.IP \(bu 2
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B widgetnames = None
+(\fBlist\fP <\fI\%str\fP>) subwidget object names
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
