@@ -625,7 +625,7 @@ class Settings(object):
             "Configuration/TangoAttributes",
             self.tangoattrs)
         settings.setValue(
-            "Configuration/DOOCSProps",
+            "Configuration/DOOCSProperties",
             self.doocsprops)
         settings.setValue(
             "Configuration/TangoEventsAttributes",

@@ -71,7 +71,6 @@ _doocspropformclass, _doocspropbaseclass = uic.loadUiType(
                  "ui", "DOOCSPropSourceWidget.ui"))
 
 
-
 class BaseSourceWidget(QtGui.QWidget):
 
     """ general source widget """
@@ -1612,7 +1611,8 @@ class DOOCSPropSourceWidget(BaseSourceWidget):
         if doocsprops is not None:
             self.__doocsprops = json.loads(doocsprops)
             self._updateComboBox(
-                self._ui.doocspropComboBox, self.__doocsprops, self.__userprops)
+                self._ui.doocspropComboBox,
+                self.__doocsprops, self.__userprops)
         self.sourceLabelChanged.emit(self.label())
 
     def configure(self, configuration):
