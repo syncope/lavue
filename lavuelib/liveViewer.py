@@ -683,6 +683,7 @@ class LiveViewer(QtGui.QDialog):
 
         if hasattr(options, "viewrange") and options.viewrange is not None:
             self.__imagewg.setViewRange(options.viewrange)
+        self.__sourcewg.updateLayout()
         if hasattr(options, "start"):
             return options.start is True
         else:
