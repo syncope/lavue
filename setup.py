@@ -38,8 +38,10 @@ from distutils.util import get_platform
 # from distutils.command.clean import clean
 import shutil
 
-from sphinx.setup_command import BuildDoc
-
+try:
+    from sphinx.setup_command import BuildDoc
+except Exception:
+    BuildDoc = None
 
 def read(fname):
     """ read the file
@@ -83,8 +85,23 @@ install_requires = [
     'numpy>1.6.0',
     'pyzmq',
     'scipy',
+    'h5py',
+    'PyQt5',    
+    # 'fabio',
+    # 'pytango',
+    # 'pydoocs',
+    # 'pil',
+    # 'hidra',
+    # 'PyQt4',
+    # 'nxstools',
+    # 'requests',
+    # 'pni',
+    # 'pninexus',
 ]
 
+extra_require = [
+    
+]
 
 class toolBuild(build_py):
     """ ui and qrc builder for python
@@ -193,7 +210,7 @@ SETUPDATA = dict(
     description='Live image viewer application for photon science detectors.',
     long_description=read('README.rst'),
     install_requires=install_requires,
-    url='https://github.com/syncope/lavue',
+    url='https://github.com/jkotan/lavue',
     author='Ch.Rosemann, J.Kotanski, A.Rothkirch',
     author_email='christoph.rosemann@desy.de, '
     'jan.kotanski@desy.de, '
