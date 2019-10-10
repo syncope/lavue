@@ -89,6 +89,24 @@ for python 2.7 version
 for python 3 version. Please notice that `HiDRA
 <https://confluence.desy.de/display/hidra>`_ is not available for python 3 yet.
 
+From pip
+""""""""
+
+To install it from pip you need to install pyqt5 in advance, e.g.
+
+.. code-block:: console
+
+   $ python3 -m venv myvenv
+   $ . myvenv/bin/activate
+   $ pip install pyqt5
+   $ pip install lavue
+
+Moreover it is good to install the following python packages:
+
+   $ pip install fabio
+   $ pip install pillow
+   $ pip install pytango
+
 Start the Viewer
 ----------------
 
