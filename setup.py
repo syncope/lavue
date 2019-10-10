@@ -38,7 +38,10 @@ from distutils.util import get_platform
 # from distutils.command.clean import clean
 import shutil
 
-from sphinx.setup_command import BuildDoc
+try:
+    from sphinx.setup_command import BuildDoc
+except Exception:
+    BuildDoc = None
 
 
 def read(fname):
@@ -83,6 +86,16 @@ install_requires = [
     'numpy>1.6.0',
     'pyzmq',
     'scipy',
+    'h5py',
+    # 'pyside',
+    # 'pyqt5',
+    # 'fabio',
+    # 'pytango',
+    # 'pydoocs',
+    # 'pillow',
+    # 'hidra',
+    # 'pninexus',
+    # 'nxstools',
 ]
 
 
@@ -193,10 +206,10 @@ SETUPDATA = dict(
     description='Live image viewer application for photon science detectors.',
     long_description=read('README.rst'),
     install_requires=install_requires,
-    url='https://github.com/syncope/lavue',
-    author='Ch.Rosemann, J.Kotanski, A.Rothkirch',
-    author_email='christoph.rosemann@desy.de, '
-    'jan.kotanski@desy.de, '
+    url='https://github.com/jkotan/lavue',
+    author='J.Kotanski, Ch.Rosemann, A.Rothkirch',
+    author_email='jan.kotanski@desy.de, '
+    'christoph.rosemann@desy.de, '
     'andre.rothkirch@desy.de ',
     license='GPLv2',
     classifiers=[
@@ -209,6 +222,8 @@ SETUPDATA = dict(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     keywords='live viewer photon science detector',
     packages=[NAME, QRCDIR, PLGNSDIR],
