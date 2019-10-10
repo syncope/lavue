@@ -98,6 +98,7 @@ To install it from pip you need to install pyqt5 in advance, e.g.
 
    $ python3 -m venv myvenv
    $ . myvenv/bin/activate
+   
    $ pip install pyqt5
    $ pip install lavue
 
