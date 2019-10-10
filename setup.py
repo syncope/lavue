@@ -222,6 +222,8 @@ SETUPDATA = dict(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     keywords='live viewer photon science detector',
     packages=[NAME, QRCDIR, PLGNSDIR],
