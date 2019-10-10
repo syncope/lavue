@@ -108,6 +108,7 @@ Moreover it is also good to install the following python packages:
 
    $ pip install fabio
    $ pip install pillow
+   $ pip install lavuefilters
    $ pip install pytango
 
 Start the Viewer
