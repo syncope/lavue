@@ -43,6 +43,7 @@ try:
 except Exception:
     BuildDoc = None
 
+
 def read(fname):
     """ read the file
 
@@ -86,22 +87,16 @@ install_requires = [
     'pyzmq',
     'scipy',
     'h5py',
-    'PyQt5',    
+    'PyQt5',
     # 'fabio',
     # 'pytango',
     # 'pydoocs',
-    # 'pil',
+    # 'pillow',
     # 'hidra',
-    # 'PyQt4',
-    # 'nxstools',
-    # 'requests',
-    # 'pni',
     # 'pninexus',
+    # 'nxstools',
 ]
 
-extra_require = [
-    
-]
 
 class toolBuild(build_py):
     """ ui and qrc builder for python
