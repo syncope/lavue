@@ -101,7 +101,9 @@ To install it from pip you need to install pyqt5 in advance, e.g.
    $ pip install pyqt5
    $ pip install lavue
 
-Moreover it is good to install the following python packages:
+Moreover it is also good to install the following python packages:
+
+.. code-block:: console
 
    $ pip install fabio
    $ pip install pillow
