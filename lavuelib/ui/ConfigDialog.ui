@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>862</width>
-    <height>557</height>
+    <height>583</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -918,7 +918,7 @@
        </widget>
        <widget class="QWidget" name="sourceTab">
         <attribute name="title">
-         <string>Image Sources</string>
+         <string>Hidra/HTTP/ZMQ/NeXus Image Sources</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_13">
          <item row="6" column="0">
@@ -1091,6 +1091,29 @@
                 </property>
                 <property name="buddy">
                  <cstring>hidraportLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="defdetserversLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;use default hadcoded detector server names dedicated for DESY beamlines&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Use default detector servers:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>defdetserversCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" colspan="2">
+               <widget class="QCheckBox" name="defdetserversCheckBox">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;use default hadcoded detector server names dedicated for DESY beamlines&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
                 </property>
                </widget>
               </item>
@@ -1363,7 +1386,7 @@ in the file name and the file directory for Tango File Source</string>
        </widget>
        <widget class="QWidget" name="filterTab">
         <attribute name="title">
-         <string>Filters</string>
+         <string>Filter Plugins</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_18">
          <item row="0" column="0">
@@ -1439,6 +1462,7 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>timeoutLineEdit</tabstop>
   <tabstop>detserversLineEdit</tabstop>
   <tabstop>hidraportLineEdit</tabstop>
+  <tabstop>defdetserversCheckBox</tabstop>
   <tabstop>urlsLineEdit</tabstop>
   <tabstop>zmqserversLineEdit</tabstop>
   <tabstop>autozmqtopicsCheckBox</tabstop>
@@ -1450,6 +1474,7 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>fileattrLineEdit</tabstop>
   <tabstop>dirattrLineEdit</tabstop>
   <tabstop>dirtransLineEdit</tabstop>
+  <tabstop>doocspropLineEdit</tabstop>
   <tabstop>filterButtonBox</tabstop>
   <tabstop>filterTableWidget</tabstop>
  </tabstops>

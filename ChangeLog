@@ -1,3 +1,12 @@
+2019-10-11 Jan Kotanski <jan.kotanski@desy.de>
+	* add posibility to switch off default hidra detector server list
+	* fix for disable Start button just after initialization
+	* tagged as 2.17.0
+
+2019-10-10 Jan Kotanski <jan.kotanski@desy.de>
+	* updateLayout of sourceGroupBox on lavue start
+	* tagged as 2.16.3
+
 2019-10-10 Jan Kotanski <jan.kotanski@desy.de>
 	* update README
 	* tagged as 2.16.2
