@@ -571,7 +571,7 @@ class HidraSourceWidget(BaseSourceWidget):
                 self.__sortedserverlist.extend(self.__serverdict[bl])
         self.__sortedserverlist.extend(self.__serverdict["pool"])
         self.__sortedserverlist = sorted(self.__sortedserverlist)
-        
+
     def connectWidget(self):
         """ connects widget
         """

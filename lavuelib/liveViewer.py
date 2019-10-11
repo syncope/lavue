@@ -567,7 +567,7 @@ class LiveViewer(QtGui.QDialog):
                 defpool = set(serverdict["pool"])
                 defpool.update(self.__settings.detservers)
                 serverdict["pool"] = list(defpool)
-            else:    
+            else:
                 serverdict = {"pool": list(self.__settings.detservers)}
         elif self.__settings.defdetservers:
             serverdict = HIDRASERVERLIST

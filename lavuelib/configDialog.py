@@ -519,7 +519,7 @@ class ConfigDialog(QtGui.QDialog):
         self.showallrois = self.__ui.showallroisCheckBox.isChecked()
         self.sourcedisplay = self.__ui.sourcedisplayCheckBox.isChecked()
         self.defdetservers = self.__ui.defdetserversCheckBox.isChecked()
-        
+
         try:
             dirtrans = str(self.__ui.dirtransLineEdit.text()).strip()
             mytr = json.loads(dirtrans)
