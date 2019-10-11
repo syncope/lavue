@@ -143,6 +143,8 @@ class Settings(object):
         self.nxslast = False
         #: (:obj:`list` < :obj:`str`>) hidra detector server list
         self.detservers = []
+        #: (:obj:`bool`) use default detector servers
+        self.defdetservers = True
         #: (:obj:`bool`) store detector geometry
         self.storegeometry = False
         #: (:obj:`bool`) fetch geometry from source
@@ -411,6 +413,12 @@ class Settings(object):
         if qstval:
             self.detservers = [str(tp) for tp in qstval]
 
+        qstval = str(
+            settings.value(
+                "Configuration/HidraDefaultDetectorServers", type=str))
+        if qstval.lower() == "false":
+            self.defdetservers = False
+
         qstval = str(settings.value(
             "Configuration/AutoZMQStreamTopics", type=str))
         if qstval.lower() == "true":
@@ -615,6 +623,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/HidraDetectorServers",
             self.detservers)
+        settings.setValue(
+            "Configuration/HidraDefaultDetectorServers",
+            self.defdetservers)
         settings.setValue(
             "Configuration/AutoZMQStreamTopics",
             self.autozmqtopics)

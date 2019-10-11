@@ -109,6 +109,8 @@ class ConfigDialog(QtGui.QDialog):
 
         #: (:obj:`list` < :obj:`str`>) hidra detector server list
         self.detservers = []
+        #: (:obj:`bool`) use default detector servers
+        self.defdetservers = True
 
         #: (:obj:`list` < :obj:`str`>) list of topics for ZMQ stream source
         self.zmqtopics = []
@@ -232,6 +234,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.timeoutLineEdit.setText(str(self.timeout))
         self.__ui.zmqtopicsLineEdit.setText(" ".join(self.zmqtopics))
         self.__ui.detserversLineEdit.setText(" ".join(self.detservers))
+        self.__ui.defdetserversCheckBox.setChecked(self.defdetservers)
         self.__ui.autozmqtopicsCheckBox.setChecked(self.autozmqtopics)
         self.__ui.interruptCheckBox.setChecked(self.interruptonerror)
         self.__ui.dirtransLineEdit.setText(self.dirtrans)
@@ -515,7 +518,8 @@ class ConfigDialog(QtGui.QDialog):
         self.sendrois = self.__ui.sendroisCheckBox.isChecked()
         self.showallrois = self.__ui.showallroisCheckBox.isChecked()
         self.sourcedisplay = self.__ui.sourcedisplayCheckBox.isChecked()
-
+        self.defdetservers = self.__ui.defdetserversCheckBox.isChecked()
+        
         try:
             dirtrans = str(self.__ui.dirtransLineEdit.text()).strip()
             mytr = json.loads(dirtrans)

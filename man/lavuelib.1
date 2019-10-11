@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Oct 08, 2019" "2.16" "lavuelib"
+.TH "LAVUELIB" "1" "Oct 11, 2019" "2.17" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -154,6 +154,39 @@ $ apt\-get install python3\-lavue
 .UNINDENT
 .sp
 for python 3 version. Please notice that \fI\%HiDRA\fP is not available for python 3 yet.
+.SS From pip
+.sp
+To install it from pip you need to install pyqt5 in advance, e.g.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ python3 \-m venv myvenv
+$ . myvenv/bin/activate
+
+$ pip install pyqt5
+
+$ pip install lavue
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Moreover it is also good to install the following python packages:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ pip install fabio
+$ pip install pillow
+$ pip install lavuefilters
+$ pip install pytango
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
 .SH START THE VIEWER
 .sp
 To start LaVue
@@ -459,6 +492,11 @@ updates class variables with the form content
 .TP
 .B createGUI()
 create GUI
+.UNINDENT
+.INDENT 7.0
+.TP
+.B defdetservers = None
+(\fI\%bool\fP) use default detector servers
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9146,6 +9184,11 @@ custom gradients
 .B Return type
 \fI\%dict\fP <\fI\%str\fP, \fIany\fP>
 .UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B defdetservers = None
+(\fI\%bool\fP) use default detector servers
 .UNINDENT
 .INDENT 7.0
 .TP

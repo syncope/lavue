@@ -31,6 +31,7 @@ from __future__ import unicode_literals
 
 
 import time
+import socket
 import json
 from .qtuic import uic
 import numpy as np
@@ -186,6 +187,8 @@ class LiveViewer(QtGui.QDialog):
         self.__updatehisto = False
         #: (:obj:`int`) program pid
         self.__apppid = os.getpid()
+        #: (:obj:`str`) host name
+        self.__targetname = socket.getfqdn()
 
         #: (:obj:`list` < :obj:`str` > ) allowed source metadata
         self.__allowedmdata = ["datasources"]
@@ -559,9 +562,17 @@ class LiveViewer(QtGui.QDialog):
 
     def __updateSource(self):
         if self.__settings.detservers:
-            serverdict = {"pool": list(self.__settings.detservers)}
-        else:
+            if self.__settings.defdetservers:
+                serverdict = dict(HIDRASERVERLIST)
+                defpool = set(serverdict["pool"])
+                defpool.update(self.__settings.detservers)
+                serverdict["pool"] = list(defpool)
+            else:    
+                serverdict = {"pool": list(self.__settings.detservers)}
+        elif self.__settings.defdetservers:
             serverdict = HIDRASERVERLIST
+        else:
+            serverdict = {"pool": []}
         self.__sourcewg.updateMetaData(
             zmqtopics=self.__settings.zmqtopics,
             dirtrans=self.__settings.dirtrans,
@@ -714,26 +725,7 @@ class LiveViewer(QtGui.QDialog):
         self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling)
         self.__imagewg.setROIsColors(self.__settings.roiscolors)
 
-        if self.__settings.detservers:
-            serverdict = {"pool": list(self.__settings.detservers)}
-        else:
-            serverdict = HIDRASERVERLIST
-        self.__sourcewg.updateMetaData(
-            zmqtopics=self.__settings.zmqtopics,
-            dirtrans=self.__settings.dirtrans,
-            tangoattrs=self.__settings.tangoattrs,
-            tangoevattrs=self.__settings.tangoevattrs,
-            tangofileattrs=self.__settings.tangofileattrs,
-            tangodirattrs=self.__settings.tangodirattrs,
-            zmqservers=self.__settings.zmqservers,
-            httpurls=self.__settings.httpurls,
-            autozmqtopics=self.__settings.autozmqtopics,
-            nxslast=self.__settings.nxslast,
-            nxsopen=self.__settings.nxsopen,
-            serverdict=serverdict,
-            hidraport=self.__settings.hidraport,
-            doocsprops=self.__settings.doocsprops
-        )
+        self.__updateSource()
 
         self.__statswg.changeView(self.__settings.showstats)
         self.__levelswg.changeView(
@@ -1068,6 +1060,10 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.geometryfromsource = self.__settings.geometryfromsource
         cnfdlg.roiscolors = self.__settings.roiscolors
         cnfdlg.sourcedisplay = self.__settings.sourcedisplay
+        cnfdlg.defdetservers = self.__settings.defdetservers
+        cnfdlg.detservers = self.__mergeDetServers(
+            HIDRASERVERLIST if cnfdlg.defdetservers else {"pool": []},
+            self.__settings.detservers)
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
@@ -1203,8 +1199,14 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.zmqtopics != dialog.zmqtopics:
             self.__settings.zmqtopics = dialog.zmqtopics
             setsrc = True
-        if self.__settings.detservers != dialog.detservers:
-            self.__settings.detservers = dialog.detservers
+        if self.__settings.defdetservers != dialog.defdetservers:
+            self.__settings.defdetservers = dialog.defdetservers
+            setsrc = True
+        detservers = self.__retrieveUserDetServers(
+            HIDRASERVERLIST if dialog.defdetservers else {"pool": []},
+            dialog.detservers)
+        if self.__settings.detservers != detservers:
+            self.__settings.detservers = detservers
             setsrc = True
         if self.__settings.autozmqtopics != dialog.autozmqtopics:
             self.__settings.autozmqtopics = dialog.autozmqtopics
@@ -1241,6 +1243,44 @@ class LiveViewer(QtGui.QDialog):
 
         if replot:
             self._plot()
+
+    def __mergeDetServers(self, detserverdict, detserverlist):
+        """ merges detector servers from
+        a dictionary and a list
+
+        :param detserverdict: detector server dictionary
+        :type detserverdict: :obj:`dict` <:obj:`str`, :obj:`list`<:obj:`str`>>
+        :param detserverklist: detector server list
+        :type detserverlist: :obj:`list` < :obj:`str`>
+        :returns: merged detector server list
+        :rtype: :obj:`list` < :obj:`str`>
+
+        """
+        servers = set(detserverdict["pool"])
+        if self.__targetname in detserverdict.keys():
+            servers.update(detserverdict[self.__targetname])
+        if detserverlist:
+            servers.update(detserverlist)
+        return list(servers)
+
+    def __retrieveUserDetServers(self, detserverdict, detserverlist):
+        """ retrives user detector servers from a list
+             which are not in a dictionary
+
+        :param detserverdict: detector server dictionary
+        :type detserverdict: :obj:`dict` <:obj:`str`, :obj:`list`<:obj:`str`>>
+        :param detserverklist: detector server list
+        :type detserverlist: :obj:`list` < :obj:`str`>
+        :returns: user detector server list
+        :rtype: :obj:`list` < :obj:`str`>
+        """
+        servers = []
+        if detserverlist:
+            defservers = set(detserverdict["pool"])
+            if self.__targetname in detserverdict.keys():
+                defservers.update(detserverdict[self.__targetname])
+            servers = list(set(detserverlist) - defservers)
+        return list(servers)
 
     @QtCore.pyqtSlot(str)
     def _setSourceConfiguration(self, sourceConfiguration):
