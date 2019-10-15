@@ -1,3 +1,7 @@
+2019-10-15 Jan Kotanski <jan.kotanski@desy.de>
+	* add requests to dependences
+	* tagged as 2.17.1
+
 2019-10-11 Jan Kotanski <jan.kotanski@desy.de>
 	* add posibility to switch off default hidra detector server list
 	* fix for disable Start button just after initialization
