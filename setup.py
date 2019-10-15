@@ -88,6 +88,7 @@ install_requires = [
     'scipy',
     'h5py',
     'pytz',
+    'requests',
     # 'pyside',
     # 'pyqt5',
     # 'fabio',
