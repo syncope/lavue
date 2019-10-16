@@ -115,8 +115,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "-s", "--source", dest="source",
         help="image source, i.e. hidra, http, tangoattr,\n"
-        "    tangofile, zmq, nxsfile, test")
-
+        "    tangofile, doocsprop, zmq, nxsfile, test")
+    parser.add_argument(
+        "-w", "--source-widgets", dest="sourcewgs",
+        help="list of image source widgets separated by commas "
+        "to be placed in combobox,
+        i.e. hidra,http,tangoattr,"
+        "tangofile,doocsprop,zmq,nxsfile,test")
     parser.add_argument(
         "-c", "--configuration", dest="configuration",
         help="configuration strings for the image source separated by comma"
@@ -127,6 +132,7 @@ if __name__ == "__main__":
         "  tangofile -> '-c p00/plt/1/LastImageTaken,p00/plt/1/"
         "LastImagePath'\n"
         "  zmq -> '-c haso228:5535,topic'\n"
+        "  doocsprop -> '-c TTF2.FEL/BLFW2.CAM/BL0M1.CAM/IMAGE_EXT'\n"
         "  nxsfile -> '-c /tmp/myfile.nxs://entry/data/pilatus'\n"
     )
     parser.add_argument(
@@ -185,6 +191,12 @@ if __name__ == "__main__":
         "-u", "--tool", dest="tool",
         help="utility tool, i.e. intensity, roi, movemotors, meshscan,\n"
         "  linecut, projections, 1d-plot, angle/q, q+roi+proj"
+    )
+    parser.add_argument(
+        "-o", "--tool-widgets", dest="toolwgs",
+        help="list of utility tools separated by comma to place in combobox, "
+        "i.e. intensity,roi,movemotors,meshscan,\n"
+        "linecut,projections,1d-plot,angle/q,q+roi+proj"
     )
     parser.add_argument(
         "-a", "--tango-device", dest="tangodevice",

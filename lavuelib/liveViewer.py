@@ -143,6 +143,34 @@ class LiveViewer(QtGui.QDialog):
         QtGui.QDialog.__init__(self, parent)
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
+        if options.mode and options.mode.lower() in ["expert"]:
+            #: (:obj:`str`) execution mode: expert or user
+            self.__umode = "expert"
+        else:
+            #: (:obj:`str`) execution mode: expert or user
+            self.__umode = "user"
+        #: (:obj:`bool`) histogram should be updated
+        self.__updatehisto = False
+        #: (:obj:`int`) program pid
+        self.__apppid = os.getpid()
+        #: (:obj:`str`) host name
+        self.__targetname = socket.getfqdn()
+
+        #: (:obj:`list` < :obj:`str` > ) allowed source metadata
+        self.__allowedmdata = ["datasources"]
+        #: (:obj:`list` < :obj:`str` > ) allowed widget metadata
+        self.__allowedwgdata = ["axisscales", "axislabels"]
+
+        # (:class:`lavuelib.imageSource.BaseSource`) data source object
+        self.__datasource = isr.BaseSource()
+
+        #: (:class:`lavuelib.sardanaUtils.SardanaUtils`)
+        #:  sardana utils
+        self.__sardana = None
+
+        #: (:class:`lavuelib.settings.Settings`) settings
+        self.__settings = settings.Settings()
+
         #: (:obj:`list` < :obj:`str` > ) source class names
         self.__sourcetypes = []
         if isr.HIDRA:
@@ -176,34 +204,6 @@ class LiveViewer(QtGui.QDialog):
         #: (:obj:`list` < :obj:`str` > ) rgb tool class names
         self.__rgbtooltypes = []
         self.__rgbtooltypes.append("RGBIntensityToolWidget")
-
-        if options.mode and options.mode.lower() in ["expert"]:
-            #: (:obj:`str`) execution mode: expert or user
-            self.__umode = "expert"
-        else:
-            #: (:obj:`str`) execution mode: expert or user
-            self.__umode = "user"
-        #: (:obj:`bool`) histogram should be updated
-        self.__updatehisto = False
-        #: (:obj:`int`) program pid
-        self.__apppid = os.getpid()
-        #: (:obj:`str`) host name
-        self.__targetname = socket.getfqdn()
-
-        #: (:obj:`list` < :obj:`str` > ) allowed source metadata
-        self.__allowedmdata = ["datasources"]
-        #: (:obj:`list` < :obj:`str` > ) allowed widget metadata
-        self.__allowedwgdata = ["axisscales", "axislabels"]
-
-        # (:class:`lavuelib.imageSource.BaseSource`) data source object
-        self.__datasource = isr.BaseSource()
-
-        #: (:class:`lavuelib.sardanaUtils.SardanaUtils`)
-        #:  sardana utils
-        self.__sardana = None
-
-        #: (:class:`lavuelib.settings.Settings`) settings
-        self.__settings = settings.Settings()
 
         #: (:class:`lavuelib.controllerClient.ControllerClient`)
         #:   tango controller client
