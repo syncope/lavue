@@ -155,6 +155,12 @@ class Settings(object):
         #: (:obj:`str`) json list with filters
         self.filters = "[]"
 
+        #: (:obj:`list` < :obj:`str`>) list with image source widget names
+        self.imagesources = []
+
+        #: (:obj:`list` < :obj:`str`>) list with tool widget names
+        self.toolwidgets = []
+
         #: (:obj:`float`) x-coordinates of the center of the image
         self.centerx = 0.0
         #: (:obj:`float`) y-coordinates of the center of the image
@@ -403,6 +409,18 @@ class Settings(object):
 
         qstval = \
             settings.value(
+                "Configuration/ImageSources", type=str)
+        if qstval:
+            self.imagesources = [str(tp) for tp in qstval]
+
+        qstval = \
+            settings.value(
+                "Configuration/ToolWidgets", type=str)
+        if qstval:
+            self.imagesources = [str(tp) for tp in qstval]
+
+        qstval = \
+            settings.value(
                 "Configuration/ZMQStreamTopics", type=str)
         if qstval:
             self.zmqtopics = [str(tp) for tp in qstval]
@@ -617,6 +635,12 @@ class Settings(object):
         settings.setValue(
             "Configuration/StatisticsWithoutScaling",
             self.statswoscaling)
+        settings.setValue(
+            "Configuration/ImageSources",
+            self.imagesources)
+        settings.setValue(
+            "Configuration/ToolWidgets",
+            self.toolwidgets)
         settings.setValue(
             "Configuration/ZMQStreamTopics",
             self.zmqtopics)
