@@ -73,8 +73,8 @@ def sftimer():
     QtCore.QTimer.singleShot(500, timerEvent)
 
 
-# def main():
-if __name__ == "__main__":
+def main():
+    global dialog
     """ the main function
     """
 
@@ -250,5 +250,5 @@ if __name__ == "__main__":
     gc.collect()
     sys.exit(status)
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()

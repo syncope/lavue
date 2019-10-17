@@ -70,8 +70,30 @@ _doocspropformclass, _doocspropbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "DOOCSPropSourceWidget.ui"))
 
+#: ( :obj:`dict` < :obj:`str`, any > ) source widget properties
+swproperties = [
+    {'name': 'hidra', 'widget': 'HidraSourceWidget',
+     'requires': ("HIDRA",)},
+    {'name': 'http', 'widget': 'HTTPSourceWidget',
+     'requires': ("REQUESTS",)},
+    {'name': 'tangoattr', 'widget': 'TangoAttrSourceWidget',
+     'requires': ("PYTANGO",)},
+    {'name': 'tangoevents', 'widget': 'TangoEventsSourceWidget',
+     'requires': ("PYTANGO",)},
+    {'name': 'tangofile', 'widget': 'TangoFileSourceWidget',
+     'requires': ("PYTANGO",)},
+    {'name': 'doocsprop', 'widget': 'DOOCSPropSourceWidget',
+     'requires': ("PYDOOCS",)},
+    {'name': 'zmqsource', 'widget': 'ZMQSourceWidget',
+     'requires': ()},
+    {'name': 'nxsfile', 'widget': 'NXSFileSourceWidget',
+     'requires': ()},
+    {'name': 'test', 'widget': 'TestSourceWidget',
+     'requires': ()},
+]
 
-class BaseSourceWidget(QtGui.QWidget):
+
+class SourceBaseWidget(QtGui.QWidget):
 
     """ general source widget """
 
@@ -110,7 +132,7 @@ class BaseSourceWidget(QtGui.QWidget):
         self.expertmode = False
         #: (:obj:`bool`) source widget connected
         self._connected = False
-        #: (:class:`Ui_BaseSourceWidget')
+        #: (:class:`Ui_SourceBaseWidget')
         #:     ui_sourcewidget object from qtdesigner
         self._ui = None
         #: (:obj:`bool`) source widget detached
@@ -273,7 +295,7 @@ class BaseSourceWidget(QtGui.QWidget):
         self._connectComboBox(combobox)
 
 
-class TestSourceWidget(BaseSourceWidget):
+class TestSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
@@ -283,7 +305,7 @@ class TestSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _testformclass()
         self._ui.setupUi(self)
@@ -291,7 +313,7 @@ class TestSourceWidget(BaseSourceWidget):
         self._detachWidgets()
 
 
-class FixTestSourceWidget(BaseSourceWidget):
+class FixTestSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
@@ -301,7 +323,7 @@ class FixTestSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
         #: (:obj:`str`) source name
         self.name = "Fix Test"
         #: (:obj:`str`) datasource class name
@@ -313,7 +335,7 @@ class FixTestSourceWidget(BaseSourceWidget):
         self._detachWidgets()
 
 
-class HTTPSourceWidget(BaseSourceWidget):
+class HTTPSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
@@ -323,7 +345,7 @@ class HTTPSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _httpformclass()
         self._ui.setupUi(self)
@@ -455,7 +477,7 @@ class HTTPSourceWidget(BaseSourceWidget):
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
-class HidraSourceWidget(BaseSourceWidget):
+class HidraSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
@@ -465,7 +487,7 @@ class HidraSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _hidraformclass()
         self._ui.setupUi(self)
@@ -609,7 +631,7 @@ class HidraSourceWidget(BaseSourceWidget):
             return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
-class TangoAttrSourceWidget(BaseSourceWidget):
+class TangoAttrSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
@@ -619,7 +641,7 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _tangoattrformclass()
         self._ui.setupUi(self)
@@ -746,7 +768,7 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
-class TangoEventsSourceWidget(BaseSourceWidget):
+class TangoEventsSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
@@ -756,7 +778,7 @@ class TangoEventsSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _tangoeventsformclass()
         self._ui.setupUi(self)
@@ -884,7 +906,7 @@ class TangoEventsSourceWidget(BaseSourceWidget):
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
-class TangoFileSourceWidget(BaseSourceWidget):
+class TangoFileSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
@@ -894,7 +916,7 @@ class TangoFileSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _tangofileformclass()
         self._ui.setupUi(self)
@@ -1096,7 +1118,7 @@ class TangoFileSourceWidget(BaseSourceWidget):
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
-class NXSFileSourceWidget(BaseSourceWidget):
+class NXSFileSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
@@ -1106,7 +1128,7 @@ class NXSFileSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _nxsfileformclass()
         self._ui.setupUi(self)
@@ -1281,7 +1303,7 @@ class NXSFileSourceWidget(BaseSourceWidget):
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
-class ZMQSourceWidget(BaseSourceWidget):
+class ZMQSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
@@ -1291,7 +1313,7 @@ class ZMQSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _zmqformclass()
         self._ui.setupUi(self)
@@ -1527,7 +1549,7 @@ class ZMQSourceWidget(BaseSourceWidget):
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
-class DOOCSPropSourceWidget(BaseSourceWidget):
+class DOOCSPropSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
@@ -1537,7 +1559,7 @@ class DOOCSPropSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _doocspropformclass()
         self._ui.setupUi(self)

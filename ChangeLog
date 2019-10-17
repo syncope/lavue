@@ -1,4 +1,9 @@
 2019-10-17 Jan Kotanski <jan.kotanski@desy.de>
+	* add selection of image source widgets
+	* add selection of tool widgets
+	* tagged as 2.18.0
+
+2019-10-17 Jan Kotanski <jan.kotanski@desy.de>
 	* catch expceptions from getHistogram
 	* tagged as 2.17.2
 

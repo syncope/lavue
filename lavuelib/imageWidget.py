@@ -218,6 +218,7 @@ class ImageWidget(QtGui.QWidget):
             self._emitMouseImageDoubleClicked)
         self.__displaywidget.mouseImageSingleClicked.connect(
             self._emitMouseImageSingleClicked)
+        self.__sardana = None
 
         self.__connectsplitters()
 

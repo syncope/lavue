@@ -76,7 +76,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         #: (:obj:`bool`) if image source connected
         self.__connected = False
 
-        #: (:class:`lavuelib.sourceWidget.BaseSourceWidget`)
+        #: (:class:`lavuelib.sourceWidget.SourceBaseWidget`)
         #:      current source widget
         self.__currentSource = None
 
@@ -90,7 +90,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         #: (:obj:`list` < :obj:`str` > ) source names
         self.__sourcenames = []
         #: (:obj:`dict` < :obj:`str`,
-        #:      :class:`lavuelib.sourceWidget.BaseSourceWidget` >)
+        #:      :class:`lavuelib.sourceWidget.SourceBaseWidget` >)
         #:           source names
         self.__sourcewidgets = {}
         # (:obj:`str`) error status

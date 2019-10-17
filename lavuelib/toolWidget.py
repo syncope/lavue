@@ -85,6 +85,30 @@ _qroiprojformclass, _qroiprojbaseclass = uic.loadUiType(
                  "ui", "QROIProjToolWidget.ui"))
 
 
+#  projections, q+roi+pro
+#: ( :obj:`dict` < :obj:`str`, any > ) source widget properties
+twproperties = [
+    {'name': 'intensity', 'widget': 'IntensityToolWidget',
+     'requires': ()},
+    {'name': 'roi', 'widget': 'ROIToolWidget',
+     'requires': ()},
+    {'name': 'linecut', 'widget': 'LineCutToolWidget',
+     'requires': ()},
+    {'name': 'angle/q', 'widget': 'AngleQToolWidget',
+     'requires': ()},
+    {'name': 'movemotors', 'widget': 'MotorsToolWidget',
+     'requires': ("PYTANGO",)},
+    {'name': 'meshscan', 'widget': 'MeshToolWidget',
+     'requires': ("PYTANGO",)},
+    {'name': '1d-plot', 'widget': 'OneDToolWidget',
+     'requires': ()},
+    {'name': 'projections', 'widget': 'ProjectionToolWidget',
+     'requires': ()},
+    {'name': 'maxima', 'widget': 'MaximaToolWidget',
+     'requires': ()},
+]
+
+
 class ToolParameters(object):
     """ tool parameters
     """

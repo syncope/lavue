@@ -107,8 +107,8 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`bool`) lazy image slider
         self.lazyimageslider = False
 
-        #: (:obj:`list` < :obj:`str`>) hidra detector server list
-        self.detservers = []
+        #: (:obj:`str`) json hidra detector server list
+        self.detservers = "[]"
         #: (:obj:`bool`) use default detector servers
         self.defdetservers = True
 
@@ -233,7 +233,8 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.showlevelsCheckBox.setChecked(self.showlevels)
         self.__ui.timeoutLineEdit.setText(str(self.timeout))
         self.__ui.zmqtopicsLineEdit.setText(" ".join(self.zmqtopics))
-        self.__ui.detserversLineEdit.setText(" ".join(self.detservers))
+        self.__ui.detserversLineEdit.setText(
+            " ".join(json.loads(self.detservers)))
         self.__ui.defdetserversCheckBox.setChecked(self.defdetservers)
         self.__ui.autozmqtopicsCheckBox.setChecked(self.autozmqtopics)
         self.__ui.interruptCheckBox.setChecked(self.interruptonerror)
@@ -598,7 +599,7 @@ class ConfigDialog(QtGui.QDialog):
             self.__ui.detserversLineEdit.text()).strip().split(" ")
         self.autozmqtopics = self.__ui.autozmqtopicsCheckBox.isChecked()
         self.interruptonerror = self.__ui.interruptCheckBox.isChecked()
-        self.detservers = [ds for ds in detservers if ds]
+        self.detservers = json.dumps([ds for ds in detservers if ds])
         try:
             self.timeout = int(self.__ui.timeoutLineEdit.text())
         except Exception:

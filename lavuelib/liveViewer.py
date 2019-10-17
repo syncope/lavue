@@ -47,6 +47,8 @@ from . import imageSource as isr
 from . import messageBox
 
 from . import sourceGroupBox
+from . import toolWidget
+from . import sourceWidget
 from . import preparationGroupBox
 from . import scalingGroupBox
 from . import levelsGroupBox
@@ -170,37 +172,63 @@ class LiveViewer(QtGui.QDialog):
 
         #: (:class:`lavuelib.settings.Settings`) settings
         self.__settings = settings.Settings()
+        self.__settings.load(QtCore.QSettings())
+
+        #: ( :obj:`dict` < :obj:`str`, any > ) source widget properties
+        self.__swproperties = []
+
+        imgsrcnames = set()
+        for wp in sourceWidget.swproperties:
+            avail = True
+            for req in wp["requires"]:
+                if not getattr(isr, req):
+                    avail = False
+                    break
+            if avail:
+                self.__swproperties.append(dict(wp))
+                imgsrcnames.add(wp["name"])
+
+        imgsrcs = []
+        [imgsrcs.append(isn)
+         for isn in json.loads(self.__settings.imagesources)
+         if (isn in imgsrcnames and isn not in imgsrcs)]
+        if not imgsrcs:
+            imgsrcs = list(imgsrcnames)
 
         #: (:obj:`list` < :obj:`str` > ) source class names
         self.__sourcetypes = []
-        if isr.HIDRA:
-            self.__sourcetypes.append("HidraSourceWidget")
-        if isr.REQUESTS:
-            self.__sourcetypes.append("HTTPSourceWidget")
-        if isr.PYTANGO:
-            self.__sourcetypes.append("TangoAttrSourceWidget")
-            self.__sourcetypes.append("TangoEventsSourceWidget")
-            self.__sourcetypes.append("TangoFileSourceWidget")
-        if isr.PYDOOCS:
-            self.__sourcetypes.append("DOOCSPropSourceWidget")
-        self.__sourcetypes.append("ZMQSourceWidget")
-        self.__sourcetypes.append("NXSFileSourceWidget")
-        self.__sourcetypes.append("TestSourceWidget")
-        # self.__sourcetypes.append("FixTestSourceWidget")
+        for wp in self.__swproperties:
+            if wp["name"] in imgsrcs:
+                self.__sourcetypes.append(wp["widget"])
+
+        #: ( :obj:`dict` < :obj:`str`, any > ) tool widget properties
+        self.__twproperties = []
+
+        tlwgnames = set()
+        for wp in toolWidget.twproperties:
+            avail = True
+            for req in wp["requires"]:
+                if not getattr(isr, req):
+                    avail = False
+                    break
+            if avail:
+                self.__twproperties.append(dict(wp))
+                tlwgnames.add(wp["name"])
+
+        tlwgs = []
+        [tlwgs.append(twn)
+         for twn in json.loads(self.__settings.toolwidgets)
+         if (twn in tlwgnames and twn not in tlwgs)]
+        if not tlwgs:
+            tlwgs = list(tlwgnames)
 
         #: (:obj:`list` < :obj:`str` > ) tool class names
         self.__tooltypes = []
-        self.__tooltypes.append("IntensityToolWidget")
-        self.__tooltypes.append("ROIToolWidget")
-        self.__tooltypes.append("LineCutToolWidget")
-        self.__tooltypes.append("AngleQToolWidget")
-        if isr.PYTANGO:
-            self.__tooltypes.append("MotorsToolWidget")
-            self.__tooltypes.append("MeshToolWidget")
-        self.__tooltypes.append("OneDToolWidget")
-        self.__tooltypes.append("ProjectionToolWidget")
-        self.__tooltypes.append("MaximaToolWidget")
-        self.__tooltypes.append("QROIProjToolWidget")
+
+        for wp in self.__twproperties:
+            if wp["name"] in tlwgs:
+                self.__tooltypes.append(wp["widget"])
+
         #: (:obj:`list` < :obj:`str` > ) rgb tool class names
         self.__rgbtooltypes = []
         self.__rgbtooltypes.append("RGBIntensityToolWidget")
@@ -561,14 +589,15 @@ class LiveViewer(QtGui.QDialog):
             self._storeSettings()
 
     def __updateSource(self):
-        if self.__settings.detservers:
+        detservers = json.loads(self.__settings.detservers)
+        if detservers:
             if self.__settings.defdetservers:
                 serverdict = dict(HIDRASERVERLIST)
                 defpool = set(serverdict["pool"])
-                defpool.update(self.__settings.detservers)
+                defpool.update(detservers)
                 serverdict["pool"] = list(defpool)
             else:
-                serverdict = {"pool": list(self.__settings.detservers)}
+                serverdict = {"pool": list(detservers)}
         elif self.__settings.defdetservers:
             serverdict = HIDRASERVERLIST
         else:
@@ -1041,7 +1070,6 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.lazyimageslider = self.__settings.lazyimageslider
         cnfdlg.statswoscaling = self.__settings.statswoscaling
         cnfdlg.zmqtopics = self.__settings.zmqtopics
-        cnfdlg.detservers = self.__settings.detservers
         cnfdlg.autozmqtopics = self.__settings.autozmqtopics
         cnfdlg.interruptonerror = self.__settings.interruptonerror
         cnfdlg.dirtrans = self.__settings.dirtrans
@@ -1061,9 +1089,9 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.roiscolors = self.__settings.roiscolors
         cnfdlg.sourcedisplay = self.__settings.sourcedisplay
         cnfdlg.defdetservers = self.__settings.defdetservers
-        cnfdlg.detservers = self.__mergeDetServers(
+        cnfdlg.detservers = json.dumps(self.__mergeDetServers(
             HIDRASERVERLIST if cnfdlg.defdetservers else {"pool": []},
-            self.__settings.detservers)
+            json.loads(self.__settings.detservers)))
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
@@ -1202,9 +1230,9 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.defdetservers != dialog.defdetservers:
             self.__settings.defdetservers = dialog.defdetservers
             setsrc = True
-        detservers = self.__retrieveUserDetServers(
+        detservers = json.dumps(self.__retrieveUserDetServers(
             HIDRASERVERLIST if dialog.defdetservers else {"pool": []},
-            dialog.detservers)
+            json.loads(dialog.detservers)))
         if self.__settings.detservers != detservers:
             self.__settings.detservers = detservers
             setsrc = True
