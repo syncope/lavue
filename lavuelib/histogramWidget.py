@@ -491,8 +491,11 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         hx = None
         hy = None
         if self.autolevelfactor is not None:
-            hx, hy = self.__imageItem().getHistogram(
-                step=self.__step, bins=self.__bins)
+            try:
+                hx, hy = self.__imageItem().getHistogram(
+                    step=self.__step, bins=self.__bins)
+            except Exception as e:
+                print(str(e))
             if hy is not None and hx is not None and hx.any() and hy.any():
                 if abs(hx[0]) < 1.e-3 or abs(hx[0]+2.) < 1.e-3:
                     hx = hx[1:]
@@ -520,8 +523,11 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         hx = None
         hy = None
         if self.autolevelfactor is not None:
-            hx, hy = self.__imageItem().getHistogram(
-                step=self.__step, bins=self.__bins)
+            try:
+                hx, hy = self.__imageItem().getHistogram(
+                    step=self.__step, bins=self.__bins)
+            except Exception as e:
+                print(str(e))
             if hy is not None and hx is not None and hx.any() and hy.any():
                 if abs(hx[0]) < 1.e-3 or abs(hx[0]+2.) < 1.e-3:
                     hhx = hx[1:]
@@ -554,5 +560,5 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
                 mn = h[0][0]
                 mx = h[0][-1]
                 self.region.setRegion([mn, mx])
-        except Exception:
-            pass
+        except Exception as e:
+            print(str(e))
