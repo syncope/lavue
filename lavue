@@ -116,12 +116,12 @@ if __name__ == "__main__":
         "-s", "--source", dest="source",
         help="image source, i.e. hidra, http, tangoattr,\n"
         "    tangofile, doocsprop, zmq, nxsfile, test")
-    parser.add_argument(
-        "-w", "--source-widgets", dest="sourcewgs",
-        help="list of image source widgets separated by commas "
-        "to be placed in combobox,
-        i.e. hidra,http,tangoattr,"
-        "tangofile,doocsprop,zmq,nxsfile,test")
+    # parser.add_argument(
+    #     "-w", "--source-widgets", dest="sourcewgs",
+    #     help="list of image source widgets separated by commas "
+    #     "to be placed in combobox,
+    #     i.e. hidra,http,tangoattr,"
+    #     "tangofile,doocsprop,zmq,nxsfile,test")
     parser.add_argument(
         "-c", "--configuration", dest="configuration",
         help="configuration strings for the image source separated by comma"
@@ -192,12 +192,12 @@ if __name__ == "__main__":
         help="utility tool, i.e. intensity, roi, movemotors, meshscan,\n"
         "  linecut, projections, 1d-plot, angle/q, q+roi+proj"
     )
-    parser.add_argument(
-        "-o", "--tool-widgets", dest="toolwgs",
-        help="list of utility tools separated by comma to place in combobox, "
-        "i.e. intensity,roi,movemotors,meshscan,\n"
-        "linecut,projections,1d-plot,angle/q,q+roi+proj"
-    )
+    # parser.add_argument(
+    #     "-o", "--tool-widgets", dest="toolwgs",
+    #     help="list of utility tools separated by comma to place in combobox, "
+    #     "i.e. intensity,roi,movemotors,meshscan,\n"
+    #     "linecut,projections,1d-plot,angle/q,q+roi+proj"
+    # )
     parser.add_argument(
         "-a", "--tango-device", dest="tangodevice",
         help="tango device name of LavueController to communicate"
