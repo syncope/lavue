@@ -174,61 +174,18 @@ class LiveViewer(QtGui.QDialog):
         self.__settings = settings.Settings()
         self.__settings.load(QtCore.QSettings())
 
-        #: ( :obj:`dict` < :obj:`str`, any > ) source widget properties
-        self.__swproperties = []
-
-        imgsrcnames = set()
-        for wp in sourceWidget.swproperties:
-            avail = True
-            for req in wp["requires"]:
-                if not getattr(isr, req):
-                    avail = False
-                    break
-            if avail:
-                self.__swproperties.append(dict(wp))
-                imgsrcnames.add(wp["name"])
-
-        imgsrcs = []
-        [imgsrcs.append(isn)
-         for isn in json.loads(self.__settings.imagesources)
-         if (isn in imgsrcnames and isn not in imgsrcs)]
-        if not imgsrcs:
-            imgsrcs = list(imgsrcnames)
-
         #: (:obj:`list` < :obj:`str` > ) source class names
         self.__sourcetypes = []
-        for isn in imgsrcs:
-            for wp in self.__swproperties:
-                if wp["name"] == isn:
-                    self.__sourcetypes.append(wp["widget"])
-
-        #: ( :obj:`dict` < :obj:`str`, any > ) tool widget properties
-        self.__twproperties = []
-
-        tlwgnames = set()
-        for wp in toolWidget.twproperties:
-            avail = True
-            for req in wp["requires"]:
-                if not getattr(isr, req):
-                    avail = False
-                    break
-            if avail:
-                self.__twproperties.append(dict(wp))
-                tlwgnames.add(wp["name"])
-
-        tlwgs = []
-        [tlwgs.append(twn)
-         for twn in json.loads(self.__settings.toolwidgets)
-         if (twn in tlwgnames and twn not in tlwgs)]
-        if not tlwgs:
-            tlwgs = list(tlwgnames)
 
         #: (:obj:`list` < :obj:`str` > ) tool class names
         self.__tooltypes = []
-        for twn in tlwgs:
-            for wp in self.__twproperties:
-                if wp["name"] == twn:
-                    self.__tooltypes.append(wp["widget"])
+
+        self.__updateTypeList(
+            self.__settings.imagesources,
+            sourceWidget.swproperties, self.__sourcetypes)
+        self.__updateTypeList(
+            self.__settings.toolwidgets,
+            toolWidget.twproperties, self.__tooltypes)
 
         #: (:obj:`list` < :obj:`str` > ) rgb tool class names
         self.__rgbtooltypes = []
@@ -475,6 +432,33 @@ class LiveViewer(QtGui.QDialog):
 
         if options.tool:
             QtCore.QTimer.singleShot(10, self.__imagewg.showCurrentTool)
+
+    def __updateTypeList(self, widgets, properties, typelist):
+        tlwgnames = []
+        wproperties = []
+        typelist[:] = []
+        for wp in properties:
+            avail = True
+            for req in wp["requires"]:
+                if not getattr(isr, req):
+                    avail = False
+                    break
+            if avail:
+                wproperties.append(dict(wp))
+                if wp["name"] not in tlwgnames:
+                    tlwgnames.append(wp["name"])
+
+        tlwgs = []
+        [tlwgs.append(twn)
+         for twn in json.loads(widgets)
+         if (twn in tlwgnames and twn not in tlwgs)]
+        if not tlwgs:
+            tlwgs = list(tlwgnames)
+
+        for twn in tlwgs:
+            for wp in wproperties:
+                if wp["name"] == twn:
+                    typelist.append(wp["widget"])
 
     def __switchlazysignals(self, lazy=False):
         """switch lazy signals
