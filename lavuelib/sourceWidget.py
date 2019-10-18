@@ -110,6 +110,13 @@ class SourceBaseWidget(QtGui.QWidget):
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) remove Icon Clicked
     removeIconClicked = QtCore.pyqtSignal(str, str)
 
+    #: (:obj:`str`) source name
+    name = "Test"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ()
+    #: (:obj:`str`) datasource class name
+    datasource = "BaseSource"
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -118,10 +125,6 @@ class SourceBaseWidget(QtGui.QWidget):
         """
         QtGui.QWidget.__init__(self, parent)
 
-        #: (:obj:`str`) source name
-        self.name = "Test"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "BaseSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = []
         #: (:obj:`list` <:class:`PyQt5.QtGui.QWidget`>) subwidget objects
@@ -317,6 +320,11 @@ class FixTestSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
+    #: (:obj:`str`) source name
+    name = "Fix Test"
+    #: (:obj:`str`) datasource class name
+    datasource = "FixTestSource"
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -324,10 +332,6 @@ class FixTestSourceWidget(SourceBaseWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         SourceBaseWidget.__init__(self, parent)
-        #: (:obj:`str`) source name
-        self.name = "Fix Test"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "FixTestSource"
 
         self._ui = _testformclass()
         self._ui.setupUi(self)
@@ -338,6 +342,13 @@ class FixTestSourceWidget(SourceBaseWidget):
 class HTTPSourceWidget(SourceBaseWidget):
 
     """ test source widget """
+
+    #: (:obj:`str`) source name
+    name = "HTTP response"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("REQUESTS",)
+    #: (:obj:`str`) datasource class name
+    datasource = "HTTPSource"
 
     def __init__(self, parent=None):
         """ constructor
@@ -350,10 +361,6 @@ class HTTPSourceWidget(SourceBaseWidget):
         self._ui = _httpformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "HTTP response"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "HTTPSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = ["httpLabel", "httpComboBox"]
 
@@ -481,6 +488,13 @@ class HidraSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
+    #: (:obj:`str`) source name
+    name = "Hidra"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("HIDRA",)
+    #: (:obj:`str`) datasource class name
+    datasource = "HiDRASource"
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -492,10 +506,6 @@ class HidraSourceWidget(SourceBaseWidget):
         self._ui = _hidraformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "Hidra"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "HiDRASource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "serverLabel", "serverComboBox",
@@ -635,6 +645,13 @@ class TangoAttrSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
+    #: (:obj:`str`) source name
+    name = "Tango Attribute"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("PYTANGO",)
+    #: (:obj:`str`) datasource class name
+    datasource = "TangoAttrSource"
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -646,10 +663,6 @@ class TangoAttrSourceWidget(SourceBaseWidget):
         self._ui = _tangoattrformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "Tango Attribute"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "TangoAttrSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "attrLabel", "attrComboBox"
@@ -772,6 +785,13 @@ class TangoEventsSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
+    #: (:obj:`str`) source name
+    name = "Tango Events"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("PYTANGO",)
+    #: (:obj:`str`) datasource class name
+    datasource = "TangoEventsSource"
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -783,10 +803,6 @@ class TangoEventsSourceWidget(SourceBaseWidget):
         self._ui = _tangoeventsformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "Tango Events"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "TangoEventsSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "evattrLabel", "evattrComboBox"
@@ -910,6 +926,13 @@ class TangoFileSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
+    #: (:obj:`str`) source name
+    name = "Tango File"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("PYTANGO",)
+    #: (:obj:`str`) datasource class name
+    datasource = "TangoFileSource"
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -921,10 +944,6 @@ class TangoFileSourceWidget(SourceBaseWidget):
         self._ui = _tangofileformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "Tango File"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "TangoFileSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "fileattrLabel", "fileattrComboBox",
@@ -1122,6 +1141,11 @@ class NXSFileSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
+    #: (:obj:`str`) source name
+    name = "NeXus File"
+    #: (:obj:`str`) datasource class name
+    datasource = "NXSFileSource"
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -1133,10 +1157,6 @@ class NXSFileSourceWidget(SourceBaseWidget):
         self._ui = _nxsfileformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "Nexus File"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "NXSFileSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "nxsFileLabel", "nxsFileLineEdit",
@@ -1307,6 +1327,11 @@ class ZMQSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
+    #: (:obj:`str`) source name
+    name = "ZMQ Stream"
+    #: (:obj:`str`) datasource class name
+    datasource = "ZMQSource"
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -1318,10 +1343,6 @@ class ZMQSourceWidget(SourceBaseWidget):
         self._ui = _zmqformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "ZMQ Stream"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "ZMQSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "pickleLabel", "pickleComboBox",
@@ -1553,6 +1574,13 @@ class DOOCSPropSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
+    #: (:obj:`str`) source name
+    name = "DOOCS Property"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("PYDOOCS",)
+    #: (:obj:`str`) datasource class name
+    datasource = "DOOCSPropSource"
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -1564,10 +1592,6 @@ class DOOCSPropSourceWidget(SourceBaseWidget):
         self._ui = _doocspropformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "DOOCS Property"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "DOOCSPropSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "doocspropLabel", "doocspropComboBox"

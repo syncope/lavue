@@ -148,7 +148,7 @@ class ToolParameters(object):
         self.maxima = False
 
 
-class ToolWidget(QtGui.QWidget):
+class ToolBaseWidget(QtGui.QWidget):
     """ tool widget
     """
     def __init__(self, parent=None):
@@ -162,7 +162,7 @@ class ToolWidget(QtGui.QWidget):
         self.name = "None"
         #: (:class:`pyqtgraph.QtCore.QObject`) mainwidget
         self._mainwidget = parent
-        #: (:class:`Ui_ToolWidget')
+        #: (:class:`Ui_ToolBaseWidget')
         #:     ui_toolwidget object from qtdesigner
         self._ui = None
         #: (:class:`ToolParameters`) tool parameters
@@ -196,7 +196,7 @@ class ToolWidget(QtGui.QWidget):
         """
 
 
-class IntensityToolWidget(ToolWidget):
+class IntensityToolWidget(ToolBaseWidget):
     """ intensity tool widget
     """
 
@@ -206,7 +206,7 @@ class IntensityToolWidget(ToolWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        ToolWidget.__init__(self, parent)
+        ToolBaseWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "Intensity"
@@ -304,7 +304,7 @@ class RGBIntensityToolWidget(IntensityToolWidget):
             self._mainwidget.setDisplayedText(message)
 
 
-class MotorsToolWidget(ToolWidget):
+class MotorsToolWidget(ToolBaseWidget):
     """ motors tool widget
     """
 
@@ -314,7 +314,7 @@ class MotorsToolWidget(ToolWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        ToolWidget.__init__(self, parent)
+        ToolBaseWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "MoveMotors"
@@ -602,7 +602,7 @@ class MotorsToolWidget(ToolWidget):
         self._mainwidget.setDisplayedText(message)
 
 
-class MeshToolWidget(ToolWidget):
+class MeshToolWidget(ToolBaseWidget):
     """ mesh tool widget
     """
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi info Changed signal
@@ -614,7 +614,7 @@ class MeshToolWidget(ToolWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        ToolWidget.__init__(self, parent)
+        ToolBaseWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "MeshScan"
@@ -914,7 +914,7 @@ class MeshToolWidget(ToolWidget):
         self._mainwidget.setDisplayedText(message)
 
 
-class ROIToolWidget(ToolWidget):
+class ROIToolWidget(ToolBaseWidget):
     """ roi tool widget
     """
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) apply ROI pressed signal
@@ -930,7 +930,7 @@ class ROIToolWidget(ToolWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        ToolWidget.__init__(self, parent)
+        ToolBaseWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "ROI"
@@ -1146,7 +1146,7 @@ class ROIToolWidget(ToolWidget):
         self.__ui.roiSpinBox.setValue(rid)
 
 
-class LineCutToolWidget(ToolWidget):
+class LineCutToolWidget(ToolBaseWidget):
     """ line-cut tool widget
     """
 
@@ -1156,7 +1156,7 @@ class LineCutToolWidget(ToolWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        ToolWidget.__init__(self, parent)
+        ToolBaseWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "LineCut"
@@ -1354,7 +1354,7 @@ class LineCutToolWidget(ToolWidget):
         self._mainwidget.setDisplayedText(message)
 
 
-class ProjectionToolWidget(ToolWidget):
+class ProjectionToolWidget(ToolBaseWidget):
     """ Projections tool widget
     """
 
@@ -1364,7 +1364,7 @@ class ProjectionToolWidget(ToolWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        ToolWidget.__init__(self, parent)
+        ToolBaseWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "Projections"
@@ -1561,7 +1561,7 @@ class ProjectionToolWidget(ToolWidget):
         self._mainwidget.setDisplayedText(message)
 
 
-class OneDToolWidget(ToolWidget):
+class OneDToolWidget(ToolBaseWidget):
     """ 1d plot tool widget
     """
 
@@ -1571,7 +1571,7 @@ class OneDToolWidget(ToolWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        ToolWidget.__init__(self, parent)
+        ToolBaseWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "1d-Plot"
@@ -1798,7 +1798,7 @@ class OneDToolWidget(ToolWidget):
         self._mainwidget.setDisplayedText(message)
 
 
-class AngleQToolWidget(ToolWidget):
+class AngleQToolWidget(ToolBaseWidget):
     """ angle/q tool widget
     """
 
@@ -1808,7 +1808,7 @@ class AngleQToolWidget(ToolWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        ToolWidget.__init__(self, parent)
+        ToolBaseWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "Angle/Q"
@@ -2454,7 +2454,7 @@ class AngleQToolWidget(ToolWidget):
         )
 
 
-class MaximaToolWidget(ToolWidget):
+class MaximaToolWidget(ToolBaseWidget):
     """ angle/q tool widget
     """
 
@@ -2464,7 +2464,7 @@ class MaximaToolWidget(ToolWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        ToolWidget.__init__(self, parent)
+        ToolBaseWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "Maxima"
@@ -2777,7 +2777,7 @@ class MaximaToolWidget(ToolWidget):
             "Select the display space\n%s" % message)
 
 
-class QROIProjToolWidget(ToolWidget):
+class QROIProjToolWidget(ToolBaseWidget):
     """ angle/q +roi + projections tool widget
     """
 
@@ -2794,7 +2794,7 @@ class QROIProjToolWidget(ToolWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        ToolWidget.__init__(self, parent)
+        ToolBaseWidget.__init__(self, parent)
 
         #: (:obj:`str`) tool name
         self.name = "Q+ROI+Proj"

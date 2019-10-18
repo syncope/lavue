@@ -38,6 +38,112 @@ _formclass, _baseclass = uic.loadUiType(
                  "ui", "ConfigDialog.ui"))
 
 
+class TableWidgetDragCheckBoxes(QtGui.QTableWidget):
+    """ TableWidget with drag and drop checkboxes """
+
+    def __init__(self, parent):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
+        """
+        QtGui.QTableWidget.__init__(self, parent)
+
+        #: (:obj:`list` < [ str, bool ] > ) checkbox item list
+        self.checkboxdata = []
+
+        self.setDragEnabled(True)
+        self.setAcceptDrops(True)
+        self.viewport().setAcceptDrops(True)
+        self.setDropIndicatorShown(True)
+        self.setDragDropOverwriteMode(False)
+
+        self.setDragDropMode(
+            QtGui.QAbstractItemView.InternalMove)
+        self.setSelectionMode(
+            QtGui.QAbstractItemView.ExtendedSelection)
+        self.setSelectionBehavior(
+            QtGui.QAbstractItemView.SelectRows)
+        self.setColumnCount(1)
+        self.horizontalHeader().hide()
+        self.horizontalHeader().setStretchLastSection(True)
+
+    def create(self, selected, available):
+        """ populates table """
+        self.checkboxdata = []
+        for sel in selected:
+            if sel in available:
+                self.checkboxdata.append([sel, True])
+        if self.checkboxdata:
+            for av in available:
+                if av not in selected:
+                    self.checkboxdata.append([av, False])
+        else:
+            for av in available:
+                self.checkboxdata.append([av, True])
+
+        self.setRowCount(len(self.checkboxdata))
+        for i, (name, checked) in enumerate(self.checkboxdata):
+            item = QtGui.QTableWidgetItem(str(name))
+            item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEditable)
+            item.setCheckState(QtCore.Qt.Checked
+                               if checked else QtCore.Qt.Unchecked)
+            self.setItem(i, 0, item)
+
+    def getChecks(self, available):
+        """ update checks in checkboxdata """
+        selected = []
+        for ri, (name, checked) in enumerate(self.checkboxdata):
+            ridx = self.model().index(ri, 0)
+            self.checkboxdata[ri][1] = bool(
+                self.model().data(ridx, QtCore.Qt.CheckStateRole))
+            self.checkboxdata[ri][0] = str(
+                self.model().data(ridx, QtCore.Qt.DisplayRole))
+            if self.checkboxdata[ri][1]:
+                selected.append(self.checkboxdata[ri][0])
+        if selected == available:
+            selected = []
+        return selected
+
+    def dropEvent(self, event):
+        """ replaces rows in the table
+
+        :param event: drop event
+        :type event:  :class:`pyqtgraph.QtCore.QEvent`:
+        """
+        if not event.isAccepted():
+            if event.source() == self:
+                targetidx = self._target_row(event)
+                selrows = sorted(
+                    set(item.row() for item in self.selectedItems()))
+                tomove = [
+                    QtGui.QTableWidgetItem(self.item(idx, 0))
+                    for idx in selrows
+                ]
+                for idx in reversed(selrows):
+                    self.removeRow(idx)
+                    if idx < targetidx:
+                        targetidx -= 1
+
+                for idx, data in enumerate(tomove):
+                    idx += targetidx
+                    self.insertRow(idx)
+                    self.setItem(idx, 0, data)
+                event.accept()
+        QtGui.QTableWidget.dropEvent(self, event)
+
+    def _target_row(self, event):
+        """ provides target row index to drop
+
+        :param event: drop event
+        :type event:  :class:`pyqtgraph.QtCore.QEvent`:
+        """
+        idx = self.indexAt(event.pos())
+        if not idx.isValid():
+            return self.rowCount()
+        return idx.row()
+
+
 class ConfigDialog(QtGui.QDialog):
 
     def __init__(self, parent=None):
@@ -51,6 +157,18 @@ class ConfigDialog(QtGui.QDialog):
         #: (:class:`Ui_ConfigDialog') ui_dialog object from qtdesigner
         self.__ui = _formclass()
         self.__ui.setupUi(self)
+        self.__ui.isLayout = QtGui.QGridLayout(self.__ui.isWidget)
+        self.__ui.isTable = TableWidgetDragCheckBoxes(self)
+        self.__ui.isLayout.addWidget(self.__ui.isTable)
+        self.__ui.twLayout = QtGui.QGridLayout(self.__ui.twWidget)
+        self.__ui.twTable = TableWidgetDragCheckBoxes(self)
+        self.__ui.twLayout.addWidget(self.__ui.twTable)
+        self.__ui.isTable.checkboxdata = [
+            ["Hidra", True], ["HTTP", False],
+            ["Tango", False], ["DOOCS", True]]
+        self.__ui.twTable.checkboxdata = [
+            ["Hidra", True], ["HTTP", False],
+            ["Tango", False], ["DOOCS", True]]
 
         #: (:obj:`str`) device name of sardana door
         self.door = ""
@@ -169,6 +287,15 @@ class ConfigDialog(QtGui.QDialog):
         self.sourcedisplay = False
         #: (:obj:`dict` <:obj: `str`, :obj: `str` >) object title dictionary
         self.__objtitles = {}
+
+        #: (:obj:`str`) list with available image source widget names
+        self.availimagesources = []
+        #: (:obj:`str`) json list with image source widget names
+        self.imagesources = "[]"
+        #: (:obj:`str`)  list with available tool widget names
+        self.availtoolwidgets = []
+        #: (:obj:`str`)  json list with tool widget names
+        self.toolwidgets = "[]"
 
     def eventFilter(self, obj, event):
         """ event filter
@@ -289,6 +416,10 @@ class ConfigDialog(QtGui.QDialog):
 
         self.__setROIsColorsWidgets()
         self.__setFiltersWidget()
+        self.__ui.isTable.create(
+            json.loads(self.imagesources), self.availimagesources)
+        self.__ui.twTable.create(
+            json.loads(self.toolwidgets), self.availtoolwidgets)
 
     def __setFiltersWidget(self):
         """ updates filter tab  widget
@@ -618,4 +749,9 @@ class ConfigDialog(QtGui.QDialog):
             self.__ui.hidraportLineEdit.setFocus(True)
             return
         self.__readROIsColors()
+        self.imagesources = json.dumps(
+            self.__ui.isTable.getChecks(self.availimagesources))
+        self.toolwidgets = json.dumps(
+            self.__ui.twTable.getChecks(self.availtoolwidgets))
+
         QtGui.QDialog.accept(self)

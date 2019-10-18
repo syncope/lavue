@@ -660,13 +660,13 @@
         <attribute name="title">
          <string>Layout</string>
         </attribute>
-        <layout class="QGridLayout" name="gridLayout_43">
-         <item row="0" column="0">
-          <widget class="QGroupBox" name="groupBox_2">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QGroupBox" name="viewGroupBox">
            <property name="title">
-            <string>Show widget</string>
+            <string>Show control bar widget</string>
            </property>
-           <layout class="QGridLayout" name="gridLayout_42">
+           <layout class="QGridLayout" name="gridLayout_24">
             <item row="0" column="0">
              <layout class="QGridLayout" name="viewGridLayout">
               <item row="8" column="1">
@@ -898,21 +898,45 @@
               </item>
              </layout>
             </item>
+            <item row="1" column="0">
+             <spacer name="verticalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
            </layout>
           </widget>
          </item>
-         <item row="1" column="0">
-          <spacer name="verticalSpacer_9">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
+         <item>
+          <widget class="QGroupBox" name="isGroupBox">
+           <property name="title">
+            <string>Image Source Selection</string>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
+           <layout class="QGridLayout" name="gridLayout_25">
+            <item row="0" column="0">
+             <widget class="QWidget" name="isWidget" native="true"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="twGroupBox">
+           <property name="title">
+            <string>Tool Widget Selection</string>
            </property>
-          </spacer>
+           <layout class="QGridLayout" name="gridLayout_26">
+            <item row="0" column="0">
+             <widget class="QWidget" name="twWidget" native="true"/>
+            </item>
+           </layout>
+          </widget>
          </item>
         </layout>
        </widget>

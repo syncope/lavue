@@ -197,9 +197,10 @@ class LiveViewer(QtGui.QDialog):
 
         #: (:obj:`list` < :obj:`str` > ) source class names
         self.__sourcetypes = []
-        for wp in self.__swproperties:
-            if wp["name"] in imgsrcs:
-                self.__sourcetypes.append(wp["widget"])
+        for isn in imgsrcs:
+            for wp in self.__swproperties:
+                if wp["name"] == isn:
+                    self.__sourcetypes.append(wp["widget"])
 
         #: ( :obj:`dict` < :obj:`str`, any > ) tool widget properties
         self.__twproperties = []
@@ -224,10 +225,10 @@ class LiveViewer(QtGui.QDialog):
 
         #: (:obj:`list` < :obj:`str` > ) tool class names
         self.__tooltypes = []
-
-        for wp in self.__twproperties:
-            if wp["name"] in tlwgs:
-                self.__tooltypes.append(wp["widget"])
+        for twn in tlwgs:
+            for wp in self.__twproperties:
+                if wp["name"] == twn:
+                    self.__tooltypes.append(wp["widget"])
 
         #: (:obj:`list` < :obj:`str` > ) rgb tool class names
         self.__rgbtooltypes = []
@@ -1088,6 +1089,12 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.geometryfromsource = self.__settings.geometryfromsource
         cnfdlg.roiscolors = self.__settings.roiscolors
         cnfdlg.sourcedisplay = self.__settings.sourcedisplay
+        cnfdlg.imagesources = self.__settings.imagesources
+        cnfdlg.toolwidgets = self.__settings.toolwidgets
+        cnfdlg.availimagesources = [
+            wp["name"] for wp in sourceWidget.swproperties]
+        cnfdlg.availtoolwidgets = [
+            wp["name"] for wp in toolWidget.twproperties]
         cnfdlg.defdetservers = self.__settings.defdetservers
         cnfdlg.detservers = json.dumps(self.__mergeDetServers(
             HIDRASERVERLIST if cnfdlg.defdetservers else {"pool": []},
@@ -1142,6 +1149,10 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.showstats != dialog.showstats:
             self.__statswg.changeView(dialog.showstats)
             self.__settings.showstats = dialog.showstats
+        if self.__settings.imagesources != dialog.imagesources:
+            self.__settings.imagesources = dialog.imagesources
+        if self.__settings.toolwidgets != dialog.toolwidgets:
+            self.__settings.toolwidgets = dialog.toolwidgets
         dataFetchThread.GLOBALREFRESHRATE = dialog.refreshrate
         replot = False
 
