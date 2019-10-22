@@ -70,26 +70,18 @@ _doocspropformclass, _doocspropbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "DOOCSPropSourceWidget.ui"))
 
-#: ( :obj:`dict` < :obj:`str`, any > ) source widget properties
-swproperties = [
-    {'sname': 'hidra', 'widget': 'HidraSourceWidget',
-     'name': 'Hidra', 'requires': ("HIDRA",)},
-    {'sname': 'http', 'widget': 'HTTPSourceWidget',
-     'name': 'HTTP response', 'requires': ("REQUESTS",)},
-    {'sname': 'tangoattr', 'widget': 'TangoAttrSourceWidget',
-     'name': 'Tango Attribute', 'requires': ("PYTANGO",)},
-    {'sname': 'tangoevents', 'widget': 'TangoEventsSourceWidget',
-     'name': 'Tango Events', 'requires': ("PYTANGO",)},
-    {'sname': 'tangofile', 'widget': 'TangoFileSourceWidget',
-     'name': 'Tango File', 'requires': ("PYTANGO",)},
-    {'sname': 'doocsprop', 'widget': 'DOOCSPropSourceWidget',
-     'name': 'DOOCS Property', 'requires': ("PYDOOCS",)},
-    {'sname': 'zmqsource', 'widget': 'ZMQSourceWidget',
-     'name': 'ZMQ Stream', 'requires': ()},
-    {'sname': 'nxsfile', 'widget': 'NXSFileSourceWidget',
-     'name': 'NeXus File', 'requires': ()},
-    {'sname': 'test', 'widget': 'TestSourceWidget',
-     'name': 'Test', 'requires': ()},
+__all__ = [
+    'SourceBaseWidget',
+    'HidraSourceWidget',
+    'HTTPSourceWidget',
+    'TangoAttrSourceWidget',
+    'TangoEventsSourceWidget',
+    'TangoFileSourceWidget',
+    'DOOCSPropSourceWidget',
+    'ZMQSourceWidget',
+    'NXSFileSourceWidget',
+    'TestSourceWidget',
+    'TestSourceWidget',
 ]
 
 
@@ -112,6 +104,8 @@ class SourceBaseWidget(QtGui.QWidget):
 
     #: (:obj:`str`) source name
     name = "Test"
+    #: (:obj:`str`) source alias
+    alias = "test"
     #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
     requires = ()
     #: (:obj:`str`) datasource class name
@@ -324,6 +318,8 @@ class FixTestSourceWidget(SourceBaseWidget):
     name = "Fix Test"
     #: (:obj:`str`) datasource class name
     datasource = "FixTestSource"
+    #: (:obj:`str`) source alias
+    alias = "fixtest"
 
     def __init__(self, parent=None):
         """ constructor
@@ -349,6 +345,8 @@ class HTTPSourceWidget(SourceBaseWidget):
     requires = ("REQUESTS",)
     #: (:obj:`str`) datasource class name
     datasource = "HTTPSource"
+    #: (:obj:`str`) source alias
+    alias = "http"
 
     def __init__(self, parent=None):
         """ constructor
@@ -490,6 +488,8 @@ class HidraSourceWidget(SourceBaseWidget):
 
     #: (:obj:`str`) source name
     name = "Hidra"
+    #: (:obj:`str`) source alias
+    alias = "hidra"
     #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
     requires = ("HIDRA",)
     #: (:obj:`str`) datasource class name
@@ -647,6 +647,8 @@ class TangoAttrSourceWidget(SourceBaseWidget):
 
     #: (:obj:`str`) source name
     name = "Tango Attribute"
+    #: (:obj:`str`) source alias
+    alias = "tangoattr"
     #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
     requires = ("PYTANGO",)
     #: (:obj:`str`) datasource class name
@@ -787,6 +789,8 @@ class TangoEventsSourceWidget(SourceBaseWidget):
 
     #: (:obj:`str`) source name
     name = "Tango Events"
+    #: (:obj:`str`) source alias
+    alias = "tangoevents"
     #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
     requires = ("PYTANGO",)
     #: (:obj:`str`) datasource class name
@@ -928,6 +932,8 @@ class TangoFileSourceWidget(SourceBaseWidget):
 
     #: (:obj:`str`) source name
     name = "Tango File"
+    #: (:obj:`str`) source alias
+    alias = "tangofile"
     #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
     requires = ("PYTANGO",)
     #: (:obj:`str`) datasource class name
@@ -1143,6 +1149,8 @@ class NXSFileSourceWidget(SourceBaseWidget):
 
     #: (:obj:`str`) source name
     name = "NeXus File"
+    #: (:obj:`str`) source alias
+    alias = "nxsfile"
     #: (:obj:`str`) datasource class name
     datasource = "NXSFileSource"
 
@@ -1329,6 +1337,8 @@ class ZMQSourceWidget(SourceBaseWidget):
 
     #: (:obj:`str`) source name
     name = "ZMQ Stream"
+    #: (:obj:`str`) source alias
+    alias = "zmqsource"
     #: (:obj:`str`) datasource class name
     datasource = "ZMQSource"
 
@@ -1576,6 +1586,8 @@ class DOOCSPropSourceWidget(SourceBaseWidget):
 
     #: (:obj:`str`) source name
     name = "DOOCS Property"
+    #: (:obj:`str`) source alias
+    alias = "doocsprop"
     #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
     requires = ("PYDOOCS",)
     #: (:obj:`str`) datasource class name
@@ -1710,3 +1722,17 @@ class DOOCSPropSourceWidget(SourceBaseWidget):
         """
         label = str(self._ui.doocspropComboBox.currentText()).strip()
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
+
+
+#: ( :obj:`dict` < :obj:`str`, any > ) source widget properties
+swproperties = []
+for nm in __all__:
+    if nm.endswith("SourceWidget"):
+        cl = globals()[nm]
+        swproperties.append(
+            {
+                'alias': cl.alias,
+                'name': cl.name,
+                'widget': nm,
+                'requires': cl.requires,
+            })

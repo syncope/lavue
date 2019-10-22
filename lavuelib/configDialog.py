@@ -49,8 +49,10 @@ class TableWidgetDragCheckBoxes(QtGui.QTableWidget):
         """
         QtGui.QTableWidget.__init__(self, parent)
 
-        #: (:obj:`list` < [ str, bool ] > ) checkbox item list
-        self.checkboxdata = []
+        #: (:obj:`list` < [ :obj:`str`, :obj:`bool` ] > ) checkbox item list
+        self.__checkboxdata = []
+        #: (:obj:`list` < :obj:`str`, :obj:`str` > ) checkbox name items
+        self.__nameitems = {}
 
         self.setDragEnabled(True)
         self.setAcceptDrops(True)
@@ -66,25 +68,30 @@ class TableWidgetDragCheckBoxes(QtGui.QTableWidget):
             QtGui.QAbstractItemView.SelectRows)
         self.setColumnCount(1)
         self.horizontalHeader().hide()
+        self.verticalHeader().hide()
         self.horizontalHeader().setStretchLastSection(True)
 
-    def create(self, selected, available):
+    def create(self, selected, available, itemnames=None):
         """ populates table """
-        self.checkboxdata = []
+        self.__checkboxdata = []
+        itemnames = itemnames or {}
+        self.__nameitems = {v: k for k, v in itemnames.items()}
         for sel in selected:
             if sel in available:
-                self.checkboxdata.append([sel, True])
-        if self.checkboxdata:
+                self.__checkboxdata.append([sel, True])
+        if self.__checkboxdata:
             for av in available:
                 if av not in selected:
-                    self.checkboxdata.append([av, False])
+                    self.__checkboxdata.append([av, False])
         else:
             for av in available:
-                self.checkboxdata.append([av, True])
+                self.__checkboxdata.append([av, True])
 
-        self.setRowCount(len(self.checkboxdata))
-        for i, (name, checked) in enumerate(self.checkboxdata):
-            item = QtGui.QTableWidgetItem(str(name))
+        self.setRowCount(len(self.__checkboxdata))
+        for i, (name, checked) in enumerate(self.__checkboxdata):
+            nm = str(name)
+            iname = itemnames[nm] if nm in itemnames else nm
+            item = QtGui.QTableWidgetItem(iname)
             item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEditable)
             item.setCheckState(QtCore.Qt.Checked
                                if checked else QtCore.Qt.Unchecked)
@@ -93,14 +100,16 @@ class TableWidgetDragCheckBoxes(QtGui.QTableWidget):
     def getChecks(self, available):
         """ update checks in checkboxdata """
         selected = []
-        for ri, (name, checked) in enumerate(self.checkboxdata):
+        for ri, (name, checked) in enumerate(self.__checkboxdata):
             ridx = self.model().index(ri, 0)
-            self.checkboxdata[ri][1] = bool(
+            self.__checkboxdata[ri][1] = bool(
                 self.model().data(ridx, QtCore.Qt.CheckStateRole))
-            self.checkboxdata[ri][0] = str(
+            name = str(
                 self.model().data(ridx, QtCore.Qt.DisplayRole))
-            if self.checkboxdata[ri][1]:
-                selected.append(self.checkboxdata[ri][0])
+            self.__checkboxdata[ri][0] = self.__nameitems[name] \
+                if name in self.__nameitems else name
+            if self.__checkboxdata[ri][1]:
+                selected.append(self.__checkboxdata[ri][0])
         if selected == available:
             selected = []
         return selected
@@ -158,17 +167,13 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui = _formclass()
         self.__ui.setupUi(self)
         self.__ui.isLayout = QtGui.QGridLayout(self.__ui.isWidget)
+        self.__ui.isLayout.setContentsMargins(0, 0, 0, 0)
         self.__ui.isTable = TableWidgetDragCheckBoxes(self)
         self.__ui.isLayout.addWidget(self.__ui.isTable)
         self.__ui.twLayout = QtGui.QGridLayout(self.__ui.twWidget)
+        self.__ui.twLayout.setContentsMargins(0, 0, 0, 0)
         self.__ui.twTable = TableWidgetDragCheckBoxes(self)
         self.__ui.twLayout.addWidget(self.__ui.twTable)
-        self.__ui.isTable.checkboxdata = [
-            ["Hidra", True], ["HTTP", False],
-            ["Tango", False], ["DOOCS", True]]
-        self.__ui.twTable.checkboxdata = [
-            ["Hidra", True], ["HTTP", False],
-            ["Tango", False], ["DOOCS", True]]
 
         #: (:obj:`str`) device name of sardana door
         self.door = ""
@@ -292,10 +297,16 @@ class ConfigDialog(QtGui.QDialog):
         self.availimagesources = []
         #: (:obj:`str`) json list with image source widget names
         self.imagesources = "[]"
+        #: (:obj:`dict` < :obj:`str`, :obj:`str`>) json list with
+        #          image source widget names
+        self.imagesourcenames = {}
         #: (:obj:`str`)  list with available tool widget names
         self.availtoolwidgets = []
         #: (:obj:`str`)  json list with tool widget names
         self.toolwidgets = "[]"
+        #: (:obj:`dict` < :obj:`str`, :obj:`str`>)  json list with
+        #      tool widget names
+        self.toolwidgetnames = {}
 
     def eventFilter(self, obj, event):
         """ event filter
@@ -417,9 +428,13 @@ class ConfigDialog(QtGui.QDialog):
         self.__setROIsColorsWidgets()
         self.__setFiltersWidget()
         self.__ui.isTable.create(
-            json.loads(self.imagesources), self.availimagesources)
+            json.loads(self.imagesources), self.availimagesources,
+            self.imagesourcenames
+        )
         self.__ui.twTable.create(
-            json.loads(self.toolwidgets), self.availtoolwidgets)
+            json.loads(self.toolwidgets), self.availtoolwidgets,
+            self.toolwidgetnames
+        )
 
     def __setFiltersWidget(self):
         """ updates filter tab  widget

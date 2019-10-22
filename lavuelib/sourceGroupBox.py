@@ -149,7 +149,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         self.__ui.gridLayout.addWidget(self.__ui.cStatusLineEdit, sln + 1, 1)
         self.__ui.gridLayout.addWidget(self.__ui.pushButton, sln + 2, 1)
 
-    def setSourceComboBox(self, sourcenames, current):
+    def setSourceComboBox(self, index):
         """ set source by changing combobox
 
         :param index: combobox index
@@ -157,7 +157,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         """
         self.__ui.sourceTypeComboBox.setCurrentIndex(index)
 
-    def updateSourceComboBox(self, sourcenames, name):
+    def updateSourceComboBox(self, sourcenames, name=None):
         """ set source by changing combobox
 
         :param sourcenames: source names
@@ -165,82 +165,27 @@ class SourceGroupBox(QtGui.QGroupBox):
         :param index: combobox index
         :type index: :obj:`int`
         """
-        print("WW")
-        disconnect = True
+
         self.__ui.sourceTypeComboBox.currentIndexChanged.disconnect(
             self._onSourceChanged)
-        if disconnect and self.__currentSource is not None:
-            self.__currentSource.buttonEnabled.disconnect(
-                self.updateButton)
-            self.__currentSource.configurationChanged.disconnect(
-                self._emitConfigurationChanged)
-            self.__currentSource.sourceLabelChanged.disconnect(
-                self._emitSourceLabelChanged)
-            self.__currentSource.sourceStateChanged.disconnect(
-                self._emitSourceStateChanged)
-            self.__currentSource.addIconClicked.disconnect(
-                self._emitAddIconClicked)
-            self.__currentSource.removeIconClicked.disconnect(
-                self._emitRemoveIconClicked)
-            self.__currentSource.active = False
-            self.__currentSource.disconnectWidget()
-        print("WW2")
-        # self.__ui.sourceTypeComboBox.clear()
-        print("WW2a")
-        sourcenames = sourcenames or self.__sourcenames
+        if sourcenames and name and name not in sourcenames:
+            sourcenames = list(sourcenames)
+            sourcenames.append(name)
+        sourcenames = [sr for sr in sourcenames if sr in self.__sourcenames]
+        if not sourcenames:
+            sourcenames = self.__sourcenames
         name = name or str(self.__ui.sourceTypeComboBox.currentText())
+        self.__ui.sourceTypeComboBox.clear()
+        self.__ui.sourceTypeComboBox.addItems(sourcenames)
+        if self.__ui.sourceTypeComboBox.count() == 0:
+            self.__ui.sourceTypeComboBox.addItems(self.__sourcenames)
         index = self.__ui.sourceTypeComboBox.findText(name)
-        print("WW2b")
-        if index > -1:
-            print("WW2c1")
-            count = self.__ui.sourceTypeComboBox.count()
-            print("WW2c1a")
-            if index + 1 != count:
-                for ind in reversed(range(index, count)):
-                    self.__ui.sourceTypeComboBox.removeItem(ind) 
-            print("WW2c1b")
-            if index:
-                for ind in range(index):
-                    self.__ui.sourceTypeComboBox.removeItem(ind)
-            print("WW2c1c")
-            append = False        
-            for ind, sr in enumerate(self.__sourcenames):
-                if sr == name:
-                    append = True
-                if not append:
-                    self.__ui.sourceTypeComboBox.insert(ind, sr)
-                else:
-                    self.__ui.sourceTypeComboBox.addItem(sr)
-                     
-                     
-            index = self.__ui.sourceTypeComboBox.findText(name)
-            print("WW2c1c")
-        else:
-            print("WW2c2")
-            self.__ui.sourceTypeComboBox.clear()
-            self.__ui.sourceTypeComboBox.addItems(sourcenames)
+        if index == -1:
             index = 0
         self.__ui.sourceTypeComboBox.setCurrentIndex(index)
-        print("WW3")
-        if name is not None and name in self.__sourcewidgets.keys():
-            self.__currentSource = self.__sourcewidgets[name]
-            self.__currentSource.active = True
-            self.__currentSource.buttonEnabled.connect(
-                self.updateButton)
-            self.__currentSource.sourceLabelChanged.connect(
-                self._emitSourceLabelChanged)
-            self.__currentSource.configurationChanged.connect(
-                self._emitConfigurationChanged)
-            self.__currentSource.sourceStateChanged.connect(
-                self._emitSourceStateChanged)
-            self.__currentSource.addIconClicked.connect(
-                self._emitAddIconClicked)
-            self.__currentSource.removeIconClicked.connect(
-                self._emitRemoveIconClicked)
         self.updateLayout()
         self.__ui.sourceTypeComboBox.currentIndexChanged.connect(
             self._onSourceChanged)
-        print("WW4")
 
     @QtCore.pyqtSlot()
     def _onSourceChanged(self):
