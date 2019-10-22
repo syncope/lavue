@@ -177,12 +177,18 @@ class LiveViewer(QtGui.QDialog):
         #: (:obj:`list` < :obj:`str` > ) source class names
         self.__sourcetypes = []
 
+        #: (:obj:`list` < :obj:`str` > ) all source names
+        self.__allsourcenames = []
+        #: (:obj:`list` < :obj:`str` > ) all source names
+        self.__isnametoname = {}
+
         #: (:obj:`list` < :obj:`str` > ) tool class names
         self.__tooltypes = []
 
-        self.__updateTypeList(
-            self.__settings.imagesources,
-            sourceWidget.swproperties, self.__sourcetypes)
+        self.__updateISTypeList(
+            sourceWidget.swproperties, self.__sourcetypes,
+            self.__allsourcenames, self.__isnametoname
+        )
         self.__updateTypeList(
             self.__settings.toolwidgets,
             toolWidget.twproperties, self.__tooltypes)
@@ -215,6 +221,7 @@ class LiveViewer(QtGui.QDialog):
         self.__sourcewg = sourceGroupBox.SourceGroupBox(
             parent=self, sourcetypes=self.__sourcetypes,
             expertmode=(self.__umode == 'expert'))
+        self.__updateISComboBox(self.__settings.imagesources)
 
         #: (:class:`lavuelib.preparationGroupBox.PreparationGroupBox`)
         #: preparation groupbox
@@ -433,6 +440,41 @@ class LiveViewer(QtGui.QDialog):
         if options.tool:
             QtCore.QTimer.singleShot(10, self.__imagewg.showCurrentTool)
 
+    def __updateISTypeList(self, properties, typelist, allsnames, snametoname):
+        typelist[:] = []
+        allsnames[:] = []
+        for wp in properties:
+            avail = True
+            for req in wp["requires"]:
+                if not getattr(isr, req):
+                    avail = False
+                    break
+            if avail:
+                if wp["sname"] not in typelist:
+                    typelist.append(wp["widget"])
+            allsnames.append(wp["sname"])
+            snametoname[wp["sname"]] = wp["name"] 
+            
+    def __updateISComboBox(self, widgets, current=None):
+        print(widgets)
+        snames = json.loads(widgets)
+        names = [self.__isnametoname[twn] for twn in json.loads(widgets)]
+        if names and current and current not in names:
+            names.append(current)
+        self.__sourcewg.updateSourceComboBox(names, current)
+        # tlwgs = []
+        # [tlwgs.append(twn)
+        #  for twn in json.loads(widgets)
+        #  if (twn in tlwgnames and twn not in tlwgs)]
+        # if not tlwgs:
+        #     tlwgs = list(tlwgnames)
+
+        # for twn in tlwgs:
+        #     for wp in wproperties:
+        #         if wp["sname"] == twn:
+        #             typelist.append(wp["widget"])
+
+        
     def __updateTypeList(self, widgets, properties, typelist):
         tlwgnames = []
         wproperties = []
@@ -445,8 +487,8 @@ class LiveViewer(QtGui.QDialog):
                     break
             if avail:
                 wproperties.append(dict(wp))
-                if wp["name"] not in tlwgnames:
-                    tlwgnames.append(wp["name"])
+                if wp["sname"] not in tlwgnames:
+                    tlwgnames.append(wp["sname"])
 
         tlwgs = []
         [tlwgs.append(twn)
@@ -457,7 +499,7 @@ class LiveViewer(QtGui.QDialog):
 
         for twn in tlwgs:
             for wp in wproperties:
-                if wp["name"] == twn:
+                if wp["sname"] == twn:
                     typelist.append(wp["widget"])
 
     def __switchlazysignals(self, lazy=False):
@@ -1076,9 +1118,9 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.imagesources = self.__settings.imagesources
         cnfdlg.toolwidgets = self.__settings.toolwidgets
         cnfdlg.availimagesources = [
-            wp["name"] for wp in sourceWidget.swproperties]
+            wp["sname"] for wp in sourceWidget.swproperties]
         cnfdlg.availtoolwidgets = [
-            wp["name"] for wp in toolWidget.twproperties]
+            wp["sname"] for wp in toolWidget.twproperties]
         cnfdlg.defdetservers = self.__settings.defdetservers
         cnfdlg.detservers = json.dumps(self.__mergeDetServers(
             HIDRASERVERLIST if cnfdlg.defdetservers else {"pool": []},
@@ -1135,6 +1177,9 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showstats = dialog.showstats
         if self.__settings.imagesources != dialog.imagesources:
             self.__settings.imagesources = dialog.imagesources
+            self.__updateISComboBox(
+                self.__settings.imagesources,
+                self.__sourcewg.currentDataSourceName())
         if self.__settings.toolwidgets != dialog.toolwidgets:
             self.__settings.toolwidgets = dialog.toolwidgets
         dataFetchThread.GLOBALREFRESHRATE = dialog.refreshrate
