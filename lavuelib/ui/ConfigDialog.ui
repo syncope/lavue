@@ -669,6 +669,16 @@
            <layout class="QGridLayout" name="gridLayout_24">
             <item row="0" column="0">
              <layout class="QGridLayout" name="viewGridLayout">
+              <item row="10" column="1">
+               <widget class="QCheckBox" name="showstatsCheckBox">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
               <item row="8" column="1">
                <widget class="QCheckBox" name="showaddhistoCheckBox">
                 <property name="toolTip">
@@ -694,16 +704,6 @@
               </item>
               <item row="7" column="1">
                <widget class="QCheckBox" name="showlevelsCheckBox">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="10" column="1">
-               <widget class="QCheckBox" name="showstatsCheckBox">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -891,6 +891,20 @@
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select image filters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="11" column="0">
+               <widget class="QLabel" name="showframerateLabel">
+                <property name="text">
+                 <string>Frame Rate:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="11" column="1">
+               <widget class="QCheckBox" name="showframerateCheckBox">
                 <property name="text">
                  <string/>
                 </property>
@@ -1483,6 +1497,7 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>showaddhistoCheckBox</tabstop>
   <tabstop>showhistoCheckBox</tabstop>
   <tabstop>showstatsCheckBox</tabstop>
+  <tabstop>showframerateCheckBox</tabstop>
   <tabstop>timeoutLineEdit</tabstop>
   <tabstop>detserversLineEdit</tabstop>
   <tabstop>hidraportLineEdit</tabstop>

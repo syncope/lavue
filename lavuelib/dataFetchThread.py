@@ -29,7 +29,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from pyqtgraph import QtCore
-
+import time
 
 #: (:obj:`float`) refresh rate in seconds
 GLOBALREFRESHRATE = .1
@@ -106,8 +106,14 @@ class DataFetchThread(QtCore.QThread):
         """ runner of the fetching thread
         """
         self.__loop = True
+        dt = 0
+        skip = False
         while self.__loop:
-            self.msleep(int(1000*GLOBALREFRESHRATE))
+            if skip:
+                self.msleep(int(100*GLOBALREFRESHRATE))
+            else:
+                self.msleep(max(int(1000*GLOBALREFRESHRATE - dt), 0))
+            t1 = time.time()
             if self.__isConnected and self.__ready:
                 try:
                     with QtCore.QMutexLocker(self.__mutex):
@@ -122,8 +128,10 @@ class DataFetchThread(QtCore.QThread):
                     self.newDataNameFetched.emit(name, metadata)
                 else:
                     self.__ready = True
+                skip = False
             else:
-                pass
+                skip = True
+            dt = (time.time() - t1) * 1000.
 
     @QtCore.pyqtSlot(bool)
     def changeStatus(self, status):

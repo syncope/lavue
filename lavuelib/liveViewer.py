@@ -190,11 +190,11 @@ class LiveViewer(QtGui.QDialog):
         #: (:obj:`dict` < :obj:`str`, :obj:`str` > ) tool alias names
         self.__tlaliasnames = {}
 
-        self.__updateISTypeList(
+        self.__updateTypeList(
             sourceWidget.swproperties, self.__sourcetypes,
             self.__allsourcealiases, self.__srcaliasnames
         )
-        self.__updateISTypeList(
+        self.__updateTypeList(
             toolWidget.twproperties, self.__tooltypes,
             self.__alltoolaliases, self.__tlaliasnames
         )
@@ -211,8 +211,6 @@ class LiveViewer(QtGui.QDialog):
         self.__growing = None
         #: (:obj:`int`) current frame id
         self.__frame = None
-        #: (:obj:`bool`) histogram should be updated
-        self.__frameshow = False
         #: (:obj:`str`) nexus field path
         self.__fieldpath = None
 
@@ -221,6 +219,11 @@ class LiveViewer(QtGui.QDialog):
 
         #: (:obj:`int`) filter state
         self.__filterstate = 0
+
+        #: (:obj:`float`) last time read
+        self.__lasttime = 0
+        #: (:obj:`float`) current time
+        self.__currentime = 0
 
         # WIDGET DEFINITIONS
         #: (:class:`lavuelib.sourceGroupBox.SourceGroupBox`) source groupbox
@@ -443,6 +446,8 @@ class LiveViewer(QtGui.QDialog):
 
         self.__updateframeview()
 
+        self.__updateframeratetip(self.__settings.refreshrate)
+
         start = self.__applyoptions(options)
         self._plot()
         if start:
@@ -451,8 +456,8 @@ class LiveViewer(QtGui.QDialog):
         if options.tool:
             QtCore.QTimer.singleShot(10, self.__imagewg.showCurrentTool)
 
-    def __updateISTypeList(self, properties, typelist,
-                           allaliases, snametoname):
+    def __updateTypeList(self, properties, typelist,
+                         allaliases, snametoname):
         typelist[:] = []
         allaliases[:] = []
         for wp in properties:
@@ -466,33 +471,6 @@ class LiveViewer(QtGui.QDialog):
                     typelist.append(wp["widget"])
             allaliases.append(wp["alias"])
             snametoname[wp["alias"]] = wp["name"]
-
-    def __updateTypeList(self, widgets, properties, typelist):
-        tlwgnames = []
-        wproperties = []
-        typelist[:] = []
-        for wp in properties:
-            avail = True
-            for req in wp["requires"]:
-                if not getattr(isr, req):
-                    avail = False
-                    break
-            if avail:
-                wproperties.append(dict(wp))
-                if wp["alias"] not in tlwgnames:
-                    tlwgnames.append(wp["alias"])
-
-        tlwgs = []
-        [tlwgs.append(twn)
-         for twn in json.loads(widgets)
-         if (twn in tlwgnames and twn not in tlwgs)]
-        if not tlwgs:
-            tlwgs = list(tlwgnames)
-
-        for twn in tlwgs:
-            for wp in wproperties:
-                if wp["alias"] == twn:
-                    typelist.append(wp["widget"])
 
     def __switchlazysignals(self, lazy=False):
         """switch lazy signals
@@ -776,6 +754,7 @@ class LiveViewer(QtGui.QDialog):
         self.__updateSource()
 
         self.__statswg.changeView(self.__settings.showstats)
+        self.__viewFrameRate(self.__settings.showframerate)
         self.__levelswg.changeView(
             self.__settings.showhisto,
             self.__settings.showlevels,
@@ -792,6 +771,16 @@ class LiveViewer(QtGui.QDialog):
         self.__levelswg.changeView()
         if self.__lazyimageslider != self.__settings.lazyimageslider:
             self.__switchlazysignals(self.__settings.lazyimageslider)
+
+    def __viewFrameRate(self, status):
+        """ show/hide frame rate
+        :param status: True for show and False for hide
+        :type status: :obj:`bool`
+        """
+        if status:
+            self.__ui.framerateLineEdit.show()
+        else:
+            self.__ui.framerateLineEdit.hide()
 
     @QtCore.pyqtSlot()
     def _storeSettings(self):
@@ -1069,6 +1058,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.showtrans = self.__settings.showtrans
         cnfdlg.showscale = self.__settings.showscale
         cnfdlg.showlevels = self.__settings.showlevels
+        cnfdlg.showframerate = self.__settings.showframerate
         cnfdlg.showhisto = self.__settings.showhisto
         cnfdlg.showaddhisto = self.__settings.showaddhisto
         cnfdlg.showmask = self.__settings.showmask
@@ -1158,6 +1148,9 @@ class LiveViewer(QtGui.QDialog):
             self.__levelswg.changeView(showlevels=dialog.showlevels)
             self.__settings.showlevels = dialog.showlevels
 
+        if self.__settings.showframerate != dialog.showframerate:
+            self.__settings.showframerate = dialog.showframerate
+            self.__viewFrameRate(self.__settings.showframerate)
         if self.__settings.showhisto != dialog.showhisto:
             self.__levelswg.changeView(dialog.showhisto)
             self.__settings.showhisto = dialog.showhisto
@@ -1182,7 +1175,9 @@ class LiveViewer(QtGui.QDialog):
         dataFetchThread.GLOBALREFRESHRATE = dialog.refreshrate
         replot = False
 
-        self.__settings.refreshrate = dialog.refreshrate
+        if self.__settings.refreshrate != dialog.refreshrate:
+            self.__settings.refreshrate = dialog.refreshrate
+            self.__updateframeratetip(self.__settings.refreshrate)
         if self.__settings.filters != dialog.filters:
             self.__resetFilters(dialog.filters)
             replot = True
@@ -1693,6 +1688,11 @@ class LiveViewer(QtGui.QDialog):
             self.__mdata = {}
 
         self.__updateframeview()
+        self.__currenttime = time.time()
+        if self.__settings.showframerate and self.__lasttime:
+            self.__updateframerate(self.__currenttime - self.__lasttime)
+        self.__lasttime = self.__currenttime
+
         self._plot()
         QtCore.QCoreApplication.processEvents()
         self.__dataFetcher.ready()
@@ -1712,6 +1712,28 @@ class LiveViewer(QtGui.QDialog):
             self.__fieldpath = None
             self.__ui.frameSpinBox.hide()
             self.__ui.frameHorizontalSlider.hide()
+
+    def __updateframerate(self, ratetime):
+        if ratetime:
+            fr = 1.0/float(ratetime)
+            if fr >= 10:
+                self.__ui.framerateLineEdit.setText("%.0f Hz" % fr)
+            else:
+                self.__ui.framerateLineEdit.setText("%.1f Hz" % fr)
+        else:
+            self.__ui.framerateLineEdit.setText("")
+
+    def __updateframeratetip(self, ratetime):
+        if ratetime:
+            fr = 1.0/float(ratetime)
+            if fr >= 10:
+                self.__ui.framerateLineEdit.setToolTip(
+                    "Set frame rate: %.0f Hz" % fr)
+            else:
+                self.__ui.framerateLineEdit.setToolTip(
+                    "Set frame rate: %.1f Hz" % fr)
+        else:
+            self.__ui.framerateLineEdit.setToolTip("Frame rate in Hz")
 
     def __prepareImage(self):
         """applies: make image gray, substracke the background image and

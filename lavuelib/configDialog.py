@@ -216,6 +216,8 @@ class ConfigDialog(QtGui.QDialog):
         self.showscale = True
         #: (:obj:`bool`) show intensity levels widget
         self.showlevels = True
+        #: (:obj:`bool`) show frame rate widget
+        self.showframerate = True
 
         #: (:obj:`int`) image source timeout in ms
         self.timeout = 3000
@@ -369,6 +371,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.showfiltersCheckBox.setChecked(self.showfilters)
         self.__ui.showscaleCheckBox.setChecked(self.showscale)
         self.__ui.showlevelsCheckBox.setChecked(self.showlevels)
+        self.__ui.showframerateCheckBox.setChecked(self.showframerate)
         self.__ui.timeoutLineEdit.setText(str(self.timeout))
         self.__ui.zmqtopicsLineEdit.setText(" ".join(self.zmqtopics))
         self.__ui.detserversLineEdit.setText(
@@ -648,6 +651,7 @@ class ConfigDialog(QtGui.QDialog):
         self.showfilters = self.__ui.showfiltersCheckBox.isChecked()
         self.showscale = self.__ui.showscaleCheckBox.isChecked()
         self.showlevels = self.__ui.showlevelsCheckBox.isChecked()
+        self.showframerate = self.__ui.showframerateCheckBox.isChecked()
         self.showhisto = self.__ui.showhistoCheckBox.isChecked()
         self.showaddhisto = self.__ui.showaddhistoCheckBox.isChecked()
         self.showmask = self.__ui.showmaskCheckBox.isChecked()
