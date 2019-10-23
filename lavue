@@ -116,12 +116,6 @@ def main():
         "-s", "--source", dest="source",
         help="image source, i.e. hidra, http, tangoattr,\n"
         "    tangofile, doocsprop, zmq, nxsfile, test")
-    # parser.add_argument(
-    #     "-w", "--source-widgets", dest="sourcewgs",
-    #     help="list of image source widgets separated by commas "
-    #     "to be placed in combobox,
-    #     i.e. hidra,http,tangoattr,"
-    #     "tangofile,doocsprop,zmq,nxsfile,test")
     parser.add_argument(
         "-c", "--configuration", dest="configuration",
         help="configuration strings for the image source separated by comma"
@@ -192,12 +186,6 @@ def main():
         help="utility tool, i.e. intensity, roi, movemotors, meshscan,\n"
         "  linecut, projections, 1d-plot, angle/q, q+roi+proj"
     )
-    # parser.add_argument(
-    #     "-o", "--tool-widgets", dest="toolwgs",
-    #     help="list of utility tools separated by comma to place in combobox, "
-    #     "i.e. intensity,roi,movemotors,meshscan,\n"
-    #     "linecut,projections,1d-plot,angle/q,q+roi+proj"
-    # )
     parser.add_argument(
         "-a", "--tango-device", dest="tangodevice",
         help="tango device name of LavueController to communicate"
@@ -210,22 +198,11 @@ def main():
         help="tango analysis device of LambdaOnlineAnalysis"
         " to communicate with analysis clients during the run")
 
-    # parser.add_argument(
-    #       "-o", "--log", dest="log",
-    #        help="logging level, i.e. debug, info, warning, error, critical")
-
     options = parser.parse_args()
 
     if options.version:
         print(lavuelib.__version__)
         sys.exit(0)
-
-    # level = LogActions.levels.get(options.log, logging.INFO)
-    # handler = LogHandler()
-    # handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
-    # logger = logging.getLogger("lavue")
-    # logger.addHandler(handler)
-    # logger.setLevel(level)
 
     app = QtGui.QApplication([])
     setupHandler()
@@ -249,6 +226,7 @@ def main():
     import gc
     gc.collect()
     sys.exit(status)
+
 
 if __name__ == "__main__":
     main()
