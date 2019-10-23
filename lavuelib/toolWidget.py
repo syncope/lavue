@@ -136,6 +136,8 @@ class ToolParameters(object):
         self.infotips = None
         #: (:obj:`str`) show maxima
         self.maxima = False
+        #: (:obj:`bool`) vertical and horizontal bounds
+        self.vhbounds = False
 
 
 class ToolBaseWidget(QtGui.QWidget):
@@ -1412,6 +1414,7 @@ class ProjectionToolWidget(ToolBaseWidget):
 
         self.parameters.bottomplot = True
         self.parameters.rightplot = True
+        self.parameters.vhbounds = True
         self.parameters.infolineedit = ""
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
@@ -1457,6 +1460,19 @@ class ProjectionToolWidget(ToolBaseWidget):
         self.__rows = self.__updateslice(rtext)
         ctext = str(self.__ui.columnsliceLineEdit.text()).strip()
         self.__columns = self.__updateslice(ctext)
+        if self.__rows is None:
+            self._mainwidget.updateHBounds(None, None)
+        elif isinstance(self.__rows, int):
+            self._mainwidget.updateHBounds(self.__rows, self.__rows + 1)
+        elif isinstance(self.__rows, slice):
+            self._mainwidget.updateHBounds(self.__rows.start, self.__rows.stop)
+        if self.__columns is None:
+            self._mainwidget.updateVBounds(None, None)
+        elif isinstance(self.__columns, int):
+            self._mainwidget.updateVBounds(self.__columns, self.__columns + 1)
+        elif isinstance(self.__columns, slice):
+            self._mainwidget.updateVBounds(
+                self.__columns.start, self.__columns.stop)
         self._plotCurves()
 
     @QtCore.pyqtSlot(str)
@@ -1465,6 +1481,12 @@ class ProjectionToolWidget(ToolBaseWidget):
         """ updates applied button"""
         rtext = str(self.__ui.rowsliceLineEdit.text()).strip()
         self.__rows = self.__updateslice(rtext)
+        if self.__rows is None:
+            self._mainwidget.updateHBounds(None, None)
+        elif isinstance(self.__rows, int):
+            self._mainwidget.updateHBounds(self.__rows, self.__rows + 1)
+        elif isinstance(self.__rows, slice):
+            self._mainwidget.updateHBounds(self.__rows.start, self.__rows.stop)
         self._plotCurves()
 
     @QtCore.pyqtSlot(str)
@@ -1473,6 +1495,13 @@ class ProjectionToolWidget(ToolBaseWidget):
         """ updates applied button"""
         text = str(self.__ui.columnsliceLineEdit.text()).strip()
         self.__columns = self.__updateslice(text)
+        if self.__columns is None:
+            self._mainwidget.updateVBounds(None, None)
+        elif isinstance(self.__columns, int):
+            self._mainwidget.updateVBounds(self.__columns, self.__columns + 1)
+        elif isinstance(self.__columns, slice):
+            self._mainwidget.updateVBounds(
+                self.__columns.start, self.__columns.stop)
         self._plotCurves()
 
     @QtCore.pyqtSlot(int)

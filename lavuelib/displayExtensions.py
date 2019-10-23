@@ -1309,6 +1309,119 @@ class CenterExtension(DisplayExtension):
         self.__centerHLine.setPos(h)
 
 
+class VHBoundsExtension(DisplayExtension):
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
+        """
+        DisplayExtension.__init__(self, parent)
+
+        #: (:obj:`str`) tool name
+        self.name = "vhbounds"
+
+        #: ([:obj:`float`, :obj:`float`]) vertical bound coordinates
+        self.__vbounds = None
+        #: ([:obj:`float`, :obj:`float`]) horizontal bound coordinates
+        self.__hbounds = None
+
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:                 first vertical center line of the mouse position
+        self.__centerVLine1 = _pg.InfiniteLine(
+            angle=90, movable=False, pen=(255, 0, 0))
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:                 second vertical center line of the mouse position
+        self.__centerVLine2 = _pg.InfiniteLine(
+            angle=90, movable=False, pen=(255, 0, 0))
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:          first horizontal center line of the mouse position
+        self.__centerHLine1 = _pg.InfiniteLine(
+            angle=0, movable=False, pen=(255, 0, 0))
+        #: (:class:`pyqtgraph.InfiniteLine`)
+        #:          second horizontal center line of the mouse position
+        self.__centerHLine2 = _pg.InfiniteLine(
+            angle=0, movable=False, pen=(255, 0, 0))
+        self._mainwidget.viewbox().addItem(
+            self.__centerVLine1, ignoreBounds=True)
+        self._mainwidget.viewbox().addItem(
+            self.__centerVLine2, ignoreBounds=True)
+        self._mainwidget.viewbox().addItem(
+            self.__centerHLine1, ignoreBounds=True)
+        self._mainwidget.viewbox().addItem(
+            self.__centerHLine2, ignoreBounds=True)
+
+    def show(self, parameters):
+        """ set subwidget properties
+
+        :param parameters: tool parameters
+        :type parameters: :class:`lavuelib.toolWidget.ToolParameters`
+        """
+        if parameters.vhbounds is not None:
+            self.__showBounds(parameters.vhbounds)
+            self._enabled = parameters.vhbounds
+
+    def __showBounds(self, status):
+        """ shows or hides HV center mouse lines
+
+        :param status: will be shown
+        :type status: :obj:`bool`
+        """
+        if status:
+            self.__centerVLine1.show()
+            self.__centerHLine1.show()
+            self.__centerVLine2.show()
+            self.__centerHLine2.show()
+        else:
+            self.__centerVLine1.hide()
+            self.__centerHLine1.hide()
+            self.__centerVLine2.hide()
+            self.__centerHLine2.hide()
+
+    @QtCore.pyqtSlot(float, float)
+    def updateVBounds(self, xdata1, xdata2):
+        """ updates the vertical bounds
+
+        :param xdata1: first x-pixel position
+        :type xdata1: :obj:`float`
+        :param xdata2: second x-pixel position
+        :type xdata2: :obj:`float`
+        """
+        self.__vbounds = [xdata1, xdata2]
+        if xdata1 is None:
+            self.__centerVLine1.hide()
+        else:
+            self.__centerVLine1.setPos(xdata1)
+            self.__centerVLine1.show()
+        if xdata2 is None:
+            self.__centerVLine2.hide()
+        else:
+            self.__centerVLine2.setPos(xdata2)
+            self.__centerVLine2.show()
+
+    @QtCore.pyqtSlot(float, float)
+    def updateHBounds(self, ydata1, ydata2):
+        """ updates the horizontal bounds
+
+        :param ydata1: first y-pixel position
+        :type ydata1: :obj:`float`
+        :param ydata2: second y-pixel position
+        :type ydata2: :obj:`float`
+        """
+        self.__hbounds = [ydata1, ydata2]
+        if ydata1 is None:
+            self.__centerHLine1.hide()
+        else:
+            self.__centerHLine1.setPos(ydata1)
+            self.__centerHLine1.show()
+        if ydata2 is None:
+            self.__centerHLine2.hide()
+        else:
+            self.__centerHLine2.setPos(ydata2)
+            self.__centerHLine2.show()
+
+
 class MarkExtension(DisplayExtension):
 
     def __init__(self, parent=None):

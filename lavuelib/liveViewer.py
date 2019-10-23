@@ -1716,7 +1716,7 @@ class LiveViewer(QtGui.QDialog):
     def __updateframerate(self, ratetime):
         if ratetime:
             fr = 1.0/float(ratetime)
-            if fr >= 10:
+            if fr >= 9.9:
                 self.__ui.framerateLineEdit.setText("%.0f Hz" % fr)
             else:
                 self.__ui.framerateLineEdit.setText("%.1f Hz" % fr)
@@ -1726,7 +1726,7 @@ class LiveViewer(QtGui.QDialog):
     def __updateframeratetip(self, ratetime):
         if ratetime:
             fr = 1.0/float(ratetime)
-            if fr >= 10:
+            if fr >= 9.9:
                 self.__ui.framerateLineEdit.setToolTip(
                     "Set frame rate: %.0f Hz" % fr)
             else:

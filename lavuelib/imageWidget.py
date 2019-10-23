@@ -164,13 +164,16 @@ class ImageWidget(QtGui.QWidget):
         self.__displaywidget = imageDisplayWidget.ImageDisplayWidget(
             parent=self)
         self.__displaywidget.addExtensions(
-            [displayExtensions.ROIExtension,
-             displayExtensions.CutExtension,
-             displayExtensions.LockerExtension,
-             displayExtensions.CenterExtension,
-             displayExtensions.MarkExtension,
-             displayExtensions.MeshExtension,
-             displayExtensions.MaximaExtension]
+            [
+                displayExtensions.ROIExtension,
+                displayExtensions.CutExtension,
+                displayExtensions.LockerExtension,
+                displayExtensions.CenterExtension,
+                displayExtensions.MarkExtension,
+                displayExtensions.MeshExtension,
+                displayExtensions.MaximaExtension,
+                displayExtensions.VHBoundsExtension,
+            ]
         )
 
         #: (:class:`pyqtgraph.PlotWidget`) bottom 1D plot widget
@@ -1498,6 +1501,30 @@ class ImageWidget(QtGui.QWidget):
         """ sets auto range
         """
         self.__displaywidget.autoRange()
+
+    @QtCore.pyqtSlot(float, float)
+    def updateHBounds(self, xdata1, xdata2):
+        """ updates the vertical bounds
+
+        :param xdata1: first x-pixel position
+        :type xdata1: :obj:`float`
+        :param xdata2: second x-pixel position
+        :type xdata2: :obj:`float`
+        """
+        self.__displaywidget.extension('vhbounds').updateHBounds(
+            xdata1, xdata2)
+
+    @QtCore.pyqtSlot(float, float)
+    def updateVBounds(self, ydata1, ydata2):
+        """ updates the vertical bounds
+
+        :param ydata1: first x-pixel position
+        :type ydata1: :obj:`float`
+        :param ydata2: second x-pixel position
+        :type ydata2: :obj:`float`
+        """
+        self.__displaywidget.extension('vhbounds').updateVBounds(
+            ydata1, ydata2)
 
     @QtCore.pyqtSlot(float, float)
     def updateCenter(self, xdata, ydata):
