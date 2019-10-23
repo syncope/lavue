@@ -757,7 +757,7 @@ class ImageWidget(QtGui.QWidget):
             return
         if rawarray is None:
             rawarray = array
-
+        barrays = None
         self.__data = array
         self.__rawdata = rawarray
         if self.__currenttool:

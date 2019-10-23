@@ -71,6 +71,8 @@ class Settings(object):
         self.showscale = True
         #: (:obj:`bool`) show intensity levels widget
         self.showlevels = True
+        #: (:obj:`bool`) show frame rate widget
+        self.showframerate = True
         #: (:obj:`bool`) image aspect ratio locked
         self.aspectlocked = False
         #: (:obj:`bool`) auto down sample
@@ -287,6 +289,10 @@ class Settings(object):
             "Configuration/ShowIntensityLevels", type=str))
         if qstval.lower() == "false":
             self.showlevels = False
+        qstval = str(settings.value(
+            "Configuration/ShowFrameRate", type=str))
+        if qstval.lower() == "false":
+            self.showframerate = False
         qstval = str(settings.value("Configuration/ShowHistogram", type=str))
         if qstval.lower() == "false":
             self.showhisto = False
@@ -571,6 +577,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ShowIntensityLevels",
             self.showlevels)
+        settings.setValue(
+            "Configuration/ShowFrameRate",
+            self.showframerate)
         settings.setValue(
             "Configuration/ShowHistogram",
             self.showhisto)

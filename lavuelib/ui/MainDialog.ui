@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>669</width>
+    <width>724</width>
     <height>52</height>
    </rect>
   </property>
@@ -44,6 +44,9 @@
            <property name="text">
             <string>Image/File name: </string>
            </property>
+           <property name="buddy">
+            <cstring>fileNameLineEdit</cstring>
+           </property>
           </widget>
          </item>
          <item>
@@ -76,6 +79,22 @@
            </property>
            <property name="value">
             <number>-1</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="framerateLineEdit">
+           <property name="maximumSize">
+            <size>
+             <width>64</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Frame rate in Hz&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -117,6 +136,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>fileNameLineEdit</tabstop>
+  <tabstop>frameHorizontalSlider</tabstop>
+  <tabstop>frameSpinBox</tabstop>
+  <tabstop>framerateLineEdit</tabstop>
+  <tabstop>loadPushButton</tabstop>
+  <tabstop>cnfPushButton</tabstop>
+  <tabstop>quitPushButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
