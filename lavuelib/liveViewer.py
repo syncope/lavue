@@ -177,21 +177,27 @@ class LiveViewer(QtGui.QDialog):
         #: (:obj:`list` < :obj:`str` > ) source class names
         self.__sourcetypes = []
 
-        #: (:obj:`list` < :obj:`str` > ) all source names
-        self.__allsourcenames = []
-        #: (:obj:`dict` < :obj:`str`, :obj:`str` > ) source names
-        self.__isnametoname = {}
+        #: (:obj:`list` < :obj:`str` > ) all source aliases
+        self.__allsourcealiases = []
+        #: (:obj:`dict` < :obj:`str`, :obj:`str` > ) source alias names
+        self.__srcaliasnames = {}
 
         #: (:obj:`list` < :obj:`str` > ) tool class names
         self.__tooltypes = []
 
+        #: (:obj:`list` < :obj:`str` > ) all tool aliases
+        self.__alltoolaliases = []
+        #: (:obj:`dict` < :obj:`str`, :obj:`str` > ) tool alias names
+        self.__tlaliasnames = {}
+
         self.__updateISTypeList(
             sourceWidget.swproperties, self.__sourcetypes,
-            self.__allsourcenames, self.__isnametoname
+            self.__allsourcealiases, self.__srcaliasnames
         )
-        self.__updateTypeList(
-            self.__settings.toolwidgets,
-            toolWidget.twproperties, self.__tooltypes)
+        self.__updateISTypeList(
+            toolWidget.twproperties, self.__tooltypes,
+            self.__alltoolaliases, self.__tlaliasnames
+        )
 
         #: (:obj:`list` < :obj:`str` > ) rgb tool class names
         self.__rgbtooltypes = []
@@ -222,7 +228,7 @@ class LiveViewer(QtGui.QDialog):
             parent=self, sourcetypes=self.__sourcetypes,
             expertmode=(self.__umode == 'expert'))
         self.__sourcewg.updateSourceComboBox(
-            [self.__isnametoname[twn]
+            [self.__srcaliasnames[twn]
              for twn in json.loads(self.__settings.imagesources)])
 
         #: (:class:`lavuelib.preparationGroupBox.PreparationGroupBox`)
@@ -243,6 +249,9 @@ class LiveViewer(QtGui.QDialog):
             parent=self, tooltypes=self.__tooltypes,
             settings=self.__settings,
             rgbtooltypes=self.__rgbtooltypes)
+        self.__imagewg.updateToolComboBox(
+            [self.__tlaliasnames[twn]
+             for twn in json.loads(self.__settings.toolwidgets)])
 
         self.__levelswg.setImageItem(self.__imagewg.image())
         self.__levelswg.showGradient(True)
@@ -1099,12 +1108,11 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.roiscolors = self.__settings.roiscolors
         cnfdlg.sourcedisplay = self.__settings.sourcedisplay
         cnfdlg.imagesources = self.__settings.imagesources
-        cnfdlg.imagesourcenames = self.__isnametoname
+        cnfdlg.imagesourcenames = self.__srcaliasnames
         cnfdlg.toolwidgets = self.__settings.toolwidgets
         cnfdlg.toolwidgetnames = {}
-        cnfdlg.availimagesources = self.__allsourcenames
-        cnfdlg.availtoolwidgets = [
-            wp["alias"] for wp in toolWidget.twproperties]
+        cnfdlg.availimagesources = self.__allsourcealiases
+        cnfdlg.availtoolwidgets = self.__alltoolaliases
         cnfdlg.defdetservers = self.__settings.defdetservers
         cnfdlg.detservers = json.dumps(self.__mergeDetServers(
             HIDRASERVERLIST if cnfdlg.defdetservers else {"pool": []},
@@ -1162,11 +1170,15 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.imagesources != dialog.imagesources:
             self.__settings.imagesources = dialog.imagesources
             self.__sourcewg.updateSourceComboBox(
-                [self.__isnametoname[twn]
+                [self.__srcaliasnames[twn]
                  for twn in json.loads(self.__settings.imagesources)],
                 self.__sourcewg.currentDataSourceName())
         if self.__settings.toolwidgets != dialog.toolwidgets:
             self.__settings.toolwidgets = dialog.toolwidgets
+            self.__imagewg.updateToolComboBox(
+                [self.__tlaliasnames[twn]
+                 for twn in json.loads(self.__settings.toolwidgets)],
+                self.__imagewg.currentTool())
         dataFetchThread.GLOBALREFRESHRATE = dialog.refreshrate
         replot = False
 

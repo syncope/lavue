@@ -84,30 +84,18 @@ _qroiprojformclass, _qroiprojbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "QROIProjToolWidget.ui"))
 
-
-#  projections, q+roi+pro
-#: ( :obj:`dict` < :obj:`str`, any > ) source widget properties
-twproperties = [
-    {'alias': 'intensity', 'widget': 'IntensityToolWidget',
-     'name': 'Intensity', 'requires': ()},
-    {'alias': 'roi', 'widget': 'ROIToolWidget',
-     'name': 'ROI', 'requires': ()},
-    {'alias': 'linecut', 'widget': 'LineCutToolWidget',
-     'name': 'LineCut', 'requires': ()},
-    {'alias': 'angle/q', 'widget': 'AngleQToolWidget',
-     'name': 'Angle/Q', 'requires': ()},
-    {'alias': 'movemotors', 'widget': 'MotorsToolWidget',
-     'name': 'MoveMotors', 'requires': ("PYTANGO",)},
-    {'alias': 'meshscan', 'widget': 'MeshToolWidget',
-     'name': 'MeshScan', 'requires': ("PYTANGO",)},
-    {'alias': '1d-plot', 'widget': 'OneDToolWidget',
-     'name': '1d-Plot', 'requires': ()},
-    {'alias': 'projections', 'widget': 'ProjectionToolWidget',
-     'name': 'Projections', 'requires': ()},
-    {'alias': 'maxima', 'widget': 'MaximaToolWidget',
-     'name': 'Maxima', 'requires': ()},
-    {'alias': 'qroiproj', 'widget': 'QROIProjToolWidget',
-     'name': 'Q+ROI+Proj', 'requires': ()},
+__all__ = [
+    'IntensityToolWidget',
+    'ROIToolWidget',
+    'LineCutToolWidget',
+    'AngleQToolWidget',
+    'MotorsToolWidget',
+    'MeshToolWidget',
+    'OneDToolWidget',
+    'ProjectionToolWidget',
+    'MaximaToolWidget',
+    'QROIProjToolWidget',
+    'twproperties',
 ]
 
 
@@ -153,6 +141,14 @@ class ToolParameters(object):
 class ToolBaseWidget(QtGui.QWidget):
     """ tool widget
     """
+
+    #: (:obj:`str`) tool name
+    name = "None"
+    #: (:obj:`str`) tool name alias
+    alias = "none"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ()
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -160,8 +156,6 @@ class ToolBaseWidget(QtGui.QWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QWidget.__init__(self, parent)
-        #: (:obj:`str`) tool name
-        self.name = "None"
         #: (:class:`pyqtgraph.QtCore.QObject`) mainwidget
         self._mainwidget = parent
         #: (:class:`Ui_ToolBaseWidget')
@@ -202,6 +196,13 @@ class IntensityToolWidget(ToolBaseWidget):
     """ intensity tool widget
     """
 
+    #: (:obj:`str`) tool name
+    name = "Intensity"
+    #: (:obj:`str`) tool name alias
+    alias = "intensity"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ()
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -209,9 +210,6 @@ class IntensityToolWidget(ToolBaseWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         ToolBaseWidget.__init__(self, parent)
-
-        #: (:obj:`str`) tool name
-        self.name = "Intensity"
 
         #: (:class:`Ui_IntensityToolWidget')
         #:        ui_toolwidget object from qtdesigner
@@ -263,6 +261,13 @@ class RGBIntensityToolWidget(IntensityToolWidget):
     """ intensity tool widget
     """
 
+    #: (:obj:`str`) tool name
+    name = "RGB Intensity"
+    #: (:obj:`str`) tool name alias
+    alias = "rgbintensity"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ()
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -270,9 +275,6 @@ class RGBIntensityToolWidget(IntensityToolWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         IntensityToolWidget.__init__(self, parent)
-
-        #: (:obj:`str`) tool name
-        self.name = "RGB Intensity"
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -310,6 +312,13 @@ class MotorsToolWidget(ToolBaseWidget):
     """ motors tool widget
     """
 
+    #: (:obj:`str`) tool name
+    name = "MoveMotors"
+    #: (:obj:`str`) tool name alias
+    alias = "movemotors"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("PYTANGO",)
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -317,9 +326,6 @@ class MotorsToolWidget(ToolBaseWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         ToolBaseWidget.__init__(self, parent)
-
-        #: (:obj:`str`) tool name
-        self.name = "MoveMotors"
 
         #: (:obj:`str`) x-motor name
         self.__xmotorname = ""
@@ -610,6 +616,13 @@ class MeshToolWidget(ToolBaseWidget):
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi info Changed signal
     roiInfoChanged = QtCore.pyqtSignal(str)
 
+    #: (:obj:`str`) tool name
+    name = "MeshScan"
+    #: (:obj:`str`) tool name alias
+    alias = "meshscan"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("PYTANGO",)
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -617,9 +630,6 @@ class MeshToolWidget(ToolBaseWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         ToolBaseWidget.__init__(self, parent)
-
-        #: (:obj:`str`) tool name
-        self.name = "MeshScan"
 
         #: (:obj:`str`) x-motor name
         self.__xmotorname = ""
@@ -926,6 +936,13 @@ class ROIToolWidget(ToolBaseWidget):
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi info Changed signal
     roiInfoChanged = QtCore.pyqtSignal(str)
 
+    #: (:obj:`str`) tool name
+    name = "ROI"
+    #: (:obj:`str`) tool name alias
+    alias = "roi"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ()
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -933,9 +950,6 @@ class ROIToolWidget(ToolBaseWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         ToolBaseWidget.__init__(self, parent)
-
-        #: (:obj:`str`) tool name
-        self.name = "ROI"
 
         #: (:class:`Ui_ROIToolWidget') ui_toolwidget object from qtdesigner
         self.__ui = _roiformclass()
@@ -1152,6 +1166,13 @@ class LineCutToolWidget(ToolBaseWidget):
     """ line-cut tool widget
     """
 
+    #: (:obj:`str`) tool name
+    name = "LineCut"
+    #: (:obj:`str`) tool name alias
+    alias = "linecut"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ()
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -1159,9 +1180,6 @@ class LineCutToolWidget(ToolBaseWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         ToolBaseWidget.__init__(self, parent)
-
-        #: (:obj:`str`) tool name
-        self.name = "LineCut"
 
         #: (:class:`Ui_LineCutToolWidget') ui_toolwidget object from qtdesigner
         self.__ui = _cutformclass()
@@ -1360,6 +1378,13 @@ class ProjectionToolWidget(ToolBaseWidget):
     """ Projections tool widget
     """
 
+    #: (:obj:`str`) tool name
+    name = "Projections"
+    #: (:obj:`str`) tool name alias
+    alias = "projections"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ()
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -1367,9 +1392,6 @@ class ProjectionToolWidget(ToolBaseWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         ToolBaseWidget.__init__(self, parent)
-
-        #: (:obj:`str`) tool name
-        self.name = "Projections"
 
         #: (:class:`Ui_ProjectionToolWidget')
         #:      ui_toolwidget object from qtdesigner
@@ -1567,6 +1589,13 @@ class OneDToolWidget(ToolBaseWidget):
     """ 1d plot tool widget
     """
 
+    #: (:obj:`str`) tool name
+    name = "1d-Plot"
+    #: (:obj:`str`) tool name alias
+    alias = "1d-plot"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ()
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -1574,9 +1603,6 @@ class OneDToolWidget(ToolBaseWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         ToolBaseWidget.__init__(self, parent)
-
-        #: (:obj:`str`) tool name
-        self.name = "1d-Plot"
 
         #: (:class:`Ui_OneDToolWidget') ui_toolwidget object from qtdesigner
         self.__ui = _onedformclass()
@@ -1804,6 +1830,13 @@ class AngleQToolWidget(ToolBaseWidget):
     """ angle/q tool widget
     """
 
+    #: (:obj:`str`) tool name
+    name = "Angle/Q"
+    #: (:obj:`str`) tool name alias
+    alias = "angle/q"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ()
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -1811,9 +1844,6 @@ class AngleQToolWidget(ToolBaseWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         ToolBaseWidget.__init__(self, parent)
-
-        #: (:obj:`str`) tool name
-        self.name = "Angle/Q"
 
         #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
         self.__gspaceindex = 0
@@ -2460,6 +2490,13 @@ class MaximaToolWidget(ToolBaseWidget):
     """ angle/q tool widget
     """
 
+    #: (:obj:`str`) tool name
+    name = "Maxima"
+    #: (:obj:`str`) tool name alias
+    alias = "maxima"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ()
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -2467,9 +2504,6 @@ class MaximaToolWidget(ToolBaseWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         ToolBaseWidget.__init__(self, parent)
-
-        #: (:obj:`str`) tool name
-        self.name = "Maxima"
 
         #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
         self.__gspaceindex = 0
@@ -2790,6 +2824,13 @@ class QROIProjToolWidget(ToolBaseWidget):
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) roi info Changed signal
     roiInfoChanged = QtCore.pyqtSignal(str)
 
+    #: (:obj:`str`) tool name
+    name = "Q+ROI+Proj"
+    #: (:obj:`str`) tool name alias
+    alias = "q+roi+proj"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ()
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -2797,9 +2838,6 @@ class QROIProjToolWidget(ToolBaseWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         ToolBaseWidget.__init__(self, parent)
-
-        #: (:obj:`str`) tool name
-        self.name = "Q+ROI+Proj"
 
         #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
         self.__gspaceindex = 0
@@ -3380,3 +3418,17 @@ class QROIProjToolWidget(ToolBaseWidget):
             "Select the display space\n%s" % message)
         self.__ui.toolLabel.setToolTip(
             "coordinate info display for the mouse pointer\n%s" % message)
+
+
+#: ( :obj:`dict` < :obj:`str`, any > ) tool widget properties
+twproperties = []
+for nm in __all__:
+    if nm.endswith("ToolWidget"):
+        cl = globals()[nm]
+        twproperties.append(
+            {
+                'alias': cl.alias,
+                'name': cl.name,
+                'widget': nm,
+                'requires': cl.requires,
+            })

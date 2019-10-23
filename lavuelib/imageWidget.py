@@ -224,6 +224,35 @@ class ImageWidget(QtGui.QWidget):
 
         self.roiLineEditChanged.emit()
 
+    def updateToolComboBox(self, toolnames, name=None):
+        """ set tool by changing combobox
+
+        :param toolnames: tool names
+        :type toolnames: :obj:`list` < :obj:`str` >
+        :param index: combobox index
+        :type index: :obj:`int`
+        """
+
+        self.__ui.toolComboBox.currentIndexChanged.disconnect(
+           self.showCurrentTool)
+        if toolnames and name and name not in toolnames:
+            toolnames = list(toolnames)
+            toolnames.append(name)
+        toolnames = [sr for sr in toolnames if sr in self.__toolnames]
+        if not toolnames:
+            toolnames = self.__toolnames
+        name = name or str(self.__ui.toolComboBox.currentText())
+        self.__ui.toolComboBox.clear()
+        self.__ui.toolComboBox.addItems(toolnames)
+        if self.__ui.toolComboBox.count() == 0:
+            self.__ui.toolComboBox.addItems(self.__toolnames)
+        index = self.__ui.toolComboBox.findText(name)
+        if index == -1:
+            index = 0
+        self.__ui.toolComboBox.setCurrentIndex(index)
+        self.__ui.toolComboBox.currentIndexChanged.connect(
+            self.showCurrentTool)
+
     def writeAttribute(self, name, value):
         """ writes attribute value of device
 

@@ -81,7 +81,7 @@ __all__ = [
     'ZMQSourceWidget',
     'NXSFileSourceWidget',
     'TestSourceWidget',
-    'TestSourceWidget',
+    'swproperties'
 ]
 
 
