@@ -72,7 +72,15 @@ class TableWidgetDragCheckBoxes(QtGui.QTableWidget):
         self.horizontalHeader().setStretchLastSection(True)
 
     def create(self, selected, available, itemnames=None):
-        """ populates table """
+        """ populates table
+
+        :param selected: all selected aliases
+        :type selected: :obj:`list` < :obj:`str`>
+        :param available: all available aliases
+        :type available: :obj:`list` < :obj:`str`>
+        :param itemnames: dictionary of alias names
+        :type itemnames: :obj:`dict` < :obj:`str`, :obj:`str`>
+        """
         self.__checkboxdata = []
         itemnames = itemnames or {}
         self.__nameitems = {v: k for k, v in itemnames.items()}
@@ -98,7 +106,13 @@ class TableWidgetDragCheckBoxes(QtGui.QTableWidget):
             self.setItem(i, 0, item)
 
     def getChecks(self, available):
-        """ update checks in checkboxdata """
+        """ update checks in checkboxdata
+
+        :param available: all available aliases
+        :type available: :obj:`list` < :obj:`str`>
+        :returns: all selected aliases
+        :rtype: :obj:`list` < :obj:`str`>
+        """
         selected = []
         for ri, (name, checked) in enumerate(self.__checkboxdata):
             ridx = self.model().index(ri, 0)
@@ -145,7 +159,9 @@ class TableWidgetDragCheckBoxes(QtGui.QTableWidget):
         """ provides target row index to drop
 
         :param event: drop event
-        :type event:  :class:`pyqtgraph.QtCore.QEvent`:
+        :type event: :class:`pyqtgraph.QtCore.QEvent`
+        :returns: target row index to drop
+        :rtype: :obj:`int`
         """
         idx = self.indexAt(event.pos())
         if not idx.isValid():
