@@ -73,8 +73,8 @@ def sftimer():
     QtCore.QTimer.singleShot(500, timerEvent)
 
 
-# def main():
-if __name__ == "__main__":
+def main():
+    global dialog
     """ the main function
     """
 
@@ -115,8 +115,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-s", "--source", dest="source",
         help="image source, i.e. hidra, http, tangoattr,\n"
-        "    tangofile, zmq, nxsfile, test")
-
+        "    tangofile, doocsprop, zmq, nxsfile, test")
     parser.add_argument(
         "-c", "--configuration", dest="configuration",
         help="configuration strings for the image source separated by comma"
@@ -127,6 +126,7 @@ if __name__ == "__main__":
         "  tangofile -> '-c p00/plt/1/LastImageTaken,p00/plt/1/"
         "LastImagePath'\n"
         "  zmq -> '-c haso228:5535,topic'\n"
+        "  doocsprop -> '-c TTF2.FEL/BLFW2.CAM/BL0M1.CAM/IMAGE_EXT'\n"
         "  nxsfile -> '-c /tmp/myfile.nxs://entry/data/pilatus'\n"
     )
     parser.add_argument(
@@ -198,22 +198,11 @@ if __name__ == "__main__":
         help="tango analysis device of LambdaOnlineAnalysis"
         " to communicate with analysis clients during the run")
 
-    # parser.add_argument(
-    #       "-o", "--log", dest="log",
-    #        help="logging level, i.e. debug, info, warning, error, critical")
-
     options = parser.parse_args()
 
     if options.version:
         print(lavuelib.__version__)
         sys.exit(0)
-
-    # level = LogActions.levels.get(options.log, logging.INFO)
-    # handler = LogHandler()
-    # handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
-    # logger = logging.getLogger("lavue")
-    # logger.addHandler(handler)
-    # logger.setLevel(level)
 
     app = QtGui.QApplication([])
     setupHandler()
@@ -238,5 +227,6 @@ if __name__ == "__main__":
     gc.collect()
     sys.exit(status)
 
-# if __name__ == "__main__":
-#     main()
+
+if __name__ == "__main__":
+    main()

@@ -47,6 +47,8 @@ from . import imageSource as isr
 from . import messageBox
 
 from . import sourceGroupBox
+from . import toolWidget
+from . import sourceWidget
 from . import preparationGroupBox
 from . import scalingGroupBox
 from . import levelsGroupBox
@@ -143,40 +145,6 @@ class LiveViewer(QtGui.QDialog):
         QtGui.QDialog.__init__(self, parent)
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-        #: (:obj:`list` < :obj:`str` > ) source class names
-        self.__sourcetypes = []
-        if isr.HIDRA:
-            self.__sourcetypes.append("HidraSourceWidget")
-        if isr.REQUESTS:
-            self.__sourcetypes.append("HTTPSourceWidget")
-        if isr.PYTANGO:
-            self.__sourcetypes.append("TangoAttrSourceWidget")
-            self.__sourcetypes.append("TangoEventsSourceWidget")
-            self.__sourcetypes.append("TangoFileSourceWidget")
-        if isr.PYDOOCS:
-            self.__sourcetypes.append("DOOCSPropSourceWidget")
-        self.__sourcetypes.append("ZMQSourceWidget")
-        self.__sourcetypes.append("NXSFileSourceWidget")
-        self.__sourcetypes.append("TestSourceWidget")
-        # self.__sourcetypes.append("FixTestSourceWidget")
-
-        #: (:obj:`list` < :obj:`str` > ) tool class names
-        self.__tooltypes = []
-        self.__tooltypes.append("IntensityToolWidget")
-        self.__tooltypes.append("ROIToolWidget")
-        self.__tooltypes.append("LineCutToolWidget")
-        self.__tooltypes.append("AngleQToolWidget")
-        if isr.PYTANGO:
-            self.__tooltypes.append("MotorsToolWidget")
-            self.__tooltypes.append("MeshToolWidget")
-        self.__tooltypes.append("OneDToolWidget")
-        self.__tooltypes.append("ProjectionToolWidget")
-        self.__tooltypes.append("MaximaToolWidget")
-        self.__tooltypes.append("QROIProjToolWidget")
-        #: (:obj:`list` < :obj:`str` > ) rgb tool class names
-        self.__rgbtooltypes = []
-        self.__rgbtooltypes.append("RGBIntensityToolWidget")
-
         if options.mode and options.mode.lower() in ["expert"]:
             #: (:obj:`str`) execution mode: expert or user
             self.__umode = "expert"
@@ -204,6 +172,36 @@ class LiveViewer(QtGui.QDialog):
 
         #: (:class:`lavuelib.settings.Settings`) settings
         self.__settings = settings.Settings()
+        self.__settings.load(QtCore.QSettings())
+
+        #: (:obj:`list` < :obj:`str` > ) source class names
+        self.__sourcetypes = []
+
+        #: (:obj:`list` < :obj:`str` > ) all source aliases
+        self.__allsourcealiases = []
+        #: (:obj:`dict` < :obj:`str`, :obj:`str` > ) source alias names
+        self.__srcaliasnames = {}
+
+        #: (:obj:`list` < :obj:`str` > ) tool class names
+        self.__tooltypes = []
+
+        #: (:obj:`list` < :obj:`str` > ) all tool aliases
+        self.__alltoolaliases = []
+        #: (:obj:`dict` < :obj:`str`, :obj:`str` > ) tool alias names
+        self.__tlaliasnames = {}
+
+        self.__updateISTypeList(
+            sourceWidget.swproperties, self.__sourcetypes,
+            self.__allsourcealiases, self.__srcaliasnames
+        )
+        self.__updateISTypeList(
+            toolWidget.twproperties, self.__tooltypes,
+            self.__alltoolaliases, self.__tlaliasnames
+        )
+
+        #: (:obj:`list` < :obj:`str` > ) rgb tool class names
+        self.__rgbtooltypes = []
+        self.__rgbtooltypes.append("RGBIntensityToolWidget")
 
         #: (:class:`lavuelib.controllerClient.ControllerClient`)
         #:   tango controller client
@@ -229,6 +227,9 @@ class LiveViewer(QtGui.QDialog):
         self.__sourcewg = sourceGroupBox.SourceGroupBox(
             parent=self, sourcetypes=self.__sourcetypes,
             expertmode=(self.__umode == 'expert'))
+        self.__sourcewg.updateSourceComboBox(
+            [self.__srcaliasnames[twn]
+             for twn in json.loads(self.__settings.imagesources)])
 
         #: (:class:`lavuelib.preparationGroupBox.PreparationGroupBox`)
         #: preparation groupbox
@@ -248,6 +249,9 @@ class LiveViewer(QtGui.QDialog):
             parent=self, tooltypes=self.__tooltypes,
             settings=self.__settings,
             rgbtooltypes=self.__rgbtooltypes)
+        self.__imagewg.updateToolComboBox(
+            [self.__tlaliasnames[twn]
+             for twn in json.loads(self.__settings.toolwidgets)])
 
         self.__levelswg.setImageItem(self.__imagewg.image())
         self.__levelswg.showGradient(True)
@@ -447,6 +451,49 @@ class LiveViewer(QtGui.QDialog):
         if options.tool:
             QtCore.QTimer.singleShot(10, self.__imagewg.showCurrentTool)
 
+    def __updateISTypeList(self, properties, typelist,
+                           allaliases, snametoname):
+        typelist[:] = []
+        allaliases[:] = []
+        for wp in properties:
+            avail = True
+            for req in wp["requires"]:
+                if not getattr(isr, req):
+                    avail = False
+                    break
+            if avail:
+                if wp["alias"] not in typelist:
+                    typelist.append(wp["widget"])
+            allaliases.append(wp["alias"])
+            snametoname[wp["alias"]] = wp["name"]
+
+    def __updateTypeList(self, widgets, properties, typelist):
+        tlwgnames = []
+        wproperties = []
+        typelist[:] = []
+        for wp in properties:
+            avail = True
+            for req in wp["requires"]:
+                if not getattr(isr, req):
+                    avail = False
+                    break
+            if avail:
+                wproperties.append(dict(wp))
+                if wp["alias"] not in tlwgnames:
+                    tlwgnames.append(wp["alias"])
+
+        tlwgs = []
+        [tlwgs.append(twn)
+         for twn in json.loads(widgets)
+         if (twn in tlwgnames and twn not in tlwgs)]
+        if not tlwgs:
+            tlwgs = list(tlwgnames)
+
+        for twn in tlwgs:
+            for wp in wproperties:
+                if wp["alias"] == twn:
+                    typelist.append(wp["widget"])
+
     def __switchlazysignals(self, lazy=False):
         """switch lazy signals
 
@@ -561,14 +608,15 @@ class LiveViewer(QtGui.QDialog):
             self._storeSettings()
 
     def __updateSource(self):
-        if self.__settings.detservers:
+        detservers = json.loads(self.__settings.detservers)
+        if detservers:
             if self.__settings.defdetservers:
                 serverdict = dict(HIDRASERVERLIST)
                 defpool = set(serverdict["pool"])
-                defpool.update(self.__settings.detservers)
+                defpool.update(detservers)
                 serverdict["pool"] = list(defpool)
             else:
-                serverdict = {"pool": list(self.__settings.detservers)}
+                serverdict = {"pool": list(detservers)}
         elif self.__settings.defdetservers:
             serverdict = HIDRASERVERLIST
         else:
@@ -1041,7 +1089,6 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.lazyimageslider = self.__settings.lazyimageslider
         cnfdlg.statswoscaling = self.__settings.statswoscaling
         cnfdlg.zmqtopics = self.__settings.zmqtopics
-        cnfdlg.detservers = self.__settings.detservers
         cnfdlg.autozmqtopics = self.__settings.autozmqtopics
         cnfdlg.interruptonerror = self.__settings.interruptonerror
         cnfdlg.dirtrans = self.__settings.dirtrans
@@ -1060,10 +1107,16 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.geometryfromsource = self.__settings.geometryfromsource
         cnfdlg.roiscolors = self.__settings.roiscolors
         cnfdlg.sourcedisplay = self.__settings.sourcedisplay
+        cnfdlg.imagesources = self.__settings.imagesources
+        cnfdlg.imagesourcenames = self.__srcaliasnames
+        cnfdlg.toolwidgets = self.__settings.toolwidgets
+        cnfdlg.toolwidgetnames = {}
+        cnfdlg.availimagesources = self.__allsourcealiases
+        cnfdlg.availtoolwidgets = self.__alltoolaliases
         cnfdlg.defdetservers = self.__settings.defdetservers
-        cnfdlg.detservers = self.__mergeDetServers(
+        cnfdlg.detservers = json.dumps(self.__mergeDetServers(
             HIDRASERVERLIST if cnfdlg.defdetservers else {"pool": []},
-            self.__settings.detservers)
+            json.loads(self.__settings.detservers)))
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__updateConfig(cnfdlg)
@@ -1114,6 +1167,18 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.showstats != dialog.showstats:
             self.__statswg.changeView(dialog.showstats)
             self.__settings.showstats = dialog.showstats
+        if self.__settings.imagesources != dialog.imagesources:
+            self.__settings.imagesources = dialog.imagesources
+            self.__sourcewg.updateSourceComboBox(
+                [self.__srcaliasnames[twn]
+                 for twn in json.loads(self.__settings.imagesources)],
+                self.__sourcewg.currentDataSourceName())
+        if self.__settings.toolwidgets != dialog.toolwidgets:
+            self.__settings.toolwidgets = dialog.toolwidgets
+            self.__imagewg.updateToolComboBox(
+                [self.__tlaliasnames[twn]
+                 for twn in json.loads(self.__settings.toolwidgets)],
+                self.__imagewg.currentTool())
         dataFetchThread.GLOBALREFRESHRATE = dialog.refreshrate
         replot = False
 
@@ -1202,9 +1267,9 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.defdetservers != dialog.defdetservers:
             self.__settings.defdetservers = dialog.defdetservers
             setsrc = True
-        detservers = self.__retrieveUserDetServers(
+        detservers = json.dumps(self.__retrieveUserDetServers(
             HIDRASERVERLIST if dialog.defdetservers else {"pool": []},
-            dialog.detservers)
+            json.loads(dialog.detservers)))
         if self.__settings.detservers != detservers:
             self.__settings.detservers = detservers
             setsrc = True

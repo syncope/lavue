@@ -70,8 +70,22 @@ _doocspropformclass, _doocspropbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "DOOCSPropSourceWidget.ui"))
 
+__all__ = [
+    'SourceBaseWidget',
+    'HidraSourceWidget',
+    'HTTPSourceWidget',
+    'TangoAttrSourceWidget',
+    'TangoEventsSourceWidget',
+    'TangoFileSourceWidget',
+    'DOOCSPropSourceWidget',
+    'ZMQSourceWidget',
+    'NXSFileSourceWidget',
+    'TestSourceWidget',
+    'swproperties'
+]
 
-class BaseSourceWidget(QtGui.QWidget):
+
+class SourceBaseWidget(QtGui.QWidget):
 
     """ general source widget """
 
@@ -88,6 +102,15 @@ class BaseSourceWidget(QtGui.QWidget):
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) remove Icon Clicked
     removeIconClicked = QtCore.pyqtSignal(str, str)
 
+    #: (:obj:`str`) source name
+    name = "Test"
+    #: (:obj:`str`) source alias
+    alias = "test"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ()
+    #: (:obj:`str`) datasource class name
+    datasource = "BaseSource"
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -96,10 +119,6 @@ class BaseSourceWidget(QtGui.QWidget):
         """
         QtGui.QWidget.__init__(self, parent)
 
-        #: (:obj:`str`) source name
-        self.name = "Test"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "BaseSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = []
         #: (:obj:`list` <:class:`PyQt5.QtGui.QWidget`>) subwidget objects
@@ -110,7 +129,7 @@ class BaseSourceWidget(QtGui.QWidget):
         self.expertmode = False
         #: (:obj:`bool`) source widget connected
         self._connected = False
-        #: (:class:`Ui_BaseSourceWidget')
+        #: (:class:`Ui_SourceBaseWidget')
         #:     ui_sourcewidget object from qtdesigner
         self._ui = None
         #: (:obj:`bool`) source widget detached
@@ -273,7 +292,7 @@ class BaseSourceWidget(QtGui.QWidget):
         self._connectComboBox(combobox)
 
 
-class TestSourceWidget(BaseSourceWidget):
+class TestSourceWidget(SourceBaseWidget):
 
     """ test source widget """
 
@@ -283,7 +302,7 @@ class TestSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _testformclass()
         self._ui.setupUi(self)
@@ -291,9 +310,16 @@ class TestSourceWidget(BaseSourceWidget):
         self._detachWidgets()
 
 
-class FixTestSourceWidget(BaseSourceWidget):
+class FixTestSourceWidget(SourceBaseWidget):
 
     """ test source widget """
+
+    #: (:obj:`str`) source name
+    name = "Fix Test"
+    #: (:obj:`str`) datasource class name
+    datasource = "FixTestSource"
+    #: (:obj:`str`) source alias
+    alias = "fixtest"
 
     def __init__(self, parent=None):
         """ constructor
@@ -301,11 +327,7 @@ class FixTestSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
-        #: (:obj:`str`) source name
-        self.name = "Fix Test"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "FixTestSource"
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _testformclass()
         self._ui.setupUi(self)
@@ -313,9 +335,18 @@ class FixTestSourceWidget(BaseSourceWidget):
         self._detachWidgets()
 
 
-class HTTPSourceWidget(BaseSourceWidget):
+class HTTPSourceWidget(SourceBaseWidget):
 
     """ test source widget """
+
+    #: (:obj:`str`) source name
+    name = "HTTP response"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("REQUESTS",)
+    #: (:obj:`str`) datasource class name
+    datasource = "HTTPSource"
+    #: (:obj:`str`) source alias
+    alias = "http"
 
     def __init__(self, parent=None):
         """ constructor
@@ -323,15 +354,11 @@ class HTTPSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _httpformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "HTTP response"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "HTTPSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = ["httpLabel", "httpComboBox"]
 
@@ -455,9 +482,18 @@ class HTTPSourceWidget(BaseSourceWidget):
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
-class HidraSourceWidget(BaseSourceWidget):
+class HidraSourceWidget(SourceBaseWidget):
 
     """ test source widget """
+
+    #: (:obj:`str`) source name
+    name = "Hidra"
+    #: (:obj:`str`) source alias
+    alias = "hidra"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("HIDRA",)
+    #: (:obj:`str`) datasource class name
+    datasource = "HiDRASource"
 
     def __init__(self, parent=None):
         """ constructor
@@ -465,15 +501,11 @@ class HidraSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _hidraformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "Hidra"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "HiDRASource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "serverLabel", "serverComboBox",
@@ -609,9 +641,18 @@ class HidraSourceWidget(BaseSourceWidget):
             return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
-class TangoAttrSourceWidget(BaseSourceWidget):
+class TangoAttrSourceWidget(SourceBaseWidget):
 
     """ test source widget """
+
+    #: (:obj:`str`) source name
+    name = "Tango Attribute"
+    #: (:obj:`str`) source alias
+    alias = "tangoattr"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("PYTANGO",)
+    #: (:obj:`str`) datasource class name
+    datasource = "TangoAttrSource"
 
     def __init__(self, parent=None):
         """ constructor
@@ -619,15 +660,11 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _tangoattrformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "Tango Attribute"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "TangoAttrSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "attrLabel", "attrComboBox"
@@ -746,9 +783,18 @@ class TangoAttrSourceWidget(BaseSourceWidget):
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
-class TangoEventsSourceWidget(BaseSourceWidget):
+class TangoEventsSourceWidget(SourceBaseWidget):
 
     """ test source widget """
+
+    #: (:obj:`str`) source name
+    name = "Tango Events"
+    #: (:obj:`str`) source alias
+    alias = "tangoevents"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("PYTANGO",)
+    #: (:obj:`str`) datasource class name
+    datasource = "TangoEventsSource"
 
     def __init__(self, parent=None):
         """ constructor
@@ -756,15 +802,11 @@ class TangoEventsSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _tangoeventsformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "Tango Events"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "TangoEventsSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "evattrLabel", "evattrComboBox"
@@ -884,9 +926,18 @@ class TangoEventsSourceWidget(BaseSourceWidget):
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
-class TangoFileSourceWidget(BaseSourceWidget):
+class TangoFileSourceWidget(SourceBaseWidget):
 
     """ test source widget """
+
+    #: (:obj:`str`) source name
+    name = "Tango File"
+    #: (:obj:`str`) source alias
+    alias = "tangofile"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("PYTANGO",)
+    #: (:obj:`str`) datasource class name
+    datasource = "TangoFileSource"
 
     def __init__(self, parent=None):
         """ constructor
@@ -894,15 +945,11 @@ class TangoFileSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _tangofileformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "Tango File"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "TangoFileSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "fileattrLabel", "fileattrComboBox",
@@ -1096,9 +1143,16 @@ class TangoFileSourceWidget(BaseSourceWidget):
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
-class NXSFileSourceWidget(BaseSourceWidget):
+class NXSFileSourceWidget(SourceBaseWidget):
 
     """ test source widget """
+
+    #: (:obj:`str`) source name
+    name = "NeXus File"
+    #: (:obj:`str`) source alias
+    alias = "nxsfile"
+    #: (:obj:`str`) datasource class name
+    datasource = "NXSFileSource"
 
     def __init__(self, parent=None):
         """ constructor
@@ -1106,15 +1160,11 @@ class NXSFileSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _nxsfileformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "Nexus File"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "NXSFileSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "nxsFileLabel", "nxsFileLineEdit",
@@ -1281,9 +1331,16 @@ class NXSFileSourceWidget(BaseSourceWidget):
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
-class ZMQSourceWidget(BaseSourceWidget):
+class ZMQSourceWidget(SourceBaseWidget):
 
     """ test source widget """
+
+    #: (:obj:`str`) source name
+    name = "ZMQ Stream"
+    #: (:obj:`str`) source alias
+    alias = "zmqsource"
+    #: (:obj:`str`) datasource class name
+    datasource = "ZMQSource"
 
     def __init__(self, parent=None):
         """ constructor
@@ -1291,15 +1348,11 @@ class ZMQSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _zmqformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "ZMQ Stream"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "ZMQSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "pickleLabel", "pickleComboBox",
@@ -1527,9 +1580,18 @@ class ZMQSourceWidget(BaseSourceWidget):
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
-class DOOCSPropSourceWidget(BaseSourceWidget):
+class DOOCSPropSourceWidget(SourceBaseWidget):
 
     """ test source widget """
+
+    #: (:obj:`str`) source name
+    name = "DOOCS Property"
+    #: (:obj:`str`) source alias
+    alias = "doocsprop"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("PYDOOCS",)
+    #: (:obj:`str`) datasource class name
+    datasource = "DOOCSPropSource"
 
     def __init__(self, parent=None):
         """ constructor
@@ -1537,15 +1599,11 @@ class DOOCSPropSourceWidget(BaseSourceWidget):
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
-        BaseSourceWidget.__init__(self, parent)
+        SourceBaseWidget.__init__(self, parent)
 
         self._ui = _doocspropformclass()
         self._ui.setupUi(self)
 
-        #: (:obj:`str`) source name
-        self.name = "DOOCS Property"
-        #: (:obj:`str`) datasource class name
-        self.datasource = "DOOCSPropSource"
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = [
             "doocspropLabel", "doocspropComboBox"
@@ -1664,3 +1722,17 @@ class DOOCSPropSourceWidget(BaseSourceWidget):
         """
         label = str(self._ui.doocspropComboBox.currentText()).strip()
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
+
+
+#: ( :obj:`dict` < :obj:`str`, any > ) source widget properties
+swproperties = []
+for nm in __all__:
+    if nm.endswith("SourceWidget"):
+        cl = globals()[nm]
+        swproperties.append(
+            {
+                'alias': cl.alias,
+                'name': cl.name,
+                'widget': nm,
+                'requires': cl.requires,
+            })

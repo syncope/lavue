@@ -38,6 +38,121 @@ _formclass, _baseclass = uic.loadUiType(
                  "ui", "ConfigDialog.ui"))
 
 
+class TableWidgetDragCheckBoxes(QtGui.QTableWidget):
+    """ TableWidget with drag and drop checkboxes """
+
+    def __init__(self, parent):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
+        """
+        QtGui.QTableWidget.__init__(self, parent)
+
+        #: (:obj:`list` < [ :obj:`str`, :obj:`bool` ] > ) checkbox item list
+        self.__checkboxdata = []
+        #: (:obj:`list` < :obj:`str`, :obj:`str` > ) checkbox name items
+        self.__nameitems = {}
+
+        self.setDragEnabled(True)
+        self.setAcceptDrops(True)
+        self.viewport().setAcceptDrops(True)
+        self.setDropIndicatorShown(True)
+        self.setDragDropOverwriteMode(False)
+
+        self.setDragDropMode(
+            QtGui.QAbstractItemView.InternalMove)
+        self.setSelectionMode(
+            QtGui.QAbstractItemView.ExtendedSelection)
+        self.setSelectionBehavior(
+            QtGui.QAbstractItemView.SelectRows)
+        self.setColumnCount(1)
+        self.horizontalHeader().hide()
+        self.verticalHeader().hide()
+        self.horizontalHeader().setStretchLastSection(True)
+
+    def create(self, selected, available, itemnames=None):
+        """ populates table """
+        self.__checkboxdata = []
+        itemnames = itemnames or {}
+        self.__nameitems = {v: k for k, v in itemnames.items()}
+        for sel in selected:
+            if sel in available:
+                self.__checkboxdata.append([sel, True])
+        if self.__checkboxdata:
+            for av in available:
+                if av not in selected:
+                    self.__checkboxdata.append([av, False])
+        else:
+            for av in available:
+                self.__checkboxdata.append([av, True])
+
+        self.setRowCount(len(self.__checkboxdata))
+        for i, (name, checked) in enumerate(self.__checkboxdata):
+            nm = str(name)
+            iname = itemnames[nm] if nm in itemnames else nm
+            item = QtGui.QTableWidgetItem(iname)
+            item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEditable)
+            item.setCheckState(QtCore.Qt.Checked
+                               if checked else QtCore.Qt.Unchecked)
+            self.setItem(i, 0, item)
+
+    def getChecks(self, available):
+        """ update checks in checkboxdata """
+        selected = []
+        for ri, (name, checked) in enumerate(self.__checkboxdata):
+            ridx = self.model().index(ri, 0)
+            self.__checkboxdata[ri][1] = bool(
+                self.model().data(ridx, QtCore.Qt.CheckStateRole))
+            name = str(
+                self.model().data(ridx, QtCore.Qt.DisplayRole))
+            self.__checkboxdata[ri][0] = self.__nameitems[name] \
+                if name in self.__nameitems else name
+            if self.__checkboxdata[ri][1]:
+                selected.append(self.__checkboxdata[ri][0])
+        if selected == available:
+            selected = []
+        return selected
+
+    def dropEvent(self, event):
+        """ replaces rows in the table
+
+        :param event: drop event
+        :type event:  :class:`pyqtgraph.QtCore.QEvent`:
+        """
+        if not event.isAccepted():
+            if event.source() == self:
+                targetidx = self._target_row(event)
+                selrows = sorted(
+                    set(item.row() for item in self.selectedItems()))
+                tomove = [
+                    QtGui.QTableWidgetItem(self.item(idx, 0))
+                    for idx in selrows
+                ]
+                for idx in reversed(selrows):
+                    self.removeRow(idx)
+                    if idx < targetidx:
+                        targetidx -= 1
+
+                for idx, data in enumerate(tomove):
+                    idx += targetidx
+                    self.insertRow(idx)
+                    self.setItem(idx, 0, data)
+                event.accept()
+        QtGui.QTableWidget.dropEvent(self, event)
+
+    def _target_row(self, event):
+        """ provides target row index to drop
+
+        :param event: drop event
+        :type event:  :class:`pyqtgraph.QtCore.QEvent`:
+        """
+        idx = self.indexAt(event.pos())
+        if not idx.isValid():
+            return self.rowCount()
+        return idx.row()
+
+
 class ConfigDialog(QtGui.QDialog):
 
     def __init__(self, parent=None):
@@ -51,6 +166,14 @@ class ConfigDialog(QtGui.QDialog):
         #: (:class:`Ui_ConfigDialog') ui_dialog object from qtdesigner
         self.__ui = _formclass()
         self.__ui.setupUi(self)
+        self.__ui.isLayout = QtGui.QGridLayout(self.__ui.isWidget)
+        self.__ui.isLayout.setContentsMargins(0, 0, 0, 0)
+        self.__ui.isTable = TableWidgetDragCheckBoxes(self)
+        self.__ui.isLayout.addWidget(self.__ui.isTable)
+        self.__ui.twLayout = QtGui.QGridLayout(self.__ui.twWidget)
+        self.__ui.twLayout.setContentsMargins(0, 0, 0, 0)
+        self.__ui.twTable = TableWidgetDragCheckBoxes(self)
+        self.__ui.twLayout.addWidget(self.__ui.twTable)
 
         #: (:obj:`str`) device name of sardana door
         self.door = ""
@@ -107,8 +230,8 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`bool`) lazy image slider
         self.lazyimageslider = False
 
-        #: (:obj:`list` < :obj:`str`>) hidra detector server list
-        self.detservers = []
+        #: (:obj:`str`) json hidra detector server list
+        self.detservers = "[]"
         #: (:obj:`bool`) use default detector servers
         self.defdetservers = True
 
@@ -169,6 +292,21 @@ class ConfigDialog(QtGui.QDialog):
         self.sourcedisplay = False
         #: (:obj:`dict` <:obj: `str`, :obj: `str` >) object title dictionary
         self.__objtitles = {}
+
+        #: (:obj:`str`) list with available image source widget names
+        self.availimagesources = []
+        #: (:obj:`str`) json list with image source widget names
+        self.imagesources = "[]"
+        #: (:obj:`dict` < :obj:`str`, :obj:`str`>) json list with
+        #          image source widget names
+        self.imagesourcenames = {}
+        #: (:obj:`str`)  list with available tool widget names
+        self.availtoolwidgets = []
+        #: (:obj:`str`)  json list with tool widget names
+        self.toolwidgets = "[]"
+        #: (:obj:`dict` < :obj:`str`, :obj:`str`>)  json list with
+        #      tool widget names
+        self.toolwidgetnames = {}
 
     def eventFilter(self, obj, event):
         """ event filter
@@ -233,7 +371,8 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.showlevelsCheckBox.setChecked(self.showlevels)
         self.__ui.timeoutLineEdit.setText(str(self.timeout))
         self.__ui.zmqtopicsLineEdit.setText(" ".join(self.zmqtopics))
-        self.__ui.detserversLineEdit.setText(" ".join(self.detservers))
+        self.__ui.detserversLineEdit.setText(
+            " ".join(json.loads(self.detservers)))
         self.__ui.defdetserversCheckBox.setChecked(self.defdetservers)
         self.__ui.autozmqtopicsCheckBox.setChecked(self.autozmqtopics)
         self.__ui.interruptCheckBox.setChecked(self.interruptonerror)
@@ -288,6 +427,14 @@ class ConfigDialog(QtGui.QDialog):
 
         self.__setROIsColorsWidgets()
         self.__setFiltersWidget()
+        self.__ui.isTable.create(
+            json.loads(self.imagesources), self.availimagesources,
+            self.imagesourcenames
+        )
+        self.__ui.twTable.create(
+            json.loads(self.toolwidgets), self.availtoolwidgets,
+            self.toolwidgetnames
+        )
 
     def __setFiltersWidget(self):
         """ updates filter tab  widget
@@ -598,7 +745,7 @@ class ConfigDialog(QtGui.QDialog):
             self.__ui.detserversLineEdit.text()).strip().split(" ")
         self.autozmqtopics = self.__ui.autozmqtopicsCheckBox.isChecked()
         self.interruptonerror = self.__ui.interruptCheckBox.isChecked()
-        self.detservers = [ds for ds in detservers if ds]
+        self.detservers = json.dumps([ds for ds in detservers if ds])
         try:
             self.timeout = int(self.__ui.timeoutLineEdit.text())
         except Exception:
@@ -617,4 +764,9 @@ class ConfigDialog(QtGui.QDialog):
             self.__ui.hidraportLineEdit.setFocus(True)
             return
         self.__readROIsColors()
+        self.imagesources = json.dumps(
+            self.__ui.isTable.getChecks(self.availimagesources))
+        self.toolwidgets = json.dumps(
+            self.__ui.twTable.getChecks(self.availtoolwidgets))
+
         QtGui.QDialog.accept(self)

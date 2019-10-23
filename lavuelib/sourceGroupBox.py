@@ -76,7 +76,7 @@ class SourceGroupBox(QtGui.QGroupBox):
         #: (:obj:`bool`) if image source connected
         self.__connected = False
 
-        #: (:class:`lavuelib.sourceWidget.BaseSourceWidget`)
+        #: (:class:`lavuelib.sourceWidget.SourceBaseWidget`)
         #:      current source widget
         self.__currentSource = None
 
@@ -90,14 +90,12 @@ class SourceGroupBox(QtGui.QGroupBox):
         #: (:obj:`list` < :obj:`str` > ) source names
         self.__sourcenames = []
         #: (:obj:`dict` < :obj:`str`,
-        #:      :class:`lavuelib.sourceWidget.BaseSourceWidget` >)
+        #:      :class:`lavuelib.sourceWidget.SourceBaseWidget` >)
         #:           source names
         self.__sourcewidgets = {}
         # (:obj:`str`) error status
         self.__errorstatus = ""
 
-        #: (:obj:`list` < :obj:`str` > ) datasource class names
-        self.__datasources = []
         #: (:obj:`list` < :class:`PyQt5.QtGui.QWidget` > ) datasource names
         self.__subwidgets = []
 
@@ -119,6 +117,14 @@ class SourceGroupBox(QtGui.QGroupBox):
         """
         return self.__currentSource.datasource
 
+    def currentDataSourceName(self):
+        """ current data source name
+
+        :returns: current datasource class name
+        :rtype: :obj:`str`
+        """
+        return self.__currentSource.name
+
     def __addSourceWidgets(self):
         """ add source subwidgets into grid layout
         """
@@ -131,7 +137,6 @@ class SourceGroupBox(QtGui.QGroupBox):
             self.__sourcewidgets[swg.name] = swg
             self.__sourcenames.append(swg.name)
             self.__ui.sourceTypeComboBox.addItem(swg.name)
-            self.__datasources.append(swg.datasource)
             widgets = zip(swg.widgets[0::2], swg.widgets[1::2])
             for wg1, wg2 in widgets:
                 sln = len(self.__subwidgets)
@@ -151,6 +156,36 @@ class SourceGroupBox(QtGui.QGroupBox):
         :type index: :obj:`int`
         """
         self.__ui.sourceTypeComboBox.setCurrentIndex(index)
+
+    def updateSourceComboBox(self, sourcenames, name=None):
+        """ set source by changing combobox
+
+        :param sourcenames: source names
+        :type sourcenames: :obj:`list` < :obj:`str` >
+        :param index: combobox index
+        :type index: :obj:`int`
+        """
+
+        self.__ui.sourceTypeComboBox.currentIndexChanged.disconnect(
+            self._onSourceChanged)
+        if sourcenames and name and name not in sourcenames:
+            sourcenames = list(sourcenames)
+            sourcenames.append(name)
+        sourcenames = [sr for sr in sourcenames if sr in self.__sourcenames]
+        if not sourcenames:
+            sourcenames = self.__sourcenames
+        name = name or str(self.__ui.sourceTypeComboBox.currentText())
+        self.__ui.sourceTypeComboBox.clear()
+        self.__ui.sourceTypeComboBox.addItems(sourcenames)
+        if self.__ui.sourceTypeComboBox.count() == 0:
+            self.__ui.sourceTypeComboBox.addItems(self.__sourcenames)
+        index = self.__ui.sourceTypeComboBox.findText(name)
+        if index == -1:
+            index = 0
+        self.__ui.sourceTypeComboBox.setCurrentIndex(index)
+        self.updateLayout()
+        self.__ui.sourceTypeComboBox.currentIndexChanged.connect(
+            self._onSourceChanged)
 
     @QtCore.pyqtSlot()
     def _onSourceChanged(self):

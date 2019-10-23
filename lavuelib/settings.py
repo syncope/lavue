@@ -29,6 +29,7 @@
 
 import zmq
 import sys
+import json
 from pyqtgraph import QtCore
 
 if sys.version_info > (3,):
@@ -142,7 +143,7 @@ class Settings(object):
         #: (:obj:`bool`) nexus file source starts from the last image
         self.nxslast = False
         #: (:obj:`list` < :obj:`str`>) hidra detector server list
-        self.detservers = []
+        self.detservers = "[]"
         #: (:obj:`bool`) use default detector servers
         self.defdetservers = True
         #: (:obj:`bool`) store detector geometry
@@ -154,6 +155,12 @@ class Settings(object):
 
         #: (:obj:`str`) json list with filters
         self.filters = "[]"
+
+        #: (:obj:`str`) json list with image source widget names
+        self.imagesources = "[]"
+
+        #: (:obj:`str`)  json list with tool widget names
+        self.toolwidgets = "[]"
 
         #: (:obj:`float`) x-coordinates of the center of the image
         self.centerx = 0.0
@@ -403,6 +410,18 @@ class Settings(object):
 
         qstval = \
             settings.value(
+                "Configuration/ImageSources", type=str)
+        if qstval:
+            self.imagesources = qstval
+
+        qstval = \
+            settings.value(
+                "Configuration/ToolWidgets", type=str)
+        if qstval:
+            self.toolwidgets = qstval
+
+        qstval = \
+            settings.value(
                 "Configuration/ZMQStreamTopics", type=str)
         if qstval:
             self.zmqtopics = [str(tp) for tp in qstval]
@@ -411,7 +430,11 @@ class Settings(object):
             settings.value(
                 "Configuration/HidraDetectorServers", type=str)
         if qstval:
-            self.detservers = [str(tp) for tp in qstval]
+            try:
+                json.loads(qstval)
+                self.detservers = qstval
+            except Exception:
+                self.detsetvers = json.dumps([str(tp) for tp in qstval])
 
         qstval = str(
             settings.value(
@@ -617,6 +640,12 @@ class Settings(object):
         settings.setValue(
             "Configuration/StatisticsWithoutScaling",
             self.statswoscaling)
+        settings.setValue(
+            "Configuration/ImageSources",
+            self.imagesources)
+        settings.setValue(
+            "Configuration/ToolWidgets",
+            self.toolwidgets)
         settings.setValue(
             "Configuration/ZMQStreamTopics",
             self.zmqtopics)
