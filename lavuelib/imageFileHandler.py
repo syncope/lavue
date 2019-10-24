@@ -290,7 +290,7 @@ class NexusFieldHandler(object):
                 except Exception:
                     metadata[nm] = value
         lfld = pgroup.open_link(node.name)
-        file_path, lpath = str(lfld.target_path).split(":/")
+        file_path, lpath = str(lfld.target_path).split("://")
         opath = "/".join([gr.split(":")[0]
                           for gr in node.path.split("/") if gr != '.'])
         lpath = lpath.replace("//", "/")
