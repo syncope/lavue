@@ -29,13 +29,10 @@
 import codecs
 import os
 import sys
-from setuptools import setup
+from setuptools import setup, find_packages
 from setuptools.command.build_py import build_py
 from distutils.command.clean import clean
 from distutils.util import get_platform
-# from distutils.core import setup
-# from distutils.command.build import build
-# from distutils.command.clean import clean
 import shutil
 
 try:
@@ -229,7 +226,7 @@ SETUPDATA = dict(
         'Programming Language :: Python :: 3.7',
     ],
     keywords='live viewer photon science detector',
-    packages=[NAME, QRCDIR, PLGNSDIR],
+    packages=find_packages(exclude=['test']),
     package_data=package_data,
     # package_dir={'lauvelib': 'lavuelib'},
     # include_package_data=True, # do not include image an qrc files
