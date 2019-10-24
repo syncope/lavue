@@ -1330,19 +1330,19 @@ class VHBoundsExtension(DisplayExtension):
         #: (:class:`pyqtgraph.InfiniteLine`)
         #:                 first vertical center line of the mouse position
         self.__centerVLine1 = _pg.InfiniteLine(
-            angle=90, movable=False, pen=(255, 0, 0))
+            angle=90, movable=False, pen=_pg.mkPen('r', width=2))
         #: (:class:`pyqtgraph.InfiniteLine`)
         #:                 second vertical center line of the mouse position
         self.__centerVLine2 = _pg.InfiniteLine(
-            angle=90, movable=False, pen=(255, 0, 0))
+            angle=90, movable=False, pen=_pg.mkPen('r', width=2))
         #: (:class:`pyqtgraph.InfiniteLine`)
         #:          first horizontal center line of the mouse position
         self.__centerHLine1 = _pg.InfiniteLine(
-            angle=0, movable=False, pen=(255, 0, 0))
+            angle=0, movable=False, pen=_pg.mkPen('r', width=2))
         #: (:class:`pyqtgraph.InfiniteLine`)
         #:          second horizontal center line of the mouse position
         self.__centerHLine2 = _pg.InfiniteLine(
-            angle=0, movable=False, pen=(255, 0, 0))
+            angle=0, movable=False, pen=_pg.mkPen('r', width=2))
         self._mainwidget.viewbox().addItem(
             self.__centerVLine1, ignoreBounds=True)
         self._mainwidget.viewbox().addItem(
