@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>724</width>
+    <width>883</width>
     <height>52</height>
    </rect>
   </property>
@@ -60,29 +60,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QSlider" name="frameHorizontalSlider">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="frameSpinBox">
-           <property name="toolTip">
-            <string>current frame</string>
-           </property>
-           <property name="minimum">
-            <number>-1</number>
-           </property>
-           <property name="maximum">
-            <number>999999</number>
-           </property>
-           <property name="value">
-            <number>-1</number>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QLineEdit" name="framerateLineEdit">
            <property name="maximumSize">
             <size>
@@ -95,6 +72,153 @@
            </property>
            <property name="readOnly">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="lowerframePushButton">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>20</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>&lt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="frameHorizontalSlider">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="frameLineEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>-1</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="higherframePushButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>20</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="framestepLabel">
+           <property name="text">
+            <string>Step:</string>
+           </property>
+           <property name="buddy">
+            <cstring>framestepSpinBox</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="framestepSpinBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="sizeIncrement">
+            <size>
+             <width>50</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>current frame</string>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>999999</number>
+           </property>
+           <property name="value">
+            <number>1</number>
            </property>
           </widget>
          </item>
@@ -138,9 +262,12 @@
  </widget>
  <tabstops>
   <tabstop>fileNameLineEdit</tabstop>
-  <tabstop>frameHorizontalSlider</tabstop>
-  <tabstop>frameSpinBox</tabstop>
   <tabstop>framerateLineEdit</tabstop>
+  <tabstop>lowerframePushButton</tabstop>
+  <tabstop>frameHorizontalSlider</tabstop>
+  <tabstop>frameLineEdit</tabstop>
+  <tabstop>higherframePushButton</tabstop>
+  <tabstop>framestepSpinBox</tabstop>
   <tabstop>loadPushButton</tabstop>
   <tabstop>cnfPushButton</tabstop>
   <tabstop>quitPushButton</tabstop>

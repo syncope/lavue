@@ -431,7 +431,11 @@ class LiveViewer(QtGui.QDialog):
         self.__sourcewg.removeIconClicked.connect(
             self._removeLabel)
 
-        self.__ui.frameSpinBox.valueChanged.connect(self._spinreloadfile)
+        self.__ui.frameLineEdit.textChanged.connect(self._spinreloadfile)
+        self.__ui.lowerframePushButton.clicked.connect(
+            self._lowerframepushed)
+        self.__ui.higherframePushButton.clicked.connect(
+            self._higherframepushed)
         self.__ui.frameHorizontalSlider.valueChanged.connect(
             self._sliderreloadfilelazy)
         self.__connectslider()
@@ -841,7 +845,7 @@ class LiveViewer(QtGui.QDialog):
          """
         self._reloadfile(fid, showmessage=True)
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot()
     def _spinreloadfile(self, fid=None, showmessage=False):
         """ reloads the image file
@@ -855,11 +859,39 @@ class LiveViewer(QtGui.QDialog):
             if not self.__reloadflag:
                 self.__reloadflag = True
                 if fid is None:
-                    fid = self.__ui.frameSpinBox.value()
-                self._reloadfile(fid, showmessage)
+                    fid = self.__ui.frameLineEdit.text()
+                try:
+                    fid = int(fid)
+                    self._reloadfile(fid, showmessage)
+                except Exception:
+                    pass
                 time.sleep(0.1)
         finally:
             self.__reloadflag = False
+
+    @QtCore.pyqtSlot()
+    def _lowerframepushed(self):
+        step = self.__ui.framestepSpinBox.value()
+        try:
+            frame = int(self.__ui.frameLineEdit.text())
+        except Exception:
+            frame = self.__frame or 0
+        nframe = frame - step
+        if frame >= 0:
+            nframe = max(nframe, 0)
+        self.__ui.frameLineEdit.setText(str(nframe))
+
+    @QtCore.pyqtSlot()
+    def _higherframepushed(self):
+        step = self.__ui.framestepSpinBox.value()
+        try:
+            frame = int(self.__ui.frameLineEdit.text())
+        except Exception:
+            frame = self.__frame or 0
+        nframe = frame + step
+        if frame < 0:
+            nframe = min(nframe, -1)
+        self.__ui.frameLineEdit.setText(str(nframe))
 
     @QtCore.pyqtSlot()
     def _sliderreloadfilelazy(self):
@@ -869,10 +901,10 @@ class LiveViewer(QtGui.QDialog):
         if self.__lazyimageslider:
 
             fid = self.__ui.frameHorizontalSlider.value()
-            self.__ui.frameSpinBox.valueChanged.disconnect(
+            self.__ui.frameLineEdit.textChanged.disconnect(
                 self._spinreloadfile)
-            self.__ui.frameSpinBox.setValue(fid)
-            self.__ui.frameSpinBox.valueChanged.connect(
+            self.__ui.frameLineEdit.setText(str(fid))
+            self.__ui.frameLineEdit.textChanged.connect(
                 self._spinreloadfile)
         else:
             self._sliderreloadfile()
@@ -952,7 +984,7 @@ class LiveViewer(QtGui.QDialog):
                     metadata = handler.getMetaData(currentfield["node"])
                     # if metadata:
                     #     print("Metadata = %s" % str(metadata))
-                    self.__ui.frameSpinBox.valueChanged.disconnect(
+                    self.__ui.frameLineEdit.textChanged.disconnect(
                         self._spinreloadfile)
                     self.__disconnectslider()
                     self.__ui.frameHorizontalSlider.valueChanged.disconnect(
@@ -963,25 +995,25 @@ class LiveViewer(QtGui.QDialog):
                         else:
                             gsize = currentfield["shape"][self.__growing] - 1
                         if gsize >= 0:
-                            self.__ui.frameSpinBox.setToolTip(
+                            self.__ui.frameLineEdit.setToolTip(
                                 "current frame (max: %s)" % gsize)
                             self.__ui.frameHorizontalSlider.setMaximum(gsize)
                             self.__ui.frameHorizontalSlider.setToolTip(
                                 "current frame (max: %s)" % gsize)
                         else:
-                            self.__ui.frameSpinBox.setToolTip("current frame")
+                            self.__ui.frameLineEdit.setToolTip("current frame")
                             self.__ui.frameHorizontalSlider.setMaximum(0)
                             self.__ui.frameHorizontalSlider.setToolTip(
                                 "current frame")
                     except Exception:
-                        self.__ui.frameSpinBox.setToolTip("current frame")
+                        self.__ui.frameLineEdit.setToolTip("current frame")
                     while newimage is None and self.__frame > 0:
                         self.__frame -= 1
                         self.__updateframeview(True)
                         newimage = handler.getImage(
                             currentfield["node"],
                             self.__frame, self.__growing, refresh=False)
-                    self.__ui.frameSpinBox.valueChanged.connect(
+                    self.__ui.frameLineEdit.textChanged.connect(
                         self._spinreloadfile)
                     self.__ui.frameHorizontalSlider.valueChanged.connect(
                         self._sliderreloadfilelazy)
@@ -1700,17 +1732,25 @@ class LiveViewer(QtGui.QDialog):
     def __updateframeview(self, status=False):
         if status:
             if self.__frame is not None:
-                self.__ui.frameSpinBox.setValue(self.__frame)
+                self.__ui.frameLineEdit.setText(str(self.__frame))
                 if self.__frame >= 0:
                     self.__ui.frameHorizontalSlider.setValue(self.__frame)
                 else:
                     self.__ui.frameHorizontalSlider.setValue(
                         self.__ui.frameHorizontalSlider.maximum())
-                self.__ui.frameSpinBox.show()
+                self.__ui.framestepSpinBox.show()
+                self.__ui.framestepLabel.show()
+                self.__ui.lowerframePushButton.show()
+                self.__ui.higherframePushButton.show()
+                self.__ui.frameLineEdit.show()
             self.__ui.frameHorizontalSlider.show()
         else:
             self.__fieldpath = None
-            self.__ui.frameSpinBox.hide()
+            self.__ui.lowerframePushButton.hide()
+            self.__ui.higherframePushButton.hide()
+            self.__ui.framestepSpinBox.hide()
+            self.__ui.frameLineEdit.hide()
+            self.__ui.framestepLabel.hide()
             self.__ui.frameHorizontalSlider.hide()
 
     def __updateframerate(self, ratetime):
