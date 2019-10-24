@@ -101,7 +101,7 @@ def link(target, parent, name):
     """
     localfname = H5PYLink.getfilename(parent)
     if ":/" in target:
-        filename, path = target.split(":/")
+        filename, path = target.rsplit(":/", 1)
 
         if os.path.abspath(filename) != os.path.abspath(localfname):
             parent.h5object[name] = h5py.ExternalLink(filename, path)
