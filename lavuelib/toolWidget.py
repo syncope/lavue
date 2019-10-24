@@ -2131,7 +2131,7 @@ class AngleQToolWidget(ToolBaseWidget):
                     maxdim = self.__radthsize
                 if rmax is None:
                     self._setGeometry()
-                    return
+                    return False
                 self.__radmax = rmax/float(maxdim)
 
             elif pindex == 2:
@@ -2155,13 +2155,14 @@ class AngleQToolWidget(ToolBaseWidget):
                     maxdim = self.__radqsize
                 if rmax is None:
                     self._setGeometry()
-                    return
+                    return False
                 self.__radmax = rmax/float(maxdim)
             if pindex:
                 psize = self.__polsize if self.__polsize is not None else 360
                 pstart = self.__polstart if self.__polstart is not None else 0
                 pend = self.__polend if self.__polend is not None else 360
                 self.__polmax = float(pend - pstart) / psize
+        return True
 
     def __plotPolarImage(self, rdata=None):
         """ intensity interpolation function
@@ -2196,7 +2197,8 @@ class AngleQToolWidget(ToolBaseWidget):
                 else:
                     self.__lastmaxdim = max(rdata.shape[0], rdata.shape[1])
 
-            self.__calculateRadMax(self.__plotindex, rdata)
+            while not self.__calculateRadMax(self.__plotindex, rdata):
+                pass
             tdata = np.fromfunction(
                 lambda x, y: self.__intintensity(x, y),
                 (self.__lastmaxdim, maxpolar),
@@ -2451,7 +2453,8 @@ class AngleQToolWidget(ToolBaseWidget):
         :type gspace: :obj:`int`
         """
         if pindex:
-            self.__calculateRadMax(pindex)
+            while not self.__calculateRadMax(pindex):
+                pass
             self.parameters.centerlines = False
             self.parameters.polarscale = True
             if pindex == 1:
