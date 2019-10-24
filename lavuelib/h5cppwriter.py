@@ -269,8 +269,8 @@ def link(target, parent, name):
     :returns: link object
     :rtype: :class:`H5CppLink`
     """
-    if "://" in target:
-        filename, path = target.split("://")
+    if ":/" in target:
+        filename, path = target.rsplit(":/", 1)
     else:
         filename, path = None, target
 
