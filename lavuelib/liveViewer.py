@@ -620,6 +620,43 @@ class LiveViewer(QtGui.QDialog):
             doocsprops=self.__settings.doocsprops
         )
 
+    @QtCore.pyqtSlot(str)
+    def _updateLavueState(self, state):
+        """ updates lavue state configuration
+
+        :param state: json dictionary with configuration
+        :type state: :obj:`str`
+        """
+        stopped = False
+        if self.__sourcewg.isConnected():
+            self.__sourcewg.toggleServerConnection()
+            stopped = True
+        dctcnf = json.loads(state)
+        self.__applyoptionsfromdict(dctcnf)
+        if not self.__sourcewg.isConnected() and stopped and \
+           'start' not in dctcnf.keys():
+            self.__sourcewg.toggleServerConnection()
+
+    def __applyoptionsfromdict(self, dctcnf):
+        """ apply options
+
+        :param dctcnf: commandline options
+        :type dctcnf: :obj:`dict` <:obj:`str`, any >
+        """
+        if dctcnf:
+            options = argparse.Namespace()
+            for key, vl in dctcnf.items():
+                setattr(options, key, vl)
+            self.__applyoptions(options)
+            if 'levels' not in dctcnf.keys():
+                self.__levelswg.setAutoLevels(2)
+            if 'bkgfile' not in dctcnf.keys():
+                self.__bkgsubwg.checkBkgSubtraction(False)
+                self.__dobkgsubtraction = None
+            if 'maskfile' not in dctcnf.keys():
+                self.__maskwg.noImage()
+                self.__applymask = False
+
     def __applyoptions(self, options):
         """ apply options
 
@@ -717,6 +754,8 @@ class LiveViewer(QtGui.QDialog):
                 self.__imagewg.updateBeamCenterY)
             self.__tangoclient.detectorROIsChanged.connect(
                 self.__imagewg.updateDetectorROIs)
+            self.__tangoclient.lavueStateChanged.connect(
+                self._updateLavueState)
             self.__imagewg.setTangoClient(self.__tangoclient)
             self.__tangoclient.subscribe()
         else:
@@ -1398,19 +1437,7 @@ class LiveViewer(QtGui.QDialog):
             self.__sourcelabel = str(label)
             values = self.__settings.sourceDisplay(
                 self.__sourcelabel)
-            if values:
-                options = argparse.Namespace()
-                for key, vl in values.items():
-                    setattr(options, key, vl)
-                self.__applyoptions(options)
-                if 'levels' not in values.keys():
-                    self.__levelswg.setAutoLevels(2)
-                if 'bkgfile' not in values.keys():
-                    self.__bkgsubwg.checkBkgSubtraction(False)
-                    self.__dobkgsubtraction = None
-                if 'maskfile' not in values.keys():
-                    self.__maskwg.noImage()
-                    self.__applymask = False
+            self.__applyoptionsfromdict(values)
 
     def __setSourceLabel(self):
         """sets source display parameters

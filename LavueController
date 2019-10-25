@@ -79,7 +79,7 @@ class LavueController (PyTango.Device_4Impl):
         self.attr_DetectorROIsValues_read = ""
         self.attr_DetectorROIsParams_read = ""
         self.attr_Energy_read = 0.0
-        self.attr_Configuration_read = ""
+        self.attr_LavueState_read = ""
         self.set_change_event("BeamCenterX", True, False)
         self.set_change_event("BeamCenterY", True, False)
         self.set_change_event("DetectorDistance", True, False)
@@ -184,25 +184,22 @@ class LavueController (PyTango.Device_4Impl):
             self.push_change_event(
                 "DetectorDistance", self.attr_DetectorDistance_read)
 
-    def read_Configuration(self, attr):
-        self.debug_stream("In read_Configuration()")
-        attr.set_value(self.attr_Configuration_read)
+    def read_LavueState(self, attr):
+        self.debug_stream("In read_LavueState()")
+        attr.set_value(self.attr_LavueState_read)
 
-    def write_Configuration(self, attr):
-        self.debug_stream("In write_Configuration()")
+    def write_LavueState(self, attr):
+        self.debug_stream("In write_LavueState()")
         data = attr.get_write_value()
         detcnf = json.loads(data)
         for key, value in detcnf.items():
             if not isinstance(key, (str, unicode)):
                 raise Exception(
-                    "configuration key %s is not string" % str(key))
-            if not isinstance(value, (str, unicode)):
-                raise Exception(
-                    "configuration value %s is not string" % str(value))
-        if self.attr_Configuration_read != data:
-            self.attr_Configuration_read = data
-            self.push_change_event("Configuration",
-                                   self.attr_Configuration_read)
+                    "state key %s is not a string" % str(key))
+        if self.attr_LavueState_read != data:
+            self.attr_LavueState_read = data
+            self.push_change_event("LavueState",
+                                   self.attr_LavueState_read)
 
     def read_DetectorROIs(self, attr):
         self.debug_stream("In read_DetectorROIs()")
@@ -215,7 +212,7 @@ class LavueController (PyTango.Device_4Impl):
         for det, rois in detrois.items():
             if not isinstance(det, (str, unicode)):
                 raise Exception(
-                    "ROI name %s is not string" % str(det))
+                    "ROI name %s is not a string" % str(det))
             if not isinstance(rois, (list)):
                 raise Exception(
                     "ROI %s is not a double list" % str(det))
@@ -252,7 +249,7 @@ class LavueController (PyTango.Device_4Impl):
 
             if not isinstance(det, (str, unicode)):
                 raise Exception(
-                    "ROI name %s is not string" % str(det))
+                    "ROI name %s is not a string" % str(det))
             if not isinstance(rois, (list)):
                 raise Exception(
                     "ROI %s is not a double list" % str(det))
@@ -633,14 +630,14 @@ class LavueControllerClass(PyTango.DeviceClass):
                  'abs_change': "0.0001",
                  'Memorized': "true"
              }],
-        'Configuration':
+        'LavueState':
             [[PyTango.DevString,
               PyTango.SCALAR,
               PyTango.READ_WRITE],
              {
-                 'label': "Configuration",
-                 'description': "json dictionary with image "
-                 "source configuration, "
+                 'label': "Lavue State",
+                 'description': "json dictionary with Lavue State "
+                 "configuration, "
                  "e.g. {\"source\": \"hidra\", "
                  "\"configuration\":\"hasodet.desy.de\"}",
                  'Display level': PyTango.DispLevel.EXPERT,
