@@ -1,4 +1,8 @@
 2019-10-25 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for max of None in python3
+	* tagged as 2.19.2
+
+2019-10-25 Jan Kotanski <jan.kotanski@desy.de>
 	* fix a bug for unset geometry parameters
 	* tagged as 2.19.1
 

@@ -2124,7 +2124,10 @@ class AngleQToolWidget(ToolBaseWidget):
                     _, _, th2 = self.__pixel2theta(rdata.shape[0], 0, False)
                     _, _, th3 = self.__pixel2theta(
                         rdata.shape[0], rdata.shape[1], False)
-                    rmax = max(th0, th1, th2, th3)
+                    try:
+                        rmax = max(th0, th1, th2, th3)
+                    except TypeError as e:
+                        rmax = None
                 else:
                     rmax = (self.__radthend - rstart) * math.pi / 180.
                 if self.__radthsize is not None:
@@ -2148,7 +2151,10 @@ class AngleQToolWidget(ToolBaseWidget):
                     _, _, q2 = self.__pixel2q(rdata.shape[0], 0, False)
                     _, _, q3 = self.__pixel2q(
                         rdata.shape[0], rdata.shape[1], False)
-                    rmax = max(q0, q1, q2, q3)
+                    try:
+                        rmax = max(q0, q1, q2, q3)
+                    except TypeError as e:
+                        rmax = None
                 else:
                     rmax = (self.__radqend - rstart)
                 if self.__radqsize is not None:
