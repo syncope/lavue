@@ -2126,7 +2126,7 @@ class AngleQToolWidget(ToolBaseWidget):
                         rdata.shape[0], rdata.shape[1], False)
                     try:
                         rmax = max(th0, th1, th2, th3)
-                    except TypeError as e:
+                    except TypeError:
                         rmax = None
                 else:
                     rmax = (self.__radthend - rstart) * math.pi / 180.
@@ -2153,7 +2153,7 @@ class AngleQToolWidget(ToolBaseWidget):
                         rdata.shape[0], rdata.shape[1], False)
                     try:
                         rmax = max(q0, q1, q2, q3)
-                    except TypeError as e:
+                    except TypeError:
                         rmax = None
                 else:
                     rmax = (self.__radqend - rstart)
