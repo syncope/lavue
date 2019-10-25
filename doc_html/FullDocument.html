@@ -72,6 +72,7 @@
 				<li> <a href="FullDocument.html#attrDetectorROIsValues"> DetectorROIsValues </a>
 				<li> <a href="FullDocument.html#attrEnergy"> Energy </a>
 				<li> <a href="FullDocument.html#attrDetectorROIsParams"> DetectorROIsParams </a>
+				<li> <a href="FullDocument.html#attrConfiguration"> Configuration </a>
 				<li> <a href="FullDocument.html#attrScalarDynamicAttr"> ScalarDynamicAttr (dynamic) </a>
 				<li> <a href="FullDocument.html#attrSpectrumDynamicAttr"> SpectrumDynamicAttr (dynamic) </a>
 				<li> <a href="FullDocument.html#attrROIsDynamicAttr"> ROIsDynamicAttr (dynamic) </a>
@@ -352,7 +353,7 @@
 		<td> READ_WRITE </td>
 		<td> Tango::DEV_STRING </td>
 		<td> EXPERT </td>
-		<td> json dictionary with detector ROIs, e.g.  {`pilatusroi1`: [[26, 15, 232, 65]], `lambdarois`: [[54, 78, 102, 204], [10, 20, 40, 50]]} </td>
+		<td> json dictionary with detector ROIs, e.g.  {\&quot;pilatusroi1\&quot;: [[26, 15, 232, 65]], \&quot;lambdarois\&quot;: [[54, 78, 102, 204], [10, 20, 40, 50]]} </td>
 	</tr>
 	<tr>
 		<td> <a href="AttrDetectorROIsValues.html"> DetectorROIsValues </a> </td>
@@ -362,7 +363,7 @@
 		<td> READ_WRITE </td>
 		<td> Tango::DEV_STRING </td>
 		<td> OPERATOR </td>
-		<td> json dictionary with detector ROIs values, e.g.  {`pilatusroi1`: [26.3], `lambdarois`: [54.3, 434.30]]} </td>
+		<td> json dictionary with detector ROIs values, e.g.  {\&quot;pilatusroi1\&quot;: [26.3], \&quot;lambdarois\&quot;: [54.3, 434.30]]} </td>
 	</tr>
 	<tr>
 		<td> <a href="AttrEnergy.html"> Energy </a> </td>
@@ -382,7 +383,17 @@
 		<td> READ_WRITE </td>
 		<td> Tango::DEV_STRING </td>
 		<td> OPERATOR </td>
-		<td> json dictionary with detector ROIs parameters, e.g.  {`transpose`: False, `flip(left-right)`: True,  `flip(up-down)`: False} </td>
+		<td> json dictionary with detector ROIs parameters, e.g.  {\&quot;transpose\&quot;: False, \&quot;flip-lr\&quot;: True,  \&quot;flip-ud\&quot;: False} </td>
+	</tr>
+	<tr>
+		<td> <a href="AttrConfiguration.html"> Configuration </a> </td>
+		<td> false </td>
+		<td> false </td>
+		<td> Scalar </td>
+		<td> READ_WRITE </td>
+		<td> Tango::DEV_STRING </td>
+		<td> EXPERT </td>
+		<td> json dictionary with image source configuration, e.g.  {\&quot;source\&quot;: \&quot;hidra\&quot;, \&quot;configuration\&quot;: \&quot;hasodet.desy.de\&quot;} </td>
 	</tr>
 </table>
 <br><br>
@@ -960,7 +971,7 @@
 <br><br><br>
 <font size="+1"><u><b> Attribute DetectorROIs : </b></u></font>
 <ul>
-	json dictionary with detector ROIs, e.g.  {`pilatusroi1`: [[26, 15, 232, 65]], `lambdarois`: [[54, 78, 102, 204], [10, 20, 40, 50]]}
+	json dictionary with detector ROIs, e.g.  {\&quot;pilatusroi1\&quot;: [[26, 15, 232, 65]], \&quot;lambdarois\&quot;: [[54, 78, 102, 204], [10, 20, 40, 50]]}
 </ul>
 <br><br><br>
 <Table Border=0 Cellpadding=0 CELLSPACING=20>
@@ -1135,7 +1146,7 @@
 <br><br><br>
 <font size="+1"><u><b> Attribute DetectorROIsValues : </b></u></font>
 <ul>
-	json dictionary with detector ROIs values, e.g.  {`pilatusroi1`: [26.3], `lambdarois`: [54.3, 434.30]]}
+	json dictionary with detector ROIs values, e.g.  {\&quot;pilatusroi1\&quot;: [26.3], \&quot;lambdarois\&quot;: [54.3, 434.30]]}
 </ul>
 <br><br><br>
 <Table Border=0 Cellpadding=0 CELLSPACING=20>
@@ -1484,7 +1495,7 @@
 <br><br><br>
 <font size="+1"><u><b> Attribute DetectorROIsParams : </b></u></font>
 <ul>
-	json dictionary with detector ROIs parameters, e.g.  {`transpose`: False, `flip(left-right)`: True,  `flip(up-down)`: False}
+	json dictionary with detector ROIs parameters, e.g.  {\&quot;transpose\&quot;: False, \&quot;flip-lr\&quot;: True,  \&quot;flip-ud\&quot;: False}
 </ul>
 <br><br><br>
 <Table Border=0 Cellpadding=0 CELLSPACING=20>
@@ -1549,6 +1560,181 @@
 				<tr>
 					<td> label </td>
 					<td> detector ROIs parameters </td>
+				</tr>
+				<tr>
+					<td> unit </td>
+					<td>  </td>
+				</tr>
+				<tr>
+					<td> standard unit </td>
+					<td>  </td>
+				</tr>
+				<tr>
+					<td> display unit </td>
+					<td>  </td>
+				</tr>
+				<tr>
+					<td> format </td>
+					<td>  </td>
+				</tr>
+				<tr>
+					<td> max_value </td>
+					<td>  </td>
+				</tr>
+				<tr>
+					<td> min_value </td>
+					<td>  </td>
+				</tr>
+				<tr>
+					<td> max_alarm </td>
+					<td>  </td>
+				</tr>
+				<tr>
+					<td> min_alarm </td>
+					<td>  </td>
+				</tr>
+				<tr>
+					<td> max_warning </td>
+					<td>  </td>
+				</tr>
+				<tr>
+					<td> min_warning </td>
+					<td>  </td>
+				</tr>
+				<tr>
+					<td> delta_time </td>
+					<td>  </td>
+				</tr>
+				<tr>
+					<td> delta_val </td>
+					<td>  </td>
+				</tr>
+			</table>
+		</td>
+		<TD ALIGN="Right" VALIGN=top>
+			<Table Border=2 Cellpadding=3 CELLSPACING=0>
+				<tr bgcolor="#CCCCFF" class="TableHeadingColor">
+				<td colspan=0> <font size=+1> <center><b> Attribute Event Criteria </b></font></center></td>
+				</tr>
+				<tr>
+					<td> Periodic </td>
+					<td> Not set </td>
+				</tr>
+				<tr>
+					<td> Relative Change </td>
+					<td> Not set </td>
+				</tr>
+				<tr>
+					<td> Absolute Change </td>
+					<td> Not set </td>
+				</tr>
+			<Tr BGCOLOR="#CCCCFF"><Td><Hr></Td><Td><Hr></Td></Tr>
+				<tr>
+					<td> Archive Periodic </td>
+					<td> Not set </td>
+				</tr>
+				<tr>
+					<td> Archive Relative Change </td>
+					<td> Not set </td>
+				</tr>
+				<tr>
+					<td> Archive Absolute Change </td>
+					<td> Not set </td>
+				</tr>
+			<Tr BGCOLOR="#CCCCFF"><Td><Hr></Td><Td><Hr></Td></Tr>
+				<tr>
+					<td> Push Change event by user code </td>
+					<td> true </td>
+				</tr>
+				<tr>
+					<td> <ul> Criteria checked by TANGO </td>
+					<td> false </td>
+				</tr>
+			<Tr BGCOLOR="#CCCCFF"><Td> </Td><Td> </Td></Tr>
+				<tr>
+					<td> Push Archive event by user code </td>
+					<td> false </td>
+				</tr>
+			<Tr BGCOLOR="#CCCCFF"><Td> </Td><Td> </Td></Tr>
+				<tr>
+					<td> Push DataReady event by user code </td>
+					<td> false </td>
+				</tr>
+			</table>
+		</td>
+	</TR>
+</table>
+<br><br>
+<hr>
+<a name="attrConfiguration"> </a>
+<br><br><br>
+<font size="+1"><u><b> Attribute Configuration : </b></u></font>
+<ul>
+	json dictionary with image source configuration, e.g.  {\&quot;source\&quot;: \&quot;hidra\&quot;, \&quot;configuration\&quot;: \&quot;hasodet.desy.de\&quot;}
+</ul>
+<br><br><br>
+<Table Border=0 Cellpadding=0 CELLSPACING=20>
+	<TR>
+		<TD ALIGN="left" VALIGN=top>
+			<Table Border=2 Cellpadding=3 CELLSPACING=0>
+				<tr bgcolor="#CCCCFF" class="TableHeadingColor">
+				<td colspan=0> <font size=+1> <center><b> Attribute Definition </b></font></center></td>
+				</tr>
+				<tr>
+					<td> Attribute Type </td>
+					<td> Scalar </td>
+				</tr>
+				<tr>
+					<td> R/W Type </td>
+					<td> READ_WRITE </td>
+				</tr>
+				<tr>
+					<td> Data Type </td>
+					<td> Tango::DEV_STRING </td>
+				</tr>
+				<tr>
+					<td> Display Level </td>
+					<td> EXPERT </td>
+				</tr>
+				<tr>
+					<td> Inherited </td>
+					<td> false </td>
+				</tr>
+				<tr>
+					<td> Abstract </td>
+					<td> false </td>
+				</tr>
+				<tr>
+					<td> Polling Period </td>
+					<td> Not polled </td>
+				</tr>
+				<tr>
+					<td> Memorized </td>
+					<td> true </td>
+				</tr>
+				<tr>
+					<td> Write hardware at init. </td>
+					<td> true </td>
+				</tr>
+			<Tr BGCOLOR="#CCCCFF"><Td><Hr></Td><Td><Hr></Td></Tr>
+				<tr>
+					<td> Read allowed for </td>
+					<td> All states </td>
+				</tr>
+				<tr>
+					<td> Write allowed for </td>
+					<td> All states </td>
+				</tr>
+			</table>
+		</td>
+		<TD ALIGN="Center" VALIGN=top>
+			<Table Border=2 Cellpadding=3 CELLSPACING=0>
+				<tr bgcolor="#CCCCFF" class="TableHeadingColor">
+				<td colspan=0> <font size=+1> <center><b> Attribute Properties </b></font></center></td>
+				</tr>
+				<tr>
+					<td> label </td>
+					<td> Configuration </td>
 				</tr>
 				<tr>
 					<td> unit </td>

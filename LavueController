@@ -79,6 +79,7 @@ class LavueController (PyTango.Device_4Impl):
         self.attr_DetectorROIsValues_read = ""
         self.attr_DetectorROIsParams_read = ""
         self.attr_Energy_read = 0.0
+        self.attr_Configuration_read = ""
         self.set_change_event("BeamCenterX", True, False)
         self.set_change_event("BeamCenterY", True, False)
         self.set_change_event("DetectorDistance", True, False)
@@ -182,6 +183,26 @@ class LavueController (PyTango.Device_4Impl):
             self.attr_DetectorDistance_read = float(data)
             self.push_change_event(
                 "DetectorDistance", self.attr_DetectorDistance_read)
+
+    def read_Configuration(self, attr):
+        self.debug_stream("In read_Configuration()")
+        attr.set_value(self.attr_Configuration_read)
+
+    def write_Configuration(self, attr):
+        self.debug_stream("In write_Configuration()")
+        data = attr.get_write_value()
+        detcnf = json.loads(data)
+        for key, value in detcnf.items():
+            if not isinstance(key, (str, unicode)):
+                raise Exception(
+                    "configuration key %s is not string" % str(key))
+            if not isinstance(value, (str, unicode)):
+                raise Exception(
+                    "configuration value %s is not string" % str(value))
+        if self.attr_Configuration_read != data:
+            self.attr_Configuration_read = data
+            self.push_change_event("Configuration",
+                                   self.attr_Configuration_read)
 
     def read_DetectorROIs(self, attr):
         self.debug_stream("In read_DetectorROIs()")
@@ -575,8 +596,8 @@ class LavueControllerClass(PyTango.DeviceClass):
              {
                  'label': "detector ROIs",
                  'description': "json dictionary with detector ROIs, e.g.  "
-                 "{`pilatusroi1`: [[26, 15, 232, 65]], "
-                 "`lambdarois`: [[54, 78, 102, 204], [10, 20, 40, 50]]}",
+                 "{\"pilatusroi1\": [[26, 15, 232, 65]], "
+                 "\"lambdarois\": [[54, 78, 102, 204], [10, 20, 40, 50]]}",
                  'Display level': PyTango.DispLevel.EXPERT,
                  'Memorized': "true"
              }],
@@ -588,7 +609,7 @@ class LavueControllerClass(PyTango.DeviceClass):
                  'label': "detector ROIs values",
                  'description':
                  "json dictionary with detector ROIs values, e.g.  "
-                 "{'pilatusroi1': [26.3], 'lambdarois': [54.3, 434.30]]}",
+                 "{\"pilatusroi1\": [26.3], \"lambdarois\": [54.3, 434.30]]}",
                  'Memorized': "true"
              }],
         'DetectorROIsParams':
@@ -598,9 +619,9 @@ class LavueControllerClass(PyTango.DeviceClass):
              {
                  'label': "detector ROIs parameters",
                  'description': "json dictionary with detector ROIs "
-                 "parameters, e.g.  {`transpose`: False, "
-                 "`flip-lr`: True,  `flip-ud`: False}",
-                 'Memorized':"true"
+                 "parameters, e.g.  {\"transpose\": False, "
+                 "\"flip-lr\": True,  \"flip-ud\": False}",
+                 'Memorized': "true"
              }],
         'Energy':
             [[PyTango.DevDouble,
@@ -610,6 +631,19 @@ class LavueControllerClass(PyTango.DeviceClass):
                  'label': "beam energy",
                  'unit': "eV",
                  'abs_change': "0.0001",
+                 'Memorized': "true"
+             }],
+        'Configuration':
+            [[PyTango.DevString,
+              PyTango.SCALAR,
+              PyTango.READ_WRITE],
+             {
+                 'label': "Configuration",
+                 'description': "json dictionary with image "
+                 "source configuration, "
+                 "e.g. {\"source\": \"hidra\", "
+                 "\"configuration\":\"hasodet.desy.de\"}",
+                 'Display level': PyTango.DispLevel.EXPERT,
                  'Memorized': "true"
              }],
         }
