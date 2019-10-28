@@ -729,9 +729,12 @@ class LiveViewer(QtGui.QDialog):
            options.transformation is not None:
             self.__trafowg.setTransformation(options.transformation)
 
-        if hasattr(options, "filters") and \
-           options.filters is True:
-            self.__filterswg.setState(2)
+        if hasattr(options, "filters"):
+            if options.filters is True:
+                self.__filterswg.setState(2)
+            elif options.filters is False:
+                self.__filterswg.setState(0)
+
 
         if hasattr(options, "scaling") and options.scaling is not None:
             self.__scalingwg.setScaling(options.scaling)
