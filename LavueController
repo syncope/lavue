@@ -87,6 +87,7 @@ class LavueController (PyTango.Device_4Impl):
         self.set_change_event("DetectorROIsValues", True, False)
         self.set_change_event("DetectorROIsParams", True, False)
         self.set_change_event("Energy", True, False)
+        self.set_change_event("LavueState", True, False)
         self.attr_DetectorROIs_read = "{}"
         self.attr_DetectorROIsValues_read = "{}"
 
@@ -196,10 +197,9 @@ class LavueController (PyTango.Device_4Impl):
             if not isinstance(key, (str, unicode)):
                 raise Exception(
                     "state key %s is not a string" % str(key))
-        if self.attr_LavueState_read != data:
-            self.attr_LavueState_read = data
-            self.push_change_event("LavueState",
-                                   self.attr_LavueState_read)
+        self.attr_LavueState_read = data
+        self.push_change_event("LavueState",
+                               self.attr_LavueState_read)
 
     def read_DetectorROIs(self, attr):
         self.debug_stream("In read_DetectorROIs()")
@@ -641,7 +641,7 @@ class LavueControllerClass(PyTango.DeviceClass):
                  "e.g. {\"source\": \"hidra\", "
                  "\"configuration\":\"hasodet.desy.de\"}",
                  'Display level': PyTango.DispLevel.EXPERT,
-                 'Memorized': "true"
+                 # 'Memorized': "true"
              }],
         }
 

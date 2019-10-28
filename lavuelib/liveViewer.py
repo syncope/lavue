@@ -627,15 +627,23 @@ class LiveViewer(QtGui.QDialog):
         :param state: json dictionary with configuration
         :type state: :obj:`str`
         """
-        stopped = False
-        if self.__sourcewg.isConnected():
-            self.__sourcewg.toggleServerConnection()
-            stopped = True
-        dctcnf = json.loads(state)
-        self.__applyoptionsfromdict(dctcnf)
-        if not self.__sourcewg.isConnected() and stopped and \
-           'start' not in dctcnf.keys():
-            self.__sourcewg.toggleServerConnection()
+        if state:
+            dctcnf = json.loads(str(state))
+            if dctcnf:
+                srccnf = "source" in dctcnf.keys() or \
+                    "configuration" in dctcnf.keys()
+                stop = dctcnf["stop"] if "stop" in dctcnf.keys() else None
+                start = dctcnf["start"] if "start" in dctcnf.keys() else None
+                running = self.__sourcewg.isConnected()
+                if srccnf or stop is True or start is True:
+                    if self.__sourcewg.isConnected():
+                        self.__sourcewg.toggleServerConnection()
+                self.__applyoptionsfromdict(dctcnf)
+                if not self.__sourcewg.isConnected():
+                    if start is True:
+                        self.__sourcewg.toggleServerConnection()
+                    elif running and srccnf and stop is not True:
+                        self.__sourcewg.toggleServerConnection()
 
     def __applyoptionsfromdict(self, dctcnf):
         """ apply options
@@ -754,10 +762,10 @@ class LiveViewer(QtGui.QDialog):
                 self.__imagewg.updateBeamCenterY)
             self.__tangoclient.detectorROIsChanged.connect(
                 self.__imagewg.updateDetectorROIs)
-            self.__tangoclient.lavueStateChanged.connect(
-                self._updateLavueState)
             self.__imagewg.setTangoClient(self.__tangoclient)
             self.__tangoclient.subscribe()
+            self.__tangoclient.lavueStateChanged.connect(
+                self._updateLavueState)
         else:
             self.__tangoclient = None
 
