@@ -735,7 +735,6 @@ class LiveViewer(QtGui.QDialog):
             elif options.filters is False:
                 self.__filterswg.setState(0)
 
-
         if hasattr(options, "scaling") and options.scaling is not None:
             self.__scalingwg.setScaling(options.scaling)
 
