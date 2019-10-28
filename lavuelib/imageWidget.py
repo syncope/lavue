@@ -1562,16 +1562,14 @@ class ImageWidget(QtGui.QWidget):
         :param tool: tool name
         :type tool: :obj:`str`
         """
-        tools = [k.lower() for k in self.__toolnames]
-        rgbtools = [k.lower() for k in self.__rgbtoolnames]
-        ltool = tool.lower()
-        if ltool in tools:
-            tid = tools.index(ltool)
-            self.__ui.toolComboBox.setCurrentIndex(tid)
+        print(tool)
+        index = self.__ui.toolComboBox.findText(tool)
+        if index != -1:
+            self.__ui.toolComboBox.setCurrentIndex(index)
             self.showCurrentTool()
-        if ltool in rgbtools:
-            tid = rgbtools.index(ltool)
-            self.__ui.toolComboBox.setCurrentIndex(tid)
+        index = self.__ui.rgbtoolComboBox.findText(tool)
+        if index != -1:
+            self.__ui.rgbtoolComboBox.setCurrentIndex(index)
             self.showCurrentRGBTool()
 
     def tool(self):
@@ -1580,11 +1578,8 @@ class ImageWidget(QtGui.QWidget):
         :param tool: tool name
         :type tool: :obj:`str`
         """
-        tid = self.__ui.toolComboBox.currentIndex()
-        if tid >= 0:
-            return str(self.__ui.toolComboBox.itemText(tid)).lower()
-        else:
-            return ""
+        print(self.__currenttool.alias)
+        return self.__currenttool.alias
 
     @QtCore.pyqtSlot(float)
     def updateEnergy(self, energy):

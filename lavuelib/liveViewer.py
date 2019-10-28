@@ -704,9 +704,7 @@ class LiveViewer(QtGui.QDialog):
 
         # set image source
         if hasattr(options, "source") and options.source is not None:
-            msid = None
             srcname = str(options.source)
-            print(srcname)
             if srcname in self.__srcaliasnames.keys():
                 print(self.__srcaliasnames[srcname])
                 self.__sourcewg.setSourceComboBoxByName(
@@ -749,7 +747,10 @@ class LiveViewer(QtGui.QDialog):
             self.__levelswg.setGradient(str(options.gradient))
 
         if hasattr(options, "tool") and options.tool is not None:
-            self.__imagewg.setTool(str(options.tool))
+            tlname = str(options.tool)
+            print(str(options.tool))
+            if tlname in self.__tlaliasnames.keys():
+                self.__imagewg.setTool(self.__tlaliasnames[tlname])
 
         if hasattr(options, "tangodevice") and \
            TANGOCLIENT and options.tangodevice is not None:
