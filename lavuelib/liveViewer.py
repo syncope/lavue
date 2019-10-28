@@ -457,8 +457,7 @@ class LiveViewer(QtGui.QDialog):
         if start:
             self.__sourcewg.start()
 
-        if options.tool:
-            QtCore.QTimer.singleShot(10, self.__imagewg.showCurrentTool)
+        self.__updateTool(options.tool)
 
     def __updateTypeList(self, properties, typelist,
                          allaliases, snametoname):
@@ -645,9 +644,22 @@ class LiveViewer(QtGui.QDialog):
                         self.__sourcewg.toggleServerConnection()
                     elif running and srccnf and stop is not True:
                         self.__sourcewg.toggleServerConnection()
-                if tool:
-                    QtCore.QTimer.singleShot(
-                        10, self.__imagewg.showCurrentTool)
+                self.__updateTool(tool)
+
+    def __updateTool(self, tool):
+        """ update current tool
+
+        :param tool: alias tool name
+        :type tool: :obj:`str`
+        """
+        if tool:
+            if not self.__imagewg.rgb() and \
+               tool in self.__tlaliasnames.keys():
+                QtCore.QTimer.singleShot(
+                    10, self.__imagewg.showCurrentTool)
+            elif self.__imagewg.rgb():
+                QtCore.QTimer.singleShot(
+                    10, self.__imagewg.showCurrentRGBTool)
 
     def __applyoptionsfromdict(self, dctcnf):
         """ apply options
@@ -748,7 +760,8 @@ class LiveViewer(QtGui.QDialog):
 
         if hasattr(options, "tool") and options.tool is not None:
             tlname = str(options.tool)
-            if tlname in self.__tlaliasnames.keys():
+            if tlname in self.__tlaliasnames.keys() and \
+               not self.__imagewg.rgb():
                 self.__imagewg.setTool(self.__tlaliasnames[tlname])
 
         if hasattr(options, "tangodevice") and \
