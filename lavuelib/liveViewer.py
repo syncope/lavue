@@ -646,7 +646,8 @@ class LiveViewer(QtGui.QDialog):
                     elif running and srccnf and stop is not True:
                         self.__sourcewg.toggleServerConnection()
                 if tool:
-                    QtCore.QTimer.singleShot(10, self.__imagewg.showCurrentTool)
+                    QtCore.QTimer.singleShot(
+                        10, self.__imagewg.showCurrentTool)
 
     def __applyoptionsfromdict(self, dctcnf):
         """ apply options
@@ -706,7 +707,6 @@ class LiveViewer(QtGui.QDialog):
         if hasattr(options, "source") and options.source is not None:
             srcname = str(options.source)
             if srcname in self.__srcaliasnames.keys():
-                print(self.__srcaliasnames[srcname])
                 self.__sourcewg.setSourceComboBoxByName(
                     self.__srcaliasnames[srcname])
 
@@ -748,7 +748,6 @@ class LiveViewer(QtGui.QDialog):
 
         if hasattr(options, "tool") and options.tool is not None:
             tlname = str(options.tool)
-            print(str(options.tool))
             if tlname in self.__tlaliasnames.keys():
                 self.__imagewg.setTool(self.__tlaliasnames[tlname])
 

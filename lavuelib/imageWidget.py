@@ -1562,7 +1562,6 @@ class ImageWidget(QtGui.QWidget):
         :param tool: tool name
         :type tool: :obj:`str`
         """
-        print(tool)
         index = self.__ui.toolComboBox.findText(tool)
         if index != -1:
             self.__ui.toolComboBox.setCurrentIndex(index)
@@ -1578,8 +1577,10 @@ class ImageWidget(QtGui.QWidget):
         :param tool: tool name
         :type tool: :obj:`str`
         """
-        print(self.__currenttool.alias)
-        return self.__currenttool.alias
+        if self.__currenttool is not None:
+            return self.__currenttool.alias
+        else:
+            return ""
 
     @QtCore.pyqtSlot(float)
     def updateEnergy(self, energy):
