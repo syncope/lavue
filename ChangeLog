@@ -1,4 +1,8 @@
 2019-10-28 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for switching tools between rgb and not rgb
+	* tagged as 2.20.1
+
+2019-10-28 Jan Kotanski <jan.kotanski@desy.de>
 	* add LavueState to LavueController
 	* tagged as 2.20.0
 
