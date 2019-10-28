@@ -620,6 +620,55 @@ class LiveViewer(QtGui.QDialog):
             doocsprops=self.__settings.doocsprops
         )
 
+    @QtCore.pyqtSlot(str)
+    def _updateLavueState(self, state):
+        """ updates lavue state configuration
+
+        :param state: json dictionary with configuration
+        :type state: :obj:`str`
+        """
+        if state:
+            dctcnf = json.loads(str(state))
+            if dctcnf:
+                srccnf = "source" in dctcnf.keys() or \
+                    "configuration" in dctcnf.keys()
+                stop = dctcnf["stop"] if "stop" in dctcnf.keys() else None
+                start = dctcnf["start"] if "start" in dctcnf.keys() else None
+                tool = dctcnf["tool"] if "tool" in dctcnf.keys() else None
+                running = self.__sourcewg.isConnected()
+                if srccnf or stop is True or start is True:
+                    if self.__sourcewg.isConnected():
+                        self.__sourcewg.toggleServerConnection()
+                self.__applyoptionsfromdict(dctcnf)
+                if not self.__sourcewg.isConnected():
+                    if start is True:
+                        self.__sourcewg.toggleServerConnection()
+                    elif running and srccnf and stop is not True:
+                        self.__sourcewg.toggleServerConnection()
+                if tool:
+                    QtCore.QTimer.singleShot(
+                        10, self.__imagewg.showCurrentTool)
+
+    def __applyoptionsfromdict(self, dctcnf):
+        """ apply options
+
+        :param dctcnf: commandline options
+        :type dctcnf: :obj:`dict` <:obj:`str`, any >
+        """
+        if dctcnf:
+            options = argparse.Namespace()
+            for key, vl in dctcnf.items():
+                setattr(options, key, vl)
+            self.__applyoptions(options)
+            if 'levels' not in dctcnf.keys():
+                self.__levelswg.setAutoLevels(2)
+            if 'bkgfile' not in dctcnf.keys():
+                self.__bkgsubwg.checkBkgSubtraction(False)
+                self.__dobkgsubtraction = None
+            if 'maskfile' not in dctcnf.keys():
+                self.__maskwg.noImage()
+                self.__applymask = False
+
     def __applyoptions(self, options):
         """ apply options
 
@@ -629,11 +678,11 @@ class LiveViewer(QtGui.QDialog):
         :rtype: :obj:`bool`
         """
         if hasattr(options, "doordevice") and options.doordevice is not None:
-            self.__settings.doorname = options.doordevice
+            self.__settings.doorname = str(options.doordevice)
 
         if hasattr(options, "analysisdevice") and \
            options.analysisdevice is not None:
-            self.__settings.analysisdevice = options.analysisdevice
+            self.__settings.analysisdevice = str(options.analysisdevice)
 
         # load image file
         if hasattr(options, "imagefile") and options.imagefile is not None:
@@ -641,7 +690,7 @@ class LiveViewer(QtGui.QDialog):
             oldpath = self.__fieldpath
             oldgrowing = self.__growing
             try:
-                self.__settings.imagename = options.imagefile
+                self.__settings.imagename = str(options.imagefile)
                 if ":/" in self.__settings.imagename:
                     self.__settings.imagename, self.__fieldpath =  \
                         self.__settings.imagename.split(":/", 1)
@@ -656,57 +705,56 @@ class LiveViewer(QtGui.QDialog):
 
         # set image source
         if hasattr(options, "source") and options.source is not None:
-            msid = None
-            for sid, src in enumerate(self.__sourcetypes):
-                if src.endswith("SourceWidget"):
-                    src = src[:-12]
-                    if options.source == src.lower():
-                        msid = sid
-                        break
-            if msid is not None:
-                self.__sourcewg.setSourceComboBox(msid)
+            srcname = str(options.source)
+            if srcname in self.__srcaliasnames.keys():
+                self.__sourcewg.setSourceComboBoxByName(
+                    self.__srcaliasnames[srcname])
 
         if hasattr(options, "configuration") and \
            options.configuration is not None:
-            self.__sourcewg.configure(options.configuration)
+            self.__sourcewg.configure(str(options.configuration))
 
         if hasattr(options, "bkgfile") and options.bkgfile is not None:
-            self.__bkgsubwg.setBackground(options.bkgfile)
+            self.__bkgsubwg.setBackground(str(options.bkgfile))
 
         if hasattr(options, "maskfile") and options.maskfile is not None:
-            self.__maskwg.setMask(options.maskfile)
+            self.__maskwg.setMask(str(options.maskfile))
 
         if hasattr(options, "maskhighvalue") and \
            options.maskhighvalue is not None:
-            self.__highvaluemaskwg.setMask(options.maskhighvalue)
+            self.__highvaluemaskwg.setMask(str(options.maskhighvalue))
 
         if hasattr(options, "transformation") and \
            options.transformation is not None:
-            self.__trafowg.setTransformation(options.transformation)
+            self.__trafowg.setTransformation(str(options.transformation))
 
-        if hasattr(options, "filters") and \
-           options.filters is True:
-            self.__filterswg.setState(2)
+        if hasattr(options, "filters"):
+            if options.filters is True:
+                self.__filterswg.setState(2)
+            elif options.filters is False:
+                self.__filterswg.setState(0)
 
         if hasattr(options, "scaling") and options.scaling is not None:
-            self.__scalingwg.setScaling(options.scaling)
+            self.__scalingwg.setScaling(str(options.scaling))
 
         if hasattr(options, "levels") and options.levels is not None:
-            self.__levelswg.setLevels(options.levels)
+            self.__levelswg.setLevels(str(options.levels))
 
         if hasattr(options, "autofactor") and options.autofactor is not None:
-            self.__levelswg.setAutoFactor(options.autofactor)
+            self.__levelswg.setAutoFactor(str(options.autofactor))
 
         if hasattr(options, "gradient") and options.gradient is not None:
-            self.__levelswg.setGradient(options.gradient)
+            self.__levelswg.setGradient(str(options.gradient))
 
         if hasattr(options, "tool") and options.tool is not None:
-            self.__imagewg.setTool(options.tool)
+            tlname = str(options.tool)
+            if tlname in self.__tlaliasnames.keys():
+                self.__imagewg.setTool(self.__tlaliasnames[tlname])
 
         if hasattr(options, "tangodevice") and \
            TANGOCLIENT and options.tangodevice is not None:
             self.__tangoclient = controllerClient.ControllerClient(
-                options.tangodevice)
+                str(options.tangodevice))
             self.__tangoclient.energyChanged.connect(
                 self.__imagewg.updateEnergy)
             self.__tangoclient.detectorDistanceChanged.connect(
@@ -719,11 +767,13 @@ class LiveViewer(QtGui.QDialog):
                 self.__imagewg.updateDetectorROIs)
             self.__imagewg.setTangoClient(self.__tangoclient)
             self.__tangoclient.subscribe()
+            self.__tangoclient.lavueStateChanged.connect(
+                self._updateLavueState)
         else:
             self.__tangoclient = None
 
         if hasattr(options, "viewrange") and options.viewrange is not None:
-            self.__imagewg.setViewRange(options.viewrange)
+            self.__imagewg.setViewRange(str(options.viewrange))
         self.__sourcewg.updateLayout()
         if hasattr(options, "start"):
             return options.start is True
@@ -1398,19 +1448,7 @@ class LiveViewer(QtGui.QDialog):
             self.__sourcelabel = str(label)
             values = self.__settings.sourceDisplay(
                 self.__sourcelabel)
-            if values:
-                options = argparse.Namespace()
-                for key, vl in values.items():
-                    setattr(options, key, vl)
-                self.__applyoptions(options)
-                if 'levels' not in values.keys():
-                    self.__levelswg.setAutoLevels(2)
-                if 'bkgfile' not in values.keys():
-                    self.__bkgsubwg.checkBkgSubtraction(False)
-                    self.__dobkgsubtraction = None
-                if 'maskfile' not in values.keys():
-                    self.__maskwg.noImage()
-                    self.__applymask = False
+            self.__applyoptionsfromdict(values)
 
     def __setSourceLabel(self):
         """sets source display parameters

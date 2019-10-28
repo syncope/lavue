@@ -149,6 +149,16 @@ class SourceGroupBox(QtGui.QGroupBox):
         self.__ui.gridLayout.addWidget(self.__ui.cStatusLineEdit, sln + 1, 1)
         self.__ui.gridLayout.addWidget(self.__ui.pushButton, sln + 2, 1)
 
+    def setSourceComboBoxByName(self, name):
+        """ set source by changing combobox by name
+
+        :param name: combobox name
+        :type name: :obj:`str`
+        """
+        index = self.__ui.sourceTypeComboBox.findText(name)
+        if index != -1:
+            self.__ui.sourceTypeComboBox.setCurrentIndex(index)
+
     def setSourceComboBox(self, index):
         """ set source by changing combobox
 

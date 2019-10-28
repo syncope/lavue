@@ -79,6 +79,7 @@ class LavueController (PyTango.Device_4Impl):
         self.attr_DetectorROIsValues_read = ""
         self.attr_DetectorROIsParams_read = ""
         self.attr_Energy_read = 0.0
+        self.attr_LavueState_read = ""
         self.set_change_event("BeamCenterX", True, False)
         self.set_change_event("BeamCenterY", True, False)
         self.set_change_event("DetectorDistance", True, False)
@@ -86,6 +87,7 @@ class LavueController (PyTango.Device_4Impl):
         self.set_change_event("DetectorROIsValues", True, False)
         self.set_change_event("DetectorROIsParams", True, False)
         self.set_change_event("Energy", True, False)
+        self.set_change_event("LavueState", True, False)
         self.attr_DetectorROIs_read = "{}"
         self.attr_DetectorROIsValues_read = "{}"
 
@@ -183,6 +185,22 @@ class LavueController (PyTango.Device_4Impl):
             self.push_change_event(
                 "DetectorDistance", self.attr_DetectorDistance_read)
 
+    def read_LavueState(self, attr):
+        self.debug_stream("In read_LavueState()")
+        attr.set_value(self.attr_LavueState_read)
+
+    def write_LavueState(self, attr):
+        self.debug_stream("In write_LavueState()")
+        data = attr.get_write_value()
+        detcnf = json.loads(data)
+        for key, value in detcnf.items():
+            if not isinstance(key, (str, unicode)):
+                raise Exception(
+                    "state key %s is not a string" % str(key))
+        self.attr_LavueState_read = data
+        self.push_change_event("LavueState",
+                               self.attr_LavueState_read)
+
     def read_DetectorROIs(self, attr):
         self.debug_stream("In read_DetectorROIs()")
         attr.set_value(self.attr_DetectorROIs_read)
@@ -194,7 +212,7 @@ class LavueController (PyTango.Device_4Impl):
         for det, rois in detrois.items():
             if not isinstance(det, (str, unicode)):
                 raise Exception(
-                    "ROI name %s is not string" % str(det))
+                    "ROI name %s is not a string" % str(det))
             if not isinstance(rois, (list)):
                 raise Exception(
                     "ROI %s is not a double list" % str(det))
@@ -231,7 +249,7 @@ class LavueController (PyTango.Device_4Impl):
 
             if not isinstance(det, (str, unicode)):
                 raise Exception(
-                    "ROI name %s is not string" % str(det))
+                    "ROI name %s is not a string" % str(det))
             if not isinstance(rois, (list)):
                 raise Exception(
                     "ROI %s is not a double list" % str(det))
@@ -575,8 +593,8 @@ class LavueControllerClass(PyTango.DeviceClass):
              {
                  'label': "detector ROIs",
                  'description': "json dictionary with detector ROIs, e.g.  "
-                 "{`pilatusroi1`: [[26, 15, 232, 65]], "
-                 "`lambdarois`: [[54, 78, 102, 204], [10, 20, 40, 50]]}",
+                 "{\"pilatusroi1\": [[26, 15, 232, 65]], "
+                 "\"lambdarois\": [[54, 78, 102, 204], [10, 20, 40, 50]]}",
                  'Display level': PyTango.DispLevel.EXPERT,
                  'Memorized': "true"
              }],
@@ -588,7 +606,7 @@ class LavueControllerClass(PyTango.DeviceClass):
                  'label': "detector ROIs values",
                  'description':
                  "json dictionary with detector ROIs values, e.g.  "
-                 "{'pilatusroi1': [26.3], 'lambdarois': [54.3, 434.30]]}",
+                 "{\"pilatusroi1\": [26.3], \"lambdarois\": [54.3, 434.30]]}",
                  'Memorized': "true"
              }],
         'DetectorROIsParams':
@@ -598,9 +616,9 @@ class LavueControllerClass(PyTango.DeviceClass):
              {
                  'label': "detector ROIs parameters",
                  'description': "json dictionary with detector ROIs "
-                 "parameters, e.g.  {`transpose`: False, "
-                 "`flip-lr`: True,  `flip-ud`: False}",
-                 'Memorized':"true"
+                 "parameters, e.g.  {\"transpose\": False, "
+                 "\"flip-lr\": True,  \"flip-ud\": False}",
+                 'Memorized': "true"
              }],
         'Energy':
             [[PyTango.DevDouble,
@@ -611,6 +629,19 @@ class LavueControllerClass(PyTango.DeviceClass):
                  'unit': "eV",
                  'abs_change': "0.0001",
                  'Memorized': "true"
+             }],
+        'LavueState':
+            [[PyTango.DevString,
+              PyTango.SCALAR,
+              PyTango.READ_WRITE],
+             {
+                 'label': "Lavue State",
+                 'description': "json dictionary with Lavue State "
+                 "configuration, "
+                 "e.g. {\"source\": \"hidra\", "
+                 "\"configuration\":\"hasodet.desy.de\"}",
+                 'Display level': PyTango.DispLevel.EXPERT,
+                 # 'Memorized': "true"
              }],
         }
 

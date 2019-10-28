@@ -70,10 +70,12 @@ class ControllerClient(QtCore.QObject):
     detectorDistanceChanged = QtCore.pyqtSignal(float)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) detector ROIs changed signal
     detectorROIsChanged = QtCore.pyqtSignal(str)
-    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) beam Center X changed siganal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) beam Center X changed signal
     beamCenterXChanged = QtCore.pyqtSignal(float)
-    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) beam Center Y changed siganal
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) beam Center Y changed signal
     beamCenterYChanged = QtCore.pyqtSignal(float)
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) lavueState changed signal
+    lavueStateChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, device):
         """ constructor
@@ -100,6 +102,8 @@ class ControllerClient(QtCore.QObject):
             self, "BeamCenterX", self.beamCenterXChanged)
         centery_cb = TangoCB(
             self, "BeamCenterY", self.beamCenterYChanged)
+        lavuestate_cb = TangoCB(
+            self, "LavueState", self.lavueStateChanged)
 
         self.__energy_id = self.__dp.subscribe_event(
             "Energy",
@@ -121,6 +125,10 @@ class ControllerClient(QtCore.QObject):
             "BeamCenterY",
             PyTango.EventType.CHANGE_EVENT,
             centery_cb)
+        self.__lavuestate_id = self.__dp.subscribe_event(
+            "LavueState",
+            PyTango.EventType.CHANGE_EVENT,
+            lavuestate_cb)
         self.__subscribed = True
 
     def writeAttribute(self, name, value):
@@ -142,4 +150,5 @@ class ControllerClient(QtCore.QObject):
             self.__dp.unsubscribe_event(self.__rois_id)
             self.__dp.unsubscribe_event(self.__centerx_id)
             self.__dp.unsubscribe_event(self.__centery_id)
+            self.__dp.unsubscribe_event(self.__lavuestate_id)
         self.__subscribed = False
