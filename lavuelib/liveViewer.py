@@ -634,6 +634,7 @@ class LiveViewer(QtGui.QDialog):
                     "configuration" in dctcnf.keys()
                 stop = dctcnf["stop"] if "stop" in dctcnf.keys() else None
                 start = dctcnf["start"] if "start" in dctcnf.keys() else None
+                tool = dctcnf["tool"] if "tool" in dctcnf.keys() else None
                 running = self.__sourcewg.isConnected()
                 if srccnf or stop is True or start is True:
                     if self.__sourcewg.isConnected():
@@ -644,6 +645,8 @@ class LiveViewer(QtGui.QDialog):
                         self.__sourcewg.toggleServerConnection()
                     elif running and srccnf and stop is not True:
                         self.__sourcewg.toggleServerConnection()
+                if tool:
+                    QtCore.QTimer.singleShot(10, self.__imagewg.showCurrentTool)
 
     def __applyoptionsfromdict(self, dctcnf):
         """ apply options
@@ -674,11 +677,11 @@ class LiveViewer(QtGui.QDialog):
         :rtype: :obj:`bool`
         """
         if hasattr(options, "doordevice") and options.doordevice is not None:
-            self.__settings.doorname = options.doordevice
+            self.__settings.doorname = str(options.doordevice)
 
         if hasattr(options, "analysisdevice") and \
            options.analysisdevice is not None:
-            self.__settings.analysisdevice = options.analysisdevice
+            self.__settings.analysisdevice = str(options.analysisdevice)
 
         # load image file
         if hasattr(options, "imagefile") and options.imagefile is not None:
@@ -686,7 +689,7 @@ class LiveViewer(QtGui.QDialog):
             oldpath = self.__fieldpath
             oldgrowing = self.__growing
             try:
-                self.__settings.imagename = options.imagefile
+                self.__settings.imagename = str(options.imagefile)
                 if ":/" in self.__settings.imagename:
                     self.__settings.imagename, self.__fieldpath =  \
                         self.__settings.imagename.split(":/", 1)
@@ -702,32 +705,30 @@ class LiveViewer(QtGui.QDialog):
         # set image source
         if hasattr(options, "source") and options.source is not None:
             msid = None
-            for sid, src in enumerate(self.__sourcetypes):
-                if src.endswith("SourceWidget"):
-                    src = src[:-12]
-                    if options.source == src.lower():
-                        msid = sid
-                        break
-            if msid is not None:
-                self.__sourcewg.setSourceComboBox(msid)
+            srcname = str(options.source)
+            print(srcname)
+            if srcname in self.__srcaliasnames.keys():
+                print(self.__srcaliasnames[srcname])
+                self.__sourcewg.setSourceComboBoxByName(
+                    self.__srcaliasnames[srcname])
 
         if hasattr(options, "configuration") and \
            options.configuration is not None:
-            self.__sourcewg.configure(options.configuration)
+            self.__sourcewg.configure(str(options.configuration))
 
         if hasattr(options, "bkgfile") and options.bkgfile is not None:
-            self.__bkgsubwg.setBackground(options.bkgfile)
+            self.__bkgsubwg.setBackground(str(options.bkgfile))
 
         if hasattr(options, "maskfile") and options.maskfile is not None:
-            self.__maskwg.setMask(options.maskfile)
+            self.__maskwg.setMask(str(options.maskfile))
 
         if hasattr(options, "maskhighvalue") and \
            options.maskhighvalue is not None:
-            self.__highvaluemaskwg.setMask(options.maskhighvalue)
+            self.__highvaluemaskwg.setMask(str(options.maskhighvalue))
 
         if hasattr(options, "transformation") and \
            options.transformation is not None:
-            self.__trafowg.setTransformation(options.transformation)
+            self.__trafowg.setTransformation(str(options.transformation))
 
         if hasattr(options, "filters"):
             if options.filters is True:
@@ -736,24 +737,24 @@ class LiveViewer(QtGui.QDialog):
                 self.__filterswg.setState(0)
 
         if hasattr(options, "scaling") and options.scaling is not None:
-            self.__scalingwg.setScaling(options.scaling)
+            self.__scalingwg.setScaling(str(options.scaling))
 
         if hasattr(options, "levels") and options.levels is not None:
-            self.__levelswg.setLevels(options.levels)
+            self.__levelswg.setLevels(str(options.levels))
 
         if hasattr(options, "autofactor") and options.autofactor is not None:
-            self.__levelswg.setAutoFactor(options.autofactor)
+            self.__levelswg.setAutoFactor(str(options.autofactor))
 
         if hasattr(options, "gradient") and options.gradient is not None:
-            self.__levelswg.setGradient(options.gradient)
+            self.__levelswg.setGradient(str(options.gradient))
 
         if hasattr(options, "tool") and options.tool is not None:
-            self.__imagewg.setTool(options.tool)
+            self.__imagewg.setTool(str(options.tool))
 
         if hasattr(options, "tangodevice") and \
            TANGOCLIENT and options.tangodevice is not None:
             self.__tangoclient = controllerClient.ControllerClient(
-                options.tangodevice)
+                str(options.tangodevice))
             self.__tangoclient.energyChanged.connect(
                 self.__imagewg.updateEnergy)
             self.__tangoclient.detectorDistanceChanged.connect(
@@ -772,7 +773,7 @@ class LiveViewer(QtGui.QDialog):
             self.__tangoclient = None
 
         if hasattr(options, "viewrange") and options.viewrange is not None:
-            self.__imagewg.setViewRange(options.viewrange)
+            self.__imagewg.setViewRange(str(options.viewrange))
         self.__sourcewg.updateLayout()
         if hasattr(options, "start"):
             return options.start is True
