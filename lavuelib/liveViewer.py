@@ -232,7 +232,9 @@ class LiveViewer(QtGui.QDialog):
             expertmode=(self.__umode == 'expert'))
         self.__sourcewg.updateSourceComboBox(
             [self.__srcaliasnames[twn]
-             for twn in json.loads(self.__settings.imagesources)])
+             for twn in json.loads(self.__settings.imagesources)
+             if twn in self.__srcaliasnames.keys()]
+        )
 
         #: (:class:`lavuelib.preparationGroupBox.PreparationGroupBox`)
         #: preparation groupbox
@@ -254,7 +256,9 @@ class LiveViewer(QtGui.QDialog):
             rgbtooltypes=self.__rgbtooltypes)
         self.__imagewg.updateToolComboBox(
             [self.__tlaliasnames[twn]
-             for twn in json.loads(self.__settings.toolwidgets)])
+             for twn in json.loads(self.__settings.toolwidgets)
+             if twn in self.__tlaliasnames.keys()]
+        )
 
         self.__levelswg.setImageItem(self.__imagewg.image())
         self.__levelswg.showGradient(True)
@@ -820,7 +824,9 @@ class LiveViewer(QtGui.QDialog):
 
         self.__updateSource()
 
-        self.__statswg.changeView(self.__settings.showstats)
+        self.__statswg.changeView(
+            self.__settings.showstats,
+            self.__settings.calcvariance)
         self.__viewFrameRate(self.__settings.showframerate)
         self.__levelswg.changeView(
             self.__settings.showhisto,
@@ -1160,6 +1166,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.showhighvaluemask = self.__settings.showhighvaluemask
         cnfdlg.showfilters = self.__settings.showfilters
         cnfdlg.showstats = self.__settings.showstats
+        cnfdlg.calcvariance = self.__settings.calcvariance
         cnfdlg.filters = self.__settings.filters
         cnfdlg.secautoport = self.__settings.secautoport
         cnfdlg.secport = self.__settings.secport
@@ -1252,9 +1259,16 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.showaddhisto != dialog.showaddhisto:
             self.__levelswg.changeView(showadd=dialog.showaddhisto)
             self.__settings.showaddhisto = dialog.showaddhisto
+        statschanged = False
         if self.__settings.showstats != dialog.showstats:
-            self.__statswg.changeView(dialog.showstats)
             self.__settings.showstats = dialog.showstats
+            statschanged = True
+        if self.__settings.calcvariance != dialog.calcvariance:
+            self.__settings.calcvariance = dialog.calcvariance
+            statschanged = True
+        if statschanged:
+            self.__statswg.changeView(
+                dialog.showstats, dialog.calcvariance)
         if self.__settings.imagesources != dialog.imagesources:
             self.__settings.imagesources = dialog.imagesources
             self.__sourcewg.updateSourceComboBox(
@@ -1584,11 +1598,12 @@ class LiveViewer(QtGui.QDialog):
         stream = secstream and self.__settings.secstream and \
             self.__scaledimage is not None
         display = self.__settings.showstats
+        calcvariance = self.__settings.calcvariance
         maxval, meanval, varval, minval, maxrawval, maxsval = \
             self.__calcStats(
                 (stream or display,
                  stream or display,
-                 display,
+                 display and calcvariance,
                  stream or auto,
                  stream,
                  auto)

@@ -80,6 +80,7 @@ __all__ = [
     'DOOCSPropSourceWidget',
     'ZMQSourceWidget',
     'NXSFileSourceWidget',
+    # 'FixTestSourceWidget',
     'TestSourceWidget',
     'swproperties'
 ]

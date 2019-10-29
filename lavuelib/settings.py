@@ -61,6 +61,8 @@ class Settings(object):
         self.showhighvaluemask = False
         #: (:obj:`bool`) show mask widget
         self.showstats = True
+        #: (:obj:`bool`) calculate variance
+        self.calcvariance = False
         #: (:obj:`bool`) show bakcground subtraction widget
         self.showsub = True
         #: (:obj:`bool`) show transformation widget
@@ -314,6 +316,10 @@ class Settings(object):
         qstval = str(settings.value("Configuration/ShowStatistics", type=str))
         if qstval.lower() == "false":
             self.showstats = False
+        qstval = str(settings.value(
+            "Configuration/CalculateVariance", type=str))
+        if qstval.lower() == "true":
+            self.calcvariance = True
         qstval = str(settings.value("Configuration/AspectLocked", type=str))
         if qstval.lower() == "true":
             self.aspectlocked = True
@@ -598,6 +604,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ShowStatistics",
             self.showstats)
+        settings.setValue(
+            "Configuration/CalculateVariance",
+            self.calcvariance)
         settings.setValue(
             "Configuration/RefreshRate",
             self.refreshrate)
