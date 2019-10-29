@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Oct 28, 2019" "2.20" "lavuelib"
+.TH "LAVUELIB" "1" "Oct 29, 2019" "2.21" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -497,6 +497,11 @@ updates class variables with the form content
 .TP
 .B availtoolwidgets = None
 (\fI\%str\fP)  list with available tool widget names
+.UNINDENT
+.INDENT 7.0
+.TP
+.B calcvariance = None
+(\fI\%bool\fP) calculate variance
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9353,6 +9358,11 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B calcvariance = None
+(\fI\%bool\fP) calculate variance
+.UNINDENT
+.INDENT 7.0
+.TP
 .B centerx = None
 (\fI\%float\fP) x\-coordinates of the center of the image
 .UNINDENT
@@ -11141,7 +11151,7 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
-.B changeView(showstats=False)
+.B changeView(showstats=False, showvariance=False)
 shows or hides the histogram widget
 .INDENT 7.0
 .TP

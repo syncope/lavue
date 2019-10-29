@@ -219,6 +219,8 @@ class ConfigDialog(QtGui.QDialog):
         self.showhighvaluemask = False
         #: (:obj:`bool`) show statistics widget
         self.showstats = True
+        #: (:obj:`bool`) calculate variance
+        self.calcvariance = False
         #: (:obj:`bool`) zero mask enabled
         self.zeromask = False
 
@@ -382,6 +384,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.showmaskCheckBox.setChecked(self.showmask)
         self.__ui.showmaskhighCheckBox.setChecked(self.showhighvaluemask)
         self.__ui.showstatsCheckBox.setChecked(self.showstats)
+        self.__ui.calcvarianceCheckBox.setChecked(self.calcvariance)
         self.__ui.showsubCheckBox.setChecked(self.showsub)
         self.__ui.showtransCheckBox.setChecked(self.showtrans)
         self.__ui.showfiltersCheckBox.setChecked(self.showfilters)
@@ -673,6 +676,7 @@ class ConfigDialog(QtGui.QDialog):
         self.showmask = self.__ui.showmaskCheckBox.isChecked()
         self.showhighvaluemask = self.__ui.showmaskhighCheckBox.isChecked()
         self.showstats = self.__ui.showstatsCheckBox.isChecked()
+        self.calcvariance = self.__ui.calcvarianceCheckBox.isChecked()
         self.aspectlocked = self.__ui.aspectlockedCheckBox.isChecked()
         self.autodownsample = self.__ui.downsampleCheckBox.isChecked()
         self.keepcoords = self.__ui.keepCoordsCheckBox.isChecked()
