@@ -1,6 +1,7 @@
 2019-10-XX Jan Kotanski <jan.kotanski@desy.de>
 	* set lazy slider to default
-	* tagged as 2.21.1
+	* add memory buffer
+	* tagged as 2.22.0
 
 2019-10-29 Jan Kotanski <jan.kotanski@desy.de>
 	* add calcvariance switch

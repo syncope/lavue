@@ -690,251 +690,6 @@
             <string>Show control bar widget</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_24">
-            <item row="0" column="0">
-             <layout class="QGridLayout" name="viewGridLayout">
-              <item row="10" column="1">
-               <widget class="QCheckBox" name="showstatsCheckBox">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="8" column="1">
-               <widget class="QCheckBox" name="showaddhistoCheckBox">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show additional histogram options like image data step and bin edges algorithm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="9" column="0">
-               <widget class="QLabel" name="showhistoLabel">
-                <property name="toolTip">
-                 <string>show histogram to set range and color distribution</string>
-                </property>
-                <property name="text">
-                 <string>Histogram:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showhistoCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="7" column="1">
-               <widget class="QCheckBox" name="showlevelsCheckBox">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="10" column="0">
-               <widget class="QLabel" name="showstatsLabel">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string>Statistics:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showstatsCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="showmaskLabel">
-                <property name="toolTip">
-                 <string>show widgets to select the image mask</string>
-                </property>
-                <property name="text">
-                 <string>Mask:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showmaskCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="showsubLabel">
-                <property name="toolTip">
-                 <string>show widgets to select the image backgroud subtraction</string>
-                </property>
-                <property name="text">
-                 <string>Subtraction:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showsubCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QCheckBox" name="showsubCheckBox">
-                <property name="toolTip">
-                 <string>show widgets to select the image backgroud subtraction</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="7" column="0">
-               <widget class="QLabel" name="showlevelsLabel">
-                <property name="toolTip">
-                 <string>show widgets to select the image intensity levels</string>
-                </property>
-                <property name="text">
-                 <string>Intensity levels:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showlevelsCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="0">
-               <widget class="QLabel" name="showscaleLabel">
-                <property name="toolTip">
-                 <string>show widgets to select the image intensity scale</string>
-                </property>
-                <property name="text">
-                 <string>Intensity scale:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showscaleCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="1">
-               <widget class="QCheckBox" name="showscaleCheckBox">
-                <property name="toolTip">
-                 <string>show widgets to select the image intensity scale</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="9" column="1">
-               <widget class="QCheckBox" name="showhistoCheckBox">
-                <property name="toolTip">
-                 <string>show histogram to set range and color distribution</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="showmaskhighLabel">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select the mask high pixel values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string>Mask high values:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showmaskhighCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1">
-               <widget class="QCheckBox" name="showmaskhighCheckBox">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select the mask high pixel values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QCheckBox" name="showmaskCheckBox">
-                <property name="toolTip">
-                 <string>show widgets to select the image mask</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="8" column="0">
-               <widget class="QLabel" name="showaddhistoLabel">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show additional histogram options like image data step and bin edges algorithm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string>Additional histogram options :</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showaddhistoCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="0">
-               <widget class="QLabel" name="showtransLabel">
-                <property name="toolTip">
-                 <string>show widgets to select the image transformations</string>
-                </property>
-                <property name="text">
-                 <string>Transformations:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showtransCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0">
-               <widget class="QLabel" name="showfiltersLabel">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select image filters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string>Filters:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showfiltersCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="1">
-               <widget class="QCheckBox" name="showtransCheckBox">
-                <property name="toolTip">
-                 <string>show widgets to select the image transformations</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1">
-               <widget class="QCheckBox" name="showfiltersCheckBox">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select image filters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="11" column="0">
-               <widget class="QLabel" name="showframerateLabel">
-                <property name="text">
-                 <string>Frame Rate:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="11" column="1">
-               <widget class="QCheckBox" name="showframerateCheckBox">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
             <item row="1" column="0">
              <spacer name="verticalSpacer_4">
               <property name="orientation">
@@ -948,29 +703,320 @@
               </property>
              </spacer>
             </item>
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="viewGridLayout">
+              <item row="11" column="1">
+               <widget class="QCheckBox" name="showhistoCheckBox">
+                <property name="toolTip">
+                 <string>show histogram to set range and color distribution</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="showmaskhighLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select the mask high pixel values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Mask high values:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showmaskhighCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="12" column="0">
+               <widget class="QLabel" name="showstatsLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Statistics:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showstatsCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="showmaskLabel">
+                <property name="toolTip">
+                 <string>show widgets to select the image mask</string>
+                </property>
+                <property name="text">
+                 <string>Mask:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showmaskCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1">
+               <widget class="QCheckBox" name="showmaskhighCheckBox">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select the mask high pixel values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QCheckBox" name="showmaskCheckBox">
+                <property name="toolTip">
+                 <string>show widgets to select the image mask</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="13" column="1">
+               <widget class="QCheckBox" name="showframerateCheckBox">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to view frame rate in Hz&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="1">
+               <widget class="QCheckBox" name="showtransCheckBox">
+                <property name="toolTip">
+                 <string>show widgets to select the image transformations</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="12" column="1">
+               <widget class="QCheckBox" name="showstatsCheckBox">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="9" column="0">
+               <widget class="QLabel" name="showlevelsLabel">
+                <property name="toolTip">
+                 <string>show widgets to select the image intensity levels</string>
+                </property>
+                <property name="text">
+                 <string>Intensity levels:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showlevelsCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="0">
+               <widget class="QLabel" name="showscaleLabel">
+                <property name="toolTip">
+                 <string>show widgets to select the image intensity scale</string>
+                </property>
+                <property name="text">
+                 <string>Intensity scale:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showscaleCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="1">
+               <widget class="QCheckBox" name="showscaleCheckBox">
+                <property name="toolTip">
+                 <string>show widgets to select the image intensity scale</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0">
+               <widget class="QLabel" name="showsubLabel">
+                <property name="toolTip">
+                 <string>show widgets to select the image backgroud subtraction</string>
+                </property>
+                <property name="text">
+                 <string>Subtraction:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showsubCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="1">
+               <widget class="QCheckBox" name="showaddhistoCheckBox">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show additional histogram options like image data step and bin edges algorithm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="11" column="0">
+               <widget class="QLabel" name="showhistoLabel">
+                <property name="toolTip">
+                 <string>show histogram to set range and color distribution</string>
+                </property>
+                <property name="text">
+                 <string>Histogram:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showhistoCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="9" column="1">
+               <widget class="QCheckBox" name="showlevelsCheckBox">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="0">
+               <widget class="QLabel" name="showaddhistoLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show additional histogram options like image data step and bin edges algorithm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Additional histogram options :</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showaddhistoCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="0">
+               <widget class="QLabel" name="showtransLabel">
+                <property name="toolTip">
+                 <string>show widgets to select the image transformations</string>
+                </property>
+                <property name="text">
+                 <string>Transformations:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showtransCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QCheckBox" name="showfiltersCheckBox">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select image filters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="showfiltersLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select image filters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Filters:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showfiltersCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1">
+               <widget class="QCheckBox" name="showsubCheckBox">
+                <property name="toolTip">
+                 <string>show widgets to select the image backgroud subtraction</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="13" column="0">
+               <widget class="QLabel" name="showframerateLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to view frame rate in Hz&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Frame Rate:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showframerateCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QCheckBox" name="showmbufferCheckBox">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to set memory buffer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="showmbufferLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to set memory buffer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Memory Buffer:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showmbufferCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
            </layout>
           </widget>
          </item>
          <item>
           <widget class="QGroupBox" name="isGroupBox">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;select possible image sources and set their order by dragging them and dropping&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="title">
             <string>Image Source Selection</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_25">
             <item row="0" column="0">
-             <widget class="QWidget" name="isWidget" native="true"/>
+             <widget class="QWidget" name="isWidget" native="true">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;select possible image sources and set their order by dragging them and dropping&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
          </item>
          <item>
           <widget class="QGroupBox" name="twGroupBox">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;select possible tool widgets and set their order by dragging them and dropping&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="title">
             <string>Tool Widget Selection</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_26">
             <item row="0" column="0">
-             <widget class="QWidget" name="twWidget" native="true"/>
+             <widget class="QWidget" name="twWidget" native="true">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;select possible tool widgets and set their order by dragging them and dropping&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -1511,10 +1557,11 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>doorLineEdit</tabstop>
   <tabstop>addroisCheckBox</tabstop>
   <tabstop>orderroisCheckBox</tabstop>
-  <tabstop>showsubCheckBox</tabstop>
+  <tabstop>showfiltersCheckBox</tabstop>
+  <tabstop>showmbufferCheckBox</tabstop>
   <tabstop>showmaskCheckBox</tabstop>
   <tabstop>showmaskhighCheckBox</tabstop>
-  <tabstop>showfiltersCheckBox</tabstop>
+  <tabstop>showsubCheckBox</tabstop>
   <tabstop>showtransCheckBox</tabstop>
   <tabstop>showscaleCheckBox</tabstop>
   <tabstop>showlevelsCheckBox</tabstop>
@@ -1538,8 +1585,8 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>dirattrLineEdit</tabstop>
   <tabstop>dirtransLineEdit</tabstop>
   <tabstop>doocspropLineEdit</tabstop>
-  <tabstop>filterButtonBox</tabstop>
   <tabstop>filterTableWidget</tabstop>
+  <tabstop>filterButtonBox</tabstop>
  </tabstops>
  <resources/>
  <connections>
