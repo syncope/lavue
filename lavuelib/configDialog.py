@@ -248,7 +248,7 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`bool`) keep original coordinates
         self.keepcoords = False
         #: (:obj:`bool`) lazy image slider
-        self.lazyimageslider = False
+        self.lazyimageslider = True
 
         #: (:obj:`str`) json hidra detector server list
         self.detservers = "[]"
