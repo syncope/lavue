@@ -79,7 +79,7 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
             self.__fullicon = QtGui.QIcon.fromTheme("user-available")
         except Exception:
             self.__fullicon = QtGui.QIcon(":/star2.png")
-        
+
         self.__ui.statusPushButton.setIcon(self.__fullicon)
         self.__ui.sizeSpinBox.setEnabled(False)
         self.__ui.resetPushButton.setEnabled(False)
@@ -118,7 +118,7 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         self.__first = True
         self.__full = False
         self.__ui.statusPushButton.setEnabled(self.__full)
-        
+
     def process(self, image, imagename):
         """ append image to the buffer and returns image buffer and metadata
 
