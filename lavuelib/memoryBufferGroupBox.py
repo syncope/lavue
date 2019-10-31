@@ -76,7 +76,7 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         #: (:obj:`bool`)
         self.__first = True
         try:
-            self.__fullicon = QtGui.QIcon.fromTheme("starred")
+            self.__fullicon = QtGui.QIcon.fromTheme("user-available")
         except Exception:
             self.__fullicon = QtGui.QIcon(":/star2.png")
         
