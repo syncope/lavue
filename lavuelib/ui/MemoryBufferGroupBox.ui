@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>319</width>
-    <height>68</height>
+    <width>313</width>
+    <height>76</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,7 +54,7 @@
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;size of the memory buffer in a frame number&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
-        <string>Size:</string>
+        <string>S&amp;ize:</string>
        </property>
        <property name="buddy">
         <cstring>sizeSpinBox</cstring>
@@ -84,12 +84,21 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="statusLabel">
+      <widget class="QPushButton" name="statusPushButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;green for full memory buffer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;active when the memory buffer is full&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string/>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -110,6 +119,7 @@
  <tabstops>
   <tabstop>onoffCheckBox</tabstop>
   <tabstop>sizeSpinBox</tabstop>
+  <tabstop>statusPushButton</tabstop>
   <tabstop>resetPushButton</tabstop>
  </tabstops>
  <resources/>

@@ -75,7 +75,12 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         self.__lastimage = None
         #: (:obj:`bool`)
         self.__first = True
-
+        try:
+            self.__fullicon = QtGui.QIcon.fromTheme("starred")
+        except Exception:
+            self.__fullicon = QtGui.QIcon(":/star2.png")
+        
+        self.__ui.statusPushButton.setIcon(self.__fullicon)
         self.__ui.sizeSpinBox.setEnabled(False)
         self.__ui.resetPushButton.setEnabled(False)
         self.__ui.sizeSpinBox.valueChanged.connect(self._onBufferSizeChanged)
@@ -102,6 +107,7 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         self.initialize()
         self.__ui.sizeSpinBox.setEnabled(status)
         self.__ui.resetPushButton.setEnabled(status)
+        self.__ui.statusPushButton.setEnabled(False)
 
     def initialize(self):
         """ initialize the filter
@@ -111,7 +117,8 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         self.__current = 1
         self.__first = True
         self.__full = False
-
+        self.__ui.statusPushButton.setEnabled(self.__full)
+        
     def process(self, image, imagename):
         """ append image to the buffer and returns image buffer and metadata
 
@@ -144,6 +151,7 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
                     self.__current = 1
                 if self.__current >= self.__maxindex:
                     self.__full = True
+                    self.__ui.statusPushButton.setEnabled(self.__full)
                 lshape = len(self.__imagestack.shape)
                 if lshape == 3:
                     self.__imagestack[self.__current, :, :] = image
