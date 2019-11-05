@@ -137,6 +137,8 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
                     if self.__imagestack.shape[1:] != shape or \
                        self.__imagestack.dtype != dtype:
                         self.__imagestack = None
+                        self.__first = True
+                        self.__current = 1
 
                 if self.__imagestack is None:
                     newshape = np.concatenate(
@@ -165,7 +167,7 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
                 self.__lastimage = image
 
                 if self.__first:
-                    cblbl = {key: None for key in range(self.__maxindex)}
+                    cblbl = {key: "%s:" % key for key in range(self.__maxindex + 1)}
                 else:
                     cblbl = {}
                 mdata["channellabels"] = cblbl
