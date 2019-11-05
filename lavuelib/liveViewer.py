@@ -60,6 +60,7 @@ from . import configDialog
 from . import release
 from . import edDictDialog
 from . import filters
+from . import filtersWidget
 
 try:
     from . import controllerClient
@@ -241,6 +242,10 @@ class LiveViewer(QtGui.QDialog):
         #: memory buffer groupbox
         self.__mbufferwg = memoryBufferGroupBox.MemoryBufferGroupBox(
             parent=self)
+        #: (:class:`lavuelib.filtersWidget.FiltersWidget`)
+        #  filters widget
+        self.__filterswg = filtersWidget.FiltersWidget(
+            parent=self)
         #: (:class:`lavuelib.preparationGroupBox.PreparationGroupBox`)
         #: preparation groupbox
         self.__prepwg = preparationGroupBox.PreparationGroupBox(
@@ -280,9 +285,6 @@ class LiveViewer(QtGui.QDialog):
         #: (:class:`lavuelib.transformationsWidget.TransformationsWidget`)
         #:    transformations widget
         self.__trafowg = self.__prepwg.trafoWidget
-        #: (:class:`lavuelib.filtersWidget.FiltersWidget`)
-        #:    filters widget
-        self.__filterswg = self.__prepwg.filtersWidget
 
         # keep a reference to the "raw" image and the current filename
         #: (:class:`numpy.ndarray`) raw image
@@ -347,6 +349,7 @@ class LiveViewer(QtGui.QDialog):
 
         # # LAYOUT DEFINITIONS
         self.__ui.confVerticalLayout.addWidget(self.__sourcewg)
+        self.__ui.confVerticalLayout.addWidget(self.__filterswg)
         self.__ui.confVerticalLayout.addWidget(self.__mbufferwg)
         self.__ui.confVerticalLayout.addWidget(self.__prepwg)
         self.__ui.confVerticalLayout.addWidget(self.__scalingwg)
@@ -843,9 +846,9 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showmask,
             self.__settings.showsub,
             self.__settings.showtrans,
-            self.__settings.showhighvaluemask,
-            self.__settings.showfilters
+            self.__settings.showhighvaluemask
         )
+        self.__filterswg.changeView(self.__settings.showfilters)
         self.__mbufferwg.changeView(self.__settings.showmbuffer)
 
         self.__scalingwg.changeView(self.__settings.showscale)
@@ -1248,7 +1251,7 @@ class LiveViewer(QtGui.QDialog):
                 showhighvaluemask=dialog.showhighvaluemask)
         if self.__settings.showfilters != dialog.showfilters:
             self.__settings.showfilters = dialog.showfilters
-            self.__prepwg.changeView(
+            self.__filterswg.changeView(
                 showfilters=dialog.showfilters)
         if self.__settings.showmbuffer != dialog.showmbuffer:
             self.__settings.showmbuffer = dialog.showmbuffer

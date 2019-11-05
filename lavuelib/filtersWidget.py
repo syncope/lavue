@@ -94,3 +94,15 @@ class FiltersWidget(QtGui.QWidget):
         :type text: :obj:`str`
         """
         self.__ui.label.setToolTip(text)
+
+    def changeView(self, showfilters=None):
+        """ show or hide widgets
+
+        :param showfilters: filter widget shown
+        :type showfilters: :obj:`bool`
+        """
+        if showfilters is not None:
+            if showfilters:
+                self.show()
+            else:
+                self.hide()

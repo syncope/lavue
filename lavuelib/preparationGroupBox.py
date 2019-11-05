@@ -28,7 +28,6 @@
 from pyqtgraph import QtGui
 
 from . import transformationsWidget
-from . import filtersWidget
 from . import maskWidget
 from . import highValueMaskWidget
 from . import bkgSubtractionWidget
@@ -70,11 +69,10 @@ class PreparationGroupBox(QtGui.QGroupBox):
         self.__bkgsub = True
         #: (:obj:`bool`) show transformations widget
         self.__trans = True
-        #: (:obj:`bool`) show filters widget
-        self.__filters = True
 
         #: (:class:`lavuelib.maskWidget.Maskwidget`) mask widget
-        self.maskWidget = maskWidget.MaskWidget(parent=self, settings=settings)
+        self.maskWidget = maskWidget.MaskWidget(
+            parent=self, settings=settings)
         #: (:class:`lavuelib.maskWidget.Maskwidget`) mask widget
         self.highValueMaskWidget = highValueMaskWidget.HighValueMaskWidget(
             parent=self, settings=settings)
@@ -83,29 +81,22 @@ class PreparationGroupBox(QtGui.QGroupBox):
         self.bkgSubWidget = bkgSubtractionWidget.BkgSubtractionWidget(
             parent=self, settings=settings)
         self.__hline = QHLine()
-        self.__hline2 = QHLine()
         #: (:class:`lavuelib.transformationsWidget.TransformationsWidget`)
         #  transformations widget
         self.trafoWidget = transformationsWidget.TransformationsWidget(
             parent=self)
-        #: (:class:`lavuelib.filtersWidget.FiltersWidget`)
-        #  filters widget
-        self.filtersWidget = filtersWidget.FiltersWidget(
-            parent=self)
 
         vlayout = QtGui.QVBoxLayout()
-        vlayout.addWidget(self.filtersWidget)
-        vlayout.addWidget(self.__hline)
         vlayout.addWidget(self.bkgSubWidget)
         vlayout.addWidget(self.maskWidget)
         vlayout.addWidget(self.highValueMaskWidget)
-        vlayout.addWidget(self.__hline2)
+        vlayout.addWidget(self.__hline)
         vlayout.addWidget(self.trafoWidget)
 
         self.setLayout(vlayout)
 
     def changeView(self, showmask=None, showsub=None, showtrans=None,
-                   showhighvaluemask=None, showfilters=None):
+                   showhighvaluemask=None):
         """ show or hide widgets in the preparation colection
 
         :param showmask: mask widget shown
@@ -116,8 +107,6 @@ class PreparationGroupBox(QtGui.QGroupBox):
         :type showtrans: :obj:`bool`
         :param showhighvaluemask: mask widget shown
         :type showhighvaluemask: :obj:`bool`
-        :param showfilters: filter widget shown
-        :type showfilters: :obj:`bool`
         """
 
         if showmask is True:
@@ -148,31 +137,9 @@ class PreparationGroupBox(QtGui.QGroupBox):
             self.__highvaluemask = False
             self.highValueMaskWidget.hide()
 
-        if showfilters is True:
-            self.__filters = True
-            self.filtersWidget.show()
-        elif showfilters is False:
-            self.__filters = False
-            self.filtersWidget.hide()
-
         masks = self.__bkgsub or self.__mask or self.__highvaluemask
 
-        if self.__filters and masks:
+        if self.__trans and masks:
             self.__hline.show()
         else:
             self.__hline.hide()
-
-        if self.__trans and masks:
-            self.__hline2.show()
-        else:
-            self.__hline2.hide()
-
-        if self.__trans and self.__filters and not masks:
-            self.__hline2.show()
-        else:
-            self.__hline2.hide()
-
-        if self.__trans or masks or self.__filters:
-            self.show()
-        else:
-            self.hide()
