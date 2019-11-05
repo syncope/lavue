@@ -29,6 +29,14 @@ lavuelib.bkgSubtractionWidget module
     :undoc-members:
     :show-inheritance:
 
+lavuelib.channelGroupBox module
+===============================
+
+.. automodule:: lavuelib.channelGroupBox
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lavuelib.configDialog module
 ============================
 
@@ -85,10 +93,10 @@ lavuelib.filters module
     :undoc-members:
     :show-inheritance:
 
-lavuelib.filtersWidget module
-=============================
+lavuelib.filtersGroupBox module
+===============================
 
-.. automodule:: lavuelib.filtersWidget
+.. automodule:: lavuelib.filtersGroupBox
     :members:
     :undoc-members:
     :show-inheritance:
@@ -217,6 +225,14 @@ lavuelib.memoExportDialog
 =========================
 
 .. automodule:: lavuelib.memoExportDialog
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lavuelib.memoryBufferGroupBox
+=============================
+
+.. automodule:: lavuelib.memoryBufferGroupBox
     :members:
     :undoc-members:
     :show-inheritance:
