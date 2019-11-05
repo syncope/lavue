@@ -167,7 +167,8 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
                 self.__lastimage = image
 
                 if self.__first:
-                    cblbl = {key: "%s:" % key for key in range(self.__maxindex + 1)}
+                    cblbl = {key: "%s:" % key
+                             for key in range(self.__maxindex + 1)}
                 else:
                     cblbl = {}
                 mdata["channellabels"] = cblbl
