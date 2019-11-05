@@ -37,10 +37,10 @@ import os
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                 "ui", "LevelsGroupBox.ui"))
+                 "ui", "LevelsWidget.ui"))
 
 
-class LevelsGroupBox(QtGui.QGroupBox):
+class LevelsWidget(QtGui.QWidget):
 
     """
     Set minimum and maximum displayed values and its color.
@@ -73,7 +73,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
         """
         QtGui.QGroupBox.__init__(self, parent)
 
-        #: (:class:`Ui_LevelsGroupBox') ui_groupbox object from qtdesigner
+        #: (:class:`Ui_LevelsWidget') ui_groupbox object from qtdesigner
         self.__ui = _formclass()
         self.__ui.setupUi(self)
 
@@ -244,10 +244,10 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.__ui.stepLabel.hide()
         if showlevels is True and self.__levels is False:
             if self.__colors:
-                self.__ui.channelLabel.show()
+                self.__ui.channelGroupBox.show()
                 self.__ui.channelComboBox.show()
             else:
-                self.__ui.channelLabel.hide()
+                self.__ui.channelGroupBox.hide()
                 self.__ui.channelComboBox.hide()
             self.__ui.gradientLabel.show()
             self.__ui.gradientComboBox.show()
@@ -265,7 +265,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
             self.__ui.minLabel.show()
             self.__ui.scalingLabel.show()
         elif showlevels is False and self.__levels is True:
-            self.__ui.channelLabel.hide()
+            self.__ui.channelGroupBox.hide()
             self.__ui.channelComboBox.hide()
             self.__ui.gradientLabel.hide()
             self.__ui.gradientComboBox.hide()
@@ -706,7 +706,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 self.__ui.channelComboBox.addItem("sum")
                 # self.__ui.channelComboBox.setSizeAdjustPolicy(
                 # QtGui.QComboBox.AdjustToMinimumContentsLength)
-                self.__ui.channelLabel.show()
+                self.__ui.channelGroupBox.show()
                 self.__ui.channelComboBox.show()
                 self.__ui.channelComboBox.setSizeAdjustPolicy(
                     QtGui.QComboBox.AdjustToContents)
@@ -756,7 +756,7 @@ class LevelsGroupBox(QtGui.QGroupBox):
                 self.updateGChannel()
                 self.updateBChannel()
             else:
-                self.__ui.channelLabel.hide()
+                self.__ui.channelGroupBox.hide()
                 self.__ui.channelComboBox.hide()
                 self.__colors = False
 

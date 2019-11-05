@@ -126,7 +126,7 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         :rtype: (:class:`numpy.ndarray`, :obj`dict`<:obj:`str`, :obj:`str`>)
                  or `None`
         """
-        if self.__isOn:
+        if self.__isOn and image is not None:
             mdata = {}
             if self.__lastimage is None or \
                not np.array_equal(self.__lastimage, image):
