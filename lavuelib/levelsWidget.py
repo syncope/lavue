@@ -132,8 +132,8 @@ class LevelsWidget(QtGui.QWidget):
 
         self.__ui.gradientComboBox.currentIndexChanged.connect(
             self._updateGradient)
+        self.__connectChannels()
         self.setNumberOfChannels(-1)
-        self.__ui.channelComboBox.currentIndexChanged.connect(self.setChannel)
         self.__ui.binsComboBox.currentIndexChanged.connect(self.setBins)
         self.__ui.rComboBox.currentIndexChanged.connect(
             self._onRChannelChanged)
@@ -524,6 +524,34 @@ class LevelsWidget(QtGui.QWidget):
                 self.__ui.minDoubleSpinBox.setValue(lowlim)
                 self.__ui.maxDoubleSpinBox.setValue(uplim)
 
+    @QtCore.pyqtSlot()
+    def _setWidgetChannel(self):
+        """ update channel comboboxs and sets color channel
+
+        """
+        channel = self.__ui.channelHorizontalSlider.value()
+        if self.__colorchannel != channel:
+            self.__ui.channelComboBox.setCurrentIndex(channel)
+            self.setChannel(channel)
+        self.__ui.channelComboBox.currentIndexChanged.connect(
+            self.setChannel)
+
+    @QtCore.pyqtSlot()
+    def _skipChannels(self):
+        """ disconnects channel combobox
+
+        """
+        self.__ui.channelComboBox.currentIndexChanged.disconnect(
+            self.setChannel)
+
+    @QtCore.pyqtSlot()
+    def _setChannelTips(self):
+        """ update channel comboboxes
+        """
+        channel = self.__ui.channelHorizontalSlider.value()
+        if self.__colorchannel != channel:
+            self.__ui.channelComboBox.setCurrentIndex(channel)
+
     @QtCore.pyqtSlot(int)
     def setChannel(self, channel):
         """ sets color channel
@@ -532,6 +560,7 @@ class LevelsWidget(QtGui.QWidget):
         :type channel: :obj:`int`
         """
         if self.__colorchannel != channel:
+
             if channel >= 0 and channel <= self.__numberofchannels + 2:
                 if channel == self.__numberofchannels + 2 \
                    and self.__colorchannel != channel:
@@ -549,6 +578,7 @@ class LevelsWidget(QtGui.QWidget):
                     self.__colorchannel = channel
                     self.__histogram.setRGB(False)
                     self.channelChanged.emit()
+                self.__ui.channelHorizontalSlider.setValue(channel)
 
     def showGradient(self, status=True):
         """ resets color channel
@@ -691,6 +721,30 @@ class LevelsWidget(QtGui.QWidget):
         """
         return self.__colorchannel
 
+    def __connectChannels(self):
+        """ connects channel signals
+        """
+        self.__ui.channelComboBox.currentIndexChanged.connect(
+            self.setChannel)
+        self.__ui.channelHorizontalSlider.sliderReleased.connect(
+            self._setWidgetChannel)
+        self.__ui.channelHorizontalSlider.sliderPressed.connect(
+            self._skipChannels)
+        self.__ui.channelHorizontalSlider.valueChanged.connect(
+            self._setChannelTips)
+
+    def __disconnectChannels(self):
+        """ connects channel signals
+        """
+        self.__ui.channelComboBox.currentIndexChanged.disconnect(
+            self.setChannel)
+        self.__ui.channelHorizontalSlider.sliderReleased.disconnect(
+            self._setWidgetChannel)
+        self.__ui.channelHorizontalSlider.sliderPressed.disconnect(
+            self._skipChannels)
+        self.__ui.channelHorizontalSlider.valueChanged.disconnect(
+            self._setChannelTips)
+
     def setNumberOfChannels(self, number):
         """ sets maximum number of color channel
 
@@ -698,6 +752,7 @@ class LevelsWidget(QtGui.QWidget):
         :type number: :obj:`int`
         """
         if number != self.__numberofchannels:
+            self.__disconnectChannels()
             self.__numberofchannels = int(max(number, 0))
             if self.__numberofchannels > 0:
                 for i in reversed(
@@ -752,6 +807,8 @@ class LevelsWidget(QtGui.QWidget):
                     self.__bindex = 2
                 else:
                     self.__bindex = -1
+                self.__ui.channelHorizontalSlider.setMaximum(
+                    self.__numberofchannels + 2)
                 self.updateRChannel()
                 self.updateGChannel()
                 self.updateBChannel()
@@ -759,6 +816,7 @@ class LevelsWidget(QtGui.QWidget):
                 self.__ui.channelGroupBox.hide()
                 self.__ui.channelComboBox.hide()
                 self.__colors = False
+            self.__connectChannels()
 
     def gradient(self):
         """ provides the current color gradient
