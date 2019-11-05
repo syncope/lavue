@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ChannelWidget</class>
- <widget class="QWidget" name="ChannelWidget">
+ <class>ChannelGroupBox</class>
+ <widget class="QWidget" name="ChannelGroupBox">
   <property name="geometry">
    <rect>
     <x>0</x>

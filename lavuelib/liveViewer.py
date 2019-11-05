@@ -52,8 +52,8 @@ from . import sourceWidget
 from . import preparationGroupBox
 from . import memoryBufferGroupBox
 from . import scalingGroupBox
-from . import levelsWidget
-from . import channelWidget
+from . import levelsGroupBox
+from . import channelGroupBox
 from . import statisticsGroupBox
 from . import imageWidget
 from . import imageField
@@ -61,7 +61,7 @@ from . import configDialog
 from . import release
 from . import edDictDialog
 from . import filters
-from . import filtersWidget
+from . import filtersGroupBox
 
 try:
     from . import controllerClient
@@ -243,9 +243,9 @@ class LiveViewer(QtGui.QDialog):
         #: memory buffer groupbox
         self.__mbufferwg = memoryBufferGroupBox.MemoryBufferGroupBox(
             parent=self)
-        #: (:class:`lavuelib.filtersWidget.FiltersWidget`)
+        #: (:class:`lavuelib.filtersGroupBox.FiltersGroupBox`)
         #  filters widget
-        self.__filterswg = filtersWidget.FiltersWidget(
+        self.__filterswg = filtersGroupBox.FiltersGroupBox(
             parent=self)
         #: (:class:`lavuelib.preparationGroupBox.PreparationGroupBox`)
         #: preparation groupbox
@@ -253,12 +253,12 @@ class LiveViewer(QtGui.QDialog):
             parent=self, settings=self.__settings)
         #: (:class:`lavuelib.scalingGroupBox.ScalingGroupBox`) scaling groupbox
         self.__scalingwg = scalingGroupBox.ScalingGroupBox(parent=self)
-        #: (:class:`lavuelib.levelsWidget.LevelsWidget`) level groupbox
-        self.__levelswg = levelsWidget.LevelsWidget(
+        #: (:class:`lavuelib.levelsGroupBox.LevelsGroupBox`) level groupbox
+        self.__levelswg = levelsGroupBox.LevelsGroupBox(
             parent=self, settings=self.__settings,
             expertmode=(self.__umode == 'expert'))
-        #: (:class:`lavuelib.levelsWidget.LevelsWidget`) channel groupbox
-        self.__channelwg = channelWidget.ChannelWidget(
+        #: (:class:`lavuelib.levelsGroupBox.LevelsGroupBox`) channel groupbox
+        self.__channelwg = channelGroupBox.ChannelGroupBox(
             parent=self, settings=self.__settings,
             expertmode=(self.__umode == 'expert'))
         #: (:class:`lavuelib.statisticsGroupBox.StatisticsGroupBox`)
@@ -349,7 +349,7 @@ class LiveViewer(QtGui.QDialog):
             "uint64": "int64"
             # "uint64": "float64"
         }
-        #: (:class:`Ui_LevelsWidget') ui_groupbox object from qtdesigner
+        #: (:class:`Ui_LevelsGroupBox') ui_groupbox object from qtdesigner
         self.__ui = _formclass()
         self.__ui.setupUi(self)
 

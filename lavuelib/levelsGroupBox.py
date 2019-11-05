@@ -37,10 +37,10 @@ import os
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                 "ui", "LevelsWidget.ui"))
+                 "ui", "LevelsGroupBox.ui"))
 
 
-class LevelsWidget(QtGui.QWidget):
+class LevelsGroupBox(QtGui.QWidget):
 
     """
     Set minimum and maximum displayed values and its color.
@@ -69,7 +69,7 @@ class LevelsWidget(QtGui.QWidget):
         """
         QtGui.QGroupBox.__init__(self, parent)
 
-        #: (:class:`Ui_LevelsWidget') ui_groupbox object from qtdesigner
+        #: (:class:`Ui_LevelsGroupBox') ui_groupbox object from qtdesigner
         self.__ui = _formclass()
         self.__ui.setupUi(self)
 
