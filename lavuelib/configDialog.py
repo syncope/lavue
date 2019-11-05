@@ -451,7 +451,7 @@ class ConfigDialog(QtGui.QDialog):
             self._removeROIColorWidget)
 
         self.__setROIsColorsWidgets()
-        self.__setFiltersWidget()
+        self.__setFiltersGroupBox()
         self.__ui.isTable.create(
             json.loads(self.imagesources), self.availimagesources,
             self.imagesourcenames
@@ -461,7 +461,7 @@ class ConfigDialog(QtGui.QDialog):
             self.toolwidgetnames
         )
 
-    def __setFiltersWidget(self):
+    def __setFiltersGroupBox(self):
         """ updates filter tab  widget
         """
         self.__ui.addupPushButton = self.__ui.filterButtonBox.addButton(

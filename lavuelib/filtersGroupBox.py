@@ -32,10 +32,10 @@ import os
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                 "ui", "FiltersWidget.ui"))
+                 "ui", "FiltersGroupBox.ui"))
 
 
-class FiltersWidget(QtGui.QWidget):
+class FiltersGroupBox(QtGui.QWidget):
     """
     Select how an image should be transformed.
     """
@@ -51,7 +51,7 @@ class FiltersWidget(QtGui.QWidget):
         """
         QtGui.QWidget.__init__(self, parent)
 
-        #: (:class:`Ui_FiltersWidget') ui_widget object from qtdesigner
+        #: (:class:`Ui_FiltersGroupBox') ui_widget object from qtdesigner
         self.__ui = _formclass()
         self.__ui.setupUi(self)
 

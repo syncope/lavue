@@ -52,7 +52,8 @@ from . import sourceWidget
 from . import preparationGroupBox
 from . import memoryBufferGroupBox
 from . import scalingGroupBox
-from . import levelsWidget
+from . import levelsGroupBox
+from . import channelGroupBox
 from . import statisticsGroupBox
 from . import imageWidget
 from . import imageField
@@ -60,7 +61,7 @@ from . import configDialog
 from . import release
 from . import edDictDialog
 from . import filters
-from . import filtersWidget
+from . import filtersGroupBox
 
 try:
     from . import controllerClient
@@ -242,9 +243,9 @@ class LiveViewer(QtGui.QDialog):
         #: memory buffer groupbox
         self.__mbufferwg = memoryBufferGroupBox.MemoryBufferGroupBox(
             parent=self)
-        #: (:class:`lavuelib.filtersWidget.FiltersWidget`)
+        #: (:class:`lavuelib.filtersGroupBox.FiltersGroupBox`)
         #  filters widget
-        self.__filterswg = filtersWidget.FiltersWidget(
+        self.__filterswg = filtersGroupBox.FiltersGroupBox(
             parent=self)
         #: (:class:`lavuelib.preparationGroupBox.PreparationGroupBox`)
         #: preparation groupbox
@@ -252,8 +253,12 @@ class LiveViewer(QtGui.QDialog):
             parent=self, settings=self.__settings)
         #: (:class:`lavuelib.scalingGroupBox.ScalingGroupBox`) scaling groupbox
         self.__scalingwg = scalingGroupBox.ScalingGroupBox(parent=self)
-        #: (:class:`lavuelib.levelsWidget.LevelsWidget`) level groupbox
-        self.__levelswg = levelsWidget.LevelsWidget(
+        #: (:class:`lavuelib.levelsGroupBox.LevelsGroupBox`) level groupbox
+        self.__levelswg = levelsGroupBox.LevelsGroupBox(
+            parent=self, settings=self.__settings,
+            expertmode=(self.__umode == 'expert'))
+        #: (:class:`lavuelib.levelsGroupBox.LevelsGroupBox`) channel groupbox
+        self.__channelwg = channelGroupBox.ChannelGroupBox(
             parent=self, settings=self.__settings,
             expertmode=(self.__umode == 'expert'))
         #: (:class:`lavuelib.statisticsGroupBox.StatisticsGroupBox`)
@@ -272,6 +277,7 @@ class LiveViewer(QtGui.QDialog):
 
         self.__levelswg.setImageItem(self.__imagewg.image())
         self.__levelswg.showGradient(True)
+        self.__channelwg.showGradient(True)
         self.__levelswg.updateHistoImage(autoLevel=True)
 
         #: (:class:`lavuelib.maskWidget.MaskWidget`) mask widget
@@ -343,7 +349,7 @@ class LiveViewer(QtGui.QDialog):
             "uint64": "int64"
             # "uint64": "float64"
         }
-        #: (:class:`Ui_LevelsWidget') ui_groupbox object from qtdesigner
+        #: (:class:`Ui_LevelsGroupBox') ui_groupbox object from qtdesigner
         self.__ui = _formclass()
         self.__ui.setupUi(self)
 
@@ -351,6 +357,7 @@ class LiveViewer(QtGui.QDialog):
         self.__ui.confVerticalLayout.addWidget(self.__sourcewg)
         self.__ui.confVerticalLayout.addWidget(self.__filterswg)
         self.__ui.confVerticalLayout.addWidget(self.__mbufferwg)
+        self.__ui.confVerticalLayout.addWidget(self.__channelwg)
         self.__ui.confVerticalLayout.addWidget(self.__prepwg)
         self.__ui.confVerticalLayout.addWidget(self.__scalingwg)
         self.__ui.confVerticalLayout.addWidget(self.__levelswg)
@@ -392,8 +399,8 @@ class LiveViewer(QtGui.QDialog):
         self.__sourcewg.sourceDisconnected.connect(self._disconnectSource)
 
         # gradient selector
-        self.__levelswg.rgbChanged.connect(self.setrgb)
-        self.__levelswg.channelChanged.connect(self._plot)
+        self.__channelwg.rgbChanged.connect(self.setrgb)
+        self.__channelwg.channelChanged.connect(self._plot)
         self.__imagewg.aspectLockedToggled.connect(self._setAspectLocked)
         self.__levelswg.storeSettingsRequested.connect(
             self._storeSettings)
@@ -842,6 +849,11 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showlevels,
             self.__settings.showaddhisto
         )
+        self.__channelwg.changeView(
+            self.__settings.showhisto,
+            self.__settings.showlevels,
+            self.__settings.showaddhisto
+        )
         self.__prepwg.changeView(
             self.__settings.showmask,
             self.__settings.showsub,
@@ -853,6 +865,7 @@ class LiveViewer(QtGui.QDialog):
 
         self.__scalingwg.changeView(self.__settings.showscale)
         self.__levelswg.changeView()
+        self.__channelwg.changeView()
         if self.__lazyimageslider != self.__settings.lazyimageslider:
             self.__switchlazysignals(self.__settings.lazyimageslider)
 
@@ -1263,6 +1276,7 @@ class LiveViewer(QtGui.QDialog):
 
         if self.__settings.showlevels != dialog.showlevels:
             self.__levelswg.changeView(showlevels=dialog.showlevels)
+            self.__channelwg.changeView(showlevels=dialog.showlevels)
             self.__settings.showlevels = dialog.showlevels
 
         if self.__settings.showframerate != dialog.showframerate:
@@ -1575,7 +1589,7 @@ class LiveViewer(QtGui.QDialog):
                 self.__mdata.update(mdata)
 
         if "channellabels" in self.__mdata:
-            self.__levelswg.updateChannelLabels(self.__mdata["channellabels"])
+            self.__channelwg.updateChannelLabels(self.__mdata["channellabels"])
 
         # prepare or preprocess the raw image if present:
         self.__prepareImage()
@@ -1870,8 +1884,8 @@ class LiveViewer(QtGui.QDialog):
             return
 
         if len(self.__filteredimage.shape) == 3:
-            self.__levelswg.setNumberOfChannels(self.__filteredimage.shape[0])
-            if not self.__levelswg.colorChannel():
+            self.__channelwg.setNumberOfChannels(self.__filteredimage.shape[0])
+            if not self.__channelwg.colorChannel():
                 if "skipfirst" in self.__mdata.keys() and \
                    self.__mdata["skipfirst"]:
                     self.__rawgreyimage = np.sum(
@@ -1883,14 +1897,14 @@ class LiveViewer(QtGui.QDialog):
             else:
                 try:
                     if len(self.__filteredimage) >= \
-                       self.__levelswg.colorChannel():
+                       self.__channelwg.colorChannel():
                         self.__rawgreyimage = self.__filteredimage[
-                            self.__levelswg.colorChannel() - 1]
+                            self.__channelwg.colorChannel() - 1]
                         if self.rgb():
                             self.setrgb(False)
                             self.__levelswg.showGradient(True)
                     elif (len(self.__filteredimage) + 1 ==
-                          self.__levelswg.colorChannel()):
+                          self.__channelwg.colorChannel()):
                         if self.rgb():
                             self.setrgb(False)
                             self.__levelswg.showGradient(True)
@@ -1907,7 +1921,7 @@ class LiveViewer(QtGui.QDialog):
                             self.__levelswg.showGradient(False)
                         self.__rawgreyimage = np.moveaxis(
                             self.__filteredimage, 0, -1)
-                        rgbs = self.__levelswg.rgbchannels()
+                        rgbs = self.__channelwg.rgbchannels()
                         if rgbs == (0, 1, 2):
                             if self.__rawgreyimage.shape[-1] > 3:
                                 self.__rawgreyimage = \
@@ -1946,6 +1960,7 @@ class LiveViewer(QtGui.QDialog):
                     elif self.__filteredimage.shape[0] == 1:
                         if self.rgb():
                             self.setrgb(False)
+                            self.__channelwg.showGradient(True)
                             self.__levelswg.showGradient(True)
                         self.__rawgreyimage = self.__filteredimage[:, :, 0]
 
@@ -1955,32 +1970,34 @@ class LiveViewer(QtGui.QDialog):
                     text = messageBox.MessageBox.getText(
                         "lavue: color channel %s does not exist."
                         " Reset to grey scale"
-                        % self.__levelswg.colorChannel())
+                        % self.__channelwg.colorChannel())
                     messageBox.MessageBox.warning(
                         self,
                         "lavue: color channel %s does not exist. "
                         " Reset to grey scale"
-                        % self.__levelswg.colorChannel(),
+                        % self.__channelwg.colorChannel(),
                         text, str(value))
-                    self.__levelswg.setChannel(0)
+                    self.__channelwg.setChannel(0)
         elif len(self.__filteredimage.shape) == 2:
             if self.rgb():
                 self.setrgb(False)
+                self.__channelwg.showGradient(True)
                 self.__levelswg.showGradient(True)
             if self.__applymask:
                 self.__rawgreyimage = np.array(self.__filteredimage)
             else:
                 self.__rawgreyimage = self.__filteredimage
-            self.__levelswg.setNumberOfChannels(0)
+            self.__channelwg.setNumberOfChannels(0)
 
         elif len(self.__filteredimage.shape) == 1:
             if self.rgb():
                 self.setrgb(False)
+                self.__channelwg.showGradient(True)
                 self.__levelswg.showGradient(True)
             self.__rawgreyimage = np.array(
                 self.__filteredimage).reshape(
                     (self.__filteredimage.shape[0], 1))
-            self.__levelswg.setNumberOfChannels(0)
+            self.__channelwg.setNumberOfChannels(0)
 
         self.__displayimage = self.__rawgreyimage
 
@@ -2422,6 +2439,7 @@ class LiveViewer(QtGui.QDialog):
         :param status: True for on and False for off
         :type status: :obj:`bool`
         """
+        self.__levelswg.setrgb(status)
         self.__imagewg.setrgb(status)
         self._plot()
 
