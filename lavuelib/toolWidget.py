@@ -289,25 +289,26 @@ class RGBIntensityToolWidget(IntensityToolWidget):
         if isinstance(intensity, np.ndarray) and \
            intensity.size <= 3:
             itn = intensity.tolist()
-            if txdata is not None:
-                message = "x = %f%s, y = %f%s, " \
-                          "%s = (%.2f, %.2f, %.2f)" % (
-                              txdata,
-                              (" %s" % xunits) if xunits else "",
-                              tydata,
-                              (" %s" % yunits) if yunits else "",
-                              ilabel,
-                              itn[0], itn[1], itn[2])
-            else:
-                message = "x = %i%s, y = %i%s, " \
-                          "%s = (%.2f, %.2f, %.2f)" % (
-                              x,
-                              (" %s" % xunits) if xunits else "",
-                              y,
-                              (" %s" % yunits) if yunits else "",
-                              ilabel,
-                              itn[0], itn[1], itn[2])
-            self._mainwidget.setDisplayedText(message)
+            if len(itn) >= 3:
+                if txdata is not None:
+                    message = "x = %f%s, y = %f%s, " \
+                              "%s = (%.2f, %.2f, %.2f)" % (
+                                  txdata,
+                                  (" %s" % xunits) if xunits else "",
+                                  tydata,
+                                  (" %s" % yunits) if yunits else "",
+                                  ilabel,
+                                  itn[0], itn[1], itn[2])
+                else:
+                    message = "x = %i%s, y = %i%s, " \
+                              "%s = (%.2f, %.2f, %.2f)" % (
+                                  x,
+                                  (" %s" % xunits) if xunits else "",
+                                  y,
+                                  (" %s" % yunits) if yunits else "",
+                                  ilabel,
+                                  itn[0], itn[1], itn[2])
+                self._mainwidget.setDisplayedText(message)
 
 
 class MotorsToolWidget(ToolBaseWidget):

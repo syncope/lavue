@@ -50,6 +50,7 @@ from . import sourceGroupBox
 from . import toolWidget
 from . import sourceWidget
 from . import preparationGroupBox
+from . import memoryBufferGroupBox
 from . import scalingGroupBox
 from . import levelsGroupBox
 from . import statisticsGroupBox
@@ -59,6 +60,7 @@ from . import configDialog
 from . import release
 from . import edDictDialog
 from . import filters
+from . import filtersWidget
 
 try:
     from . import controllerClient
@@ -236,6 +238,14 @@ class LiveViewer(QtGui.QDialog):
              if twn in self.__srcaliasnames.keys()]
         )
 
+        #: (:class:`lavuelib.memoryBufferGroupBox.MemoryBufferGroupBox`)
+        #: memory buffer groupbox
+        self.__mbufferwg = memoryBufferGroupBox.MemoryBufferGroupBox(
+            parent=self)
+        #: (:class:`lavuelib.filtersWidget.FiltersWidget`)
+        #  filters widget
+        self.__filterswg = filtersWidget.FiltersWidget(
+            parent=self)
         #: (:class:`lavuelib.preparationGroupBox.PreparationGroupBox`)
         #: preparation groupbox
         self.__prepwg = preparationGroupBox.PreparationGroupBox(
@@ -275,9 +285,6 @@ class LiveViewer(QtGui.QDialog):
         #: (:class:`lavuelib.transformationsWidget.TransformationsWidget`)
         #:    transformations widget
         self.__trafowg = self.__prepwg.trafoWidget
-        #: (:class:`lavuelib.filtersWidget.FiltersWidget`)
-        #:    filters widget
-        self.__filterswg = self.__prepwg.filtersWidget
 
         # keep a reference to the "raw" image and the current filename
         #: (:class:`numpy.ndarray`) raw image
@@ -342,6 +349,8 @@ class LiveViewer(QtGui.QDialog):
 
         # # LAYOUT DEFINITIONS
         self.__ui.confVerticalLayout.addWidget(self.__sourcewg)
+        self.__ui.confVerticalLayout.addWidget(self.__filterswg)
+        self.__ui.confVerticalLayout.addWidget(self.__mbufferwg)
         self.__ui.confVerticalLayout.addWidget(self.__prepwg)
         self.__ui.confVerticalLayout.addWidget(self.__scalingwg)
         self.__ui.confVerticalLayout.addWidget(self.__levelswg)
@@ -837,9 +846,11 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showmask,
             self.__settings.showsub,
             self.__settings.showtrans,
-            self.__settings.showhighvaluemask,
-            self.__settings.showfilters
+            self.__settings.showhighvaluemask
         )
+        self.__filterswg.changeView(self.__settings.showfilters)
+        self.__mbufferwg.changeView(self.__settings.showmbuffer)
+
         self.__scalingwg.changeView(self.__settings.showscale)
         self.__levelswg.changeView()
         if self.__lazyimageslider != self.__settings.lazyimageslider:
@@ -1164,6 +1175,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.showaddhisto = self.__settings.showaddhisto
         cnfdlg.showmask = self.__settings.showmask
         cnfdlg.showhighvaluemask = self.__settings.showhighvaluemask
+        cnfdlg.showmbuffer = self.__settings.showmbuffer
         cnfdlg.showfilters = self.__settings.showfilters
         cnfdlg.showstats = self.__settings.showstats
         cnfdlg.calcvariance = self.__settings.calcvariance
@@ -1239,8 +1251,11 @@ class LiveViewer(QtGui.QDialog):
                 showhighvaluemask=dialog.showhighvaluemask)
         if self.__settings.showfilters != dialog.showfilters:
             self.__settings.showfilters = dialog.showfilters
-            self.__prepwg.changeView(
+            self.__filterswg.changeView(
                 showfilters=dialog.showfilters)
+        if self.__settings.showmbuffer != dialog.showmbuffer:
+            self.__settings.showmbuffer = dialog.showmbuffer
+            self.__mbufferwg.changeView(dialog.showmbuffer)
 
         if self.__settings.showscale != dialog.showscale:
             self.__scalingwg.changeView(dialog.showscale)
@@ -1552,6 +1567,12 @@ class LiveViewer(QtGui.QDialog):
         """
         # apply user filters
         self.__applyFilters()
+        if self.__settings.showmbuffer:
+            result = self.__mbufferwg.process(
+                self.__filteredimage, self.__imagename)
+            if isinstance(result, tuple) and len(result) == 2:
+                self.__filteredimage, mdata = result
+                self.__mdata.update(mdata)
 
         if "channellabels" in self.__mdata:
             self.__levelswg.updateChannelLabels(self.__mdata["channellabels"])
@@ -1851,7 +1872,12 @@ class LiveViewer(QtGui.QDialog):
         if len(self.__filteredimage.shape) == 3:
             self.__levelswg.setNumberOfChannels(self.__filteredimage.shape[0])
             if not self.__levelswg.colorChannel():
-                self.__rawgreyimage = np.sum(self.__filteredimage, 0)
+                if "skipfirst" in self.__mdata.keys() and \
+                   self.__mdata["skipfirst"]:
+                    self.__rawgreyimage = np.sum(
+                        self.__filteredimage[1:, :, :], 0)
+                else:
+                    self.__rawgreyimage = np.sum(self.__filteredimage, 0)
                 if self.rgb():
                     self.setrgb(False)
             else:
@@ -1868,7 +1894,13 @@ class LiveViewer(QtGui.QDialog):
                         if self.rgb():
                             self.setrgb(False)
                             self.__levelswg.showGradient(True)
-                        self.__rawgreyimage = np.mean(self.__filteredimage, 0)
+                        if "skipfirst" in self.__mdata.keys() and \
+                           self.__mdata["skipfirst"]:
+                            self.__rawgreyimage = np.mean(
+                                self.__filteredimage[1:, :, :], 0)
+                        else:
+                            self.__rawgreyimage = np.mean(
+                                self.__filteredimage, 0)
                     elif self.__filteredimage.shape[0] > 1:
                         if not self.rgb():
                             self.setrgb(True)

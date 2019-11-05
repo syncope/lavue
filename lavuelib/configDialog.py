@@ -228,6 +228,8 @@ class ConfigDialog(QtGui.QDialog):
         self.showsub = True
         #: (:obj:`bool`) show transformation widget
         self.showtrans = True
+        #: (:obj:`bool`) show memory buffer widget
+        self.showmbuffer = False
         #: (:obj:`bool`) show filter widget
         self.showfilters = False
         #: (:obj:`bool`) show intensity scale widget
@@ -387,6 +389,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.calcvarianceCheckBox.setChecked(self.calcvariance)
         self.__ui.showsubCheckBox.setChecked(self.showsub)
         self.__ui.showtransCheckBox.setChecked(self.showtrans)
+        self.__ui.showmbufferCheckBox.setChecked(self.showmbuffer)
         self.__ui.showfiltersCheckBox.setChecked(self.showfilters)
         self.__ui.showscaleCheckBox.setChecked(self.showscale)
         self.__ui.showlevelsCheckBox.setChecked(self.showlevels)
@@ -667,6 +670,7 @@ class ConfigDialog(QtGui.QDialog):
         self.refreshrate = float(self.__ui.rateDoubleSpinBox.value())
         self.showsub = self.__ui.showsubCheckBox.isChecked()
         self.showtrans = self.__ui.showtransCheckBox.isChecked()
+        self.showmbuffer = self.__ui.showmbufferCheckBox.isChecked()
         self.showfilters = self.__ui.showfiltersCheckBox.isChecked()
         self.showscale = self.__ui.showscaleCheckBox.isChecked()
         self.showlevels = self.__ui.showlevelsCheckBox.isChecked()
