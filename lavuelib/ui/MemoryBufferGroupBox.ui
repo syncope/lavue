@@ -84,25 +84,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="statusPushButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;active when the memory buffer is full&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="resetPushButton">
        <property name="toolTip">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;reset the memory buffer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -119,7 +100,6 @@
  <tabstops>
   <tabstop>onoffCheckBox</tabstop>
   <tabstop>sizeSpinBox</tabstop>
-  <tabstop>statusPushButton</tabstop>
   <tabstop>resetPushButton</tabstop>
  </tabstops>
  <resources/>
