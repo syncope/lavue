@@ -52,7 +52,7 @@ from . import sourceWidget
 from . import preparationGroupBox
 from . import memoryBufferGroupBox
 from . import scalingGroupBox
-from . import levelsGroupBox
+from . import levelsWidget
 from . import statisticsGroupBox
 from . import imageWidget
 from . import imageField
@@ -252,8 +252,8 @@ class LiveViewer(QtGui.QDialog):
             parent=self, settings=self.__settings)
         #: (:class:`lavuelib.scalingGroupBox.ScalingGroupBox`) scaling groupbox
         self.__scalingwg = scalingGroupBox.ScalingGroupBox(parent=self)
-        #: (:class:`lavuelib.levelsGroupBox.LevelsGroupBox`) level groupbox
-        self.__levelswg = levelsGroupBox.LevelsGroupBox(
+        #: (:class:`lavuelib.levelsWidget.LevelsWidget`) level groupbox
+        self.__levelswg = levelsWidget.LevelsWidget(
             parent=self, settings=self.__settings,
             expertmode=(self.__umode == 'expert'))
         #: (:class:`lavuelib.statisticsGroupBox.StatisticsGroupBox`)
@@ -343,7 +343,7 @@ class LiveViewer(QtGui.QDialog):
             "uint64": "int64"
             # "uint64": "float64"
         }
-        #: (:class:`Ui_LevelsGroupBox') ui_groupbox object from qtdesigner
+        #: (:class:`Ui_LevelsWidget') ui_groupbox object from qtdesigner
         self.__ui = _formclass()
         self.__ui.setupUi(self)
 

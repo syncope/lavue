@@ -143,3 +143,8 @@ class PreparationGroupBox(QtGui.QGroupBox):
             self.__hline.show()
         else:
             self.__hline.hide()
+
+        if self.__trans or masks:
+            self.show()
+        else:
+            self.hide()

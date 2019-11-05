@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LevelsWidget</class>
+ <widget class="QWidget" name="LevelsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>350</width>
+    <height>375</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="channelGroupBox">
+     <property name="title">
+      <string>Channels</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QComboBox" name="channelComboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;channel view for multi channel images, e.g. a separate color channel or RGB&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="rLabel">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;red color channel for the RGB view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>R:</string>
+          </property>
+          <property name="buddy">
+           <cstring>rComboBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="rComboBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;red color channel for the RGB view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="gLabel">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;green color channel for the RGB view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>G:</string>
+          </property>
+          <property name="buddy">
+           <cstring>gComboBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="gComboBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;green color channel for the RGB view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="bLabel">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;blue color channel for the RGB view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>B:</string>
+          </property>
+          <property name="buddy">
+           <cstring>bComboBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="bComboBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;blue color channel for the RGB view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QSlider" name="channelHorizontalSlider">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="LevelsGroupBox">
+     <property name="title">
+      <string>Display levels and colors</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="1">
+         <widget class="QCheckBox" name="autoLevelsCheckBox">
+          <property name="toolTip">
+           <string>find mininum and maximum intensity values after scaling
+for color distribution of the image</string>
+          </property>
+          <property name="text">
+           <string>Auto levels</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1" colspan="3">
+         <widget class="QDoubleSpinBox" name="maxDoubleSpinBox">
+          <property name="toolTip">
+           <string>maximum intensity values after scaling</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="binsComboBox">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;bin edges algorithm for histogram&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>auto</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>fd</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>doane</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>scott</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>rice</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>sturges</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>sqrt</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="stepLabel">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;image data step to create histogram, e.g. 20&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Step:</string>
+          </property>
+          <property name="buddy">
+           <cstring>stepLineEdit</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="binsLabel">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;bin edges algorithm for histogram&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Bin edges:</string>
+          </property>
+          <property name="buddy">
+           <cstring>binsComboBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="minLabel">
+          <property name="toolTip">
+           <string>mininum intensity values after scaling</string>
+          </property>
+          <property name="text">
+           <string>Minimum value:</string>
+          </property>
+          <property name="buddy">
+           <cstring>minDoubleSpinBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="maxLabel">
+          <property name="toolTip">
+           <string>maximum intensity values after scaling</string>
+          </property>
+          <property name="text">
+           <string>Maximum value:</string>
+          </property>
+          <property name="buddy">
+           <cstring>maxDoubleSpinBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QLineEdit" name="stepLineEdit">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;image data step to create histogram, e.g. 20&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="scalingLabel">
+          <property name="toolTip">
+           <string>intensity display scaling</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: red;</string>
+          </property>
+          <property name="text">
+           <string>sqrt scale!</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLineEdit" name="autofactorLineEdit">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;factor of the highest pick for automatic levels in %, e.g. 0.5&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" colspan="3">
+         <widget class="QDoubleSpinBox" name="minDoubleSpinBox">
+          <property name="toolTip">
+           <string>mininum intensity values after scaling</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QLabel" name="autofactorLabel">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;factor of the highest pick for automatic levels in %, e.g. 0.5&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>%</string>
+          </property>
+          <property name="buddy">
+           <cstring>autofactorLineEdit</cstring>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QFrame" name="histogramFrame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <property name="lineWidth">
+         <number>0</number>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_5">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <layout class="QVBoxLayout" name="histogramLayout"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <layout class="QGridLayout" name="colorGridLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="gradientLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>gradient for the color distribution of the image</string>
+          </property>
+          <property name="text">
+           <string>Gradient:</string>
+          </property>
+          <property name="buddy">
+           <cstring>gradientComboBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="gradientComboBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>gradient for the color distribution of the image</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>grey</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>highcontrast</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>thermal</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>flame</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>bipolar</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>spectrum</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>spectrumclip</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>greyclip</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>reversegrey</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>cyclic</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>yellowy</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>inverted</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>highcontrastclip</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+     <zorder></zorder>
+     <zorder>histogramFrame</zorder>
+     <zorder></zorder>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>autoLevelsCheckBox</tabstop>
+  <tabstop>autofactorLineEdit</tabstop>
+  <tabstop>binsComboBox</tabstop>
+  <tabstop>stepLineEdit</tabstop>
+  <tabstop>minDoubleSpinBox</tabstop>
+  <tabstop>maxDoubleSpinBox</tabstop>
+  <tabstop>gradientComboBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
