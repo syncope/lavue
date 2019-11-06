@@ -369,6 +369,7 @@ class Settings(object):
         qstval = str(settings.value("Configuration/MaxBufferSize", type=str))
         try:
             self.maxmbuffersize = str(qstval)
+            int(self.maxmbuffersize)
         except Exception:
             self.maxmbuffersize = "1000"
         qstval = str(settings.value("Configuration/SourceTimeout", type=str))

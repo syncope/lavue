@@ -1,4 +1,8 @@
 2019-11-06 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for maximal memory buffer size
+	* tagged as 2.23.1
+
+2019-11-06 Jan Kotanski <jan.kotanski@desy.de>
 	* add maximal memory buffer size
 	* tagged as 2.23.0
 
