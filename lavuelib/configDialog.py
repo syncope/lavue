@@ -209,6 +209,8 @@ class ConfigDialog(QtGui.QDialog):
         self.secautoport = True
         #: (:obj:`float`) refresh rate
         self.refreshrate = 0.2
+        #: (:obj:`int`) maximal number of images in memory buffer
+        self.maxmbuffersize = "1000"
         #: (:obj:`bool`) show color distribution histogram widget
         self.showhisto = True
         #: (:obj:`bool`) show color distribution additional histogram widget
@@ -381,6 +383,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.secautoportCheckBox.setChecked(self.secautoport)
         self.__ui.secportLineEdit.setText(self.secport)
         self.__ui.hidraportLineEdit.setText(self.hidraport)
+        self.__ui.mbufsizeLineEdit.setText(self.maxmbuffersize)
         self.__ui.showhistoCheckBox.setChecked(self.showhisto)
         self.__ui.showaddhistoCheckBox.setChecked(self.showaddhisto)
         self.__ui.showmaskCheckBox.setChecked(self.showmask)
@@ -664,6 +667,7 @@ class ConfigDialog(QtGui.QDialog):
         self.addrois = self.__ui.addroisCheckBox.isChecked()
         self.orderrois = self.__ui.orderroisCheckBox.isChecked()
         self.hidraport = str(self.__ui.hidraportLineEdit.text()).strip()
+        self.maxmbuffersize = str(self.__ui.mbufsizeLineEdit.text()).strip()
         self.secstream = self.__ui.secstreamCheckBox.isChecked()
         self.zeromask = self.__ui.zeromaskCheckBox.isChecked()
         self.secautoport = self.__ui.secautoportCheckBox.isChecked()
@@ -790,6 +794,13 @@ class ConfigDialog(QtGui.QDialog):
             int(self.hidraport)
         except Exception:
             self.__ui.hidraportLineEdit.setFocus(True)
+            return
+        try:
+            self.maxmbuffersize = str(
+                self.__ui.mbufsizeLineEdit.text()).strip()
+            int(self.maxmbuffersize)
+        except Exception:
+            self.__ui.mbufsizeLineEdit.setFocus(True)
             return
         self.__readROIsColors()
         self.imagesources = json.dumps(

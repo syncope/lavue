@@ -243,6 +243,7 @@ class LiveViewer(QtGui.QDialog):
         #: memory buffer groupbox
         self.__mbufferwg = memoryBufferGroupBox.MemoryBufferGroupBox(
             parent=self)
+        self.__mbufferwg.setMaxBufferSize(self.__settings.maxmbuffersize)
         #: (:class:`lavuelib.filtersGroupBox.FiltersGroupBox`)
         #  filters widget
         self.__filterswg = filtersGroupBox.FiltersGroupBox(
@@ -1196,6 +1197,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.secautoport = self.__settings.secautoport
         cnfdlg.secport = self.__settings.secport
         cnfdlg.hidraport = self.__settings.hidraport
+        cnfdlg.maxmbuffersize = self.__settings.maxmbuffersize
         cnfdlg.secstream = self.__settings.secstream
         cnfdlg.zeromask = self.__settings.zeromask
         cnfdlg.refreshrate = dataFetchThread.GLOBALREFRESHRATE
@@ -1421,6 +1423,9 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showallrois = dialog.showallrois
         if setsrc:
             self.__updateSource()
+        if self.__settings.maxmbuffersize != dialog.maxmbuffersize:
+            self.__settings.maxmbuffersize = dialog.maxmbuffersize
+            self.__mbufferwg.setMaxBufferSize(self.__settings.maxmbuffersize)
 
         self.__settings.statswoscaling = dialog.statswoscaling
         replot = replot or \

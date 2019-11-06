@@ -216,6 +216,29 @@
                     </property>
                    </widget>
                   </item>
+                  <item row="8" column="0">
+                   <widget class="QLabel" name="mbufsizeLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;maximal number of images in the memory buffer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Maximal memory buffer size:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>mbufsizeLineEdit</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="8" column="1">
+                   <widget class="QLineEdit" name="mbufsizeLineEdit">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;maximal number of images in the memory buffer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>1000</string>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </item>
                </layout>
@@ -1542,6 +1565,7 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>interruptCheckBox</tabstop>
   <tabstop>sourcedisplayCheckBox</tabstop>
   <tabstop>lazyimageCheckBox</tabstop>
+  <tabstop>mbufsizeLineEdit</tabstop>
   <tabstop>plusroiPushButton</tabstop>
   <tabstop>minusroiPushButton</tabstop>
   <tabstop>showallroisCheckBox</tabstop>
@@ -1585,8 +1609,8 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>dirattrLineEdit</tabstop>
   <tabstop>dirtransLineEdit</tabstop>
   <tabstop>doocspropLineEdit</tabstop>
-  <tabstop>filterTableWidget</tabstop>
   <tabstop>filterButtonBox</tabstop>
+  <tabstop>filterTableWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>
