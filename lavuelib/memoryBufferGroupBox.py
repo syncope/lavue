@@ -62,6 +62,8 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
 
         #: (:obj:`int`) number of frames in memory buffer
         self.__maxindex = 10
+        #: (:obj:`int`) maximal number of frames in memory buffer
+        self.__maxbuffersize = 1000
         #: (:obj:`bool`) is on status
         self.__isOn = False
         #: (:obj:`bool`) is buffer full
@@ -83,6 +85,20 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         self.__ui.onoffCheckBox.stateChanged.connect(self._onOff)
         self.__ui.resetPushButton.clicked.connect(self._onBufferSizeChanged)
 
+    def setMaxBufferSize(self, maxbuffersize):
+        """ sets maximal buffer size
+
+        :param maxbuffersize: maximal number of images in the buffer
+        :type maxbuffersize: :obj:`int` or :obj:`str`
+        """
+        try:
+            self.__maxbuffersize = int(maxbuffersize)
+        except Exception:
+            self.__maxbuffersize = 1000
+        if self.__maxbuffersize < self.__maxindex:
+            self.__ui.sizeSpinBox.setValue(self.__maxbuffersize)
+            self._onBufferSizeChanged(self.__maxbuffersize)
+
     @QtCore.pyqtSlot(int)
     @QtCore.pyqtSlot()
     def _onBufferSizeChanged(self, size=None):
@@ -92,7 +108,12 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         :type size: :obj:`int`
         """
         if size is not None:
-            self.__maxindex = size
+            if self.__maxindex != size:
+                if self.__maxbuffersize >= size:
+                    self.__maxindex = size
+                else:
+                    self.__maxindex = self.__maxbuffersize
+                    self.__ui.sizeSpinBox.setValue(self.__maxbuffersize)
         self.initialize()
 
     @QtCore.pyqtSlot(int)

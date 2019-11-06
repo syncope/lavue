@@ -306,6 +306,24 @@ class ChannelGroupBox(QtGui.QWidget):
     def rgbchannels(self):
         return (self.__rindex, self.__gindex, self.__bindex)
 
+    @QtCore.pyqtSlot()
+    def _lowerchannelpushed(self):
+        """ select the one-lower channel
+        """
+        channel = self.__ui.channelHorizontalSlider.value()
+        channel -= 1
+        if channel >= 0:
+            self.__ui.channelHorizontalSlider.setValue(channel)
+
+    @QtCore.pyqtSlot()
+    def _higherchannelpushed(self):
+        """ select the one-higher channel
+        """
+        channel = self.__ui.channelHorizontalSlider.value()
+        channel += 1
+        if channel <= self.__numberofchannels + 2:
+            self.__ui.channelHorizontalSlider.setValue(channel)
+
     def colorChannel(self):
         """ provides color channel
 
@@ -325,6 +343,10 @@ class ChannelGroupBox(QtGui.QWidget):
             self._skipChannels)
         self.__ui.channelHorizontalSlider.valueChanged.connect(
             self._setChannelTips)
+        self.__ui.lowerchannelPushButton.clicked.connect(
+            self._lowerchannelpushed)
+        self.__ui.higherchannelPushButton.clicked.connect(
+            self._higherchannelpushed)
 
     def __disconnectChannels(self):
         """ connects channel signals
@@ -337,6 +359,10 @@ class ChannelGroupBox(QtGui.QWidget):
             self._skipChannels)
         self.__ui.channelHorizontalSlider.valueChanged.disconnect(
             self._setChannelTips)
+        self.__ui.lowerchannelPushButton.clicked.disconnect(
+            self._lowerchannelpushed)
+        self.__ui.higherchannelPushButton.clicked.disconnect(
+            self._higherchannelpushed)
 
     def setNumberOfChannels(self, number):
         """ sets maximum number of color channel

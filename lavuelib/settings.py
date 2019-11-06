@@ -89,6 +89,8 @@ class Settings(object):
         self.secport = "5657"
         #: (:obj:`str`) hidra data port
         self.hidraport = "50001"
+        #: (:obj:`int`) maximal number of images in memory buffer
+        self.maxmbuffersize = "1000"
         #: (:obj:`int`) image source timeout for connection
         self.timeout = 3000
         #: (:class:`zmq.Context`) zmq context
@@ -364,6 +366,11 @@ class Settings(object):
             self.hidraport = str(qstval)
         except Exception:
             pass
+        qstval = str(settings.value("Configuration/MaxBufferSize", type=str))
+        try:
+            self.maxmbuffersize = str(qstval)
+        except Exception:
+            self.maxmbuffersize = "1000"
         qstval = str(settings.value("Configuration/SourceTimeout", type=str))
         try:
             int(qstval)
@@ -625,6 +632,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/HidraDataPort",
             self.hidraport)
+        settings.setValue(
+            "Configuration/MaxBufferSize",
+            self.maxmbuffersize)
         settings.setValue(
             "Configuration/SecAutoPort",
             self.secautoport)
