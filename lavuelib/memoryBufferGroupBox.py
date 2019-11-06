@@ -82,7 +82,7 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         self.__ui.sizeSpinBox.setEnabled(False)
         self.__ui.resetPushButton.setEnabled(False)
         self.__ui.sizeSpinBox.valueChanged.connect(self._onBufferSizeChanged)
-        self.__ui.onoffCheckBox.stateChanged.connect(self._onOff)
+        self.__ui.onoffCheckBox.stateChanged.connect(self.onOff)
         self.__ui.resetPushButton.clicked.connect(self._onBufferSizeChanged)
 
     def setBufferSize(self, buffersize):
@@ -94,10 +94,9 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         try:
             self.__maxindex = int(buffersize)
         except Exception:
-            self.__maxbuffersize = 10
-        if self.__maxbuffersize < self.__maxindex:
-            self.__ui.sizeSpinBox.setValue(self.__maxbuffersize)
-            self._onBufferSizeChanged(self.__maxbuffersize)
+            self.__maxindex = 10
+        self.__ui.sizeSpinBox.setValue(self.__maxindex)
+        self._onBufferSizeChanged(self.__maxindex)
 
     def setMaxBufferSize(self, maxbuffersize):
         """ sets maximal buffer size
@@ -131,10 +130,15 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         self.initialize()
 
     @QtCore.pyqtSlot(int)
-    def _onOff(self, status):
-        """
+    def onOff(self, status):
+        """ switch on/off  the widget
+
+        :param status: flag on/off
+        :type status: :obj:`int`
         """
         self.__isOn = True if status else False
+        self.__ui.onoffCheckBox.setCheckState(2 if self.__isOn else 0)
+
         self.initialize()
         self.__ui.sizeSpinBox.setEnabled(status)
         self.__ui.resetPushButton.setEnabled(status)

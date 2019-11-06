@@ -130,9 +130,13 @@ def main():
         "  nxsfile -> '-c /tmp/myfile.nxs://entry/data/pilatus'\n"
     )
     parser.add_argument(
-        "-o", "--memory-buffer", dest="mbuffer",
+        "-o", "--memory-buffer", dest="mbuffer", type=int,
         help="size of memory buffer in frames"
     )
+    # parser.add_argument(
+    #     "--channel", dest="channel",
+    #     help="channel number or 'sum' or 'mean'"
+    # )
     parser.add_argument(
         "-b", "--bkg-file", dest="bkgfile",
         help="background file-name to load"

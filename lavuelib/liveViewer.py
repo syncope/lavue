@@ -748,7 +748,9 @@ class LiveViewer(QtGui.QDialog):
             self.__sourcewg.configure(str(options.configuration))
 
         if hasattr(options, "mbuffer") and options.mbuffer is not None:
-            self.__mbufferwg.changeView(self.__settings.showmbuffer)
+            self.__mbufferwg.changeView(True)
+            self.__mbufferwg.onOff(True)
+            self.__settings.showmbuffer = True
             try:
                 self.__mbufferwg.setBufferSize(int(options.mbuffer))
             except Exception:
