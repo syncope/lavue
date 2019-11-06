@@ -706,6 +706,7 @@ class ConfigDialog(QtGui.QDialog):
                 self.dirtrans = dirtrans
         except Exception as e:
             print(str(e))
+            self.__ui.tabWidget.setCurrentIndex(3)
             self.__ui.dirtransLineEdit.setFocus(True)
             return
         try:
@@ -715,6 +716,7 @@ class ConfigDialog(QtGui.QDialog):
                 self.tangoattrs = attr
         except Exception as e:
             print(str(e))
+            self.__ui.tabWidget.setCurrentIndex(3)
             self.__ui.attrLineEdit.setFocus(True)
             return
         try:
@@ -724,6 +726,7 @@ class ConfigDialog(QtGui.QDialog):
                 self.doocsprops = prop
         except Exception as e:
             print(str(e))
+            self.__ui.tabWidget.setCurrentIndex(3)
             self.__ui.doocspropLineEdit.setFocus(True)
             return
         try:
@@ -733,6 +736,7 @@ class ConfigDialog(QtGui.QDialog):
                 self.tangoevattrs = attr
         except Exception as e:
             print(str(e))
+            self.__ui.tabWidget.setCurrentIndex(3)
             self.__ui.evattrLineEdit.setFocus(True)
             return
         try:
@@ -742,6 +746,7 @@ class ConfigDialog(QtGui.QDialog):
                 self.tangofileattrs = fileattr
         except Exception as e:
             print(str(e))
+            self.__ui.tabWidget.setCurrentIndex(3)
             self.__ui.fileattrLineEdit.setFocus(True)
             return
         try:
@@ -751,6 +756,7 @@ class ConfigDialog(QtGui.QDialog):
                 self.tangodirattrs = dirattr
         except Exception as e:
             print(str(e))
+            self.__ui.tabWidget.setCurrentIndex(3)
             self.__ui.dirattrLineEdit.setFocus(True)
             return
         try:
@@ -760,6 +766,7 @@ class ConfigDialog(QtGui.QDialog):
                 self.zmqservers = zmqservers
         except Exception as e:
             print(str(e))
+            self.__ui.tabWidget.setCurrentIndex(2)
             self.__ui.zmqserversLineEdit.setFocus(True)
             return
         try:
@@ -769,6 +776,7 @@ class ConfigDialog(QtGui.QDialog):
                 self.httpurls = urls
         except Exception as e:
             print(str(e))
+            self.__ui.tabWidget.setCurrentIndex(2)
             self.__ui.urlsLineEdit.setFocus(True)
             return
         zmqtopics = str(self.__ui.zmqtopicsLineEdit.text()).strip().split(" ")
@@ -781,18 +789,21 @@ class ConfigDialog(QtGui.QDialog):
         try:
             self.timeout = int(self.__ui.timeoutLineEdit.text())
         except Exception:
+            self.__ui.tabWidget.setCurrentIndex(2)
             self.__ui.timeoutLineEdit.setFocus(True)
             return
         try:
             self.secport = str(self.__ui.secportLineEdit.text()).strip()
             int(self.secport)
         except Exception:
+            self.__ui.tabWidget.setCurrentIndex(0)
             self.__ui.secportLineEdit.setFocus(True)
             return
         try:
             self.hidraport = str(self.__ui.hidraportLineEdit.text()).strip()
             int(self.hidraport)
         except Exception:
+            self.__ui.tabWidget.setCurrentIndex(2)
             self.__ui.hidraportLineEdit.setFocus(True)
             return
         try:
@@ -800,6 +811,7 @@ class ConfigDialog(QtGui.QDialog):
                 self.__ui.mbufsizeLineEdit.text()).strip()
             int(self.maxmbuffersize)
         except Exception:
+            self.__ui.tabWidget.setCurrentIndex(0)
             self.__ui.mbufsizeLineEdit.setFocus(True)
             return
         self.__readROIsColors()
