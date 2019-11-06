@@ -728,17 +728,20 @@
             </item>
             <item row="0" column="0">
              <layout class="QGridLayout" name="viewGridLayout">
-              <item row="11" column="1">
-               <widget class="QCheckBox" name="showhistoCheckBox">
+              <item row="5" column="0">
+               <widget class="QLabel" name="showmaskLabel">
                 <property name="toolTip">
-                 <string>show histogram to set range and color distribution</string>
+                 <string>show widgets to select the image mask</string>
                 </property>
                 <property name="text">
-                 <string/>
+                 <string>Mask:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showmaskCheckBox</cstring>
                 </property>
                </widget>
               </item>
-              <item row="5" column="0">
+              <item row="6" column="0">
                <widget class="QLabel" name="showmaskhighLabel">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select the mask high pixel values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -748,6 +751,29 @@
                 </property>
                 <property name="buddy">
                  <cstring>showmaskhighCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="0">
+               <widget class="QLabel" name="showscaleLabel">
+                <property name="toolTip">
+                 <string>show widgets to select the image intensity scale</string>
+                </property>
+                <property name="text">
+                 <string>Intensity scale:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showscaleCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="11" column="1">
+               <widget class="QCheckBox" name="showhistoCheckBox">
+                <property name="toolTip">
+                 <string>show histogram to set range and color distribution</string>
+                </property>
+                <property name="text">
+                 <string/>
                 </property>
                </widget>
               </item>
@@ -761,39 +787,6 @@
                 </property>
                 <property name="buddy">
                  <cstring>showstatsCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0">
-               <widget class="QLabel" name="showmaskLabel">
-                <property name="toolTip">
-                 <string>show widgets to select the image mask</string>
-                </property>
-                <property name="text">
-                 <string>Mask:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showmaskCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="1">
-               <widget class="QCheckBox" name="showmaskhighCheckBox">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select the mask high pixel values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1">
-               <widget class="QCheckBox" name="showmaskCheckBox">
-                <property name="toolTip">
-                 <string>show widgets to select the image mask</string>
-                </property>
-                <property name="text">
-                 <string/>
                 </property>
                </widget>
               </item>
@@ -840,19 +833,6 @@
                 </property>
                </widget>
               </item>
-              <item row="8" column="0">
-               <widget class="QLabel" name="showscaleLabel">
-                <property name="toolTip">
-                 <string>show widgets to select the image intensity scale</string>
-                </property>
-                <property name="text">
-                 <string>Intensity scale:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showscaleCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
               <item row="8" column="1">
                <widget class="QCheckBox" name="showscaleCheckBox">
                 <property name="toolTip">
@@ -860,19 +840,6 @@
                 </property>
                 <property name="text">
                  <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="0">
-               <widget class="QLabel" name="showsubLabel">
-                <property name="toolTip">
-                 <string>show widgets to select the image backgroud subtraction</string>
-                </property>
-                <property name="text">
-                 <string>Subtraction:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showsubCheckBox</cstring>
                 </property>
                </widget>
               </item>
@@ -955,16 +922,6 @@
                 </property>
                </widget>
               </item>
-              <item row="6" column="1">
-               <widget class="QCheckBox" name="showsubCheckBox">
-                <property name="toolTip">
-                 <string>show widgets to select the image backgroud subtraction</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
               <item row="13" column="0">
                <widget class="QLabel" name="showframerateLabel">
                 <property name="toolTip">
@@ -998,6 +955,49 @@
                 </property>
                 <property name="buddy">
                  <cstring>showmbufferCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="showsubLabel">
+                <property name="toolTip">
+                 <string>show widgets to select the image backgroud subtraction</string>
+                </property>
+                <property name="text">
+                 <string>Subtraction:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showsubCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1">
+               <widget class="QCheckBox" name="showmaskhighCheckBox">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets to select the mask high pixel values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1">
+               <widget class="QCheckBox" name="showmaskCheckBox">
+                <property name="toolTip">
+                 <string>show widgets to select the image mask</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QCheckBox" name="showsubCheckBox">
+                <property name="toolTip">
+                 <string>show widgets to select the image backgroud subtraction</string>
+                </property>
+                <property name="text">
+                 <string/>
                 </property>
                </widget>
               </item>
@@ -1583,9 +1583,9 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>orderroisCheckBox</tabstop>
   <tabstop>showfiltersCheckBox</tabstop>
   <tabstop>showmbufferCheckBox</tabstop>
+  <tabstop>showsubCheckBox</tabstop>
   <tabstop>showmaskCheckBox</tabstop>
   <tabstop>showmaskhighCheckBox</tabstop>
-  <tabstop>showsubCheckBox</tabstop>
   <tabstop>showtransCheckBox</tabstop>
   <tabstop>showscaleCheckBox</tabstop>
   <tabstop>showlevelsCheckBox</tabstop>
