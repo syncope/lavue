@@ -85,6 +85,20 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         self.__ui.onoffCheckBox.stateChanged.connect(self._onOff)
         self.__ui.resetPushButton.clicked.connect(self._onBufferSizeChanged)
 
+    def setBufferSize(self, buffersize):
+        """ sets buffer size
+
+        :param buffersize: maximal number of images in the buffer
+        :type buffersize: :obj:`int` or :obj:`str`
+        """
+        try:
+            self.__maxindex = int(buffersize)
+        except Exception:
+            self.__maxbuffersize = 10
+        if self.__maxbuffersize < self.__maxindex:
+            self.__ui.sizeSpinBox.setValue(self.__maxbuffersize)
+            self._onBufferSizeChanged(self.__maxbuffersize)
+
     def setMaxBufferSize(self, maxbuffersize):
         """ sets maximal buffer size
 

@@ -747,6 +747,13 @@ class LiveViewer(QtGui.QDialog):
            options.configuration is not None:
             self.__sourcewg.configure(str(options.configuration))
 
+        if hasattr(options, "mbuffer") and options.mbuffer is not None:
+            self.__mbufferwg.changeView(self.__settings.showmbuffer)
+            try:
+                self.__mbufferwg.setBufferSize(int(options.mbuffer))
+            except Exception:
+                pass
+
         if hasattr(options, "bkgfile") and options.bkgfile is not None:
             self.__bkgsubwg.setBackground(str(options.bkgfile))
 
