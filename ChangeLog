@@ -1,6 +1,7 @@
 2019-11-07 Jan Kotanski <jan.kotanski@desy.de>
 	* add --memory-buffer command-line parameter
-	* tagged as 2.23.3
+	* add --channel command-line parameter
+	* tagged as 2.24.0
 
 2019-11-06 Jan Kotanski <jan.kotanski@desy.de>
 	* add tab focus in configuration widget
