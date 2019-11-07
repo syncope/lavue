@@ -30,7 +30,6 @@ from pyqtgraph import QtCore
 import numpy as np
 import math
 import json
-import time
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI, Handle
 
 
@@ -1103,8 +1102,6 @@ class LockerExtension(DisplayExtension):
         self._mainwidget.viewbox().addItem(
             self.__lockerHLine, ignoreBounds=True)
 
-        self.lastTime = 0
-        
     def show(self, parameters):
         """ set subwidget properties
 
@@ -1150,10 +1147,6 @@ class LockerExtension(DisplayExtension):
             pos0, pos1, scale0, scale1 = self._mainwidget.scale()
             fx = math.floor(x)
             fy = math.floor(y)
-            now = time.time()
-            dt = now - self.lastTime
-            print(1./dt)
-            self.lastTime = now
             if self.__fxy != (fx, fy):
                 self.__fxy = (fx, fy)
                 if pos0 is not None:
