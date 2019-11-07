@@ -414,8 +414,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type rawimg: :class:`numpy.ndarray`
         """
         try:
-            # if self.__rgb:
-            if len(img.shape) == 3:
+            if img is not None and len(img.shape) == 3:
                 self.__image.setLookupTable(None)
                 self.__image.setImage(
                     img, lut=None,
