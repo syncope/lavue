@@ -747,8 +747,34 @@ class LiveViewer(QtGui.QDialog):
            options.configuration is not None:
             self.__sourcewg.configure(str(options.configuration))
 
+        if hasattr(options, "mbuffer") and options.mbuffer is not None:
+            self.__mbufferwg.changeView(True)
+            self.__mbufferwg.onOff(True)
+            self.__settings.showmbuffer = True
+            try:
+                self.__mbufferwg.setBufferSize(int(options.mbuffer))
+            except Exception:
+                pass
+
         if hasattr(options, "bkgfile") and options.bkgfile is not None:
             self.__bkgsubwg.setBackground(str(options.bkgfile))
+
+        if hasattr(options, "channel") and options.channel is not None:
+            try:
+                ich = int(options.channel) + 1
+            except Exception:
+                if options.channel == "mean":
+                    ich = -2
+                elif options.channel == "rgb":
+                    ich = -1
+                elif "," in options.channel:
+                    try:
+                        ich = [int(ch) for ch in options.channel.split(",")]
+                    except Exception:
+                        ich = 0
+                else:
+                    ich = 0
+            self.__channelwg.setDefaultColorChannel(ich)
 
         if hasattr(options, "maskfile") and options.maskfile is not None:
             self.__maskwg.setMask(str(options.maskfile))

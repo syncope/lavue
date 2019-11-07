@@ -73,6 +73,14 @@ class ChannelGroupBox(QtGui.QWidget):
         self.__gindex = 1
         #: (:obj: `int`) blue channel
         self.__bindex = 2
+        #: (:obj: `int`) default red channel
+        self.__defrindex = 0
+        #: (:obj: `int`) default green channel
+        self.__defgindex = 1
+        #: (:obj: `int`) default blue channel
+        self.__defbindex = 2
+        #: (:obj: `int`) default color channel
+        self.__defaultchannel = 0
         #: (:obj: `int`) current color channel
         self.__colorchannel = 0
         #: (:obj: `int`) number of color channels
@@ -93,6 +101,27 @@ class ChannelGroupBox(QtGui.QWidget):
             self._onGChannelChanged)
         self.__ui.bComboBox.currentIndexChanged.connect(
             self._onBChannelChanged)
+
+    def setDefaultColorChannel(self, channel):
+        """ sets default color channel
+
+        :param channel:  default color channel(s)
+        :type channel: :obj:`int` or :obj:`int`
+        """
+        if isinstance(channel, list):
+            self.__defaultchannel = -1
+            if len(channel) > 0:
+                self.__defrindex = channel[0]
+            if len(channel) > 1:
+                self.__defgindex = channel[1]
+            else:
+                self.__defgindex = -1
+            if len(channel) > 2:
+                self.__defbindex = channel[2]
+            else:
+                self.__defbindex = -1
+        else:
+            self.__defaultchannel = channel
 
     def changeView(self, showhistogram=None, showlevels=None,
                    showadd=None):
@@ -280,8 +309,8 @@ class ChannelGroupBox(QtGui.QWidget):
         if self.__rindex != self.__numberofchannels:
             if self.__rindex != current:
                 self.__ui.rComboBox.setCurrentIndex(self.__rindex)
-        elif self.__rindex != -1:
-            self.__ui.rComboBox.setCurrentIndex(self.__numberofchannels)
+            if self.__rindex == -1:
+                self.__ui.rComboBox.setCurrentIndex(self.__numberofchannels)
 
     def updateGChannel(self):
         """ update green channel
@@ -290,8 +319,8 @@ class ChannelGroupBox(QtGui.QWidget):
         if self.__gindex != self.__numberofchannels:
             if self.__gindex != current:
                 self.__ui.gComboBox.setCurrentIndex(self.__gindex)
-        elif self.__gindex != -1:
-            self.__ui.gComboBox.setCurrentIndex(self.__numberofchannels)
+            if self.__gindex == -1:
+                self.__ui.gComboBox.setCurrentIndex(self.__numberofchannels)
 
     def updateBChannel(self):
         """ update blue channel
@@ -300,8 +329,8 @@ class ChannelGroupBox(QtGui.QWidget):
         if self.__bindex != self.__numberofchannels:
             if self.__bindex != current:
                 self.__ui.bComboBox.setCurrentIndex(self.__bindex)
-        elif self.__bindex != -1:
-            self.__ui.bComboBox.setCurrentIndex(self.__numberofchannels)
+            if self.__bindex == -1:
+                self.__ui.bComboBox.setCurrentIndex(self.__numberofchannels)
 
     def rgbchannels(self):
         return (self.__rindex, self.__gindex, self.__bindex)
@@ -417,12 +446,20 @@ class ChannelGroupBox(QtGui.QWidget):
                 self.__ui.rComboBox.addItem("None")
                 self.__ui.bComboBox.addItem("None")
                 self.__ui.gComboBox.addItem("None")
-                self.__rindex = 0
-                if self.__numberofchannels > 1:
+                if self.__numberofchannels > self.__defrindex:
+                    self.__rindex = self.__defrindex
+                else:
+                    self.__rindex = 0
+
+                if self.__numberofchannels > self.__defgindex:
+                    self.__gindex = self.__defgindex
+                elif self.__numberofchannels > 1:
                     self.__gindex = 1
                 else:
                     self.__gindex = -1
-                if self.__numberofchannels > 2:
+                if self.__numberofchannels > self.__defbindex:
+                    self.__bindex = self.__defbindex
+                elif self.__numberofchannels > 2:
                     self.__bindex = 2
                 else:
                     self.__bindex = -1
@@ -435,7 +472,15 @@ class ChannelGroupBox(QtGui.QWidget):
                 self.__ui.channelGroupBox.hide()
                 self.__ui.channelComboBox.hide()
                 self.__colors = False
-            channel = self.__ui.channelHorizontalSlider.value()
+            channel = 0
+            if self.__defaultchannel >= 0:
+                if self.__numberofchannels + 2 > self.__defaultchannel:
+                    channel = self.__defaultchannel
+            else:
+                if self.__numberofchannels + 2 > - self.__defaultchannel:
+                    channel = self.__numberofchannels + 3 \
+                              + self.__defaultchannel
+            self.__ui.channelHorizontalSlider.setValue(channel)
             self.__ui.channelComboBox.setCurrentIndex(channel)
             self.setChannel(channel, True)
             self.__connectChannels()

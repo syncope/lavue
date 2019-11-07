@@ -130,6 +130,19 @@ def main():
         "  nxsfile -> '-c /tmp/myfile.nxs://entry/data/pilatus'\n"
     )
     parser.add_argument(
+        "-z", "--filters", action="store_true", default=False,
+        dest="filters",
+        help="apply image filters")
+    parser.add_argument(
+        "-o", "--memory-buffer", dest="mbuffer", type=int,
+        help="size of memory buffer in frames"
+    )
+    parser.add_argument(
+        "--channel", dest="channel",
+        help="default channel number or 'sum', 'mean', 'rgb' or "
+        "RGB channels separated by comma e.g.'0,1,3'"
+    )
+    parser.add_argument(
         "-b", "--bkg-file", dest="bkgfile",
         help="background file-name to load"
     )
@@ -147,10 +160,6 @@ def main():
         "  flip-up-down, flip-left-right, transpose,\n"
         "  rot90, rot180, rot270, rot180+transpose"
     )
-    parser.add_argument(
-        "-z", "--filters", action="store_true", default=False,
-        dest="filters",
-        help="apply image filters")
     parser.add_argument(
         "-i", "--scaling", dest="scaling",
         help="intensity scaling, i.e. sqrt, linear, log"
