@@ -30,6 +30,7 @@ from pyqtgraph import QtCore
 import numpy as np
 import math
 import json
+import time
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI, Handle
 
 
@@ -1083,12 +1084,12 @@ class LockerExtension(DisplayExtension):
 
         #: (:obj:`str`) tool name
         self.name = "locker"
-
         #: (:obj:`bool`) crooshair locked flag
         self.__crosshairlocked = False
         #: ([:obj:`float`, :obj:`float`]) position mark coordinates
         self.__lockercoordinates = None
-
+        #: ((:obj:`float`, :obj:`float`)) current position
+        self.__fxy = None
         #: (:class:`pyqtgraph.InfiniteLine`)
         #:                 vertical locker line of the mouse position
         self.__lockerVLine = _pg.InfiniteLine(
@@ -1102,6 +1103,8 @@ class LockerExtension(DisplayExtension):
         self._mainwidget.viewbox().addItem(
             self.__lockerHLine, ignoreBounds=True)
 
+        self.lastTime = 0
+        
     def show(self, parameters):
         """ set subwidget properties
 
@@ -1147,20 +1150,26 @@ class LockerExtension(DisplayExtension):
             pos0, pos1, scale0, scale1 = self._mainwidget.scale()
             fx = math.floor(x)
             fy = math.floor(y)
-            if pos0 is not None:
-                if not self._mainwidget.transformations()[0]:
-                    self.__lockerVLine.setPos((fx + .5) * scale0 + pos0)
-                    self.__lockerHLine.setPos((fy + .5) * scale1 + pos1)
+            now = time.time()
+            dt = now - self.lastTime
+            print(1./dt)
+            self.lastTime = now
+            if self.__fxy != (fx, fy):
+                self.__fxy = (fx, fy)
+                if pos0 is not None:
+                    if not self._mainwidget.transformations()[0]:
+                        self.__lockerVLine.setPos((fx + .5) * scale0 + pos0)
+                        self.__lockerHLine.setPos((fy + .5) * scale1 + pos1)
+                    else:
+                        self.__lockerVLine.setPos((fy + .5) * scale1 + pos1)
+                        self.__lockerHLine.setPos((fx + .5) * scale0 + pos0)
                 else:
-                    self.__lockerVLine.setPos((fy + .5) * scale1 + pos1)
-                    self.__lockerHLine.setPos((fx + .5) * scale0 + pos0)
-            else:
-                if not self._mainwidget.transformations()[0]:
-                    self.__lockerVLine.setPos(fx + .5)
-                    self.__lockerHLine.setPos(fy + .5)
-                else:
-                    self.__lockerVLine.setPos(fy + .5)
-                    self.__lockerHLine.setPos(fx + .5)
+                    if not self._mainwidget.transformations()[0]:
+                        self.__lockerVLine.setPos(fx + .5)
+                        self.__lockerHLine.setPos(fy + .5)
+                    else:
+                        self.__lockerVLine.setPos(fy + .5)
+                        self.__lockerHLine.setPos(fx + .5)
 
     def mouse_doubleclick(self, x, y, locked):
         """  sets vLine and hLine positions
