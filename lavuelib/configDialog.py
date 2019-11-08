@@ -209,6 +209,8 @@ class ConfigDialog(QtGui.QDialog):
         self.secautoport = True
         #: (:obj:`float`) refresh rate
         self.refreshrate = 0.2
+        #: (:obj:`float`) tool refresh rate time is s
+        self.toolrefreshtime = 0.02
         #: (:obj:`int`) maximal number of images in memory buffer
         self.maxmbuffersize = "1000"
         #: (:obj:`bool`) show color distribution histogram widget
@@ -369,6 +371,7 @@ class ConfigDialog(QtGui.QDialog):
         """ create GUI
         """
         self.__ui.rateDoubleSpinBox.setValue(self.refreshrate)
+        self.__ui.toolrefreshtimeDoubleSpinBox.setValue(self.toolrefreshtime)
         self.__ui.aspectlockedCheckBox.setChecked(self.aspectlocked)
         self.__ui.downsampleCheckBox.setChecked(self.autodownsample)
         self.__ui.keepCoordsCheckBox.setChecked(self.keepcoords)
@@ -672,6 +675,8 @@ class ConfigDialog(QtGui.QDialog):
         self.zeromask = self.__ui.zeromaskCheckBox.isChecked()
         self.secautoport = self.__ui.secautoportCheckBox.isChecked()
         self.refreshrate = float(self.__ui.rateDoubleSpinBox.value())
+        self.toolrefreshtime = float(
+            self.__ui.toolrefreshtimeDoubleSpinBox.value())
         self.showsub = self.__ui.showsubCheckBox.isChecked()
         self.showtrans = self.__ui.showtransCheckBox.isChecked()
         self.showmbuffer = self.__ui.showmbufferCheckBox.isChecked()
