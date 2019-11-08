@@ -1,3 +1,7 @@
+2019-11-08 Jan Kotanski <jan.kotanski@desy.de>
+	* add ToolRefreshTime to settings
+	* tagged as 2.25.0
+
 2019-11-07 Jan Kotanski <jan.kotanski@desy.de>
 	* add --memory-buffer command-line parameter
 	* add --channel command-line parameter

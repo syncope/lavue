@@ -856,9 +856,19 @@ class ImageWidget(QtGui.QWidget):
         """ calculates all roi sums
 
         :returns: sum roi value, roi id
-        :rtype: :obj:list < float >
+        :rtype: :obj:`list` < float >
         """
         return self.__displaywidget.extension('rois').calcROIsums()
+
+    def setExtensionsRefreshTime(self, refreshtime):
+        """ set display extension refresh time
+
+        :param refreshtime: refresh time in seconds
+        :type refreshtime: :obj:`float`
+        """
+        for name in self.__displaywidget.extensions():
+            self.__displaywidget.extension(name).setRefreshTime(
+                refreshtime)
 
     @QtCore.pyqtSlot(str)
     def updateDisplayedText(self, text):

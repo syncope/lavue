@@ -472,6 +472,8 @@ class LiveViewer(QtGui.QDialog):
         self.__updateframeview()
 
         self.__updateframeratetip(self.__settings.refreshrate)
+        self.__imagewg.setExtensionsRefreshTime(
+            self.__settings.toolrefreshtime)
 
         start = self.__applyoptions(options)
         self._plot()
@@ -1227,6 +1229,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.secstream = self.__settings.secstream
         cnfdlg.zeromask = self.__settings.zeromask
         cnfdlg.refreshrate = dataFetchThread.GLOBALREFRESHRATE
+        cnfdlg.toolrefreshtime = self.__settings.toolrefreshtime
         cnfdlg.timeout = self.__settings.timeout
         cnfdlg.aspectlocked = self.__settings.aspectlocked
         cnfdlg.autodownsample = self.__settings.autodownsample
@@ -1344,6 +1347,10 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.refreshrate != dialog.refreshrate:
             self.__settings.refreshrate = dialog.refreshrate
             self.__updateframeratetip(self.__settings.refreshrate)
+        if self.__settings.toolrefreshtime != dialog.toolrefreshtime:
+            self.__settings.toolrefreshtime = dialog.toolrefreshtime
+            self.__imagewg.setExtensionsRefreshTime(
+                self.__settings.toolrefreshtime)
         if self.__settings.filters != dialog.filters:
             self.__resetFilters(dialog.filters)
             replot = True

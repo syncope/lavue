@@ -103,8 +103,10 @@ class Settings(object):
         self.zeromask = False
         #: (:obj:`bool`) security stream options
         self.secsockopt = b""
-        #: (:obj:`float`) refresh rate
+        #: (:obj:`float`) refresh rate is s
         self.refreshrate = 0.2
+        #: (:obj:`float`) tool refresh rate time is s
+        self.toolrefreshtime = 0.02
         #: (:obj:`bool`) interrupt on error
         self.interruptonerror = True
         #: (:obj:`str`) last image file name
@@ -408,6 +410,12 @@ class Settings(object):
         except Exception:
             pass
 
+        try:
+            self.toolrefreshtime = float(
+                settings.value("Configuration/ToolRefreshTime", type=str))
+        except Exception:
+            pass
+
         qstval = str(
             settings.value("Configuration/InterruptOnError", type=str))
         if qstval.lower() == "false":
@@ -627,6 +635,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/RefreshRate",
             self.refreshrate)
+        settings.setValue(
+            "Configuration/ToolRefreshTime",
+            self.toolrefreshtime)
         settings.setValue(
             "Configuration/SecPort",
             self.secport)

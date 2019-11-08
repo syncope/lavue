@@ -253,6 +253,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         return self.__extensions[name]
 
+    def extensions(self):
+        """provides extension names
+
+        :rtype: :obj:`list`
+        :returns: extension names
+        """
+        return self.__extensions.keys()
+
     def setAspectLocked(self, flag):
         """sets aspectLocked
 

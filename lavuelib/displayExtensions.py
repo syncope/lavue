@@ -30,6 +30,7 @@ from pyqtgraph import QtCore
 import numpy as np
 import math
 import json
+import time
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI, Handle
 
 
@@ -150,6 +151,8 @@ class DisplayExtension(QtCore.QObject):
         self._mainwidget = parent
         #: (:obj:`bool`) enabled flag
         self._enabled = False
+        #: (:obj:`float`) minimum refresh time in s
+        self._refreshtime = 0.02
 
     def show(self, parameters):
         """ set subwidget properties
@@ -160,6 +163,22 @@ class DisplayExtension(QtCore.QObject):
     def transpose(self):
         """ transposes subwidget
         """
+
+    def setRefreshTime(self, refreshtime):
+        """ sets refresh time
+
+        :param refreshtime: refresh time in seconds
+        :type refreshtime: :obj:`float`
+        """
+        self._refreshtime = refreshtime
+
+    def refreshTime(self):
+        """ provides refresh time
+
+        :returns: refresh time in seconds
+        :rtype: :obj:`float`
+        """
+        return self._refreshtime
 
     def enabled(self):
         """ is extension enabled
@@ -1083,12 +1102,12 @@ class LockerExtension(DisplayExtension):
 
         #: (:obj:`str`) tool name
         self.name = "locker"
-
         #: (:obj:`bool`) crooshair locked flag
         self.__crosshairlocked = False
         #: ([:obj:`float`, :obj:`float`]) position mark coordinates
         self.__lockercoordinates = None
-
+        #: (:obj:`float`) last time in s
+        self.__lasttime = 0.
         #: (:class:`pyqtgraph.InfiniteLine`)
         #:                 vertical locker line of the mouse position
         self.__lockerVLine = _pg.InfiniteLine(
@@ -1144,23 +1163,26 @@ class LockerExtension(DisplayExtension):
         :type y: float
         """
         if not self.__crosshairlocked:
-            pos0, pos1, scale0, scale1 = self._mainwidget.scale()
-            fx = math.floor(x)
-            fy = math.floor(y)
-            if pos0 is not None:
-                if not self._mainwidget.transformations()[0]:
-                    self.__lockerVLine.setPos((fx + .5) * scale0 + pos0)
-                    self.__lockerHLine.setPos((fy + .5) * scale1 + pos1)
+            now = time.time()
+            if now - self.__lasttime > self._refreshtime:
+                self.__lasttime = now
+                pos0, pos1, scale0, scale1 = self._mainwidget.scale()
+                fx = math.floor(x)
+                fy = math.floor(y)
+                if pos0 is not None:
+                    if not self._mainwidget.transformations()[0]:
+                        self.__lockerVLine.setPos((fx + .5) * scale0 + pos0)
+                        self.__lockerHLine.setPos((fy + .5) * scale1 + pos1)
+                    else:
+                        self.__lockerVLine.setPos((fy + .5) * scale1 + pos1)
+                        self.__lockerHLine.setPos((fx + .5) * scale0 + pos0)
                 else:
-                    self.__lockerVLine.setPos((fy + .5) * scale1 + pos1)
-                    self.__lockerHLine.setPos((fx + .5) * scale0 + pos0)
-            else:
-                if not self._mainwidget.transformations()[0]:
-                    self.__lockerVLine.setPos(fx + .5)
-                    self.__lockerHLine.setPos(fy + .5)
-                else:
-                    self.__lockerVLine.setPos(fy + .5)
-                    self.__lockerHLine.setPos(fx + .5)
+                    if not self._mainwidget.transformations()[0]:
+                        self.__lockerVLine.setPos(fx + .5)
+                        self.__lockerHLine.setPos(fy + .5)
+                    else:
+                        self.__lockerVLine.setPos(fy + .5)
+                        self.__lockerHLine.setPos(fx + .5)
 
     def mouse_doubleclick(self, x, y, locked):
         """  sets vLine and hLine positions
@@ -1218,6 +1240,8 @@ class CenterExtension(DisplayExtension):
 
         #: ([:obj:`float`, :obj:`float`]) center coordinates
         self.__centercoordinates = None
+        #: (:obj:`float`) last time in s
+        self.__lasttime = 0.
 
         #: (:class:`pyqtgraph.InfiniteLine`)
         #:                 vertical center line of the mouse position
@@ -1264,12 +1288,15 @@ class CenterExtension(DisplayExtension):
         :type y: float
         """
         if not self.__centercoordinates:
-            if not self._mainwidget.transformations()[0]:
-                self.__centerVLine.setPos(x)
-                self.__centerHLine.setPos(y)
-            else:
-                self.__centerVLine.setPos(y)
-                self.__centerHLine.setPos(x)
+            now = time.time()
+            if now - self.__lasttime > self._refreshtime:
+                self.__lasttime = now
+                if not self._mainwidget.transformations()[0]:
+                    self.__centerVLine.setPos(x)
+                    self.__centerHLine.setPos(y)
+                else:
+                    self.__centerVLine.setPos(y)
+                    self.__centerHLine.setPos(x)
 
     def mouse_doubleclick(self, x, y, locked):
         """  sets vLine and hLine positions
@@ -1437,6 +1464,8 @@ class MarkExtension(DisplayExtension):
 
         #: ([:obj:`float`, :obj:`float`]) position mark coordinates
         self.__markcoordinates = None
+        #: (:obj:`float`) last time in s
+        self.__lasttime = 0.
 
         #: (:class:`pyqtgraph.InfiniteLine`)
         #:                 vertical mark line of the mouse position
@@ -1481,21 +1510,24 @@ class MarkExtension(DisplayExtension):
         :type y: float
         """
         if not self.__markcoordinates:
-            pos0, pos1, scale0, scale1 = self._mainwidget.scale()
-            if pos0 is not None:
-                if not self._mainwidget.transformations()[0]:
-                    self.__markVLine.setPos((x) * scale0 + pos0)
-                    self.__markHLine.setPos((y) * scale1 + pos1)
+            now = time.time()
+            if now - self.__lasttime > self._refreshtime:
+                self.__lasttime = now
+                pos0, pos1, scale0, scale1 = self._mainwidget.scale()
+                if pos0 is not None:
+                    if not self._mainwidget.transformations()[0]:
+                        self.__markVLine.setPos((x) * scale0 + pos0)
+                        self.__markHLine.setPos((y) * scale1 + pos1)
+                    else:
+                        self.__markVLine.setPos((y) * scale1 + pos1)
+                        self.__markHLine.setPos((x) * scale0 + pos0)
                 else:
-                    self.__markVLine.setPos((y) * scale1 + pos1)
-                    self.__markHLine.setPos((x) * scale0 + pos0)
-            else:
-                if not self._mainwidget.transformations()[0]:
-                    self.__markVLine.setPos(x)
-                    self.__markHLine.setPos(y)
-                else:
-                    self.__markVLine.setPos(y)
-                    self.__markHLine.setPos(x)
+                    if not self._mainwidget.transformations()[0]:
+                        self.__markVLine.setPos(x)
+                        self.__markHLine.setPos(y)
+                    else:
+                        self.__markVLine.setPos(y)
+                        self.__markHLine.setPos(x)
 
     def mouse_doubleclick(self, x, y, locked):
         """  sets vLine and hLine positions
