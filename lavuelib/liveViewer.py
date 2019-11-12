@@ -1077,10 +1077,10 @@ class LiveViewer(QtGui.QDialog):
             if imagename.endswith(".nxs") or imagename.endswith(".h5") \
                or imagename.endswith(".nx") or imagename.endswith(".ndf"):
                 try:
-                    self.__settings.imagename = imagename
                     handler = imageFileHandler.NexusFieldHandler(
-                        str(self.__settings.imagename))
+                        str(imagename))
                     fields = handler.findImageFields()
+                    self.__settings.imagename = imagename
                 except Exception as e:
                     print(str(e))
                     fields = None
@@ -1158,14 +1158,19 @@ class LiveViewer(QtGui.QDialog):
                         currentfield["nexus_path"])
                     self.__updateframeview(True)
             else:
-                self.__fieldpath = None
-                self.__settings.imagename = imagename
                 try:
                     fh = imageFileHandler.ImageFileHandler(
-                        str(self.__settings.imagename))
+                        str(imagename))
                     newimage = fh.getImage()
+                    if newimage == -1:
+                        newimage = None
+                    if newimage is None:
+                        raise Exception(
+                            "Cannot read the image %s" % str(imagename))
                     metadata = fh.getMetaData()
                     self.__updateframeview()
+                    self.__fieldpath = None
+                    self.__settings.imagename = imagename
                 except Exception as e:
                     print(str(e))
             if newimage is not None:
