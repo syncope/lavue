@@ -76,6 +76,16 @@
           </widget>
          </item>
          <item>
+          <widget class="QSlider" name="frameHorizontalSlider">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;current frame slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="lowerframePushButton">
            <property name="enabled">
             <bool>true</bool>
@@ -103,16 +113,6 @@
            </property>
            <property name="text">
             <string>&lt;</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSlider" name="frameHorizontalSlider">
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;current frame slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
            </property>
           </widget>
          </item>
@@ -275,8 +275,8 @@
  <tabstops>
   <tabstop>fileNameLineEdit</tabstop>
   <tabstop>framerateLineEdit</tabstop>
-  <tabstop>lowerframePushButton</tabstop>
   <tabstop>frameHorizontalSlider</tabstop>
+  <tabstop>lowerframePushButton</tabstop>
   <tabstop>frameLineEdit</tabstop>
   <tabstop>higherframePushButton</tabstop>
   <tabstop>framestepSpinBox</tabstop>
