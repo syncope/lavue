@@ -41,7 +41,6 @@ import os
 import zmq
 import sys
 import argparse
-import ntpath
 
 
 from . import imageSource as isr
@@ -873,7 +872,7 @@ class LiveViewer(QtGui.QDialog):
         self.__statswg.changeView(
             self.__settings.showstats,
             self.__settings.calcvariance)
-        self.__viewFrameRate(self.__settings.showframerate)
+        self.__viewFrameRate(False)
         self.__levelswg.changeView(
             self.__settings.showhisto,
             self.__settings.showlevels,
@@ -1077,7 +1076,7 @@ class LiveViewer(QtGui.QDialog):
                     fmt = "%sd" % w
                     fmtfid = ("%0" + fmt) % fid
                     self.__frame = int(fid)
-                    imagename = "%s_%s%s" % (fprefix ,fmtfid, ext)
+                    imagename = "%s_%s%s" % (fprefix, fmtfid, ext)
                 except Exception as e:
                     imagename = None
                     fid = None
@@ -1189,7 +1188,7 @@ class LiveViewer(QtGui.QDialog):
                         basename, ext = os.path.splitext(imagename)
                         fprefix, ffid = basename.rsplit("_", 1)
                         self.__frame = int(ffid)
-                        imagename = "%s_%s%s" % (fprefix ,ffid, ext)
+                        imagename = "%s_%s%s" % (fprefix, ffid, ext)
                     except Exception as e:
                         self.__frame = None
                     self.__updateframeview(True)
@@ -1340,7 +1339,8 @@ class LiveViewer(QtGui.QDialog):
 
         if self.__settings.showframerate != dialog.showframerate:
             self.__settings.showframerate = dialog.showframerate
-            self.__viewFrameRate(self.__settings.showframerate)
+            self.__viewFrameRate(self.__settings.showframerate
+                                 and self.__sourcewg.isConnected())
         if self.__settings.showhisto != dialog.showhisto:
             self.__levelswg.changeView(dialog.showhisto)
             self.__settings.showhisto = dialog.showhisto
@@ -1767,6 +1767,7 @@ class LiveViewer(QtGui.QDialog):
         :param status: current source status id
         :type status: :obj:`int`
         """
+        self.__viewFrameRate(self.__settings.showframerate)
         self._updateSource(status)
         if self.__datasource is None:
             messageBox.MessageBox.warning(
@@ -1803,6 +1804,7 @@ class LiveViewer(QtGui.QDialog):
         """
         self._stopPlotting()
         self.__datasource.disconnect()
+        self.__viewFrameRate(False)
         self.__imagename = None
         self.__imagename = None
         if self.__settings.secstream:
@@ -1919,7 +1921,7 @@ class LiveViewer(QtGui.QDialog):
             self.__ui.frameLineEdit.hide()
             self.__ui.framestepLabel.hide()
 
-        if slider:   
+        if slider:
             self.__ui.frameHorizontalSlider.show()
         else:
             self.__ui.frameHorizontalSlider.hide()
