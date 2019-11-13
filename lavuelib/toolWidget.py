@@ -1199,8 +1199,10 @@ class LineCutToolWidget(ToolBaseWidget):
         self.__xindex = 0
         #: (:obj:`bool`) plot cuts
         self.__allcuts = False
+        #: (:obj:`list`<:class:`pyqtgraph.PlotDataItem`>) 1D plot freezed
+        self.__freezed = []
 
-        #: (:class:`pyqtgraph.PlotDataItem`) 1D plot
+        #: (:obj:`list`<:class:`pyqtgraph.PlotDataItem`>) 1D plot
         self.__curves = []
         #: (:obj:`int`) current plot number
         self.__nrplots = 0
@@ -1223,12 +1225,21 @@ class LineCutToolWidget(ToolBaseWidget):
     def _freezeplot(self):
         """ freeze plot
         """
-        print("Freeze")
+        self._clearplot()
+        self.__freezed = self.__curves
+        self.__curves = [self._mainwidget.onedbottomplot(True)]
+        for cr in self.__freezed:
+            cr.setPen(_pg.mkColor(0.5))
+        print("FREEZED")
 
     @QtCore.pyqtSlot()
     def _clearplot(self):
         """ clear plot
         """
+        if self.__freezed:
+            for cr in self.__freezed:
+                self._mainwidget.removebottomplot(cr)
+            self.__freezed = []
         print("Clear")
 
     @QtCore.pyqtSlot(int)
