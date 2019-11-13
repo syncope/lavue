@@ -1220,7 +1220,7 @@ class LiveViewer(QtGui.QDialog):
                         imagename = os.path.join(ipath, iname)
                     except Exception:
                         self.__frame = None
-                    self.__updateframeview(bool(self.__frame))
+                    self.__updateframeview(self.__frame is not None)
                     self.__fieldpath = None
                 except Exception as e:
                     print(str(e))
