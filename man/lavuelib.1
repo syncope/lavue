@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Nov 13, 2019" "2.26" "lavuelib"
+.TH "LAVUELIB" "1" "Nov 13, 2019" "2.27" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -6549,6 +6549,21 @@ return axes units
 .UNINDENT
 .INDENT 7.0
 .TP
+.B bottomplotShowMenu(freeze=False, clear=False)
+shows freeze or/and clean action in the menu
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfreeze\fP (\fI\%bool\fP) – freeze show status
+.IP \(bu 2
+\fBfreeze\fP – clean show status
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B calcROIsum()
 calculates the current roi sum
 .INDENT 7.0
@@ -6582,6 +6597,11 @@ changes the current roi region
 .TP
 .B changeROIRegion()
 changes the current roi region
+.UNINDENT
+.INDENT 7.0
+.TP
+.B clearBottomPlotClicked
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) clear clicked signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6722,6 +6742,11 @@ loads ROIs from sardana
 .B Parameters
 \fBrlabel\fP (\fI\%str\fP) – rois aliases separated by space
 .UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B freezeBottomPlotClicked
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) freeze clicked signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8069,6 +8094,33 @@ ExportDialog with bookkeeping  parameters
 .TP
 .B class lavuelib.memoExportDialog.MemoPlotWidget(parent=None, background=\(aqdefault\(aq, **kargs)
 Bases: \fBpyqtgraph.widgets.PlotWidget.PlotWidget\fP
+.sp
+Plot Widget with improved Export Dialog
+.INDENT 7.0
+.TP
+.B clearClicked
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) clear clicked signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B freezeClicked
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) freeze clicked signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B showMenu(freeze=False, clear=False)
+shows freeze or/and clear action in the menu
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfreeze\fP (\fI\%bool\fP) – freeze show status
+.IP \(bu 2
+\fBfreeze\fP – clear show status
+.UNINDENT
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .SS lavuelib.memoryBufferGroupBox
 .sp
