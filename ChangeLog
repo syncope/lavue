@@ -1,3 +1,7 @@
+2019-11-14 Jan Kotanski <jan.kotanski@desy.de>
+	* skip disconnected image source
+	* tagged as 2.27.1
+
 2019-11-13 Jan Kotanski <jan.kotanski@desy.de>
 	* add freeze and clear actions for bottomplot in LineCut
 	* tagged as 2.27.0
