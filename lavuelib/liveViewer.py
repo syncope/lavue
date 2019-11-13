@@ -41,7 +41,7 @@ import os
 import zmq
 import sys
 import argparse
-
+import ntpath
 
 from . import imageSource as isr
 from . import messageBox
@@ -1069,15 +1069,25 @@ class LiveViewer(QtGui.QDialog):
                 self.__frame = int(fid)
             else:
                 try:
-                    basename, ext = os.path.splitext(imagename)
-                    fprefix, ffid = basename.rsplit("_", 1)
-                    int(ffid)
-                    w = len(ffid)
+                    ipath, iname = ntpath.split(imagename)
+                    basename, ext = os.path.splitext(iname)
+                    ival = True
+                    w = 0
+                    while ival:
+                        try:
+                            int(basename[(- w - 1):])
+                            w += 1
+                            if w == len(basename):
+                                ival = False
+                        except Exception:
+                            ival = False
+                    fprefix, ffid = basename[:-w], basename[-w:]
                     fmt = "%sd" % w
                     fmtfid = ("%0" + fmt) % fid
                     self.__frame = int(fid)
-                    imagename = "%s_%s%s" % (fprefix, fmtfid, ext)
-                except Exception as e:
+                    iname = "%s%s%s" % (fprefix, fmtfid, ext)
+                    imagename = os.path.join(ipath, iname)
+                except Exception:
                     imagename = None
                     fid = None
         if fid is None:
@@ -1099,6 +1109,7 @@ class LiveViewer(QtGui.QDialog):
                 except Exception as e:
                     print(str(e))
                     fields = None
+                currentfield = None
                 if fields:
                     if fid is None or self.__fieldpath is None:
                         imgfield = imageField.ImageField(self)
@@ -1146,10 +1157,13 @@ class LiveViewer(QtGui.QDialog):
                         self.__ui.frameLineEdit.setToolTip("current frame")
                     while newimage is None and self.__frame > 0:
                         self.__frame -= 1
-                        self.__updateframeview(True, True)
                         newimage = handler.getImage(
                             currentfield["node"],
                             self.__frame, self.__growing, refresh=False)
+                    if currentfield and len(currentfield["shape"]) > 2:
+                        self.__updateframeview(True, True)
+                    else:
+                        self.__updateframeview()
                     self.__ui.frameLineEdit.textChanged.connect(
                         self._spinreloadfile)
                     self.__ui.frameHorizontalSlider.valueChanged.connect(
@@ -1171,7 +1185,10 @@ class LiveViewer(QtGui.QDialog):
                     imagename = "%s:/%s" % (
                         self.__settings.imagename,
                         currentfield["nexus_path"])
-                    self.__updateframeview(True, True)
+                    if currentfield and len(currentfield["shape"]) > 2:
+                        self.__updateframeview(True, True)
+                    else:
+                        self.__updateframeview()
             else:
                 try:
                     fh = imageFileHandler.ImageFileHandler(
@@ -1185,13 +1202,25 @@ class LiveViewer(QtGui.QDialog):
                     metadata = fh.getMetaData()
                     self.__settings.imagename = imagename
                     try:
-                        basename, ext = os.path.splitext(imagename)
-                        fprefix, ffid = basename.rsplit("_", 1)
+                        ipath, iname = ntpath.split(imagename)
+                        basename, ext = os.path.splitext(iname)
+                        ival = True
+                        w = 0
+                        while ival:
+                            try:
+                                int(basename[(- w - 1):])
+                                w += 1
+                                if w == len(basename):
+                                    ival = False
+                            except Exception:
+                                ival = False
+                        fprefix, ffid = basename[:-w], basename[-w:]
                         self.__frame = int(ffid)
-                        imagename = "%s_%s%s" % (fprefix, ffid, ext)
-                    except Exception as e:
+                        iname = "%s%s%s" % (fprefix, ffid, ext)
+                        imagename = os.path.join(ipath, iname)
+                    except Exception:
                         self.__frame = None
-                    self.__updateframeview(True)
+                    self.__updateframeview(bool(self.__frame))
                     self.__fieldpath = None
                 except Exception as e:
                     print(str(e))
@@ -1920,7 +1949,6 @@ class LiveViewer(QtGui.QDialog):
             self.__ui.framestepSpinBox.hide()
             self.__ui.frameLineEdit.hide()
             self.__ui.framestepLabel.hide()
-
         if slider:
             self.__ui.frameHorizontalSlider.show()
         else:
