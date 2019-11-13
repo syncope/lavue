@@ -26,11 +26,19 @@
 """ image display widget """
 
 import pyqtgraph as _pg
+from pyqtgraph import QtCore, QtGui
 import types
 from pyqtgraph.GraphicsScene import exportDialog
 
 
 class MemoPlotWidget(_pg.PlotWidget):
+
+    """ Plot Widget with improved Export Dialog
+    """
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) freeze clicked signal
+    freezeClicked = QtCore.pyqtSignal()
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) clear clicked signal
+    clearClicked = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, background='default', **kargs):
         _pg.PlotWidget.__init__(
@@ -40,6 +48,38 @@ class MemoPlotWidget(_pg.PlotWidget):
         sc.showExportDialog = types.MethodType(
             GraphicsScene_showExportDialog, sc)
         sc.contextMenu[0].triggered.connect(sc.showExportDialog)
+
+        self.__menu = self.plotItem.vb.menu
+        self.__freezeaction = QtGui.QAction(
+            "Freeze", self.__menu)
+        self.__menu.addAction(self.__freezeaction)
+        self.__freezeaction.triggered.connect(self._freeze)
+        self.__clearaction = QtGui.QAction(
+            "Clear", self.__menu)
+        self.__menu.addAction(self.__clearaction)
+        self.__clearaction.triggered.connect(self._clear)
+        self.showMenu()
+
+    def _freeze(self):
+        """ emits freezeClicked signal
+        """
+        self.freezeClicked.emit()
+
+    def _clear(self):
+        """ emits clearClicked signal
+        """
+        self.clearClicked.emit()
+
+    def showMenu(self, freeze=False,  clear=False):
+        """ shows freeze or/and clear action in the menu
+
+        :param freeze: freeze show status
+        :type freeze: :obj:`bool`
+        :param freeze: clear show status
+        :type freeze: :obj:`bool`
+        """
+        self.__freezeaction.setVisible(freeze)
+        self.__clearaction.setVisible(clear)
 
 
 class MemoExportDialog(exportDialog.ExportDialog):

@@ -1215,7 +1215,21 @@ class LineCutToolWidget(ToolBaseWidget):
              self._setXCoords],
             [self._mainwidget.mouseImagePositionChanged, self._message],
             [self.__ui.allcutsCheckBox.stateChanged, self._updateAllCuts],
+            [self._mainwidget.freezeBottomPlotClicked, self._freezeplot],
+            [self._mainwidget.clearBottomPlotClicked, self._clearplot],
         ]
+
+    @QtCore.pyqtSlot()
+    def _freezeplot(self):
+        """ freeze plot
+        """
+        print("Freeze")
+
+    @QtCore.pyqtSlot()
+    def _clearplot(self):
+        """ clear plot
+        """
+        print("Clear")
 
     @QtCore.pyqtSlot(int)
     def _updateCuts(self, cid):
@@ -1247,10 +1261,12 @@ class LineCutToolWidget(ToolBaseWidget):
             curve.setVisible(True)
         self._updateAllCuts(self.__allcuts)
         self._plotCuts()
+        self._mainwidget.bottomplotShowMenu(True, True)
 
     def disactivate(self):
         """ activates tool widget
         """
+        self._mainwidget.bottomplotShowMenu()
         for curve in self.__curves:
             curve.hide()
             curve.setVisible(False)

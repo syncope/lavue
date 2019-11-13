@@ -94,6 +94,10 @@ class ImageWidget(QtGui.QWidget):
     mouseImageSingleClicked = QtCore.pyqtSignal(float, float)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) geometry changed
     geometryChanged = QtCore.pyqtSignal()
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) freeze clicked signal
+    freezeBottomPlotClicked = QtCore.pyqtSignal()
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) clear clicked signal
+    clearBottomPlotClicked = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, tooltypes=None, settings=None,
                  rgbtooltypes=None):
@@ -221,6 +225,10 @@ class ImageWidget(QtGui.QWidget):
             self._emitMouseImageDoubleClicked)
         self.__displaywidget.mouseImageSingleClicked.connect(
             self._emitMouseImageSingleClicked)
+        self.__bottomplot.freezeClicked.connect(
+            self._emitFreezeBottomPlotClicked)
+        self.__bottomplot.clearClicked.connect(
+            self._emitClearBottomPlotClicked)
         self.__sardana = None
 
         self.__connectsplitters()
@@ -413,6 +421,16 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :class:`pyqtgraph.PlotDataItem`
         """
         return self.__bottomplot.plot(clear=clear)
+
+    def bottomplotShowMenu(self, freeze=False, clear=False):
+        """ shows freeze or/and clean action in the menu
+
+        :param freeze: freeze show status
+        :type freeze: :obj:`bool`
+        :param freeze: clean show status
+        :type freeze: :obj:`bool`
+        """
+        return self.__bottomplot.showMenu(freeze, clear)
 
     def onedrightplot(self, clear=False):
         """ creates 1d right plot
@@ -910,6 +928,18 @@ class ImageWidget(QtGui.QWidget):
         """emits cutCoordsChanged
         """
         self.cutCoordsChanged.emit()
+
+    @QtCore.pyqtSlot()
+    def _emitFreezeBottomPlotClicked(self):
+        """emits freezeBottomPlotClicked
+        """
+        self.freezeBottomPlotClicked.emit()
+
+    @QtCore.pyqtSlot()
+    def _emitClearBottomPlotClicked(self):
+        """emits clearBottomPlotClicked
+        """
+        self.clearBottomPlotClicked.emit()
 
     @QtCore.pyqtSlot(bool)
     def emitAspectLockedToggled(self, status):
