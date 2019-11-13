@@ -1199,8 +1199,10 @@ class LineCutToolWidget(ToolBaseWidget):
         self.__xindex = 0
         #: (:obj:`bool`) plot cuts
         self.__allcuts = False
+        #: (:obj:`list`<:class:`pyqtgraph.PlotDataItem`>) 1D plot freezed
+        self.__freezed = []
 
-        #: (:class:`pyqtgraph.PlotDataItem`) 1D plot
+        #: (:obj:`list`<:class:`pyqtgraph.PlotDataItem`>) 1D plot
         self.__curves = []
         #: (:obj:`int`) current plot number
         self.__nrplots = 0
@@ -1215,7 +1217,36 @@ class LineCutToolWidget(ToolBaseWidget):
              self._setXCoords],
             [self._mainwidget.mouseImagePositionChanged, self._message],
             [self.__ui.allcutsCheckBox.stateChanged, self._updateAllCuts],
+            [self._mainwidget.freezeBottomPlotClicked, self._freezeplot],
+            [self._mainwidget.clearBottomPlotClicked, self._clearplot],
         ]
+
+    @QtCore.pyqtSlot()
+    def _freezeplot(self):
+        """ freeze plot
+        """
+        self._clearplot()
+        nrplots = self.__nrplots
+        while nrplots > len(self.__freezed):
+            cr = self._mainwidget.onedbottomplot()
+            cr.setPen(_pg.mkColor(0.5))
+            self.__freezed.append(cr)
+
+        for i in range(nrplots):
+            self.__freezed[i].setData(*self.__curves[i].getData())
+            self.__freezed[i].show()
+            self.__freezed[i].setVisible(True)
+        for i in range(nrplots, len(self.__freezed)):
+            self.__freezed[i].hide()
+            self.__freezed[i].setVisible(True)
+            print(type(cr))
+
+    @QtCore.pyqtSlot()
+    def _clearplot(self):
+        """ clear plot
+        """
+        for cr in self.__freezed:
+            cr.setVisible(False)
 
     @QtCore.pyqtSlot(int)
     def _updateCuts(self, cid):
@@ -1247,10 +1278,12 @@ class LineCutToolWidget(ToolBaseWidget):
             curve.setVisible(True)
         self._updateAllCuts(self.__allcuts)
         self._plotCuts()
+        self._mainwidget.bottomplotShowMenu(True, True)
 
     def disactivate(self):
         """ activates tool widget
         """
+        self._mainwidget.bottomplotShowMenu()
         for curve in self.__curves:
             curve.hide()
             curve.setVisible(False)
@@ -1334,6 +1367,7 @@ class LineCutToolWidget(ToolBaseWidget):
             self.__nrplots = 1
         if self._mainwidget.currentTool() == self.name:
             dt = self._mainwidget.cutData()
+            self.__curves[0].setPen(_pg.mkColor('r'))
             if dt is not None:
                 if self.__xindex:
                     crds = [0, 0, 1, 1, 0.00001]
