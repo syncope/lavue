@@ -1226,21 +1226,27 @@ class LineCutToolWidget(ToolBaseWidget):
         """ freeze plot
         """
         self._clearplot()
-        self.__freezed = self.__curves
-        self.__curves = [self._mainwidget.onedbottomplot(True)]
-        for cr in self.__freezed:
+        nrplots = self.__nrplots
+        while nrplots > len(self.__freezed):
+            cr = self._mainwidget.onedbottomplot()
             cr.setPen(_pg.mkColor(0.5))
-        print("FREEZED")
+            self.__freezed.append(cr)
+
+        for i in range(nrplots):
+            self.__freezed[i].setData(*self.__curves[i].getData())
+            self.__freezed[i].show()
+            self.__freezed[i].setVisible(True)
+        for i in range(nrplots, len(self.__freezed)):
+            self.__freezed[i].hide()
+            self.__freezed[i].setVisible(True)
+            print(type(cr))
 
     @QtCore.pyqtSlot()
     def _clearplot(self):
         """ clear plot
         """
-        if self.__freezed:
-            for cr in self.__freezed:
-                self._mainwidget.removebottomplot(cr)
-            self.__freezed = []
-        print("Clear")
+        for cr in self.__freezed:
+            cr.setVisible(False)
 
     @QtCore.pyqtSlot(int)
     def _updateCuts(self, cid):
@@ -1361,6 +1367,7 @@ class LineCutToolWidget(ToolBaseWidget):
             self.__nrplots = 1
         if self._mainwidget.currentTool() == self.name:
             dt = self._mainwidget.cutData()
+            self.__curves[0].setPen(_pg.mkColor('r'))
             if dt is not None:
                 if self.__xindex:
                     crds = [0, 0, 1, 1, 0.00001]

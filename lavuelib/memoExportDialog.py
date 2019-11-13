@@ -50,6 +50,7 @@ class MemoPlotWidget(_pg.PlotWidget):
         sc.contextMenu[0].triggered.connect(sc.showExportDialog)
 
         self.__menu = self.plotItem.vb.menu
+        self.__separator = self.__menu.addSeparator()
         self.__freezeaction = QtGui.QAction(
             "Freeze", self.__menu)
         self.__menu.addAction(self.__freezeaction)
@@ -80,6 +81,7 @@ class MemoPlotWidget(_pg.PlotWidget):
         """
         self.__freezeaction.setVisible(freeze)
         self.__clearaction.setVisible(clear)
+        self.__separator.setVisible(freeze or clear)
 
 
 class MemoExportDialog(exportDialog.ExportDialog):
