@@ -41,7 +41,7 @@ import os
 import zmq
 import sys
 import argparse
-
+import ntpath
 
 from . import imageSource as isr
 from . import messageBox
@@ -872,7 +872,7 @@ class LiveViewer(QtGui.QDialog):
         self.__statswg.changeView(
             self.__settings.showstats,
             self.__settings.calcvariance)
-        self.__viewFrameRate(self.__settings.showframerate)
+        self.__viewFrameRate(False)
         self.__levelswg.changeView(
             self.__settings.showhisto,
             self.__settings.showlevels,
@@ -1062,6 +1062,34 @@ class LiveViewer(QtGui.QDialog):
          """
         newimage = None
         metadata = None
+        if fid is not None:
+            imagename = self.__settings.imagename
+            if imagename.endswith(".nxs") or imagename.endswith(".h5") \
+               or imagename.endswith(".nx") or imagename.endswith(".ndf"):
+                self.__frame = int(fid)
+            else:
+                try:
+                    ipath, iname = ntpath.split(imagename)
+                    basename, ext = os.path.splitext(iname)
+                    ival = True
+                    w = 0
+                    while ival:
+                        try:
+                            int(basename[(- w - 1):])
+                            w += 1
+                            if w == len(basename):
+                                ival = False
+                        except Exception:
+                            ival = False
+                    fprefix, ffid = basename[:-w], basename[-w:]
+                    fmt = "%sd" % w
+                    fmtfid = ("%0" + fmt) % fid
+                    self.__frame = int(fid)
+                    iname = "%s%s%s" % (fprefix, fmtfid, ext)
+                    imagename = os.path.join(ipath, iname)
+                except Exception:
+                    imagename = None
+                    fid = None
         if fid is None:
             fileDialog = QtGui.QFileDialog()
             fileout = fileDialog.getOpenFileName(
@@ -1070,20 +1098,18 @@ class LiveViewer(QtGui.QDialog):
                 imagename = str(fileout[0])
             else:
                 imagename = str(fileout)
-        else:
-            self.__frame = int(fid)
-            imagename = self.__settings.imagename
         if imagename:
             if imagename.endswith(".nxs") or imagename.endswith(".h5") \
                or imagename.endswith(".nx") or imagename.endswith(".ndf"):
                 try:
-                    self.__settings.imagename = imagename
                     handler = imageFileHandler.NexusFieldHandler(
-                        str(self.__settings.imagename))
+                        str(imagename))
                     fields = handler.findImageFields()
+                    self.__settings.imagename = imagename
                 except Exception as e:
                     print(str(e))
                     fields = None
+                currentfield = None
                 if fields:
                     if fid is None or self.__fieldpath is None:
                         imgfield = imageField.ImageField(self)
@@ -1131,10 +1157,13 @@ class LiveViewer(QtGui.QDialog):
                         self.__ui.frameLineEdit.setToolTip("current frame")
                     while newimage is None and self.__frame > 0:
                         self.__frame -= 1
-                        self.__updateframeview(True)
                         newimage = handler.getImage(
                             currentfield["node"],
                             self.__frame, self.__growing, refresh=False)
+                    if currentfield and len(currentfield["shape"]) > 2:
+                        self.__updateframeview(True, True)
+                    else:
+                        self.__updateframeview()
                     self.__ui.frameLineEdit.textChanged.connect(
                         self._spinreloadfile)
                     self.__ui.frameHorizontalSlider.valueChanged.connect(
@@ -1156,16 +1185,43 @@ class LiveViewer(QtGui.QDialog):
                     imagename = "%s:/%s" % (
                         self.__settings.imagename,
                         currentfield["nexus_path"])
-                    self.__updateframeview(True)
+                    if currentfield and len(currentfield["shape"]) > 2:
+                        self.__updateframeview(True, True)
+                    else:
+                        self.__updateframeview()
             else:
-                self.__fieldpath = None
-                self.__settings.imagename = imagename
                 try:
                     fh = imageFileHandler.ImageFileHandler(
-                        str(self.__settings.imagename))
+                        str(imagename))
                     newimage = fh.getImage()
+                    if isinstance(newimage, float) and newimage == -1.0:
+                        newimage = None
+                    if newimage is None:
+                        raise Exception(
+                            "Cannot read the image %s" % str(imagename))
                     metadata = fh.getMetaData()
-                    self.__updateframeview()
+                    self.__settings.imagename = imagename
+                    try:
+                        ipath, iname = ntpath.split(imagename)
+                        basename, ext = os.path.splitext(iname)
+                        ival = True
+                        w = 0
+                        while ival:
+                            try:
+                                int(basename[(- w - 1):])
+                                w += 1
+                                if w == len(basename):
+                                    ival = False
+                            except Exception:
+                                ival = False
+                        fprefix, ffid = basename[:-w], basename[-w:]
+                        self.__frame = int(ffid)
+                        iname = "%s%s%s" % (fprefix, ffid, ext)
+                        imagename = os.path.join(ipath, iname)
+                    except Exception:
+                        self.__frame = None
+                    self.__updateframeview(bool(self.__frame))
+                    self.__fieldpath = None
                 except Exception as e:
                     print(str(e))
             if newimage is not None:
@@ -1312,7 +1368,8 @@ class LiveViewer(QtGui.QDialog):
 
         if self.__settings.showframerate != dialog.showframerate:
             self.__settings.showframerate = dialog.showframerate
-            self.__viewFrameRate(self.__settings.showframerate)
+            self.__viewFrameRate(self.__settings.showframerate
+                                 and self.__sourcewg.isConnected())
         if self.__settings.showhisto != dialog.showhisto:
             self.__levelswg.changeView(dialog.showhisto)
             self.__settings.showhisto = dialog.showhisto
@@ -1739,6 +1796,7 @@ class LiveViewer(QtGui.QDialog):
         :param status: current source status id
         :type status: :obj:`int`
         """
+        self.__viewFrameRate(self.__settings.showframerate)
         self._updateSource(status)
         if self.__datasource is None:
             messageBox.MessageBox.warning(
@@ -1775,6 +1833,7 @@ class LiveViewer(QtGui.QDialog):
         """
         self._stopPlotting()
         self.__datasource.disconnect()
+        self.__viewFrameRate(False)
         self.__imagename = None
         self.__imagename = None
         if self.__settings.secstream:
@@ -1868,21 +1927,21 @@ class LiveViewer(QtGui.QDialog):
         QtCore.QCoreApplication.processEvents()
         self.__dataFetcher.ready()
 
-    def __updateframeview(self, status=False):
+    def __updateframeview(self, status=False, slider=False):
         if status:
             if self.__frame is not None:
                 self.__ui.frameLineEdit.setText(str(self.__frame))
-                if self.__frame >= 0:
-                    self.__ui.frameHorizontalSlider.setValue(self.__frame)
-                else:
-                    self.__ui.frameHorizontalSlider.setValue(
-                        self.__ui.frameHorizontalSlider.maximum())
+                if slider:
+                    if self.__frame >= 0:
+                        self.__ui.frameHorizontalSlider.setValue(self.__frame)
+                    else:
+                        self.__ui.frameHorizontalSlider.setValue(
+                            self.__ui.frameHorizontalSlider.maximum())
                 self.__ui.framestepSpinBox.show()
                 self.__ui.framestepLabel.show()
                 self.__ui.lowerframePushButton.show()
                 self.__ui.higherframePushButton.show()
                 self.__ui.frameLineEdit.show()
-            self.__ui.frameHorizontalSlider.show()
         else:
             self.__fieldpath = None
             self.__ui.lowerframePushButton.hide()
@@ -1890,6 +1949,9 @@ class LiveViewer(QtGui.QDialog):
             self.__ui.framestepSpinBox.hide()
             self.__ui.frameLineEdit.hide()
             self.__ui.framestepLabel.hide()
+        if slider:
+            self.__ui.frameHorizontalSlider.show()
+        else:
             self.__ui.frameHorizontalSlider.hide()
 
     def __updateframerate(self, ratetime):
