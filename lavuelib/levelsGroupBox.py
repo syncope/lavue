@@ -378,8 +378,14 @@ class LevelsGroupBox(QtGui.QWidget):
         :param uplim:  maximum intensity value
         :type uplim: :obj:`float`
         """
-        self.__ui.minDoubleSpinBox.setValue(lowlim)
-        self.__ui.maxDoubleSpinBox.setValue(uplim)
+        if lowlim is not None:
+            self.__ui.minDoubleSpinBox.setValue(lowlim)
+        else:
+            lowlim = self.__ui.minDoubleSpinBox.value()
+        if uplim is not None:
+            self.__ui.maxDoubleSpinBox.setValue(uplim)
+        else:
+            uplim = self.__ui.maxDoubleSpinBox.value()
         if self.__histo and self.__auto:
             levels = self.__histogram.region.getRegion()
             if levels[0] != lowlim or levels[1] != uplim:

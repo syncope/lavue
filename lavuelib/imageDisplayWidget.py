@@ -217,16 +217,17 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__bottomaxis.linkToView(self.__viewbox)
         self.__layout.addItem(self.__bottomaxis, row=1, col=1)
 
-        self.__layout.scene().sigMouseMoved.connect(self.mouse_position)
-        self.__layout.scene().sigMouseClicked.connect(self.mouse_click)
-
+        self.sceneObj.sigMouseMoved.connect(self.mouse_position)
+        self.sceneObj.sigMouseClicked.connect(self.mouse_click)
         self.__setaspectlocked.triggered.connect(self.emitAspectLockedToggled)
 
-        sc = self.__layout.scene()
-        sc.contextMenu[0].triggered.disconnect(sc.showExportDialog)
-        sc.showExportDialog = types.MethodType(
-            memoExportDialog.GraphicsScene_showExportDialog, sc)
-        sc.contextMenu[0].triggered.connect(sc.showExportDialog)
+        self.sceneObj.contextMenu[0].triggered.disconnect(
+            self.sceneObj.showExportDialog)
+        self.sceneObj.showExportDialog = types.MethodType(
+            memoExportDialog.GraphicsScene_showExportDialog, self.sceneObj)
+        self.sceneObj.contextMenu[0].triggered.connect(
+            self.sceneObj.showExportDialog)
+        self.sceneObj.rawdata = None
 
     def viewbox(self):
         """provides viewbox
@@ -363,7 +364,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     axes.position[1], axes.position[0])
         else:
             self.__image.setPos(0, 0)
-        if self.__rawdata is not None and update:
+        if self.sceneObj.rawdata is not None and update:
             self.autoRange()
 
     def setPolarScale(self, position=None, scale=None):
@@ -409,7 +410,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if axes.position is not None:
             self.__image.setPos(0, 0)
         if axes.scale is not None or axes.position is not None:
-            if self.__rawdata is not None:
+            if self.sceneObj.rawdata is not None:
                 self.autoRange()
             self.__setLabels()
 
@@ -442,7 +443,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         except Exception as e:
             print(str(e))
         self.__data = img
-        self.__rawdata = rawimg
+        self.sceneObj.rawdata = rawimg
         self.mouse_position()
 
     def currentIntensity(self):
@@ -462,7 +463,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if xfdata is None or yfdata is None:
             xfdata = self.__xfdata
             yfdata = self.__yfdata
-        if self.__rawdata is not None:
+        if self.sceneObj.rawdata is not None:
             try:
                 if not self.__transformations.transpose:
                     xf = int(xfdata)
@@ -470,9 +471,10 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 else:
                     yf = int(xfdata)
                     xf = int(yfdata)
-                if xf >= 0 and yf >= 0 and xf < self.__rawdata.shape[0] \
-                   and yf < self.__rawdata.shape[1]:
-                    intensity = self.__rawdata[xf, yf]
+                if xf >= 0 and yf >= 0 \
+                   and xf < self.sceneObj.rawdata.shape[0] \
+                   and yf < self.sceneObj.rawdata.shape[1]:
+                    intensity = self.sceneObj.rawdata[xf, yf]
                 else:
                     intensity = 0.
             except Exception:
@@ -767,7 +769,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__axes.xunits = cnfdlg.xunits or None
             self.__axes.yunits = cnfdlg.yunits or None
             self.__setScale(position, scale)
-            self.updateImage(self.__data, self.__rawdata)
+            self.updateImage(self.__data, self.sceneObj.rawdata)
 
             return True
         return False
@@ -778,7 +780,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :returns: current raw data
         :rtype: :class:`numpy.ndarray`
         """
-        return self.__rawdata
+        return self.sceneObj.rawdata
 
     def currentData(self):
         """ provides the data
