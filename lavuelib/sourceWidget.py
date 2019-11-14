@@ -187,6 +187,14 @@ class SourceBaseWidget(QtGui.QWidget):
         :type configuration: :obj:`str`
         """
 
+    def configuration(self):
+        """ provides configuration for the current image source
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        return ""
+
     def label(self):
         """ return a label of the current detector
 
@@ -401,6 +409,19 @@ class HTTPSourceWidget(SourceBaseWidget):
         """
         if not self.active:
             return
+        url = self.configuration()
+        if not url:
+            self.buttonEnabled.emit(False)
+        else:
+            self.buttonEnabled.emit(True)
+            self.sourceLabelChanged.emit(self.label())
+
+    def configuration(self):
+        """ provides configuration for the current image source
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
         url = str(self._ui.httpComboBox.currentText()).strip()
         if url in self.__urls.keys():
             url = str(self.__urls[url]).strip()
@@ -412,13 +433,7 @@ class HTTPSourceWidget(SourceBaseWidget):
                       % (surl[0], surl[1])
             else:
                 url = None
-        self._ui.httpComboBox.setToolTip(url or self.__defaulttip)
-        if not url:
-            self.buttonEnabled.emit(False)
-        else:
-            self.buttonEnabled.emit(True)
-            self.configurationChanged.emit(url)
-            self.sourceLabelChanged.emit(self.label())
+        return url
 
     def updateMetaData(self, httpurls=None, **kargs):
         """ update source input parameters
@@ -540,15 +555,20 @@ class HidraSourceWidget(SourceBaseWidget):
            or not self._ui.serverComboBox.currentText():
             self.buttonEnabled.emit(False)
         else:
-            self.configurationChanged.emit(
-                "%s %s %s" % (
-                    str(self._ui.serverComboBox.currentText()),
-                    self.__targetname,
-                    self.__portnumber
-                )
-            )
             self.buttonEnabled.emit(True)
             self.sourceLabelChanged.emit(self.label())
+
+    def configuration(self):
+        """ provides configuration for the current image source
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        return "%s %s %s" % (
+            str(self._ui.serverComboBox.currentText()),
+            self.__targetname,
+            self.__portnumber
+        )
 
     def updateMetaData(self, serverdict=None, hidraport=None, **kargs):
         """ update source input parameters
@@ -578,13 +598,7 @@ class HidraSourceWidget(SourceBaseWidget):
                 "%s:%s" % (self.__targetname, self.__portnumber))
             update = True
         if update:
-            self.configurationChanged.emit(
-                "%s %s %s" % (
-                    str(self._ui.serverComboBox.currentText()),
-                    self.__targetname,
-                    self.__portnumber
-                )
-            )
+            self.configurationChanged.emit(self.configuration())
         self.sourceLabelChanged.emit(self.label())
 
     def __sortServerList(self, name):
@@ -709,16 +723,24 @@ class TangoAttrSourceWidget(SourceBaseWidget):
         """
         if not self.active:
             return
-        currentattr = str(self._ui.attrComboBox.currentText()).strip()
+        currentattr = self.configuration()
         if not currentattr:
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
-            if currentattr in self.__tangoattrs.keys():
-                currentattr = str(self.__tangoattrs[currentattr]).strip()
-            self.configurationChanged.emit(currentattr)
             self.sourceLabelChanged.emit(self.label())
         self._ui.attrComboBox.setToolTip(currentattr or self.__defaulttip)
+
+    def configuration(self):
+        """ provides configuration for the current image source
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        currentattr = str(self._ui.attrComboBox.currentText()).strip()
+        if currentattr in self.__tangoattrs.keys():
+            currentattr = str(self.__tangoattrs[currentattr]).strip()
+        return currentattr
 
     def updateMetaData(self, tangoattrs=None, **kargs):
         """ update source input parameters
@@ -851,16 +873,24 @@ class TangoEventsSourceWidget(SourceBaseWidget):
         """
         if not self.active:
             return
-        currentattr = str(self._ui.evattrComboBox.currentText()).strip()
+        currentattr = self.configuration()
         if not currentattr:
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
-            if currentattr in self.__tangoevattrs.keys():
-                currentattr = str(self.__tangoevattrs[currentattr]).strip()
-            self.configurationChanged.emit(currentattr)
             self.sourceLabelChanged.emit(self.label())
         self._ui.evattrComboBox.setToolTip(currentattr or self.__defaulttip)
+
+    def configuration(self):
+        """ provides configuration for the current image source
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        currentattr = str(self._ui.evattrComboBox.currentText()).strip()
+        if currentattr in self.__tangoevattrs.keys():
+            currentattr = str(self.__tangoevattrs[currentattr]).strip()
+        return currentattr
 
     def updateMetaData(self, tangoevattrs=None, **kargs):
         """ update source input parameters
@@ -1020,24 +1050,37 @@ class TangoFileSourceWidget(SourceBaseWidget):
         """
         if not self.active:
             return
-        dattr = str(self._ui.dirattrComboBox.currentText()).strip()
-        fattr = str(self._ui.fileattrComboBox.currentText()).strip()
+        fattr, dattr, dt = self.__configuration()
         if not fattr:
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
-            if fattr in self.__tangofileattrs.keys():
-                fattr = str(self.__tangofileattrs[fattr]).strip()
-
-            if dattr in self.__tangodirattrs.keys():
-                dattr = str(self.__tangodirattrs[dattr]).strip()
-            dt = self.__dirtrans
-            sourcename = "%s,%s,%s" % (fattr, dattr, dt)
-            self.configurationChanged.emit(sourcename)
-
             self.sourceLabelChanged.emit(self.label())
         self._ui.fileattrComboBox.setToolTip(fattr or self.__defaultfiletip)
         self._ui.dirattrComboBox.setToolTip(dattr or self.__defaultdirtip)
+
+    def __configuration(self):
+        """ provides configuration for the current image source
+
+        :returns configuration: configuration tuple
+        :rtype configuration: :obj:`tuple`
+        """
+        dattr = str(self._ui.dirattrComboBox.currentText()).strip()
+        fattr = str(self._ui.fileattrComboBox.currentText()).strip()
+        if fattr in self.__tangofileattrs.keys():
+            fattr = str(self.__tangofileattrs[fattr]).strip()
+        if dattr in self.__tangodirattrs.keys():
+            dattr = str(self.__tangodirattrs[dattr]).strip()
+        dt = self.__dirtrans
+        return (fattr, dattr, dt)
+
+    def configuration(self):
+        """ provides configuration for the current image source
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        return "%s,%s,%s" % self.__configuration()
 
     def updateMetaData(self, tangofileattrs=None, tangodirattrs=None,
                        dirtrans=None, **kargs):
@@ -1245,17 +1288,31 @@ class NXSFileSourceWidget(SourceBaseWidget):
         """
         if not self.active:
             return
-        nfl = str(self._ui.nxsFileLineEdit.text()).strip()
-        nfd = str(self._ui.nxsFieldLineEdit.text()).strip()
-        nsb = int(self._ui.nxsDimSpinBox.value())
+        nfl, nfd, nsb, nxsopen, nxslast = self.__configuration()
         if not nfl or not nfd:
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
             self.sourceLabelChanged.emit(self.label())
-            sourcename = "%s,%s,%s,%s,%s" % (
-                nfl, nfd, nsb, self.__nxsopen, self.__nxslast)
-            self.configurationChanged.emit(sourcename)
+
+    def __configuration(self):
+        """ provides configuration for the current image source
+
+        :returns configuration: configuration tuple
+        :rtype configuration: :obj:`tuple`
+        """
+        nfl = str(self._ui.nxsFileLineEdit.text()).strip()
+        nfd = str(self._ui.nxsFieldLineEdit.text()).strip()
+        nsb = int(self._ui.nxsDimSpinBox.value())
+        return (nfl, nfd, nsb, self.__nxsopen, self.__nxslast)
+
+    def configuration(self):
+        """ provides configuration for the current image source
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        return "%s,%s,%s,%s,%s" % self.__configuration()
 
     def connectWidget(self):
         """ connects widget
@@ -1412,35 +1469,46 @@ class ZMQSourceWidget(SourceBaseWidget):
             if disconnect:
                 self._ui.pickleTopicComboBox.currentIndexChanged.disconnect(
                     self._updateZMQComboBox)
-            hosturl = str(self._ui.pickleComboBox.currentText()).strip()
-            if hosturl in self.__servers.keys():
-                hosturl = str(self.__servers[hosturl]).strip()
-            self._ui.pickleComboBox.setToolTip(hosturl or self.__defaulttip)
-            if not hosturl or ":" not in hosturl:
-                self.buttonEnabled.emit(False)
+            hosturl = self.configuration()
+            if hosturl:
+                self.buttonEnabled.emit(True)
             else:
-                try:
-                    _, sport = hosturl.split("/")[0].split(":")
-                    port = int(sport)
-                    if port > 65535 or port < 0:
-                        raise Exception("Wrong port")
-                    self.buttonEnabled.emit(True)
-                    if self._ui.pickleTopicComboBox.currentIndex() >= 0:
-                        text = self._ui.pickleTopicComboBox.currentText()
-                        if text == "**ALL**":
-                            text = ""
-                        shost = hosturl.split("/")
-                        if len(shost) > 2:
-                            shost[1] = str(text)
-                        else:
-                            shost.append(str(text))
-                        hosturl = "/".join(shost)
-                    self.configurationChanged.emit(hosturl)
-                except Exception:
-                    self.buttonEnabled.emit(False)
+                self.buttonEnabled.emit(False)
+            self._ui.pickleComboBox.setToolTip(hosturl or self.__defaulttip)
             if disconnect:
                 self._ui.pickleTopicComboBox.currentIndexChanged.connect(
                     self._updateZMQComboBox)
+
+    def configuration(self):
+        """ provides configuration for the current image source
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        hosturl = str(self._ui.pickleComboBox.currentText()).strip()
+        if hosturl in self.__servers.keys():
+            hosturl = str(self.__servers[hosturl]).strip()
+        if not hosturl or ":" not in hosturl:
+            hosturl = ""
+        else:
+            try:
+                _, sport = hosturl.split("/")[0].split(":")
+                port = int(sport)
+                if port > 65535 or port < 0:
+                    raise Exception("Wrong port")
+                if self._ui.pickleTopicComboBox.currentIndex() >= 0:
+                    text = self._ui.pickleTopicComboBox.currentText()
+                    if text == "**ALL**":
+                        text = ""
+                    shost = hosturl.split("/")
+                    if len(shost) > 2:
+                        shost[1] = str(text)
+                    else:
+                        shost.append(str(text))
+                    hosturl = "/".join(shost)
+            except Exception:
+                hosturl = ""
+        return hosturl
 
     @QtCore.pyqtSlot()
     def _updateZMQComboBox(self):
@@ -1648,16 +1716,24 @@ class DOOCSPropSourceWidget(SourceBaseWidget):
         """
         if not self.active:
             return
-        currentprop = str(self._ui.doocspropComboBox.currentText()).strip()
+        currentprop = self.configuration()
         if not currentprop:
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
-            if currentprop in self.__doocsprops.keys():
-                currentprop = str(self.__doocsprops[currentprop]).strip()
-            self.configurationChanged.emit(currentprop)
             self.sourceLabelChanged.emit(self.label())
         self._ui.doocspropComboBox.setToolTip(currentprop or self.__defaulttip)
+
+    def configuration(self):
+        """ provides configuration for the current image source
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        currentprop = str(self._ui.doocspropComboBox.currentText()).strip()
+        if currentprop in self.__doocsprops.keys():
+            currentprop = str(self.__doocsprops[currentprop]).strip()
+        return currentprop
 
     def updateMetaData(self, doocsprops=None, **kargs):
         """ update source input parameters
