@@ -135,7 +135,7 @@ def get_links(parent):
     return wr.get_links(parent)
 
 
-def deflate_filter(parent=None):
+def data_filter(parent=None):
     """ create deflate filter
 
     :param parent: parent object
@@ -157,7 +157,10 @@ def deflate_filter(parent=None):
     if not wr:
         with writerlock:
             wr = writer
-    return wr.deflate_filter()
+    return wr.data_filter()
+
+
+deflate_filter = data_filter
 
 
 def setwriter(wr):
@@ -587,12 +590,12 @@ class FTLink(FTObject):
         FTObject._reopen(self)
 
 
-class FTDeflate(FTObject):
+class FTDataFilter(FTObject):
 
-    """ file tree deflate
+    """ file tree data filter
     """
 
-    def __init__(self, h5object, tparent=None):
+    def __init__(self, h5object=None, tparent=None):
         """ constructor
 
         :param h5object: pni object
@@ -601,6 +604,32 @@ class FTDeflate(FTObject):
         :type tparent: :obj:`FTObject`
         """
         FTObject.__init__(self, h5object, tparent)
+        #: (:obj:`bool`) compression shuffle
+        self._shuffle = False
+        #: (:obj:`int`) compression rate
+        self._rate = 0
+        #: (:obj:`int`) compression filter id
+        self._filterid = 1
+        #: (:obj:`tuple` <:obj:`int`>) compression options
+        self._options = tuple()
+
+    @property
+    def options(self):
+        """ getter for compression options
+
+        :returns: compression options
+        :rtype: :obj:`tuple` <:obj:`int`>
+        """
+        return self._options
+
+    @options.setter
+    def options(self, value):
+        """ setter for compression options
+
+        :param value: compression options
+        :type value: :obj:`tuple` <:obj:`int`>
+        """
+        self._options = value
 
     @property
     def rate(self):
@@ -609,6 +638,7 @@ class FTDeflate(FTObject):
         :returns: compression rate
         :rtype: :obj:`int`
         """
+        return self._rate
 
     @rate.setter
     def rate(self, value):
@@ -617,6 +647,25 @@ class FTDeflate(FTObject):
         :param value: compression rate
         :type value: :obj:`int`
         """
+        self._rate = value
+
+    @property
+    def filterid(self):
+        """ getter for compression filter id
+
+        :returns: compression rate
+        :rtype: :obj:`int`
+        """
+        return self._filterid
+
+    @filterid.setter
+    def filterid(self, value):
+        """ setter for compression filter id
+
+        :param value: compression filter id
+        :type value: :obj:`int`
+        """
+        self._filterid = value
 
     @property
     def shuffle(self):
@@ -625,6 +674,7 @@ class FTDeflate(FTObject):
         :returns: compression shuffle
         :rtype: :obj:`bool`
         """
+        return self._shuffle
 
     @shuffle.setter
     def shuffle(self, value):
@@ -633,11 +683,16 @@ class FTDeflate(FTObject):
         :param value: compression shuffle
         :type value: :obj:`bool`
         """
+        self._shuffle = value
 
     def reopen(self):
         """ reopen attribute
         """
         FTObject._reopen(self)
+
+
+class FTDeflate(FTDataFilter):
+    pass
 
 
 class FTAttributeManager(FTObject):

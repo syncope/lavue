@@ -1,3 +1,7 @@
+2019-11-15 Jan Kotanski <jan.kotanski@desy.de>
+	* add image nexus exporter
+	* tagged as 2.27.3
+
 2019-11-14 Jan Kotanski <jan.kotanski@desy.de>
 	* add possibility to unset auto levels
 	* fixes for crashes of levels with wrong arguments
