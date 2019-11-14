@@ -62,6 +62,7 @@ from . import release
 from . import edDictDialog
 from . import filters
 from . import filtersGroupBox
+# from . import imageNexusExporter
 
 try:
     from . import controllerClient
@@ -81,6 +82,7 @@ if sys.version_info > (3,):
     basestring = str
     unicode = str
 
+__import__("lavuelib.imageNexusExporter")
 
 #: ( (:obj:`str`,:obj:`str`,:obj:`str`) )
 #:         pg major version, pg minor verion, pg patch version
