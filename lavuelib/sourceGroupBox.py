@@ -446,6 +446,15 @@ class SourceGroupBox(QtGui.QGroupBox):
         if self.__currentSource is not None:
             self.__currentSource.configure(configuration)
 
+    def configuration(self):
+        """ provides configuration for the current image source
+
+        :return: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        if self.__currentSource is not None:
+            return self.__currentSource.configuration()
+
     def start(self):
         """ starts viewing if pushButton enable
         """

@@ -1576,12 +1576,14 @@ class LiveViewer(QtGui.QDialog):
         return list(servers)
 
     @QtCore.pyqtSlot(str)
-    def _setSourceConfiguration(self, sourceConfiguration):
+    def _setSourceConfiguration(self, sourceConfiguration=None):
         """ sets the source configuration
 
         :param sourceConfiguration: source configuration string
         :type sourceConfiguration: :obj:`str
         """
+        if sourceConfiguration is None:
+            sourceConfiguration = self.__sourcewg.configuration()
         self.__sourceconfiguration = sourceConfiguration
         if self.__sourcewg.currentDataSource() == \
            str(type(self.__datasource).__name__):
@@ -1803,7 +1805,7 @@ class LiveViewer(QtGui.QDialog):
                 self, "lavue: No data source is defined",
                 "No data source is defined",
                 "Please select the image source")
-
+        self._setSourceConfiguration()
         if not self.__datasource.connect():
             self.__sourcewg.connectFailure()
             messageBox.MessageBox.warning(
