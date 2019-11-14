@@ -71,8 +71,8 @@ class testwriter(object):
         self.params.append([target, parent, name])
         return self.result
 
-    def deflate_filter(self):
-        self.commands.append("deflate_filter")
+    def data_filter(self):
+        self.commands.append("data_filter")
         self.params.append([])
         return self.result
 
@@ -342,10 +342,10 @@ class PNIWriterTest(unittest.TestCase):
             det = ins.create_group("detector", "NXdetector")
             dt = entry.create_group("data", "NXdata")
 
-            df0 = PNIWriter.deflate_filter()
-            df1 = PNIWriter.deflate_filter()
+            df0 = PNIWriter.data_filter()
+            df1 = PNIWriter.data_filter()
             df1.rate = 2
-            df2 = PNIWriter.deflate_filter()
+            df2 = PNIWriter.data_filter()
             df2.rate = 4
             df2.shuffle = 6
 
@@ -955,10 +955,10 @@ class PNIWriterTest(unittest.TestCase):
             det = ins.create_group("detector", "NXdetector")
             dt = entry.create_group("data", "NXdata")
 
-            df0 = PNIWriter.deflate_filter()
-            df1 = PNIWriter.deflate_filter()
+            df0 = PNIWriter.data_filter()
+            df1 = PNIWriter.data_filter()
             df1.rate = 2
-            df2 = PNIWriter.deflate_filter()
+            df2 = PNIWriter.data_filter()
             df2.rate = 4
             df2.shuffle = 6
 
@@ -1233,10 +1233,10 @@ class PNIWriterTest(unittest.TestCase):
             det = ins.create_group("detector", "NXdetector")
             dt = entry.create_group("data", "NXdata")
 
-            df0 = PNIWriter.deflate_filter()
-            df1 = PNIWriter.deflate_filter()
+            df0 = PNIWriter.data_filter()
+            df1 = PNIWriter.data_filter()
             df1.rate = 2
-            df2 = PNIWriter.deflate_filter()
+            df2 = PNIWriter.data_filter()
             df2.rate = 4
             df2.shuffle = 6
 
@@ -1505,10 +1505,10 @@ class PNIWriterTest(unittest.TestCase):
             det = ins.create_group("detector", "NXdetector")
             dt = entry.create_group("data", "NXdata")
 
-            df0 = PNIWriter.deflate_filter()
-            df1 = PNIWriter.deflate_filter()
+            df0 = PNIWriter.data_filter()
+            df1 = PNIWriter.data_filter()
             df1.rate = 2
-            df2 = PNIWriter.deflate_filter()
+            df2 = PNIWriter.data_filter()
             df2.rate = 4
             df2.shuffle = 6
 
@@ -1799,10 +1799,10 @@ class PNIWriterTest(unittest.TestCase):
             det = ins.create_group("detector", "NXdetector")
             dt = entry.create_group("data", "NXdata")
 
-            df0 = PNIWriter.deflate_filter()
-            df1 = PNIWriter.deflate_filter()
+            df0 = PNIWriter.data_filter()
+            df1 = PNIWriter.data_filter()
             df1.rate = 2
-            df2 = PNIWriter.deflate_filter()
+            df2 = PNIWriter.data_filter()
             df2.rate = 4
             df2.shuffle = 6
 
@@ -2141,10 +2141,10 @@ class PNIWriterTest(unittest.TestCase):
             # dt =
             entry.create_group("data", "NXdata")
 
-            df0 = PNIWriter.deflate_filter()
-            df1 = PNIWriter.deflate_filter()
+            df0 = PNIWriter.data_filter()
+            df1 = PNIWriter.data_filter()
             df1.rate = 2
-            df2 = PNIWriter.deflate_filter()
+            df2 = PNIWriter.data_filter()
             df2.rate = 4
             df2.shuffle = True
 
@@ -2282,10 +2282,10 @@ class PNIWriterTest(unittest.TestCase):
             det = ins.create_group("detector", "NXdetector")
             dt = entry.create_group("data", "NXdata")
 
-            df0 = PNIWriter.deflate_filter()
-            df1 = PNIWriter.deflate_filter()
+            df0 = PNIWriter.data_filter()
+            df1 = PNIWriter.data_filter()
             df1.rate = 2
-            df2 = PNIWriter.deflate_filter()
+            df2 = PNIWriter.data_filter()
             df2.rate = 4
             df2.shuffle = 6
 
@@ -2507,10 +2507,10 @@ class PNIWriterTest(unittest.TestCase):
             det = ins.create_group("detector", "NXdetector")
             dt = entry.create_group("data", "NXdata")
 
-            df0 = PNIWriter.deflate_filter()
-            df1 = PNIWriter.deflate_filter()
+            df0 = PNIWriter.data_filter()
+            df1 = PNIWriter.data_filter()
             df1.rate = 2
-            df2 = PNIWriter.deflate_filter()
+            df2 = PNIWriter.data_filter()
             df2.rate = 4
             df2.shuffle = 6
 
@@ -3119,10 +3119,10 @@ class PNIWriterTest(unittest.TestCase):
             det = ins.create_group("detector", "NXdetector")
             dt = entry.create_group("data", "NXdata")
 
-            df0 = PNIWriter.deflate_filter()
-            df1 = PNIWriter.deflate_filter()
+            df0 = PNIWriter.data_filter()
+            df1 = PNIWriter.data_filter()
             df1.rate = 2
-            df2 = PNIWriter.deflate_filter()
+            df2 = PNIWriter.data_filter()
             df2.rate = 4
             df2.shuffle = 6
 
@@ -3464,10 +3464,10 @@ class PNIWriterTest(unittest.TestCase):
             det = ins.create_group("detector", "NXdetector")
             dt = entry.create_group("data", "NXdata")
 
-            df0 = PNIWriter.deflate_filter()
-            df1 = PNIWriter.deflate_filter()
+            df0 = PNIWriter.data_filter()
+            df1 = PNIWriter.data_filter()
             df1.rate = 2
-            df2 = PNIWriter.deflate_filter()
+            df2 = PNIWriter.data_filter()
             df2.rate = 4
             df2.shuffle = 6
 
@@ -3871,10 +3871,10 @@ class PNIWriterTest(unittest.TestCase):
             det = ins.create_group("detector", "NXdetector")
             dt = entry.create_group("data", "NXdata")
 
-            df0 = PNIWriter.deflate_filter()
-            df1 = PNIWriter.deflate_filter()
+            df0 = PNIWriter.data_filter()
+            df1 = PNIWriter.data_filter()
             df1.rate = 2
-            df2 = PNIWriter.deflate_filter()
+            df2 = PNIWriter.data_filter()
             df2.rate = 4
             df2.shuffle = 6
 
