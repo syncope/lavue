@@ -90,9 +90,9 @@ def getcompression(compression):
 
 class ImageNexusExporter(Exporter):
 
-    """ Image NeXus Exporter """
+    """ NeXus Raw Image Exporter """
 
-    Name = "Image NeXus Export"
+    Name = "NeXus Raw Image"
     windows = []
     allowCopy = False
 
@@ -187,13 +187,15 @@ class ImageNexusExporter(Exporter):
                     cfilter = filewriter.data_filter(node)
                     cfilter.filterid = opts[0]
                     cfilter.options = tuple(opts[1:])
-            shape = rawdata.shape
+            shape = list(rawdata.shape)
             dtype = str(rawdata.dtype)
+            fdshape = [0] + shape
+            fdchunk = [1] + shape
             field = node.create_field(
                 fieldname,
                 dtype,
-                shape=[0, shape[0], shape[1]],
-                chunk=[1, shape[0], shape[1]],
+                shape=fdshape,
+                chunk=fdchunk,
                 dfilter=cfilter)
         field.grow(0, 1)
         field[-1, ...] = rawdata
