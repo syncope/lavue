@@ -309,6 +309,8 @@ class NXSFileSource(BaseSource):
         :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
         """
 
+        if self.__nxsfile is None:
+            return None, None, None
         try:
             image = None
             metadata = ""
@@ -436,6 +438,8 @@ class TangoFileSource(BaseSource):
         :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
         """
 
+        if self.__fproxy is None:
+            return None, None, None
         try:
             filename = self.__fproxy.read().value
             if self.__dproxy:
@@ -603,7 +607,8 @@ class TangoAttrSource(BaseSource):
         :returns:  image name, image data, json dictionary with metadata
         :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
         """
-
+        if self.__aproxy is None:
+            return None, None, None
         try:
             try:
                 if not self.__bytearray:
@@ -1029,6 +1034,8 @@ class ZMQSource(BaseSource):
         :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
         """
         encoding = None
+        if self.__socket is None:
+            return None, None, None
         try:
             with QtCore.QMutexLocker(self.__mutex):
                 message = self.__socket.recv_multipart(flags=zmq.NOBLOCK)
@@ -1275,6 +1282,8 @@ class HiDRASource(BaseSource):
         """
         metadata = None
         data = None
+        if self.__query is not None:
+            return None, None, None
         try:
             with QtCore.QMutexLocker(self.__mutex):
                 # [metadata, data] = self.__query.get()
@@ -1355,6 +1364,8 @@ class DOOCSPropSource(BaseSource):
         :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
         """
 
+        if pydoocs is None:
+            return None, None, None
         try:
             dt = pydoocs.read(self._configuration)
             npdata = dt['data']
