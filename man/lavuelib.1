@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Nov 13, 2019" "2.27" "lavuelib"
+.TH "LAVUELIB" "1" "Nov 15, 2019" "2.28" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -2275,10 +2275,10 @@ reopen attribute
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.filewriter.FTDeflate(h5object, tparent=None)
+.B class lavuelib.filewriter.FTDataFilter(h5object=None, tparent=None)
 Bases: \fI\%lavuelib.filewriter.FTObject\fP
 .sp
-file tree deflate
+file tree data filter
 .sp
 constructor
 .INDENT 7.0
@@ -2289,6 +2289,32 @@ constructor
 \fBh5object\fP (\fI\%any\fP) – pni object
 .IP \(bu 2
 \fBtparent\fP (\fI\%FTObject\fP) – treee parent
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B filterid
+getter for compression filter id
+.INDENT 7.0
+.TP
+.B Returns
+compression rate
+.TP
+.B Return type
+\fI\%int\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B options
+getter for compression options
+.INDENT 7.0
+.TP
+.B Returns
+compression options
+.TP
+.B Return type
+\fI\%tuple\fP <\fI\%int\fP>
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2320,6 +2346,23 @@ compression shuffle
 .TP
 .B Return type
 \fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.filewriter.FTDeflate(h5object=None, tparent=None)
+Bases: \fI\%lavuelib.filewriter.FTDataFilter\fP
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBh5object\fP (\fI\%any\fP) – pni object
+.IP \(bu 2
+\fBtparent\fP (\fI\%FTObject\fP) – treee parent
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -2868,6 +2911,22 @@ file object
 .UNINDENT
 .INDENT 0.0
 .TP
+.B lavuelib.filewriter.data_filter(parent=None)
+create deflate filter
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fI\%FTObject\fP) – parent object
+.TP
+.B Returns
+deflate filter object
+.TP
+.B Return type
+\fI\%FTDeflate\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
 .B lavuelib.filewriter.deflate_filter(parent=None)
 create deflate filter
 .INDENT 7.0
@@ -3340,8 +3399,8 @@ reopen field
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.h5cppwriter.H5CppDeflate(h5object)
-Bases: \fI\%lavuelib.filewriter.FTDeflate\fP
+.B class lavuelib.h5cppwriter.H5CppDataFilter(h5object=None, tparent=None)
+Bases: \fI\%lavuelib.filewriter.FTDataFilter\fP
 .sp
 file tree deflate
 .sp
@@ -3349,17 +3408,29 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
+.INDENT 7.0
+.IP \(bu 2
 \fBh5object\fP (\fI\%any\fP) – pni object
+.IP \(bu 2
+\fBtparent\fP (\fBFTObject\fP) – treee parent
 .UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.h5cppwriter.H5CppDeflate(h5object=None, tparent=None)
+Bases: \fI\%lavuelib.h5cppwriter.H5CppDataFilter\fP
+.sp
+constructor
 .INDENT 7.0
 .TP
-.B rate
-(\fI\%int\fP) compression rate
-.UNINDENT
+.B Parameters
 .INDENT 7.0
-.TP
-.B shuffle
-(\fI\%bool\fP) compression shuffle
+.IP \(bu 2
+\fBh5object\fP (\fI\%any\fP) – pni object
+.IP \(bu 2
+\fBtparent\fP (\fBFTObject\fP) – treee parent
+.UNINDENT
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -3685,7 +3756,7 @@ open a file tree element
 .IP \(bu 2
 \fBchunk\fP (\fBlist\fP < \fI\%int\fP >) – chunk
 .IP \(bu 2
-\fBdfilter\fP (\fI\%H5CppDeflate\fP) – filter deflater
+\fBdfilter\fP (\fI\%H5CppDataFilter\fP) – filter deflater
 .UNINDENT
 .TP
 .B Returns
@@ -3926,6 +3997,19 @@ file object
 .UNINDENT
 .INDENT 0.0
 .TP
+.B lavuelib.h5cppwriter.data_filter()
+create deflate filter
+.INDENT 7.0
+.TP
+.B Returns
+deflate filter object
+.TP
+.B Return type
+\fI\%H5CppDataFilter\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
 .B lavuelib.h5cppwriter.deflate_filter()
 create deflate filter
 .INDENT 7.0
@@ -3934,7 +4018,7 @@ create deflate filter
 deflate filter object
 .TP
 .B Return type
-\fI\%H5CppDeflate\fP
+\fI\%H5CppDataFilter\fP
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -4221,21 +4305,38 @@ reopen field
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.h5pywriter.H5PYDeflate
-Bases: \fI\%lavuelib.filewriter.FTDeflate\fP
+.B class lavuelib.h5pywriter.H5PYDataFilter(h5object=None, tparent=None)
+Bases: \fI\%lavuelib.filewriter.FTDataFilter\fP
 .sp
-file tree deflate
+file tree data filter
 .sp
 constructor
 .INDENT 7.0
 .TP
-.B rate
-(\fI\%int\fP) compression rate
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBh5object\fP (\fI\%any\fP) – pni object
+.IP \(bu 2
+\fBtparent\fP (\fBFTObject\fP) – treee parent
 .UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.h5pywriter.H5PYDeflate(h5object=None, tparent=None)
+Bases: \fI\%lavuelib.h5pywriter.H5PYDataFilter\fP
+.sp
+constructor
 .INDENT 7.0
 .TP
-.B shuffle
-(\fI\%bool\fP) compression shuffle
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBh5object\fP (\fI\%any\fP) – pni object
+.IP \(bu 2
+\fBtparent\fP (\fBFTObject\fP) – treee parent
+.UNINDENT
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -4564,7 +4665,7 @@ open a file tree element
 .IP \(bu 2
 \fBchunk\fP (\fBlist\fP < \fI\%int\fP >) – chunk
 .IP \(bu 2
-\fBdfilter\fP (\fI\%H5PYDeflate\fP) – filter deflater
+\fBdfilter\fP (\fI\%H5PYDataFilter\fP) – filter deflater
 .UNINDENT
 .TP
 .B Returns
@@ -4802,6 +4903,19 @@ file object
 .UNINDENT
 .INDENT 0.0
 .TP
+.B lavuelib.h5pywriter.data_filter()
+create deflate filter
+.INDENT 7.0
+.TP
+.B Returns
+deflate filter object
+.TP
+.B Return type
+\fI\%H5PYDataFilter\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
 .B lavuelib.h5pywriter.deflate_filter()
 create deflate filter
 .INDENT 7.0
@@ -4810,7 +4924,7 @@ create deflate filter
 deflate filter object
 .TP
 .B Return type
-\fI\%H5PYDeflate\fP
+\fI\%H5PYDataFilter\fP
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -8513,8 +8627,8 @@ reopen field
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.pniwriter.PNIDeflate(h5object)
-Bases: \fI\%lavuelib.filewriter.FTDeflate\fP
+.B class lavuelib.pniwriter.PNIDataFilter(h5object=None, tparent=None)
+Bases: \fI\%lavuelib.filewriter.FTDataFilter\fP
 .sp
 file tree deflate
 .sp
@@ -8522,17 +8636,29 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
+.INDENT 7.0
+.IP \(bu 2
 \fBh5object\fP (\fI\%any\fP) – pni object
+.IP \(bu 2
+\fBtparent\fP (\fBFTObject\fP) – treee parent
 .UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.pniwriter.PNIDeflate(h5object=None, tparent=None)
+Bases: \fI\%lavuelib.pniwriter.PNIDataFilter\fP
+.sp
+constructor
 .INDENT 7.0
 .TP
-.B rate
-(\fI\%int\fP) compression rate
-.UNINDENT
+.B Parameters
 .INDENT 7.0
-.TP
-.B shuffle
-(\fI\%bool\fP) compression shuffle
+.IP \(bu 2
+\fBh5object\fP (\fI\%any\fP) – pni object
+.IP \(bu 2
+\fBtparent\fP (\fBFTObject\fP) – treee parent
+.UNINDENT
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -8858,7 +8984,7 @@ open a file tree element
 .IP \(bu 2
 \fBchunk\fP (\fBlist\fP < \fI\%int\fP >) – chunk
 .IP \(bu 2
-\fBdfilter\fP (\fI\%PNIDeflate\fP) – filter deflater
+\fBdfilter\fP (\fI\%PNIDataFilter\fP) – filter deflater
 .UNINDENT
 .TP
 .B Returns
@@ -9095,6 +9221,19 @@ file object
 .UNINDENT
 .INDENT 0.0
 .TP
+.B lavuelib.pniwriter.data_filter()
+create deflate filter
+.INDENT 7.0
+.TP
+.B Returns
+deflate filter object
+.TP
+.B Return type
+\fI\%PNIDataFilter\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
 .B lavuelib.pniwriter.deflate_filter()
 create deflate filter
 .INDENT 7.0
@@ -9103,7 +9242,7 @@ create deflate filter
 deflate filter object
 .TP
 .B Return type
-\fI\%PNIDeflate\fP
+\fI\%PNIDataFilter\fP
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -10136,6 +10275,19 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B configuration()
+provides configuration for the current image source
+.INDENT 7.0
+.TP
+.B Returns
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B configurationChanged
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) source server name signal
 .UNINDENT
@@ -10362,6 +10514,19 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B configuration()
+provides configuration for the current image source
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B configurationChanged
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) source server name signal
 .UNINDENT
@@ -10505,6 +10670,19 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B configuration()
+provides configuration for the current image source
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B configure(configuration)
 set configuration for the current image source
 .INDENT 7.0
@@ -10594,6 +10772,19 @@ constructor
 .TP
 .B alias = \(aqhttp\(aq
 (\fI\%str\fP) source alias
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configuration()
+provides configuration for the current image source
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10716,6 +10907,19 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B configuration()
+provides configuration for the current image source
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B configure(configuration)
 set configuration for the current image source
 .INDENT 7.0
@@ -10835,6 +11039,19 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B configuration()
+provides configuration for the current image source
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B configure(configuration)
 set configuration for the current image source
 .INDENT 7.0
@@ -10951,6 +11168,19 @@ constructor
 .TP
 .B alias = \(aqtangofile\(aq
 (\fI\%str\fP) source alias
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configuration()
+provides configuration for the current image source
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -11079,6 +11309,19 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B configuration()
+provides configuration for the current image source
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B configure(configuration)
 set configuration for the current image source
 .INDENT 7.0
@@ -11195,6 +11438,19 @@ constructor
 .TP
 .B alias = \(aqzmqsource\(aq
 (\fI\%str\fP) source alias
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configuration()
+provides configuration for the current image source
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -11317,6 +11573,19 @@ constructor
 .TP
 .B alias = \(aqnxsfile\(aq
 (\fI\%str\fP) source alias
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configuration()
+provides configuration for the current image source
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
