@@ -1282,7 +1282,7 @@ class HiDRASource(BaseSource):
         """
         metadata = None
         data = None
-        if self.__query is not None:
+        if self.__query is None:
             return None, None, None
         try:
             with QtCore.QMutexLocker(self.__mutex):
