@@ -94,8 +94,6 @@ class SourceBaseWidget(QtGui.QWidget):
     buttonEnabled = QtCore.pyqtSignal(bool)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source state signal
     sourceStateChanged = QtCore.pyqtSignal(int)
-    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source server name signal
-    configurationChanged = QtCore.pyqtSignal(str)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source label name signal
     sourceLabelChanged = QtCore.pyqtSignal(str)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) add Icon Clicked
@@ -578,7 +576,6 @@ class HidraSourceWidget(SourceBaseWidget):
         :param kargs:  source widget input parameter dictionary
         :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
         """
-        update = False
         if isinstance(serverdict, dict):
             self._ui.serverComboBox.currentIndexChanged.disconnect(
                 self.updateButton)
@@ -591,14 +588,10 @@ class HidraSourceWidget(SourceBaseWidget):
             self._ui.serverComboBox.currentIndexChanged.connect(
                 self.updateButton)
             self._ui.serverComboBox.setCurrentIndex(0)
-            update = True
         if hidraport:
             self.__portnumber = hidraport
             self._ui.currenthostLabel.setText(
                 "%s:%s" % (self.__targetname, self.__portnumber))
-            update = True
-        if update:
-            self.configurationChanged.emit(self.configuration())
         self.sourceLabelChanged.emit(self.label())
 
     def __sortServerList(self, name):

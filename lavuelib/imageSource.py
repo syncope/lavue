@@ -1222,9 +1222,11 @@ class HiDRASource(BaseSource):
         :type configuration: :obj:`str`
         """
         if self._configuration != configuration:
-
-            self.__shost, self.__targetname, self.__portnumber \
-                = str(configuration).split()
+            try:
+                self.__shost, self.__targetname, self.__portnumber \
+                    = str(configuration).split()
+            except Exception:
+                self._initiated = False
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             result = sock.connect_ex(
                 (self.__targetname, int(self.__portnumber)))
