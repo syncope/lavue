@@ -48,8 +48,6 @@ class SourceGroupBox(QtGui.QGroupBox):
     sourceStateChanged = QtCore.pyqtSignal(int)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source state signal
     sourceChanged = QtCore.pyqtSignal(int)
-    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source server name signal
-    configurationChanged = QtCore.pyqtSignal(str)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source label name signal
     sourceLabelChanged = QtCore.pyqtSignal(str)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) add Icon Clicked
@@ -233,8 +231,6 @@ class SourceGroupBox(QtGui.QGroupBox):
         if disconnect and self.__currentSource is not None:
             self.__currentSource.buttonEnabled.disconnect(
                 self.updateButton)
-            self.__currentSource.configurationChanged.disconnect(
-                self._emitConfigurationChanged)
             self.__currentSource.sourceLabelChanged.disconnect(
                 self._emitSourceLabelChanged)
             self.__currentSource.sourceStateChanged.disconnect(
@@ -252,8 +248,6 @@ class SourceGroupBox(QtGui.QGroupBox):
                 self.updateButton)
             self.__currentSource.sourceLabelChanged.connect(
                 self._emitSourceLabelChanged)
-            self.__currentSource.configurationChanged.connect(
-                self._emitConfigurationChanged)
             self.__currentSource.sourceStateChanged.connect(
                 self._emitSourceStateChanged)
             self.__currentSource.addIconClicked.connect(
@@ -291,15 +285,6 @@ class SourceGroupBox(QtGui.QGroupBox):
         :type value: :obj:`str`
         """
         self.removeIconClicked.emit(name, label)
-
-    @QtCore.pyqtSlot(str)
-    def _emitConfigurationChanged(self,  name):
-        """ emits configurationChanged signal with the given name
-
-        :param name: configuration string
-        :type name: :obj:`str`
-        """
-        self.configurationChanged.emit(name)
 
     @QtCore.pyqtSlot(str)
     def _emitSourceLabelChanged(self,  name):

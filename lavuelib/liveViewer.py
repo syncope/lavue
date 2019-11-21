@@ -445,8 +445,6 @@ class LiveViewer(QtGui.QDialog):
 
         # set the right target name for the source display at initialization
 
-        self.__sourcewg.configurationChanged.connect(
-            self._setSourceConfiguration)
         self.__sourcewg.sourceLabelChanged.connect(
             self._switchSourceDisplay)
         self.__sourcewg.addIconClicked.connect(
@@ -1659,7 +1657,9 @@ class LiveViewer(QtGui.QDialog):
         if status:
             self.__datasource.setTimeOut(self.__settings.timeout)
             self.__dataFetcher.setDataSource(self.__datasource)
-            if self.__sourceconfiguration:
+            if self.__sourceconfiguration and \
+               self.__sourcewg.currentDataSource() == \
+               str(type(self.__datasource).__name__):
                 self.__datasource.setConfiguration(self.__sourceconfiguration)
             self.__sourcewg.updateMetaData(**self.__datasource.getMetaData())
         self._stateUpdated.emit(bool(status))
