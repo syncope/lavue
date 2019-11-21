@@ -61,6 +61,7 @@ from . import configDialog
 from . import release
 from . import edDictDialog
 from . import filters
+from . import rangeWindowGroupBox
 from . import filtersGroupBox
 # from . import imageNexusExporter
 
@@ -240,7 +241,13 @@ class LiveViewer(QtGui.QDialog):
              for twn in json.loads(self.__settings.imagesources)
              if twn in self.__srcaliasnames.keys()]
         )
-
+        #: (:class:`lavuelib.rangeWindowGroupBox.RangeWindowGroupBox`)
+        #: memory buffer groupbox
+        if isr.PILLOW:
+            self.__rangewg = rangeWindowGroupBox.RangeWindowGroupBox(
+                parent=self)
+        else:
+            self.__rangewg = None
         #: (:class:`lavuelib.memoryBufferGroupBox.MemoryBufferGroupBox`)
         #: memory buffer groupbox
         self.__mbufferwg = memoryBufferGroupBox.MemoryBufferGroupBox(
@@ -358,6 +365,8 @@ class LiveViewer(QtGui.QDialog):
 
         # # LAYOUT DEFINITIONS
         self.__ui.confVerticalLayout.addWidget(self.__sourcewg)
+        if isr.PIL:
+            self.__ui.confVerticalLayout.addWidget(self.__rangewg)
         self.__ui.confVerticalLayout.addWidget(self.__filterswg)
         self.__ui.confVerticalLayout.addWidget(self.__mbufferwg)
         self.__ui.confVerticalLayout.addWidget(self.__channelwg)
@@ -889,6 +898,8 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showtrans,
             self.__settings.showhighvaluemask
         )
+        if self.__rangewg:
+            self.__rangewg.changeView(self.__settings.showrange)
         self.__filterswg.changeView(self.__settings.showfilters)
         self.__mbufferwg.changeView(self.__settings.showmbuffer)
 
@@ -1274,6 +1285,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.showmask = self.__settings.showmask
         cnfdlg.showhighvaluemask = self.__settings.showhighvaluemask
         cnfdlg.showmbuffer = self.__settings.showmbuffer
+        cnfdlg.showrange = self.__settings.showrange
         cnfdlg.showfilters = self.__settings.showfilters
         cnfdlg.showstats = self.__settings.showstats
         cnfdlg.calcvariance = self.__settings.calcvariance
@@ -1349,6 +1361,10 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showhighvaluemask = dialog.showhighvaluemask
             self.__prepwg.changeView(
                 showhighvaluemask=dialog.showhighvaluemask)
+        if self.__settings.showrange != dialog.showrange:
+            self.__settings.showrange = dialog.showrange
+            if self.__rangewg:
+                self.__rangewg.changeView(dialog.showrange)
         if self.__settings.showfilters != dialog.showfilters:
             self.__settings.showfilters = dialog.showfilters
             self.__filterswg.changeView(
@@ -1678,6 +1694,9 @@ class LiveViewer(QtGui.QDialog):
         """ The main command of the live viewer class:
         draw a numpy array with the given name.
         """
+        self.__filteredimage = self.__rawimage
+        # apply user range
+        self.__applyRange()
         # apply user filters
         self.__applyFilters()
         if self.__settings.showmbuffer:
@@ -2265,10 +2284,41 @@ class LiveViewer(QtGui.QDialog):
         return (crdtranspose, crdleftrightflip, crdupdownflip,
                 orgtranspose, orgleftrightflip, orgupdownflip)
 
+    def __applyRange(self):
+        """ applies user range
+        """
+        if self.__rangewg and self.__settings.showrange and \
+           self.__filteredimage is not None:
+            shape = self.__filteredimage.shape
+            x1, y1, x2, y2 = self.__rangewg.rangeWindow()
+            if x1 is not None or y1 is not None or \
+               x2 is not None or y2 is not None:
+                if len(shape) >= 1 and shape[0]:
+                    if x2 >= 0:
+                        x2 = x2 + 1
+                if len(shape) >= 2 and shape[1]:
+                    if y2 >= 0:
+                        y2 = y2 + 1
+                if len(shape) == 1 and shape[0]:
+                    image = self.__filteredimage[x1:x2]
+                elif len(shape) > 1:
+                    if shape[1] == 0:
+                        image = self.__filteredimage[x1:x2, ...]
+                    else:
+                        image = self.__filteredimage[x1:x2, y1:y2, ...]
+                if image.size > 0:
+                    self.__filteredimage = image
+            # ffrac = self.__rangewg.dsfraction()
+            # frac = int(100 * self.__rangewg.dsfraction() + 0.5)
+            # if frac != 100:
+            #     dsfilter = self.__rangewg.dsfilter()
+            #     numpy.array(Image.fromarray(arr).resize())
+                
+
     def __applyFilters(self):
         """ applies user filters
         """
-        self.__filteredimage = self.__rawimage
+        # self.__filteredimage = self.__rawimage
         if self.__filterstate:
             for flt in self.__filters:
                 try:

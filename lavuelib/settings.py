@@ -69,6 +69,8 @@ class Settings(object):
         self.showtrans = True
         #: (:obj:`bool`) show memory buffer widget
         self.showmbuffer = False
+        #: (:obj:`bool`) show range window widget
+        self.showrange = False
         #: (:obj:`bool`) show filter widget
         self.showfilters = False
         #: (:obj:`bool`) show intensity scale widget
@@ -304,6 +306,10 @@ class Settings(object):
         qstval = str(settings.value("Configuration/ShowHistogram", type=str))
         if qstval.lower() == "false":
             self.showhisto = False
+        qstval = str(settings.value("Configuration/ShowRangeWindowWidget",
+                                    type=str))
+        if qstval.lower() == "true":
+            self.showrange = True
         qstval = str(settings.value("Configuration/ShowFilterWidget",
                                     type=str))
         if qstval.lower() == "true":
@@ -617,6 +623,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ShowMaskWidget",
             self.showmask)
+        settings.setValue(
+            "Configuration/ShowRangeWindowWidget",
+            self.showrange)
         settings.setValue(
             "Configuration/ShowFilterWidget",
             self.showfilters)
