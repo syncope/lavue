@@ -39,8 +39,10 @@ class RangeWindowGroupBox(QtGui.QWidget):
     Select how an image should be transformed.
     """
 
-    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) fraction changed signal
-    fractionChanged = QtCore.pyqtSignal()
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) factor changed signal
+    factorChanged = QtCore.pyqtSignal()
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) function changed signal
+    functionChanged = QtCore.pyqtSignal()
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) range window changed signal
     rangeWindowChanged = QtCore.pyqtSignal()
 
@@ -55,8 +57,10 @@ class RangeWindowGroupBox(QtGui.QWidget):
         #: (:class:`Ui_RangeWindowGroupBox') ui_widget object from qtdesigner
         self.__ui = _formclass()
         self.__ui.setupUi(self)
-        self.__ui.fractionDoubleSpinBox.valueChanged.connect(
-            self._emitFractionChanged)
+        self.__ui.factorSpinBox.valueChanged.connect(
+            self._emitFactorChanged)
+        self.__ui.functionComboBox.currentIndexChanged.connect(
+            self._emitFunctionChanged)
         self.__ui.x1LineEdit.textChanged.connect(self._emitRangeWindowChanged)
         self.__ui.y1LineEdit.textChanged.connect(self._emitRangeWindowChanged)
         self.__ui.x2LineEdit.textChanged.connect(self._emitRangeWindowChanged)
@@ -69,18 +73,32 @@ class RangeWindowGroupBox(QtGui.QWidget):
         self.rangeWindowChanged.emit()
 
     @QtCore.pyqtSlot()
-    def _emitFractionChanged(self):
-        """emits fractionChanged
+    def _emitFunctionChanged(self):
+        """emits functionChanged
         """
-        self.fractionChanged.emit()
+        self.functionChanged.emit()
 
-    def fraction(self):
-        """ provides the current resize fraction
-
-        :returns: resize fraction
-        :rtype: :obj:`float`
+    @QtCore.pyqtSlot()
+    def _emitFactorChanged(self):
+        """emits factorChanged
         """
-        return self.__ui.fractionDoubleSpinBox.value()
+        self.factorChanged.emit()
+
+    def function(self):
+        """ provides the reduction function
+
+        :returns:  function name
+        :rtype: :obj:`str`
+        """
+        return str(self.__ui.functionComboBox.currentText())
+
+    def factor(self):
+        """ provides the current resize factor
+
+        :returns: resize factor
+        :rtype: :obj:`int`
+        """
+        return int(self.__ui.factorSpinBox.value())
 
     def rangeWindow(self):
         """ provides the range window

@@ -245,8 +245,9 @@ class LiveViewer(QtGui.QDialog):
         #: memory buffer groupbox
         self.__rangewg = rangeWindowGroupBox.RangeWindowGroupBox(
             parent=self)
-        self.__rangewg.fractionChanged.connect(self._plot)
+        self.__rangewg.factorChanged.connect(self._plot)
         self.__rangewg.rangeWindowChanged.connect(self._plot)
+        self.__rangewg.functionChanged.connect(self._plot)
         #: (:class:`lavuelib.memoryBufferGroupBox.MemoryBufferGroupBox`)
         #: memory buffer groupbox
         self.__mbufferwg = memoryBufferGroupBox.MemoryBufferGroupBox(
@@ -2286,64 +2287,83 @@ class LiveViewer(QtGui.QDialog):
         """
         if self.__settings.showrange and \
            self.__filteredimage is not None:
-            shape = self.__filteredimage.shape
             x1, y1, x2, y2 = self.__rangewg.rangeWindow()
             position = [0, 0]
-            scale = [1, 1]
             if x1 is not None or y1 is not None or \
                x2 is not None or y2 is not None:
-                if len(shape) >= 1 and shape[0]:
-                    if x2 >= 0:
-                        x2 = x2 + 1
-                if len(shape) >= 2 and shape[1]:
-                    if y2 >= 0:
-                        y2 = y2 + 1
-                if len(shape) == 1 and shape[0]:
-                    image = self.__filteredimage[x1:x2]
-                elif len(shape) > 1:
-                    if shape[1] == 0:
-                        image = self.__filteredimage[x1:x2, ...]
-                    else:
-                        image = self.__filteredimage[x1:x2, y1:y2, ...]
-                if image.size > 0:
-                    self.__filteredimage = image
-                    position = [x1 or 0, y1 or 0]
-            ffrac = self.__rangewg.fraction()
-            if int(100 * self.__rangewg.fraction() + 0.5) != 100 and \
-               len(shape) > 1:
-                # scale = self.__pilresize(ffrac, shape)
-                scale = self.__npresize(ffrac)
+                position = self.__setrange(x1, y1, x2, y2)
+            scale = [1, 1]
+            factor = self.__rangewg.factor()
+            if factor > 1:
+                function = self.__rangewg.function()
+                scale = self.__npresize(factor, function)
             self.__imagewg.updateMetaData(position + scale)
 
-    def __npresize(self, ffrac):
+    def __setrange(self, x1, y1, x2, y2):
+        """ sets window range
+
+        :param x1: x1 position
+        :type x1: :obj:`int`
+        :param y1: y1 position
+        :type y1: :obj:`int`
+        :param x2: x2 position
+        :type x2: :obj:`int`
+        :param y2: y2 position
+        :type y2: :obj:`int`
+        :returns: x,y - start x,y-position
+        :rtype: (:obj:`int`, :obj:`int`)
+        """
+        image = None
+        position = [0, 0]
         shape = self.__filteredimage.shape
-        factor = int(1.00001/ffrac)
+        if len(shape) >= 1 and shape[0]:
+            if x2 >= 0:
+                x2 = x2 + 1
+        if len(shape) >= 2 and shape[1]:
+            if y2 >= 0:
+                y2 = y2 + 1
+        if len(shape) == 1 and shape[0]:
+            image = self.__filteredimage[x1:x2]
+        elif len(shape) == 2:
+                image = self.__filteredimage[x1:x2, y1:y2]
+        elif len(shape) == 3:
+                image = self.__filteredimage[:, x1:x2, y1:y2]
+        if image is not None and image.size > 0:
+            self.__filteredimage = image
+            position = [x1 or 0, y1 or 0]
+        return position
+
+    def __npresize(self, factor, function):
+        """ resizes image
+
+        :param factor: down-sampling factor
+        :type factor: :obj:`int`
+        :param function: reduction function
+        :type function: :obj:`str`
+        :returns: x,y - invert scale
+        :rtype: (:obj:`int`, :obj:`int`)
+        """
+        shape = self.__filteredimage.shape
         scale = [1, 1]
-        # w = int(shape[0] * ffrac)
-        # h = int(shape[1] * ffrac)
-        # Image = isr.PIL.Image
-        # if len(shape) == 3:
-        #     imgs = []
-        #     for i in range(shape[0]):
-        #         img = Image.fromarray(self.__filteredimage[i:, :, :])
-        #         img = img.resize((w, h), Image.NEAREST)
-        #         imgs.append(np.transpose(np.array(img)))
-        #     self.__filteredimage = np.stack()
-        #     scale = [1./ffrac, 1./ffrac]
-        if len(shape) == 2:
-            if factor > 1:
-                w = shape[0] // factor
-                h = shape[1] // factor
-                ww = w * factor
-                hh = h * factor
-                if w > factor and h > factor:
+        if len(shape) > 1 and factor > 1:
+            w = shape[-2] // factor
+            h = shape[-1] // factor
+            ww = w * factor
+            hh = h * factor
+            if w > factor and h > factor or True:
+                if len(shape) == 2:
                     self.__filteredimage = \
-                        self.__filteredimage[:ww, :hh].\
-                        reshape(w, factor,
-                                h, factor).max((-1, 1))
-                    # reshape(w, factor,
-                    #         h, factor).mean((-1,1))
-                    scale = [1./ffrac, 1./ffrac]
+                        getattr(
+                            self.__filteredimage[:ww, :hh].
+                            reshape(w, factor, h, factor),
+                            function)((-1, -3))
+                elif len(shape) == 3:
+                    self.__filteredimage = \
+                        getattr(
+                            self.__filteredimage[:, :ww, :hh].
+                            reshape(shape[0], w, factor, h, factor),
+                            function)((-1, -3))
+                scale = [factor, factor]
         return scale
 
     def __applyFilters(self):
