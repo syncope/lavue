@@ -2332,9 +2332,9 @@ class LiveViewer(QtGui.QDialog):
         if len(shape) == 1 and shape[0]:
             image = self.__filteredimage[x1:x2]
         elif len(shape) == 2:
-                image = self.__filteredimage[x1:x2, y1:y2]
+            image = self.__filteredimage[x1:x2, y1:y2]
         elif len(shape) == 3:
-                image = self.__filteredimage[:, x1:x2, y1:y2]
+            image = self.__filteredimage[:, x1:x2, y1:y2]
         if image is not None and image.size > 0:
             self.__filteredimage = image
             position = [x1 or 0, y1 or 0]
