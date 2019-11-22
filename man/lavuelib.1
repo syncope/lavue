@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Nov 15, 2019" "2.28" "lavuelib"
+.TH "LAVUELIB" "1" "Nov 22, 2019" "2.29" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -831,6 +831,11 @@ status flag
 .TP
 .B showmbuffer = None
 (\fI\%bool\fP) show memory buffer widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B showrange = None
+(\fI\%bool\fP) show range window widget
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10133,6 +10138,11 @@ sets source display parameters
 .UNINDENT
 .INDENT 7.0
 .TP
+.B showrange = None
+(\fI\%bool\fP) show range window widget
+.UNINDENT
+.INDENT 7.0
+.TP
 .B showscale = None
 (\fI\%bool\fP) show intensity scale widget
 .UNINDENT
@@ -10285,11 +10295,6 @@ configuration string
 .B Rtype configuration
 \fI\%str\fP
 .UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B configurationChanged
-(\fBpyqtgraph.QtCore.pyqtSignal\fP) source server name signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10524,11 +10529,6 @@ configuration string
 .B Rtype configuration
 \fI\%str\fP
 .UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B configurationChanged
-(\fBpyqtgraph.QtCore.pyqtSignal\fP) source server name signal
 .UNINDENT
 .INDENT 7.0
 .TP
