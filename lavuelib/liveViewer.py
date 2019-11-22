@@ -243,13 +243,10 @@ class LiveViewer(QtGui.QDialog):
         )
         #: (:class:`lavuelib.rangeWindowGroupBox.RangeWindowGroupBox`)
         #: memory buffer groupbox
-        if isr.PILLOW:
-            self.__rangewg = rangeWindowGroupBox.RangeWindowGroupBox(
-                parent=self)
-            self.__rangewg.fractionChanged.connect(self._plot)
-            self.__rangewg.rangeWindowChanged.connect(self._plot)
-        else:
-            self.__rangewg = None
+        self.__rangewg = rangeWindowGroupBox.RangeWindowGroupBox(
+            parent=self)
+        self.__rangewg.fractionChanged.connect(self._plot)
+        self.__rangewg.rangeWindowChanged.connect(self._plot)
         #: (:class:`lavuelib.memoryBufferGroupBox.MemoryBufferGroupBox`)
         #: memory buffer groupbox
         self.__mbufferwg = memoryBufferGroupBox.MemoryBufferGroupBox(
@@ -900,8 +897,7 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showtrans,
             self.__settings.showhighvaluemask
         )
-        if self.__rangewg:
-            self.__rangewg.changeView(self.__settings.showrange)
+        self.__rangewg.changeView(self.__settings.showrange)
         self.__filterswg.changeView(self.__settings.showfilters)
         self.__mbufferwg.changeView(self.__settings.showmbuffer)
 
@@ -1365,8 +1361,7 @@ class LiveViewer(QtGui.QDialog):
                 showhighvaluemask=dialog.showhighvaluemask)
         if self.__settings.showrange != dialog.showrange:
             self.__settings.showrange = dialog.showrange
-            if self.__rangewg:
-                self.__rangewg.changeView(dialog.showrange)
+            self.__rangewg.changeView(dialog.showrange)
         if self.__settings.showfilters != dialog.showfilters:
             self.__settings.showfilters = dialog.showfilters
             self.__filterswg.changeView(
@@ -2289,7 +2284,7 @@ class LiveViewer(QtGui.QDialog):
     def __applyRange(self):
         """ applies user range
         """
-        if self.__rangewg and self.__settings.showrange and \
+        if self.__settings.showrange and \
            self.__filteredimage is not None:
             shape = self.__filteredimage.shape
             x1, y1, x2, y2 = self.__rangewg.rangeWindow()
@@ -2316,24 +2311,40 @@ class LiveViewer(QtGui.QDialog):
             ffrac = self.__rangewg.fraction()
             if int(100 * self.__rangewg.fraction() + 0.5) != 100 and \
                len(shape) > 1:
-                w = int(shape[0] * ffrac)
-                h = int(shape[1] * ffrac)
-                Image = isr.PIL.Image
-                if len(shape) == 3:
-                    imgs = []
-                    for i in range(shape[0]):
-                        img = Image.fromarray(self.__filteredimage[i:, :, :])
-                        img = img.resize((w, h), Image.NEAREST)
-                        imgs.append(np.transpose(np.array(img)))
-                    self.__filteredimage = np.stack()
-                    scale = [1./ffrac, 1./ffrac]
-                elif len(shape) == 2:
-                    img = Image.fromarray(np.array(
-                        self.__filteredimage, dtype="uint32"))
-                    img = img.resize((w, h), Image.NEAREST)
-                    self.__filteredimage = np.transpose(np.array(img))
-                    scale = [1./ffrac, 1./ffrac]
+                # scale = self.__pilresize(ffrac, shape)
+                scale = self.__npresize(ffrac)
             self.__imagewg.updateMetaData(position + scale)
+
+    def __npresize(self, ffrac):
+        shape = self.__filteredimage.shape
+        factor = int(1.00001/ffrac)
+        scale = [1, 1]
+        # w = int(shape[0] * ffrac)
+        # h = int(shape[1] * ffrac)
+        # Image = isr.PIL.Image
+        # if len(shape) == 3:
+        #     imgs = []
+        #     for i in range(shape[0]):
+        #         img = Image.fromarray(self.__filteredimage[i:, :, :])
+        #         img = img.resize((w, h), Image.NEAREST)
+        #         imgs.append(np.transpose(np.array(img)))
+        #     self.__filteredimage = np.stack()
+        #     scale = [1./ffrac, 1./ffrac]
+        if len(shape) == 2:
+            if factor > 1:
+                w = shape[0] // factor
+                h = shape[1] // factor
+                ww = w * factor
+                hh = h * factor
+                if w > factor and h > factor:
+                    self.__filteredimage = \
+                        self.__filteredimage[:ww, :hh].\
+                        reshape(w, factor,
+                                h, factor).max((-1, 1))
+                    # reshape(w, factor,
+                    #         h, factor).mean((-1,1))
+                    scale = [1./ffrac, 1./ffrac]
+        return scale
 
     def __applyFilters(self):
         """ applies user filters
