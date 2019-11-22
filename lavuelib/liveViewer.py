@@ -1880,7 +1880,8 @@ class LiveViewer(QtGui.QDialog):
         """
 
         name, rawimage, metadata = self.__exchangelist.readData()
-
+        if not self.__sourcewg.isConnected():
+            return
         if str(self.__imagename).strip() == str(name).strip() and not metadata:
             self.__dataFetcher.ready()
             return
@@ -2297,6 +2298,12 @@ class LiveViewer(QtGui.QDialog):
             if factor > 1:
                 function = self.__rangewg.function()
                 scale = self.__npresize(factor, function)
+            if self.__trafoname in ["transpose",
+                                    "rot90 (clockwise)",
+                                    "rot270 (clockwise)",
+                                    "rot180 + transpose"]:
+                position = [position[1], position[0]]
+                scale = [scale[1], scale[0]]
             self.__imagewg.updateMetaData(position + scale)
 
     def __setrange(self, x1, y1, x2, y2):
