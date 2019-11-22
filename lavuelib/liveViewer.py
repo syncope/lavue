@@ -246,6 +246,8 @@ class LiveViewer(QtGui.QDialog):
         if isr.PILLOW:
             self.__rangewg = rangeWindowGroupBox.RangeWindowGroupBox(
                 parent=self)
+            self.__rangewg.fractionChanged.connect(self._plot)
+            self.__rangewg.rangeWindowChanged.connect(self._plot)
         else:
             self.__rangewg = None
         #: (:class:`lavuelib.memoryBufferGroupBox.MemoryBufferGroupBox`)
@@ -365,7 +367,7 @@ class LiveViewer(QtGui.QDialog):
 
         # # LAYOUT DEFINITIONS
         self.__ui.confVerticalLayout.addWidget(self.__sourcewg)
-        if isr.PIL:
+        if isr.PILLOW:
             self.__ui.confVerticalLayout.addWidget(self.__rangewg)
         self.__ui.confVerticalLayout.addWidget(self.__filterswg)
         self.__ui.confVerticalLayout.addWidget(self.__mbufferwg)
@@ -2291,6 +2293,8 @@ class LiveViewer(QtGui.QDialog):
            self.__filteredimage is not None:
             shape = self.__filteredimage.shape
             x1, y1, x2, y2 = self.__rangewg.rangeWindow()
+            position = [0, 0]
+            scale = [1, 1]
             if x1 is not None or y1 is not None or \
                x2 is not None or y2 is not None:
                 if len(shape) >= 1 and shape[0]:
@@ -2308,12 +2312,28 @@ class LiveViewer(QtGui.QDialog):
                         image = self.__filteredimage[x1:x2, y1:y2, ...]
                 if image.size > 0:
                     self.__filteredimage = image
-            # ffrac = self.__rangewg.dsfraction()
-            # frac = int(100 * self.__rangewg.dsfraction() + 0.5)
-            # if frac != 100:
-            #     dsfilter = self.__rangewg.dsfilter()
-            #     numpy.array(Image.fromarray(arr).resize())
-                
+                    position = [x1 or 0, y1 or 0]
+            ffrac = self.__rangewg.fraction()
+            if int(100 * self.__rangewg.fraction() + 0.5) != 100 and \
+               len(shape) > 1:
+                w = int(shape[0] * ffrac)
+                h = int(shape[1] * ffrac)
+                Image = isr.PIL.Image
+                if len(shape) == 3:
+                    imgs = []
+                    for i in range(shape[0]):
+                        img = Image.fromarray(self.__filteredimage[i:, :, :])
+                        img = img.resize((w, h), Image.NEAREST)
+                        imgs.append(np.transpose(np.array(img)))
+                    self.__filteredimage = np.stack()
+                    scale = [1./ffrac, 1./ffrac]
+                elif len(shape) == 2:
+                    img = Image.fromarray(np.array(
+                        self.__filteredimage, dtype="uint32"))
+                    img = img.resize((w, h), Image.NEAREST)
+                    self.__filteredimage = np.transpose(np.array(img))
+                    scale = [1./ffrac, 1./ffrac]
+            self.__imagewg.updateMetaData(position + scale)
 
     def __applyFilters(self):
         """ applies user filters

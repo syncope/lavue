@@ -115,7 +115,7 @@
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;resampling fraction&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
-           <string>Fraction:</string>
+           <string>Resize fraction:</string>
           </property>
           <property name="buddy">
            <cstring>fractionDoubleSpinBox</cstring>
@@ -128,7 +128,7 @@
            <double>0.010000000000000</double>
           </property>
           <property name="maximum">
-           <double>9.000000000000000</double>
+           <double>1.000000000000000</double>
           </property>
           <property name="singleStep">
            <double>0.100000000000000</double>
@@ -139,38 +139,17 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="filterLabel">
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;resampling filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
-          <property name="text">
-           <string>Filter:</string>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="filterComboBox">
-          <item>
-           <property name="text">
-            <string>nearest</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>bilinear</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>bicubic</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>lanczos</string>
-           </property>
-          </item>
-         </widget>
+         </spacer>
         </item>
        </layout>
       </item>
