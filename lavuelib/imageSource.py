@@ -1253,6 +1253,7 @@ class HiDRASource(BaseSource):
                     % (self.__targetname, self.__portnumber))
             if not self._initiated:
                 with QtCore.QMutexLocker(self.__mutex):
+                    print("TARGET %s" % self.__target)
                     self.__query.initiate(self.__target)
                 self._initiated = True
                 with QtCore.QMutexLocker(self.__mutex):
