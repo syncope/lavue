@@ -2323,12 +2323,6 @@ class LiveViewer(QtGui.QDialog):
         image = None
         position = [0, 0]
         shape = self.__filteredimage.shape
-        if len(shape) >= 1 and shape[0]:
-            if x2 >= 0:
-                x2 = x2 + 1
-        if len(shape) >= 2 and shape[1]:
-            if y2 >= 0:
-                y2 = y2 + 1
         if len(shape) == 1 and shape[0]:
             image = self.__filteredimage[x1:x2]
         elif len(shape) == 2:
