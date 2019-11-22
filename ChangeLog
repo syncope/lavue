@@ -1,6 +1,10 @@
+2019-11-22 Jan Kotanski <jan.kotanski@desy.de>
+	* add window range and down-sampling
+	* tagged as 2.29.0
+
 2019-11-21 Jan Kotanski <jan.kotanski@desy.de>
 	* fix another issue for hidra image source
-	* tagged as 2.28.1
+	* tagged as 2.28.2
 
 2019-11-18 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for hidra image source
