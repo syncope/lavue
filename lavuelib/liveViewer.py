@@ -2293,11 +2293,11 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.showrange and \
            self.__filteredimage is not None:
             x1, y1, x2, y2 = self.__rangewg.rangeWindow()
-            position = [0, 0]
+            position = [None, None]
             if x1 is not None or y1 is not None or \
                x2 is not None or y2 is not None:
                 position = self.__setrange(x1, y1, x2, y2)
-            scale = [1, 1]
+            scale = [None, None]
             factor = self.__rangewg.factor()
             if factor > 1:
                 function = self.__rangewg.function()
@@ -2308,7 +2308,9 @@ class LiveViewer(QtGui.QDialog):
                                     "rot180 + transpose"]:
                 position = [position[1], position[0]]
                 scale = [scale[1], scale[0]]
-            self.__imagewg.updateMetaData(position + scale)
+            self.__imagewg.updateMetaData(
+                position + scale,
+                wraxisscales=position + scale)
 
     def __setrange(self, x1, y1, x2, y2):
         """ sets window range

@@ -1,5 +1,6 @@
 2019-11-XX Jan Kotanski <jan.kotanski@desy.de>
 	* add process events on apply options
+	* set window range scaling forall tools
 	* tagged as 2.29.1
 
 2019-11-22 Jan Kotanski <jan.kotanski@desy.de>

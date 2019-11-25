@@ -533,7 +533,8 @@ class ImageWidget(QtGui.QWidget):
                     print(str(e))
                 self.__currenttool.disactivate()
 
-    def updateMetaData(self, axisscales=None, axislabels=None):
+    def updateMetaData(self, axisscales=None, axislabels=None,
+                       wraxisscales=None):
         """ update Metadata informations
 
         :param axisscales: [xstart, ystart, xscale, yscale]
@@ -542,8 +543,12 @@ class ImageWidget(QtGui.QWidget):
         :param axislabels: [xtext, ytext, xunits, yunits]
         :type axislabels:
                   [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`]
+        :param wraxisscales: window range [xstart, ystart, xscale, yscale]
+        :type wraxisscales:
+                  [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`]
         """
-        self.__displaywidget.updateMetaData(axisscales, axislabels)
+        self.__displaywidget.updateMetaData(axisscales, axislabels,
+                                            wraxisscales)
 
     @QtCore.pyqtSlot(int)
     def updateROIs(self, rid, coords=None):

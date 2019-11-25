@@ -147,7 +147,10 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         #:            axes parameters
         self.__axes = AxesParameters()
         #: (:class:`lavuelib.imageDisplayWidget.AxesParameters`)
-        #:            polar axes parameters
+        #:            axes parameters
+        self.__wraxes = AxesParameters()
+        #: (:class:`lavuelib.imageDisplayWidget.AxesParameters`)
+        #:            down-sampling and range window axes parameters
         self.__polaraxes = AxesParameters()
 
         #: (:class:`lavuelib.imageDisplayWidget.IntensityParameters`)
@@ -289,6 +292,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     self.__axes.position[0], self.__axes.position[1],
                     xrg * ps[0], yrg * ps[1]),
                 padding=0)
+        elif self.__wraxes.position is not None and self.__wraxes.enabled:
+            self.__viewbox.setRange(
+                QtCore.QRectF(
+                    self.__wraxes.position[0],
+                    self.__wraxes.position[1],
+                    xrg * ps[0], yrg * ps[1]),
+                padding=0)
         else:
             self.__viewbox.setRange(
                 QtCore.QRectF(0, 0, xrg * ps[0], yrg * ps[1]),
@@ -321,7 +331,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             vr0[0], vr1[0], vr0[1] - vr0[0], vr1[1] - vr1[0])
 
     def __setScale(self, position=None, scale=None, update=True, polar=False,
-                   force=False):
+                   force=False, wrposition=None, wrscale=None, wrupdate=False):
         """ set axes scales
 
         :param position: start position of axes
@@ -334,9 +344,29 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type polar: :obj:`bool`
         :param force: force rescaling
         :type force: :obj:`bool`
+        :param wrposition: start position of axes
+        :type wrposition: [:obj:`float`, :obj:`float`]
+        :param wrscale: scale axes
+        :type wrscale: [:obj:`float`, :obj:`float`]
+        :param wrupdate: update scales on image
+        :type wrupdate: :obj:`bool`
         """
-        axes = self.__polaraxes if polar else self.__axes
+        print("PO %s" % str(position))
+        print("SC %s" % str(scale))
+        print("Up %s" % str(update))
+        print("PL %s" % str(polar))
+        print("FR %s" % str(force))
+        print("WPO %s" % str(wrposition))
+        print("WSC %s" % str(wrscale))
+        print("WUp %s" % str(wrupdate))
+        if polar:
+            axes = self.__polaraxes
+        elif self.__axes.enabled:
+            axes = self.__axes
+        else:
+            axes = self.__wraxes
 
+        wrupdate = update or wrupdate
         if update:
             self.__setLabels(axes.xtext, axes.ytext,
                              axes.xunits, axes.yunits)
@@ -347,8 +377,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 return
         axes.position = position
         axes.scale = scale
+        self.__wraxes.position = wrposition
+        self.__wraxes.scale = wrscale
+        print("CONT %s" % str(axes.scale))
         self.__image.resetTransform()
-        if axes.scale is not None and update:
+        if axes.scale is not None and wrupdate:
             if not self.__transformations.transpose:
                 self.__image.scale(*axes.scale)
             else:
@@ -356,7 +389,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     axes.scale[1], axes.scale[0])
         else:
             self.__image.scale(1, 1)
-        if axes.position is not None and update:
+        if axes.position is not None and wrupdate:
             if not self.__transformations.transpose:
                 self.__image.setPos(*axes.position)
             else:
@@ -393,6 +426,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 if self.__axes.position is None \
                 else self.__axes.position
             scale = self.__axes.scale
+        elif self.__wraxes.scale is not None and self.__wraxes.enabled is True:
+            position = [0, 0] \
+                if self.__wraxes.position is None \
+                else self.__wraxes.position
+            scale = self.__wraxes.scale
+
         return position[0], position[1], scale[0], scale[1]
 
     def __resetScale(self, polar=False):
@@ -401,7 +440,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :param polar: update polar scale
         :type polar: :obj:`bool`
         """
-        axes = self.__polaraxes if polar else self.__axes
+        if polar:
+            axes = self.__polaraxes
+        elif self.__axes.enabled:
+            axes = self.__axes
+        else:
+            axes = self.__wraxes
 
         if axes.scale is not None or axes.position is not None:
             self.__image.resetTransform()
@@ -534,15 +578,20 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         txdata = None
         tydata = None
-        if self.__axes.scale is not None:
-            txdata = x * self.__axes.scale[0]
-            tydata = y * self.__axes.scale[1]
-            if self.__axes.position is not None:
+        if self.__axes.enabled:
+            axes = self.__axes
+        else:
+            axes = self.__wraxes
+
+        if axes.scale is not None:
+            txdata = x * axes.scale[0]
+            tydata = y * axes.scale[1]
+            if axes.position is not None:
                 txdata = txdata + self.__axes.position[0]
                 tydata = tydata + self.__axes.position[1]
-        elif self.__axes.position is not None:
-            txdata = x + self.__axes.position[0]
-            tydata = y + self.__axes.position[1]
+        elif axes.position is not None:
+            txdata = x + axes.position[0]
+            tydata = y + axes.position[1]
         return (txdata, tydata)
 
     @QtCore.pyqtSlot(object)
@@ -699,6 +748,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             if parameters.scale is False:
                 doreset = self.__axes.enabled
             self.__axes.enabled = parameters.scale
+            self.__wraxes.enabled = parameters.scale
         if parameters.polarscale is not None:
             doreset = doreset or parameters.polarscale
             if self.__polaraxes.enabled and not parameters.polarscale:
@@ -712,6 +762,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if doreset:
             self.__resetScale(polar=parameters.polarscale)
         if parameters.scale is True or rescale:
+            self.__setScale(
+                self.__axes.position, self.__axes.scale, force=rescale)
+        if parameters.polarscale is not True:
             self.__setScale(
                 self.__axes.position, self.__axes.scale, force=rescale)
         if parameters.polarscale is True:
@@ -734,6 +787,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :rtype: :obj:`bool`
         """
         cnfdlg = axesDialog.AxesDialog()
+
         if self.__axes.position is None:
             cnfdlg.xposition = None
             cnfdlg.yposition = None
@@ -790,7 +844,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         return self.__data
 
-    def updateMetaData(self, axisscales=None, axislabels=None):
+    def updateMetaData(self, axisscales=None, axislabels=None,
+                       wraxisscales=None):
         """ update Metadata informations
 
         :param axisscales: [xstart, ystart, xscale, yscale]
@@ -798,6 +853,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                   [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`]
         :param axislabels: [xtext, ytext, xunits, yunits]
         :type axislabels:
+                  [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`]
+        :param wraxisscales: window range [xstart, ystart, xscale, yscale]
+        :type wraxisscales:
                   [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`]
         """
         if axislabels is not None:
@@ -811,6 +869,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 if axislabels[0] is not None else None
         position = None
         scale = None
+        wrposition = None
+        wrscale = None
         if axisscales is not None:
             try:
                 position = (float(axisscales[0]), float(axisscales[1]))
@@ -820,7 +880,19 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 scale = (float(axisscales[2]), float(axisscales[3]))
             except Exception:
                 scale = None
-        self.__setScale(position, scale, self.__axes.enabled)
+        if wraxisscales is not None:
+            try:
+                wrposition = (float(wraxisscales[0]), float(wraxisscales[1]))
+            except Exception:
+                wrposition = None
+            try:
+                wrscale = (float(wraxisscales[2]), float(wraxisscales[3]))
+            except Exception:
+                wrscale = None
+        self.__setScale(position, scale,
+                        self.__axes.enabled,
+                        wrposition=wrposition, wrscale=wrscale,
+                        wrupdate=wrscale or wrposition)
 
     def setStatsWOScaling(self, status):
         """ sets statistics without scaling flag
@@ -920,6 +992,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         if self.__axes.enabled is True:
             self.__setScale(self.__axes.position, self.__axes.scale)
+        elif self.__wraxes.enabled is True:
+            self.__setScale(self.__wraxes.position,
+                            self.__wraxes.scale)
         if self.__polaraxes.enabled is True:
             self.__setScale(
                 self.__polaraxes.position, self.__polaraxes.scale, polar=True)
