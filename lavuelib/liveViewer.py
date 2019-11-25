@@ -754,10 +754,12 @@ class LiveViewer(QtGui.QDialog):
                 self.__sourcewg.setSourceComboBoxByName(
                     self.__srcaliasnames[srcname])
 
+        QtCore.QCoreApplication.processEvents()
         if hasattr(options, "configuration") and \
            options.configuration is not None:
             self.__sourcewg.configure(str(options.configuration))
 
+        QtCore.QCoreApplication.processEvents()
         if hasattr(options, "mbuffer") and options.mbuffer is not None:
             self.__mbufferwg.changeView(True)
             self.__mbufferwg.onOff(True)
@@ -807,6 +809,7 @@ class LiveViewer(QtGui.QDialog):
         if hasattr(options, "scaling") and options.scaling is not None:
             self.__scalingwg.setScaling(str(options.scaling))
 
+        QtCore.QCoreApplication.processEvents()
         if hasattr(options, "levels") and options.levels is not None:
             self.__levelswg.setLevels(str(options.levels))
 
@@ -843,6 +846,7 @@ class LiveViewer(QtGui.QDialog):
         else:
             self.__tangoclient = None
 
+        QtCore.QCoreApplication.processEvents()
         if hasattr(options, "viewrange") and options.viewrange is not None:
             self.__imagewg.setViewRange(str(options.viewrange))
         self.__sourcewg.updateLayout()
