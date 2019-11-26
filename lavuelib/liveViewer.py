@@ -245,9 +245,9 @@ class LiveViewer(QtGui.QDialog):
         #: memory buffer groupbox
         self.__rangewg = rangeWindowGroupBox.RangeWindowGroupBox(
             parent=self)
-        self.__rangewg.factorChanged.connect(self._plot)
-        self.__rangewg.rangeWindowChanged.connect(self._plot)
-        self.__rangewg.functionChanged.connect(self._plot)
+        self.__rangewg.factorChanged.connect(self._resizePlot)
+        self.__rangewg.rangeWindowChanged.connect(self._resizePlot)
+        self.__rangewg.functionChanged.connect(self._resizePlot)
         #: (:class:`lavuelib.memoryBufferGroupBox.MemoryBufferGroupBox`)
         #: memory buffer groupbox
         self.__mbufferwg = memoryBufferGroupBox.MemoryBufferGroupBox(
@@ -903,6 +903,7 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showhighvaluemask
         )
         self.__rangewg.changeView(self.__settings.showrange)
+        self._resizePlot(self.__settings.showrange)
         self.__filterswg.changeView(self.__settings.showfilters)
         self.__mbufferwg.changeView(self.__settings.showmbuffer)
 
@@ -1367,6 +1368,7 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.showrange != dialog.showrange:
             self.__settings.showrange = dialog.showrange
             self.__rangewg.changeView(dialog.showrange)
+            self._resizePlot(self.__settings.showrange)
         if self.__settings.showfilters != dialog.showfilters:
             self.__settings.showfilters = dialog.showfilters
             self.__filterswg.changeView(
@@ -2308,9 +2310,6 @@ class LiveViewer(QtGui.QDialog):
                                     "rot180 + transpose"]:
                 position = [position[1], position[0]]
                 scale = [scale[1], scale[0]]
-            self.__imagewg.updateMetaData(
-                position + scale,
-                wraxisscales=position + scale)
 
     def __setrange(self, x1, y1, x2, y2):
         """ sets window range
@@ -2372,6 +2371,25 @@ class LiveViewer(QtGui.QDialog):
                             function)((-1, -3))
                 scale = [factor, factor]
         return scale
+
+    def _resizePlot(self, show=True):
+        """ resize window and plot
+        :param show: enable/disable resizing
+        :type show: :obj:`bool`
+        """
+        x1, y1, x2, y2 = self.__rangewg.rangeWindow()
+        factor = self.__rangewg.factor()
+        positionscale = [x1, y1, factor, factor]
+
+        if show and (x1 or x2 or factor != 1):
+            self.__imagewg.updateMetaData(
+                positionscale,
+                rescale=True)
+        else:
+            self.__imagewg.updateMetaData(
+                [0, 0, 1, 1],
+                rescale=False)
+        self._plot()
 
     def __applyFilters(self):
         """ applies user filters
