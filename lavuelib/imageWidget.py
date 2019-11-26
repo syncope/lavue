@@ -1443,17 +1443,19 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__displaywidget.scaling()
 
-    def scaledxy(self, x, y):
+    def scaledxy(self, x, y, useraxes=True):
         """ provides scaled x,y positions
 
         :param x: x pixel coordinate
         :type x: :obj:`float`
         :param y: y pixel coordinate
         :type y: :obj:`float`
+        :param useraxes: use user scaling
+        :type useraxes: :obj:`bool`
         :returns: scaled x,y position
         :rtype: (:obj:`float`, :obj:`float`)
         """
-        return self.__displaywidget.scaledxy(x, y)
+        return self.__displaywidget.scaledxy(x, y, useraxes)
 
     def axesunits(self):
         """ return axes units
@@ -1781,3 +1783,12 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :obj:`bool`
         """
         return self.__displaywidget.rgb()
+    
+    def rangeWindowEnabled(self):
+        """ provide info if range window enabled
+
+        :returns: range window enabled
+        :rtype: :obj:`bool`
+        """
+        return self.__displaywidget.rangeWindowEnabled()
+    

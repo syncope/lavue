@@ -2654,6 +2654,7 @@ class MaximaToolWidget(ToolBaseWidget):
         :rtype: (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
         """
         if rawarray is not None and rawarray.any():
+            # rwe = self._mainwidget.rangeWindowEnabled()
             nr = self.__ui.numberSpinBox.value()
             nr = min(nr, rawarray.size)
             if nr > 0:
@@ -2709,6 +2710,13 @@ class MaximaToolWidget(ToolBaseWidget):
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
         """
+        txdata = None
+        if self._mainwidget.rangeWindowEnabled():
+            txdata, tydata = self._mainwidget.scaledxy(
+                xdata, ydata, useraxes=False)
+            if txdata is not None:
+                txdata = xdata
+                tydata = ydata
         self.__settings.centerx = float(xdata)
         self.__settings.centery = float(ydata)
         self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
@@ -2728,6 +2736,12 @@ class MaximaToolWidget(ToolBaseWidget):
         """
         message = ""
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        txdata = None
+        if self._mainwidget.rangeWindowEnabled():
+            txdata, tydata = self._mainwidget.scaledxy(
+                x, y, useraxes=False)
+        if txdata is not None:
+            x, y = txdata, tydata
         ilabel = self._mainwidget.scalingLabel()
         if self.__gspaceindex == 0:
             thetax, thetay, thetatotal = self.__pixel2theta(x, y)

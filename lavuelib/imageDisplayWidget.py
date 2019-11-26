@@ -560,22 +560,26 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         return (self.__axes.xunits, self.__axes.yunits)
 
-    def scaledxy(self, x, y):
+    def scaledxy(self, x, y, useraxes=True):
         """ provides scaled x,y positions
 
         :param x: x pixel coordinate
         :type x: float
         :param y: y pixel coordinate
         :type y: float
+        :param useraxes: use user scaling
+        :type useraxes: :obj:`bool`
         :returns: scaled x,y position
         :rtype: (float, float)
         """
         txdata = None
         tydata = None
-        if self.__axes.enabled:
+        if self.__axes.enabled and useraxes:
             axes = self.__axes
-        else:
+        elif self.__wraxes.enabled:
             axes = self.__wraxes
+        else:
+            return None, None
 
         if axes.scale is not None:
             txdata = x * axes.scale[0]
@@ -989,6 +993,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         self.__viewbox.autoRange()
         self.__viewbox.enableAutoRange('xy', True)
+
+    def rangeWindowEnabled(self):
+        """ provide info if range window enabled
+
+        :returns: range window enabled
+        :rtype: :obj:`bool`
+        """
+        return self.__wraxes.enabled
 
     def setrgb(self, status=True):
         """ sets RGB on/off
