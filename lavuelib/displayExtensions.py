@@ -407,7 +407,13 @@ class ROIExtension(DisplayExtension):
                         else:
                             rc = roicoords[rid]
                             rcrds = [rc[1], rc[0], rc[3], rc[2]]
-
+                        if self._mainwidget.rangeWindowEnabled():
+                            tx, ty = self._mainwidget.descaledxy(
+                                rcrds[0], rcrds[1], useraxes=False)
+                            if tx is not None:
+                                tx2, ty2 = self._mainwidget.descaledxy(
+                                    rcrds[2], rcrds[3], useraxes=False)
+                                rcrds = [tx, ty, tx2, ty2]
                         for i in [0, 2]:
                             if rcrds[i] > image.shape[0]:
                                 rcrds[i] = image.shape[0]

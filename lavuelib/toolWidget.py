@@ -2715,8 +2715,9 @@ class MaximaToolWidget(ToolBaseWidget):
             txdata, tydata = self._mainwidget.scaledxy(
                 xdata, ydata, useraxes=False)
             if txdata is not None:
-                txdata = xdata
-                tydata = ydata
+                xdata = txdata
+                ydata = tydata
+        print("XY %s %s" % (xdata,  ydata))
         self.__settings.centerx = float(xdata)
         self.__settings.centery = float(ydata)
         self._mainwidget.writeAttribute("BeamCenterX", float(xdata))

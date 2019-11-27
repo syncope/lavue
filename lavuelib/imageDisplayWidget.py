@@ -592,6 +592,39 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             tydata = y + axes.position[1]
         return (txdata, tydata)
 
+    def descaledxy(self, x, y, useraxes=True):
+        """ provides scaled x,y positions
+
+        :param x: x pixel coordinate
+        :type x: float
+        :param y: y pixel coordinate
+        :type y: float
+        :param useraxes: use user scaling
+        :type useraxes: :obj:`bool`
+        :returns: scaled x,y position
+        :rtype: (float, float)
+        """
+        txdata = None
+        tydata = None
+        if self.__axes.enabled and useraxes:
+            axes = self.__axes
+        elif self.__wraxes.enabled:
+            axes = self.__wraxes
+        else:
+            return None, None
+
+        if axes.position is not None:
+            txdata = axes.position[0] - x
+            tydata = axes.position[1] - y
+            if axes.scale is not None:
+                txdata = txdata / axes.scale[0]
+                tydata = tydata / axes.scale[1]
+        elif axes.scale is not None:
+            txdata = x / axes.scale[0]
+            tydata = y / axes.scale[1]
+
+        return (txdata, tydata)
+
     @QtCore.pyqtSlot(object)
     def mouse_position(self, event=None):
         """ updates image widget after mouse position change

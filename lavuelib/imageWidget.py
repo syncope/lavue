@@ -1783,7 +1783,7 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :obj:`bool`
         """
         return self.__displaywidget.rgb()
-    
+
     def rangeWindowEnabled(self):
         """ provide info if range window enabled
 
@@ -1791,4 +1791,3 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :obj:`bool`
         """
         return self.__displaywidget.rangeWindowEnabled()
-    
