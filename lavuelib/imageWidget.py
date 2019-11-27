@@ -1457,8 +1457,19 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__displaywidget.scaledxy(x, y, useraxes)
 
+    def scale(self, useraxes=True):
+        """ provides scale and position of the axes
+
+        :param useraxes: use user scaling
+        :type useraxes: :obj:`bool`
+        :rtype: [int, int, int, int]
+        :returns: [posx, posy, scalex, scaley]
+        """
+        return self.__displaywidget.scale(useraxes)
+
     def axesunits(self):
         """ return axes units
+
         :returns: x,y units
         :rtype: (:obj:`str`, :obj:`str`)
         """
@@ -1754,15 +1765,17 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__displaywidget.viewRange()
 
-    def setMaximaPos(self, positionlist):
+    def setMaximaPos(self, positionlist, offset=None):
         """
         sets maxima postions
 
         :param positionlist: [(x1, y1), ... , (xn, yn)]
         :type positionlist: :obj:`list` < (float, float) >
+        :param offset: offset of position
+        :type offset: [ :obj:`float`, :obj:`float`]
         """
         return self.__displaywidget.extension('maxima').\
-            setMaximaPos(positionlist)
+            setMaximaPos(positionlist, offset)
 
     def setrgb(self, status=True):
         """ sets RGB on/off
@@ -1791,3 +1804,11 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :obj:`bool`
         """
         return self.__displaywidget.rangeWindowEnabled()
+
+    def rangeWindowScale(self):
+        """ provide info range window scale
+
+        :returns: range window scale
+        :rtype: :obj:`float`
+        """
+        return self.__displaywidget.rangeWindowScale()

@@ -1326,12 +1326,21 @@ class CenterExtension(DisplayExtension):
         :type ydata: :obj:`float`
         """
         self.__centercoordinates = [xdata, ydata]
-        if not self._mainwidget.transformations()[0]:
-            self.__centerVLine.setPos(xdata)
-            self.__centerHLine.setPos(ydata)
+        pos0, pos1, scale0, scale1 = self._mainwidget.scale(useraxes=False)
+        if pos0 is not None:
+            if not self._mainwidget.transformations()[0]:
+                self.__centerVLine.setPos((xdata) * scale0 + pos0)
+                self.__centerHLine.setPos((ydata) * scale1 + pos1)
+            else:
+                self.__centerVLine.setPos((ydata) * scale1 + pos1)
+                self.__centerHLine.setPos((xdata) * scale0 + pos0)
         else:
-            self.__centerVLine.setPos(ydata)
-            self.__centerHLine.setPos(xdata)
+            if not self._mainwidget.transformations()[0]:
+                self.__centerVLine.setPos(xdata)
+                self.__centerHLine.setPos(ydata)
+            else:
+                self.__centerVLine.setPos(ydata)
+                self.__centerHLine.setPos(xdata)
 
     def transpose(self):
         """ transposes Center lines
@@ -1624,15 +1633,19 @@ class MaximaExtension(DisplayExtension):
         else:
             self.__maxplot.hide()
 
-    def setMaximaPos(self, positionlist):
+    def setMaximaPos(self, positionlist, offset=None):
         """
         sets maxima postions
 
         :param positionlist: [(x1, y1), ... , (xn, yn)]
         :type positionlist: :obj:`list` < (float, float) >
+        :param offset: offset of position
+        :type offset: [ :obj:`float`, :obj:`float`]
         """
         self.__positions = positionlist
-        spots = [{'pos': [i + 0.5, j + 0.5], 'data': 1,
+        if offset is None:
+            offset = [0.5, 0.5]
+        spots = [{'pos': [i + offset[0], j + offset[1]], 'data': 1,
                   'brush': _pg.mkBrush((255, 0, 255))}
                  for i, j in self.__positions]
         if spots:

@@ -407,15 +407,18 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__polaraxes.position = position
         self.__polaraxes.scale = scale
 
-    def scale(self):
+    def scale(self, useraxes=True):
         """ provides scale and position of the axes
+
+        :param useraxes: use user scaling
+        :type useraxes: :obj:`bool`
         :rtype: [int, int, int, int]
         :returns: [posx, posy, scalex, scaley]
         """
         position = None, None
         scale = None, None
         if self.__axes.scale is not None and \
-           self.__axes.enabled is True:
+           self.__axes.enabled is True and useraxes:
             position = [0, 0] \
                 if self.__axes.position is None \
                 else self.__axes.position
@@ -1034,6 +1037,18 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :rtype: :obj:`bool`
         """
         return self.__wraxes.enabled
+
+    def rangeWindowScale(self):
+        """ provide info about range window sclae
+
+        :returns: range window scale
+        :rtype: :obj:`float`
+        """
+        if self.__wraxes.enabled and self.__wraxes.scale \
+           and self.__wraxes.scale[0] > 1:
+            return self.__wraxes.scale[0]
+        else:
+            return 1.0
 
     def setrgb(self, status=True):
         """ sets RGB on/off

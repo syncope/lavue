@@ -1289,6 +1289,11 @@ class LineCutToolWidget(ToolBaseWidget):
             curve.setVisible(False)
             self._mainwidget.removebottomplot(curve)
         self.__curves = []
+        for freezed in self.__freezed:
+            freezed.hide()
+            freezed.setVisible(False)
+            self._mainwidget.removebottomplot(freezed)
+        self.__freezed = []
 
     @QtCore.pyqtSlot(int)
     def _updateAllCuts(self, value):
@@ -1338,6 +1343,7 @@ class LineCutToolWidget(ToolBaseWidget):
                         if i < nrplots:
                             cr.setPen(_pg.hsvColor(i/float(nrplots)))
             coords = self._mainwidget.cutCoords()
+            rws = self._mainwidget.rangeWindowScale()
             for i in range(nrplots):
                 dt = self._mainwidget.cutData(i)
                 if dt is not None:
@@ -1352,7 +1358,11 @@ class LineCutToolWidget(ToolBaseWidget):
                             dx = np.linspace(crds[0], crds[2], len(dt))
                         self.__curves[i].setData(x=dx, y=dt)
                     else:
-                        self.__curves[i].setData(y=dt)
+                        if rws > 1.0:
+                            dx = np.linspace(0, len(dt - 1) * rws, len(dt))
+                            self.__curves[i].setData(x=dx, y=dt)
+                        else:
+                            self.__curves[i].setData(y=dt)
                     self.__curves[i].setVisible(True)
                 else:
                     self.__curves[i].setVisible(False)
@@ -1380,7 +1390,12 @@ class LineCutToolWidget(ToolBaseWidget):
                         dx = np.linspace(crds[0], crds[2], len(dt))
                     self.__curves[0].setData(x=dx, y=dt)
                 else:
-                    self.__curves[0].setData(y=dt)
+                    rws = self._mainwidget.rangeWindowScale()
+                    if rws > 1.0:
+                        dx = np.linspace(0, len(dt - 1) * rws, len(dt))
+                        self.__curves[0].setData(x=dx, y=dt)
+                    else:
+                        self.__curves[0].setData(y=dt)
                 self.__curves[0].setVisible(True)
             else:
                 self.__curves[0].setVisible(False)
@@ -2654,18 +2669,30 @@ class MaximaToolWidget(ToolBaseWidget):
         :rtype: (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
         """
         if rawarray is not None and rawarray.any():
-            # rwe = self._mainwidget.rangeWindowEnabled()
             nr = self.__ui.numberSpinBox.value()
             nr = min(nr, rawarray.size)
             if nr > 0:
+                offset = [0.5, 0.5]
                 fidxs = np.argsort(rawarray, axis=None)[-nr:]
                 aidxs = [np.unravel_index(idx, rawarray.shape)
                          for idx in fidxs]
-                maxidxs = [[i, j, rawarray[i, j]] for i, j in aidxs]
+                naidxs = aidxs
+                rwe = self._mainwidget.rangeWindowEnabled()
+                if rwe:
+                    x, y, s1, s2 = self._mainwidget.scale(useraxes=False)
+                    x = x or 0
+                    y = y or 0
+                    s1 = s1 or 1
+                    s2 = s2 or 1
+                    naidxs = [(int(i * s1 + x), int(j * s2 + y))
+                              for i, j in aidxs]
+                    offset = [offset[0] * s1, offset[1] * s2]
+                maxidxs = [[naidxs[n][0], naidxs[n][1], rawarray[i, j]]
+                           for n, (i, j) in enumerate(aidxs)]
                 current = self.__updatemaxima(maxidxs)
                 if current >= 0:
-                    aidxs.append(aidxs.pop(len(aidxs) - current - 1))
-                self._mainwidget.setMaximaPos(aidxs)
+                    aidxs.append(aidxs.pop(len(naidxs) - current - 1))
+                self._mainwidget.setMaximaPos(naidxs, offset)
             else:
                 self.__updatemaxima([])
                 self._mainwidget.setMaximaPos([])
