@@ -1692,6 +1692,9 @@ class ProjectionToolWidget(ToolBaseWidget):
                 if rwe:
                     x, y, s1, s2 = self._mainwidget.scale(
                         useraxes=False, noNone=True)
+                    if self._mainwidget.transformations()[3]:
+                        x, y = y, x
+                        s1, s2 = s2, s1
                     xx = list(
                         range(int(x), len(sx) * int(s1) + int(x), int(s1)))
                     yy = list(
@@ -1753,6 +1756,8 @@ class OneDToolWidget(ToolBaseWidget):
 
         #: ((:obj:`list`<:obj:`int`>) selected rows
         self.__rows = [0]
+        #: ((:obj:`list`<:obj:`int`>) selected rows
+        self.__dsrows = [0]
         #: ((:obj:`bool`) x in first row
         self.__xinfirstrow = False
         #: ((:obj:`bool`) accumalate status
@@ -1772,6 +1777,7 @@ class OneDToolWidget(ToolBaseWidget):
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.rowsLineEdit.textChanged, self._updateRows],
+            [self._mainwidget.scalesChanged, self._updateRows],
             [self.__ui.sizeLineEdit.textChanged, self._setBufferSize],
             [self.__ui.xCheckBox.stateChanged, self._updateXRow],
             [self.__ui.accuPushButton.clicked, self._startStopAccu],
@@ -1883,6 +1889,9 @@ class OneDToolWidget(ToolBaseWidget):
                     if rwe:
                         dx, dy, ds1, ds2 = self._mainwidget.scale(
                             useraxes=False, noNone=True)
+                        if self._mainwidget.transformations()[3]:
+                            dx, dy = dy, dx
+                            ds1, ds2 = ds2, ds1
                     stext = [rw for rw in re.split(",| ", text) if rw]
                     for rw in stext:
                         if ":" in rw:
@@ -1941,12 +1950,20 @@ class OneDToolWidget(ToolBaseWidget):
                         for i, cr in enumerate(self.__curves):
                             if i < nrplots:
                                 cr.setPen(_pg.hsvColor(i/float(nrplots)))
+                rwe = self._mainwidget.rangeWindowEnabled()
+                if rwe:
+                    dx, dy, ds1, ds2 = self._mainwidget.scale(
+                        useraxes=False, noNone=True)
                 for i in range(nrplots):
                     if self.__rows:
                         if self.__rows[0] is None:
                             if self.__xinfirstrow and i:
                                 self.__curves[i].setData(
                                     x=dts[:, 0], y=dts[:, i])
+                            elif rwe:
+                                y = dts[:, i]
+                                x = np.linspace(dy, len(y - 1) * ds2, len(y))
+                                self.__curves[i].setData(x=x, y=y)
                             else:
                                 self.__curves[i].setData(dts[:, i])
                             self.__curves[i].setVisible(True)
@@ -1954,6 +1971,10 @@ class OneDToolWidget(ToolBaseWidget):
                             if self.__xinfirstrow:
                                 self.__curves[i].setData(
                                     x=dts[:, 0], y=dts[:, self.__rows[i]])
+                            elif rwe:
+                                y = dts[:, self.__rows[i]]
+                                x = np.linspace(dy, len(y - 1) * ds2, len(y))
+                                self.__curves[i].setData(x=x, y=y)
                             else:
                                 self.__curves[i].setData(
                                     dts[:, self.__rows[i]])

@@ -719,7 +719,7 @@ class ImageWidget(QtGui.QWidget):
         :param orgupdownflip: selected up-down flip coordinates flag
         :type orgupdownflip: :obj:`bool`
         """
-        oldtrans, oldleftright, oldupdown = \
+        oldtrans, oldleftright, oldupdown, _ = \
             self.__displaywidget.transformations()
         if oldleftright != leftrightflip:
             if hasattr(self.__bottomplot.getViewBox(), "invertX"):
@@ -748,6 +748,7 @@ class ImageWidget(QtGui.QWidget):
         self.__displaywidget.setTransformations(
             transpose, leftrightflip, updownflip,
             orgtranspose)
+        self.scalesChanged.emit()
         if self.__tangoclient:
             if self.__selectedtrans != self.__lastroisparams or \
                self.__lastkeepcoords != self.__settings.keepcoords:
@@ -769,8 +770,9 @@ class ImageWidget(QtGui.QWidget):
     def transformations(self):
         """ povides coordinates transformations
 
-        :returns: transpose, leftrightflip, updownflip flags
-        :rtype: (:obj:`bool`, :obj:`bool`, :obj:`bool`)
+        :returns: transpose, leftrightflip, updownflip flags,
+                  original transpose
+        :rtype: (:obj:`bool`, :obj:`bool`, :obj:`bool`, :obj:`bool`)
         """
         return self.__displaywidget.transformations()
 
@@ -1276,7 +1278,7 @@ class ImageWidget(QtGui.QWidget):
                     else:
                         sh = (0, 0)
                     if self.__settings.keepcoords:
-                        trans, leftright, updown = \
+                        trans, leftright, updown, _ = \
                             self.__displaywidget.transformations()
 
                         flatrois.extend(

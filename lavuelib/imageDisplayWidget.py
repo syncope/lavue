@@ -1018,14 +1018,15 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
     def transformations(self):
         """ povides coordinates transformations
 
-        :returns: transpose, leftrightflip, updownflip flags
+        :returns: transpose, leftrightflip, updownflip flags,
+                  original transpose
         :rtype: (:obj:`bool`, :obj:`bool`, :obj:`bool`)
         """
         return (
             self.__transformations.transpose,
             self.__transformations.leftrightflip,
-            self.__transformations.updownflip
-            # , self.__transformations.transpose
+            self.__transformations.updownflip,
+            self.__transformations.orgtranspose
         )
 
     def __transposeItems(self):
