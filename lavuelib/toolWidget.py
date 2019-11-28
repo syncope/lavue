@@ -1644,12 +1644,21 @@ class ProjectionToolWidget(ToolBaseWidget):
                 else:
                     sy = npfun(dts, axis=0)
 
+                rwe = self._mainwidget.rangeWindowEnabled()
+                if rwe:
+                    x, y, s1, s2 = self._mainwidget.scale(
+                        useraxes=False, noNone=True)
+                    xx = list(range(x,len(sx) s1))
+                    yy = list(range(y,len(sy, s2)))
+                else:
+                    xx = list(range(len(sx)))
+                    yy = list(range(len(sy)))
                 self.__bottomplot.setOpts(
-                    y0=[0]*len(sx), y1=sx, x=list(range(len(sx))),
+                    y0 = [0] * len(sx), y1=sx, x=xx,
                     width=[1.0]*len(sx))
                 self.__bottomplot.drawPicture()
                 self.__rightplot.setOpts(
-                    x0=[0]*len(sy), x1=sy, y=list(range(len(sy))),
+                    x0 = [0] * len(sy), x1=sy, y=yy,
                     height=[1.]*len(sy))
                 self.__rightplot.drawPicture()
 
@@ -2686,11 +2695,8 @@ class MaximaToolWidget(ToolBaseWidget):
                 naidxs = aidxs
                 rwe = self._mainwidget.rangeWindowEnabled()
                 if rwe:
-                    x, y, s1, s2 = self._mainwidget.scale(useraxes=False)
-                    x = x or 0
-                    y = y or 0
-                    s1 = s1 or 1
-                    s2 = s2 or 1
+                    x, y, s1, s2 = self._mainwidget.scale(
+                        useraxes=False, noNone=True)
                     naidxs = [(int(i * s1 + x), int(j * s2 + y))
                               for i, j in aidxs]
                     offset = [offset[0] * s1, offset[1] * s2]

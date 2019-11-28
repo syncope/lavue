@@ -98,6 +98,8 @@ class ImageWidget(QtGui.QWidget):
     freezeBottomPlotClicked = QtCore.pyqtSignal()
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) clear clicked signal
     clearBottomPlotClicked = QtCore.pyqtSignal()
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) scales changed signal
+    scalesChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, tooltypes=None, settings=None,
                  rgbtooltypes=None):
@@ -548,6 +550,8 @@ class ImageWidget(QtGui.QWidget):
         """
         self.__displaywidget.updateMetaData(axisscales, axislabels,
                                             rescale)
+        self.scalesChanged.emit()
+        
 
     @QtCore.pyqtSlot(int)
     def updateROIs(self, rid, coords=None):
@@ -1457,15 +1461,17 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__displaywidget.scaledxy(x, y, useraxes)
 
-    def scale(self, useraxes=True):
+    def scale(self, useraxes=True, noNone=False):
         """ provides scale and position of the axes
 
         :param useraxes: use user scaling
         :type useraxes: :obj:`bool`
+        :param noNone: return values without None
+        :type noNone: :obj:`bool`
         :rtype: [int, int, int, int]
         :returns: [posx, posy, scalex, scaley]
         """
-        return self.__displaywidget.scale(useraxes)
+        return self.__displaywidget.scale(useraxes, noNone )
 
     def axesunits(self):
         """ return axes units

@@ -412,16 +412,22 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__polaraxes.position = position
         self.__polaraxes.scale = scale
 
-    def scale(self, useraxes=True):
+    def scale(self, useraxes=True, noNone=False):
         """ provides scale and position of the axes
 
         :param useraxes: use user scaling
         :type useraxes: :obj:`bool`
+        :param noNone: return values without None
+        :type noNone: :obj:`bool`
         :rtype: [int, int, int, int]
         :returns: [posx, posy, scalex, scaley]
         """
-        position = None, None
-        scale = None, None
+        if noNone:
+            position = 0, 0
+            scale = 1, 1
+        else:            
+            position = None, None
+            scale = None, None
         if self.__axes.scale is not None and \
            self.__axes.enabled is True and useraxes:
             position = [0, 0] \
