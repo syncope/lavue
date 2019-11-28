@@ -1461,6 +1461,10 @@ class ProjectionToolWidget(ToolBaseWidget):
         self.__rows = None
         #: (:obj:`slice`) selected columns
         self.__columns = None
+        #: (:obj:`slice`) selected rows
+        self.__dsrows = None
+        #: (:obj:`slice`) selected columns
+        self.__dscolumns = None
 
         self.parameters.bottomplot = True
         self.parameters.rightplot = True
@@ -1476,13 +1480,16 @@ class ProjectionToolWidget(ToolBaseWidget):
              self._setFunction],
             [self.__ui.rowsliceLineEdit.textChanged, self._updateRows],
             [self.__ui.columnsliceLineEdit.textChanged, self._updateColumns],
+            [self._mainwidget.scalesChanged, self._updateRows],
+            [self._mainwidget.scalesChanged, self._updateColumns],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
-    def __updateslice(self, text):
+    def __updateslice(self, text, dx=None, ds=None):
         """ create slices from the text
         """
         rows = "ERROR"
+        dsrows = "ERROR"
         if text:
             try:
                 if ":" in text:
@@ -1492,24 +1499,47 @@ class ProjectionToolWidget(ToolBaseWidget):
                     if len(slices) > 2:
                         s2 = int(slices[2]) if slices[2].strip() else None
                         rows = slice(s0, s1, s2)
+                        if dx is not None:
+                            dsrows = slice((s0-dx)/ds, (s1-dx)/ds, s2/ds)
+                        else:
+                            dsrows = rows
                     else:
                         rows = slice(s0, s1)
+                        if dx is not None:
+                            dsrows = slice((s0-dx)/ds, (s1-dx)/ds)
+                        else:
+                            dsrows = rows
                 else:
                     rows = int(text)
+                    if dx is not None:
+                        dsrows = (rows - dx)/ds
+                    else:
+                        dsrows = rows
+                    print("dsme %s" % dsrows)
             except Exception:
                 pass
         else:
             rows = None
-        return rows
+            dsrows = None
+        return rows, dsrows
 
     @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot()
     def _updateSlices(self):
         """ updates applied button"""
         rtext = str(self.__ui.rowsliceLineEdit.text()).strip()
-        self.__rows = self.__updateslice(rtext)
         ctext = str(self.__ui.columnsliceLineEdit.text()).strip()
-        self.__columns = self.__updateslice(ctext)
+        rwe = self._mainwidget.rangeWindowEnabled()
+        if rwe:
+            dx, dy, ds1, ds2 = self._mainwidget.scale(
+                useraxes=False, noNone=True)
+            self.__rows, self.__dsrows = self.__updateslice(
+                rtext, int(dx), int(ds1))
+            self.__columns, self.__dscolumns = self.__updateslice(
+                ctext, int(dy), int(ds2))
+        else:
+            self.__rows, self.__dsrows = self.__updateslice(rtext)
+            self.__columns, self.__dscolumns = self.__updateslice(ctext)
         if self.__rows is None:
             self._mainwidget.updateHBounds(None, None)
         elif isinstance(self.__rows, int):
@@ -1530,7 +1560,14 @@ class ProjectionToolWidget(ToolBaseWidget):
     def _updateRows(self):
         """ updates applied button"""
         rtext = str(self.__ui.rowsliceLineEdit.text()).strip()
-        self.__rows = self.__updateslice(rtext)
+        rwe = self._mainwidget.rangeWindowEnabled()
+        if rwe:
+            dx, dy, ds1, ds2 = self._mainwidget.scale(
+                useraxes=False, noNone=True)
+            self.__rows, self.__dsrows = self.__updateslice(
+                rtext, int(dx), int(ds1))
+        else:
+            self.__rows, self.__dsrows = self.__updateslice(rtext)
         if self.__rows is None:
             self._mainwidget.updateHBounds(None, None)
         elif isinstance(self.__rows, int):
@@ -1544,7 +1581,15 @@ class ProjectionToolWidget(ToolBaseWidget):
     def _updateColumns(self):
         """ updates applied button"""
         text = str(self.__ui.columnsliceLineEdit.text()).strip()
-        self.__columns = self.__updateslice(text)
+        rwe = self._mainwidget.rangeWindowEnabled()
+        if rwe:
+            dx, dy, ds1, ds2 = self._mainwidget.scale(
+                useraxes=False, noNone=True)
+        if rwe:
+            self.__columns, self.__dscolumns = self.__updateslice(
+                text, int(dy), int(ds2))
+        else:
+            self.__columns, self.__dscolumns = self.__updateslice(text)
         if self.__columns is None:
             self._mainwidget.updateVBounds(None, None)
         elif isinstance(self.__columns, int):
@@ -1611,34 +1656,34 @@ class ProjectionToolWidget(ToolBaseWidget):
                 else:
                     npfun = np.mean
 
-                if self.__rows == "ERROR":
+                if self.__dsrows == "ERROR":
                     sx = []
-                elif self.__rows is not None:
+                elif self.__dsrows is not None:
                     try:
                         with warnings.catch_warnings():
                             warnings.simplefilter(
                                 "error", category=RuntimeWarning)
-                            if isinstance(self.__rows, slice):
-                                sx = npfun(dts[:, self.__rows], axis=1)
+                            if isinstance(self.__dsrows, slice):
+                                sx = npfun(dts[:, self.__dsrows], axis=1)
                             else:
-                                sx = dts[:, self.__rows]
+                                sx = dts[:, self.__dsrows]
                     except Exception:
                         sx = []
 
                 else:
                     sx = npfun(dts, axis=1)
 
-                if self.__columns == "ERROR":
+                if self.__dscolumns == "ERROR":
                     sy = []
-                if self.__columns is not None:
+                if self.__dscolumns is not None:
                     try:
                         with warnings.catch_warnings():
                             warnings.simplefilter(
                                 "error", category=RuntimeWarning)
-                            if isinstance(self.__columns, slice):
-                                sy = npfun(dts[self.__columns, :], axis=0)
+                            if isinstance(self.__dscolumns, slice):
+                                sy = npfun(dts[self.__dscolumns, :], axis=0)
                             else:
-                                sy = dts[self.__columns, :]
+                                sy = dts[self.__dscolumns, :]
                     except Exception:
                         sy = []
                 else:
@@ -1648,18 +1693,24 @@ class ProjectionToolWidget(ToolBaseWidget):
                 if rwe:
                     x, y, s1, s2 = self._mainwidget.scale(
                         useraxes=False, noNone=True)
-                    xx = list(range(x,len(sx) s1))
-                    yy = list(range(y,len(sy, s2)))
+                    xx = list(
+                        range(int(x), len(sx) * int(s1) + int(x), int(s1)))
+                    yy = list(
+                        range(int(y), len(sy) * int(s2) + int(y), int(s2)))
+                    width = [s1] * len(sx)
+                    height = [s1] * len(sy)
                 else:
                     xx = list(range(len(sx)))
                     yy = list(range(len(sy)))
+                    width = [1.0] * len(sx)
+                    height = [1.0] * len(sy)
                 self.__bottomplot.setOpts(
-                    y0 = [0] * len(sx), y1=sx, x=xx,
-                    width=[1.0]*len(sx))
+                    y0=[0]*len(sx), y1=sx, x=xx,
+                    width=width)
                 self.__bottomplot.drawPicture()
                 self.__rightplot.setOpts(
-                    x0 = [0] * len(sy), x1=sy, y=yy,
-                    height=[1.]*len(sy))
+                    x0=[0]*len(sy), x1=sy, y=yy,
+                    height=height)
                 self.__rightplot.drawPicture()
 
     @QtCore.pyqtSlot()
@@ -1829,6 +1880,10 @@ class OneDToolWidget(ToolBaseWidget):
                 rows = [None]
             else:
                 try:
+                    rwe = self._mainwidget.rangeWindowEnabled()
+                    if rwe:
+                        dx, dy, ds1, ds2 = self._mainwidget.scale(
+                            useraxes=False, noNone=True)
                     stext = [rw for rw in re.split(",| ", text) if rw]
                     for rw in stext:
                         if ":" in rw:
@@ -1837,11 +1892,20 @@ class OneDToolWidget(ToolBaseWidget):
                             s1 = int(slices[1]) if slices[1].strip() else 0
                             if len(slices) > 2:
                                 s2 = int(slices[2]) if slices[2].strip() else 1
-                                rows.extend(list(range(s0, s1, s2)))
+                                if rwe:
+                                    rows.extend(list(range(s0, s1, s2)))
+                                else:
+                                    rows.extend(list(range(s0, s1, s2)))
                             else:
-                                rows.extend(list(range(s0, s1)))
+                                if rwe:
+                                    rows.extend(list(range(s0, s1)))
+                                else:
+                                    rows.extend(list(range(s0, s1)))
                         else:
-                            rows.append(int(rw))
+                            if rwe:
+                                rows.append(int(rw))
+                            else:
+                                rows.append(int(rw))
                 except Exception:
                     rows = []
         self.__rows = rows

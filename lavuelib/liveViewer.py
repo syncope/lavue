@@ -2380,8 +2380,7 @@ class LiveViewer(QtGui.QDialog):
         x1, y1, x2, y2 = self.__rangewg.rangeWindow()
         factor = self.__rangewg.factor()
         positionscale = [x1, y1, factor, factor]
-
-        if show and (x1 or x2 or factor != 1):
+        if show and (x1 or y1 or factor != 1):
             self.__imagewg.updateMetaData(
                 positionscale,
                 rescale=True)

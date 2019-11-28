@@ -551,7 +551,6 @@ class ImageWidget(QtGui.QWidget):
         self.__displaywidget.updateMetaData(axisscales, axislabels,
                                             rescale)
         self.scalesChanged.emit()
-        
 
     @QtCore.pyqtSlot(int)
     def updateROIs(self, rid, coords=None):
@@ -747,7 +746,8 @@ class ImageWidget(QtGui.QWidget):
 
         self.__selectedtrans = (orgtranspose, orgleftrightflip, orgupdownflip)
         self.__displaywidget.setTransformations(
-            transpose, leftrightflip, updownflip)
+            transpose, leftrightflip, updownflip,
+            orgtranspose)
         if self.__tangoclient:
             if self.__selectedtrans != self.__lastroisparams or \
                self.__lastkeepcoords != self.__settings.keepcoords:
@@ -1471,7 +1471,7 @@ class ImageWidget(QtGui.QWidget):
         :rtype: [int, int, int, int]
         :returns: [posx, posy, scalex, scaley]
         """
-        return self.__displaywidget.scale(useraxes, noNone )
+        return self.__displaywidget.scale(useraxes, noNone)
 
     def axesunits(self):
         """ return axes units

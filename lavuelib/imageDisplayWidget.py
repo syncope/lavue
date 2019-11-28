@@ -120,6 +120,8 @@ class TransformationParameters(object):
         self.leftrightflip = False
         #: (:obj:`bool`)  up-down flip coordinates flag
         self.updownflip = False
+        #: (:obj:`bool`) transpose coordinates flag
+        self.orgtranspose = False
 
 
 class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
@@ -389,7 +391,10 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         else:
             self.__image.scale(1, 1)
         if axes.position is not None and anyupdate:
-            if not self.__transformations.transpose:
+            if self.__transformations.orgtranspose and wrenabled:
+                self.__image.setPos(
+                    axes.position[1], axes.position[0])
+            elif not self.__transformations.transpose:
                 self.__image.setPos(*axes.position)
             else:
                 self.__image.setPos(
@@ -425,7 +430,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if noNone:
             position = 0, 0
             scale = 1, 1
-        else:            
+        else:
             position = None, None
             scale = None, None
         if self.__axes.scale is not None and \
@@ -967,7 +972,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         return self.__image
 
-    def setTransformations(self, transpose, leftrightflip, updownflip):
+    def setTransformations(self, transpose, leftrightflip, updownflip,
+                           orgtranspose):
         """ sets coordinate transformations
 
         :param transpose: transpose coordinates flag
@@ -976,10 +982,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type leftrightflip: :obj:`bool`
         :param updownflip: up-down flip coordinates flag
         :type updownflip: :obj:`bool`
+        :param orgtranspose: selected transpose coordinates flag
+        :type orgtranspose: :obj:`bool`
         """
         if self.__transformations.transpose != transpose:
             self.__transformations.transpose = transpose
             self.__transposeItems()
+        if self.__transformations.orgtranspose != orgtranspose:
+            self.__transformations.orgtranspose = orgtranspose
         if self.__transformations.leftrightflip != leftrightflip:
             self.__transformations.leftrightflip = leftrightflip
             if hasattr(self.__viewbox, "invertX"):
@@ -1014,7 +1024,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         return (
             self.__transformations.transpose,
             self.__transformations.leftrightflip,
-            self.__transformations.updownflip)
+            self.__transformations.updownflip
+            # , self.__transformations.transpose
+        )
 
     def __transposeItems(self):
         """ transposes all image items
