@@ -1512,7 +1512,7 @@ class ProjectionToolWidget(ToolBaseWidget):
                 else:
                     rows = int(text)
                     if dx is not None:
-                        dsrows = (rows - dx)/ds
+                        dsrows = int((rows - dx)/ds)
                     else:
                         dsrows = rows
             except Exception:
@@ -1803,7 +1803,7 @@ class OneDToolWidget(ToolBaseWidget):
 
         if self.__accumulate:
             dts = rawarray
-            newrow = np.sum(dts[:, self.__rows], axis=1)
+            newrow = np.sum(dts[:, self.__dsrows], axis=1)
             if self.__buffer is not None and \
                self.__buffer.shape[1] == newrow.shape[0]:
                 if self.__buffer.shape[0] >= self.__buffersize:
@@ -1880,6 +1880,7 @@ class OneDToolWidget(ToolBaseWidget):
         """ updates applied button"""
         text = str(self.__ui.rowsLineEdit.text()).strip()
         rows = []
+        dsrows = []
         if text:
             if text == "ALL":
                 rows = [None]
@@ -1900,23 +1901,29 @@ class OneDToolWidget(ToolBaseWidget):
                             s1 = int(slices[1]) if slices[1].strip() else 0
                             if len(slices) > 2:
                                 s2 = int(slices[2]) if slices[2].strip() else 1
+                                rows.extend(list(range(s0, s1, s2)))
                                 if rwe:
-                                    rows.extend(list(range(s0, s1, s2)))
-                                else:
-                                    rows.extend(list(range(s0, s1, s2)))
+                                    dsrows.extend(
+                                        list(range(int((s0-dy)/ds2),
+                                                   int((s1-dy)/ds2),
+                                                   int(s2/ds2))))
                             else:
+                                rows.extend(list(range(s0, s1)))
                                 if rwe:
-                                    rows.extend(list(range(s0, s1)))
-                                else:
-                                    rows.extend(list(range(s0, s1)))
+                                    dsrows.extend(
+                                        list(range(int((s0-dy)/ds2),
+                                                   int((s1-dy)/ds2))))
                         else:
+                            rows.append(int(rw))
                             if rwe:
-                                rows.append(int(rw))
-                            else:
-                                rows.append(int(rw))
+                                dsrows.append(int((int(rw)-dy)/ds2))
                 except Exception:
                     rows = []
         self.__rows = rows
+        if not rwe:
+            self.__dsrows = rows
+        else:
+            self.__dsrows = dsrows
         self._plotCurves()
 
     @QtCore.pyqtSlot()
@@ -1927,15 +1934,15 @@ class OneDToolWidget(ToolBaseWidget):
             dts = self._mainwidget.rawData()
             if dts is not None:
                 dtnrpts = dts.shape[1]
-                if self.__rows:
-                    if self.__rows[0] is None:
+                if self.__dsrows:
+                    if self.__dsrows[0] is None:
                         if self.__xinfirstrow:
                             nrplots = dtnrpts - 1
                         else:
                             nrplots = dtnrpts
 
                     else:
-                        nrplots = len(self.__rows)
+                        nrplots = len(self.__dsrows)
                 else:
                     nrplots = 0
                 if self.__nrplots != nrplots:
@@ -1954,30 +1961,36 @@ class OneDToolWidget(ToolBaseWidget):
                 if rwe:
                     dx, dy, ds1, ds2 = self._mainwidget.scale(
                         useraxes=False, noNone=True)
+                    if self._mainwidget.transformations()[3]:
+                        dx, dy = dy, dx
+                        ds1, ds2 = ds2, ds1
                 for i in range(nrplots):
-                    if self.__rows:
-                        if self.__rows[0] is None:
+                    if self.__dsrows:
+                        if self.__dsrows[0] is None:
                             if self.__xinfirstrow and i:
                                 self.__curves[i].setData(
                                     x=dts[:, 0], y=dts[:, i])
                             elif rwe:
                                 y = dts[:, i]
-                                x = np.linspace(dy, len(y - 1) * ds2, len(y))
+                                x = np.linspace(
+                                    dx, len(y - 1) * ds1 + dx, len(y))
                                 self.__curves[i].setData(x=x, y=y)
                             else:
                                 self.__curves[i].setData(dts[:, i])
                             self.__curves[i].setVisible(True)
-                        elif self.__rows[i] >= 0 and self.__rows[i] < dtnrpts:
+                        elif (self.__dsrows[i] >= 0 and
+                              self.__dsrows[i] < dtnrpts):
                             if self.__xinfirstrow:
                                 self.__curves[i].setData(
-                                    x=dts[:, 0], y=dts[:, self.__rows[i]])
+                                    x=dts[:, 0], y=dts[:, self.__dsrows[i]])
                             elif rwe:
-                                y = dts[:, self.__rows[i]]
-                                x = np.linspace(dy, len(y - 1) * ds2, len(y))
+                                y = dts[:, self.__dsrows[i]]
+                                x = np.linspace(
+                                    dx, len(y - 1) * ds1 + dx, len(y))
                                 self.__curves[i].setData(x=x, y=y)
                             else:
                                 self.__curves[i].setData(
-                                    dts[:, self.__rows[i]])
+                                    dts[:, self.__dsrows[i]])
                             self.__curves[i].setVisible(True)
                         else:
                             self.__curves[i].setVisible(False)
