@@ -1515,7 +1515,6 @@ class ProjectionToolWidget(ToolBaseWidget):
                         dsrows = (rows - dx)/ds
                     else:
                         dsrows = rows
-                    print("dsme %s" % dsrows)
             except Exception:
                 pass
         else:
@@ -1534,9 +1533,9 @@ class ProjectionToolWidget(ToolBaseWidget):
             dx, dy, ds1, ds2 = self._mainwidget.scale(
                 useraxes=False, noNone=True)
             self.__rows, self.__dsrows = self.__updateslice(
-                rtext, int(dx), int(ds1))
+                rtext, int(dy), int(ds2))
             self.__columns, self.__dscolumns = self.__updateslice(
-                ctext, int(dy), int(ds2))
+                ctext, int(dx), int(ds1))
         else:
             self.__rows, self.__dsrows = self.__updateslice(rtext)
             self.__columns, self.__dscolumns = self.__updateslice(ctext)
@@ -1565,7 +1564,7 @@ class ProjectionToolWidget(ToolBaseWidget):
             dx, dy, ds1, ds2 = self._mainwidget.scale(
                 useraxes=False, noNone=True)
             self.__rows, self.__dsrows = self.__updateslice(
-                rtext, int(dx), int(ds1))
+                rtext, int(dy), int(ds2))
         else:
             self.__rows, self.__dsrows = self.__updateslice(rtext)
         if self.__rows is None:
@@ -1587,7 +1586,7 @@ class ProjectionToolWidget(ToolBaseWidget):
                 useraxes=False, noNone=True)
         if rwe:
             self.__columns, self.__dscolumns = self.__updateslice(
-                text, int(dy), int(ds2))
+                text, int(dx), int(ds1))
         else:
             self.__columns, self.__dscolumns = self.__updateslice(text)
         if self.__columns is None:
