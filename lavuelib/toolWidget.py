@@ -2278,6 +2278,13 @@ class AngleQToolWidget(ToolBaseWidget):
         :type ydata: :obj:`float`
         """
         if self.__plotindex == 0:
+            txdata = None
+            if self._mainwidget.rangeWindowEnabled():
+                txdata, tydata = self._mainwidget.scaledxy(
+                    xdata, ydata, useraxes=False)
+                if txdata is not None:
+                    xdata = txdata
+                    ydata = tydata
             self.__settings.centerx = float(xdata)
             self.__settings.centery = float(ydata)
             self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
@@ -2744,7 +2751,6 @@ class MaximaToolWidget(ToolBaseWidget):
             if txdata is not None:
                 xdata = txdata
                 ydata = tydata
-        print("XY %s %s" % (xdata,  ydata))
         self.__settings.centerx = float(xdata)
         self.__settings.centery = float(ydata)
         self._mainwidget.writeAttribute("BeamCenterX", float(xdata))

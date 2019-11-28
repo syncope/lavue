@@ -404,16 +404,23 @@ class ROIExtension(DisplayExtension):
                         roicoords = self.__coords
                         if not self._mainwidget.transformations()[0]:
                             rcrds = list(roicoords[rid])
+                            if self._mainwidget.rangeWindowEnabled():
+                                tx, ty = self._mainwidget.descaledxy(
+                                    rcrds[0], rcrds[1], useraxes=False)
+                                if tx is not None:
+                                    tx2, ty2 = self._mainwidget.descaledxy(
+                                        rcrds[2], rcrds[3], useraxes=False)
+                                    rcrds = [tx, ty, tx2, ty2]
                         else:
                             rc = roicoords[rid]
                             rcrds = [rc[1], rc[0], rc[3], rc[2]]
-                        if self._mainwidget.rangeWindowEnabled():
-                            tx, ty = self._mainwidget.descaledxy(
-                                rcrds[0], rcrds[1], useraxes=False)
-                            if tx is not None:
-                                tx2, ty2 = self._mainwidget.descaledxy(
-                                    rcrds[2], rcrds[3], useraxes=False)
-                                rcrds = [tx, ty, tx2, ty2]
+                            if self._mainwidget.rangeWindowEnabled():
+                                ty, tx = self._mainwidget.descaledxy(
+                                    rcrds[1], rcrds[0], useraxes=False)
+                                if ty is not None:
+                                    ty2, tx2 = self._mainwidget.descaledxy(
+                                        rcrds[3], rcrds[2], useraxes=False)
+                                    rcrds = [tx, ty, tx2, ty2]
                         for i in [0, 2]:
                             if rcrds[i] > image.shape[0]:
                                 rcrds[i] = image.shape[0]

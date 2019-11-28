@@ -374,6 +374,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if wrupdate:
             self.__wraxes.position = position
             self.__wraxes.scale = scale
+            self.__axes.position = position
+            self.__axes.scale = scale
+        else:
+            axes.position = position
+            axes.scale = scale
         self.__image.resetTransform()
         if axes.scale is not None and anyupdate:
             if not self.__transformations.transpose:
@@ -617,8 +622,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             return None, None
 
         if axes.position is not None:
-            txdata = axes.position[0] - x
-            tydata = axes.position[1] - y
+            txdata = x - axes.position[0]
+            tydata = y - axes.position[1]
             if axes.scale is not None:
                 txdata = txdata / axes.scale[0]
                 tydata = tydata / axes.scale[1]
