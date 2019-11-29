@@ -108,7 +108,7 @@ class RangeWindowGroupBox(QtGui.QWidget):
         """
         try:
             self.__ui.factorSpinBox.setValue(int(factor))
-        except:
+        except Exception:
             self.__ui.factorSpinBox.setValue(1)
 
     def rangeWindow(self):
