@@ -98,6 +98,8 @@ class ImageWidget(QtGui.QWidget):
     freezeBottomPlotClicked = QtCore.pyqtSignal()
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) clear clicked signal
     clearBottomPlotClicked = QtCore.pyqtSignal()
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) scales changed signal
+    scalesChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, tooltypes=None, settings=None,
                  rgbtooltypes=None):
@@ -533,7 +535,8 @@ class ImageWidget(QtGui.QWidget):
                     print(str(e))
                 self.__currenttool.disactivate()
 
-    def updateMetaData(self, axisscales=None, axislabels=None):
+    def updateMetaData(self, axisscales=None, axislabels=None,
+                       rescale=False):
         """ update Metadata informations
 
         :param axisscales: [xstart, ystart, xscale, yscale]
@@ -542,8 +545,12 @@ class ImageWidget(QtGui.QWidget):
         :param axislabels: [xtext, ytext, xunits, yunits]
         :type axislabels:
                   [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`]
+        :param rescale: rescale or select range window
+        :type rescale: :obj:`True`
         """
-        self.__displaywidget.updateMetaData(axisscales, axislabels)
+        self.__displaywidget.updateMetaData(axisscales, axislabels,
+                                            rescale)
+        self.scalesChanged.emit()
 
     @QtCore.pyqtSlot(int)
     def updateROIs(self, rid, coords=None):
@@ -712,7 +719,7 @@ class ImageWidget(QtGui.QWidget):
         :param orgupdownflip: selected up-down flip coordinates flag
         :type orgupdownflip: :obj:`bool`
         """
-        oldtrans, oldleftright, oldupdown = \
+        oldtrans, oldleftright, oldupdown, _ = \
             self.__displaywidget.transformations()
         if oldleftright != leftrightflip:
             if hasattr(self.__bottomplot.getViewBox(), "invertX"):
@@ -739,7 +746,9 @@ class ImageWidget(QtGui.QWidget):
 
         self.__selectedtrans = (orgtranspose, orgleftrightflip, orgupdownflip)
         self.__displaywidget.setTransformations(
-            transpose, leftrightflip, updownflip)
+            transpose, leftrightflip, updownflip,
+            orgtranspose)
+        self.scalesChanged.emit()
         if self.__tangoclient:
             if self.__selectedtrans != self.__lastroisparams or \
                self.__lastkeepcoords != self.__settings.keepcoords:
@@ -761,8 +770,9 @@ class ImageWidget(QtGui.QWidget):
     def transformations(self):
         """ povides coordinates transformations
 
-        :returns: transpose, leftrightflip, updownflip flags
-        :rtype: (:obj:`bool`, :obj:`bool`, :obj:`bool`)
+        :returns: transpose, leftrightflip, updownflip flags,
+                  original transpose
+        :rtype: (:obj:`bool`, :obj:`bool`, :obj:`bool`, :obj:`bool`)
         """
         return self.__displaywidget.transformations()
 
@@ -1268,7 +1278,7 @@ class ImageWidget(QtGui.QWidget):
                     else:
                         sh = (0, 0)
                     if self.__settings.keepcoords:
-                        trans, leftright, updown = \
+                        trans, leftright, updown, _ = \
                             self.__displaywidget.transformations()
 
                         flatrois.extend(
@@ -1439,20 +1449,35 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__displaywidget.scaling()
 
-    def scaledxy(self, x, y):
+    def scaledxy(self, x, y, useraxes=True):
         """ provides scaled x,y positions
 
         :param x: x pixel coordinate
         :type x: :obj:`float`
         :param y: y pixel coordinate
         :type y: :obj:`float`
+        :param useraxes: use user scaling
+        :type useraxes: :obj:`bool`
         :returns: scaled x,y position
         :rtype: (:obj:`float`, :obj:`float`)
         """
-        return self.__displaywidget.scaledxy(x, y)
+        return self.__displaywidget.scaledxy(x, y, useraxes)
+
+    def scale(self, useraxes=True, noNone=False):
+        """ provides scale and position of the axes
+
+        :param useraxes: use user scaling
+        :type useraxes: :obj:`bool`
+        :param noNone: return values without None
+        :type noNone: :obj:`bool`
+        :rtype: [int, int, int, int]
+        :returns: [posx, posy, scalex, scaley]
+        """
+        return self.__displaywidget.scale(useraxes, noNone)
 
     def axesunits(self):
         """ return axes units
+
         :returns: x,y units
         :rtype: (:obj:`str`, :obj:`str`)
         """
@@ -1748,15 +1773,17 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__displaywidget.viewRange()
 
-    def setMaximaPos(self, positionlist):
+    def setMaximaPos(self, positionlist, offset=None):
         """
         sets maxima postions
 
         :param positionlist: [(x1, y1), ... , (xn, yn)]
         :type positionlist: :obj:`list` < (float, float) >
+        :param offset: offset of position
+        :type offset: [ :obj:`float`, :obj:`float`]
         """
         return self.__displaywidget.extension('maxima').\
-            setMaximaPos(positionlist)
+            setMaximaPos(positionlist, offset)
 
     def setrgb(self, status=True):
         """ sets RGB on/off
@@ -1777,3 +1804,19 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :obj:`bool`
         """
         return self.__displaywidget.rgb()
+
+    def rangeWindowEnabled(self):
+        """ provide info if range window enabled
+
+        :returns: range window enabled
+        :rtype: :obj:`bool`
+        """
+        return self.__displaywidget.rangeWindowEnabled()
+
+    def rangeWindowScale(self):
+        """ provide info range window scale
+
+        :returns: range window scale
+        :rtype: :obj:`float`
+        """
+        return self.__displaywidget.rangeWindowScale()

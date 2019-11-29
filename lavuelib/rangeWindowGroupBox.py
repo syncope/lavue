@@ -100,6 +100,17 @@ class RangeWindowGroupBox(QtGui.QWidget):
         """
         return int(self.__ui.factorSpinBox.value())
 
+    def setFactor(self, factor):
+        """ provides the current resize factor
+
+        :param factor: resize factor
+        :type factor: :obj:`int`
+        """
+        try:
+            self.__ui.factorSpinBox.setValue(int(factor))
+        except Exception:
+            self.__ui.factorSpinBox.setValue(1)
+
     def rangeWindow(self):
         """ provides the range window
 

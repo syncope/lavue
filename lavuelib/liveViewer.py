@@ -245,9 +245,9 @@ class LiveViewer(QtGui.QDialog):
         #: memory buffer groupbox
         self.__rangewg = rangeWindowGroupBox.RangeWindowGroupBox(
             parent=self)
-        self.__rangewg.factorChanged.connect(self._plot)
-        self.__rangewg.rangeWindowChanged.connect(self._plot)
-        self.__rangewg.functionChanged.connect(self._plot)
+        self.__rangewg.factorChanged.connect(self._resizePlot)
+        self.__rangewg.rangeWindowChanged.connect(self._resizePlot)
+        self.__rangewg.functionChanged.connect(self._resizePlot)
         #: (:class:`lavuelib.memoryBufferGroupBox.MemoryBufferGroupBox`)
         #: memory buffer groupbox
         self.__mbufferwg = memoryBufferGroupBox.MemoryBufferGroupBox(
@@ -754,10 +754,12 @@ class LiveViewer(QtGui.QDialog):
                 self.__sourcewg.setSourceComboBoxByName(
                     self.__srcaliasnames[srcname])
 
+        QtCore.QCoreApplication.processEvents()
         if hasattr(options, "configuration") and \
            options.configuration is not None:
             self.__sourcewg.configure(str(options.configuration))
 
+        QtCore.QCoreApplication.processEvents()
         if hasattr(options, "mbuffer") and options.mbuffer is not None:
             self.__mbufferwg.changeView(True)
             self.__mbufferwg.onOff(True)
@@ -807,6 +809,7 @@ class LiveViewer(QtGui.QDialog):
         if hasattr(options, "scaling") and options.scaling is not None:
             self.__scalingwg.setScaling(str(options.scaling))
 
+        QtCore.QCoreApplication.processEvents()
         if hasattr(options, "levels") and options.levels is not None:
             self.__levelswg.setLevels(str(options.levels))
 
@@ -843,6 +846,7 @@ class LiveViewer(QtGui.QDialog):
         else:
             self.__tangoclient = None
 
+        QtCore.QCoreApplication.processEvents()
         if hasattr(options, "viewrange") and options.viewrange is not None:
             self.__imagewg.setViewRange(str(options.viewrange))
         self.__sourcewg.updateLayout()
@@ -899,6 +903,7 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showhighvaluemask
         )
         self.__rangewg.changeView(self.__settings.showrange)
+        self._resizePlot(self.__settings.showrange)
         self.__filterswg.changeView(self.__settings.showfilters)
         self.__mbufferwg.changeView(self.__settings.showmbuffer)
 
@@ -1363,6 +1368,7 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.showrange != dialog.showrange:
             self.__settings.showrange = dialog.showrange
             self.__rangewg.changeView(dialog.showrange)
+            self._resizePlot(self.__settings.showrange)
         if self.__settings.showfilters != dialog.showfilters:
             self.__settings.showfilters = dialog.showfilters
             self.__filterswg.changeView(
@@ -2289,11 +2295,11 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.showrange and \
            self.__filteredimage is not None:
             x1, y1, x2, y2 = self.__rangewg.rangeWindow()
-            position = [0, 0]
+            position = [None, None]
             if x1 is not None or y1 is not None or \
                x2 is not None or y2 is not None:
                 position = self.__setrange(x1, y1, x2, y2)
-            scale = [1, 1]
+            scale = [None, None]
             factor = self.__rangewg.factor()
             if factor > 1:
                 function = self.__rangewg.function()
@@ -2304,7 +2310,6 @@ class LiveViewer(QtGui.QDialog):
                                     "rot180 + transpose"]:
                 position = [position[1], position[0]]
                 scale = [scale[1], scale[0]]
-            self.__imagewg.updateMetaData(position + scale)
 
     def __setrange(self, x1, y1, x2, y2):
         """ sets window range
@@ -2351,21 +2356,47 @@ class LiveViewer(QtGui.QDialog):
             h = shape[-1] // factor
             ww = w * factor
             hh = h * factor
-            if w > factor and h > factor or True:
-                if len(shape) == 2:
-                    self.__filteredimage = \
-                        getattr(
-                            self.__filteredimage[:ww, :hh].
-                            reshape(w, factor, h, factor),
-                            function)((-1, -3))
-                elif len(shape) == 3:
-                    self.__filteredimage = \
-                        getattr(
-                            self.__filteredimage[:, :ww, :hh].
-                            reshape(shape[0], w, factor, h, factor),
-                            function)((-1, -3))
-                scale = [factor, factor]
+            if ww < factor or hh < factor:
+                nfactor = max(min(int(shape[-2]), int(shape[-1])), 1)
+                self.__rangewg.setFactor(nfactor)
+                factor = 1
+                w = shape[-2] // factor
+                h = shape[-1] // factor
+                ww = w * factor
+                hh = h * factor
+
+            if len(shape) == 2 and factor > 1:
+                self.__filteredimage = \
+                    getattr(
+                        self.__filteredimage[:ww, :hh].
+                        reshape(w, factor, h, factor),
+                        function)((-1, -3))
+            elif len(shape) == 3:
+                self.__filteredimage = \
+                    getattr(
+                        self.__filteredimage[:, :ww, :hh].
+                        reshape(shape[0], w, factor, h, factor),
+                        function)((-1, -3))
+            scale = [factor, factor]
         return scale
+
+    def _resizePlot(self, show=True):
+        """ resize window and plot
+        :param show: enable/disable resizing
+        :type show: :obj:`bool`
+        """
+        x1, y1, x2, y2 = self.__rangewg.rangeWindow()
+        factor = self.__rangewg.factor()
+        positionscale = [x1, y1, factor, factor]
+        if show and (x1 or y1 or factor != 1):
+            self.__imagewg.updateMetaData(
+                positionscale,
+                rescale=True)
+        else:
+            self.__imagewg.updateMetaData(
+                [0, 0, 1, 1],
+                rescale=False)
+        self._plot()
 
     def __applyFilters(self):
         """ applies user filters
@@ -2436,13 +2467,15 @@ class LiveViewer(QtGui.QDialog):
         :rtype: [:obj:`str`, :obj:`str`, :obj:`str`, :obj:`str`,
                     :obj:`str`, :obj:`str`]
         """
-        if self.__settings.statswoscaling and self.__displayimage is not None:
+        if self.__settings.statswoscaling and self.__displayimage is not None \
+           and self.__displayimage.size > 0:
             maxval = np.amax(self.__displayimage) if flag[0] else 0.0
             meanval = np.mean(self.__displayimage) if flag[1] else 0.0
             varval = np.var(self.__displayimage) if flag[2] else 0.0
             maxsval = np.amax(self.__scaledimage) if flag[5] else 0.0
         elif (not self.__settings.statswoscaling
-              and self.__scaledimage is not None):
+              and self.__scaledimage is not None
+              and self.__displayimage.size > 0):
             maxval = np.amax(self.__scaledimage) if flag[0] or flag[5] else 0.0
             meanval = np.mean(self.__scaledimage) if flag[1] else 0.0
             varval = np.var(self.__scaledimage) if flag[2] else 0.0

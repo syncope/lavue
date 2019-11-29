@@ -120,6 +120,8 @@ class TransformationParameters(object):
         self.leftrightflip = False
         #: (:obj:`bool`)  up-down flip coordinates flag
         self.updownflip = False
+        #: (:obj:`bool`) transpose coordinates flag
+        self.orgtranspose = False
 
 
 class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
@@ -147,7 +149,10 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         #:            axes parameters
         self.__axes = AxesParameters()
         #: (:class:`lavuelib.imageDisplayWidget.AxesParameters`)
-        #:            polar axes parameters
+        #:            axes parameters
+        self.__wraxes = AxesParameters()
+        #: (:class:`lavuelib.imageDisplayWidget.AxesParameters`)
+        #:            down-sampling and range window axes parameters
         self.__polaraxes = AxesParameters()
 
         #: (:class:`lavuelib.imageDisplayWidget.IntensityParameters`)
@@ -289,6 +294,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     self.__axes.position[0], self.__axes.position[1],
                     xrg * ps[0], yrg * ps[1]),
                 padding=0)
+        elif self.__wraxes.position is not None and self.__wraxes.enabled:
+            self.__viewbox.setRange(
+                QtCore.QRectF(
+                    self.__wraxes.position[0],
+                    self.__wraxes.position[1],
+                    xrg * ps[0], yrg * ps[1]),
+                padding=0)
         else:
             self.__viewbox.setRange(
                 QtCore.QRectF(0, 0, xrg * ps[0], yrg * ps[1]),
@@ -321,7 +333,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             vr0[0], vr1[0], vr0[1] - vr0[0], vr1[1] - vr1[0])
 
     def __setScale(self, position=None, scale=None, update=True, polar=False,
-                   force=False):
+                   force=False, wrenabled=None, wrupdate=True):
         """ set axes scales
 
         :param position: start position of axes
@@ -334,9 +346,23 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type polar: :obj:`bool`
         :param force: force rescaling
         :type force: :obj:`bool`
+        :param wrenabled: down-sampling rescale
+        :type wrenabled: :obj:`bool`
+        :param wrupdate: update window ranges
+        :type wrupdate: :obj:`bool`
         """
-        axes = self.__polaraxes if polar else self.__axes
+        if wrenabled is not None:
+            self.__wraxes.enabled = wrenabled
+        else:
+            wrenabled = self.__wraxes.enabled
+        if polar:
+            axes = self.__polaraxes
+        elif self.__axes.enabled:
+            axes = self.__axes
+        else:
+            axes = self.__wraxes
 
+        anyupdate = update or wrenabled
         if update:
             self.__setLabels(axes.xtext, axes.ytext,
                              axes.xunits, axes.yunits)
@@ -347,8 +373,16 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 return
         axes.position = position
         axes.scale = scale
+        if wrupdate and not polar:
+            self.__wraxes.position = position
+            self.__wraxes.scale = scale
+            self.__axes.position = position
+            self.__axes.scale = scale
+        else:
+            axes.position = position
+            axes.scale = scale
         self.__image.resetTransform()
-        if axes.scale is not None and update:
+        if axes.scale is not None and anyupdate:
             if not self.__transformations.transpose:
                 self.__image.scale(*axes.scale)
             else:
@@ -356,8 +390,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     axes.scale[1], axes.scale[0])
         else:
             self.__image.scale(1, 1)
-        if axes.position is not None and update:
-            if not self.__transformations.transpose:
+        if axes.position is not None and anyupdate:
+            if self.__transformations.orgtranspose and wrenabled:
+                self.__image.setPos(
+                    axes.position[1], axes.position[0])
+            elif not self.__transformations.transpose:
                 self.__image.setPos(*axes.position)
             else:
                 self.__image.setPos(
@@ -380,19 +417,34 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__polaraxes.position = position
         self.__polaraxes.scale = scale
 
-    def scale(self):
+    def scale(self, useraxes=True, noNone=False):
         """ provides scale and position of the axes
+
+        :param useraxes: use user scaling
+        :type useraxes: :obj:`bool`
+        :param noNone: return values without None
+        :type noNone: :obj:`bool`
         :rtype: [int, int, int, int]
         :returns: [posx, posy, scalex, scaley]
         """
-        position = None, None
-        scale = None, None
+        if noNone:
+            position = 0, 0
+            scale = 1, 1
+        else:
+            position = None, None
+            scale = None, None
         if self.__axes.scale is not None and \
-           self.__axes.enabled is True:
+           self.__axes.enabled is True and useraxes:
             position = [0, 0] \
                 if self.__axes.position is None \
                 else self.__axes.position
             scale = self.__axes.scale
+        elif self.__wraxes.scale is not None and self.__wraxes.enabled is True:
+            position = [0, 0] \
+                if self.__wraxes.position is None \
+                else self.__wraxes.position
+            scale = self.__wraxes.scale
+
         return position[0], position[1], scale[0], scale[1]
 
     def __resetScale(self, polar=False):
@@ -401,7 +453,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :param polar: update polar scale
         :type polar: :obj:`bool`
         """
-        axes = self.__polaraxes if polar else self.__axes
+        if polar:
+            axes = self.__polaraxes
+        elif self.__axes.enabled:
+            axes = self.__axes
+        else:
+            axes = self.__wraxes
 
         if axes.scale is not None or axes.position is not None:
             self.__image.resetTransform()
@@ -522,27 +579,69 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         return (self.__axes.xunits, self.__axes.yunits)
 
-    def scaledxy(self, x, y):
+    def scaledxy(self, x, y, useraxes=True):
         """ provides scaled x,y positions
 
         :param x: x pixel coordinate
         :type x: float
         :param y: y pixel coordinate
         :type y: float
+        :param useraxes: use user scaling
+        :type useraxes: :obj:`bool`
         :returns: scaled x,y position
         :rtype: (float, float)
         """
         txdata = None
         tydata = None
-        if self.__axes.scale is not None:
-            txdata = x * self.__axes.scale[0]
-            tydata = y * self.__axes.scale[1]
-            if self.__axes.position is not None:
+        if self.__axes.enabled and useraxes:
+            axes = self.__axes
+        elif self.__wraxes.enabled:
+            axes = self.__wraxes
+        else:
+            return None, None
+
+        if axes.scale is not None:
+            txdata = x * axes.scale[0]
+            tydata = y * axes.scale[1]
+            if axes.position is not None:
                 txdata = txdata + self.__axes.position[0]
                 tydata = tydata + self.__axes.position[1]
-        elif self.__axes.position is not None:
-            txdata = x + self.__axes.position[0]
-            tydata = y + self.__axes.position[1]
+        elif axes.position is not None:
+            txdata = x + axes.position[0]
+            tydata = y + axes.position[1]
+        return (txdata, tydata)
+
+    def descaledxy(self, x, y, useraxes=True):
+        """ provides scaled x,y positions
+
+        :param x: x pixel coordinate
+        :type x: float
+        :param y: y pixel coordinate
+        :type y: float
+        :param useraxes: use user scaling
+        :type useraxes: :obj:`bool`
+        :returns: scaled x,y position
+        :rtype: (float, float)
+        """
+        txdata = None
+        tydata = None
+        if self.__axes.enabled and useraxes:
+            axes = self.__axes
+        elif self.__wraxes.enabled:
+            axes = self.__wraxes
+        else:
+            return None, None
+
+        if axes.position is not None:
+            txdata = x - axes.position[0]
+            tydata = y - axes.position[1]
+            if axes.scale is not None:
+                txdata = txdata / axes.scale[0]
+                tydata = tydata / axes.scale[1]
+        elif axes.scale is not None:
+            txdata = x / axes.scale[0]
+            tydata = y / axes.scale[1]
+
         return (txdata, tydata)
 
     @QtCore.pyqtSlot(object)
@@ -699,6 +798,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             if parameters.scale is False:
                 doreset = self.__axes.enabled
             self.__axes.enabled = parameters.scale
+            # self.__wraxes.enabled = parameters.scale
         if parameters.polarscale is not None:
             doreset = doreset or parameters.polarscale
             if self.__polaraxes.enabled and not parameters.polarscale:
@@ -711,6 +811,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
         if doreset:
             self.__resetScale(polar=parameters.polarscale)
+        if self.__wraxes.enabled:
+            self.__setScale(
+                self.__wraxes.position, self.__wraxes.scale, force=rescale)
         if parameters.scale is True or rescale:
             self.__setScale(
                 self.__axes.position, self.__axes.scale, force=rescale)
@@ -734,6 +837,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :rtype: :obj:`bool`
         """
         cnfdlg = axesDialog.AxesDialog()
+
         if self.__axes.position is None:
             cnfdlg.xposition = None
             cnfdlg.yposition = None
@@ -768,7 +872,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
             self.__axes.xunits = cnfdlg.xunits or None
             self.__axes.yunits = cnfdlg.yunits or None
-            self.__setScale(position, scale)
+            self.__setScale(position, scale, wrupdate=False)
             self.updateImage(self.__data, self.sceneObj.rawdata)
 
             return True
@@ -790,7 +894,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         return self.__data
 
-    def updateMetaData(self, axisscales=None, axislabels=None):
+    def updateMetaData(self, axisscales=None, axislabels=None,
+                       rescale=False):
         """ update Metadata informations
 
         :param axisscales: [xstart, ystart, xscale, yscale]
@@ -799,20 +904,26 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :param axislabels: [xtext, ytext, xunits, yunits]
         :type axislabels:
                   [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`]
+        :param rescale: rescale or select range window
+        :type rescale: :obj:`True`
         """
         if axislabels is not None:
             self.__axes.xtext = str(axislabels[0]) \
                 if axislabels[0] is not None else None
             self.__axes.ytext = str(axislabels[1]) \
-                if axislabels[0] is not None else None
+                if axislabels[1] is not None else None
             self.__axes.xunits = str(axislabels[2]) \
-                if axislabels[0] is not None else None
+                if axislabels[2] is not None else None
             self.__axes.yunits = str(axislabels[3]) \
-                if axislabels[0] is not None else None
+                if axislabels[3] is not None else None
         position = None
         scale = None
         if axisscales is not None:
             try:
+                if axisscales[0] is None and axisscales[1] is not None:
+                    axisscales[0] = 0
+                if axisscales[1] is None and axisscales[0] is not None:
+                    axisscales[1] = 0
                 position = (float(axisscales[0]), float(axisscales[1]))
             except Exception:
                 position = None
@@ -820,7 +931,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 scale = (float(axisscales[2]), float(axisscales[3]))
             except Exception:
                 scale = None
-        self.__setScale(position, scale, self.__axes.enabled)
+        self.__setScale(position, scale,
+                        self.__axes.enabled,
+                        wrenabled=rescale)
 
     def setStatsWOScaling(self, status):
         """ sets statistics without scaling flag
@@ -859,7 +972,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         return self.__image
 
-    def setTransformations(self, transpose, leftrightflip, updownflip):
+    def setTransformations(self, transpose, leftrightflip, updownflip,
+                           orgtranspose):
         """ sets coordinate transformations
 
         :param transpose: transpose coordinates flag
@@ -868,10 +982,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type leftrightflip: :obj:`bool`
         :param updownflip: up-down flip coordinates flag
         :type updownflip: :obj:`bool`
+        :param orgtranspose: selected transpose coordinates flag
+        :type orgtranspose: :obj:`bool`
         """
         if self.__transformations.transpose != transpose:
             self.__transformations.transpose = transpose
             self.__transposeItems()
+        if self.__transformations.orgtranspose != orgtranspose:
+            self.__transformations.orgtranspose = orgtranspose
         if self.__transformations.leftrightflip != leftrightflip:
             self.__transformations.leftrightflip = leftrightflip
             if hasattr(self.__viewbox, "invertX"):
@@ -900,13 +1018,16 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
     def transformations(self):
         """ povides coordinates transformations
 
-        :returns: transpose, leftrightflip, updownflip flags
+        :returns: transpose, leftrightflip, updownflip flags,
+                  original transpose
         :rtype: (:obj:`bool`, :obj:`bool`, :obj:`bool`)
         """
         return (
             self.__transformations.transpose,
             self.__transformations.leftrightflip,
-            self.__transformations.updownflip)
+            self.__transformations.updownflip,
+            self.__transformations.orgtranspose
+        )
 
     def __transposeItems(self):
         """ transposes all image items
@@ -920,6 +1041,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         if self.__axes.enabled is True:
             self.__setScale(self.__axes.position, self.__axes.scale)
+        elif self.__wraxes.enabled is True:
+            self.__setScale(self.__wraxes.position,
+                            self.__wraxes.scale)
         if self.__polaraxes.enabled is True:
             self.__setScale(
                 self.__polaraxes.position, self.__polaraxes.scale, polar=True)
@@ -929,6 +1053,26 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         self.__viewbox.autoRange()
         self.__viewbox.enableAutoRange('xy', True)
+
+    def rangeWindowEnabled(self):
+        """ provide info if range window enabled
+
+        :returns: range window enabled
+        :rtype: :obj:`bool`
+        """
+        return self.__wraxes.enabled
+
+    def rangeWindowScale(self):
+        """ provide info about range window sclae
+
+        :returns: range window scale
+        :rtype: :obj:`float`
+        """
+        if self.__wraxes.enabled and self.__wraxes.scale \
+           and self.__wraxes.scale[0] > 1:
+            return self.__wraxes.scale[0]
+        else:
+            return 1.0
 
     def setrgb(self, status=True):
         """ sets RGB on/off

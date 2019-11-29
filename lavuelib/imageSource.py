@@ -1120,7 +1120,7 @@ class ZMQSource(BaseSource):
                     return ("", "", jmetadata)
                 return (np.transpose(array), name, jmetadata)
 
-        except zmq.Again as e:
+        except zmq.Again:
             pass
         except Exception as e:
             # print(str(e))

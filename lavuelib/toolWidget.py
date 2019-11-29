@@ -1289,6 +1289,11 @@ class LineCutToolWidget(ToolBaseWidget):
             curve.setVisible(False)
             self._mainwidget.removebottomplot(curve)
         self.__curves = []
+        for freezed in self.__freezed:
+            freezed.hide()
+            freezed.setVisible(False)
+            self._mainwidget.removebottomplot(freezed)
+        self.__freezed = []
 
     @QtCore.pyqtSlot(int)
     def _updateAllCuts(self, value):
@@ -1338,6 +1343,7 @@ class LineCutToolWidget(ToolBaseWidget):
                         if i < nrplots:
                             cr.setPen(_pg.hsvColor(i/float(nrplots)))
             coords = self._mainwidget.cutCoords()
+            rws = self._mainwidget.rangeWindowScale()
             for i in range(nrplots):
                 dt = self._mainwidget.cutData(i)
                 if dt is not None:
@@ -1352,7 +1358,11 @@ class LineCutToolWidget(ToolBaseWidget):
                             dx = np.linspace(crds[0], crds[2], len(dt))
                         self.__curves[i].setData(x=dx, y=dt)
                     else:
-                        self.__curves[i].setData(y=dt)
+                        if rws > 1.0:
+                            dx = np.linspace(0, len(dt - 1) * rws, len(dt))
+                            self.__curves[i].setData(x=dx, y=dt)
+                        else:
+                            self.__curves[i].setData(y=dt)
                     self.__curves[i].setVisible(True)
                 else:
                     self.__curves[i].setVisible(False)
@@ -1380,7 +1390,12 @@ class LineCutToolWidget(ToolBaseWidget):
                         dx = np.linspace(crds[0], crds[2], len(dt))
                     self.__curves[0].setData(x=dx, y=dt)
                 else:
-                    self.__curves[0].setData(y=dt)
+                    rws = self._mainwidget.rangeWindowScale()
+                    if rws > 1.0:
+                        dx = np.linspace(0, len(dt - 1) * rws, len(dt))
+                        self.__curves[0].setData(x=dx, y=dt)
+                    else:
+                        self.__curves[0].setData(y=dt)
                 self.__curves[0].setVisible(True)
             else:
                 self.__curves[0].setVisible(False)
@@ -1446,6 +1461,10 @@ class ProjectionToolWidget(ToolBaseWidget):
         self.__rows = None
         #: (:obj:`slice`) selected columns
         self.__columns = None
+        #: (:obj:`slice`) selected rows
+        self.__dsrows = None
+        #: (:obj:`slice`) selected columns
+        self.__dscolumns = None
 
         self.parameters.bottomplot = True
         self.parameters.rightplot = True
@@ -1461,13 +1480,16 @@ class ProjectionToolWidget(ToolBaseWidget):
              self._setFunction],
             [self.__ui.rowsliceLineEdit.textChanged, self._updateRows],
             [self.__ui.columnsliceLineEdit.textChanged, self._updateColumns],
+            [self._mainwidget.scalesChanged, self._updateRows],
+            [self._mainwidget.scalesChanged, self._updateColumns],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
-    def __updateslice(self, text):
+    def __updateslice(self, text, dx=None, ds=None):
         """ create slices from the text
         """
         rows = "ERROR"
+        dsrows = "ERROR"
         if text:
             try:
                 if ":" in text:
@@ -1477,24 +1499,46 @@ class ProjectionToolWidget(ToolBaseWidget):
                     if len(slices) > 2:
                         s2 = int(slices[2]) if slices[2].strip() else None
                         rows = slice(s0, s1, s2)
+                        if dx is not None:
+                            dsrows = slice((s0-dx)/ds, (s1-dx)/ds, s2/ds)
+                        else:
+                            dsrows = rows
                     else:
                         rows = slice(s0, s1)
+                        if dx is not None:
+                            dsrows = slice((s0-dx)/ds, (s1-dx)/ds)
+                        else:
+                            dsrows = rows
                 else:
                     rows = int(text)
+                    if dx is not None:
+                        dsrows = int((rows - dx)/ds)
+                    else:
+                        dsrows = rows
             except Exception:
                 pass
         else:
             rows = None
-        return rows
+            dsrows = None
+        return rows, dsrows
 
     @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot()
     def _updateSlices(self):
         """ updates applied button"""
         rtext = str(self.__ui.rowsliceLineEdit.text()).strip()
-        self.__rows = self.__updateslice(rtext)
         ctext = str(self.__ui.columnsliceLineEdit.text()).strip()
-        self.__columns = self.__updateslice(ctext)
+        rwe = self._mainwidget.rangeWindowEnabled()
+        if rwe:
+            dx, dy, ds1, ds2 = self._mainwidget.scale(
+                useraxes=False, noNone=True)
+            self.__rows, self.__dsrows = self.__updateslice(
+                rtext, int(dy), int(ds2))
+            self.__columns, self.__dscolumns = self.__updateslice(
+                ctext, int(dx), int(ds1))
+        else:
+            self.__rows, self.__dsrows = self.__updateslice(rtext)
+            self.__columns, self.__dscolumns = self.__updateslice(ctext)
         if self.__rows is None:
             self._mainwidget.updateHBounds(None, None)
         elif isinstance(self.__rows, int):
@@ -1515,7 +1559,14 @@ class ProjectionToolWidget(ToolBaseWidget):
     def _updateRows(self):
         """ updates applied button"""
         rtext = str(self.__ui.rowsliceLineEdit.text()).strip()
-        self.__rows = self.__updateslice(rtext)
+        rwe = self._mainwidget.rangeWindowEnabled()
+        if rwe:
+            dx, dy, ds1, ds2 = self._mainwidget.scale(
+                useraxes=False, noNone=True)
+            self.__rows, self.__dsrows = self.__updateslice(
+                rtext, int(dy), int(ds2))
+        else:
+            self.__rows, self.__dsrows = self.__updateslice(rtext)
         if self.__rows is None:
             self._mainwidget.updateHBounds(None, None)
         elif isinstance(self.__rows, int):
@@ -1529,7 +1580,15 @@ class ProjectionToolWidget(ToolBaseWidget):
     def _updateColumns(self):
         """ updates applied button"""
         text = str(self.__ui.columnsliceLineEdit.text()).strip()
-        self.__columns = self.__updateslice(text)
+        rwe = self._mainwidget.rangeWindowEnabled()
+        if rwe:
+            dx, dy, ds1, ds2 = self._mainwidget.scale(
+                useraxes=False, noNone=True)
+        if rwe:
+            self.__columns, self.__dscolumns = self.__updateslice(
+                text, int(dx), int(ds1))
+        else:
+            self.__columns, self.__dscolumns = self.__updateslice(text)
         if self.__columns is None:
             self._mainwidget.updateVBounds(None, None)
         elif isinstance(self.__columns, int):
@@ -1596,46 +1655,64 @@ class ProjectionToolWidget(ToolBaseWidget):
                 else:
                     npfun = np.mean
 
-                if self.__rows == "ERROR":
+                if self.__dsrows == "ERROR":
                     sx = []
-                elif self.__rows is not None:
+                elif self.__dsrows is not None:
                     try:
                         with warnings.catch_warnings():
                             warnings.simplefilter(
                                 "error", category=RuntimeWarning)
-                            if isinstance(self.__rows, slice):
-                                sx = npfun(dts[:, self.__rows], axis=1)
+                            if isinstance(self.__dsrows, slice):
+                                sx = npfun(dts[:, self.__dsrows], axis=1)
                             else:
-                                sx = dts[:, self.__rows]
+                                sx = dts[:, self.__dsrows]
                     except Exception:
                         sx = []
 
                 else:
                     sx = npfun(dts, axis=1)
 
-                if self.__columns == "ERROR":
+                if self.__dscolumns == "ERROR":
                     sy = []
-                if self.__columns is not None:
+                if self.__dscolumns is not None:
                     try:
                         with warnings.catch_warnings():
                             warnings.simplefilter(
                                 "error", category=RuntimeWarning)
-                            if isinstance(self.__columns, slice):
-                                sy = npfun(dts[self.__columns, :], axis=0)
+                            if isinstance(self.__dscolumns, slice):
+                                sy = npfun(dts[self.__dscolumns, :], axis=0)
                             else:
-                                sy = dts[self.__columns, :]
+                                sy = dts[self.__dscolumns, :]
                     except Exception:
                         sy = []
                 else:
                     sy = npfun(dts, axis=0)
 
+                rwe = self._mainwidget.rangeWindowEnabled()
+                if rwe:
+                    x, y, s1, s2 = self._mainwidget.scale(
+                        useraxes=False, noNone=True)
+                    if self._mainwidget.transformations()[3]:
+                        x, y = y, x
+                        s1, s2 = s2, s1
+                    xx = list(
+                        range(int(x), len(sx) * int(s1) + int(x), int(s1)))
+                    yy = list(
+                        range(int(y), len(sy) * int(s2) + int(y), int(s2)))
+                    width = [s1] * len(sx)
+                    height = [s1] * len(sy)
+                else:
+                    xx = list(range(len(sx)))
+                    yy = list(range(len(sy)))
+                    width = [1.0] * len(sx)
+                    height = [1.0] * len(sy)
                 self.__bottomplot.setOpts(
-                    y0=[0]*len(sx), y1=sx, x=list(range(len(sx))),
-                    width=[1.0]*len(sx))
+                    y0=[0]*len(sx), y1=sx, x=xx,
+                    width=width)
                 self.__bottomplot.drawPicture()
                 self.__rightplot.setOpts(
-                    x0=[0]*len(sy), x1=sy, y=list(range(len(sy))),
-                    height=[1.]*len(sy))
+                    x0=[0]*len(sy), x1=sy, y=yy,
+                    height=height)
                 self.__rightplot.drawPicture()
 
     @QtCore.pyqtSlot()
@@ -1679,6 +1756,8 @@ class OneDToolWidget(ToolBaseWidget):
 
         #: ((:obj:`list`<:obj:`int`>) selected rows
         self.__rows = [0]
+        #: ((:obj:`list`<:obj:`int`>) selected rows
+        self.__dsrows = [0]
         #: ((:obj:`bool`) x in first row
         self.__xinfirstrow = False
         #: ((:obj:`bool`) accumalate status
@@ -1698,6 +1777,7 @@ class OneDToolWidget(ToolBaseWidget):
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.rowsLineEdit.textChanged, self._updateRows],
+            [self._mainwidget.scalesChanged, self._updateRows],
             [self.__ui.sizeLineEdit.textChanged, self._setBufferSize],
             [self.__ui.xCheckBox.stateChanged, self._updateXRow],
             [self.__ui.accuPushButton.clicked, self._startStopAccu],
@@ -1723,7 +1803,7 @@ class OneDToolWidget(ToolBaseWidget):
 
         if self.__accumulate:
             dts = rawarray
-            newrow = np.sum(dts[:, self.__rows], axis=1)
+            newrow = np.sum(dts[:, self.__dsrows], axis=1)
             if self.__buffer is not None and \
                self.__buffer.shape[1] == newrow.shape[0]:
                 if self.__buffer.shape[0] >= self.__buffersize:
@@ -1800,11 +1880,20 @@ class OneDToolWidget(ToolBaseWidget):
         """ updates applied button"""
         text = str(self.__ui.rowsLineEdit.text()).strip()
         rows = []
+        dsrows = []
+        rwe = None
         if text:
             if text == "ALL":
                 rows = [None]
             else:
                 try:
+                    rwe = self._mainwidget.rangeWindowEnabled()
+                    if rwe:
+                        dx, dy, ds1, ds2 = self._mainwidget.scale(
+                            useraxes=False, noNone=True)
+                        if self._mainwidget.transformations()[3]:
+                            dx, dy = dy, dx
+                            ds1, ds2 = ds2, ds1
                     stext = [rw for rw in re.split(",| ", text) if rw]
                     for rw in stext:
                         if ":" in rw:
@@ -1814,13 +1903,28 @@ class OneDToolWidget(ToolBaseWidget):
                             if len(slices) > 2:
                                 s2 = int(slices[2]) if slices[2].strip() else 1
                                 rows.extend(list(range(s0, s1, s2)))
+                                if rwe:
+                                    dsrows.extend(
+                                        list(range(int((s0-dy)/ds2),
+                                                   int((s1-dy)/ds2),
+                                                   int(s2/ds2))))
                             else:
                                 rows.extend(list(range(s0, s1)))
+                                if rwe:
+                                    dsrows.extend(
+                                        list(range(int((s0-dy)/ds2),
+                                                   int((s1-dy)/ds2))))
                         else:
                             rows.append(int(rw))
+                            if rwe:
+                                dsrows.append(int((int(rw)-dy)/ds2))
                 except Exception:
                     rows = []
         self.__rows = rows
+        if not rwe:
+            self.__dsrows = rows
+        else:
+            self.__dsrows = dsrows
         self._plotCurves()
 
     @QtCore.pyqtSlot()
@@ -1831,15 +1935,15 @@ class OneDToolWidget(ToolBaseWidget):
             dts = self._mainwidget.rawData()
             if dts is not None:
                 dtnrpts = dts.shape[1]
-                if self.__rows:
-                    if self.__rows[0] is None:
+                if self.__dsrows:
+                    if self.__dsrows[0] is None:
                         if self.__xinfirstrow:
                             nrplots = dtnrpts - 1
                         else:
                             nrplots = dtnrpts
 
                     else:
-                        nrplots = len(self.__rows)
+                        nrplots = len(self.__dsrows)
                 else:
                     nrplots = 0
                 if self.__nrplots != nrplots:
@@ -1854,22 +1958,40 @@ class OneDToolWidget(ToolBaseWidget):
                         for i, cr in enumerate(self.__curves):
                             if i < nrplots:
                                 cr.setPen(_pg.hsvColor(i/float(nrplots)))
+                rwe = self._mainwidget.rangeWindowEnabled()
+                if rwe:
+                    dx, dy, ds1, ds2 = self._mainwidget.scale(
+                        useraxes=False, noNone=True)
+                    if self._mainwidget.transformations()[3]:
+                        dx, dy = dy, dx
+                        ds1, ds2 = ds2, ds1
                 for i in range(nrplots):
-                    if self.__rows:
-                        if self.__rows[0] is None:
+                    if self.__dsrows:
+                        if self.__dsrows[0] is None:
                             if self.__xinfirstrow and i:
                                 self.__curves[i].setData(
                                     x=dts[:, 0], y=dts[:, i])
+                            elif rwe:
+                                y = dts[:, i]
+                                x = np.linspace(
+                                    dx, len(y - 1) * ds1 + dx, len(y))
+                                self.__curves[i].setData(x=x, y=y)
                             else:
                                 self.__curves[i].setData(dts[:, i])
                             self.__curves[i].setVisible(True)
-                        elif self.__rows[i] >= 0 and self.__rows[i] < dtnrpts:
+                        elif (self.__dsrows[i] >= 0 and
+                              self.__dsrows[i] < dtnrpts):
                             if self.__xinfirstrow:
                                 self.__curves[i].setData(
-                                    x=dts[:, 0], y=dts[:, self.__rows[i]])
+                                    x=dts[:, 0], y=dts[:, self.__dsrows[i]])
+                            elif rwe:
+                                y = dts[:, self.__dsrows[i]]
+                                x = np.linspace(
+                                    dx, len(y - 1) * ds1 + dx, len(y))
+                                self.__curves[i].setData(x=x, y=y)
                             else:
                                 self.__curves[i].setData(
-                                    dts[:, self.__rows[i]])
+                                    dts[:, self.__dsrows[i]])
                             self.__curves[i].setVisible(True)
                         else:
                             self.__curves[i].setVisible(False)
@@ -2217,8 +2339,20 @@ class AngleQToolWidget(ToolBaseWidget):
            self.__settings.pixelsizex > 0 and self.__settings.pixelsizey > 0:
             if rdata is None:
                 rdata = self._mainwidget.currentData()
-            xx = np.array(range(rdata.shape[0]))
-            yy = np.array(range(rdata.shape[1]))
+            rwe = self._mainwidget.rangeWindowEnabled()
+            if rwe:
+                dx, dy, ds1, ds2 = self._mainwidget.scale(
+                    useraxes=False, noNone=True)
+                xx = np.array(range(int(dx),
+                                    int((rdata.shape[0])*ds1 + dx),
+                                    int(ds1)))
+
+                yy = np.array(range(int(dy),
+                                    int((rdata.shape[1])*ds2 + dy),
+                                    int(ds2)))
+            else:
+                xx = np.array(range(rdata.shape[0]))
+                yy = np.array(range(rdata.shape[1]))
 
             self.__inter = scipy.interpolate.RegularGridInterpolator(
                 (xx, yy), rdata,
@@ -2263,6 +2397,13 @@ class AngleQToolWidget(ToolBaseWidget):
         :type ydata: :obj:`float`
         """
         if self.__plotindex == 0:
+            txdata = None
+            if self._mainwidget.rangeWindowEnabled():
+                txdata, tydata = self._mainwidget.scaledxy(
+                    xdata, ydata, useraxes=False)
+                if txdata is not None:
+                    xdata = txdata
+                    ydata = tydata
             self.__settings.centerx = float(xdata)
             self.__settings.centery = float(ydata)
             self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
@@ -2276,6 +2417,12 @@ class AngleQToolWidget(ToolBaseWidget):
         """
         message = ""
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if self._mainwidget.rangeWindowEnabled():
+            txdata, tydata = self._mainwidget.scaledxy(
+                x, y, useraxes=False)
+            if txdata is not None:
+                x = txdata
+                y = tydata
         ilabel = self._mainwidget.scalingLabel()
         if self.__plotindex == 0:
             if self.__gspaceindex == 0:
@@ -2657,14 +2804,24 @@ class MaximaToolWidget(ToolBaseWidget):
             nr = self.__ui.numberSpinBox.value()
             nr = min(nr, rawarray.size)
             if nr > 0:
+                offset = [0.5, 0.5]
                 fidxs = np.argsort(rawarray, axis=None)[-nr:]
                 aidxs = [np.unravel_index(idx, rawarray.shape)
                          for idx in fidxs]
-                maxidxs = [[i, j, rawarray[i, j]] for i, j in aidxs]
+                naidxs = aidxs
+                rwe = self._mainwidget.rangeWindowEnabled()
+                if rwe:
+                    x, y, s1, s2 = self._mainwidget.scale(
+                        useraxes=False, noNone=True)
+                    naidxs = [(int(i * s1 + x), int(j * s2 + y))
+                              for i, j in aidxs]
+                    offset = [offset[0] * s1, offset[1] * s2]
+                maxidxs = [[naidxs[n][0], naidxs[n][1], rawarray[i, j]]
+                           for n, (i, j) in enumerate(aidxs)]
                 current = self.__updatemaxima(maxidxs)
                 if current >= 0:
-                    aidxs.append(aidxs.pop(len(aidxs) - current - 1))
-                self._mainwidget.setMaximaPos(aidxs)
+                    aidxs.append(aidxs.pop(len(naidxs) - current - 1))
+                self._mainwidget.setMaximaPos(naidxs, offset)
             else:
                 self.__updatemaxima([])
                 self._mainwidget.setMaximaPos([])
@@ -2709,6 +2866,13 @@ class MaximaToolWidget(ToolBaseWidget):
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
         """
+        txdata = None
+        if self._mainwidget.rangeWindowEnabled():
+            txdata, tydata = self._mainwidget.scaledxy(
+                xdata, ydata, useraxes=False)
+            if txdata is not None:
+                xdata = txdata
+                ydata = tydata
         self.__settings.centerx = float(xdata)
         self.__settings.centery = float(ydata)
         self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
@@ -2728,6 +2892,12 @@ class MaximaToolWidget(ToolBaseWidget):
         """
         message = ""
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        txdata = None
+        if self._mainwidget.rangeWindowEnabled():
+            txdata, tydata = self._mainwidget.scaledxy(
+                x, y, useraxes=False)
+        if txdata is not None:
+            x, y = txdata, tydata
         ilabel = self._mainwidget.scalingLabel()
         if self.__gspaceindex == 0:
             thetax, thetay, thetatotal = self.__pixel2theta(x, y)
@@ -2930,6 +3100,10 @@ class QROIProjToolWidget(ToolBaseWidget):
         self.__rows = None
         #: (:obj:`slice`) selected columns
         self.__columns = None
+        #: (:obj:`slice`) selected rows
+        self.__dsrows = None
+        #: (:obj:`slice`) selected columns
+        self.__dscolumns = None
 
         #: (:obj:`list`< :obj:`str`>) sardana aliases
         self.__aliases = []
@@ -2981,8 +3155,9 @@ class QROIProjToolWidget(ToolBaseWidget):
             [self.__ui.funComboBox.currentIndexChanged,
              self._setFunction],
             [self.__ui.rowsliceLineEdit.textChanged, self._updateRows],
-            [self.__ui.columnsliceLineEdit.textChanged, self._updateColumns]
-
+            [self.__ui.columnsliceLineEdit.textChanged, self._updateColumns],
+            [self._mainwidget.scalesChanged, self._updateRows],
+            [self._mainwidget.scalesChanged, self._updateColumns],
         ]
 
     def activate(self):
@@ -3034,10 +3209,11 @@ class QROIProjToolWidget(ToolBaseWidget):
         self._mainwidget.roilabels = str(self.__ui.labelROILineEdit.text())
         self._mainwidget.writeDetectorROIsAttribute()
 
-    def __updateslice(self, text):
+    def __updateslice(self, text, dx=None, ds=None):
         """ create slices from the text
         """
         rows = "ERROR"
+        dsrows = "ERROR"
         if text:
             try:
                 if ":" in text:
@@ -3047,24 +3223,59 @@ class QROIProjToolWidget(ToolBaseWidget):
                     if len(slices) > 2:
                         s2 = int(slices[2]) if slices[2].strip() else None
                         rows = slice(s0, s1, s2)
+                        if dx is not None:
+                            dsrows = slice((s0-dx)/ds, (s1-dx)/ds, s2/ds)
+                        else:
+                            dsrows = rows
                     else:
                         rows = slice(s0, s1)
+                        if dx is not None:
+                            dsrows = slice((s0-dx)/ds, (s1-dx)/ds)
+                        else:
+                            dsrows = rows
                 else:
                     rows = int(text)
+                    if dx is not None:
+                        dsrows = int((rows - dx)/ds)
+                    else:
+                        dsrows = rows
             except Exception:
                 pass
         else:
             rows = None
-        return rows
+            dsrows = None
+        return rows, dsrows
 
     @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot()
     def _updateSlices(self):
         """ updates applied button"""
         rtext = str(self.__ui.rowsliceLineEdit.text()).strip()
-        self.__rows = self.__updateslice(rtext)
         ctext = str(self.__ui.columnsliceLineEdit.text()).strip()
-        self.__columns = self.__updateslice(ctext)
+        rwe = self._mainwidget.rangeWindowEnabled()
+        if rwe:
+            dx, dy, ds1, ds2 = self._mainwidget.scale(
+                useraxes=False, noNone=True)
+            self.__rows, self.__dsrows = self.__updateslice(
+                rtext, int(dy), int(ds2))
+            self.__columns, self.__dscolumns = self.__updateslice(
+                ctext, int(dx), int(ds1))
+        else:
+            self.__rows, self.__dsrows = self.__updateslice(rtext)
+            self.__columns, self.__dscolumns = self.__updateslice(ctext)
+        if self.__rows is None:
+            self._mainwidget.updateHBounds(None, None)
+        elif isinstance(self.__rows, int):
+            self._mainwidget.updateHBounds(self.__rows, self.__rows + 1)
+        elif isinstance(self.__rows, slice):
+            self._mainwidget.updateHBounds(self.__rows.start, self.__rows.stop)
+        if self.__columns is None:
+            self._mainwidget.updateVBounds(None, None)
+        elif isinstance(self.__columns, int):
+            self._mainwidget.updateVBounds(self.__columns, self.__columns + 1)
+        elif isinstance(self.__columns, slice):
+            self._mainwidget.updateVBounds(
+                self.__columns.start, self.__columns.stop)
         self._plotCurves()
 
     @QtCore.pyqtSlot(str)
@@ -3072,7 +3283,20 @@ class QROIProjToolWidget(ToolBaseWidget):
     def _updateRows(self):
         """ updates applied button"""
         rtext = str(self.__ui.rowsliceLineEdit.text()).strip()
-        self.__rows = self.__updateslice(rtext)
+        rwe = self._mainwidget.rangeWindowEnabled()
+        if rwe:
+            dx, dy, ds1, ds2 = self._mainwidget.scale(
+                useraxes=False, noNone=True)
+            self.__rows, self.__dsrows = self.__updateslice(
+                rtext, int(dy), int(ds2))
+        else:
+            self.__rows, self.__dsrows = self.__updateslice(rtext)
+        if self.__rows is None:
+            self._mainwidget.updateHBounds(None, None)
+        elif isinstance(self.__rows, int):
+            self._mainwidget.updateHBounds(self.__rows, self.__rows + 1)
+        elif isinstance(self.__rows, slice):
+            self._mainwidget.updateHBounds(self.__rows.start, self.__rows.stop)
         self._plotCurves()
 
     @QtCore.pyqtSlot(str)
@@ -3080,7 +3304,22 @@ class QROIProjToolWidget(ToolBaseWidget):
     def _updateColumns(self):
         """ updates applied button"""
         text = str(self.__ui.columnsliceLineEdit.text()).strip()
-        self.__columns = self.__updateslice(text)
+        rwe = self._mainwidget.rangeWindowEnabled()
+        if rwe:
+            dx, dy, ds1, ds2 = self._mainwidget.scale(
+                useraxes=False, noNone=True)
+        if rwe:
+            self.__columns, self.__dscolumns = self.__updateslice(
+                text, int(dx), int(ds1))
+        else:
+            self.__columns, self.__dscolumns = self.__updateslice(text)
+        if self.__columns is None:
+            self._mainwidget.updateVBounds(None, None)
+        elif isinstance(self.__columns, int):
+            self._mainwidget.updateVBounds(self.__columns, self.__columns + 1)
+        elif isinstance(self.__columns, slice):
+            self._mainwidget.updateVBounds(
+                self.__columns.start, self.__columns.stop)
         self._plotCurves()
 
     @QtCore.pyqtSlot(int)
@@ -3110,46 +3349,64 @@ class QROIProjToolWidget(ToolBaseWidget):
                 else:
                     npfun = np.mean
 
-                if self.__rows == "ERROR":
+                if self.__dsrows == "ERROR":
                     sx = []
-                elif self.__rows is not None:
+                elif self.__dsrows is not None:
                     try:
                         with warnings.catch_warnings():
                             warnings.simplefilter(
                                 "error", category=RuntimeWarning)
-                            if isinstance(self.__rows, slice):
-                                sx = npfun(dts[:, self.__rows], axis=1)
+                            if isinstance(self.__dsrows, slice):
+                                sx = npfun(dts[:, self.__dsrows], axis=1)
                             else:
-                                sx = dts[:, self.__rows]
+                                sx = dts[:, self.__dsrows]
                     except Exception:
                         sx = []
 
                 else:
                     sx = npfun(dts, axis=1)
 
-                if self.__columns == "ERROR":
+                if self.__dscolumns == "ERROR":
                     sy = []
-                if self.__columns is not None:
+                if self.__dscolumns is not None:
                     try:
                         with warnings.catch_warnings():
                             warnings.simplefilter(
                                 "error", category=RuntimeWarning)
-                            if isinstance(self.__columns, slice):
-                                sy = npfun(dts[self.__columns, :], axis=0)
+                            if isinstance(self.__dscolumns, slice):
+                                sy = npfun(dts[self.__dscolumns, :], axis=0)
                             else:
-                                sy = dts[self.__columns, :]
+                                sy = dts[self.__dscolumns, :]
                     except Exception:
                         sy = []
                 else:
                     sy = npfun(dts, axis=0)
 
+                rwe = self._mainwidget.rangeWindowEnabled()
+                if rwe:
+                    x, y, s1, s2 = self._mainwidget.scale(
+                        useraxes=False, noNone=True)
+                    if self._mainwidget.transformations()[3]:
+                        x, y = y, x
+                        s1, s2 = s2, s1
+                    xx = list(
+                        range(int(x), len(sx) * int(s1) + int(x), int(s1)))
+                    yy = list(
+                        range(int(y), len(sy) * int(s2) + int(y), int(s2)))
+                    width = [s1] * len(sx)
+                    height = [s1] * len(sy)
+                else:
+                    xx = list(range(len(sx)))
+                    yy = list(range(len(sy)))
+                    width = [1.0] * len(sx)
+                    height = [1.0] * len(sy)
                 self.__bottomplot.setOpts(
-                    y0=[0]*len(sx), y1=sx, x=list(range(len(sx))),
-                    width=[1.0]*len(sx))
+                    y0=[0]*len(sx), y1=sx, x=xx,
+                    width=width)
                 self.__bottomplot.drawPicture()
                 self.__rightplot.setOpts(
-                    x0=[0]*len(sy), x1=sy, y=list(range(len(sy))),
-                    height=[1.]*len(sy))
+                    x0=[0]*len(sy), x1=sy, y=yy,
+                    height=height)
                 self.__rightplot.drawPicture()
 
     def __updateCompleter(self):
@@ -3330,6 +3587,13 @@ class QROIProjToolWidget(ToolBaseWidget):
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
         """
+        txdata = None
+        if self._mainwidget.rangeWindowEnabled():
+            txdata, tydata = self._mainwidget.scaledxy(
+                xdata, ydata, useraxes=False)
+            if txdata is not None:
+                xdata = txdata
+                ydata = tydata
         self.__settings.centerx = float(xdata)
         self.__settings.centery = float(ydata)
         self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
@@ -3343,6 +3607,12 @@ class QROIProjToolWidget(ToolBaseWidget):
         """
         message = ""
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if self._mainwidget.rangeWindowEnabled():
+            txdata, tydata = self._mainwidget.scaledxy(
+                x, y, useraxes=False)
+            if txdata is not None:
+                x = txdata
+                y = tydata
         ilabel = self._mainwidget.scalingLabel()
         if self.__gspaceindex == 0:
             thetax, thetay, thetatotal = self.__pixel2theta(x, y)
