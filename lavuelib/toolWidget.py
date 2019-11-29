@@ -2417,6 +2417,12 @@ class AngleQToolWidget(ToolBaseWidget):
         """
         message = ""
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if self._mainwidget.rangeWindowEnabled():
+            txdata, tydata = self._mainwidget.scaledxy(
+                x, y, useraxes=False)
+            if txdata is not None:
+                x = txdata
+                y = tydata
         ilabel = self._mainwidget.scalingLabel()
         if self.__plotindex == 0:
             if self.__gspaceindex == 0:
@@ -3094,6 +3100,10 @@ class QROIProjToolWidget(ToolBaseWidget):
         self.__rows = None
         #: (:obj:`slice`) selected columns
         self.__columns = None
+        #: (:obj:`slice`) selected rows
+        self.__dsrows = None
+        #: (:obj:`slice`) selected columns
+        self.__dscolumns = None
 
         #: (:obj:`list`< :obj:`str`>) sardana aliases
         self.__aliases = []
