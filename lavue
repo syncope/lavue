@@ -183,7 +183,7 @@ def main():
     parser.add_argument(
         "-r", "--range", dest="viewrange",
         help="viewbox range, i.e. xmin,ymin,xsize,ysize , "
-        "e.g. -l 5.6,m60.7,543.2,444.11\n"
+        "e.g. -r 5.6,m60.7,543.2,444.11\n"
         "  where 'm' is '-'"
     )
     parser.add_argument(
