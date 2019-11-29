@@ -130,6 +130,21 @@ def main():
         "  nxsfile -> '-c /tmp/myfile.nxs://entry/data/pilatus'\n"
     )
     parser.add_argument(
+        "-w", "--range-window", dest="rangewindow",
+        help="range window slices, i.e. x1:x2,y1:y2 , "
+        "e.g. -w 10:500,20:200\n"
+        "  where 'm' is '-'"
+    )
+    parser.add_argument(
+        "--ds-factor" dest="dsfactor",
+        help="integer down-sampling factor"
+    )
+    parser.add_argument(
+        "--ds-reduction" dest="dsreduction",
+        help="down-sampling reduction function, "
+        "i.e. 'max', 'min', 'mean' or 'sum'"
+    )
+    parser.add_argument(
         "-z", "--filters", action="store_true", default=False,
         dest="filters",
         help="apply image filters")
