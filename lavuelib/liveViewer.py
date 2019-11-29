@@ -2356,20 +2356,28 @@ class LiveViewer(QtGui.QDialog):
             h = shape[-1] // factor
             ww = w * factor
             hh = h * factor
-            if w > factor and h > factor:
-                if len(shape) == 2:
-                    self.__filteredimage = \
-                        getattr(
-                            self.__filteredimage[:ww, :hh].
-                            reshape(w, factor, h, factor),
-                            function)((-1, -3))
-                elif len(shape) == 3:
-                    self.__filteredimage = \
-                        getattr(
-                            self.__filteredimage[:, :ww, :hh].
-                            reshape(shape[0], w, factor, h, factor),
-                            function)((-1, -3))
-                scale = [factor, factor]
+            if ww < factor or hh < factor:
+                nfactor = max(min(int(shape[-2]), int(shape[-1])), 1)
+                self.__rangewg.setFactor(nfactor)
+                factor = 1
+                w = shape[-2] // factor
+                h = shape[-1] // factor
+                ww = w * factor
+                hh = h * factor
+
+            if len(shape) == 2 and factor > 1:
+                self.__filteredimage = \
+                    getattr(
+                        self.__filteredimage[:ww, :hh].
+                        reshape(w, factor, h, factor),
+                        function)((-1, -3))
+            elif len(shape) == 3:
+                self.__filteredimage = \
+                    getattr(
+                        self.__filteredimage[:, :ww, :hh].
+                        reshape(shape[0], w, factor, h, factor),
+                        function)((-1, -3))
+            scale = [factor, factor]
         return scale
 
     def _resizePlot(self, show=True):
