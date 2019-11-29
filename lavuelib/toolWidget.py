@@ -2343,8 +2343,6 @@ class AngleQToolWidget(ToolBaseWidget):
             if rwe:
                 dx, dy, ds1, ds2 = self._mainwidget.scale(
                     useraxes=False, noNone=True)
-                print((int(dx), int((rdata.shape[0])/ds1 + dx), int(ds1)))
-                print((int(dy), int((rdata.shape[1])/ds2 + dy), int(ds2)))
                 xx = np.array(range(int(dx),
                                     int((rdata.shape[0])*ds1 + dx),
                                     int(ds1)))
