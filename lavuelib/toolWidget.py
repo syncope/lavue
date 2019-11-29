@@ -3587,6 +3587,13 @@ class QROIProjToolWidget(ToolBaseWidget):
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
         """
+        txdata = None
+        if self._mainwidget.rangeWindowEnabled():
+            txdata, tydata = self._mainwidget.scaledxy(
+                xdata, ydata, useraxes=False)
+            if txdata is not None:
+                xdata = txdata
+                ydata = tydata
         self.__settings.centerx = float(xdata)
         self.__settings.centery = float(ydata)
         self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
@@ -3600,6 +3607,12 @@ class QROIProjToolWidget(ToolBaseWidget):
         """
         message = ""
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if self._mainwidget.rangeWindowEnabled():
+            txdata, tydata = self._mainwidget.scaledxy(
+                x, y, useraxes=False)
+            if txdata is not None:
+                x = txdata
+                y = tydata
         ilabel = self._mainwidget.scalingLabel()
         if self.__gspaceindex == 0:
             thetax, thetay, thetatotal = self.__pixel2theta(x, y)
