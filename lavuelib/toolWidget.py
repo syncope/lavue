@@ -1881,6 +1881,7 @@ class OneDToolWidget(ToolBaseWidget):
         text = str(self.__ui.rowsLineEdit.text()).strip()
         rows = []
         dsrows = []
+        rwe = None
         if text:
             if text == "ALL":
                 rows = [None]

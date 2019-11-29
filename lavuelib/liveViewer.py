@@ -2459,13 +2459,15 @@ class LiveViewer(QtGui.QDialog):
         :rtype: [:obj:`str`, :obj:`str`, :obj:`str`, :obj:`str`,
                     :obj:`str`, :obj:`str`]
         """
-        if self.__settings.statswoscaling and self.__displayimage is not None:
+        if self.__settings.statswoscaling and self.__displayimage is not None \
+           and self.__displayimage.size > 0:
             maxval = np.amax(self.__displayimage) if flag[0] else 0.0
             meanval = np.mean(self.__displayimage) if flag[1] else 0.0
             varval = np.var(self.__displayimage) if flag[2] else 0.0
             maxsval = np.amax(self.__scaledimage) if flag[5] else 0.0
         elif (not self.__settings.statswoscaling
-              and self.__scaledimage is not None):
+              and self.__scaledimage is not None
+              and self.__displayimage.size > 0):
             maxval = np.amax(self.__scaledimage) if flag[0] or flag[5] else 0.0
             meanval = np.mean(self.__scaledimage) if flag[1] else 0.0
             varval = np.var(self.__scaledimage) if flag[2] else 0.0
