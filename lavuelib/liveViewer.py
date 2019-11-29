@@ -762,6 +762,19 @@ class LiveViewer(QtGui.QDialog):
             self.__sourcewg.configure(str(options.configuration))
 
         QtCore.QCoreApplication.processEvents()
+
+        if hasattr(options, "rangewindow") and \
+           options.rangewindow is not None:
+            self.__rangewg.setRangeWindow(str(options.rangewindow))
+
+        if hasattr(options, "dsfactor") and \
+           options.dsfactor is not None:
+            self.__rangewg.setFactor(str(options.dsfactor))
+
+        if hasattr(options, "dsreduction") and \
+           options.dsreduction is not None:
+            self.__rangewg.setFunction(str(options.dsreduction))
+
         if hasattr(options, "mbuffer") and options.mbuffer is not None:
             self.__mbufferwg.changeView(True)
             self.__mbufferwg.onOff(True)

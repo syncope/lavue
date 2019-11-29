@@ -85,12 +85,26 @@ class RangeWindowGroupBox(QtGui.QWidget):
         self.factorChanged.emit()
 
     def function(self):
-        """ provides the reduction function
+        """ provides the reduction function name, i.e. max, min, mean, sum
 
         :returns:  function name
         :rtype: :obj:`str`
         """
         return str(self.__ui.functionComboBox.currentText())
+
+    def setFunction(self, name):
+        """ sets the reduction function
+
+        :param name:  function name, i.e. max, min, mean, sum
+        :type name: :obj:`str`
+        """
+        text = self.__ui.functionComboBox.currentText()
+        if text != name:
+            cid = self.__ui.functionComboBox.findText(name)
+            if cid > -1:
+                self.__ui.functionComboBox.setCurrentIndex(cid)
+            else:
+                print("Error %s" % name)
 
     def factor(self):
         """ provides the current resize factor
@@ -114,7 +128,7 @@ class RangeWindowGroupBox(QtGui.QWidget):
     def rangeWindow(self):
         """ provides the range window
 
-        :returns: down-sample filter
+        :returns: x1, y1, x2, y2 of range window bounds
         :rtype: :obj:`list` <:obj:`int`>
         """
         try:
@@ -135,6 +149,39 @@ class RangeWindowGroupBox(QtGui.QWidget):
             y2 = None
 
         return [x1, y1, x2, y2]
+
+    def setRangeWindow(self, bounds):
+        """ provides the range window
+
+        :param bounds: range window bounds: x1:x2,y1:y2
+        :type: :obj:`str`
+        """
+        lims = bounds.replace(":", ",").split(",")
+        if len(lims) == 4:
+            try:
+                int(lims[0].replace("m", "-"))
+                self.__ui.x1LineEdit.setText(
+                    lims[0].replace("m", "-"))
+            except Exception:
+                self.__ui.x1LineEdit.setText("")
+            try:
+                int(lims[1].replace("m", "-"))
+                self.__ui.x2LineEdit.setText(
+                    lims[1].replace("m", "-"))
+            except Exception:
+                self.__ui.x2LineEdit.setText("")
+            try:
+                int(lims[2].replace("m", "-"))
+                self.__ui.y1LineEdit.setText(
+                    lims[2].replace("m", "-"))
+            except Exception:
+                self.__ui.y1LineEdit.setText("")
+            try:
+                int(lims[3].replace("m", "-"))
+                self.__ui.y2LineEdit.setText(
+                    lims[3].replace("m", "-"))
+            except Exception:
+                self.__ui.y2LineEdit.setText("")
 
     def changeView(self, showrangeWindow=None):
         """ show or hide widgets
