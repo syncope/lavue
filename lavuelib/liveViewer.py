@@ -764,7 +764,7 @@ class LiveViewer(QtGui.QDialog):
         QtCore.QCoreApplication.processEvents()
 
         if hasattr(options, "rangewindow") and \
-           options.bkgfile is not None:
+           options.rangewindow is not None:
             self.__rangewg.setRangeWindow(str(options.rangewindow))
 
         if hasattr(options, "dsfactor") and \

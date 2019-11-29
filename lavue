@@ -136,11 +136,11 @@ def main():
         "  where 'm' is '-'"
     )
     parser.add_argument(
-        "--ds-factor" dest="dsfactor",
+        "--ds-factor", dest="dsfactor",
         help="integer down-sampling factor"
     )
     parser.add_argument(
-        "--ds-reduction" dest="dsreduction",
+        "--ds-reduction", dest="dsreduction",
         help="down-sampling reduction function, "
         "i.e. 'max', 'min', 'mean' or 'sum'"
     )
