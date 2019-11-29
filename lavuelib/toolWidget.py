@@ -2339,8 +2339,22 @@ class AngleQToolWidget(ToolBaseWidget):
            self.__settings.pixelsizex > 0 and self.__settings.pixelsizey > 0:
             if rdata is None:
                 rdata = self._mainwidget.currentData()
-            xx = np.array(range(rdata.shape[0]))
-            yy = np.array(range(rdata.shape[1]))
+            rwe = self._mainwidget.rangeWindowEnabled()
+            if rwe:
+                dx, dy, ds1, ds2 = self._mainwidget.scale(
+                    useraxes=False, noNone=True)
+                print((int(dx), int((rdata.shape[0])/ds1 + dx), int(ds1)))
+                print((int(dy), int((rdata.shape[1])/ds2 + dy), int(ds2)))
+                xx = np.array(range(int(dx),
+                                    int((rdata.shape[0])*ds1 + dx),
+                                    int(ds1)))
+
+                yy = np.array(range(int(dy),
+                                    int((rdata.shape[1])*ds2 + dy),
+                                    int(ds2)))
+            else:
+                xx = np.array(range(rdata.shape[0]))
+                yy = np.array(range(rdata.shape[1]))
 
             self.__inter = scipy.interpolate.RegularGridInterpolator(
                 (xx, yy), rdata,

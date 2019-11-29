@@ -2356,7 +2356,7 @@ class LiveViewer(QtGui.QDialog):
             h = shape[-1] // factor
             ww = w * factor
             hh = h * factor
-            if w > factor and h > factor or True:
+            if w > factor and h > factor:
                 if len(shape) == 2:
                     self.__filteredimage = \
                         getattr(

@@ -373,7 +373,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 return
         axes.position = position
         axes.scale = scale
-        if wrupdate:
+        if wrupdate and not polar:
             self.__wraxes.position = position
             self.__wraxes.scale = scale
             self.__axes.position = position
