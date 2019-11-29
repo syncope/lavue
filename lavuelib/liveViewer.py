@@ -443,6 +443,8 @@ class LiveViewer(QtGui.QDialog):
 
         self.__highvaluemaskwg.maskHighValueChanged.connect(
             self._checkHighMasking)
+        self.__highvaluemaskwg.applyStateChanged.connect(
+            self._checkHighMasking)
 
         # signals from transformation widget
         self.__trafowg.transformationChanged.connect(
@@ -2486,10 +2488,11 @@ class LiveViewer(QtGui.QDialog):
         minval = np.amin(self.__scaledimage) if flag[3] else 0.0
         return (maxval, meanval, varval, minval, maxrawval,  maxsval)
 
-    @QtCore.pyqtSlot(str)
-    def _checkHighMasking(self, value):
+    @QtCore.pyqtSlot()
+    def _checkHighMasking(self):
         """ reads the mask image, select non-zero elements and store the indices
         """
+        value = self.__highvaluemaskwg.mask()
         try:
             self.__maskvalue = float(value)
         except Exception:

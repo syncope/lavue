@@ -42,6 +42,8 @@ class HighValueMaskWidget(QtGui.QWidget):
 
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) mask high value changed signal
     maskHighValueChanged = QtCore.pyqtSignal(str)
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) apply state change signal
+    applyStateChanged = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None, settings=None):
         """ constructor
@@ -65,6 +67,17 @@ class HighValueMaskWidget(QtGui.QWidget):
         self.noValue()
         self.__ui.highvalueLineEdit.textChanged.connect(
             self._applyHighValue)
+        self.__ui.highvalueCheckBox.clicked.connect(
+            self._emitApplyStateChanged)
+
+    @QtCore.pyqtSlot(bool)
+    def _emitApplyStateChanged(self, state):
+        """ emits state of apply button
+
+        :param state: apply button state
+        :type state: :obj:`bool`
+        """
+        self.applyStateChanged.emit(int(state))
 
     def setMask(self, value):
         """ sets the image mask high value
@@ -75,6 +88,7 @@ class HighValueMaskWidget(QtGui.QWidget):
         self.__maskvalue = self.setDisplayedValue(value)
         self.__ui.highvalueLineEdit.setText(self.__maskvalue)
         self.maskHighValueChanged.emit(self.__maskvalue)
+        self.__ui.highvalueCheckBox.setChecked(True)
 
     def mask(self):
         """ provides the image mask high value
@@ -82,7 +96,10 @@ class HighValueMaskWidget(QtGui.QWidget):
         :returns: high pixel value for masking
         :rtype: :obj:`str`
         """
-        return self.__maskvalue
+        if self.__ui.highvalueCheckBox.isChecked():
+            return self.__maskvalue
+        else:
+            return ""
 
     @QtCore.pyqtSlot(str)
     def _applyHighValue(self, value):
@@ -103,10 +120,6 @@ class HighValueMaskWidget(QtGui.QWidget):
         except Exception:
             self.__maskvalue = None
             value = ""
-        if self.__maskvalue is None:
-            self.__ui.highvalueLabel.setEnabled(False)
-        else:
-            self.__ui.highvalueLabel.setEnabled(True)
         return value
 
     def noValue(self):
@@ -114,7 +127,7 @@ class HighValueMaskWidget(QtGui.QWidget):
         """
         self.setDisplayedValue("")
         self.__maskvalue = None
-        self.__ui.highvalueLabel.setEnabled(False)
+        self.__ui.highvalueCheckBox.setChecked(False)
 
 
 if __name__ == "__main__":
