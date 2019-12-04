@@ -45,11 +45,8 @@ class SourceForm(QtGui.QWidget):
 
     """ source form """
 
-
-    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source disconnected signal
-    sourceDisconnected = QtCore.pyqtSignal()
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source connected signal
-    sourceConnected = QtCore.pyqtSignal(int)
+    sourceConnected = QtCore.pyqtSignal()
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source state signal
     sourceStateChanged = QtCore.pyqtSignal(int)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source state signal
@@ -118,10 +115,10 @@ class SourceForm(QtGui.QWidget):
         self._ui = _sformclass()
         self._ui.setupUi(self)
 
-    def init(self):    
+    def init(self):
         self._ui.sourceTypeComboBox.currentIndexChanged.connect(
-            self._onSourceChanged)
-        self._onSourceChanged()
+            self.onSourceChanged)
+        self.onSourceChanged()
 
     def disconnectWidget(self):
         self._ui.cStatusLineEdit.setStyleSheet(
@@ -146,7 +143,8 @@ class SourceForm(QtGui.QWidget):
         :returns: current datasource class name
         :rtype: :obj:`str`
         """
-        return self.__currentSource.datasource
+        if self.__currentSource is not None:
+            return self.__currentSource.datasource
 
     def currentDataSourceName(self):
         """ current data source name
@@ -179,8 +177,8 @@ class SourceForm(QtGui.QWidget):
             layout.addWidget(self._ui.pushButton, sln + 2, 1)
             self._ui.translationLineEdit.hide()
             self._ui.translationCheckBox.hide()
-            print("CON")
             self._ui.pushButton.clicked.connect(self.toggleServerConnection)
+        self._ui.sourceTypeComboBox.setCurrentIndex(0)
 
     def addWidgets(self, st, expertmode):
         layout = self.gridLayout()
@@ -199,7 +197,7 @@ class SourceForm(QtGui.QWidget):
 
     def sourceStatus(self):
         return self._ui.sourceTypeComboBox.currentIndex() + 1
-    
+
     def updateLayout(self):
         """ update source layout
         """
@@ -219,7 +217,6 @@ class SourceForm(QtGui.QWidget):
         if mst:
             mst.updateButton()
 
-
     def updateSourceComboBox(self, sourcenames, name=None):
         """ set source by changing combobox
 
@@ -230,7 +227,7 @@ class SourceForm(QtGui.QWidget):
         """
 
         self._ui.sourceTypeComboBox.currentIndexChanged.disconnect(
-            self._onSourceChanged)
+            self.onSourceChanged)
         if sourcenames and name and name not in sourcenames:
             sourcenames = list(sourcenames)
             sourcenames.append(name)
@@ -248,7 +245,7 @@ class SourceForm(QtGui.QWidget):
         self._ui.sourceTypeComboBox.setCurrentIndex(index)
         self.updateLayout()
         self._ui.sourceTypeComboBox.currentIndexChanged.connect(
-           self._onSourceChanged)
+           self.onSourceChanged)
 
     def setSource(self, name=None, disconnect=True):
         """ set source with the given name
@@ -307,7 +304,6 @@ class SourceForm(QtGui.QWidget):
         if index != -1:
             self._ui.sourceTypeComboBox.setCurrentIndex(index)
 
-
     def emitSourceChanged(self):
         """ emits sourceChanged signal
         """
@@ -353,8 +349,7 @@ class SourceForm(QtGui.QWidget):
         :type name: :obj:`int`
         """
         if status == -1:
-            status = self._ui.sourceTypeComboBox.currentIndex() + 1
-            self.sourceConnected.emit(status)
+            self.sourceConnected.emit()
         else:
             self.sourceStateChanged.emit(status)
 
@@ -370,15 +365,6 @@ class SourceForm(QtGui.QWidget):
         :param name: source name
         :type name: :obj:`str`
         """
-
-    def updateMetaData(self, **kargs):
-        """ update source input parameters
-
-        :param kargs:  source widget input parameter dictionary
-        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
-        """
-        for wg in self.__sourcewidgets.values():
-            wg.updateMetaData(**kargs)
 
     def isConnected(self):
         """ is datasource source connected
@@ -433,16 +419,18 @@ class SourceForm(QtGui.QWidget):
             self._ui.cStatusLineEdit.setText("Connected")
 
         self._ui.sourceTypeComboBox.setEnabled(False)
-        self._ui.pushButton.setText("&Stop")
+
+        if not self.__sourceid:
+            self._ui.pushButton.setText("&Stop")
         if self.__currentSource is not None:
             self.__currentSource.connectWidget()
 
     @QtCore.pyqtSlot()
-    def _onSourceChanged(self):
+    def onSourceChanged(self):
         """ update current source widgets
         """
         self.setSource(str(self._ui.sourceTypeComboBox.currentText()))
-        
+
     def connectFailure(self):
         """ set connection status off and display connection status
         """
@@ -451,7 +439,8 @@ class SourceForm(QtGui.QWidget):
         self._ui.cStatusLineEdit.setText("Trouble connecting")
 
         self._ui.sourceTypeComboBox.setEnabled(True)
-        self._ui.pushButton.setText("&Start")
+        if not self.__sourceid:
+            self._ui.pushButton.setText("&Start")
         if self.__currentSource is not None:
             self.__currentSource.disconnectWidget()
         # self.pushButton.setText("Retry connect")
@@ -481,7 +470,7 @@ class SourceForm(QtGui.QWidget):
         if self._ui.pushButton.isEnabled():
             self.toggleServerConnection()
 
-        
+
 class SourceTabWidget(QtGui.QTabWidget):
     """ image source selection
     """
@@ -554,13 +543,14 @@ class SourceTabWidget(QtGui.QTabWidget):
 
         # self.__addSourceWidgets()
         self.setNumberOfSources(nrsources)
-        self.__sourcetabs[0].pushButtonClicked.connect(self.toggleServerConnection)
+        self.__sourcetabs[0].pushButtonClicked.connect(
+            self.toggleServerConnection)
 
         self.__setSource(self.__defaultsource, disconnect=False)
 
         # self._ui.sourceTypeComboBox.currentIndexChanged.connect(
-        #     self._onSourceChanged)
-        # self._onSourceChanged()
+        #     self.onSourceChanged)
+        # self.onSourceChanged()
         for st in self.__sourcetabs:
             st.init()
 
@@ -573,7 +563,8 @@ class SourceTabWidget(QtGui.QTabWidget):
         :returns: current datasource class name
         :rtype: :obj:`str`
         """
-        return [st.currentDataSource() for st in self.__sourcetabs]
+        return [st.currentDataSource()
+                for st in self.__sourcetabs][:self.count()]
 
     def currentDataSourceNames(self):
         """ current data source name
@@ -581,45 +572,34 @@ class SourceTabWidget(QtGui.QTabWidget):
         :returns: current datasource class name
         :rtype: :obj:`str`
         """
-        return [st.currentDataSourceName() for st in self.__sourcetabs]
-
-    def removeCommonWidgets(self):
-        layout = self.gridLayout()
-        layout.removeWidget(self._ui.cStatusLabel)
-        layout.removeWidget(self._ui.cStatusLineEdit)
-        layout.removeWidget(self._ui.pushButton)
-
-    def addCommonWidgets(self, sln):
-        layout = self.gridLayout()
-        layout.addWidget(self._ui.cStatusLabel, sln + 1, 0)
-        layout.addWidget(self._ui.cStatusLineEdit, sln + 1, 1)
-        layout.addWidget(self._ui.pushButton, sln + 2, 1)
-
-    def addWidgets(self, st, expertmode):
-        layout = self.gridLayout()
-        swg = getattr(swgm, st)()
-        swg.expertmode = expertmode
-        self.__sourcewidgets[swg.name] = swg
-        self.__sourcenames.append(swg.name)
-        self._ui.sourceTypeComboBox.addItem(swg.name)
-        widgets = zip(swg.widgets[0::2], swg.widgets[1::2])
-        for wg1, wg2 in widgets:
-            sln = len(self.__subwidgets)
-            layout.addWidget(wg1, sln + 1, 0)
-            layout.addWidget(wg2, sln + 1, 1)
-            self.__subwidgets.append([wg1, wg2])
-        return len(self.__subwidgets)
+        return [st.currentDataSourceName()
+                for st in self.__sourcetabs][:self.count()]
 
     def __addSourceWidgets(self, wg=None):
         """ add source subwidgets into grid layout
         """
         wg = wg or self
-        layout = wg.gridLayout()
         wg.removeCommonWidgets()
         sln = 0
         for st in self.__types:
             sln = wg.addWidgets(st, self.__expertmode)
+            swg = getattr(swgm, st)
+            self.__sourcenames.append(swg.name)
+
         wg.addCommonWidgets(sln)
+        # wg.buttonEnabled.connect(
+        #     self.updateButton)
+        wg.sourceChanged.connect(
+            self.emitSourceChanged)
+        wg.sourceLabelChanged.connect(
+            self._emitSourceLabelChanged)
+        wg.sourceStateChanged.connect(
+            self._emitSourceStateChanged)
+        wg.addIconClicked.connect(
+            self._emitAddIconClicked)
+        wg.removeIconClicked.connect(
+            self._emitRemoveIconClicked)
+
         self.__sourcetabs.append(wg)
 
     def setNumberOfSources(self, nrsources):
@@ -628,16 +608,23 @@ class SourceTabWidget(QtGui.QTabWidget):
         :param nrsources: a number of image sources
         :type nrsources: :obj:`int`
         """
+        if not self.__sourcenames:
+            for st in self.__types:
+                swg = getattr(swgm, st)
+                self.__sourcenames.append(swg.name)
         if self.__nrsources < nrsources:
             for i in range(
                     self.count(),
                     min(len(self.__sourcetabs), nrsources)):
-                
+
                 self.addTab(self.__sourcetabs[i], str(i + 1))
             for i in range(len(self.__sourcetabs), nrsources):
-                self.__addSourceWidgets(
-                    SourceForm(self, expertmode=self.__expertmode,sourceid=i))
-                self.addTab(self.__sourcetabs[i], str(i + 1))
+                sf = SourceForm(self,
+                                expertmode=self.__expertmode,
+                                sourceid=i)
+                self.__addSourceWidgets(sf)
+                sf.init()
+                self.addTab(sf, str(i + 1))
             if nrsources > 1:
                 self.setTabText(0, "Image Source 1")
             else:
@@ -679,58 +666,17 @@ class SourceTabWidget(QtGui.QTabWidget):
         for st in self.__sourcetabs:
             st.updateSourceComboBox(sourcenames, name=None)
 
-        # self._ui.sourceTypeComboBox.currentIndexChanged.disconnect(
-        #     self._onSourceChanged)
-        # if sourcenames and name and name not in sourcenames:
-        #     sourcenames = list(sourcenames)
-        #     sourcenames.append(name)
-        # sourcenames = [sr for sr in sourcenames if sr in self.__sourcenames]
-        # if not sourcenames:
-        #     sourcenames = self.__sourcenames
-        # name = name or str(self._ui.sourceTypeComboBox.currentText())
-        # self._ui.sourceTypeComboBox.clear()
-        # self._ui.sourceTypeComboBox.addItems(sourcenames)
-        # if self._ui.sourceTypeComboBox.count() == 0:
-        #     self._ui.sourceTypeComboBox.addItems(self.__sourcenames)
-        # index = self._ui.sourceTypeComboBox.findText(name)
-        # if index == -1:
-        #     index = 0
-        # self._ui.sourceTypeComboBox.setCurrentIndex(index)
-        # self.updateLayout()
-        # self._ui.sourceTypeComboBox.currentIndexChanged.connect(
-        #     self._onSourceChanged)
-
     @QtCore.pyqtSlot()
-    def _onSourceChanged(self):
+    def onSourceChanged(self):
         """ update current source widgets
         """
         self.__setSource(str(self._ui.sourceTypeComboBox.currentText()))
-
-    # def updateWidgetLayout(self):
-    #     """ update source layout
-    #     """
-    #     if hasattr(self.__currentSource, "name"):
-    #         name = self.__currentSource.name
-    #     else:
-    #         name = None
-    #     mst = None
-    #     for stnm, st in self.__sourcewidgets.items():
-    #         if name == stnm:
-    #             mst = st
-    #             for wg in st.widgets:
-    #                 wg.show()
-    #         else:
-    #             for wg in st.widgets:
-    #                 wg.hide()
-    #     if mst:
-    #         mst.updateButton()
 
     def updateLayout(self):
         """ update source layout
         """
         for st in self.__sourcetabs:
             st.updateLayout()
-
 
     def __setSource(self, name=None, disconnect=True):
         """ set source with the given name
@@ -743,41 +689,21 @@ class SourceTabWidget(QtGui.QTabWidget):
         for st in self.__sourcetabs:
             st.setSource(name, disconnect)
 
-        
-        # if disconnect and self.__currentSource is not None:
-        #     self.__currentSource.buttonEnabled.disconnect(
-        #         self.updateButton)
-        #     self.__currentSource.sourceLabelChanged.disconnect(
-        #         self._emitSourceLabelChanged)
-        #     self.__currentSource.sourceStateChanged.disconnect(
-        #         self._emitSourceStateChanged)
-        #     self.__currentSource.addIconClicked.disconnect(
-        #         self._emitAddIconClicked)
-        #     self.__currentSource.removeIconClicked.disconnect(
-        #         self._emitRemoveIconClicked)
-        #     self.__currentSource.active = False
-        #     self.__currentSource.disconnectWidget()
-        # if name is not None and name in self.__sourcewidgets.keys():
-        #     self.__currentSource = self.__sourcewidgets[name]
-        #     self.__currentSource.active = True
-        #     self.__currentSource.buttonEnabled.connect(
-        #         self.updateButton)
-        #     self.__currentSource.sourceLabelChanged.connect(
-        #         self._emitSourceLabelChanged)
-        #     self.__currentSource.sourceStateChanged.connect(
-        #         self._emitSourceStateChanged)
-        #     self.__currentSource.addIconClicked.connect(
-        #         self._emitAddIconClicked)
-        #     self.__currentSource.removeIconClicked.connect(
-        #         self._emitRemoveIconClicked)
-        # self.updateLayout()
-        # self.updateMetaData(disconnect=disconnect)
-        # self.emitSourceChanged()
-
+    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot()
     def emitSourceChanged(self):
         """ emits sourceChanged signal
         """
-        status = json.dumps([st.sourceStatus() for st in self.__sourcetabs])
+        status = json.dumps([st.sourceStatus()
+                             for st in self.__sourcetabs][:self.count()])
+        self.sourceChanged.emit(status)
+
+    @QtCore.pyqtSlot(int)
+    def emitSourceSingleChanged(self, int):
+        """ emits sourceChanged signal
+        """
+        status = json.dumps([st.sourceStatus()
+                             for st in self.__sourcetabs][:self.count()])
         self.sourceChanged.emit(status)
 
     @QtCore.pyqtSlot(str, str)
@@ -819,7 +745,9 @@ class SourceTabWidget(QtGui.QTabWidget):
         :type name: :obj:`int`
         """
         if status == -1:
-            status = json.dumps([st.sourceStatus() for st in self.__sourcetabs])
+            status = json.dumps(
+                [st.sourceStatus()
+                 for st in self.__sourcetabs][:self.count()])
             self.sourceConnected.emit(status)
         else:
             self.sourceStateChanged.emit(status)
@@ -843,8 +771,8 @@ class SourceTabWidget(QtGui.QTabWidget):
         :param kargs:  source widget input parameter dictionary
         :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
         """
-        for wg in self.__sourcewidgets.values():
-            wg.updateMetaData(**kargs)
+        for st in self.__sourcetabs:
+            st.updateMetaData(**kargs)
 
     def isConnected(self):
         """ is datasource source connected
@@ -868,7 +796,9 @@ class SourceTabWidget(QtGui.QTabWidget):
         else:
             for st in self.__sourcetabs:
                 st.connectWidget()
-            status = json.dumps([st.sourceStatus() for st in self.__sourcetabs])
+            status = json.dumps(
+                [st.sourceStatus()
+                 for st in self.__sourcetabs][:self.count()])
             self.sourceConnected.emit(status)
 
     def setErrorStatus(self, status=""):
@@ -888,35 +818,16 @@ class SourceTabWidget(QtGui.QTabWidget):
         :type port: :obj: `str`
         """
         self.__connected = True
-        if port is not None:
-            self._ui.cStatusLineEdit.setStyleSheet(
-                "color: white;"
-                "background-color: blue;")
-            self._ui.cStatusLineEdit.setText(
-                "Connected (emitting via %s)" % port)
-        else:
-            self._ui.cStatusLineEdit.setStyleSheet(
-                "color: white;"
-                "background-color: green;")
-            self._ui.cStatusLineEdit.setText("Connected")
-
-        self._ui.sourceTypeComboBox.setEnabled(False)
-        self._ui.pushButton.setText("&Stop")
-        if self.__currentSource is not None:
-            self.__currentSource.connectWidget()
+        for st in self.__sourcetabs:
+            st.connectSuccess(port)
 
     def connectFailure(self):
         """ set connection status off and display connection status
         """
         self.__connected = False
         self.sourceStateChanged.emit(0)
-        self._ui.cStatusLineEdit.setText("Trouble connecting")
-
-        self._ui.sourceTypeComboBox.setEnabled(True)
-        self._ui.pushButton.setText("&Start")
-        if self.__currentSource is not None:
-            self.__currentSource.disconnectWidget()
-        # self.pushButton.setText("Retry connect")
+        for st in self.__sourcetabs:
+            st.connectFailure()
 
     def configure(self, configuration):
         """ set configuration for the current image source
@@ -934,7 +845,8 @@ class SourceTabWidget(QtGui.QTabWidget):
         :return: configuration string
         :rtype configuration: :obj:`str`
         """
-        return [st.configuration() for st in self.__sourcetabs]
+        return [st.configuration()
+                for st in self.__sourcetabs][:self.count()]
 
     def start(self):
         """ starts viewing if pushButton enable

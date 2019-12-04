@@ -388,7 +388,8 @@ class Settings(object):
             self.timeout = int(qstval)
         except Exception:
             pass
-        qstval = str(settings.value("Configuration/NumberOfImageSources", type=str))
+        qstval = str(settings.value(
+            "Configuration/NumberOfImageSources", type=str))
         try:
             int(qstval)
             self.nrsources = int(qstval)
