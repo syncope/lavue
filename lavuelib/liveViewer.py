@@ -171,7 +171,7 @@ class LiveViewer(QtGui.QDialog):
         self.__allowedwgdata = ["axisscales", "axislabels"]
 
         # (:class:`lavuelib.imageSource.BaseSource`) data source object
-        self.__datasource = isr.BaseSource()
+        self.__datasources = [isr.BaseSource()]
 
         #: (:class:`lavuelib.sardanaUtils.SardanaUtils`)
         #:  sardana utils
@@ -236,7 +236,9 @@ class LiveViewer(QtGui.QDialog):
         #: (:class:`lavuelib.sourceTabWidget.SourceTabWidget`) source groupbox
         self.__sourcewg = sourceTabWidget.SourceTabWidget(
             parent=self, sourcetypes=self.__sourcetypes,
-            expertmode=(self.__umode == 'expert'))
+            expertmode=(self.__umode == 'expert'),
+            nrsources=self.__settings.nrsources
+        )
         self.__sourcewg.updateSourceComboBox(
             [self.__srcaliasnames[twn]
              for twn in json.loads(self.__settings.imagesources)
@@ -427,7 +429,7 @@ class LiveViewer(QtGui.QDialog):
         #: (:class:`lavuelib.dataFetchTread.DataFetchThread`)
         #:    data fetch thread
         self.__dataFetcher = dataFetchThread.DataFetchThread(
-            self.__datasource, self.__exchangelist)
+            self.__datasources[0], self.__exchangelist)
         self.__dataFetcher.newDataNameFetched.connect(self._getNewData)
         # ugly !!! sent current state to the data fetcher...
         self._stateUpdated.connect(self.__dataFetcher.changeStatus)
@@ -891,7 +893,7 @@ class LiveViewer(QtGui.QDialog):
         self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
         self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
         self._assessTransformation(self.__trafoname)
-        self.__datasource.setTimeOut(self.__settings.timeout)
+        self.__datasources[0].setTimeOut(self.__settings.timeout)
         dataFetchThread.GLOBALREFRESHRATE = self.__settings.refreshrate
         self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling)
         self.__imagewg.setROIsColors(self.__settings.roiscolors)
@@ -1319,6 +1321,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.refreshrate = dataFetchThread.GLOBALREFRESHRATE
         cnfdlg.toolrefreshtime = self.__settings.toolrefreshtime
         cnfdlg.timeout = self.__settings.timeout
+        cnfdlg.nrsources = self.__settings.nrsources
         cnfdlg.aspectlocked = self.__settings.aspectlocked
         cnfdlg.autodownsample = self.__settings.autodownsample
         cnfdlg.keepcoords = self.__settings.keepcoords
@@ -1475,7 +1478,7 @@ class LiveViewer(QtGui.QDialog):
         self.__settings.secautoport = dialog.secautoport
         self.__settings.secport = dialog.secport
         self.__settings.timeout = dialog.timeout
-        self.__datasource.setTimeOut(self.__settings.timeout)
+        self.__datasources[0].setTimeOut(self.__settings.timeout)
         self.__settings.aspectlocked = dialog.aspectlocked
         self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
         self.__settings.autodownsample = dialog.autodownsample
@@ -1489,6 +1492,11 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.lazyimageslider = dialog.lazyimageslider
             self.__switchlazysignals(self.__settings.lazyimageslider)
 
+        if self.__settings.nrsources != dialog.nrsources:
+            if self.__sourcewg.isConnected():
+                self.__sourcewg.toggleServerConnection()
+            self.__sourcewg.setNumberOfSources(dialog.nrsources)
+            self.__settings.nrsources = dialog.nrsources
         self.__settings.secstream = dialog.secstream
         self.__settings.storegeometry = dialog.storegeometry
         self.__settings.geometryfromsource = dialog.geometryfromsource
@@ -1620,10 +1628,11 @@ class LiveViewer(QtGui.QDialog):
         """
         if sourceConfiguration is None:
             sourceConfiguration = self.__sourcewg.configuration()
-        self.__sourceconfiguration = sourceConfiguration
-        if self.__sourcewg.currentDataSource() == \
-           str(type(self.__datasource).__name__):
-            self.__datasource.setConfiguration(self.__sourceconfiguration)
+        self.__sourceconfiguration = sourceConfiguration[0]
+        cdss = self.__sourcewg.currentDataSources()
+        if cdss[0] == \
+           str(type(self.__datasources[0]).__name__):
+            self.__datasources[0].setConfiguration(self.__sourceconfiguration)
 
     @QtCore.pyqtSlot(str)
     def _switchSourceDisplay(self, label):
@@ -1675,13 +1684,14 @@ class LiveViewer(QtGui.QDialog):
             self.__sardana = sardanaUtils.SardanaUtils()
         self.__imagewg.setSardanaUtils(self.__sardana)
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot(str)
     def _onSourceChanged(self, status):
-        if status:
-            self.__datasource = getattr(
-                isr, self.__sourcewg.currentDataSource())(
-                    self.__settings.timeout)
-            self.__sourcewg.updateMetaData(**self.__datasource.getMetaData())
+        lstatus = json.loads(status)
+        dss = self.__sourcewg.currentDataSources()
+        for i, ds in enumerate(dss):
+            if lstatus[i]:
+                self.__datasources[0] = getattr(isr, ds)(self.__settings.timeout)
+            self.__sourcewg.updateMetaData(**self.__datasources[0].getMetaData())
 
     @QtCore.pyqtSlot(int)
     def _updateSource(self, status):
@@ -1691,13 +1701,13 @@ class LiveViewer(QtGui.QDialog):
         :type status: :obj:`int`
         """
         if status:
-            self.__datasource.setTimeOut(self.__settings.timeout)
-            self.__dataFetcher.setDataSource(self.__datasource)
+            self.__datasources[0].setTimeOut(self.__settings.timeout)
+            self.__dataFetcher.setDataSource(self.__datasources[0])
             if self.__sourceconfiguration and \
                self.__sourcewg.currentDataSource() == \
-               str(type(self.__datasource).__name__):
-                self.__datasource.setConfiguration(self.__sourceconfiguration)
-            self.__sourcewg.updateMetaData(**self.__datasource.getMetaData())
+               str(type(self.__datasources[0]).__name__):
+                self.__datasources[0].setConfiguration(self.__sourceconfiguration)
+            self.__sourcewg.updateMetaData(**self.__datasources[0].getMetaData())
         self._stateUpdated.emit(bool(status))
 
     @QtCore.pyqtSlot(bool)
@@ -1832,29 +1842,31 @@ class LiveViewer(QtGui.QDialog):
             self.__dataFetcher.changeStatus(False)
             pass
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot(str)
     def _connectSource(self, status):
         """  calls the connect function of the source interface
 
         :param status: current source status id
         :type status: :obj:`int`
         """
+        lstatus = json.loads(status)
+        status = lstatus[0]
         self.__viewFrameRate(self.__settings.showframerate)
         self._updateSource(status)
-        if self.__datasource is None:
+        if self.__datasources[0] is None:
             messageBox.MessageBox.warning(
                 self, "lavue: No data source is defined",
                 "No data source is defined",
                 "Please select the image source")
         self._setSourceConfiguration()
-        if not self.__datasource.connect():
+        if not self.__datasources[0].connect():
             self.__sourcewg.connectFailure()
             messageBox.MessageBox.warning(
                 self, "lavue: The %s connection could not be established"
-                % type(self.__datasource).__name__,
+                % type(self.__datasources[0]).__name__,
                 "The %s connection could not be established"
-                % type(self.__datasource).__name__,
-                str(self.__datasource.errormessage))
+                % type(self.__datasources[0]).__name__,
+                str(self.__datasources[0].errormessage))
         else:
             self.__sourcewg.connectSuccess(
                 self.__settings.secport if self.__settings.secstream else None)
@@ -1875,7 +1887,7 @@ class LiveViewer(QtGui.QDialog):
         """ calls the disconnect function of the source interface
         """
         self._stopPlotting()
-        self.__datasource.disconnect()
+        self.__datasources[0].disconnect()
         self.__viewFrameRate(False)
         self.__imagename = None
         self.__imagename = None
@@ -1889,7 +1901,7 @@ class LiveViewer(QtGui.QDialog):
                 topic, str(json.dumps(messagedata)).encode("ascii")))
         self._updateSource(0)
         self.__setSourceLabel()
-        # self.__datasource = None
+        # self.__datasources[0] = None
 
     @QtCore.pyqtSlot(str, str)
     def _getNewData(self, name, metadata=None):

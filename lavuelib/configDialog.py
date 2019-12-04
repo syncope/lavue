@@ -245,6 +245,8 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`bool`) show frame rate widget
         self.showframerate = True
 
+        #: (:obj:`int`) number of image sources
+        self.nrsources = 1
         #: (:obj:`int`) image source timeout in ms
         self.timeout = 3000
         #: (:obj:`bool`) aspect ratio locked
@@ -373,6 +375,7 @@ class ConfigDialog(QtGui.QDialog):
         """ create GUI
         """
         self.__ui.rateDoubleSpinBox.setValue(self.refreshrate)
+        self.__ui.nrsourcesSpinBox.setValue(self.nrsources)
         self.__ui.toolrefreshtimeDoubleSpinBox.setValue(self.toolrefreshtime)
         self.__ui.aspectlockedCheckBox.setChecked(self.aspectlocked)
         self.__ui.downsampleCheckBox.setChecked(self.autodownsample)
@@ -680,6 +683,8 @@ class ConfigDialog(QtGui.QDialog):
         self.refreshrate = float(self.__ui.rateDoubleSpinBox.value())
         self.toolrefreshtime = float(
             self.__ui.toolrefreshtimeDoubleSpinBox.value())
+        self.nrsources = int(
+            self.__ui.nrsourcesSpinBox.value())
         self.showsub = self.__ui.showsubCheckBox.isChecked()
         self.showtrans = self.__ui.showtransCheckBox.isChecked()
         self.showmbuffer = self.__ui.showmbufferCheckBox.isChecked()
