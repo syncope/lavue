@@ -46,7 +46,8 @@ import ntpath
 from . import imageSource as isr
 from . import messageBox
 
-from . import sourceGroupBox
+# from . import sourceGroupBox
+from . import sourceTabWidget
 from . import toolWidget
 from . import sourceWidget
 from . import preparationGroupBox
@@ -232,8 +233,8 @@ class LiveViewer(QtGui.QDialog):
         self.__currentime = 0
 
         # WIDGET DEFINITIONS
-        #: (:class:`lavuelib.sourceGroupBox.SourceGroupBox`) source groupbox
-        self.__sourcewg = sourceGroupBox.SourceGroupBox(
+        #: (:class:`lavuelib.sourceTabWidget.SourceTabWidget`) source groupbox
+        self.__sourcewg = sourceTabWidget.SourceTabWidget(
             parent=self, sourcetypes=self.__sourcetypes,
             expertmode=(self.__umode == 'expert'))
         self.__sourcewg.updateSourceComboBox(
