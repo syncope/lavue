@@ -154,6 +154,7 @@ class SourceBaseWidget(QtGui.QWidget):
     def updateComboBox(self):
         """ abstract updateComboBox
         """
+        self.updateButton()
 
     def connectWidget(self):
         """ connects widget
@@ -453,6 +454,7 @@ class HTTPSourceWidget(SourceBaseWidget):
         """
         self._updateComboBox(
             self._ui.httpComboBox, self.__urls, self.__userurls)
+        self.updateButton()
 
     def configure(self, configuration):
         """ set configuration for the current image source
@@ -715,6 +717,7 @@ class TangoAttrSourceWidget(SourceBaseWidget):
         """ update slot for Tango attribute source
         """
         if not self.active:
+
             return
         currentattr = self.configuration()
         if not currentattr:
@@ -768,6 +771,7 @@ class TangoAttrSourceWidget(SourceBaseWidget):
         """
         self._updateComboBox(
             self._ui.attrComboBox, self.__tangoattrs, self.__userattrs)
+        self.updateButton()
 
     def disconnectWidget(self):
         """ disconnects widget
@@ -906,6 +910,7 @@ class TangoEventsSourceWidget(SourceBaseWidget):
         self._updateComboBox(
             self._ui.evattrComboBox,
             self.__tangoevattrs, self.__userevattrs)
+        self.updateButton()
 
     def configure(self, configuration):
         """ set configuration for the current image source
@@ -1115,6 +1120,7 @@ class TangoFileSourceWidget(SourceBaseWidget):
         self._updateComboBox(
             self._ui.dirattrComboBox, self.__tangodirattrs,
             self.__userdirattrs)
+        self.updateButton()
 
     def connectWidget(self):
         """ connects widget
@@ -1601,6 +1607,7 @@ class ZMQSourceWidget(SourceBaseWidget):
         """
         self._updateComboBox(
             self._ui.pickleComboBox, self.__servers, self.__userservers)
+        self.updateButton()
 
     def disconnectWidget(self):
         """ disconnects widget
@@ -1762,6 +1769,7 @@ class DOOCSPropSourceWidget(SourceBaseWidget):
         """
         self._updateComboBox(
             self._ui.doocspropComboBox, self.__doocsprops, self.__userprops)
+        self.updateButton()
 
     def disconnectWidget(self):
         """ disconnects widget

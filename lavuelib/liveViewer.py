@@ -2090,8 +2090,6 @@ class LiveViewer(QtGui.QDialog):
         :type metadata: :obj:`str`
         """
         fulldata = []
-        # name, rawimage, metadata = self.__exchangelists[0].readData()
-
         for i, df in enumerate(self.__dataFetchers):
             cnt = 0
             while (not df.newData() and self.__sourcewg.isConnected()
@@ -2146,8 +2144,11 @@ class LiveViewer(QtGui.QDialog):
                     self.__imagename = imagename
                     self.__rawimage = rawimage
             try:
-                self.__mdata = json.loads(str(metadata))
-                if isinstance(self.__mdata, dict):
+                if metadata:
+                    self.__mdata = json.loads(str(metadata))
+                else:
+                    self.__mdata = {}
+                if self.__mdata and isinstance(self.__mdata, dict):
                     resdata = dict((k, v) for (k, v) in self.__mdata.items()
                                    if k in self.__allowedmdata)
                     wgdata = dict((k, v) for (k, v) in self.__mdata.items()
