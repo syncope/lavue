@@ -109,6 +109,8 @@ class DataFetchThread(QtCore.QThread):
         dt = 0
         skip = False
         while self.__loop:
+            if not self.__isConnected:
+                self.msleep(int(1000*GLOBALREFRESHRATE))
             if skip:
                 self.msleep(int(100*GLOBALREFRESHRATE))
             else:
@@ -155,6 +157,11 @@ class DataFetchThread(QtCore.QThread):
         """ continue acquisition
         """
         self.__ready = True
+
+    def newData(self):
+        """ continue acquisition
+        """
+        return not self.__ready
 
     def stop(self):
         """ stop the thread

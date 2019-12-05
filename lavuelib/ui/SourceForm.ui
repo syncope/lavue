@@ -25,7 +25,7 @@
      <item row="1" column="1">
       <widget class="QLineEdit" name="translationLineEdit">
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Translation in pixels, .e.g 50,40&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Translation in x,y-pixels, e.g. 0,300 or 150,140&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string/>
@@ -58,16 +58,6 @@
        </property>
        <property name="styleSheet">
         <string notr="true">font: bold;</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QCheckBox" name="translationCheckBox">
-       <property name="text">
-        <string>Offset:</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -128,13 +118,28 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="translationLabel">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Translation in x,y-pixels, e.g. 0,300 or 150,140&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Offset:</string>
+       </property>
+       <property name="buddy">
+        <cstring>translationLineEdit</cstring>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>sourceTypeComboBox</tabstop>
+  <tabstop>translationLineEdit</tabstop>
   <tabstop>cStatusLineEdit</tabstop>
+  <tabstop>pushButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>

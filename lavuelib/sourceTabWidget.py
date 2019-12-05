@@ -48,17 +48,19 @@ class SourceForm(QtGui.QWidget):
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source connected signal
     sourceConnected = QtCore.pyqtSignal()
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source state signal
-    sourceStateChanged = QtCore.pyqtSignal(int)
+    sourceStateChanged = QtCore.pyqtSignal(int, int)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source state signal
     sourceChanged = QtCore.pyqtSignal(int)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source label name signal
-    sourceLabelChanged = QtCore.pyqtSignal(str)
-    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) add Icon Clicked
+    sourceLabelChanged = QtCore.pyqtSignal()
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) add Icon Clicked signal
     addIconClicked = QtCore.pyqtSignal(str, str)
-    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) remove Icon Clicked
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) remove Icon Clicked signal
     removeIconClicked = QtCore.pyqtSignal(str, str)
-    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) push button clicked
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) push button clicked signal
     pushButtonClicked = QtCore.pyqtSignal()
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) translation changed signal
+    translationChanged = QtCore.pyqtSignal(str, int)
 
     def __init__(self, parent=None, expertmode=False, sourceid=0):
         """ constructor
@@ -161,7 +163,7 @@ class SourceForm(QtGui.QWidget):
         layout = self.gridLayout()
         layout.removeWidget(self._ui.cStatusLabel)
         layout.removeWidget(self._ui.cStatusLineEdit)
-        layout.removeWidget(self._ui.translationCheckBox)
+        layout.removeWidget(self._ui.translationLabel)
         layout.removeWidget(self._ui.translationLineEdit)
         layout.removeWidget(self._ui.pushButton)
 
@@ -170,13 +172,15 @@ class SourceForm(QtGui.QWidget):
         layout.addWidget(self._ui.cStatusLabel, sln + 1, 0)
         layout.addWidget(self._ui.cStatusLineEdit, sln + 1, 1)
         if self.__sourceid:
-            layout.addWidget(self._ui.translationCheckBox, sln + 2, 0)
+            layout.addWidget(self._ui.translationLabel, sln + 2, 0)
             layout.addWidget(self._ui.translationLineEdit, sln + 2, 1)
             self._ui.pushButton.hide()
+            self._ui.translationLineEdit.textEdited.connect(
+                self.emitTranslationChanged)
         else:
             layout.addWidget(self._ui.pushButton, sln + 2, 1)
             self._ui.translationLineEdit.hide()
-            self._ui.translationCheckBox.hide()
+            self._ui.translationLabel.hide()
             self._ui.pushButton.clicked.connect(self.toggleServerConnection)
         self._ui.sourceTypeComboBox.setCurrentIndex(0)
 
@@ -285,6 +289,14 @@ class SourceForm(QtGui.QWidget):
         self.updateMetaData(disconnect=disconnect)
         self.emitSourceChanged()
 
+    def label(self):
+        """ return a label of the current detector
+
+        :return: label of the current detector
+        :rtype: :obj:`str`
+        """
+        return self.__currentSource.label()
+
     def updateMetaData(self, **kargs):
         """ update source input parameters
 
@@ -332,14 +344,14 @@ class SourceForm(QtGui.QWidget):
         """
         self.removeIconClicked.emit(name, label)
 
-    @QtCore.pyqtSlot(str)
-    def _emitSourceLabelChanged(self,  name):
+    @QtCore.pyqtSlot()
+    def _emitSourceLabelChanged(self):
         """ emits sourceLabelChanged signal with the given name
 
         :param name: source label string
         :type name: :obj:`str`
         """
-        self.sourceLabelChanged.emit(name)
+        self.sourceLabelChanged.emit()
 
     @QtCore.pyqtSlot(int)
     def _emitSourceStateChanged(self, status):
@@ -351,7 +363,7 @@ class SourceForm(QtGui.QWidget):
         if status == -1:
             self.sourceConnected.emit()
         else:
-            self.sourceStateChanged.emit(status)
+            self.sourceStateChanged.emit(status, self.__sourceid)
 
     @QtCore.pyqtSlot(bool)
     def updateButton(self, status):
@@ -379,6 +391,12 @@ class SourceForm(QtGui.QWidget):
         """ toggles server connection
         """
         self.pushButtonClicked.emit()
+
+    @QtCore.pyqtSlot(str)
+    def emitTranslationChanged(self, trans):
+        """ toggles server connection
+        """
+        self.translationChanged.emit(trans, self.__sourceid)
 
     def setErrorStatus(self, status=""):
         """ set error status
@@ -435,7 +453,7 @@ class SourceForm(QtGui.QWidget):
         """ set connection status off and display connection status
         """
         self.__connected = False
-        self.sourceStateChanged.emit(0)
+        self.sourceStateChanged.emit(-2, self.__sourceid)
         self._ui.cStatusLineEdit.setText("Trouble connecting")
 
         self._ui.sourceTypeComboBox.setEnabled(True)
@@ -480,7 +498,7 @@ class SourceTabWidget(QtGui.QTabWidget):
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source connected signal
     sourceConnected = QtCore.pyqtSignal(str)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source state signal
-    sourceStateChanged = QtCore.pyqtSignal(int)
+    sourceStateChanged = QtCore.pyqtSignal(int, int)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source state signal
     sourceChanged = QtCore.pyqtSignal(str)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source label name signal
@@ -489,6 +507,8 @@ class SourceTabWidget(QtGui.QTabWidget):
     addIconClicked = QtCore.pyqtSignal(str, str)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) remove Icon Clicked
     removeIconClicked = QtCore.pyqtSignal(str, str)
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) translation changed signal
+    translationChanged = QtCore.pyqtSignal(str, int)
 
     def __init__(self, parent=None, sourcetypes=None, expertmode=False,
                  nrsources=1):
@@ -587,18 +607,13 @@ class SourceTabWidget(QtGui.QTabWidget):
             self.__sourcenames.append(swg.name)
 
         wg.addCommonWidgets(sln)
-        # wg.buttonEnabled.connect(
-        #     self.updateButton)
-        wg.sourceChanged.connect(
-            self.emitSourceChanged)
-        wg.sourceLabelChanged.connect(
-            self._emitSourceLabelChanged)
-        wg.sourceStateChanged.connect(
-            self._emitSourceStateChanged)
-        wg.addIconClicked.connect(
-            self._emitAddIconClicked)
-        wg.removeIconClicked.connect(
-            self._emitRemoveIconClicked)
+        # wg.buttonEnabled.connect(self.updateButton)
+        wg.sourceChanged.connect(self.emitSourceChanged)
+        wg.sourceLabelChanged.connect(self._emitSourceLabelChanged)
+        wg.sourceStateChanged.connect(self._emitSourceStateChanged)
+        wg.addIconClicked.connect(self._emitAddIconClicked)
+        wg.removeIconClicked.connect(self._emitRemoveIconClicked)
+        wg.translationChanged.connect(self._emitTranslationChanged)
 
         self.__sourcetabs.append(wg)
 
@@ -728,17 +743,19 @@ class SourceTabWidget(QtGui.QTabWidget):
         """
         self.removeIconClicked.emit(name, label)
 
-    @QtCore.pyqtSlot(str)
-    def _emitSourceLabelChanged(self,  name):
+    @QtCore.pyqtSlot()
+    def _emitSourceLabelChanged(self):
         """ emits sourceLabelChanged signal with the given name
 
         :param name: source label string
         :type name: :obj:`str`
         """
-        self.sourceLabelChanged.emit(name)
+        status = "_".join([st.label()
+                           for st in self.__sourcetabs][:self.count()])
+        self.sourceLabelChanged.emit(status)
 
-    @QtCore.pyqtSlot(int)
-    def _emitSourceStateChanged(self, status):
+    @QtCore.pyqtSlot(int, int)
+    def _emitSourceStateChanged(self, status, sid):
         """ emits sourceStateChanged signal with the current source id
 
         :param name: source id. -1 for take the current source
@@ -750,7 +767,16 @@ class SourceTabWidget(QtGui.QTabWidget):
                  for st in self.__sourcetabs][:self.count()])
             self.sourceConnected.emit(status)
         else:
-            self.sourceStateChanged.emit(status)
+            self.sourceStateChanged.emit(status, sid)
+
+    @QtCore.pyqtSlot(str, int)
+    def _emitTranslationChanged(self, trans, sid):
+        """ emits sourceStateChanged signal with the current source id
+
+        :param name: source id. -1 for take the current source
+        :type name: :obj:`int`
+        """
+        self.translationChanged.emit(trans, sid)
 
     @QtCore.pyqtSlot(bool)
     def updateButton(self, status):
@@ -773,6 +799,15 @@ class SourceTabWidget(QtGui.QTabWidget):
         """
         for st in self.__sourcetabs:
             st.updateMetaData(**kargs)
+
+    def updateSourceMetaData(self, i, **kargs):
+        """ update source input parameters
+
+        :param kargs:  source widget input parameter dictionary
+        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        if len(self.__sourcetabs) > i:
+            self.__sourcetabs[i].updateMetaData(**kargs)
 
     def isConnected(self):
         """ is datasource source connected
@@ -825,8 +860,8 @@ class SourceTabWidget(QtGui.QTabWidget):
         """ set connection status off and display connection status
         """
         self.__connected = False
-        self.sourceStateChanged.emit(0)
-        for st in self.__sourcetabs:
+        for i, st in enumerate(self.__sourcetabs):
+            self.sourceStateChanged.emit(-2, i)
             st.connectFailure()
 
     def configure(self, configuration):

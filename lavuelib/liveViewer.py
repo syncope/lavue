@@ -133,6 +133,38 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.closeEvent(self, event)
 
 
+class PartialData(object):
+    """ partial data
+    """
+    def __init__(self, name, rawdata, metadata, x, y):
+        """ constructor
+
+        """
+        #: (:obj:`str`) data name
+        self.name = name
+        #: (:class:`numpy.ndarray`) raw data
+        self.rawdata = rawdata
+        #: (:obj:`str`) json dictionary with metadata
+        self.metadata = metadata
+        #: (:obj:`int`) x translation
+        self.x = x
+        #: (:obj:`int`) y translation
+        self.y = y
+        #: (:obj:`int`) x size
+        self.sx = 1
+        #: (:obj:`int`) y size
+        self.sy = 1
+        if hasattr(rawdata, "shape"):
+            if len(rawdata.shape) > 0:
+                self.sx = rawdata.shape[0]
+            if len(rawdata.shape) > 1:
+                self.sy = rawdata.shape[1]
+
+    def tolist(self):
+        return [self.name, self.rawdata, self.metadata,
+                self.x, self.y, self.sx, self.sy]
+
+
 class LiveViewer(QtGui.QDialog):
 
     '''The master class for the dialog, contains all other
@@ -346,6 +378,9 @@ class LiveViewer(QtGui.QDialog):
         #: (:obj:`str`) source label
         self.__sourcelabel = None
 
+        #: ( (:obj:`int`,:obj:`int`)) image translations
+        self.__translations = [(0, 0)]
+
         #: (:obj:`str`) reload flag
         self.__reloadflag = False
 
@@ -432,7 +467,6 @@ class LiveViewer(QtGui.QDialog):
             self.__dataFetchers.append(dft)
             self._stateUpdated.connect(dft.changeStatus)
         self.__dataFetchers[0].newDataNameFetched.connect(self._getNewData)
-        # ugly !!! sent current state to the data fetcher...
         self.__sourcewg.sourceStateChanged.connect(self._updateSource)
         self.__sourcewg.sourceChanged.connect(self._onSourceChanged)
         self.__sourcewg.sourceConnected.connect(self._connectSource)
@@ -469,6 +503,7 @@ class LiveViewer(QtGui.QDialog):
             self._addLabel)
         self.__sourcewg.removeIconClicked.connect(
             self._removeLabel)
+        self.__sourcewg.translationChanged.connect(self._setTranslation)
 
         self.__ui.frameLineEdit.textChanged.connect(self._spinreloadfile)
         self.__ui.lowerframePushButton.clicked.connect(
@@ -499,6 +534,27 @@ class LiveViewer(QtGui.QDialog):
             self.__sourcewg.start()
 
         self.__updateTool(options.tool)
+
+    def _setTranslation(self, trans, sid):
+        try:
+            x = None
+            y = None
+            strans = trans.split(",")
+            if len(strans) > 0:
+                try:
+                    x = int(strans[0])
+                except Exception:
+                    pass
+            if len(strans) > 1:
+                try:
+                    y = int(strans[1])
+                except Exception:
+                    pass
+            while len(self.__translations) <= sid:
+                self.__translations.append((None, None))
+            self.__translations[sid] = (x, y)
+        except Exception:
+            pass
 
     def __updateTypeList(self, properties, typelist,
                          allaliases, snametoname):
@@ -897,7 +953,8 @@ class LiveViewer(QtGui.QDialog):
         self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
         self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
         self._assessTransformation(self.__trafoname)
-        self.__datasources[0].setTimeOut(self.__settings.timeout)
+        for i, ds in enumerate(self.__datasources):
+            ds.setTimeOut(self.__settings.timeout)
         dataFetchThread.GLOBALREFRESHRATE = self.__settings.refreshrate
         self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling)
         self.__imagewg.setROIsColors(self.__settings.roiscolors)
@@ -977,11 +1034,11 @@ class LiveViewer(QtGui.QDialog):
             self.__tangoclient.unsubscribe()
         self._storeSettings()
         self.__settings.secstream = False
-        try:
-            self.__dataFetchers[0].newDataNameFetched.disconnect(
-                self._getNewData)
-        except Exception:
-            pass
+        for dft in self.__dataFetchers:
+            try:
+                dft.newDataNameFetched.disconnect(self._getNewData)
+            except Exception:
+                pass
         # except Exception as e:
         #     print (str(e))
 
@@ -1484,7 +1541,8 @@ class LiveViewer(QtGui.QDialog):
         self.__settings.secautoport = dialog.secautoport
         self.__settings.secport = dialog.secport
         self.__settings.timeout = dialog.timeout
-        self.__datasources[0].setTimeOut(self.__settings.timeout)
+        for i, ds in enumerate(self.__datasources):
+            ds.setTimeOut(self.__settings.timeout)
         self.__settings.aspectlocked = dialog.aspectlocked
         self.__imagewg.setAspectLocked(self.__settings.aspectlocked)
         self.__settings.autodownsample = dialog.autodownsample
@@ -1501,7 +1559,9 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.nrsources != dialog.nrsources:
             if self.__sourcewg.isConnected():
                 self.__sourcewg.toggleServerConnection()
-            self.__sourcewg.setNumberOfSources(dialog.nrsources)
+                QtCore.QCoreApplication.processEvents()
+                time.sleep(1)
+            self.__setNumberOfSources(dialog.nrsources)
             self.__settings.nrsources = dialog.nrsources
         self.__settings.secstream = dialog.secstream
         self.__settings.storegeometry = dialog.storegeometry
@@ -1587,6 +1647,27 @@ class LiveViewer(QtGui.QDialog):
         if replot:
             self._plot()
 
+    def __setNumberOfSources(self, nrsources):
+        if len(self.__dataFetchers) > nrsources:
+            for _ in reversed(range(nrsources, len(self.__dataFetchers))):
+                df = self.__dataFetchers.pop()
+                df.stop()
+                df.wait()
+                df = None
+                self.__datasources.pop()
+                self.__exchangelists.pop()
+        elif len(self.__dataFetchers) < nrsources:
+            for i in reversed(range(len(self.__dataFetchers), nrsources)):
+                self.__datasources.append(isr.BaseSource())
+                self.__exchangelists.append(dataFetchThread.ExchangeList())
+                dft = dataFetchThread.DataFetchThread(
+                    self.__datasources[-1], self.__exchangelists[-1])
+                self.__dataFetchers.append(dft)
+                self._stateUpdated.connect(dft.changeStatus)
+        self.__sourcewg.setNumberOfSources(nrsources)
+        self._setSourceConfiguration()
+        # self._updateSource(-1, -1)
+
     def __mergeDetServers(self, detserverdict, detserverlist):
         """ merges detector servers from
         a dictionary and a list
@@ -1634,11 +1715,12 @@ class LiveViewer(QtGui.QDialog):
         """
         if sourceConfiguration is None:
             sourceConfiguration = self.__sourcewg.configuration()
-        self.__sourceconfiguration = sourceConfiguration[0]
+        self.__sourceconfiguration = sourceConfiguration
         cdss = self.__sourcewg.currentDataSources()
-        if cdss[0] == \
-           str(type(self.__datasources[0]).__name__):
-            self.__datasources[0].setConfiguration(self.__sourceconfiguration)
+        for i, ds in enumerate(cdss):
+            if ds == \
+               str(type(self.__datasources[i]).__name__):
+                self.__datasources[i].setConfiguration(sourceConfiguration[i])
 
     @QtCore.pyqtSlot(str)
     def _switchSourceDisplay(self, label):
@@ -1694,38 +1776,42 @@ class LiveViewer(QtGui.QDialog):
     def _onSourceChanged(self, status):
         lstatus = json.loads(status)
         dss = self.__sourcewg.currentDataSources()
-        print("Don %s" % dss)
         for i, ds in enumerate(dss):
-            print("on %s" % ds)
-            if i == 0:
-                if lstatus[i]:
+            if lstatus[i]:
+                if ds != str(type(self.__datasources[i]).__name__):
                     self.__datasources[i] = getattr(
                         isr, ds)(self.__settings.timeout)
-                self.__sourcewg.updateMetaData(
-                    **self.__datasources[i].getMetaData())
+            self.__sourcewg.updateSourceMetaData(
+                i, **self.__datasources[i].getMetaData())
 
-    @QtCore.pyqtSlot(int)
-    def _updateSource(self, status):
+    @QtCore.pyqtSlot(int, int)
+    def _updateSource(self, status, sid):
         """ update the current source
 
         :param status: current source status id
         :type status: :obj:`int`
         """
-        print("STAT %s" % status)
-        print("ST %s" % self.__datasources[0])
-        print("STT %s" % self.__sourcewg.currentDataSources())
-        if status:
-            self.__datasources[0].setTimeOut(self.__settings.timeout)
+        if status != -2:
             dss = self.__sourcewg.currentDataSources()
-            for i, ds in enumerate(self.__datasources):
-                self.__dataFetchers[i].setDataSource(ds)
-            if self.__sourceconfiguration and \
-               dss[0] == str(type(self.__datasources[0]).__name__):
-                self.__datasources[0].setConfiguration(
-                    self.__sourceconfiguration)
-            self.__sourcewg.updateMetaData(
-                **self.__datasources[0].getMetaData())
-        print("SA %s" % status)
+            if sid == -1:
+                for i, ds in enumerate(self.__datasources):
+                    ds.setTimeOut(self.__settings.timeout)
+                    self.__dataFetchers[i].setDataSource(ds)
+                    if self.__sourceconfiguration and \
+                       self.__sourceconfiguration[i] and \
+                       dss[i] == str(type(ds).__name__):
+                        ds.setConfiguration(self.__sourceconfiguration[i])
+                    self.__sourcewg.updateSourceMetaData(i, **ds.getMetaData())
+            else:
+                ds = self.__datasources[sid]
+                ds.setTimeOut(self.__settings.timeout)
+                self.__dataFetchers[sid].setDataSource(ds)
+                if self.__sourceconfiguration and \
+                   self.__sourceconfiguration[sid] and \
+                   dss[sid] == str(type(ds).__name__):
+                    ds.setConfiguration(self.__sourceconfiguration[sid])
+                    self.__sourcewg.updateSourceMetaData(
+                        sid, **ds.getMetaData())
         self._stateUpdated.emit(bool(status))
 
     @QtCore.pyqtSlot(bool)
@@ -1772,7 +1858,9 @@ class LiveViewer(QtGui.QDialog):
         self.__calcUpdateStats()
         # calls internally the plot function of the plot widget
         if self.__imagename is not None and self.__scaledimage is not None:
-            self.__ui.fileNameLineEdit.setText(self.__imagename)
+            self.__ui.fileNameLineEdit.setText(
+                self.__imagename.replace("\n", " "))
+            self.__ui.fileNameLineEdit.setToolTip(self.__imagename)
         self.__imagewg.plot(
             self.__scaledimage,
             self.__displayimage
@@ -1868,26 +1956,31 @@ class LiveViewer(QtGui.QDialog):
         :param status: current source status id
         :type status: :obj:`int`
         """
-        print("CON %s" % status)
         lstatus = json.loads(status)
         status = lstatus[0]
         self.__viewFrameRate(self.__settings.showframerate)
-        self._updateSource(status)
-        if self.__datasources[0] is None:
-            messageBox.MessageBox.warning(
-                self, "lavue: No data source is defined",
-                "No data source is defined",
-                "Please select the image source")
+        for i, status in enumerate(lstatus):
+            self._updateSource(status, i)
+
+        for ds in self.__datasources:
+            if ds is None:
+                messageBox.MessageBox.warning(
+                    self, "lavue: No data source is defined",
+                    "No data source is defined",
+                    "Please select the image source")
         self._setSourceConfiguration()
-        if not self.__datasources[0].connect():
-            self.__sourcewg.connectFailure()
-            messageBox.MessageBox.warning(
-                self, "lavue: The %s connection could not be established"
-                % type(self.__datasources[0]).__name__,
-                "The %s connection could not be established"
-                % type(self.__datasources[0]).__name__,
-                str(self.__datasources[0].errormessage))
-        else:
+        consuccess = bool(len(self.__datasources))
+        for ds in self.__datasources:
+            if not ds.connect():
+                self.__sourcewg.connectFailure()
+                messageBox.MessageBox.warning(
+                    self, "lavue: The %s connection could not be established"
+                    % type(ds).__name__,
+                    "The %s connection could not be established"
+                    % type(ds).__name__,
+                    str(ds.errormessage))
+                consuccess = False
+        if consuccess:
             self.__sourcewg.connectSuccess(
                 self.__settings.secport if self.__settings.secstream else None)
         if self.__settings.secstream:
@@ -1907,7 +2000,8 @@ class LiveViewer(QtGui.QDialog):
         """ calls the disconnect function of the source interface
         """
         self._stopPlotting()
-        self.__datasources[0].disconnect()
+        for ds in self.__datasources:
+            ds.disconnect()
         self.__viewFrameRate(False)
         self.__imagename = None
         self.__imagename = None
@@ -1919,9 +2013,72 @@ class LiveViewer(QtGui.QDialog):
             topic = 10001
             self.__settings.secsocket.send_string("%d %s" % (
                 topic, str(json.dumps(messagedata)).encode("ascii")))
-        self._updateSource(0)
+        self._updateSource(-1, -1)
         self.__setSourceLabel()
         # self.__datasources[0] = None
+
+    def __mergeData(self, fulldata, oldname):
+
+        names = [pdata.name for pdata in fulldata if pdata.name]
+        rawimage = None
+        metadata = None
+        if "__ERROR__" in names:
+            name = "__ERROR__"
+            rawimage = " ".join(
+                [str(pdata.rawdata)
+                 for pdata in fulldata
+                 if pdata.name == "__ERROR__"]
+            )
+            return name, rawimage, metadata
+
+        name = "\n".join(names).strip()
+        name = name or None
+
+        mdata = [pdata.metadata for pdata in fulldata if pdata.metadata]
+        if oldname == name and not mdata:
+            return None, None, None
+        if mdata:
+            dmdata = {}
+            for md in mdata:
+                dmdata.update(json.loads(mdata))
+            metadata = str(json.dumps(dmdata))
+        if name:
+            ldata = [pdata for pdata in fulldata if pdata.name]
+            if len(ldata) == 1:
+                name, rawimage, metadata = ldata[0].tolist()[:3]
+            elif len(ldata) > 1:
+                pd = ldata[0]
+                shape = list(pd.rawdata.shape)
+                dtype = pd.rawdata.dtype
+                while len(shape) < 2:
+                    shape.append(1)
+                pd.x = pd.x or 0
+                pd.y = pd.y or 0
+                shape[0] += pd.x
+                shape[1] += pd.y
+                for pd in ldata[1:]:
+                    pd.x = pd.x or 0
+                    if pd.y is None:
+                        pd.y = shape[1]
+                    psh = list(pd.rawdata.shape)
+                    while len(psh) < 2:
+                        psh.append(1)
+                    psh[0] += pd.x
+                    psh[1] += pd.y
+                    if dtype != pd.rawdata.dtype:
+                        dtype = np.float
+                    shape[0] = max(shape[0], psh[0])
+                    shape[1] = max(shape[1], psh[1])
+                rawimage = np.zeros(shape=shape, dtype=dtype)
+                for pd in ldata:
+                    if len(shape) == 2:
+                        rawimage[pd.x: pd.sx + pd.x, pd.y: pd.sy + pd.y] = \
+                            pd.rawdata
+                    else:
+                        rawimage[
+                            pd.x: pd.sx + pd.x, pd.y: pd.sy + pd.y, ...] = \
+                            pd.rawdata
+        return name, rawimage, metadata
 
     @QtCore.pyqtSlot(str, str)
     def _getNewData(self, name, metadata=None):
@@ -1932,10 +2089,26 @@ class LiveViewer(QtGui.QDialog):
         :param metadata: JSON dictionary with metadata
         :type metadata: :obj:`str`
         """
+        fulldata = []
+        # name, rawimage, metadata = self.__exchangelists[0].readData()
 
-        name, rawimage, metadata = self.__exchangelists[0].readData()
+        for i, df in enumerate(self.__dataFetchers):
+            while not df.newData() and self.__sourcewg.isConnected():
+                time.sleep(self.__settings.refreshrate/100.)
+            name, rawimage, metadata = self.__exchangelists[i].readData()
+            if i < len(self.__translations):
+                x, y = self.__translations[i]
+            else:
+                x, y = None, None
+            fulldata.append(PartialData(name, rawimage, metadata, x, y))
         if not self.__sourcewg.isConnected():
             return
+        if len(fulldata) == 1:
+            name, rawimage, metadata = fulldata[0].tolist()[:3]
+        else:
+            name, rawimage, metadata = self.__mergeData(
+                fulldata, str(self.__imagename).strip())
+
         if str(self.__imagename).strip() == str(name).strip() and not metadata:
             self.__dataFetcher.ready()
             return
