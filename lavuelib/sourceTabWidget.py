@@ -453,7 +453,7 @@ class SourceForm(QtGui.QWidget):
         """ set connection status off and display connection status
         """
         self.__connected = False
-        self.sourceStateChanged.emit(-2, self.__sourceid)
+        self.sourceStateChanged.emit(0, self.__sourceid)
         self._ui.cStatusLineEdit.setText("Trouble connecting")
 
         self._ui.sourceTypeComboBox.setEnabled(True)
@@ -534,10 +534,6 @@ class SourceTabWidget(QtGui.QTabWidget):
 
         #: (:obj:`int`) number of image sources
         self.__nrsources = 0
-
-        #: (:class:`lavuelib.sourceWidget.SourceBaseWidget`)
-        #:      current source widget
-        self.__currentSource = None
 
         #: (:obj:`list` < :obj:`str` > ) source class names
         self.__types = sourcetypes or []
@@ -652,23 +648,14 @@ class SourceTabWidget(QtGui.QTabWidget):
                 self.removeTab(i)
             self.__nrsources = nrsources
 
-    def setSourceComboBoxByName(self, name):
+    def setSourceComboBoxByName(self, sid, name):
         """ set source by changing combobox by name
 
         :param name: combobox name
         :type name: :obj:`str`
         """
-        index = self._ui.sourceTypeComboBox.findText(name)
-        if index != -1:
-            self._ui.sourceTypeComboBox.setCurrentIndex(index)
-
-    def setSourceComboBox(self, index):
-        """ set source by changing combobox
-
-        :param index: combobox index
-        :type index: :obj:`int`
-        """
-        self._ui.sourceTypeComboBox.setCurrentIndex(index)
+        if len(self.__sourcetabs) > sid:
+            self.__sourcetabs[sid].setSourceComboBoxByName(name)
 
     def updateSourceComboBox(self, sourcenames, name=None):
         """ set source by changing combobox
@@ -861,18 +848,18 @@ class SourceTabWidget(QtGui.QTabWidget):
         """
         self.__connected = False
         for i, st in enumerate(self.__sourcetabs):
-            self.sourceStateChanged.emit(-2, i)
+            self.sourceStateChanged.emit(0, i)
             st.connectFailure()
 
-    def configure(self, configuration):
+    def configure(self, sid, configuration):
         """ set configuration for the current image source
 
         :param configuration: configuration string
         :type configuration: :obj:`str`
         """
 
-        if self.__currentSource is not None:
-            self.__currentSource.configure(configuration)
+        if len(self.__sourcetabs) > sid:
+            self.__sourcetabs[sid].configure(configuration)
 
     def configuration(self):
         """ provides configuration for the current image source

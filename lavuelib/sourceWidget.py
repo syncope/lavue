@@ -1510,7 +1510,7 @@ class ZMQSourceWidget(SourceBaseWidget):
         disconnected = False
         if self._connected:
             disconnected = True
-            self.sourceStateChanged.emit(-2)
+            self.sourceStateChanged.emit(0)
         self.updateButton()
         if disconnected:
             self.sourceStateChanged.emit(-1)

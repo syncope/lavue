@@ -817,12 +817,12 @@ class LiveViewer(QtGui.QDialog):
             srcname = str(options.source)
             if srcname in self.__srcaliasnames.keys():
                 self.__sourcewg.setSourceComboBoxByName(
-                    self.__srcaliasnames[srcname])
+                    0, self.__srcaliasnames[srcname])
 
         QtCore.QCoreApplication.processEvents()
         if hasattr(options, "configuration") and \
            options.configuration is not None:
-            self.__sourcewg.configure(str(options.configuration))
+            self.__sourcewg.configure(0, str(options.configuration))
 
         QtCore.QCoreApplication.processEvents()
 
@@ -1791,7 +1791,7 @@ class LiveViewer(QtGui.QDialog):
         :param status: current source status id
         :type status: :obj:`int`
         """
-        if status != -2:
+        if status:
             dss = self.__sourcewg.currentDataSources()
             if sid == -1:
                 for i, ds in enumerate(self.__datasources):
@@ -2093,9 +2093,15 @@ class LiveViewer(QtGui.QDialog):
         # name, rawimage, metadata = self.__exchangelists[0].readData()
 
         for i, df in enumerate(self.__dataFetchers):
-            while not df.newData() and self.__sourcewg.isConnected():
+            cnt = 0
+            while (not df.newData() and self.__sourcewg.isConnected()
+                   and cnt < 100):
                 time.sleep(self.__settings.refreshrate/100.)
-            name, rawimage, metadata = self.__exchangelists[i].readData()
+                cnt += 1
+            if cnt < 100:
+                name, rawimage, metadata = self.__exchangelists[i].readData()
+            else:
+                name, rawimage, metadata = None, None, None
             if i < len(self.__translations):
                 x, y = self.__translations[i]
             else:
