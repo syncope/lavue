@@ -228,8 +228,15 @@ class IntensityToolWidget(ToolBaseWidget):
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.axesPushButton.clicked, self._mainwidget.setTicks],
+            [self.__ui.crosshairCheckBox.stateChanged,
+             self._updateCrossHairLocker],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    @QtCore.pyqtSlot(int)
+    def _updateCrossHairLocker(self, status):
+        self.parameters.crosshairlocker = bool(status)
+        self._mainwidget.updateinfowidgets(self.parameters)
 
     @QtCore.pyqtSlot()
     def _message(self):
