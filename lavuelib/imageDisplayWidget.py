@@ -233,6 +233,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.sceneObj.contextMenu[0].triggered.connect(
             self.sceneObj.showExportDialog)
         self.sceneObj.rawdata = None
+        self.setCursor(QtGui.QCursor(QtCore.Qt.CrossCursor))
 
     def viewbox(self):
         """provides viewbox
