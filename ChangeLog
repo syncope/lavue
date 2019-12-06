@@ -1,8 +1,9 @@
 2019-12-06 Jan Kotanski <jan.kotanski@desy.de>
-	* set offset for the first module as well
+	* add checkboxes for tab widgets
 	* make cross-hair locker optional
+	* set offset for the first module as well
 	* set CrossCursor for the 2d image
-	* tagged as 2.30.1
+	* tagged as 2.31.0
 
 2019-12-06 Jan Kotanski <jan.kotanski@desy.de>
 	* add multi-sources option
