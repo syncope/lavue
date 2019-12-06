@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Dec 06, 2019" "2.30" "lavuelib"
+.TH "LAVUELIB" "1" "Dec 06, 2019" "2.31" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -10879,6 +10879,16 @@ x,y tranlation, e.g. 2345,354
 .UNINDENT
 .INDENT 7.0
 .TP
+.B showItem(trans)
+show items of the widget
+.INDENT 7.0
+.TP
+.B Parameters
+\fBtrans\fP (\fI\%bool\fP) – translation item show status
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B sourceChanged
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) source state signal
 .UNINDENT
@@ -11000,6 +11010,21 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B addTab(widget, title)
+add tab widget
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBwidget\fP (\fBpyqtgraph.QtGui.QWidget\fP) – tab widget
+.IP \(bu 2
+\fBtitle\fP (\fI\%str\fP) – tab title
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B configuration()
 provides configuration for the current image source
 .INDENT 7.0
@@ -11074,6 +11099,22 @@ emits sourceChanged signal
 .UNINDENT
 .INDENT 7.0
 .TP
+.B isChecked(sid)
+check if tab is active
+.INDENT 7.0
+.TP
+.B Parameters
+\fBsid\fP (\fI\%int\fP) – source id
+.TP
+.B Returns
+check state
+.TP
+.B Return type
+\fI\%int\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B isConnected()
 is datasource source connected
 .INDENT 7.0
@@ -11094,6 +11135,31 @@ update current source widgets
 .TP
 .B removeIconClicked
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) remove Icon Clicked
+.UNINDENT
+.INDENT 7.0
+.TP
+.B removeTab(sid)
+remove tab widget
+.INDENT 7.0
+.TP
+.B Parameters
+\fBsid\fP (\fI\%int\fP) – source id
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setCheckState(sid, state)
+set check status
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBstate\fP (\fI\%int\fP) – checkbox state
+.IP \(bu 2
+\fBsid\fP (\fI\%int\fP) – source id
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -11148,6 +11214,16 @@ x,y tranlation, e.g. 2345,354
 .UNINDENT
 .INDENT 7.0
 .TP
+.B showItem(trans)
+show items of the widget
+.INDENT 7.0
+.TP
+.B Parameters
+\fBtrans\fP (\fI\%bool\fP) – translation item show status
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B sourceChanged
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) source state signal
 .UNINDENT
@@ -11175,6 +11251,19 @@ x,y tranlation, e.g. 2345,354
 .TP
 .B start()
 starts viewing if pushButton enable
+.UNINDENT
+.INDENT 7.0
+.TP
+.B tabCheckBoxStates()
+provides checkbox states
+.INDENT 7.0
+.TP
+.B Returns
+checkbox state
+.TP
+.B Return type
+\fBlist <\fP\fI\%int\fP>
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
