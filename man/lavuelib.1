@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Nov 22, 2019" "2.29" "lavuelib"
+.TH "LAVUELIB" "1" "Dec 06, 2019" "2.30" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -739,6 +739,11 @@ status flag
 .UNINDENT
 .INDENT 7.0
 .TP
+.B nrsources = None
+(\fI\%int\fP) number of image sources
+.UNINDENT
+.INDENT 7.0
+.TP
 .B nxslast = None
 (\fI\%bool\fP) nexus file source starts from the last image
 .UNINDENT
@@ -1084,6 +1089,11 @@ change connection status
 .UNINDENT
 .INDENT 7.0
 .TP
+.B fetching()
+provides read flag
+.UNINDENT
+.INDENT 7.0
+.TP
 .B isRunning()
 is datasource source connected
 .INDENT 7.0
@@ -1151,7 +1161,7 @@ write data into exchange object
 .INDENT 7.0
 .TP
 .B readData()
-write data into exchange object
+read data from exchange object
 .INDENT 7.0
 .TP
 .B Returns
@@ -1714,12 +1724,17 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setMaximaPos(positionlist)
+.B setMaximaPos(positionlist, offset=None)
 sets maxima postions
 .INDENT 7.0
 .TP
 .B Parameters
+.INDENT 7.0
+.IP \(bu 2
 \fBpositionlist\fP (\fBlist\fP < (float, float) >) – [(x1, y1), … , (xn, yn)]
+.IP \(bu 2
+\fBoffset\fP ([ \fI\%float\fP, \fI\%float\fP]) – offset of position
+.UNINDENT
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5050,6 +5065,11 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B applyStateChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) apply state change signal
+.UNINDENT
+.INDENT 7.0
+.TP
 .B mask()
 provides the image mask high value
 .INDENT 7.0
@@ -5267,6 +5287,29 @@ x position, y position)
 .UNINDENT
 .INDENT 7.0
 .TP
+.B descaledxy(x, y, useraxes=True)
+provides scaled x,y positions
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBx\fP (\fI\%float\fP) – x pixel coordinate
+.IP \(bu 2
+\fBy\fP (\fI\%float\fP) – y pixel coordinate
+.IP \(bu 2
+\fBuseraxes\fP (\fI\%bool\fP) – use user scaling
+.UNINDENT
+.TP
+.B Returns
+scaled x,y position
+.TP
+.B Return type
+(\fI\%float\fP, \fI\%float\fP)
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B emitAspectLockedToggled(status)
 emits aspectLockedToggled
 .INDENT 7.0
@@ -5347,6 +5390,32 @@ updates image widget after mouse position change
 .UNINDENT
 .INDENT 7.0
 .TP
+.B rangeWindowEnabled()
+provide info if range window enabled
+.INDENT 7.0
+.TP
+.B Returns
+range window enabled
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B rangeWindowScale()
+provide info about range window sclae
+.INDENT 7.0
+.TP
+.B Returns
+range window scale
+.TP
+.B Return type
+\fI\%float\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B rawData()
 provides the raw data
 .INDENT 7.0
@@ -5373,14 +5442,28 @@ True for on and False for off
 .UNINDENT
 .INDENT 7.0
 .TP
-.B scale()
+.B scale(useraxes=True, noNone=False)
 provides scale and position of the axes
-:rtype: [int, int, int, int]
-:returns: [posx, posy, scalex, scaley]
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBuseraxes\fP (\fI\%bool\fP) – use user scaling
+.IP \(bu 2
+\fBnoNone\fP (\fI\%bool\fP) – return values without None
+.UNINDENT
+.TP
+.B Return type
+[\fI\%int\fP, \fI\%int\fP, \fI\%int\fP, \fI\%int\fP]
+.TP
+.B Returns
+[posx, posy, scalex, scaley]
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
-.B scaledxy(x, y)
+.B scaledxy(x, y, useraxes=True)
 provides scaled x,y positions
 .INDENT 7.0
 .TP
@@ -5390,6 +5473,8 @@ provides scaled x,y positions
 \fBx\fP (\fI\%float\fP) – x pixel coordinate
 .IP \(bu 2
 \fBy\fP (\fI\%float\fP) – y pixel coordinate
+.IP \(bu 2
+\fBuseraxes\fP (\fI\%bool\fP) – use user scaling
 .UNINDENT
 .TP
 .B Returns
@@ -5566,7 +5651,7 @@ apply status
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setTransformations(transpose, leftrightflip, updownflip)
+.B setTransformations(transpose, leftrightflip, updownflip, orgtranspose)
 sets coordinate transformations
 .INDENT 7.0
 .TP
@@ -5578,6 +5663,8 @@ sets coordinate transformations
 \fBleftrightflip\fP (\fI\%bool\fP) – left\-right flip coordinates flag
 .IP \(bu 2
 \fBupdownflip\fP (\fI\%bool\fP) – up\-down flip coordinates flag
+.IP \(bu 2
+\fBorgtranspose\fP (\fI\%bool\fP) – selected transpose coordinates flag
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5608,7 +5695,8 @@ povides coordinates transformations
 .INDENT 7.0
 .TP
 .B Returns
-transpose, leftrightflip, updownflip flags
+transpose, leftrightflip, updownflip flags,
+original transpose
 .TP
 .B Return type
 (\fI\%bool\fP, \fI\%bool\fP, \fI\%bool\fP)
@@ -5631,7 +5719,7 @@ updates the image to display
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updateMetaData(axisscales=None, axislabels=None)
+.B updateMetaData(axisscales=None, axislabels=None, rescale=False)
 update Metadata informations
 .INDENT 7.0
 .TP
@@ -5641,6 +5729,8 @@ update Metadata informations
 \fBaxisscales\fP ([\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP]) – [xstart, ystart, xscale, yscale]
 .IP \(bu 2
 \fBaxislabels\fP ([\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP]) – [xtext, ytext, xunits, yunits]
+.IP \(bu 2
+\fBrescale\fP (\fI\%True\fP) – rescale or select range window
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5735,6 +5825,11 @@ constructor
 .TP
 .B leftrightflip = None
 (\fI\%bool\fP) left\-right flip coordinates flag
+.UNINDENT
+.INDENT 7.0
+.TP
+.B orgtranspose = None
+(\fI\%bool\fP) transpose coordinates flag
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6663,8 +6758,14 @@ sets auto range
 .TP
 .B axesunits()
 return axes units
-:returns: x,y units
-:rtype: (\fI\%str\fP, \fI\%str\fP)
+.INDENT 7.0
+.TP
+.B Returns
+x,y units
+.TP
+.B Return type
+(\fI\%str\fP, \fI\%str\fP)
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7035,6 +7136,32 @@ plots the image
 .UNINDENT
 .INDENT 7.0
 .TP
+.B rangeWindowEnabled()
+provide info if range window enabled
+.INDENT 7.0
+.TP
+.B Returns
+range window enabled
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B rangeWindowScale()
+provide info range window scale
+.INDENT 7.0
+.TP
+.B Returns
+range window scale
+.TP
+.B Return type
+\fI\%float\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B rawData()
 provides the raw data
 .INDENT 7.0
@@ -7151,7 +7278,28 @@ macro runned
 .UNINDENT
 .INDENT 7.0
 .TP
-.B scaledxy(x, y)
+.B scale(useraxes=True, noNone=False)
+provides scale and position of the axes
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBuseraxes\fP (\fI\%bool\fP) – use user scaling
+.IP \(bu 2
+\fBnoNone\fP (\fI\%bool\fP) – return values without None
+.UNINDENT
+.TP
+.B Return type
+[\fI\%int\fP, \fI\%int\fP, \fI\%int\fP, \fI\%int\fP]
+.TP
+.B Returns
+[posx, posy, scalex, scaley]
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B scaledxy(x, y, useraxes=True)
 provides scaled x,y positions
 .INDENT 7.0
 .TP
@@ -7161,6 +7309,8 @@ provides scaled x,y positions
 \fBx\fP (\fI\%float\fP) – x pixel coordinate
 .IP \(bu 2
 \fBy\fP (\fI\%float\fP) – y pixel coordinate
+.IP \(bu 2
+\fBuseraxes\fP (\fI\%bool\fP) – use user scaling
 .UNINDENT
 .TP
 .B Returns
@@ -7169,6 +7319,11 @@ scaled x,y position
 .B Return type
 (\fI\%float\fP, \fI\%float\fP)
 .UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B scalesChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) scales changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7284,12 +7439,17 @@ sets maximum intensity level
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setMaximaPos(positionlist)
+.B setMaximaPos(positionlist, offset=None)
 sets maxima postions
 .INDENT 7.0
 .TP
 .B Parameters
+.INDENT 7.0
+.IP \(bu 2
 \fBpositionlist\fP (\fBlist\fP < (float, float) >) – [(x1, y1), … , (xn, yn)]
+.IP \(bu 2
+\fBoffset\fP ([ \fI\%float\fP, \fI\%float\fP]) – offset of position
+.UNINDENT
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7495,10 +7655,11 @@ povides coordinates transformations
 .INDENT 7.0
 .TP
 .B Returns
-transpose, leftrightflip, updownflip flags
+transpose, leftrightflip, updownflip flags,
+original transpose
 .TP
 .B Return type
-(\fI\%bool\fP, \fI\%bool\fP, \fI\%bool\fP)
+(\fI\%bool\fP, \fI\%bool\fP, \fI\%bool\fP, \fI\%bool\fP)
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7619,7 +7780,7 @@ updates the vertical bounds
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updateMetaData(axisscales=None, axislabels=None)
+.B updateMetaData(axisscales=None, axislabels=None, rescale=False)
 update Metadata informations
 .INDENT 7.0
 .TP
@@ -7629,6 +7790,8 @@ update Metadata informations
 \fBaxisscales\fP ([\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP]) – [xstart, ystart, xscale, yscale]
 .IP \(bu 2
 \fBaxislabels\fP ([\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP]) – [xtext, ytext, xunits, yunits]
+.IP \(bu 2
+\fBrescale\fP (\fI\%True\fP) – rescale or select range window
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -8124,6 +8287,64 @@ stores the setting before finishing the application
 .B Parameters
 \fBevent\fP (\fBpyqtgraph.QtCore.QEvent\fP:) – close event
 .UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.liveViewer.PartialData(name, rawdata, metadata, x, y)
+Bases: \fI\%object\fP
+.sp
+partial data
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B metadata = None
+(\fI\%str\fP) json dictionary with metadata
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) data name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B rawdata = None
+(\fI\%numpy.ndarray\fP) raw data
+.UNINDENT
+.INDENT 7.0
+.TP
+.B sx = None
+(\fI\%int\fP) x size
+.UNINDENT
+.INDENT 7.0
+.TP
+.B sy = None
+(\fI\%int\fP) y size
+.UNINDENT
+.INDENT 7.0
+.TP
+.B tolist()
+converts partial data to a list
+.INDENT 7.0
+.TP
+.B Returns
+a list: [name, rawdata, metadata, x, y, sx, sy]
+.TP
+.B Return type
+[\fI\%str\fP, \fI\%str\fP, \fI\%str\fP,
+\fI\%int\fP, \fI\%int\fP, \fI\%int\fP, \fI\%int\fP]
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B x = None
+(\fI\%int\fP) x translation
+.UNINDENT
+.INDENT 7.0
+.TP
+.B y = None
+(\fI\%int\fP) y translation
 .UNINDENT
 .UNINDENT
 .SS lavuelib.maskWidget module
@@ -9455,6 +9676,120 @@ create GUI
 (\fI\%float\fP) start position of radial coordinate
 .UNINDENT
 .UNINDENT
+.SS lavuelib.rangeWindowGroupBox module
+.sp
+range window widget
+.INDENT 0.0
+.TP
+.B class lavuelib.rangeWindowGroupBox.RangeWindowGroupBox(parent=None)
+Bases: \fBPyQt5.QtWidgets.QWidget\fP
+.sp
+Select how an image should be transformed.
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B changeView(showrangeWindow=None)
+show or hide widgets
+.INDENT 7.0
+.TP
+.B Parameters
+\fBshowrangeWindow\fP (\fI\%bool\fP) – widget shown
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B factor()
+provides the current resize factor
+.INDENT 7.0
+.TP
+.B Returns
+resize factor
+.TP
+.B Return type
+\fI\%int\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B factorChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) factor changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B function()
+provides the reduction function name, i.e. max, min, mean, sum
+.INDENT 7.0
+.TP
+.B Returns
+function name
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B functionChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) function changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B rangeWindow()
+provides the range window
+.INDENT 7.0
+.TP
+.B Returns
+x1, y1, x2, y2 of range window bounds
+.TP
+.B Return type
+\fBlist\fP <\fI\%int\fP>
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B rangeWindowChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) range window changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setFactor(factor)
+provides the current resize factor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBfactor\fP (\fI\%int\fP) – resize factor
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setFunction(name)
+sets the reduction function
+.INDENT 7.0
+.TP
+.B Parameters
+\fBname\fP (\fI\%str\fP) – function name, i.e. max, min, mean, sum
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setRangeWindow(bounds)
+provides the range window
+.INDENT 7.0
+.TP
+.B Parameters
+\fBbounds\fP – range window bounds: x1:x2,y1:y2
+.TP
+.B Type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
 .SS lavuelib.release module
 .sp
 release version
@@ -9972,7 +10307,12 @@ error messages list
 .INDENT 7.0
 .TP
 .B maxmbuffersize = None
-(\fI\%int\fP) maximal number of images in memory buffer
+(\fI\%str\fP) maximal number of images in memory buffer
+.UNINDENT
+.INDENT 7.0
+.TP
+.B nrsources = None
+(\fI\%int\fP) number of image sources
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10260,10 +10600,10 @@ xy\-position in  pixels
 image source selection
 .INDENT 0.0
 .TP
-.B class lavuelib.sourceGroupBox.SourceGroupBox(parent=None, sourcetypes=None, expertmode=False)
-Bases: \fBPyQt5.QtWidgets.QGroupBox\fP
+.B class lavuelib.sourceTabWidget.SourceForm(parent=None, sourceid=0)
+Bases: \fBPyQt5.QtWidgets.QWidget\fP
 .sp
-image source selection
+source form
 .sp
 constructor
 .INDENT 7.0
@@ -10273,15 +10613,45 @@ constructor
 .IP \(bu 2
 \fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
 .IP \(bu 2
-\fBsourcetypes\fP (\fBlist\fP <\fI\%str\fP>) – source type class names
-.IP \(bu 2
 \fBexpertmode\fP (\fI\%bool\fP) – expert mode flag
+.IP \(bu 2
+\fBsourceid\fP (\fI\%int\fP) – source id
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B addCommonWidgets(sln)
+add common widgets after given row in the grid layout
+.INDENT 7.0
+.TP
+.B Parameters
+\fBsln\fP (\fI\%int\fP) – given row in the grid layout
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
 .B addIconClicked
-(\fBpyqtgraph.QtCore.pyqtSignal\fP) add Icon Clicked
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) add Icon Clicked signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B addWidgets(st, expertmode)
+add widgets
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBst\fP (\fBsourceWidget.SourceBaseWidget\fP) – source type class
+.IP \(bu 2
+\fBexpertmode\fP (\fI\%bool\fP) – expert mode
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B buttonEnabled
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) push button enabled signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10323,6 +10693,11 @@ set connection status on and display connection status
 .UNINDENT
 .INDENT 7.0
 .TP
+.B connectWidget()
+connect widget
+.UNINDENT
+.INDENT 7.0
+.TP
 .B currentDataSource()
 current data source
 .INDENT 7.0
@@ -10338,6 +10713,351 @@ current datasource class name
 .TP
 .B currentDataSourceName()
 current data source name
+.INDENT 7.0
+.TP
+.B Returns
+current datasource class name
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B disconnectWidget()
+disconnect widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B emitButtonEnabled(status)
+emit buttonEnabled
+.INDENT 7.0
+.TP
+.B Parameters
+\fBtrans\fP (\fI\%bool\fP) – enabled status of button
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B emitSourceChanged()
+emits sourceChanged signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B emitTranslationChanged(trans)
+emit translationChanged
+.INDENT 7.0
+.TP
+.B Parameters
+\fBtrans\fP (\fI\%str\fP) – x,y translation, e.g. 50,45
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B gridLayout()
+provide grid layout
+.INDENT 7.0
+.TP
+.B Returns
+grid layout
+.TP
+.B Return type
+\fBPyQt5.QtGui.QGridLayout\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B init()
+initialize widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B isConnected()
+is datasource source connected
+.INDENT 7.0
+.TP
+.B Returns
+if datasource source connected
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B label()
+return a label of the current detector
+.INDENT 7.0
+.TP
+.B Returns
+label of the current detector
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B onSourceChanged()
+update current source widgets
+.UNINDENT
+.INDENT 7.0
+.TP
+.B pushButtonClicked
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) push button clicked signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B pushButtonEnabled()
+provide status of push button
+.INDENT 7.0
+.TP
+.B Returns
+if push button enabled
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B removeCommonWidgets()
+remove common widgets
+.UNINDENT
+.INDENT 7.0
+.TP
+.B removeIconClicked
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) remove Icon Clicked signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setErrorStatus(status=\(aq\(aq)
+set error status
+.INDENT 7.0
+.TP
+.B Parameters
+\fBstatus\fP (\fI\%str\fP) – error status
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setSource(name=None, disconnect=True)
+set source with the given name
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBname\fP (\fI\%str\fP) – source name
+.IP \(bu 2
+\fBdisconnect\fP (\fI\%bool\fP) – disconnect signals on update
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setSourceComboBoxByName(name)
+set source by changing combobox by name
+.INDENT 7.0
+.TP
+.B Parameters
+\fBname\fP (\fI\%str\fP) – combobox name
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setTranslation(trans)
+stores translation of the given source
+.INDENT 7.0
+.TP
+.B Param
+x,y tranlation, e.g. 2345,354
+.TP
+.B Type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B sourceChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) source state signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B sourceConnected
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) source connected signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B sourceLabelChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) source label name signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B sourceStateChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) source state signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B sourceStatus()
+source status
+.INDENT 7.0
+.TP
+.B Returns
+source type id
+.TP
+.B Return type
+\fI\%int\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B start()
+starts viewing if pushButton enable
+.UNINDENT
+.INDENT 7.0
+.TP
+.B toggleServerConnection()
+toggles server connection
+.UNINDENT
+.INDENT 7.0
+.TP
+.B translationChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) translation changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateButton(status)
+update slot for source button
+.INDENT 7.0
+.TP
+.B Parameters
+\fBstatus\fP (\fI\%bool\fP) – button state
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateLayout()
+update source layout
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateMetaData(**kargs)
+update source input parameters
+.INDENT 7.0
+.TP
+.B Parameters
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateSourceComboBox(sourcenames, name=None)
+set source by changing combobox
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBsourcenames\fP (\fBlist\fP < \fI\%str\fP >) – source names
+.IP \(bu 2
+\fBindex\fP (\fI\%int\fP) – combobox index
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B widgetnames = None
+(\fBlist\fP <\fI\%str\fP>) subwidget object names
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.sourceTabWidget.SourceTabWidget(parent=None, sourcetypes=None, expertmode=False, nrsources=1)
+Bases: \fBPyQt5.QtWidgets.QTabWidget\fP
+.sp
+image source selection
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.IP \(bu 2
+\fBsourcetypes\fP (\fBlist\fP <\fI\%str\fP>) – source type class names
+.IP \(bu 2
+\fBexpertmode\fP (\fI\%bool\fP) – expert mode flag
+.IP \(bu 2
+\fBnrsources\fP (\fI\%int\fP) – number of sources
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B addIconClicked
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) add Icon Clicked
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configuration()
+provides configuration for the current image source
+.INDENT 7.0
+.TP
+.B Returns
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(sid, configuration)
+set configuration for the current image source
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBsid\fP (\fI\%int\fP) – source id
+.IP \(bu 2
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B connectFailure()
+set connection status off and display connection status
+.UNINDENT
+.INDENT 7.0
+.TP
+.B connectSuccess(port=None)
+set connection status on and display connection status
+.INDENT 7.0
+.TP
+.B Parameters
+\fBport\fP – zmq port
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B currentDataSourceNames()
+current data source name
+.INDENT 7.0
+.TP
+.B Returns
+current datasource class name
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B currentDataSources()
+current data source
 .INDENT 7.0
 .TP
 .B Returns
@@ -10367,6 +11087,11 @@ if datasource source connected
 .UNINDENT
 .INDENT 7.0
 .TP
+.B onSourceChanged()
+update current source widgets
+.UNINDENT
+.INDENT 7.0
+.TP
 .B removeIconClicked
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) remove Icon Clicked
 .UNINDENT
@@ -10382,32 +11107,43 @@ set error status
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setSourceComboBox(index)
-set source by changing combobox
+.B setNumberOfSources(nrsources)
+set a number of image sources
 .INDENT 7.0
 .TP
 .B Parameters
-\fBindex\fP (\fI\%int\fP) – combobox index
+\fBnrsources\fP (\fI\%int\fP) – a number of image sources
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setSourceComboBoxByName(name)
+.B setSourceComboBoxByName(sid, name)
 set source by changing combobox by name
 .INDENT 7.0
 .TP
 .B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBsid\fP (\fI\%int\fP) – source id
+.IP \(bu 2
 \fBname\fP (\fI\%str\fP) – combobox name
 .UNINDENT
 .UNINDENT
+.UNINDENT
 .INDENT 7.0
 .TP
-.B setTargetName(name)
-set target name
+.B setTranslation(trans, sid)
+stores translation of the given source
 .INDENT 7.0
+.TP
+.B Param
+x,y tranlation, e.g. 2345,354
+.TP
+.B Type
+\fI\%str\fP
 .TP
 .B Parameters
-\fBname\fP (\fI\%str\fP) – source name
+\fBsid\fP (\fI\%int\fP) – source id
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -10447,8 +11183,23 @@ toggles server connection
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updateButton(status)
+.B translationChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) translation changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateButton(status, sid)
 update slot for test source
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBstatus\fP (\fI\%bool\fP) – button status
+.IP \(bu 2
+\fBsid\fP (\fI\%int\fP) – source id
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10477,6 +11228,21 @@ set source by changing combobox
 \fBsourcenames\fP (\fBlist\fP < \fI\%str\fP >) – source names
 .IP \(bu 2
 \fBindex\fP (\fI\%int\fP) – combobox index
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateSourceMetaData(sid, **kargs)
+update source input parameters
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBsid\fP (\fI\%int\fP) – source id
+.IP \(bu 2
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
 .UNINDENT
 .UNINDENT
 .UNINDENT

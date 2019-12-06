@@ -285,6 +285,14 @@ lavuelib.rangeDialog module
     :undoc-members:
     :show-inheritance:
 
+lavuelib.rangeWindowGroupBox module
+===================================
+
+.. automodule:: lavuelib.rangeWindowGroupBox
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lavuelib.release module
 =======================
 
@@ -320,7 +328,7 @@ lavuelib.settings module
 lavuelib.sourceGroupBox module
 ==============================
 
-.. automodule:: lavuelib.sourceGroupBox
+.. automodule:: lavuelib.sourceTabWidget
     :members:
     :undoc-members:
     :show-inheritance:
