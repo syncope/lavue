@@ -138,7 +138,7 @@ def main():
         "separated by semicolon ';'\n"
         "   e.g.\n"
         "    ;200,300;,54;121,3\n"
-        " offset for the first source in omitted"
+        "    200,300;100,\n"
     )
     parser.add_argument(
         "-w", "--range-window", dest="rangewindow",

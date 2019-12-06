@@ -1694,7 +1694,7 @@ class LiveViewer(QtGui.QDialog):
         :param nrsources: a number of image sources
         :type nrsources: :obj:`int`
         """
-
+        nrsources = max(int(nrsources), 1)
         if len(self.__dataFetchers) > nrsources:
             for _ in reversed(range(nrsources, len(self.__dataFetchers))):
                 df = self.__dataFetchers.pop()
@@ -1713,6 +1713,7 @@ class LiveViewer(QtGui.QDialog):
                 self._stateUpdated.connect(dft.changeStatus)
         self.__sourcewg.setNumberOfSources(nrsources)
         self._setSourceConfiguration()
+        self.__settings.nrsources = nrsources
         # self._updateSource(-1, -1)
 
     def __mergeDetServers(self, detserverdict, detserverlist):

@@ -196,18 +196,30 @@ class SourceForm(QtGui.QWidget):
         layout = self.gridLayout()
         layout.addWidget(self._ui.cStatusLabel, sln + 1, 0)
         layout.addWidget(self._ui.cStatusLineEdit, sln + 1, 1)
+        layout.addWidget(self._ui.translationLabel, sln + 2, 0)
+        layout.addWidget(self._ui.translationLineEdit, sln + 2, 1)
         if self.__sourceid:
-            layout.addWidget(self._ui.translationLabel, sln + 2, 0)
-            layout.addWidget(self._ui.translationLineEdit, sln + 2, 1)
             self._ui.pushButton.hide()
-            self._ui.translationLineEdit.textEdited.connect(
-                self.emitTranslationChanged)
         else:
-            layout.addWidget(self._ui.pushButton, sln + 2, 1)
+            layout.addWidget(self._ui.pushButton, sln + 3, 1)
+            self._ui.pushButton.clicked.connect(
+                self.toggleServerConnection)
+        self._ui.translationLineEdit.textEdited.connect(
+            self.emitTranslationChanged)
+        self._ui.sourceTypeComboBox.setCurrentIndex(0)
+
+    def showItem(self, trans):
+        """ show items of the widget
+
+        :param trans: translation item show status
+        :type trans: :obj:`bool`
+        """
+        if trans:
+            self._ui.translationLineEdit.show()
+            self._ui.translationLabel.show()
+        else:
             self._ui.translationLineEdit.hide()
             self._ui.translationLabel.hide()
-            self._ui.pushButton.clicked.connect(self.toggleServerConnection)
-        self._ui.sourceTypeComboBox.setCurrentIndex(0)
 
     def addWidgets(self, st, expertmode):
         """ add widgets
@@ -688,6 +700,7 @@ class SourceTabWidget(QtGui.QTabWidget):
             for i in reversed(range(nrsources, self.count())):
                 self.removeTab(i)
             self.__nrsources = nrsources
+        self.showItem(nrsources > 1)
 
     def setSourceComboBoxByName(self, sid, name):
         """ set source by changing combobox by name
@@ -923,6 +936,15 @@ class SourceTabWidget(QtGui.QTabWidget):
         """
         if len(self.__sourcetabs) > sid:
             self.__sourcetabs[sid].setTranslation(trans)
+
+    def showItem(self, trans):
+        """ show items of the widget
+
+        :param trans: translation item show status
+        :type trans: :obj:`bool`
+        """
+        for st in self.__sourcetabs:
+            st.showItem(trans)
 
     def start(self):
         """ starts viewing if pushButton enable

@@ -1,4 +1,8 @@
 2019-12-06 Jan Kotanski <jan.kotanski@desy.de>
+	* set offset for the first module as well
+	* tagged as 2.30.1
+
+2019-12-06 Jan Kotanski <jan.kotanski@desy.de>
 	* add multi-sources option
 	* add --offset command-line argument
 	* tagged as 2.30.0
