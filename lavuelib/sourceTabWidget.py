@@ -163,8 +163,19 @@ class SourceForm(QtGui.QWidget):
 
     def gridLayout(self):
         """ provide grid layout
+
+        :returns: grid layout
+        :rtype: :class:`PyQt5.QtGui.QGridLayout`
         """
         return self._ui.formGridLayout
+
+    def pushButtonEnabled(self):
+        """ provide status of push button
+
+        :returns: if push button enabled
+        :rtype: :obj:`bool`
+        """
+        return self._ui.pushButton.isEnabled()
 
     def removeCommonWidgets(self):
         """ remove common widgets
@@ -503,6 +514,14 @@ class SourceForm(QtGui.QWidget):
 
         if self.__currentSource is not None:
             self.__currentSource.configure(configuration)
+
+    def setTranslation(self, trans):
+        """ stores translation of the given source
+
+        :param: x,y tranlation, e.g. 2345,354
+        :type: :obj:`str`
+        """
+        self._ui.translationLineEdit.setText(trans)
 
     def configuration(self):
         """ provides configuration for the current image source
@@ -894,8 +913,19 @@ class SourceTabWidget(QtGui.QTabWidget):
         return [st.configuration()
                 for st in self.__sourcetabs][:self.count()]
 
+    def setTranslation(self, trans, sid):
+        """ stores translation of the given source
+
+        :param: x,y tranlation, e.g. 2345,354
+        :type: :obj:`str`
+        :param sid: source id
+        :type sid: :obj:`int`
+        """
+        if len(self.__sourcetabs) > sid:
+            self.__sourcetabs[sid].setTranslation(trans)
+
     def start(self):
         """ starts viewing if pushButton enable
         """
-        if self._ui.pushButton.isEnabled():
+        if self.__sourcetabs[0].pushButtonEnabled():
             self.toggleServerConnection()

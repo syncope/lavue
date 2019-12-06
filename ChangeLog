@@ -1,5 +1,6 @@
-2019-12-XX Jan Kotanski <jan.kotanski@desy.de>
-	* add multi-sources
+2019-12-06 Jan Kotanski <jan.kotanski@desy.de>
+	* add multi-sources option
+	* add --offset command-line argument
 	* tagged as 2.30.0
 
 2019-11-29 Jan Kotanski <jan.kotanski@desy.de>

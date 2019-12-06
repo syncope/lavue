@@ -842,17 +842,30 @@ class LiveViewer(QtGui.QDialog):
 
         # set image source
         if hasattr(options, "source") and options.source is not None:
-            srcname = str(options.source)
-            if srcname in self.__srcaliasnames.keys():
-                self.__sourcewg.setSourceComboBoxByName(
-                    0, self.__srcaliasnames[srcname])
+            srcnames = str(options.source).split(";")
+            self.__setNumberOfSources(max(len(srcnames), 1))
+            for i, srcname in enumerate(srcnames):
+                if srcname in self.__srcaliasnames.keys():
+                    self.__sourcewg.setSourceComboBoxByName(
+                        i, self.__srcaliasnames[srcname])
 
         QtCore.QCoreApplication.processEvents()
+
         if hasattr(options, "configuration") and \
            options.configuration is not None:
-            self.__sourcewg.configure(0, str(options.configuration))
+            cnfs = str(options.configuration).split(";")
+            for i, cnf in enumerate(cnfs):
+                if i < self.__sourcewg.count():
+                    self.__sourcewg.configure(i, str(cnf))
 
         QtCore.QCoreApplication.processEvents()
+
+        if hasattr(options, "offset") and options.offset is not None:
+            offs = str(options.offset).split(";")
+            for i, offset in enumerate(offs):
+                if i < self.__sourcewg.count():
+                    self._setTranslation(str(offset), i)
+                    self.__sourcewg.setTranslation(str(offset), i)
 
         if hasattr(options, "rangewindow") and \
            options.rangewindow is not None:
