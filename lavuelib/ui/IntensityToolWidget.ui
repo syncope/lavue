@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>471</width>
-    <height>30</height>
+    <height>32</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -49,6 +49,35 @@
       </spacer>
      </item>
      <item>
+      <widget class="QCheckBox" name="crosshairCheckBox">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable/Disable red cross-hair locker&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Crosshair locker</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Maximum</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QPushButton" name="axesPushButton">
        <property name="toolTip">
         <string>set axes start postion, scale labels and units</string>
@@ -62,6 +91,10 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>crosshairCheckBox</tabstop>
+  <tabstop>axesPushButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

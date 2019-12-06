@@ -1694,7 +1694,7 @@ class LiveViewer(QtGui.QDialog):
         :param nrsources: a number of image sources
         :type nrsources: :obj:`int`
         """
-
+        nrsources = max(int(nrsources), 1)
         if len(self.__dataFetchers) > nrsources:
             for _ in reversed(range(nrsources, len(self.__dataFetchers))):
                 df = self.__dataFetchers.pop()
@@ -1713,7 +1713,7 @@ class LiveViewer(QtGui.QDialog):
                 self._stateUpdated.connect(dft.changeStatus)
         self.__sourcewg.setNumberOfSources(nrsources)
         self._setSourceConfiguration()
-        # self._updateSource(-1, -1)
+        self.__settings.nrsources = nrsources
 
     def __mergeDetServers(self, detserverdict, detserverlist):
         """ merges detector servers from
@@ -2151,22 +2151,25 @@ class LiveViewer(QtGui.QDialog):
         :type metadata: :obj:`str`
         """
         fulldata = []
+        states = self.__sourcewg.tabCheckBoxStates()
         for i, df in enumerate(self.__dataFetchers):
-            cnt = 0
-            name = None
-            while (not df.fetching() and self.__sourcewg.isConnected()
-                   and cnt < 100 and not name):
-                time.sleep(self.__settings.refreshrate/100.)
-                cnt += 1
-            if cnt < 100:
-                name, rawimage, metadata = self.__exchangelists[i].readData()
-            else:
-                name, rawimage, metadata = None, None, None
-            if i < len(self.__translations):
-                x, y = self.__translations[i]
-            else:
-                x, y = None, None
-            fulldata.append(PartialData(name, rawimage, metadata, x, y))
+            if states[i]:
+                cnt = 0
+                name = None
+                while (not df.fetching() and self.__sourcewg.isConnected()
+                       and cnt < 100 and not name):
+                    time.sleep(self.__settings.refreshrate/100.)
+                    cnt += 1
+                if cnt < 100:
+                    name, rawimage, metadata = \
+                        self.__exchangelists[i].readData()
+                else:
+                    name, rawimage, metadata = None, None, None
+                if i < len(self.__translations):
+                    x, y = self.__translations[i]
+                else:
+                    x, y = None, None
+                fulldata.append(PartialData(name, rawimage, metadata, x, y))
         if not self.__sourcewg.isConnected():
             return
         if len(fulldata) == 1:
