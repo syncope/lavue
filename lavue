@@ -114,8 +114,9 @@ def main():
         help="image file name to show")
     parser.add_argument(
         "-s", "--source", dest="source",
-        help="image source, i.e. hidra, http, tangoattr,\n"
-        "    tangofile, doocsprop, zmq, nxsfile, test")
+        help="image source(s), i.e. hidra, http, tangoattr,\n"
+        "    tangofile, doocsprop, zmq, nxsfile, test\n"
+        "multiple-source names can be separated by semicolon ';'")
     parser.add_argument(
         "-c", "--configuration", dest="configuration",
         help="configuration strings for the image source separated by comma"
@@ -127,7 +128,17 @@ def main():
         "LastImagePath'\n"
         "  zmq -> '-c haso228:5535,topic'\n"
         "  doocsprop -> '-c TTF2.FEL/BLFW2.CAM/BL0M1.CAM/IMAGE_EXT'\n"
-        "  nxsfile -> '-c /tmp/myfile.nxs://entry/data/pilatus'\n"
+        "  nxsfile -> '-c /tmp/myfile.nxs://entry/data/pilatus'  \n"
+        "configuration for multiple-source names can be separated"
+        " by semicolon ';'"
+    )
+    parser.add_argument(
+        "--offset", dest="offset",
+        help="relative x,y offset for multiple-sources to the first source"
+        "separated by semicolon ';'\n"
+        "   e.g.\n"
+        "    ;200,300;,54;121,3\n"
+        " offset for the first source in omitted"
     )
     parser.add_argument(
         "-w", "--range-window", dest="rangewindow",

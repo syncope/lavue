@@ -95,7 +95,7 @@ class SourceBaseWidget(QtGui.QWidget):
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source state signal
     sourceStateChanged = QtCore.pyqtSignal(int)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) source label name signal
-    sourceLabelChanged = QtCore.pyqtSignal(str)
+    sourceLabelChanged = QtCore.pyqtSignal()
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) add Icon Clicked
     addIconClicked = QtCore.pyqtSignal(str, str)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) remove Icon Clicked
@@ -148,18 +148,19 @@ class SourceBaseWidget(QtGui.QWidget):
         :param kargs:  source widget input parameter dictionary
         :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
         """
-        self.sourceLabelChanged.emit(self.label())
+        self.sourceLabelChanged.emit()
 
     @QtCore.pyqtSlot()
     def updateComboBox(self):
         """ abstract updateComboBox
         """
+        self.updateButton()
 
     def connectWidget(self):
         """ connects widget
         """
         self._connected = True
-        self.sourceLabelChanged.emit(self.label())
+        self.sourceLabelChanged.emit()
 
     def disconnectWidget(self):
         """ disconnects widget
@@ -412,7 +413,7 @@ class HTTPSourceWidget(SourceBaseWidget):
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
-            self.sourceLabelChanged.emit(self.label())
+            self.sourceLabelChanged.emit()
 
     def configuration(self):
         """ provides configuration for the current image source
@@ -445,7 +446,7 @@ class HTTPSourceWidget(SourceBaseWidget):
         if httpurls is not None:
             self.__urls = json.loads(httpurls)
             self.updateComboBox()
-        self.sourceLabelChanged.emit(self.label())
+        self.sourceLabelChanged.emit()
 
     @QtCore.pyqtSlot()
     def updateComboBox(self):
@@ -453,6 +454,7 @@ class HTTPSourceWidget(SourceBaseWidget):
         """
         self._updateComboBox(
             self._ui.httpComboBox, self.__urls, self.__userurls)
+        self.updateButton()
 
     def configure(self, configuration):
         """ set configuration for the current image source
@@ -554,7 +556,7 @@ class HidraSourceWidget(SourceBaseWidget):
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
-            self.sourceLabelChanged.emit(self.label())
+            self.sourceLabelChanged.emit()
 
     def configuration(self):
         """ provides configuration for the current image source
@@ -592,7 +594,7 @@ class HidraSourceWidget(SourceBaseWidget):
             self.__portnumber = hidraport
             self._ui.currenthostLabel.setText(
                 "%s:%s" % (self.__targetname, self.__portnumber))
-        self.sourceLabelChanged.emit(self.label())
+        self.sourceLabelChanged.emit()
 
     def __sortServerList(self, name):
         """ small function to sort out the server list details.
@@ -715,13 +717,14 @@ class TangoAttrSourceWidget(SourceBaseWidget):
         """ update slot for Tango attribute source
         """
         if not self.active:
+
             return
         currentattr = self.configuration()
         if not currentattr:
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
-            self.sourceLabelChanged.emit(self.label())
+            self.sourceLabelChanged.emit()
         self._ui.attrComboBox.setToolTip(currentattr or self.__defaulttip)
 
     def configuration(self):
@@ -748,7 +751,7 @@ class TangoAttrSourceWidget(SourceBaseWidget):
             self.__tangoattrs = json.loads(tangoattrs)
             self._updateComboBox(
                 self._ui.attrComboBox, self.__tangoattrs, self.__userattrs)
-        self.sourceLabelChanged.emit(self.label())
+        self.sourceLabelChanged.emit()
 
     def configure(self, configuration):
         """ set configuration for the current image source
@@ -768,6 +771,7 @@ class TangoAttrSourceWidget(SourceBaseWidget):
         """
         self._updateComboBox(
             self._ui.attrComboBox, self.__tangoattrs, self.__userattrs)
+        self.updateButton()
 
     def disconnectWidget(self):
         """ disconnects widget
@@ -871,7 +875,7 @@ class TangoEventsSourceWidget(SourceBaseWidget):
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
-            self.sourceLabelChanged.emit(self.label())
+            self.sourceLabelChanged.emit()
         self._ui.evattrComboBox.setToolTip(currentattr or self.__defaulttip)
 
     def configuration(self):
@@ -897,7 +901,7 @@ class TangoEventsSourceWidget(SourceBaseWidget):
         if tangoevattrs is not None:
             self.__tangoevattrs = json.loads(tangoevattrs)
             self.updateComboBox()
-        self.sourceLabelChanged.emit(self.label())
+        self.sourceLabelChanged.emit()
 
     @QtCore.pyqtSlot()
     def updateComboBox(self):
@@ -906,6 +910,7 @@ class TangoEventsSourceWidget(SourceBaseWidget):
         self._updateComboBox(
             self._ui.evattrComboBox,
             self.__tangoevattrs, self.__userevattrs)
+        self.updateButton()
 
     def configure(self, configuration):
         """ set configuration for the current image source
@@ -1048,7 +1053,7 @@ class TangoFileSourceWidget(SourceBaseWidget):
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
-            self.sourceLabelChanged.emit(self.label())
+            self.sourceLabelChanged.emit()
         self._ui.fileattrComboBox.setToolTip(fattr or self.__defaultfiletip)
         self._ui.dirattrComboBox.setToolTip(dattr or self.__defaultdirtip)
 
@@ -1103,7 +1108,7 @@ class TangoFileSourceWidget(SourceBaseWidget):
                 self.__userdirattrs)
         if dirtrans is not None:
             self.__dirtrans = dirtrans
-        self.sourceLabelChanged.emit(self.label())
+        self.sourceLabelChanged.emit()
 
     @QtCore.pyqtSlot()
     def updateComboBox(self):
@@ -1115,6 +1120,7 @@ class TangoFileSourceWidget(SourceBaseWidget):
         self._updateComboBox(
             self._ui.dirattrComboBox, self.__tangodirattrs,
             self.__userdirattrs)
+        self.updateButton()
 
     def connectWidget(self):
         """ connects widget
@@ -1286,7 +1292,7 @@ class NXSFileSourceWidget(SourceBaseWidget):
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
-            self.sourceLabelChanged.emit(self.label())
+            self.sourceLabelChanged.emit()
 
     def __configuration(self):
         """ provides configuration for the current image source
@@ -1344,7 +1350,7 @@ class NXSFileSourceWidget(SourceBaseWidget):
                 update = True
         if update:
             self.updateButton()
-        self.sourceLabelChanged.emit(self.label())
+        self.sourceLabelChanged.emit()
 
     def configure(self, configuration):
         """ set configuration for the current image source
@@ -1580,7 +1586,7 @@ class ZMQSourceWidget(SourceBaseWidget):
             with QtCore.QMutexLocker(self.__mutex):
                 self._ui.pickleTopicComboBox.currentIndexChanged.connect(
                     self._updateZMQComboBox)
-        self.sourceLabelChanged.emit(self.label())
+        self.sourceLabelChanged.emit()
 
     def connectWidget(self):
         """ connects widget
@@ -1601,6 +1607,7 @@ class ZMQSourceWidget(SourceBaseWidget):
         """
         self._updateComboBox(
             self._ui.pickleComboBox, self.__servers, self.__userservers)
+        self.updateButton()
 
     def disconnectWidget(self):
         """ disconnects widget
@@ -1714,7 +1721,7 @@ class DOOCSPropSourceWidget(SourceBaseWidget):
             self.buttonEnabled.emit(False)
         else:
             self.buttonEnabled.emit(True)
-            self.sourceLabelChanged.emit(self.label())
+            self.sourceLabelChanged.emit()
         self._ui.doocspropComboBox.setToolTip(currentprop or self.__defaulttip)
 
     def configuration(self):
@@ -1742,7 +1749,7 @@ class DOOCSPropSourceWidget(SourceBaseWidget):
             self._updateComboBox(
                 self._ui.doocspropComboBox,
                 self.__doocsprops, self.__userprops)
-        self.sourceLabelChanged.emit(self.label())
+        self.sourceLabelChanged.emit()
 
     def configure(self, configuration):
         """ set configuration for the current image source
@@ -1762,6 +1769,7 @@ class DOOCSPropSourceWidget(SourceBaseWidget):
         """
         self._updateComboBox(
             self._ui.doocspropComboBox, self.__doocsprops, self.__userprops)
+        self.updateButton()
 
     def disconnectWidget(self):
         """ disconnects widget

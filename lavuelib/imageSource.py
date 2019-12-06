@@ -188,7 +188,6 @@ class BaseSource(object):
         self.__counter += 1
         # if self.__counter % 20 == 0:
         #     return str("Test error"), "__ERROR__", ""
-
         return (np.transpose(
             [
                 [random.randint(0, 1000) for _ in range(512)]
@@ -310,7 +309,7 @@ class NXSFileSource(BaseSource):
         """
 
         if self.__nxsfile is None:
-            return None, None, None
+            return "No file name defined", "__ERROR__", ""
         try:
             image = None
             metadata = ""
@@ -439,7 +438,7 @@ class TangoFileSource(BaseSource):
         """
 
         if self.__fproxy is None:
-            return None, None, None
+            return "No file attribute defined", "__ERROR__", None
         try:
             filename = self.__fproxy.read().value
             if self.__dproxy:
@@ -608,7 +607,7 @@ class TangoAttrSource(BaseSource):
         :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
         """
         if self.__aproxy is None:
-            return None, None, None
+            return "No attribute name defined", "__ERROR__", None
         try:
             try:
                 if not self.__bytearray:
@@ -761,7 +760,8 @@ class TangoEventsSource(BaseSource):
         :returns:  image name, image data, json dictionary with metadata
         :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
         """
-
+        if self.__proxy is None:
+            return "No attribute name defined", "__ERROR__", None
         try:
             with QtCore.QMutexLocker(self.__mutex):
                 if self.attr is None or not self.fresh:
@@ -925,7 +925,7 @@ class HTTPSource(BaseSource):
             except Exception as e:
                 print(str(e))
                 return str(e), "__ERROR__", ""
-        return None, None, None
+        return "No url defined", "__ERROR__", None
 
     def connect(self):
         """ connects the source
@@ -1035,7 +1035,7 @@ class ZMQSource(BaseSource):
         """
         encoding = None
         if self.__socket is None:
-            return None, None, None
+            return "No socket defined", "__ERROR__", None
         try:
             with QtCore.QMutexLocker(self.__mutex):
                 message = self.__socket.recv_multipart(flags=zmq.NOBLOCK)
@@ -1286,7 +1286,7 @@ class HiDRASource(BaseSource):
         metadata = None
         data = None
         if self.__query is None:
-            return None, None, None
+            return "No server defined", "__ERROR__", None
         try:
             with QtCore.QMutexLocker(self.__mutex):
                 # [metadata, data] = self.__query.get()
@@ -1367,8 +1367,6 @@ class DOOCSPropSource(BaseSource):
         :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
         """
 
-        if pydoocs is None:
-            return None, None, None
         try:
             dt = pydoocs.read(self._configuration)
             npdata = dt['data']

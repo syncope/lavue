@@ -91,8 +91,10 @@ class Settings(object):
         self.secport = "5657"
         #: (:obj:`str`) hidra data port
         self.hidraport = "50001"
-        #: (:obj:`int`) maximal number of images in memory buffer
+        #: (:obj:`str`) maximal number of images in memory buffer
         self.maxmbuffersize = "1000"
+        #: (:obj:`int`) number of image sources
+        self.nrsources = 1
         #: (:obj:`int`) image source timeout for connection
         self.timeout = 3000
         #: (:class:`zmq.Context`) zmq context
@@ -387,6 +389,13 @@ class Settings(object):
         except Exception:
             pass
         qstval = str(settings.value(
+            "Configuration/NumberOfImageSources", type=str))
+        try:
+            int(qstval)
+            self.nrsources = int(qstval)
+        except Exception:
+            pass
+        qstval = str(settings.value(
             "Configuration/MaskingWithZeros", type=str))
         if qstval.lower() == "true":
             self.zeromask = True
@@ -674,6 +683,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/SourceTimeout",
             self.timeout)
+        settings.setValue(
+            "Configuration/NumberOfImageSources",
+            self.nrsources)
         settings.setValue(
             "Configuration/AspectLocked",
             self.aspectlocked)
