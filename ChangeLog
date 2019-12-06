@@ -1,4 +1,8 @@
 2019-12-06 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for update stars of new tabs
+	* tagged as 2.31.1
+
+2019-12-06 Jan Kotanski <jan.kotanski@desy.de>
 	* add checkboxes for tab widgets
 	* make cross-hair locker optional
 	* set offset for the first module as well

@@ -241,6 +241,7 @@ class SourceForm(QtGui.QWidget):
             layout.addWidget(wg1, sln + 1, 0)
             layout.addWidget(wg2, sln + 1, 1)
             self.__subwidgets.append([wg1, wg2])
+        swg.updateComboBox()
         return len(self.__subwidgets)
 
     def sourceStatus(self):
