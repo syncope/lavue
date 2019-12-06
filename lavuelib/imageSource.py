@@ -1367,8 +1367,6 @@ class DOOCSPropSource(BaseSource):
         :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
         """
 
-        if pydoocs is None:
-            return None, None, None
         try:
             dt = pydoocs.read(self._configuration)
             npdata = dt['data']

@@ -64,7 +64,7 @@ class ExchangeList(object):
             self.__elist[2] = metadata
 
     def readData(self):
-        """ write data into exchange object
+        """ read data from exchange object
 
         :returns: tuple of exchange object (name, data, metadata)
         :rtype: :obj:`list` <:obj:`str`, :class:`numpy.ndarray`, :obj:`str` >
@@ -158,8 +158,8 @@ class DataFetchThread(QtCore.QThread):
         """
         self.__ready = True
 
-    def newData(self):
-        """ continue acquisition
+    def fetching(self):
+        """ provides read flag
         """
         return not self.__ready
 

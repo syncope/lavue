@@ -161,6 +161,12 @@ class PartialData(object):
                 self.sy = rawdata.shape[1]
 
     def tolist(self):
+        """ converts partial data to a list
+
+        :returns: a list: [name, rawdata, metadata, x, y, sx, sy]
+        :rtype: [:obj:`str`, :obj:`str`, :obj:`str`,
+                 :obj:`int`, :obj:`int`, :obj:`int`, :obj:`int`]
+        """
         return [self.name, self.rawdata, self.metadata,
                 self.x, self.y, self.sx, self.sy]
 
@@ -536,6 +542,13 @@ class LiveViewer(QtGui.QDialog):
         self.__updateTool(options.tool)
 
     def _setTranslation(self, trans, sid):
+        """ stores translation of the given source
+
+        :param: x,y tranlation, e.g. 2345,354
+        :type: :obj:`str`
+        :param sid: source id
+        :type sid: :obj:`int`
+        """
         try:
             x = None
             y = None
@@ -558,6 +571,21 @@ class LiveViewer(QtGui.QDialog):
 
     def __updateTypeList(self, properties, typelist,
                          allaliases, snametoname):
+        """ updates type list, i.e. typelist, allaliases and snametoname
+
+        :param properties: dictionary with properies, i.e.
+                            {"requires": ("<PACKAGE1>","<PACKAGE2>"),
+                             "alias": "<alias>",
+                             "widget": "<widgettype>",
+                             "name": "<name>"}
+        :type properties: :obj:`dict` < :obj:`str`, :obj:`str`>
+        :param typelist: type list
+        :type typelist: :obj:`list` < :obj:`str`>
+        :param allaliases: a list of aliases
+        :type allaliases: :obj:`list` < :obj:`str`>
+        :param snametoname: alias to name dictionary
+        :type snametoname: :obj:`dict` < :obj:`str`, :obj:`str`>
+        """
         typelist[:] = []
         allaliases[:] = []
         for wp in properties:
@@ -1648,6 +1676,12 @@ class LiveViewer(QtGui.QDialog):
             self._plot()
 
     def __setNumberOfSources(self, nrsources):
+        """ set a number of image sources
+
+        :param nrsources: a number of image sources
+        :type nrsources: :obj:`int`
+        """
+
         if len(self.__dataFetchers) > nrsources:
             for _ in reversed(range(nrsources, len(self.__dataFetchers))):
                 df = self.__dataFetchers.pop()
@@ -1774,6 +1808,11 @@ class LiveViewer(QtGui.QDialog):
 
     @QtCore.pyqtSlot(str)
     def _onSourceChanged(self, status):
+        """ update a list of sources according to the status
+
+        :param status: json list on status, i.e source type ids
+        :type status: :obj:`str`
+        """
         lstatus = json.loads(status)
         dss = self.__sourcewg.currentDataSources()
         for i, ds in enumerate(dss):
@@ -2018,6 +2057,15 @@ class LiveViewer(QtGui.QDialog):
         # self.__datasources[0] = None
 
     def __mergeData(self, fulldata, oldname):
+        """ merge data parts to (name, rawdata, metadata)
+
+        :param fulldata: a list of PartialData objects
+        :type fulldata: :obj:`list` <:class:`PartialData`>
+        :param oldname: old name
+        :type oldname: :obj:`str`
+        :returns: tuple of exchange object (name, data, metadata)
+        :rtype: :obj:`list` <:obj:`str`, :class:`numpy.ndarray`, :obj:`str` >
+        """
 
         names = [pdata.name for pdata in fulldata if pdata.name]
         rawimage = None
@@ -2092,8 +2140,9 @@ class LiveViewer(QtGui.QDialog):
         fulldata = []
         for i, df in enumerate(self.__dataFetchers):
             cnt = 0
-            while (not df.newData() and self.__sourcewg.isConnected()
-                   and cnt < 100):
+            name = None
+            while (not df.fetching() and self.__sourcewg.isConnected()
+                   and cnt < 100 and not name):
                 time.sleep(self.__settings.refreshrate/100.)
                 cnt += 1
             if cnt < 100:
