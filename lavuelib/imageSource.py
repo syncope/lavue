@@ -550,6 +550,15 @@ class VDEOdecoder(object):
         if self.__header:
             return [self.__header['width'], self.__header['height']]
 
+    def frameNumber(self):
+        """ provides the frame number
+
+        :returns: the frame number
+        :rtype: :obj:`int`
+        """
+        if 'frameNumber' in self.__header.keys():
+            return self.__header['frameNumber']
+
     def decode(self):
         """ provides the decoded data
 
@@ -645,13 +654,16 @@ class TangoAttrSource(BaseSource):
                 else:
                     dec = self.__decoders[avalue[0]]
                     dec.load(avalue)
+                    fnumber = dec.frameNumber() or ""
                     shape = dec.shape()
                     if shape is None or shape[0] <= 0 or shape[1] <= 0:
                         return None, None, None
                     # no need to transpose
                     return (dec.decode(),
-                            '%s  (%s)' % (
-                                self._configuration, str(attr.time)), "")
+                            '%s %s (%s)' % (
+                                self._configuration,
+                                fnumber,
+                                str(attr.time)), "")
             else:
                 if attr.value is not None:
                     if hasattr(attr.value, "size"):

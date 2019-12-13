@@ -1,4 +1,8 @@
 2019-12-13 Jan Kotanski <jan.kotanski@desy.de>
+	* show frame number for lima images
+	* tagged as 2.31.4
+
+2019-12-13 Jan Kotanski <jan.kotanski@desy.de>
 	* fix dataFetcher in liveviewer
 	* tagged as 2.31.3
 
