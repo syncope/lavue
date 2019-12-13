@@ -1,5 +1,13 @@
-2019-12-XX Jan Kotanski <jan.kotanski@desy.de>
+2019-12-13 Jan Kotanski <jan.kotanski@desy.de>
 	* show frame number for lima images
+	* tagged as 2.31.4
+
+2019-12-13 Jan Kotanski <jan.kotanski@desy.de>
+	* fix dataFetcher in liveviewer
+	* tagged as 2.31.3
+
+2019-12-13 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for setting combobox order
 	* tagged as 2.31.2
 
 2019-12-06 Jan Kotanski <jan.kotanski@desy.de>

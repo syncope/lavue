@@ -794,16 +794,17 @@ class SourceTabWidget(QtGui.QTabWidget):
         if len(self.__sourcetabs) > sid:
             self.__sourcetabs[sid].setSourceComboBoxByName(name)
 
-    def updateSourceComboBox(self, sourcenames, name=None):
+    def updateSourceComboBox(self, sourcenames, names=None):
         """ set source by changing combobox
 
         :param sourcenames: source names
         :type sourcenames: :obj:`list` < :obj:`str` >
-        :param index: combobox index
-        :type index: :obj:`int`
+        :param sourcenames: source names to set
+        :type names: :obj:`list` < :obj:`str` >
         """
-        for st in self.__sourcetabs:
-            st.updateSourceComboBox(sourcenames, name=None)
+        for i, st in enumerate(self.__sourcetabs):
+            if names and len(names) > i:
+                st.updateSourceComboBox(sourcenames, names[i])
 
     @QtCore.pyqtSlot()
     def onSourceChanged(self):
