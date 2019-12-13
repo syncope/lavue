@@ -1534,7 +1534,7 @@ class LiveViewer(QtGui.QDialog):
             self.__sourcewg.updateSourceComboBox(
                 [self.__srcaliasnames[twn]
                  for twn in json.loads(self.__settings.imagesources)],
-                self.__sourcewg.currentDataSourceName())
+                self.__sourcewg.currentDataSourceNames())
         if self.__settings.toolwidgets != dialog.toolwidgets:
             self.__settings.toolwidgets = dialog.toolwidgets
             self.__imagewg.updateToolComboBox(
