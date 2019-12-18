@@ -410,8 +410,7 @@ class LiveViewer(QtGui.QDialog):
 
         # # LAYOUT DEFINITIONS
         self.__ui.confVerticalLayout.addWidget(self.__sourcewg)
-        if isr.PILLOW:
-            self.__ui.confVerticalLayout.addWidget(self.__rangewg)
+        self.__ui.confVerticalLayout.addWidget(self.__rangewg)
         self.__ui.confVerticalLayout.addWidget(self.__filterswg)
         self.__ui.confVerticalLayout.addWidget(self.__mbufferwg)
         self.__ui.confVerticalLayout.addWidget(self.__channelwg)
