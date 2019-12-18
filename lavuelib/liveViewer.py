@@ -1468,6 +1468,7 @@ class LiveViewer(QtGui.QDialog):
     def __updateConfig(self, dialog):
         """ updates the configuration
         """
+        replot = False
         self.__settings.doorname = dialog.door
         if dialog.sardana != (True if self.__sardana is not None else False):
             self.__setSardana(dialog.sardana)
@@ -1488,6 +1489,7 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showhighvaluemask = dialog.showhighvaluemask
             self.__prepwg.changeView(
                 showhighvaluemask=dialog.showhighvaluemask)
+            replot = True
         if self.__settings.showrange != dialog.showrange:
             self.__settings.showrange = dialog.showrange
             self.__rangewg.changeView(dialog.showrange)
@@ -1542,7 +1544,6 @@ class LiveViewer(QtGui.QDialog):
                  for twn in json.loads(self.__settings.toolwidgets)],
                 self.__imagewg.currentTool())
         dataFetchThread.GLOBALREFRESHRATE = dialog.refreshrate
-        replot = False
 
         if self.__settings.refreshrate != dialog.refreshrate:
             self.__settings.refreshrate = dialog.refreshrate
