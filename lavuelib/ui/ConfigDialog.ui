@@ -1059,7 +1059,7 @@
               <item row="2" column="0">
                <widget class="QLabel" name="showrangeLabel">
                 <property name="text">
-                 <string>Window Range:</string>
+                 <string>Range Window:</string>
                 </property>
                 <property name="buddy">
                  <cstring>showrangeCheckBox</cstring>
