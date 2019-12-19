@@ -2496,9 +2496,12 @@ class LiveViewer(QtGui.QDialog):
                 if self.__settings.nanmask:
                     self.__displayimage = np.array(
                         self.__displayimage, dtype='float')
-                    self.__displayimage[
-                        (~np.isnan(self.__displayimage)) &
-                        (self.__displayimage > self.__maskvalue)] = np.nan
+                    imgs = self.__displayimage.shape
+                    self.__displayimage[np.array(
+                        [px > self.__maskvalue
+                         if ~np.isnan(px) else False
+                         for px in self.__displayimage.flatten()]
+                        ).reshape(imgs)] = np.nan
                 else:
                     self.__displayimage = np.array(self.__displayimage)
                     self.__displayimage[
