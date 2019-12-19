@@ -1214,6 +1214,9 @@ class LineCutToolWidget(ToolBaseWidget):
         #: (:obj:`int`) current plot number
         self.__nrplots = 0
 
+        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        self.__settings = self._mainwidget.settings()
+
         #: (:obj:`list` < [:class:`pyqtgraph.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
@@ -1354,6 +1357,8 @@ class LineCutToolWidget(ToolBaseWidget):
             for i in range(nrplots):
                 dt = self._mainwidget.cutData(i)
                 if dt is not None:
+                    if self.__settings.nanmask:
+                        dt = np.nan_to_num(dt)
                     if self.__xindex:
                         if i < len(coords):
                             crds = coords[i]
@@ -1386,6 +1391,8 @@ class LineCutToolWidget(ToolBaseWidget):
             dt = self._mainwidget.cutData()
             self.__curves[0].setPen(_pg.mkColor('r'))
             if dt is not None:
+                if self.__settings.nanmask:
+                    dt = np.nan_to_num(dt)
                 if self.__xindex:
                     crds = [0, 0, 1, 1, 0.00001]
                     if self._mainwidget.currentCut() > -1:
@@ -1658,9 +1665,9 @@ class ProjectionToolWidget(ToolBaseWidget):
             dts = self._mainwidget.rawData()
             if dts is not None:
                 if self.__funindex:
-                    npfun = np.sum
+                    npfun = np.nansum
                 else:
-                    npfun = np.mean
+                    npfun = np.nanmean
 
                 if self.__dsrows == "ERROR":
                     sx = []
@@ -2812,6 +2819,8 @@ class MaximaToolWidget(ToolBaseWidget):
             nr = min(nr, rawarray.size)
             if nr > 0:
                 offset = [0.5, 0.5]
+                if self.__settings.nanmask:
+                    rawarray = np.nan_to_num(rawarray)
                 fidxs = np.argsort(rawarray, axis=None)[-nr:]
                 aidxs = [np.unravel_index(idx, rawarray.shape)
                          for idx in fidxs]
@@ -3354,7 +3363,7 @@ class QROIProjToolWidget(ToolBaseWidget):
                 if self.__funindex:
                     npfun = np.sum
                 else:
-                    npfun = np.mean
+                    npfun = np.nanmean
 
                 if self.__dsrows == "ERROR":
                     sx = []
