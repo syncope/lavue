@@ -243,6 +243,8 @@ class IntensityToolWidget(ToolBaseWidget):
         """ provides intensity message
         """
         x, y, intensity = self._mainwidget.currentIntensity()[:3]
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         ilabel = self._mainwidget.scalingLabel()
         txdata, tydata = self._mainwidget.scaledxy(x, y)
         xunits, yunits = self._mainwidget.axesunits()
@@ -295,7 +297,8 @@ class RGBIntensityToolWidget(IntensityToolWidget):
         xunits, yunits = self._mainwidget.axesunits()
         if isinstance(intensity, np.ndarray) and \
            intensity.size <= 3:
-            itn = intensity.tolist()
+            itn = [0 if (isinstance(it, float) and np.isnan(it))
+                   else it for it in intensity]
             if len(itn) >= 3:
                 if txdata is not None:
                     message = "x = %f%s, y = %f%s, " \
