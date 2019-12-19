@@ -106,7 +106,7 @@ class Settings(object):
         #: (:obj:`bool`) zero mask enabled
         self.zeromask = False
         #: (:obj:`bool`) nan mask enabled
-        self.nanmask = False
+        self.nanmask = True
         #: (:obj:`bool`) security stream options
         self.secsockopt = b""
         #: (:obj:`float`) refresh rate is s
@@ -403,8 +403,8 @@ class Settings(object):
             self.zeromask = True
         qstval = str(settings.value(
             "Configuration/MaskingAsNAN", type=str))
-        if qstval.lower() == "true":
-            self.nanmask = True
+        if qstval.lower() == "false":
+            self.nanmask = False
 
         qstval = str(settings.value("Configuration/SecStream", type=str))
         if qstval.lower() == "true":

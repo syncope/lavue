@@ -1,3 +1,7 @@
+2019-12-20 Jan Kotanski <jan.kotanski@desy.de>
+	* add masking as NAN
+	* tagged as 2.32.0
+
 2019-12-18 Jan Kotanski <jan.kotanski@desy.de>
 	* replot image after high value mask change
 	* change Window Range to Range Window

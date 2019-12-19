@@ -228,7 +228,7 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`bool`) zero mask enabled
         self.zeromask = False
         #: (:obj:`bool`) nan mask enabled
-        self.nanmask = False
+        self.nanmask = True
 
         #: (:obj:`bool`) show bakcground subtraction widget
         self.showsub = True
