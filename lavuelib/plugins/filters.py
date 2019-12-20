@@ -105,4 +105,7 @@ def rot45(image, imagename, metadata, imagewg):
     :returns: numpy array with an image
     :rtype: :class:`numpy.ndarray` or `None`
     """
+    if image is not None and image.dtype.kind == 'f' \
+       and np.isnan(image.min()):
+        image = np.nan_to_num(image)
     return ndimage.rotate(image, 45)
