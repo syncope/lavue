@@ -243,6 +243,8 @@ class IntensityToolWidget(ToolBaseWidget):
         """ provides intensity message
         """
         x, y, intensity = self._mainwidget.currentIntensity()[:3]
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         ilabel = self._mainwidget.scalingLabel()
         txdata, tydata = self._mainwidget.scaledxy(x, y)
         xunits, yunits = self._mainwidget.axesunits()
@@ -295,7 +297,8 @@ class RGBIntensityToolWidget(IntensityToolWidget):
         xunits, yunits = self._mainwidget.axesunits()
         if isinstance(intensity, np.ndarray) and \
            intensity.size <= 3:
-            itn = intensity.tolist()
+            itn = [0 if (isinstance(it, float) and np.isnan(it))
+                   else it for it in intensity]
             if len(itn) >= 3:
                 if txdata is not None:
                     message = "x = %f%s, y = %f%s, " \
@@ -597,6 +600,8 @@ class MotorsToolWidget(ToolBaseWidget):
         """ provides intensity message
         """
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         ilabel = self._mainwidget.scalingLabel()
         txdata, tydata = self._mainwidget.scaledxy(x, y)
         xunits, yunits = self._mainwidget.axesunits()
@@ -1214,6 +1219,9 @@ class LineCutToolWidget(ToolBaseWidget):
         #: (:obj:`int`) current plot number
         self.__nrplots = 0
 
+        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        self.__settings = self._mainwidget.settings()
+
         #: (:obj:`list` < [:class:`pyqtgraph.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
@@ -1354,6 +1362,9 @@ class LineCutToolWidget(ToolBaseWidget):
             for i in range(nrplots):
                 dt = self._mainwidget.cutData(i)
                 if dt is not None:
+                    if self.__settings.nanmask:
+                        if dt.dtype.kind == 'f' and np.isnan(dt.min()):
+                            dt = np.nan_to_num(dt)
                     if self.__xindex:
                         if i < len(coords):
                             crds = coords[i]
@@ -1386,6 +1397,9 @@ class LineCutToolWidget(ToolBaseWidget):
             dt = self._mainwidget.cutData()
             self.__curves[0].setPen(_pg.mkColor('r'))
             if dt is not None:
+                if self.__settings.nanmask:
+                    if dt.dtype.kind == 'f' and np.isnan(dt.min()):
+                        dt = np.nan_to_num(dt)
                 if self.__xindex:
                     crds = [0, 0, 1, 1, 0.00001]
                     if self._mainwidget.currentCut() > -1:
@@ -1421,6 +1435,8 @@ class LineCutToolWidget(ToolBaseWidget):
         """ provides cut message
         """
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         ilabel = self._mainwidget.scalingLabel()
         if self._mainwidget.currentCut() > -1:
             crds = self._mainwidget.cutCoords()[
@@ -1658,9 +1674,9 @@ class ProjectionToolWidget(ToolBaseWidget):
             dts = self._mainwidget.rawData()
             if dts is not None:
                 if self.__funindex:
-                    npfun = np.sum
+                    npfun = np.nansum
                 else:
-                    npfun = np.mean
+                    npfun = np.nanmean
 
                 if self.__dsrows == "ERROR":
                     sx = []
@@ -1727,6 +1743,8 @@ class ProjectionToolWidget(ToolBaseWidget):
         """ provides intensity message
         """
         x, y, intensity = self._mainwidget.currentIntensity()[:3]
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         ilabel = self._mainwidget.scalingLabel()
         message = "x = %i, y = %i, %s = %.2f" % (
             x, y, ilabel, intensity)
@@ -2013,6 +2031,8 @@ class OneDToolWidget(ToolBaseWidget):
         """ provides intensity message
         """
         x, y, intensity = self._mainwidget.currentIntensity()[:3]
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         ilabel = self._mainwidget.scalingLabel()
         message = "x = %i, y = %i, %s = %.2f" % (
             x, y, ilabel, intensity)
@@ -2424,6 +2444,8 @@ class AngleQToolWidget(ToolBaseWidget):
         """
         message = ""
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         if self._mainwidget.rangeWindowEnabled():
             txdata, tydata = self._mainwidget.scaledxy(
                 x, y, useraxes=False)
@@ -2812,6 +2834,10 @@ class MaximaToolWidget(ToolBaseWidget):
             nr = min(nr, rawarray.size)
             if nr > 0:
                 offset = [0.5, 0.5]
+                if self.__settings.nanmask:
+                    if rawarray.dtype.kind == 'f' and \
+                       np.isnan(rawarray.min()):
+                        rawarray = np.nan_to_num(rawarray)
                 fidxs = np.argsort(rawarray, axis=None)[-nr:]
                 aidxs = [np.unravel_index(idx, rawarray.shape)
                          for idx in fidxs]
@@ -2899,6 +2925,8 @@ class MaximaToolWidget(ToolBaseWidget):
         """
         message = ""
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         txdata = None
         if self._mainwidget.rangeWindowEnabled():
             txdata, tydata = self._mainwidget.scaledxy(
@@ -3354,7 +3382,7 @@ class QROIProjToolWidget(ToolBaseWidget):
                 if self.__funindex:
                     npfun = np.sum
                 else:
-                    npfun = np.mean
+                    npfun = np.nanmean
 
                 if self.__dsrows == "ERROR":
                     sx = []
@@ -3614,6 +3642,8 @@ class QROIProjToolWidget(ToolBaseWidget):
         """
         message = ""
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         if self._mainwidget.rangeWindowEnabled():
             txdata, tydata = self._mainwidget.scaledxy(
                 x, y, useraxes=False)

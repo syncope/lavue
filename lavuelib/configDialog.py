@@ -227,6 +227,8 @@ class ConfigDialog(QtGui.QDialog):
         self.calcvariance = False
         #: (:obj:`bool`) zero mask enabled
         self.zeromask = False
+        #: (:obj:`bool`) nan mask enabled
+        self.nanmask = True
 
         #: (:obj:`bool`) show bakcground subtraction widget
         self.showsub = True
@@ -388,6 +390,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.orderroisCheckBox.setChecked(self.orderrois)
         self.__ui.secstreamCheckBox.setChecked(self.secstream)
         self.__ui.zeromaskCheckBox.setChecked(self.zeromask)
+        self.__ui.nanmaskCheckBox.setChecked(self.nanmask)
         self.__ui.secautoportCheckBox.setChecked(self.secautoport)
         self.__ui.secportLineEdit.setText(self.secport)
         self.__ui.hidraportLineEdit.setText(self.hidraport)
@@ -679,6 +682,7 @@ class ConfigDialog(QtGui.QDialog):
         self.maxmbuffersize = str(self.__ui.mbufsizeLineEdit.text()).strip()
         self.secstream = self.__ui.secstreamCheckBox.isChecked()
         self.zeromask = self.__ui.zeromaskCheckBox.isChecked()
+        self.nanmask = self.__ui.nanmaskCheckBox.isChecked()
         self.secautoport = self.__ui.secautoportCheckBox.isChecked()
         self.refreshrate = float(self.__ui.rateDoubleSpinBox.value())
         self.toolrefreshtime = float(

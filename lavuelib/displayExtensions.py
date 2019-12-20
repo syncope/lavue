@@ -431,7 +431,7 @@ class ROIExtension(DisplayExtension):
                                 rcrds[i] = image.shape[1]
                             elif rcrds[i] < - (i - 1) // 2:
                                 rcrds[i] = - (i - 1) // 2
-                        roival = np.sum(image[
+                        roival = np.nansum(image[
                             int(rcrds[0]):(int(rcrds[2]) + 1),
                             int(rcrds[1]):(int(rcrds[3]) + 1)
                         ])

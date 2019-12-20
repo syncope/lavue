@@ -167,8 +167,10 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         """
         if self.__isOn and image is not None:
             mdata = {}
-            if self.__lastimage is None or \
-               not np.array_equal(self.__lastimage, image):
+            if self.__lastimage is None \
+               or self.__lastimage.shape != image.shape \
+               or self.__lastimage.dtype != image.dtype \
+               or np.nanmax((self.__lastimage - image)):
                 shape = image.shape
                 dtype = image.dtype
 
@@ -203,7 +205,7 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
                     self.__imagestack[0] = image
 
                 self.__current += 1
-                self.__lastimage = image
+                self.__lastimage = np.array(image)
 
                 if self.__first:
                     cblbl = {key: "%s:" % key
@@ -213,8 +215,10 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
                 mdata["channellabels"] = cblbl
                 mdata["skipfirst"] = True
                 cblbl[0] = "0: the last image"
+                # if imagename:
+                #     imagename = imagename.replace("\n", " ")
                 cblbl[self.__current - 1] = "%s: %s" % (
-                    self.__current - 1, imagename)
+                    self.__current - 1, imagename.replace("\n", " "))
                 self.__first = False
 
             if self.__imagestack is not None:

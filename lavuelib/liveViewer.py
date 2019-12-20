@@ -913,7 +913,7 @@ class LiveViewer(QtGui.QDialog):
         if hasattr(options, "maskhighvalue") and \
            options.maskhighvalue is not None:
             self.__highvaluemaskwg.setMask(str(options.maskhighvalue))
-
+            self._checkHighMasking()
         if hasattr(options, "transformation") and \
            options.transformation is not None:
             self.__trafowg.setTransformation(str(options.transformation))
@@ -1421,6 +1421,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.maxmbuffersize = self.__settings.maxmbuffersize
         cnfdlg.secstream = self.__settings.secstream
         cnfdlg.zeromask = self.__settings.zeromask
+        cnfdlg.nanmask = self.__settings.nanmask
         cnfdlg.refreshrate = dataFetchThread.GLOBALREFRESHRATE
         cnfdlg.toolrefreshtime = self.__settings.toolrefreshtime
         cnfdlg.timeout = self.__settings.timeout
@@ -1675,6 +1676,11 @@ class LiveViewer(QtGui.QDialog):
 
         if self.__settings.zeromask != dialog.zeromask:
             self.__settings.zeromask = dialog.zeromask
+            remasking = True
+            replot = True
+
+        if self.__settings.nanmask != dialog.nanmask:
+            self.__settings.nanmask = dialog.nanmask
             remasking = True
             replot = True
 
@@ -2130,7 +2136,11 @@ class LiveViewer(QtGui.QDialog):
                         dtype = np.float
                     shape[0] = max(shape[0], psh[0])
                     shape[1] = max(shape[1], psh[1])
-                rawimage = np.zeros(shape=shape, dtype=dtype)
+                if self.__settings.nanmask:
+                    rawimage = np.zeros(shape=shape, dtype=float)
+                    rawimage.fill(np.nan)
+                else:
+                    rawimage = np.zeros(shape=shape, dtype=dtype)
                 for pd in ldata:
                     if len(shape) == 2:
                         rawimage[pd.x: pd.sx + pd.x, pd.y: pd.sy + pd.y] = \
@@ -2313,10 +2323,10 @@ class LiveViewer(QtGui.QDialog):
             if not self.__channelwg.colorChannel():
                 if "skipfirst" in self.__mdata.keys() and \
                    self.__mdata["skipfirst"]:
-                    self.__rawgreyimage = np.sum(
+                    self.__rawgreyimage = np.nansum(
                         self.__filteredimage[1:, :, :], 0)
                 else:
-                    self.__rawgreyimage = np.sum(self.__filteredimage, 0)
+                    self.__rawgreyimage = np.nansum(self.__filteredimage, 0)
                 if self.rgb():
                     self.setrgb(False)
             else:
@@ -2335,10 +2345,10 @@ class LiveViewer(QtGui.QDialog):
                             self.__levelswg.showGradient(True)
                         if "skipfirst" in self.__mdata.keys() and \
                            self.__mdata["skipfirst"]:
-                            self.__rawgreyimage = np.mean(
+                            self.__rawgreyimage = np.nanmean(
                                 self.__filteredimage[1:, :, :], 0)
                         else:
-                            self.__rawgreyimage = np.mean(
+                            self.__rawgreyimage = np.nanmean(
                                 self.__filteredimage, 0)
                     elif self.__filteredimage.shape[0] > 1:
                         if not self.rgb():
@@ -2460,8 +2470,13 @@ class LiveViewer(QtGui.QDialog):
            self.__maskindices is not None:
             # set all masked (non-zero values) to zero by index
             try:
-                self.__displayimage = np.array(self.__displayimage)
-                self.__displayimage[self.__maskindices] = 0
+                if self.__settings.nanmask:
+                    self.__displayimage = np.array(self.__displayimage)
+                    self.__displayimage[self.__maskindices] = 0
+                else:
+                    self.__displayimage = np.array(
+                        self.__displayimage, dtype="float")
+                    self.__displayimage[self.__maskindices] = np.nan
             except IndexError:
                 self.__maskwg.noImage()
                 self.__applymask = False
@@ -2478,8 +2493,18 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.showhighvaluemask and \
            self.__maskvalue is not None:
             try:
-                self.__displayimage = np.array(self.__displayimage)
-                self.__displayimage[self.__displayimage > self.__maskvalue] = 0
+                if self.__settings.nanmask:
+                    self.__displayimage = np.array(
+                        self.__displayimage, dtype='float')
+                    with np.warnings.catch_warnings():
+                        np.warnings.filterwarnings(
+                            'ignore', r'invalid value encountered in greater')
+                        self.__displayimage[
+                            self.__displayimage > self.__maskvalue] = np.nan
+                else:
+                    self.__displayimage = np.array(self.__displayimage)
+                    self.__displayimage[
+                        self.__displayimage > self.__maskvalue] = 0
             except IndexError:
                 # self.__highvaluemaskwg.noValue()
                 import traceback
@@ -2766,21 +2791,22 @@ class LiveViewer(QtGui.QDialog):
         """
         if self.__settings.statswoscaling and self.__displayimage is not None \
            and self.__displayimage.size > 0:
-            maxval = np.amax(self.__displayimage) if flag[0] else 0.0
-            meanval = np.mean(self.__displayimage) if flag[1] else 0.0
+            maxval = np.nanmax(self.__displayimage) if flag[0] else 0.0
+            meanval = np.nanmean(self.__displayimage) if flag[1] else 0.0
             varval = np.var(self.__displayimage) if flag[2] else 0.0
-            maxsval = np.amax(self.__scaledimage) if flag[5] else 0.0
+            maxsval = np.nanmax(self.__scaledimage) if flag[5] else 0.0
         elif (not self.__settings.statswoscaling
               and self.__scaledimage is not None
               and self.__displayimage.size > 0):
-            maxval = np.amax(self.__scaledimage) if flag[0] or flag[5] else 0.0
-            meanval = np.mean(self.__scaledimage) if flag[1] else 0.0
+            maxval = np.nanmax(self.__scaledimage) \
+                     if flag[0] or flag[5] else 0.0
+            meanval = np.nanmean(self.__scaledimage) if flag[1] else 0.0
             varval = np.var(self.__scaledimage) if flag[2] else 0.0
             maxsval = maxval
         else:
             return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-        maxrawval = np.amax(self.__rawgreyimage) if flag[4] else 0.0
-        minval = np.amin(self.__scaledimage) if flag[3] else 0.0
+        maxrawval = np.nanmax(self.__rawgreyimage) if flag[4] else 0.0
+        minval = np.nanmin(self.__scaledimage) if flag[3] else 0.0
         return (maxval, meanval, varval, minval, maxrawval,  maxsval)
 
     @QtCore.pyqtSlot()

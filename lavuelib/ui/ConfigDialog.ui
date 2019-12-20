@@ -38,6 +38,19 @@
                <layout class="QGridLayout" name="gridLayout_2">
                 <item row="0" column="0">
                  <layout class="QGridLayout" name="imageGridLayout">
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="aspectlockedLabel">
+                    <property name="toolTip">
+                     <string>lock the aspect ration of the image</string>
+                    </property>
+                    <property name="text">
+                     <string>Aspect Ratio locked:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>aspectlockedCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="0" column="0">
                    <widget class="QLabel" name="rateLabel">
                     <property name="toolTip">
@@ -78,7 +91,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="1">
+                  <item row="6" column="1">
                    <widget class="QCheckBox" name="interruptCheckBox">
                     <property name="toolTip">
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrupt on an image source error&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -88,7 +101,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="6" column="1">
+                  <item row="7" column="1">
                    <widget class="QCheckBox" name="sourcedisplayCheckBox">
                     <property name="toolTip">
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display parameters separately set for image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -98,7 +111,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="0">
+                  <item row="6" column="0">
                    <widget class="QLabel" name="interruptLabel">
                     <property name="toolTip">
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrupt on an image source error&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -111,7 +124,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="6" column="0">
+                  <item row="7" column="0">
                    <widget class="QLabel" name="sourcedisplayLabel">
                     <property name="toolTip">
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display parameters separately set for image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -134,7 +147,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="8" column="0">
+                  <item row="9" column="0">
                    <widget class="QLabel" name="mbufsizeLabel">
                     <property name="toolTip">
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;maximal number of images in the memory buffer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -147,7 +160,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="8" column="1">
+                  <item row="9" column="1">
                    <widget class="QLineEdit" name="mbufsizeLineEdit">
                     <property name="toolTip">
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;maximal number of images in the memory buffer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -163,14 +176,14 @@
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checkout pixel masks are represented by zero values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
-                     <string>Pixel masks with zero values:</string>
+                     <string>Pixel image masks with zero values:</string>
                     </property>
                     <property name="buddy">
                      <cstring>zeromaskCheckBox</cstring>
                     </property>
                    </widget>
                   </item>
-                  <item row="7" column="1">
+                  <item row="8" column="1">
                    <widget class="QCheckBox" name="lazyimageCheckBox">
                     <property name="toolTip">
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;load an image from the HdF5 file after stopping moving the slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -180,7 +193,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="7" column="0">
+                  <item row="8" column="0">
                    <widget class="QLabel" name="lazyimageLabel">
                     <property name="toolTip">
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;load an image from the HdF5 file after stopping moving the slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -206,19 +219,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="aspectlockedLabel">
-                    <property name="toolTip">
-                     <string>lock the aspect ration of the image</string>
-                    </property>
-                    <property name="text">
-                     <string>Aspect Ratio locked:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>aspectlockedCheckBox</cstring>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="2" column="1">
                    <widget class="QCheckBox" name="downsampleCheckBox">
                     <property name="toolTip">
@@ -239,7 +239,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="9" column="0">
+                  <item row="10" column="0">
                    <widget class="QLabel" name="nrsourcesLabel">
                     <property name="toolTip">
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a number of image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -252,7 +252,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="9" column="1">
+                  <item row="10" column="1">
                    <widget class="QSpinBox" name="nrsourcesSpinBox">
                     <property name="toolTip">
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a number of image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -262,6 +262,20 @@
                     </property>
                     <property name="value">
                      <number>1</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1">
+                   <widget class="QCheckBox" name="nanmaskCheckBox">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="nanmaskLabel">
+                    <property name="text">
+                     <string>Mask pixels with NAN:</string>
                     </property>
                    </widget>
                   </item>
@@ -1634,6 +1648,7 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>downsampleCheckBox</tabstop>
   <tabstop>keepCoordsCheckBox</tabstop>
   <tabstop>zeromaskCheckBox</tabstop>
+  <tabstop>nanmaskCheckBox</tabstop>
   <tabstop>interruptCheckBox</tabstop>
   <tabstop>sourcedisplayCheckBox</tabstop>
   <tabstop>lazyimageCheckBox</tabstop>
@@ -1684,8 +1699,8 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>dirattrLineEdit</tabstop>
   <tabstop>dirtransLineEdit</tabstop>
   <tabstop>doocspropLineEdit</tabstop>
-  <tabstop>filterButtonBox</tabstop>
   <tabstop>filterTableWidget</tabstop>
+  <tabstop>filterButtonBox</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -1696,8 +1711,8 @@ in the file name and the file directory for Tango File Source</string>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>298</x>
-     <y>546</y>
+     <x>308</x>
+     <y>596</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -1712,8 +1727,8 @@ in the file name and the file directory for Tango File Source</string>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>366</x>
-     <y>546</y>
+     <x>376</x>
+     <y>596</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
