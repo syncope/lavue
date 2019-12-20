@@ -1361,7 +1361,8 @@ class LineCutToolWidget(ToolBaseWidget):
                 dt = self._mainwidget.cutData(i)
                 if dt is not None:
                     if self.__settings.nanmask:
-                        dt = np.nan_to_num(dt)
+                        if dt.dtype.kind == 'f' and np.isnan(dt.min()):
+                            dt = np.nan_to_num(dt)
                     if self.__xindex:
                         if i < len(coords):
                             crds = coords[i]
@@ -1395,7 +1396,8 @@ class LineCutToolWidget(ToolBaseWidget):
             self.__curves[0].setPen(_pg.mkColor('r'))
             if dt is not None:
                 if self.__settings.nanmask:
-                    dt = np.nan_to_num(dt)
+                    if dt.dtype.kind == 'f' and np.isnan(dt.min()):
+                        dt = np.nan_to_num(dt)
                 if self.__xindex:
                     crds = [0, 0, 1, 1, 0.00001]
                     if self._mainwidget.currentCut() > -1:
@@ -2823,7 +2825,9 @@ class MaximaToolWidget(ToolBaseWidget):
             if nr > 0:
                 offset = [0.5, 0.5]
                 if self.__settings.nanmask:
-                    rawarray = np.nan_to_num(rawarray)
+                    if rawarray.dtype.kind == 'f' and \
+                       np.isnan(rawarray.min()):
+                        rawarray = np.nan_to_num(rawarray)
                 fidxs = np.argsort(rawarray, axis=None)[-nr:]
                 aidxs = [np.unravel_index(idx, rawarray.shape)
                          for idx in fidxs]
