@@ -600,6 +600,8 @@ class MotorsToolWidget(ToolBaseWidget):
         """ provides intensity message
         """
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         ilabel = self._mainwidget.scalingLabel()
         txdata, tydata = self._mainwidget.scaledxy(x, y)
         xunits, yunits = self._mainwidget.axesunits()
@@ -1433,6 +1435,8 @@ class LineCutToolWidget(ToolBaseWidget):
         """ provides cut message
         """
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         ilabel = self._mainwidget.scalingLabel()
         if self._mainwidget.currentCut() > -1:
             crds = self._mainwidget.cutCoords()[
@@ -1739,6 +1743,8 @@ class ProjectionToolWidget(ToolBaseWidget):
         """ provides intensity message
         """
         x, y, intensity = self._mainwidget.currentIntensity()[:3]
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         ilabel = self._mainwidget.scalingLabel()
         message = "x = %i, y = %i, %s = %.2f" % (
             x, y, ilabel, intensity)
@@ -2025,6 +2031,8 @@ class OneDToolWidget(ToolBaseWidget):
         """ provides intensity message
         """
         x, y, intensity = self._mainwidget.currentIntensity()[:3]
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         ilabel = self._mainwidget.scalingLabel()
         message = "x = %i, y = %i, %s = %.2f" % (
             x, y, ilabel, intensity)
@@ -2436,6 +2444,8 @@ class AngleQToolWidget(ToolBaseWidget):
         """
         message = ""
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         if self._mainwidget.rangeWindowEnabled():
             txdata, tydata = self._mainwidget.scaledxy(
                 x, y, useraxes=False)
@@ -2915,6 +2925,8 @@ class MaximaToolWidget(ToolBaseWidget):
         """
         message = ""
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         txdata = None
         if self._mainwidget.rangeWindowEnabled():
             txdata, tydata = self._mainwidget.scaledxy(
@@ -3630,6 +3642,8 @@ class QROIProjToolWidget(ToolBaseWidget):
         """
         message = ""
         _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
         if self._mainwidget.rangeWindowEnabled():
             txdata, tydata = self._mainwidget.scaledxy(
                 x, y, useraxes=False)
