@@ -29,6 +29,7 @@
 import pyqtgraph as _pg
 from pyqtgraph import QtCore, QtGui
 import numpy as np
+import logging
 
 #: ( (:obj:`str`,:obj:`str`,:obj:`str`) )
 #:         pg major version, pg minor verion, pg patch version
@@ -62,6 +63,9 @@ _pg.graphicsItems.GradientEditorItem.Gradients['highcontrastclip'] = {
 
 
 __all__ = ['HistogramHLUTWidget']
+
+
+logger = logging.getLogger(__name__)
 
 
 class HistogramHLUTWidget(_pg.widgets.GraphicsView.GraphicsView):
@@ -495,7 +499,8 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
                 hx, hy = self.__imageItem().getHistogram(
                     step=self.__step, bins=self.__bins)
             except Exception as e:
-                print(str(e))
+                logger.warning(str(e))
+                # print(str(e))
             if hy is not None and hx is not None and hx.any() and hy.any():
                 if abs(hx[0]) < 1.e-3 or abs(hx[0]+2.) < 1.e-3:
                     hx = hx[1:]
@@ -527,7 +532,8 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
                 hx, hy = self.__imageItem().getHistogram(
                     step=self.__step, bins=self.__bins)
             except Exception as e:
-                print(str(e))
+                logger.warning(str(e))
+                # print(str(e))
             if hy is not None and hx is not None and hx.any() and hy.any():
                 if abs(hx[0]) < 1.e-3 or abs(hx[0]+2.) < 1.e-3:
                     hhx = hx[1:]
@@ -561,4 +567,5 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
                 mx = h[0][-1]
                 self.region.setRegion([mn, mx])
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))

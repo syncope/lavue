@@ -29,6 +29,7 @@
 from pyqtgraph import QtCore, QtGui
 import json
 import struct
+import logging
 
 try:
     import requests
@@ -97,6 +98,9 @@ if sys.version_info > (3,):
     unicode = str
 else:
     bytes = str
+
+
+logger = logging.getLogger(__name__)
 
 
 def tobytes(x):
@@ -368,7 +372,8 @@ class NXSFileSource(BaseSource):
             if hasattr(self.__node, "close"):
                 self.__node.close()
             self.__node = None
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             return str(e), "__ERROR__", ""
             pass  # this needs a bit more care
         return None, None, None
@@ -397,7 +402,8 @@ class NXSFileSource(BaseSource):
                 self.__nxslast = True
             return True
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             self._updaterror()
             return False
 
@@ -455,7 +461,8 @@ class TangoFileSource(BaseSource):
                         return None, None, None
                 return (np.transpose(image), '%s' % (filename), mdata)
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             return str(e), "__ERROR__", ""
             pass  # this needs a bit more care
         return None, None, None
@@ -476,7 +483,8 @@ class TangoFileSource(BaseSource):
             return True
         except Exception as e:
             self._updaterror()
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             return False
 
 
@@ -673,7 +681,8 @@ class TangoAttrSource(BaseSource):
                             '%s  (%s)' % (
                                 self._configuration, str(attr.time)), "")
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             return str(e), "__ERROR__", ""
         return None, None, None
 
@@ -687,7 +696,8 @@ class TangoAttrSource(BaseSource):
                     str(self._configuration))
             return True
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             self._updaterror()
             return False
 
@@ -717,7 +727,8 @@ class TangoEventsCB(object):
         event_data = args[0]
         if event_data.err:
             result = event_data.errors
-            print(str(result))
+            logger.warning(str(result))
+            # print(str(result))
         else:
             if not self.__client.reading:
                 with QtCore.QMutexLocker(self.__mutex):
@@ -824,7 +835,8 @@ class TangoEventsSource(BaseSource):
                                     self._configuration, str(self.attr.time)),
                                 "")
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             return str(e), "__ERROR__", ""
             pass  # this needs a bit more care
         return None, None, None
@@ -846,7 +858,8 @@ class TangoEventsSource(BaseSource):
                 self._initiated = True
             return True
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             self._updaterror()
             return False
 
@@ -932,10 +945,12 @@ class HTTPSource(BaseSource):
                             return (np.transpose(img),
                                     "%s (%s)" % (name, time.ctime()), "")
                 else:
-                    print("HTTP Source: %s" % str(response.content))
+                    # print("HTTP Source: %s" % str(response.content))
+                    logger.info("HTTP Source: %s" % str(response.content))
                     pass
             except Exception as e:
-                print(str(e))
+                # print(str(e))
+                logger.warning(str(e))
                 return str(e), "__ERROR__", ""
         return "No url defined", "__ERROR__", None
 
@@ -962,7 +977,8 @@ class HTTPSource(BaseSource):
                     requests.get(self._configuration)
             return True
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             self._updaterror()
             return False
 
@@ -1169,7 +1185,8 @@ class ZMQSource(BaseSource):
             return True
         except Exception as e:
             self.disconnect()
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             self._updaterror()
             return False
 
@@ -1184,7 +1201,8 @@ class ZMQSource(BaseSource):
                     self.__socket.close(linger=0)
                     self.__socket = None
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             pass
         with QtCore.QMutexLocker(self.__mutex):
             self.__bindaddress = None
@@ -1265,14 +1283,16 @@ class HiDRASource(BaseSource):
                     % (self.__targetname, self.__portnumber))
             if not self._initiated:
                 with QtCore.QMutexLocker(self.__mutex):
-                    print("TARGET %s" % self.__target)
+                    # print("TARGET %s" % self.__target)
+                    logger.info("TARGET %s" % self.__target)
                     self.__query.initiate(self.__target)
                 self._initiated = True
                 with QtCore.QMutexLocker(self.__mutex):
                     self.__query.start()
             return True
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             if self.__query is not None:
                 with QtCore.QMutexLocker(self.__mutex):
                     self.__query.stop()
@@ -1315,14 +1335,17 @@ class HiDRASource(BaseSource):
                     self.__query.start()
                     [metadata, data] = self.__query.get(self._timeout)
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             pass  # this needs a bit more care
 
         if metadata is not None and data is not None:
             # print("data", str(data)[:10])
 
             if data[:10] == "###CBF: VE":
-                print("[cbf source module]::metadata", metadata["filename"])
+                # print("[cbf source module]::metadata", metadata["filename"])
+                logger.info(
+                    "[cbf source module]::metadata", metadata["filename"])
                 npdata = np.fromstring(data[:], dtype=np.uint8)
                 img = imageFileHandler.CBFLoader().load(npdata)
 
@@ -1333,7 +1356,9 @@ class HiDRASource(BaseSource):
                 return np.transpose(img), metadata["filename"], mdata
             else:
                 # elif data[:2] in ["II\x2A\x00", "MM\x00\x2A"]:
-                print("[tif source module]::metadata", metadata["filename"])
+                logger.info(
+                    "[tif source module]::metadata", metadata["filename"])
+                # print("[tif source module]::metadata", metadata["filename"])
                 if PILLOW and not self.__tiffloader:
                     try:
                         img = np.array(PIL.Image.open(BytesIO(str(data))))
@@ -1389,7 +1414,8 @@ class DOOCSPropSource(BaseSource):
                     "")
 
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             return str(e), "__ERROR__", ""
         return None, None, None
 

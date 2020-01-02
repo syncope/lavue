@@ -28,7 +28,11 @@
 
 from pyqtgraph import QtCore
 
+import logging
 import PyTango
+
+
+logger = logging.getLogger(__name__)
 
 
 class TangoCB(object):
@@ -54,7 +58,8 @@ class TangoCB(object):
         event_data = args[0]
         if event_data.err:
             result = event_data.errors
-            print(result)
+            logger.warning(str(result))
+            # print(result)
         else:
             result = event_data.attr_value.value
             self.__signal.emit(result)

@@ -30,12 +30,15 @@ import pyqtgraph as _pg
 from pyqtgraph import QtCore, QtGui
 import os
 import json
+import logging
 
 from . import edDictDialog
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "ConfigDialog.ui"))
+
+logger = logging.getLogger(__name__)
 
 
 class TableWidgetDragCheckBoxes(QtGui.QTableWidget):
@@ -723,7 +726,8 @@ class ConfigDialog(QtGui.QDialog):
             if isinstance(mytr, dict):
                 self.dirtrans = dirtrans
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             self.__ui.tabWidget.setCurrentIndex(3)
             self.__ui.dirtransLineEdit.setFocus(True)
             return
@@ -733,7 +737,8 @@ class ConfigDialog(QtGui.QDialog):
             if isinstance(mytr, dict):
                 self.tangoattrs = attr
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             self.__ui.tabWidget.setCurrentIndex(3)
             self.__ui.attrLineEdit.setFocus(True)
             return
@@ -743,7 +748,8 @@ class ConfigDialog(QtGui.QDialog):
             if isinstance(mytr, dict):
                 self.doocsprops = prop
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             self.__ui.tabWidget.setCurrentIndex(3)
             self.__ui.doocspropLineEdit.setFocus(True)
             return
@@ -753,7 +759,8 @@ class ConfigDialog(QtGui.QDialog):
             if isinstance(mytr, dict):
                 self.tangoevattrs = attr
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             self.__ui.tabWidget.setCurrentIndex(3)
             self.__ui.evattrLineEdit.setFocus(True)
             return
@@ -763,7 +770,8 @@ class ConfigDialog(QtGui.QDialog):
             if isinstance(mytr, dict):
                 self.tangofileattrs = fileattr
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             self.__ui.tabWidget.setCurrentIndex(3)
             self.__ui.fileattrLineEdit.setFocus(True)
             return
@@ -773,7 +781,8 @@ class ConfigDialog(QtGui.QDialog):
             if isinstance(mytr, dict):
                 self.tangodirattrs = dirattr
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             self.__ui.tabWidget.setCurrentIndex(3)
             self.__ui.dirattrLineEdit.setFocus(True)
             return
@@ -783,7 +792,8 @@ class ConfigDialog(QtGui.QDialog):
             if isinstance(mytr, dict):
                 self.zmqservers = zmqservers
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             self.__ui.tabWidget.setCurrentIndex(2)
             self.__ui.zmqserversLineEdit.setFocus(True)
             return
@@ -793,7 +803,8 @@ class ConfigDialog(QtGui.QDialog):
             if isinstance(mytr, dict):
                 self.httpurls = urls
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             self.__ui.tabWidget.setCurrentIndex(2)
             self.__ui.urlsLineEdit.setFocus(True)
             return

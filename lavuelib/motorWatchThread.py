@@ -29,11 +29,14 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import time
+import logging
 
 from pyqtgraph import QtCore
 
 #: (:obj:`float`) refresh rate in seconds
 GLOBALREFRESHRATE = .1
+
+logger = logging.getLogger(__name__)
 
 
 # subclass for threading
@@ -93,7 +96,8 @@ class MotorWatchThread(QtCore.QThread):
                     # print("TF")
                     self.watchingFinished.emit()
             except Exception as e:
-                print(str(e))
+                logger.warning(str(e))
+                # print(str(e))
 
     def isRunning(self):
         """ is datasource source connected
