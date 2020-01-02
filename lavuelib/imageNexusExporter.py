@@ -26,6 +26,7 @@
 
 import numpy as np
 import os
+import logging
 from pyqtgraph import QtGui
 from pyqtgraph.exporters import Exporter
 from pyqtgraph.parametertree import Parameter
@@ -51,6 +52,8 @@ except Exception:
     pass
 
 __all__ = ['ImageNexusExporter']
+
+logger = logging.getLogger(__name__)
 
 
 def getcompression(compression):
@@ -166,7 +169,8 @@ class ImageNexusExporter(Exporter):
                 fl = filewriter.create_file(
                     str(filename), overwrite=False, writer=wrmodule)
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             raise Exception(
                 "File '%s' cannot be created \n" % (filename))
         root = fl.root()

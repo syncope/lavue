@@ -34,6 +34,7 @@ import re
 import os
 import json
 import numpy as np
+import logging
 
 from . import imageDisplayWidget
 from . import displayExtensions
@@ -49,6 +50,8 @@ from . import sardanaUtils
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "ImageWidget.ui"))
+
+logger = logging.getLogger(__name__)
 
 
 class ImageWidget(QtGui.QWidget):
@@ -532,7 +535,8 @@ class ImageWidget(QtGui.QWidget):
                 try:
                     signal.disconnect(slot)
                 except Exception as e:
-                    print(str(e))
+                    # print(str(e))
+                    logger.warning(str(e))
                 self.__currenttool.disactivate()
 
     def updateMetaData(self, axisscales=None, axislabels=None,
@@ -1071,7 +1075,8 @@ class ImageWidget(QtGui.QWidget):
                 dp = self.__sardana.openProxy(str(self.__settings.doorname))
                 dp.ping()
             except Exception as e:
-                print(str(e))
+                # print(str(e))
+                logger.warning(str(e))
                 dp = None
         return dp
 
@@ -1094,7 +1099,8 @@ class ImageWidget(QtGui.QWidget):
                     self.__settings.doorname,
                     listattr, typefilter)
             except Exception as e:
-                print(str(e))
+                # print(str(e))
+                logger.warning(str(e))
         return elements
 
     def runMacro(self, command):
@@ -1112,7 +1118,8 @@ class ImageWidget(QtGui.QWidget):
                 _, warn = self.__sardana.runMacro(
                     str(self.__settings.doorname), command, wait=False)
                 if warn:
-                    print("Warning: %s" % str(warn))
+                    logger.warning(str(warn))
+                    # print("Warning: %s" % str(warn))
                     msg = str(warn)
                     messageBox.MessageBox.warning(
                         self, "lavue: Errors in running macro: %s" % command,
@@ -1138,7 +1145,8 @@ class ImageWidget(QtGui.QWidget):
             try:
                 warn = self.__sardana.getError(str(self.__settings.doorname))
                 if warn:
-                    print("Warning: %s" % str(warn))
+                    # print("Warning: %s" % str(warn))
+                    logger.warning(str(warn))
                     msg = str(warn)
                     messageBox.MessageBox.warning(
                         self, "lavue: Errors in running macro ",
@@ -1247,14 +1255,16 @@ class ImageWidget(QtGui.QWidget):
                                 ["nxsadd", alias])
                             if warn:
                                 warns.extend(list(warn))
-                                print("Warning: %s" % str(warn))
+                                # print("Warning: %s" % str(warn))
+                                logger.warning(str(warn))
                         for alias in toremove:
                             _, warn = self.__sardana.runMacro(
                                 str(self.__settings.doorname),
                                 ["nxsrm", alias])
                             if warn:
                                 warns.extend(list(warn))
-                                print("Warning: %s" % str(warn))
+                                # print("Warning: %s" % str(warn))
+                                logger.warning(str(warn))
                         if warns:
                             msg = "\n".join(set(warns))
                             messageBox.MessageBox.warning(
@@ -1345,7 +1355,8 @@ class ImageWidget(QtGui.QWidget):
                         self, "lavue: Error in Setting Rois",
                         text, str(value))
         else:
-            print("Connection error")
+            # print("Connection error")
+            logger.error("Connection error")
 
     @QtCore.pyqtSlot(str)
     def fetchROIs(self, rlabel):
@@ -1423,7 +1434,8 @@ class ImageWidget(QtGui.QWidget):
 
             self.updateROIs(len(coords), coords)
         else:
-            print("Connection error")
+            # print("Connection error")
+            logger.error("Connection error")
 
     def currentIntensity(self):
         """ provides intensity for current mouse position

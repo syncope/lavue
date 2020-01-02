@@ -31,6 +31,7 @@ import struct
 import numpy as np
 import sys
 import json
+import logging
 
 from . import filewriter
 
@@ -70,6 +71,9 @@ try:
     WRITERS["h5cpp"] = h5cppwriter
 except Exception:
     pass
+
+
+logger = logging.getLogger(__name__)
 
 
 class NexusFieldHandler(object):
@@ -315,7 +319,8 @@ class NexusFieldHandler(object):
                     lnode = lnode.open(gr)
                 cls.getMetaData(lnode, metadata, maxrec - 1)
             except Exception as e:
-                print(str(e))
+                # print(str(e))
+                logger.warning(str(e))
         return json.dumps(metadata)
 
     @classmethod
@@ -418,7 +423,8 @@ class ImageFileHandler(object):
                     else:
                         self.__data = TIFLoader().load(self.__image)
                 except Exception as e:
-                    print(str(e))
+                    # print(str(e))
+                    logger.warning(str(e))
 
     def getImage(self):
         """  provides the image data
@@ -461,7 +467,8 @@ class CBFLoader(object):
                     flbuffer.itemsize
                 flbuffer = flbuffer[hspos:hepos + 1].tostring()
         except Exception as e:
-            print(str(e))
+            # print(str(e))
+            logger.warning(str(e))
         header = str(flbuffer).strip()
         sheader = [hd[2:] for hd in str(header).split("\r\n")
                    if hd.startswith("# ")]
@@ -538,7 +545,8 @@ class CBFLoader(object):
 
                     mdata[name] = dt
             except Exception as e:
-                print(str(e))
+                # print(str(e))
+                logger.warning(str(e))
         if mdata:
             return json.dumps(mdata)
         else:

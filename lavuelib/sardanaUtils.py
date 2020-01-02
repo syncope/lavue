@@ -29,6 +29,7 @@ import pickle
 import json
 import time
 import sys
+import logging
 
 try:
     import PyTango
@@ -40,6 +41,8 @@ except ImportError:
 
 if sys.version_info > (3,):
     basestring = str
+
+logger = logging.getLogger(__name__)
 
 
 class SardanaUtils(object):
@@ -118,7 +121,8 @@ class SardanaUtils(object):
             try:
                 dp = self.openProxy(msname)
             except Exception as e:
-                print(str(e))
+                logger.warning(str(e))
+                # print(str(e))
                 dp = None
             if hasattr(dp, "DoorList"):
                 lst = dp.DoorList

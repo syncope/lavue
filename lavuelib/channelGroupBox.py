@@ -28,10 +28,13 @@
 from .qtuic import uic
 from pyqtgraph import QtCore, QtGui
 import os
+import logging
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "ChannelGroupBox.ui"))
+
+logger = logging.getLogger(__name__)
 
 
 class ChannelGroupBox(QtGui.QWidget):
@@ -287,7 +290,8 @@ class ChannelGroupBox(QtGui.QWidget):
                         self.__channellabels[int(ky)] = vl
                         self.setChannelItemText(ky, vl)
                     except Exception as e:
-                        print(str(e))
+                        logger.warning(str(e))
+                        # print(str(e))
 
     def setChannelItemText(self, iid, text):
         """ sets channel item text

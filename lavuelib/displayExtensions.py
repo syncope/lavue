@@ -31,11 +31,14 @@ import numpy as np
 import math
 import json
 import time
+import logging
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI, Handle
 
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
     if _pg.__version__ else ("0", "9", "0")
+
+logger = logging.getLogger(__name__)
 
 
 class HandleWithSignals(Handle):
@@ -495,7 +498,8 @@ class ROIExtension(DisplayExtension):
                     self.__coords[rid] = crd
                     self.roiCoordsChanged.emit()
         except Exception as e:
-            print("Warning: %s" % str(e))
+            logger.warning(str(e))
+            # print("Warning: %s" % str(e))
 
     @QtCore.pyqtSlot(int)
     def _emitROICoordsChanged(self, rid):
@@ -798,7 +802,8 @@ class CutExtension(DisplayExtension):
 
             self.cutCoordsChanged.emit()
         except Exception as e:
-            print("Warning: %s" % str(e))
+            logger.warning(str(e))
+            # print("Warning: %s" % str(e))
 
     @QtCore.pyqtSlot(int)
     def _emitCutCoordsChanged(self, cid):
@@ -1023,7 +1028,8 @@ class MeshExtension(DisplayExtension):
                     self.__coords[rid] = crd
                     self.roiCoordsChanged.emit()
         except Exception as e:
-            print("Warning: %s" % str(e))
+            logger.warning(str(e))
+            # print("Warning: %s" % str(e))
 
     @QtCore.pyqtSlot(int)
     def _emitROICoordsChanged(self, rid):

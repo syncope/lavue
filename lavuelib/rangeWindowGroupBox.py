@@ -28,10 +28,13 @@
 from .qtuic import uic
 from pyqtgraph import QtCore, QtGui
 import os
+import logging
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "RangeWindowGroupBox.ui"))
+
+logger = logging.getLogger(__name__)
 
 
 class RangeWindowGroupBox(QtGui.QWidget):
@@ -104,7 +107,8 @@ class RangeWindowGroupBox(QtGui.QWidget):
             if cid > -1:
                 self.__ui.functionComboBox.setCurrentIndex(cid)
             else:
-                print("Error %s" % name)
+                # print("Error %s" % name)
+                logger.warning("Error  in setFunction for %s" % name)
 
     def factor(self):
         """ provides the current resize factor

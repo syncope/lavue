@@ -1,3 +1,7 @@
+2019-12-XX Jan Kotanski <jan.kotanski@desy.de>
+	* add logger
+	* tagged as 2.33.0
+
 2019-12-20 Jan Kotanski <jan.kotanski@desy.de>
 	* adopt rot45 to nan mask
 	* tagged as 2.32.1

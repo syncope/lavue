@@ -30,6 +30,7 @@ import numpy as np
 from pyqtgraph import QtCore, QtGui
 import math
 import types
+import logging
 
 from . import axesDialog
 from . import memoExportDialog
@@ -37,6 +38,9 @@ from . import memoExportDialog
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
     if _pg.__version__ else ("0", "9", "0")
+
+
+logger = logging.getLogger(__name__)
 
 
 class SafeImageItem(_pg.ImageItem):
@@ -64,7 +68,8 @@ class SafeImageItem(_pg.ImageItem):
         try:
             _pg.ImageItem.paint(self, p, *args)
         except ValueError as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             # print("Shape mismatch: skip painting")
 
 
@@ -502,7 +507,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     levels=self.__displaylevels,
                     autoDownsample=self.__autodownsample)
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
         self.__data = img
         self.sceneObj.rawdata = rawimg
         self.mouse_position()

@@ -31,6 +31,7 @@ import os
 import socket
 import json
 import re
+import logging
 
 from . import imageField
 from . import imageFileHandler
@@ -84,6 +85,8 @@ __all__ = [
     'TestSourceWidget',
     'swproperties'
 ]
+
+logger = logging.getLogger(__name__)
 
 
 class SourceBaseWidget(QtGui.QWidget):
@@ -1262,7 +1265,8 @@ class NXSFileSourceWidget(SourceBaseWidget):
                             str(filename))
                         fields = handler.findImageFields()
                     except Exception as e:
-                        print(str(e))
+                        logger.warning(str(e))
+                        # print(str(e))
                         fields = None
                     if fields:
                         imgfield = imageField.ImageField(self)

@@ -42,6 +42,7 @@ import zmq
 import sys
 import argparse
 import ntpath
+import logging
 
 from . import imageSource as isr
 from . import messageBox
@@ -79,6 +80,8 @@ from . import settings
 
 from .hidraServerList import HIDRASERVERLIST
 
+
+logger = logging.getLogger(__name__)
 
 if sys.version_info > (3,):
     basestring = str
@@ -1243,7 +1246,8 @@ class LiveViewer(QtGui.QDialog):
                     fields = handler.findImageFields()
                     self.__settings.imagename = imagename
                 except Exception as e:
-                    print(str(e))
+                    logger.warning(str(e))
+                    # print(str(e))
                     fields = None
                 currentfield = None
                 if fields:
@@ -1263,7 +1267,8 @@ class LiveViewer(QtGui.QDialog):
                             currentfield["node"],
                             self.__frame, self.__growing, refresh=False)
                     except Exception as e:
-                        print(str(e))
+                        logger.warning(str(e))
+                        # print(str(e))
 
                     metadata = handler.getMetaData(currentfield["node"])
                     # if metadata:
@@ -1359,7 +1364,8 @@ class LiveViewer(QtGui.QDialog):
                     self.__updateframeview(self.__frame is not None)
                     self.__fieldpath = None
                 except Exception as e:
-                    print(str(e))
+                    logger.warning(str(e))
+                    # print(str(e))
             if newimage is not None:
                 self.__metadata = metadata
                 if metadata:
@@ -2240,7 +2246,8 @@ class LiveViewer(QtGui.QDialog):
                         self.__imagewg.mouseImagePositionChanged.emit()
                         self.__imagewg.geometryChanged.emit()
             except Exception as e:
-                print(str(e))
+                logger.warning(str(e))
+                # print(str(e))
         elif str(name).strip():
             if self.__imagename is None or str(self.__imagename) != str(name):
                 self.__imagename, self.__metadata \

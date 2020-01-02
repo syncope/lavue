@@ -34,10 +34,14 @@ from . import gradientDialog
 # from .histogramWidget import HistogramHLUTItem
 import math
 import os
+import logging
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "LevelsGroupBox.ui"))
+
+
+logger = logging.getLogger(__name__)
 
 
 class LevelsGroupBox(QtGui.QWidget):
@@ -594,7 +598,9 @@ class LevelsGroupBox(QtGui.QWidget):
             self.__ui.gradientComboBox.removeItem(cid)
             self._updateGradient(0)
         else:
-            print("Error %s" % name)
+            logger.error(
+                "Error in _removeGradientItem for %s" % name)
+            # print("Error %s" % name)
 
     def setGradient(self, name):
         """ sets gradient
@@ -630,7 +636,8 @@ class LevelsGroupBox(QtGui.QWidget):
             if cid > -1:
                 self.__ui.gradientComboBox.setCurrentIndex(cid)
             else:
-                print("Error %s" % name)
+                logger.error("Error in _changeGradient for %s" % name)
+                # print("Error %s" % name)
 
     def updateHistoImage(self, autoLevel=None):
         """ executes imageChanged of histogram with the givel autoLevel

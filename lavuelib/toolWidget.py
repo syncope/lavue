@@ -35,8 +35,8 @@ import numpy as np
 import scipy.interpolate
 import pyqtgraph as _pg
 import warnings
+import logging
 from pyqtgraph import QtCore, QtGui
-
 
 from . import geometryDialog
 from . import rangeDialog
@@ -97,6 +97,8 @@ __all__ = [
     'QROIProjToolWidget',
     'twproperties',
 ]
+
+logger = logging.getLogger(__name__)
 
 
 class ToolParameters(object):
@@ -453,7 +455,8 @@ class MotorsToolWidget(ToolBaseWidget):
             else:
                 return False
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
         if self.__motorWatcher:
             self.__motorWatcher.motorStatusSignal.disconnect(self._showMotors)
             self.__motorWatcher.watchingFinished.disconnect(self._finished)
@@ -510,7 +513,8 @@ class MotorsToolWidget(ToolBaseWidget):
                 self.__xmotordevice.position = self.__xfinal
                 self.__ymotordevice.position = self.__yfinal
             except Exception as e:
-                print(str(e))
+                logger.warning(str(e))
+                # print(str(e))
                 return False
         else:
             return False
@@ -755,7 +759,8 @@ class MeshToolWidget(ToolBaseWidget):
             try:
                 self.__door.StopMacro()
             except Exception as e:
-                print(str(e))
+                logger.warning(str(e))
+                # print(str(e))
 
         if self.__motorWatcher:
             self.__motorWatcher.motorStatusSignal.disconnect(self._showMotors)
@@ -830,11 +835,13 @@ class MeshToolWidget(ToolBaseWidget):
         macrocommand.append("True")
         self.__door = self._mainwidget.getDoor()
         if self.__door is None:
-            print("Error: Cannot access Door device")
+            logger.error("Cannot access Door device")
+            # print("Error: Cannot access Door device")
             return False
 
         if not self._mainwidget.runMacro(macrocommand):
-            print("Error: Cannot in running %s " % macrocommand)
+            logger.error("Cannot in running %s " % macrocommand)
+            # print("Error: Cannot in running %s " % macrocommand)
             return False
 
         self.__motorWatcher = motorWatchThread.MotorWatchThread(
@@ -1254,7 +1261,7 @@ class LineCutToolWidget(ToolBaseWidget):
         for i in range(nrplots, len(self.__freezed)):
             self.__freezed[i].hide()
             self.__freezed[i].setVisible(True)
-            print(type(cr))
+            # print(type(cr))
 
     @QtCore.pyqtSlot()
     def _clearplot(self):
@@ -1886,7 +1893,8 @@ class OneDToolWidget(ToolBaseWidget):
         try:
             self.__buffersize = int(self.__ui.sizeLineEdit.text())
         except Exception as e:
-            print(str(e))
+            # print(str(e))
+            logger.warning(str(e))
             self.__buffersize = 1024
 
     @QtCore.pyqtSlot(int)

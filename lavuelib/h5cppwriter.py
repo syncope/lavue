@@ -22,11 +22,14 @@
 import math
 import os
 import sys
+import logging
 import numpy as np
 from pninexus import h5cpp
 
 from . import filewriter
 # from .Types import nptype
+
+logger = logging.getLogger(__name__)
 
 
 def nptype(dtype):
@@ -491,7 +494,8 @@ class H5CppGroup(filewriter.FTGroup):
                      if lk.path.name == name][0], self)
 
         except Exception as e:
-            print(str(e))
+            logger.warning(str(e))
+            # print(str(e))
             return H5CppLink(
                 [lk for lk in self._h5object.links
                  if lk.path.name == name][0], self)
@@ -606,7 +610,8 @@ class H5CppGroup(filewriter.FTGroup):
                 self._h5object = self._tparent.h5object.get_group(
                     h5cpp.Path(self.name))
             except Exception as e:
-                print(str(e))
+                logger.warning(str(e))
+                # print(str(e))
                 self._h5object = [lk for lk in self._tparent.h5object.links
                                   if lk.path.name == self.name][0]
         filewriter.FTGroup.reopen(self)
@@ -1112,7 +1117,8 @@ class H5CppAttributeManager(filewriter.FTAttributeManager):
                     if str(self[name].dtype) == _tostr(dtype):
                         at = self._h5object[name]
                 except Exception as e:
-                    print(str(e))
+                    logger.warning(str(e))
+                    # print(str(e))
                 if at is None:
                     self._h5object.remove(name)
             else:
