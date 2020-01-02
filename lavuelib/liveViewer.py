@@ -193,7 +193,6 @@ class LiveViewer(QtGui.QDialog):
         QtGui.QDialog.__init__(self, parent)
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-        logger.warning("START")
         if options.mode and options.mode.lower() in ["expert"]:
             #: (:obj:`str`) execution mode: expert or user
             self.__umode = "expert"
