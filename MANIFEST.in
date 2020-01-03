@@ -13,7 +13,7 @@ include lavuelib/images/star1.png
 include lavuelib/images/star2.png
 include lavuelib/ui/*.ui
 include lavuelib/qrc/resources.qrc
-exclude lavuelib/qrc/resources.rcc
+include lavuelib/qrc/resources.rcc
 include lavuelib/help/*.html
 include lavuelib/help/styles/site.css
 include lavuelib/help/attachments/*/*.png
