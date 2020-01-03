@@ -28,7 +28,6 @@
 from pyqtgraph import QtCore, QtGui
 
 
-
 # detail help
 class HelpForm(QtGui.QDialog):
 
