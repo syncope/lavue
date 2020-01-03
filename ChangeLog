@@ -1,5 +1,6 @@
-2019-12-XX Jan Kotanski <jan.kotanski@desy.de>
+2020-01-03 Jan Kotanski <jan.kotanski@desy.de>
 	* add logger
+	* add help widget
 	* tagged as 2.33.0
 
 2019-12-20 Jan Kotanski <jan.kotanski@desy.de>
