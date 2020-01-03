@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>General Settings</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">Content</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="LaVue---Live-Image-Viewer_98091654.html">Live Image Viewer</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="LaVue---GUI-Layout_98091927.html">GUI Layout</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="LaVue---Configuration_98091985.html">Configuration</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            General Settings
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+        
+    
+        
+        
+            Created by <span class='author'> Jan Kotanski</span>, last modified on Nov 06, 2019 16:40
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <p>The first tab of the configuration dialog contains <strong>General Settings</strong>. It is divided into a few groups:</p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" width="800" src="attachments/98092147/145596264.png" data-image-src="attachments/98092147/145596264.png" data-unresolved-comment-count="0" data-linked-resource-id="145596264" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="lavuegeneralconfig.png" data-base-url="https://confluence.desy.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="98092147" data-linked-resource-container-version="13"></span></p><p><strong>Image display</strong></p><ul><li><strong>Refresh rate in s: </strong>select a minimal time between consecutive frames</li><li><strong>Aspect Ratio locked: </strong>sets the aspect ratio to 1:1 in the 2D-plot</li><li><strong>Auto Down-Sample:</strong> turns on auto-down-sampling mode of pyqtgraph</li><li><strong>Keep original coordinates:</strong> causes the 2D-plot axes transforms with image transformations</li><li><strong>Pixel masks with zero values: </strong>causes that zero pixel values of mask image are interpreted as masking</li><li><strong>Interrupt on source errors: </strong>stops live image viewing on image source errors</li><li><strong>Display specific for a source:</strong> store/retrieve display parameters for an each image source separately</li><li><strong>Lazy image slider:  </strong>set hdf5 reader of images to be lazy with respect to the frame slider</li><li><strong>Maximal memory buffer</strong> <strong>size: </strong>number of image frames stored in the circular memory buffer</li></ul><p><strong>ROIs</strong></p><ul><li><strong>ROIs Colors:</strong> allows to defined colors of ROIs selection frames. Colors are used cyclically</li><li><strong>Show all ROIs values:</strong> calculates ROIs sum values for all ROI frames</li><li><strong>Send ROIS values:</strong> sends ROIs sum values to<code> LaVueController</code> tango server</li></ul><p><strong>Statistics and 1d plots</strong></p><ul><li><strong>Intensity scaling:</strong> applies the intensity display scaling to image statistics and 1d-plots</li><li><strong>Calculate variance: </strong>show variance of the current flattened image</li></ul><p><strong>ZMQ security stream</strong></p><ul><li><strong>Enabled: </strong>turns on sending the ZMQ security stream with basic informations about the image, e.g. maximal intensity</li><li><strong>Automatic port:</strong> selects a port number for the ZMQ security stream automatically</li><li><strong>Port: </strong>defines a port number for the ZMQ security stream</li></ul><p><strong>Tools</strong></p><ul><li><strong>Store de</strong><strong>tector geometry for </strong><strong>Angle/Q:</strong> store the detector geometry for the Angle/Q tool in the configuration settings</li><li><strong>Geometry from a source: </strong>fetch geometry metadata from image sources like CBF or NeXus (if it is stored)</li></ul><p><strong>Sardana</strong></p><ul><li><strong>Enabled: </strong>turns on communication with Sardana</li><li><strong>Door: </strong>Door tango device to communicate with Sardana</li><li><strong>Add ROIs to MG:</strong> causes the ROIs Apply button adds the corresponding ROIs aliases into the current Sardana Measurement Group</li><li><strong>Fetch ROIs order:</strong> store/fetch order of ROIs in sardana environment</li></ul><p><br/></p><p><br/></p><p><br/></p>
+                    </div>
+
+                                        </div><section><!-- <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/98092147/99485870.png">generalconfig_lavue.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/98092147/102023971.png">1dplotlavue.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/98092147/102023972.png">configgeneral.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/98092147/109161846.png">configgeneral_lavue.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/98092147/129385415.png">lavue_config_general.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/98092147/145596264.png">lavuegeneralconfig.png</a> (image/png)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <!--<p>Document generated by Confluence on 03. Jan. 2020 11:53</p>-->
+                    <!--<div id="footer-logo"><a href="http://www.atlassian.com/">Atlassian</a></div>-->
+                </section>
+            </div>
+        </div>     </body>
+</html>
