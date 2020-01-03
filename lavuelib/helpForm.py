@@ -28,6 +28,7 @@
 from pyqtgraph import QtCore, QtGui
 
 
+
 # detail help
 class HelpForm(QtGui.QDialog):
 
@@ -70,7 +71,9 @@ class HelpForm(QtGui.QDialog):
 
         self.setLayout(layout)
         self.__textBrowser.setSearchPaths([":/help"])
+        self.__textBrowser.setOpenExternalLinks(True)
         self.__textBrowser.setSource(QtCore.QUrl(self._page))
+
         self.resize(960, 700)
         self.setWindowTitle("%s Help" % (
             QtGui.QApplication.applicationName()))
@@ -134,7 +137,7 @@ class HelpForm(QtGui.QDialog):
         """
 
         self.__pageLabel.setText(
-            "<p><b><i><font color='#0066ee' font size = 4>" +
+            "<p><b><font color='#0066ee' font size = 4>" +
             "&nbsp;&nbsp;" + self.__textBrowser.documentTitle()
-            + "</i></b></p></br>"
+            + "</b></p></br>"
         )

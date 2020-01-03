@@ -4,7 +4,7 @@
 <file alias="star1.png">../images/star1.png</file>
 <file alias="star2.png">../images/star2.png</file>
 
-<file>../help/styles/site.css</file>
+<file alias="styles/site.css">../help/styles/site.css</file>
 <file>../help/98092127.html</file>
 <file>../help/98092105.html</file>
 <file>../help/129385459.html</file>
