@@ -17,4 +17,5 @@ include lavuelib/qrc/resources.rcc
 include lavuelib/help/*.html
 include lavuelib/help/styles/site.css
 include lavuelib/help/attachments/*/*.png
+include lavuelib/help/attachments/*/*.jpg
 include lavuelib/help/images/icons/*.gif
