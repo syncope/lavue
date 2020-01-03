@@ -65,6 +65,7 @@ from . import edDictDialog
 from . import filters
 from . import rangeWindowGroupBox
 from . import filtersGroupBox
+from . import helpForm
 # from . import imageNexusExporter
 
 try:
@@ -447,8 +448,25 @@ class LiveViewer(QtGui.QDialog):
         self.__ui.cnfPushButton.clicked.connect(self._configuration)
         self.__ui.quitPushButton.clicked.connect(self.close)
         self.__ui.loadPushButton.clicked.connect(self._loadfile)
+        self.__ui.helpPushButton.clicked.connect(self._showhelp)
         if self.__umode in ["user"]:
             self.__ui.cnfPushButton.hide()
+        if QtGui.QIcon.hasThemeIcon("applications-system"):
+            icon = QtGui.QIcon.fromTheme("applications-system")
+            self.__ui.cnfPushButton.setIcon(icon)
+            self.__ui.cnfPushButton.setText("")
+        if QtGui.QIcon.hasThemeIcon("document-open"):
+            icon = QtGui.QIcon.fromTheme("document-open")
+            self.__ui.loadPushButton.setIcon(icon)
+            # self.__ui.loadPushButton.setText("")
+        if QtGui.QIcon.hasThemeIcon("application-exit"):
+            icon = QtGui.QIcon.fromTheme("application-exit")
+            self.__ui.quitPushButton.setIcon(icon)
+            # self.__ui.quitPushButton.setText("")
+        if QtGui.QIcon.hasThemeIcon("help-browser"):
+            icon = QtGui.QIcon.fromTheme("help-browser")
+            self.__ui.helpPushButton.setIcon(icon)
+            # self.__ui.helpPushButton.setText("")
         self.__imagewg.roiCoordsChanged.connect(self._calcUpdateStatsSec)
         # connecting signals from source widget:
 
@@ -542,6 +560,12 @@ class LiveViewer(QtGui.QDialog):
             self.__sourcewg.start()
 
         self.__updateTool(options.tool)
+
+    def _showhelp(self):
+        """ shows the detail help
+        """
+        form = helpForm.HelpForm("index.html", self)
+        form.show()
 
     def _setTranslation(self, trans, sid):
         """ stores translation of the given source

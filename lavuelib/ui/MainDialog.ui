@@ -245,6 +245,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="helpPushButton">
+           <property name="text">
+            <string>Help</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="cnfPushButton">
            <property name="toolTip">
             <string>image viewer configuration</string>
