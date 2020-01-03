@@ -149,6 +149,14 @@ lavuelib.histogramWidget module
     :undoc-members:
     :show-inheritance:
 
+lavuelib.helpForm module
+========================
+
+.. automodule:: lavuelib.helpForm
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lavuelib.imageDisplayWidget module
 ==================================
 
