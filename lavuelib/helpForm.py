@@ -71,7 +71,7 @@ class HelpForm(QtGui.QDialog):
         self.setLayout(layout)
         self.__textBrowser.setSearchPaths([":/help"])
         self.__textBrowser.setSource(QtCore.QUrl(self._page))
-        self.resize(660, 700)
+        self.resize(960, 700)
         self.setWindowTitle("%s Help" % (
             QtGui.QApplication.applicationName()))
 
