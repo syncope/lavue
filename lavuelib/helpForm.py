@@ -73,7 +73,7 @@ class HelpForm(QtGui.QDialog):
         self.__textBrowser.setOpenExternalLinks(True)
         self.__textBrowser.setSource(QtCore.QUrl(self._page))
 
-        self.resize(960, 700)
+        self.resize(1500, 700)
         self.setWindowTitle("%s Help" % (
             QtGui.QApplication.applicationName()))
 
