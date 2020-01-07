@@ -583,7 +583,11 @@ class VDEOdecoder(object):
                 struct.unpack(dformat * (len(image) // fSize), image),
                 dtype=self.dtype).reshape(self.__header['width'],
                                           self.__header['height'])
-        return self.__value
+            fendian = self.__header['imageMode']
+            lendian = ord(struct.pack('=H',1).decode()[-1])
+            if fendian != lendian:
+                self.__value.byteswap(inplace=False)
+        return 
 
 
 class TangoAttrSource(BaseSource):
