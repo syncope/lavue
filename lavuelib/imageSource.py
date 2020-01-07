@@ -586,7 +586,11 @@ class VDEOdecoder(object):
             fendian = self.__header['endianness']
             lendian = ord(struct.pack('=H', 1).decode()[-1])
             if fendian != lendian:
-                self.__value.byteswap(inplace=False)
+                try:
+                    self.__value.byteswap(inplace=False)
+                except TypeError:
+                    self.__value = self.__value.byteswap()
+
         return self.__value
 
 
