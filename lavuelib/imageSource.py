@@ -583,6 +583,14 @@ class VDEOdecoder(object):
                 struct.unpack(dformat * (len(image) // fSize), image),
                 dtype=self.dtype).reshape(self.__header['width'],
                                           self.__header['height'])
+            fendian = self.__header['endianness']
+            lendian = ord(struct.pack('=H', 1).decode()[-1])
+            if fendian != lendian:
+                try:
+                    self.__value.byteswap(inplace=False)
+                except TypeError:
+                    self.__value = self.__value.byteswap()
+
         return self.__value
 
 
