@@ -267,6 +267,7 @@ def main():
         app.setApplicationName("LaVue: %s" % options.instance)
     else:
         app.setApplicationName("LaVue")
+    app.setApplicationVersion(lavuelib.__version__)
     dialog = lavuelib.liveViewer.MainWindow(options=options)
 
     dialog.show()
