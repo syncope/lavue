@@ -76,6 +76,9 @@ class BkgSubtractionWidget(QtGui.QWidget):
         self.__ui.selectFilePushButton.clicked.connect(self._showFileDialog)
         self.__ui.applyBkgCheckBox.clicked.connect(
             self._emitApplyStateChanged)
+        if QtGui.QIcon.hasThemeIcon("document-open"):
+            icon = QtGui.QIcon.fromTheme("document-open")
+            self.__ui.selectPushButton.setIcon(icon)
 
     @QtCore.pyqtSlot(bool)
     def _emitApplyStateChanged(self, state):
