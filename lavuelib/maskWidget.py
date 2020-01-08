@@ -68,6 +68,9 @@ class MaskWidget(QtGui.QWidget):
         self.__ui.applyMaskCheckBox.clicked.connect(
             self._emitApplyStateChanged)
         self.__ui.fileSelectPushButton.clicked.connect(self._showFileDialog)
+        if QtGui.QIcon.hasThemeIcon("document-open"):
+            icon = QtGui.QIcon.fromTheme("document-open")
+            self.__ui.fileSelectPushButton.setIcon(icon)
 
     @QtCore.pyqtSlot(bool)
     def _emitApplyStateChanged(self, state):

@@ -115,6 +115,9 @@ class SourceForm(QtGui.QWidget):
 
         self._ui = _sformclass()
         self._ui.setupUi(self)
+        if QtGui.QIcon.hasThemeIcon("video-display"):
+            icon = QtGui.QIcon.fromTheme("video-display")
+            self._ui.pushButton.setIcon(icon)
 
     def init(self):
         """ initialize widget
@@ -132,6 +135,9 @@ class SourceForm(QtGui.QWidget):
         self._ui.cStatusLineEdit.setText("Disconnected")
         if not self.__sourceid:
             self._ui.pushButton.setText("&Start")
+            if QtGui.QIcon.hasThemeIcon("video-display"):
+                icon = QtGui.QIcon.fromTheme("video-display")
+                self._ui.pushButton.setIcon(icon)
         self.__connected = False
         self._ui.sourceTypeComboBox.setEnabled(True)
         if self.__currentSource is not None:
@@ -495,6 +501,9 @@ class SourceForm(QtGui.QWidget):
 
         if not self.__sourceid:
             self._ui.pushButton.setText("&Stop")
+            if QtGui.QIcon.hasThemeIcon("process-stop"):
+                icon = QtGui.QIcon.fromTheme("process-stop")
+                self._ui.pushButton.setIcon(icon)
         if self.__currentSource is not None:
             self.__currentSource.connectWidget()
 
@@ -514,6 +523,9 @@ class SourceForm(QtGui.QWidget):
         self._ui.sourceTypeComboBox.setEnabled(True)
         if not self.__sourceid:
             self._ui.pushButton.setText("&Start")
+            if QtGui.QIcon.hasThemeIcon("video-display"):
+                icon = QtGui.QIcon.fromTheme("video-display")
+                self._ui.pushButton.setIcon(icon)
         if self.__currentSource is not None:
             self.__currentSource.disconnectWidget()
         # self.pushButton.setText("Retry connect")
