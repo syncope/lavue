@@ -797,6 +797,19 @@
             </item>
             <item row="0" column="0">
              <layout class="QGridLayout" name="viewGridLayout">
+              <item row="13" column="0">
+               <widget class="QLabel" name="showstatsLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets with statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Statistics:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showstatsCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
               <item row="6" column="0">
                <widget class="QLabel" name="showmaskLabel">
                 <property name="toolTip">
@@ -846,19 +859,6 @@
                 </property>
                </widget>
               </item>
-              <item row="13" column="0">
-               <widget class="QLabel" name="showstatsLabel">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string>Statistics:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>showstatsCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
               <item row="14" column="1">
                <widget class="QCheckBox" name="showframerateCheckBox">
                 <property name="toolTip">
@@ -882,7 +882,7 @@
               <item row="13" column="1">
                <widget class="QCheckBox" name="showstatsCheckBox">
                 <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show widgets with statistics values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
                  <string/>
@@ -1072,6 +1072,9 @@
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="showrangeLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show range window and down-sampling widgets&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="text">
                  <string>Range Window:</string>
                 </property>
@@ -1082,6 +1085,32 @@
               </item>
               <item row="2" column="1">
                <widget class="QCheckBox" name="showrangeCheckBox">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show range window and down-sampling widgets&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="15" column="0">
+               <widget class="QLabel" name="showstepsLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show image steps widgets&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Image Steps:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>showstepsCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="15" column="1">
+               <widget class="QCheckBox" name="showstepsCheckBox">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show image steps widgets&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -1683,6 +1712,7 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>showhistoCheckBox</tabstop>
   <tabstop>showstatsCheckBox</tabstop>
   <tabstop>showframerateCheckBox</tabstop>
+  <tabstop>showstepsCheckBox</tabstop>
   <tabstop>timeoutLineEdit</tabstop>
   <tabstop>detserversLineEdit</tabstop>
   <tabstop>hidraportLineEdit</tabstop>
@@ -1699,8 +1729,8 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>dirattrLineEdit</tabstop>
   <tabstop>dirtransLineEdit</tabstop>
   <tabstop>doocspropLineEdit</tabstop>
-  <tabstop>filterTableWidget</tabstop>
   <tabstop>filterButtonBox</tabstop>
+  <tabstop>filterTableWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>

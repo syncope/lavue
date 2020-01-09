@@ -57,10 +57,12 @@ class Settings(object):
         self.showaddhisto = False
         #: (:obj:`bool`) show mask widget
         self.showmask = False
-        #: (:obj:`bool`) show mask widget
+        #: (:obj:`bool`) show high mask value  widget
         self.showhighvaluemask = False
-        #: (:obj:`bool`) show mask widget
+        #: (:obj:`bool`) show statistics widget
         self.showstats = True
+        #: (:obj:`bool`) show image step widget
+        self.showsteps = True
         #: (:obj:`bool`) calculate variance
         self.calcvariance = False
         #: (:obj:`bool`) show bakcground subtraction widget
@@ -336,6 +338,9 @@ class Settings(object):
         qstval = str(settings.value("Configuration/ShowStatistics", type=str))
         if qstval.lower() == "false":
             self.showstats = False
+        qstval = str(settings.value("Configuration/ShowImageSteps", type=str))
+        if qstval.lower() == "false":
+            self.showsteps = False
         qstval = str(settings.value(
             "Configuration/CalculateVariance", type=str))
         if qstval.lower() == "true":
@@ -653,6 +658,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ShowStatistics",
             self.showstats)
+        settings.setValue(
+            "Configuration/ShowImageSteps",
+            self.showsteps)
         settings.setValue(
             "Configuration/CalculateVariance",
             self.calcvariance)

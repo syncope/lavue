@@ -1700,7 +1700,13 @@ class ProjectionToolWidget(ToolBaseWidget):
                         sx = []
 
                 else:
-                    sx = npfun(dts, axis=1)
+                    try:
+                        with warnings.catch_warnings():
+                            warnings.simplefilter(
+                                "error", category=RuntimeWarning)
+                            sx = npfun(dts, axis=1)
+                    except Exception:
+                        sx = []
 
                 if self.__dscolumns == "ERROR":
                     sy = []
@@ -3423,7 +3429,13 @@ class QROIProjToolWidget(ToolBaseWidget):
                     except Exception:
                         sy = []
                 else:
-                    sy = npfun(dts, axis=0)
+                    try:
+                        with warnings.catch_warnings():
+                            warnings.simplefilter(
+                                "error", category=RuntimeWarning)
+                            sy = npfun(dts, axis=0)
+                    except Exception:
+                        sy = []
 
                 rwe = self._mainwidget.rangeWindowEnabled()
                 if rwe:
