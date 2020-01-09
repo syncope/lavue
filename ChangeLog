@@ -1,6 +1,7 @@
 2020-01-09 Jan Kotanski <jan.kotanski@desy.de>
 	* hide/show image step
 	* catch nan warnings from image tools
+	* remove unneede images from help
 	* tagged as 2.33.6
 
 2020-01-08 Jan Kotanski <jan.kotanski@desy.de>
