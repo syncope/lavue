@@ -226,6 +226,8 @@ class ConfigDialog(QtGui.QDialog):
         self.showhighvaluemask = False
         #: (:obj:`bool`) show statistics widget
         self.showstats = True
+        #: (:obj:`bool`) show image step widget
+        self.showsteps = True
         #: (:obj:`bool`) calculate variance
         self.calcvariance = False
         #: (:obj:`bool`) zero mask enabled
@@ -403,6 +405,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.showmaskCheckBox.setChecked(self.showmask)
         self.__ui.showmaskhighCheckBox.setChecked(self.showhighvaluemask)
         self.__ui.showstatsCheckBox.setChecked(self.showstats)
+        self.__ui.showstepsCheckBox.setChecked(self.showsteps)
         self.__ui.calcvarianceCheckBox.setChecked(self.calcvariance)
         self.__ui.showsubCheckBox.setChecked(self.showsub)
         self.__ui.showtransCheckBox.setChecked(self.showtrans)
@@ -705,6 +708,7 @@ class ConfigDialog(QtGui.QDialog):
         self.showmask = self.__ui.showmaskCheckBox.isChecked()
         self.showhighvaluemask = self.__ui.showmaskhighCheckBox.isChecked()
         self.showstats = self.__ui.showstatsCheckBox.isChecked()
+        self.showsteps = self.__ui.showstepsCheckBox.isChecked()
         self.calcvariance = self.__ui.calcvarianceCheckBox.isChecked()
         self.aspectlocked = self.__ui.aspectlockedCheckBox.isChecked()
         self.autodownsample = self.__ui.downsampleCheckBox.isChecked()

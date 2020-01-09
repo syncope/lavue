@@ -1443,6 +1443,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.showrange = self.__settings.showrange
         cnfdlg.showfilters = self.__settings.showfilters
         cnfdlg.showstats = self.__settings.showstats
+        cnfdlg.showsteps = self.__settings.showsteps
         cnfdlg.calcvariance = self.__settings.calcvariance
         cnfdlg.filters = self.__settings.filters
         cnfdlg.secautoport = self.__settings.secautoport
@@ -1551,6 +1552,9 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.showaddhisto != dialog.showaddhisto:
             self.__levelswg.changeView(showadd=dialog.showaddhisto)
             self.__settings.showaddhisto = dialog.showaddhisto
+        if self.__settings.showsteps != dialog.showsteps:
+            self.__settings.showsteps = dialog.showsteps
+            self.__updateframeview(self.__frame is not None)
         statschanged = False
         if self.__settings.showstats != dialog.showstats:
             self.__settings.showstats = dialog.showstats
@@ -2294,7 +2298,7 @@ class LiveViewer(QtGui.QDialog):
             dft.ready()
 
     def __updateframeview(self, status=False, slider=False):
-        if status:
+        if status and self.__settings.showsteps:
             if self.__frame is not None:
                 self.__ui.frameLineEdit.setText(str(self.__frame))
                 if slider:
