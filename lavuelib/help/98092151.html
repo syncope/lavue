@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>ZMQ stream</title>
+        <title>Hidra/HTTP/ZMQ/NeXus Image Source Settings</title>
         <link rel="stylesheet" href="styles/site.css" type="text/css" />
         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
@@ -22,13 +22,13 @@
                                 <span><a href="LaVue---GUI-Layout_98091927.html">GUI Layout</a></span>
                             </li>
                                                     <li>
-                                <span><a href="LaVue---Image-Sources--and-stitching-images_98091949.html">Image Sources  and stitching images</a></span>
+                                <span><a href="LaVue---Configuration_98091985.html">Configuration</a></span>
                             </li>
                                                 </ol>
                     </div>
                     <h1 id="title-heading" class="pagetitle">
                                                 <span id="title-text">
-                            ZMQ stream
+                            Hidra/HTTP/ZMQ/NeXus Image Source Settings
                         </span>
                     </h1>
                 </div>
@@ -42,10 +42,10 @@
     
         
         
-            Created by <span class='author'> Jan Kotanski</span>, last modified on Jan 10, 2020 10:49
+            Created by <span class='author'> Jan Kotanski</span>, last modified on Jan 10, 2020 11:44
                         </div>
                     <div id="main-content" class="wiki-content group">
-                    <p>Images from a simple ZMQ server, e.g. <span>lavuezmqstreamfromtango</span> SERVER. It is used to send <code>post-processed images</code></p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image"  src="attachments/98092053/98093165.png" data-image-src="attachments/98092053/98093165.png" data-unresolved-comment-count="0" data-linked-resource-id="98093165" data-linked-resource-version="2" data-linked-resource-type="attachment" data-linked-resource-default-alias="zmqstreamlavue.png" data-base-url="https://confluence.desy.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="98092053" data-linked-resource-container-version="8"></span></p><p>The <strong>ZMQ Stream</strong> image source frame contains the following fields:</p><ul><li><strong>ZMQ Server</strong>: selects the zmq server host and zmq  data port. Moreover the user can also select<br/>the required zmq topic and ZMQ HWM (how many images is in buffer), i.e. host:port[/topic[/HWM]]</li><li><strong>DataSource:</strong> name of zmq topic. Possible datasources can be predefined in the configuration or sent in ZMQ metadata.</li><li><strong>Status:</strong> shows the connection status. It also displays a port of ZMQ security stream if it is enabled.</li><li><strong>Start/Stop</strong> button to launch or interrupt image querying</li></ul><p>The <strong>ZMQ Stream</strong> metadata part can also contain other informations like axes labels or axes start position and scale.</p>
+                    <p><br/></p><p>The third tab of the configuration dialog contains <strong>Image Sources</strong> configuration. It allows for the user to adjust image sources and their dialogs.</p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image"  src="attachments/98092151/129385454.png" data-image-src="attachments/98092151/129385454.png" data-unresolved-comment-count="0" data-linked-resource-id="129385454" data-linked-resource-version="2" data-linked-resource-type="attachment" data-linked-resource-default-alias="lavue_config_isources.png" data-base-url="https://confluence.desy.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="98092151" data-linked-resource-container-version="14"></span></p><p><strong>Hidra:</strong></p><ul><li><strong>Source timeout in ms: </strong>maximal time for waiting for a new image in one call</li><li><strong>Detector servers:  </strong>possible list of hidra detector hosts separated by spaces</li><li><strong>Data port: </strong>hidra data port. Each instance of lavue on the same host should use a different data port</li><li><strong>Use default detector servers: </strong>add default detector server names from the DESY pool</li></ul><p><strong>HTTP response</strong></p><ul><li><strong> URLs:</strong> <a href="https://www.json.org/" class="external-link" rel="nofollow">JSON</a> dictionary assigning labels to HTTP urls</li></ul><p><strong>ZMQ Stream</strong></p><ul><li><strong>Servers and Ports:</strong><a href="https://www.json.org/" class="external-link" rel="nofollow"> JSON</a> dictionary assigning labels to server and port of ZMQ stream</li><li><strong>Automatic datasources: </strong>selects possible datasources from ZMQ stream metadata</li><li><strong>Datasources: </strong>defines possible datasources, i.e. ZMQ topics, separated by spaces</li></ul><p><strong>Nexus File</strong></p><ul><li><strong>Keep the file open:</strong> does not close the nexus file after reading the field frame</li><li><strong>Start from the last image: </strong>displays only the last image frame</li></ul><p><br/></p><p><br/></p>
                     </div>
 
                                         </div><section><!-- <div class="pageSection group">
@@ -55,10 +55,10 @@
 
                         <div class="greybox" align="left">
                                                             <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
-                                <a href="attachments/98092053/148825293.png">zmqstreamlavue.png</a> (image/png)
+                                <a href="attachments/98092151/148825367.png">lavue_config_isources.png</a> (image/png)
                                 <br/>
                                                             <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
-                                <a href="attachments/98092053/98093165.png">zmqstreamlavue.png</a> (image/png)
+                                <a href="attachments/98092151/129385454.png">lavue_config_isources.png</a> (image/png)
                                 <br/>
                                                     </div>
                     </div>
