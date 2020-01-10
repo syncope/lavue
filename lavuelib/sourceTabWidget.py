@@ -910,7 +910,7 @@ class SourceTabWidget(QtGui.QTabWidget):
 
     @QtCore.pyqtSlot(bool, int)
     def updateButton(self, status, sid):
-        """ update slot for test source
+        """ update slot for image source
 
         :param status: button status
         :type status: :obj:`bool`
@@ -919,6 +919,7 @@ class SourceTabWidget(QtGui.QTabWidget):
         """
         while len(self.__buttonstatus) <= sid:
             self.__buttonstatus.append(False)
+            self.__sourcetabs[-1].updateLayout()
         self.__buttonstatus[sid] = status
         lstatus = self.__buttonstatus[:self.count()]
         fstatus = sum(lstatus) == len(lstatus)

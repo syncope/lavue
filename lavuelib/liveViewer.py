@@ -1756,6 +1756,8 @@ class LiveViewer(QtGui.QDialog):
         self.__sourcewg.setNumberOfSources(nrsources)
         self._setSourceConfiguration()
         self.__settings.nrsources = nrsources
+        self.__sourcewg.updateLayout()
+        QtCore.QCoreApplication.processEvents()
 
     def __mergeDetServers(self, detserverdict, detserverlist):
         """ merges detector servers from
