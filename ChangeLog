@@ -1,4 +1,8 @@
 2020-01-10 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for start/stop button update
+	* tagged as 2.33.8
+
+2020-01-10 Jan Kotanski <jan.kotanski@desy.de>
 	* update help
 	* add support for .hdf files
 	* tagged as 2.33.7
