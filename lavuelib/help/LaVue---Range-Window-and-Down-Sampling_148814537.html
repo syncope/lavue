@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Lavue - Filter plugins settings</title>
+        <title>Range Window and Down-Sampling</title>
         <link rel="stylesheet" href="styles/site.css" type="text/css" />
         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
@@ -21,14 +21,11 @@
                                                     <li>
                                 <span><a href="LaVue---GUI-Layout_98091927.html">GUI Layout</a></span>
                             </li>
-                                                    <li>
-                                <span><a href="LaVue---Configuration_98091985.html">Configuration</a></span>
-                            </li>
                                                 </ol>
                     </div>
                     <h1 id="title-heading" class="pagetitle">
                                                 <span id="title-text">
-                            Lavue - Filter plugins settings
+                            Range Window and Down-Sampling
                         </span>
                     </h1>
                 </div>
@@ -42,10 +39,10 @@
     
         
         
-            Created by <span class='author'> Jan Kotanski</span>, last modified on Oct 29, 2019 09:55
+            Created by <span class='author'> Jan Kotanski</span>, last modified on Dec 18, 2019 13:33
                         </div>
                     <div id="main-content" class="wiki-content group">
-                    <p>The fourth tab of the configuration dialog contains <strong>Filters</strong> configuration. It allows to add the user filter plugins defined by classes or functions in python packages.</p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image"  src="attachments/132752895/132752897.png" data-image-src="attachments/132752895/132752897.png" data-unresolved-comment-count="0" data-linked-resource-id="132752897" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="lavue_filterconfig.png" data-base-url="https://confluence.desy.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="132752895" data-linked-resource-container-version="20"></span></p><p>Filter plugin table buttons:</p><ul><li><strong>Insert Row Above:</strong> inserts  a row for a filter plugin above the selected row</li><li><strong>Insert Row Below:</strong> inserts a row for a filter plugin below the selected row</li><li><strong>Delete Row:</strong> deletes the selected row</li></ul><p>Filter plugin table columns:</p><ul><li><strong>package.module.class</strong> or <strong>package.module.function:</strong> location of user plugin class or function in <em>package.module</em> directories</li><li><strong>initialization parameters:</strong> string which with initialization parameters of filter plugin class constructor</li></ul><p><br/></p><p>Examples of the filters can be found at <a href="LaVue---Filter-plugins_132766368.html">Filter plugins</a></p><p><br/></p><p><br/></p>
+                    <p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image"  src="attachments/148814537/148814543.png" data-image-src="attachments/148814537/148814543.png" data-unresolved-comment-count="0" data-linked-resource-id="148814543" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="lavue-rangewindow.png" data-base-url="https://confluence.desy.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="148814537" data-linked-resource-container-version="4"></span></p><p><br/></p><p>The<strong> Range Window</strong>  <strong>and Down-Sampling </strong>widget allows to reduce the displayed image by selecting its <strong>x </strong>and <strong>y slices </strong>in python notation.</p><p>Moreover,  the user can reduce the image by applying down-sampling with a specific factor and a reduction function.</p><ul><li><strong>Slices: </strong>x,y numpy-like slices</li><li><strong>DS Factor:</strong> down-sampling factor, i.e. 5 means: a 5x5 pixel block is reduced to 1 pixel.</li><li><strong>DS Reduction:</strong> down-sampling reduction function, i.e.  <code>max</code>,<code> min</code>, <code>mean</code> or <code>sum</code> .</li></ul><p><br/></p><p><br/></p>
                     </div>
 
                                         </div><section><!-- <div class="pageSection group">
@@ -55,7 +52,7 @@
 
                         <div class="greybox" align="left">
                                                             <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
-                                <a href="attachments/132752895/132752897.png">lavue_filterconfig.png</a> (image/png)
+                                <a href="attachments/148814537/148814543.png">lavue-rangewindow.png</a> (image/png)
                                 <br/>
                                                     </div>
                     </div>
@@ -64,7 +61,7 @@
                 </div>             </div> 
             <div id="footer" role="contentinfo">
                 <section class="footer-body">
-                    <!--<p>Document generated by Confluence on 09. Jan. 2020 15:08</p>-->
+                    <!--<p>Document generated by Confluence on 10. Jan. 2020 15:13</p>-->
                     <!--<div id="footer-logo"><a href="http://www.atlassian.com/">Atlassian</a></div>-->
                 </section>
             </div>

@@ -398,6 +398,7 @@ class ImageFileHandler(object):
         self.__data = None
         #: (:obj:`str`) json dictionary with metadata or empty string
         self.__metadata = ""
+
         try:
             if FABIO:
                 self.__image = fabio.open(fname)
@@ -409,12 +410,14 @@ class ImageFileHandler(object):
             elif PILLOW:
                 self.__image = PIL.Image.open(fname)
                 self.__data = np.array(self.__image)
-        except Exception:
+        except Exception as e:
+            logger.debug(str(e))
             try:
                 if FABIO and PILLOW:
                     self.__image = PIL.Image.open(fname)
                     self.__data = np.array(self.__image)
-            except Exception:
+            except Exception as e:
+                logger.debug(str(e))
                 try:
                     self.__image = np.fromfile(str(fname), dtype='uint8')
                     if fname.endswith(".cbf"):

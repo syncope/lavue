@@ -1228,7 +1228,8 @@ class LiveViewer(QtGui.QDialog):
         if fid is not None:
             imagename = self.__settings.imagename
             if imagename.endswith(".nxs") or imagename.endswith(".h5") \
-               or imagename.endswith(".nx") or imagename.endswith(".ndf"):
+               or imagename.endswith(".nx") or imagename.endswith(".ndf") \
+               or imagename.endswith(".hdf"):
                 self.__frame = int(fid)
             else:
                 try:
@@ -1263,7 +1264,8 @@ class LiveViewer(QtGui.QDialog):
                 imagename = str(fileout)
         if imagename:
             if imagename.endswith(".nxs") or imagename.endswith(".h5") \
-               or imagename.endswith(".nx") or imagename.endswith(".ndf"):
+               or imagename.endswith(".nx") or imagename.endswith(".ndf") \
+               or imagename.endswith(".hdf"):
                 try:
                     handler = imageFileHandler.NexusFieldHandler(
                         str(imagename))
