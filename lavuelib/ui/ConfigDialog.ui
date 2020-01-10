@@ -626,7 +626,7 @@
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Minimum refresh time for display extensions, i.e. crosshairs or positioner&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
-                     <string>Display extention refresh time in s:</string>
+                     <string>Display extension refresh time in s:</string>
                     </property>
                     <property name="buddy">
                      <cstring>toolrefreshtimeDoubleSpinBox</cstring>
