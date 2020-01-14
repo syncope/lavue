@@ -2832,7 +2832,7 @@ class LiveViewer(QtGui.QDialog):
            and self.__displayimage.size > 0:
             maxval = np.nanmax(self.__displayimage) if flag[0] else 0.0
             meanval = np.nanmean(self.__displayimage) if flag[1] else 0.0
-            varval = np.var(self.__displayimage) if flag[2] else 0.0
+            varval = np.nanvar(self.__displayimage) if flag[2] else 0.0
             maxsval = np.nanmax(self.__scaledimage) if flag[5] else 0.0
         elif (not self.__settings.statswoscaling
               and self.__scaledimage is not None
@@ -2840,7 +2840,7 @@ class LiveViewer(QtGui.QDialog):
             maxval = np.nanmax(self.__scaledimage) \
                      if flag[0] or flag[5] else 0.0
             meanval = np.nanmean(self.__scaledimage) if flag[1] else 0.0
-            varval = np.var(self.__scaledimage) if flag[2] else 0.0
+            varval = np.nanvar(self.__scaledimage) if flag[2] else 0.0
             maxsval = maxval
         else:
             return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
