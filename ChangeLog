@@ -1,3 +1,7 @@
+2020-01-15 Jan Kotanski <jan.kotanski@desy.de>
+	* fix reshaping of LIMA VIDEO images
+	* tagged as 2.33.10
+
 2020-01-14 Jan Kotanski <jan.kotanski@desy.de>
 	* add support for variance with NAN
 	* tagged as 2.33.9
