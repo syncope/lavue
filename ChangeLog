@@ -1,4 +1,8 @@
 2020-01-15 Jan Kotanski <jan.kotanski@desy.de>
+	* fix shape of LIMA VIDEO decoder
+	* tagged as 2.33.11
+
+2020-01-15 Jan Kotanski <jan.kotanski@desy.de>
 	* fix reshaping of LIMA VIDEO images
 	* tagged as 2.33.10
 
