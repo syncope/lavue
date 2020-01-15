@@ -556,7 +556,7 @@ class VDEOdecoder(object):
         :rtype: :obj:`list` <:obj:`int` >
         """
         if self.__header:
-            return [self.__header['width'], self.__header['height']]
+            return [self.__header['height'], self.__header['width']]
 
     def frameNumber(self):
         """ provides the frame number
