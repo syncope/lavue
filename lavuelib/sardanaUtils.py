@@ -189,14 +189,11 @@ class SardanaUtils(object):
         """
         data = json.loads(jdata)
         msp = self.getMacroServer(door)
-        rec = msp.Environment
-        if rec[0] == 'pickle':
-            dc = pickle.loads(rec[1])
-            if 'new' in dc.keys():
-                for var in data.keys():
-                    dc['new'][str(var)] = self.toString(data[var])
-                pk = pickle.dumps(dc)
-                msp.Environment = ['pickle', pk]
+        dc = {'new': {}}
+        for var in data.keys():
+            dc['new'][str(var)] = self.toString(data[var])
+            pk = pickle.dumps(dc)
+        msp.Environment = ['pickle', pk]
 
     def wait(self, name=None, proxy=None, maxcount=100):
         """ stores Scan Environment Data
