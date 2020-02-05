@@ -7,7 +7,6 @@ Subpackages
 
 .. toctree::
 
-    lavuelib.qrc
     lavuelib.plugins
 
 Submodules
