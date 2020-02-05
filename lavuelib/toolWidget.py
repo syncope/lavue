@@ -1701,11 +1701,14 @@ class ProjectionToolWidget(ToolBaseWidget):
 
                 else:
                     try:
+                        print(dts)
                         with warnings.catch_warnings():
                             warnings.simplefilter(
                                 "error", category=RuntimeWarning)
                             sx = npfun(dts, axis=1)
-                    except Exception:
+                            print("WW %s" % len(sx))
+                    except Exception as e:
+                        print(str(e))
                         sx = []
 
                 if self.__dscolumns == "ERROR":
@@ -1742,6 +1745,7 @@ class ProjectionToolWidget(ToolBaseWidget):
                     yy = list(range(len(sy)))
                     width = [1.0] * len(sx)
                     height = [1.0] * len(sy)
+                print(sx)
                 self.__bottomplot.setOpts(
                     y0=[0]*len(sx), y1=sx, x=xx,
                     width=width)
@@ -3394,7 +3398,7 @@ class QROIProjToolWidget(ToolBaseWidget):
             dts = self._mainwidget.rawData()
             if dts is not None:
                 if self.__funindex:
-                    npfun = np.sum
+                    npfun = np.nansum
                 else:
                     npfun = np.nanmean
 

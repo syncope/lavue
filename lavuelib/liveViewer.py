@@ -1452,6 +1452,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.secport = self.__settings.secport
         cnfdlg.hidraport = self.__settings.hidraport
         cnfdlg.maxmbuffersize = self.__settings.maxmbuffersize
+        cnfdlg.floattype = self.__settings.floattype
         cnfdlg.secstream = self.__settings.secstream
         cnfdlg.zeromask = self.__settings.zeromask
         cnfdlg.nanmask = self.__settings.nanmask
@@ -1508,6 +1509,7 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.sardana = dialog.sardana
         self.__settings.addrois = dialog.addrois
         self.__settings.orderrois = dialog.orderrois
+        self.__settings.floattype = dialog.floattype
 
         if self.__settings.showsub != dialog.showsub:
             self.__prepwg.changeView(showsub=dialog.showsub)
@@ -2171,11 +2173,12 @@ class LiveViewer(QtGui.QDialog):
                     psh[0] += pd.x
                     psh[1] += pd.y
                     if dtype != pd.rawdata.dtype:
-                        dtype = np.float
+                        dtype = self.__settings.floattype
                     shape[0] = max(shape[0], psh[0])
                     shape[1] = max(shape[1], psh[1])
                 if self.__settings.nanmask:
-                    rawimage = np.zeros(shape=shape, dtype=float)
+                    rawimage = np.zeros(
+                        shape=shape, dtype=self.__settings.floattype)
                     rawimage.fill(np.nan)
                 else:
                     rawimage = np.zeros(shape=shape, dtype=dtype)
@@ -2514,7 +2517,8 @@ class LiveViewer(QtGui.QDialog):
                     self.__displayimage[self.__maskindices] = 0
                 else:
                     self.__displayimage = np.array(
-                        self.__displayimage, dtype="float")
+                        self.__displayimage,
+                        dtype=self.__settings.floattype)
                     self.__displayimage[self.__maskindices] = np.nan
             except IndexError:
                 self.__maskwg.noImage()
@@ -2534,7 +2538,8 @@ class LiveViewer(QtGui.QDialog):
             try:
                 if self.__settings.nanmask:
                     self.__displayimage = np.array(
-                        self.__displayimage, dtype='float')
+                        self.__displayimage,
+                        dtype=self.__settings.floattype)
                     with np.warnings.catch_warnings():
                         np.warnings.filterwarnings(
                             'ignore', r'invalid value encountered in greater')
@@ -2811,7 +2816,8 @@ class LiveViewer(QtGui.QDialog):
             self.__scaledimage = np.log10(self.__scaledimage)
         elif _VMAJOR == '0' and _VMINOR == '9' and int(_VPATCH) > 7:
             # (for 0.9.8 <= version < 0.10.0 i.e. ubuntu 16.04)
-            self.__scaledimage = self.__displayimage.astype("float")
+            self.__scaledimage = self.__displayimage.astype(
+                self.__settings.floattype)
         else:
             self.__scaledimage = self.__displayimage
 
