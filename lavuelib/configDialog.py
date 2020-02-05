@@ -214,8 +214,10 @@ class ConfigDialog(QtGui.QDialog):
         self.refreshrate = 0.2
         #: (:obj:`float`) tool refresh rate time is s
         self.toolrefreshtime = 0.02
-        #: (:obj:`int`) maximal number of images in memory buffer
+        #: (:obj:`str`) maximal number of images in memory buffer
         self.maxmbuffersize = "1000"
+        #: (:obj:`str`) float type for pixel intensity
+        self.floattype = "float"
         #: (:obj:`bool`) show color distribution histogram widget
         self.showhisto = True
         #: (:obj:`bool`) show color distribution additional histogram widget
@@ -437,6 +439,13 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.sendroisCheckBox.setChecked(self.sendrois)
         self.__ui.showallroisCheckBox.setChecked(self.showallrois)
         self.__ui.sourcedisplayCheckBox.setChecked(self.sourcedisplay)
+
+        if self.floattype not in ["float", "float32", "float64"]:
+            self.floattype = "float"
+        fid = self.__ui.floatComboBox.findText(self.floattype)
+        if fid < 0:
+            fid = 0
+        self.__ui.floatComboBox.setCurrentIndex(fid)
 
         self.__ui.urlsLineEdit.installEventFilter(self)
         self.__objtitles[repr(self.__ui.urlsLineEdit)] = \
@@ -691,6 +700,7 @@ class ConfigDialog(QtGui.QDialog):
         self.nanmask = self.__ui.nanmaskCheckBox.isChecked()
         self.secautoport = self.__ui.secautoportCheckBox.isChecked()
         self.refreshrate = float(self.__ui.rateDoubleSpinBox.value())
+        self.floattype = str(self.__ui.floatComboBox.currentText())
         self.toolrefreshtime = float(
             self.__ui.toolrefreshtimeDoubleSpinBox.value())
         self.nrsources = int(

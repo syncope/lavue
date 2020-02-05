@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>862</width>
-    <height>607</height>
+    <width>873</width>
+    <height>647</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,23 +31,46 @@
            <item>
             <layout class="QVBoxLayout" name="verticalLayout">
              <item>
-              <widget class="QGroupBox" name="imageGroupBox">
+              <widget class="QGroupBox" name="groupBox_2">
                <property name="title">
-                <string>Image display</string>
+                <string>Image source</string>
                </property>
-               <layout class="QGridLayout" name="gridLayout_2">
+               <layout class="QGridLayout" name="gridLayout_28">
                 <item row="0" column="0">
-                 <layout class="QGridLayout" name="imageGridLayout">
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="aspectlockedLabel">
+                 <layout class="QGridLayout" name="gridLayout_27">
+                  <item row="1" column="1">
+                   <widget class="QSpinBox" name="nrsourcesSpinBox">
                     <property name="toolTip">
-                     <string>lock the aspect ration of the image</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a number of image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="value">
+                     <number>1</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="interruptLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrupt on an image source error&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
-                     <string>Aspect Ratio locked:</string>
+                     <string>Interrupt on a source error:</string>
                     </property>
                     <property name="buddy">
-                     <cstring>aspectlockedCheckBox</cstring>
+                     <cstring>interruptCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QCheckBox" name="interruptCheckBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrupt on an image source error&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
                     </property>
                    </widget>
                   </item>
@@ -64,79 +87,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="keepCoordsLabel">
-                    <property name="text">
-                     <string>Keep original coordinates: </string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>keepCoordsCheckBox</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="1">
-                   <widget class="QCheckBox" name="keepCoordsCheckBox">
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="1">
-                   <widget class="QCheckBox" name="zeromaskCheckBox">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checkout pixel masks are represented by zero values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="6" column="1">
-                   <widget class="QCheckBox" name="interruptCheckBox">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrupt on an image source error&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="7" column="1">
-                   <widget class="QCheckBox" name="sourcedisplayCheckBox">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display parameters separately set for image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="6" column="0">
-                   <widget class="QLabel" name="interruptLabel">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrupt on an image source error&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Interrupt on a source error:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>interruptCheckBox</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="7" column="0">
-                   <widget class="QLabel" name="sourcedisplayLabel">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display parameters separately set for image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Display specific for a source:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>sourcedisplayCheckBox</cstring>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="0" column="1">
                    <widget class="QDoubleSpinBox" name="rateDoubleSpinBox">
                     <property name="toolTip">
@@ -147,99 +97,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="9" column="0">
-                   <widget class="QLabel" name="mbufsizeLabel">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;maximal number of images in the memory buffer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Maximal memory buffer size:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>mbufsizeLineEdit</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="9" column="1">
-                   <widget class="QLineEdit" name="mbufsizeLineEdit">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;maximal number of images in the memory buffer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>1000</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="0">
-                   <widget class="QLabel" name="zeromaskLabel">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checkout pixel masks are represented by zero values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Pixel image masks with zero values:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>zeromaskCheckBox</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="8" column="1">
-                   <widget class="QCheckBox" name="lazyimageCheckBox">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;load an image from the HdF5 file after stopping moving the slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="8" column="0">
-                   <widget class="QLabel" name="lazyimageLabel">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;load an image from the HdF5 file after stopping moving the slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Lazy image slider:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>lazyimageCheckBox</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="downsampleLabel">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;set auto down sample&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Auto Down-Sample:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>downsampleCheckBox</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QCheckBox" name="downsampleCheckBox">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;set auto down sample&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QCheckBox" name="aspectlockedCheckBox">
-                    <property name="toolTip">
-                     <string>lock the aspect ration of the image</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="10" column="0">
+                  <item row="1" column="0">
                    <widget class="QLabel" name="nrsourcesLabel">
                     <property name="toolTip">
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a number of image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -252,30 +110,26 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="10" column="1">
-                   <widget class="QSpinBox" name="nrsourcesSpinBox">
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="sourcedisplayLabel">
                     <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a number of image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display parameters separately set for image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
-                    <property name="minimum">
-                     <number>1</number>
+                    <property name="text">
+                     <string>Display specific for a source:</string>
                     </property>
-                    <property name="value">
-                     <number>1</number>
+                    <property name="buddy">
+                     <cstring>sourcedisplayCheckBox</cstring>
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="1">
-                   <widget class="QCheckBox" name="nanmaskCheckBox">
+                  <item row="3" column="1">
+                   <widget class="QCheckBox" name="sourcedisplayCheckBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display parameters separately set for image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
                     <property name="text">
                      <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="0">
-                   <widget class="QLabel" name="nanmaskLabel">
-                    <property name="text">
-                     <string>Mask pixels with NAN:</string>
                     </property>
                    </widget>
                   </item>
@@ -284,6 +138,279 @@
                </layout>
               </widget>
              </item>
+             <item>
+              <widget class="QGroupBox" name="imageGroupBox">
+               <property name="title">
+                <string>Image display</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_2">
+                <item row="0" column="0">
+                 <layout class="QGridLayout" name="imageGridLayout">
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="zeromaskLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checkout pixel masks are represented by zero values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Pixel image masks with zero values:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>zeromaskCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="keepCoordsLabel">
+                    <property name="text">
+                     <string>Keep original coordinates: </string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>keepCoordsCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QCheckBox" name="nanmaskCheckBox">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="mbufsizeLineEdit">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;maximal number of images in the memory buffer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>1000</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1">
+                   <widget class="QCheckBox" name="aspectlockedCheckBox">
+                    <property name="toolTip">
+                     <string>lock the aspect ration of the image</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QCheckBox" name="keepCoordsCheckBox">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="nanmaskLabel">
+                    <property name="text">
+                     <string>Mask pixels with NAN:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>nanmaskCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1">
+                   <widget class="QCheckBox" name="downsampleCheckBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;set auto down sample&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="mbufsizeLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;maximal number of images in the memory buffer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Maximal memory buffer size:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>mbufsizeLineEdit</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="0">
+                   <widget class="QLabel" name="downsampleLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;set auto down sample&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Auto Down-Sample:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>downsampleCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QLabel" name="lazyimageLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;load an image from the HdF5 file after stopping moving the slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Lazy image slider:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>lazyimageCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QCheckBox" name="zeromaskCheckBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checkout pixel masks are represented by zero values&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QCheckBox" name="lazyimageCheckBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;load an image from the HdF5 file after stopping moving the slider&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="aspectlockedLabel">
+                    <property name="toolTip">
+                     <string>lock the aspect ration of the image</string>
+                    </property>
+                    <property name="text">
+                     <string>Aspect Ratio locked:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>aspectlockedCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="0">
+                   <widget class="QLabel" name="floatLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Float type for intensity for pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Float type for intensity:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>floatComboBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="1">
+                   <widget class="QComboBox" name="floatComboBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Float type for intensity for pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <item>
+                     <property name="text">
+                      <string>float</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>float32</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>float64</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="groupBox_3">
+               <property name="title">
+                <string>Statistics and 1d plots</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_8">
+                <item row="0" column="0">
+                 <layout class="QGridLayout" name="gridLayout_5">
+                  <item row="0" column="1">
+                   <widget class="QCheckBox" name="statsscaleCheckBox">
+                    <property name="toolTip">
+                     <string>statistics values 1d-plots with scaling</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="statsscaleLabel">
+                    <property name="toolTip">
+                     <string>statistics values 1d-plots with scaling</string>
+                    </property>
+                    <property name="text">
+                     <string>Intensity scaling:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>statsscaleCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QCheckBox" name="calcvarianceCheckBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;calculate and show intensity variance of image pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="calcvarianceLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;calculate and show intensity variance of image pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Calculate variance:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>calcvarianceCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
              <item>
               <widget class="QGroupBox" name="groupBox">
                <property name="title">
@@ -409,82 +536,6 @@
                     </property>
                     <property name="text">
                      <string/>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item>
-              <spacer name="verticalSpacer">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>40</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_2">
-             <item>
-              <widget class="QGroupBox" name="groupBox_3">
-               <property name="title">
-                <string>Statistics and 1d plots</string>
-               </property>
-               <layout class="QGridLayout" name="gridLayout_8">
-                <item row="0" column="0">
-                 <layout class="QGridLayout" name="gridLayout_5">
-                  <item row="0" column="1">
-                   <widget class="QCheckBox" name="statsscaleCheckBox">
-                    <property name="toolTip">
-                     <string>statistics values 1d-plots with scaling</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="statsscaleLabel">
-                    <property name="toolTip">
-                     <string>statistics values 1d-plots with scaling</string>
-                    </property>
-                    <property name="text">
-                     <string>Intensity scaling:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>statsscaleCheckBox</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QCheckBox" name="calcvarianceCheckBox">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;calculate and show intensity variance of image pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="calcvarianceLabel">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;calculate and show intensity variance of image pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Calculate variance:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>calcvarianceCheckBox</cstring>
                     </property>
                    </widget>
                   </item>
@@ -659,95 +710,99 @@
                <property name="title">
                 <string>Sardana</string>
                </property>
-               <layout class="QGridLayout" name="gridLayout">
+               <layout class="QGridLayout" name="gridLayout_29">
                 <item row="0" column="0">
-                 <widget class="QLabel" name="sardanalabel">
-                  <property name="toolTip">
-                   <string>enable sardana features</string>
-                  </property>
-                  <property name="text">
-                   <string>Enabled:</string>
-                  </property>
-                  <property name="buddy">
-                   <cstring>sardanaCheckBox</cstring>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QCheckBox" name="sardanaCheckBox">
-                  <property name="toolTip">
-                   <string>enable sardana features</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="doorLabel">
-                  <property name="toolTip">
-                   <string>tango server device name of the Sarana Door</string>
-                  </property>
-                  <property name="text">
-                   <string>Door:</string>
-                  </property>
-                  <property name="buddy">
-                   <cstring>doorLineEdit</cstring>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QLineEdit" name="doorLineEdit">
-                  <property name="toolTip">
-                   <string>tango server device name of the Sarana Door</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="addroisLabel">
-                  <property name="toolTip">
-                   <string>add ROI aliases to the Active Measurement Group</string>
-                  </property>
-                  <property name="text">
-                   <string>Add ROIs to MG:</string>
-                  </property>
-                  <property name="buddy">
-                   <cstring>addroisCheckBox</cstring>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QCheckBox" name="addroisCheckBox">
-                  <property name="toolTip">
-                   <string>add ROI aliases to the Active Measurement Group</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QLabel" name="orderroisLabel">
-                  <property name="toolTip">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Store and Fetch ROIs order label list in the sardana environment &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                  </property>
-                  <property name="text">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fetch ROIs order:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                  </property>
-                  <property name="buddy">
-                   <cstring>orderroisCheckBox</cstring>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QCheckBox" name="orderroisCheckBox">
-                  <property name="toolTip">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Store and Fetch ROIs order label list in the sardana environment &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
+                 <layout class="QGridLayout" name="gridLayout">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="sardanalabel">
+                    <property name="toolTip">
+                     <string>enable sardana features</string>
+                    </property>
+                    <property name="text">
+                     <string>Enabled:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>sardanaCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QCheckBox" name="sardanaCheckBox">
+                    <property name="toolTip">
+                     <string>enable sardana features</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="doorLabel">
+                    <property name="toolTip">
+                     <string>tango server device name of the Sarana Door</string>
+                    </property>
+                    <property name="text">
+                     <string>Door:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>doorLineEdit</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLineEdit" name="doorLineEdit">
+                    <property name="toolTip">
+                     <string>tango server device name of the Sarana Door</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="addroisLabel">
+                    <property name="toolTip">
+                     <string>add ROI aliases to the Active Measurement Group</string>
+                    </property>
+                    <property name="text">
+                     <string>Add ROIs to MG:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>addroisCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QCheckBox" name="addroisCheckBox">
+                    <property name="toolTip">
+                     <string>add ROI aliases to the Active Measurement Group</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="orderroisLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Store and Fetch ROIs order label list in the sardana environment &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fetch ROIs order:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>orderroisCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QCheckBox" name="orderroisCheckBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Store and Fetch ROIs order label list in the sardana environment &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                </layout>
               </widget>
@@ -1673,22 +1728,23 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>buttonBox</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>rateDoubleSpinBox</tabstop>
-  <tabstop>aspectlockedCheckBox</tabstop>
-  <tabstop>downsampleCheckBox</tabstop>
-  <tabstop>keepCoordsCheckBox</tabstop>
-  <tabstop>zeromaskCheckBox</tabstop>
-  <tabstop>nanmaskCheckBox</tabstop>
+  <tabstop>nrsourcesSpinBox</tabstop>
   <tabstop>interruptCheckBox</tabstop>
   <tabstop>sourcedisplayCheckBox</tabstop>
-  <tabstop>lazyimageCheckBox</tabstop>
   <tabstop>mbufsizeLineEdit</tabstop>
-  <tabstop>nrsourcesSpinBox</tabstop>
+  <tabstop>nanmaskCheckBox</tabstop>
+  <tabstop>zeromaskCheckBox</tabstop>
+  <tabstop>keepCoordsCheckBox</tabstop>
+  <tabstop>lazyimageCheckBox</tabstop>
+  <tabstop>aspectlockedCheckBox</tabstop>
+  <tabstop>downsampleCheckBox</tabstop>
+  <tabstop>floatComboBox</tabstop>
+  <tabstop>statsscaleCheckBox</tabstop>
+  <tabstop>calcvarianceCheckBox</tabstop>
   <tabstop>plusroiPushButton</tabstop>
   <tabstop>minusroiPushButton</tabstop>
   <tabstop>showallroisCheckBox</tabstop>
   <tabstop>sendroisCheckBox</tabstop>
-  <tabstop>statsscaleCheckBox</tabstop>
-  <tabstop>calcvarianceCheckBox</tabstop>
   <tabstop>secstreamCheckBox</tabstop>
   <tabstop>secautoportCheckBox</tabstop>
   <tabstop>secportLineEdit</tabstop>

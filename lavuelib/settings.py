@@ -170,6 +170,8 @@ class Settings(object):
         self.geometryfromsource = False
         #: (:obj:`str`) json list with roi colors
         self.roiscolors = "[]"
+        #: (:obj:`str`) float type for pixel intensity
+        self.floattype = "float"
 
         #: (:obj:`str`) json list with filters
         self.filters = "[]"
@@ -289,6 +291,11 @@ class Settings(object):
         qstval = str(settings.value("Configuration/SecAutoPort", type=str))
         if qstval.lower() == "false":
             self.secautoport = False
+        qstval = str(settings.value("Configuration/FloatType", type=str))
+        if qstval.lower() in ["float", "float32", "float64"]:
+            self.floattype = qstval.lower()
+        else:
+            self.floattype = "float"
         qstval = str(settings.value(
             "Configuration/ShowSubtraction", type=str))
         if qstval.lower() == "false":
@@ -673,6 +680,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/SecPort",
             self.secport)
+        settings.setValue(
+            "Configuration/FloatType",
+            self.floattype)
         settings.setValue(
             "Configuration/HidraDataPort",
             self.hidraport)
