@@ -34,7 +34,6 @@ import math
 import numpy as np
 import scipy.interpolate
 import pyqtgraph as _pg
-import warnings
 import logging
 from pyqtgraph import QtCore, QtGui
 
@@ -1689,9 +1688,9 @@ class ProjectionToolWidget(ToolBaseWidget):
                     sx = []
                 elif self.__dsrows is not None:
                     try:
-                        with warnings.catch_warnings():
-                            warnings.simplefilter(
-                                "error", category=RuntimeWarning)
+                        with np.warnings.catch_warnings():
+                            np.warnings.filterwarnings(
+                                "ignore", r'Mean of empty slice')
                             if isinstance(self.__dsrows, slice):
                                 sx = npfun(dts[:, self.__dsrows], axis=1)
                             else:
@@ -1701,23 +1700,20 @@ class ProjectionToolWidget(ToolBaseWidget):
 
                 else:
                     try:
-                        print(dts)
-                        with warnings.catch_warnings():
-                            warnings.simplefilter(
-                                "error", category=RuntimeWarning)
+                        with np.warnings.catch_warnings():
+                            np.warnings.filterwarnings(
+                                "ignore", r'Mean of empty slice')
                             sx = npfun(dts, axis=1)
-                            print("WW %s" % len(sx))
-                    except Exception as e:
-                        print(str(e))
+                    except Exception:
                         sx = []
 
                 if self.__dscolumns == "ERROR":
                     sy = []
                 if self.__dscolumns is not None:
                     try:
-                        with warnings.catch_warnings():
-                            warnings.simplefilter(
-                                "error", category=RuntimeWarning)
+                        with np.warnings.catch_warnings():
+                            np.warnings.filterwarnings(
+                                "ignore", r'Mean of empty slice')
                             if isinstance(self.__dscolumns, slice):
                                 sy = npfun(dts[self.__dscolumns, :], axis=0)
                             else:
@@ -1725,7 +1721,10 @@ class ProjectionToolWidget(ToolBaseWidget):
                     except Exception:
                         sy = []
                 else:
-                    sy = npfun(dts, axis=0)
+                    with np.warnings.catch_warnings():
+                        np.warnings.filterwarnings(
+                            "ignore", r'Mean of empty slice')
+                        sy = npfun(dts, axis=0)
 
                 rwe = self._mainwidget.rangeWindowEnabled()
                 if rwe:
@@ -1745,7 +1744,6 @@ class ProjectionToolWidget(ToolBaseWidget):
                     yy = list(range(len(sy)))
                     width = [1.0] * len(sx)
                     height = [1.0] * len(sy)
-                print(sx)
                 self.__bottomplot.setOpts(
                     y0=[0]*len(sx), y1=sx, x=xx,
                     width=width)
@@ -3406,9 +3404,9 @@ class QROIProjToolWidget(ToolBaseWidget):
                     sx = []
                 elif self.__dsrows is not None:
                     try:
-                        with warnings.catch_warnings():
-                            warnings.simplefilter(
-                                "error", category=RuntimeWarning)
+                        with np.warnings.catch_warnings():
+                            np.warnings.filterwarnings(
+                                "ignore", r'Mean of empty slice')
                             if isinstance(self.__dsrows, slice):
                                 sx = npfun(dts[:, self.__dsrows], axis=1)
                             else:
@@ -3417,15 +3415,18 @@ class QROIProjToolWidget(ToolBaseWidget):
                         sx = []
 
                 else:
-                    sx = npfun(dts, axis=1)
+                    with np.warnings.catch_warnings():
+                        np.warnings.filterwarnings(
+                            "ignore", r'Mean of empty slice')
+                        sx = npfun(dts, axis=1)
 
                 if self.__dscolumns == "ERROR":
                     sy = []
                 if self.__dscolumns is not None:
                     try:
-                        with warnings.catch_warnings():
-                            warnings.simplefilter(
-                                "error", category=RuntimeWarning)
+                        with np.warnings.catch_warnings():
+                            np.warnings.filterwarnings(
+                                "ignore", r'Mean of empty slice')
                             if isinstance(self.__dscolumns, slice):
                                 sy = npfun(dts[self.__dscolumns, :], axis=0)
                             else:
@@ -3434,9 +3435,9 @@ class QROIProjToolWidget(ToolBaseWidget):
                         sy = []
                 else:
                     try:
-                        with warnings.catch_warnings():
-                            warnings.simplefilter(
-                                "error", category=RuntimeWarning)
+                        with np.warnings.catch_warnings():
+                            np.warnings.filterwarnings(
+                                "ignore", r'Mean of empty slice')
                             sy = npfun(dts, axis=0)
                     except Exception:
                         sy = []
