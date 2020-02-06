@@ -1,5 +1,6 @@
-2020-02-08 Jan Kotanski <jan.kotanski@desy.de>
+2020-02-06 Jan Kotanski <jan.kotanski@desy.de>
 	* add float type option
+	* add configuration for crosshair locker
 	* improve warning catching
 	* tagged as 2.34.0
 

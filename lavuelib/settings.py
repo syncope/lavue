@@ -168,6 +168,8 @@ class Settings(object):
         self.storegeometry = False
         #: (:obj:`bool`) fetch geometry from source
         self.geometryfromsource = False
+        #: (:obj:`bool`) crosshair locker switched on
+        self.crosshairlocker = True
         #: (:obj:`str`) json list with roi colors
         self.roiscolors = "[]"
         #: (:obj:`str`) float type for pixel intensity
@@ -348,6 +350,9 @@ class Settings(object):
         qstval = str(settings.value("Configuration/ShowImageSteps", type=str))
         if qstval.lower() == "false":
             self.showsteps = False
+        qstval = str(settings.value("Configuration/CrossHairLocker", type=str))
+        if qstval.lower() == "false":
+            self.crosshairlocker = False
         qstval = str(settings.value(
             "Configuration/CalculateVariance", type=str))
         if qstval.lower() == "true":
@@ -668,6 +673,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ShowImageSteps",
             self.showsteps)
+        settings.setValue(
+            "Configuration/CrossHairLocker",
+            self.crosshairlocker)
         settings.setValue(
             "Configuration/CalculateVariance",
             self.calcvariance)

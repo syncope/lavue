@@ -219,11 +219,16 @@ class IntensityToolWidget(ToolBaseWidget):
         self.__ui = _intensityformclass()
         self.__ui.setupUi(self)
 
+        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        self.__settings = self._mainwidget.settings()
+
         self.parameters.scale = True
         self.parameters.crosshairlocker = True
         self.parameters.infolineedit = ""
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
+        self.__ui.crosshairCheckBox.setChecked(self.__settings.crosshairlocker)
+        self._updateCrossHairLocker(self.__settings.crosshairlocker)
 
         #: (:obj:`list` < [:class:`pyqtgraph.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
