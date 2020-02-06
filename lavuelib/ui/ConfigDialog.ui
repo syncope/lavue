@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>873</width>
-    <height>647</height>
+    <height>671</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -336,82 +336,6 @@
               </widget>
              </item>
              <item>
-              <widget class="QGroupBox" name="groupBox_3">
-               <property name="title">
-                <string>Statistics and 1d plots</string>
-               </property>
-               <layout class="QGridLayout" name="gridLayout_8">
-                <item row="0" column="0">
-                 <layout class="QGridLayout" name="gridLayout_5">
-                  <item row="0" column="1">
-                   <widget class="QCheckBox" name="statsscaleCheckBox">
-                    <property name="toolTip">
-                     <string>statistics values 1d-plots with scaling</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="statsscaleLabel">
-                    <property name="toolTip">
-                     <string>statistics values 1d-plots with scaling</string>
-                    </property>
-                    <property name="text">
-                     <string>Intensity scaling:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>statsscaleCheckBox</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QCheckBox" name="calcvarianceCheckBox">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;calculate and show intensity variance of image pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="calcvarianceLabel">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;calculate and show intensity variance of image pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Calculate variance:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>calcvarianceCheckBox</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item>
-              <spacer name="verticalSpacer">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>40</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_2">
-             <item>
               <widget class="QGroupBox" name="groupBox">
                <property name="title">
                 <string>ROIs</string>
@@ -536,6 +460,82 @@
                     </property>
                     <property name="text">
                      <string/>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <item>
+              <widget class="QGroupBox" name="groupBox_3">
+               <property name="title">
+                <string>Statistics and 1d plots</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_8">
+                <item row="0" column="0">
+                 <layout class="QGridLayout" name="gridLayout_5">
+                  <item row="0" column="1">
+                   <widget class="QCheckBox" name="statsscaleCheckBox">
+                    <property name="toolTip">
+                     <string>statistics values 1d-plots with scaling</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="statsscaleLabel">
+                    <property name="toolTip">
+                     <string>statistics values 1d-plots with scaling</string>
+                    </property>
+                    <property name="text">
+                     <string>Intensity scaling:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>statsscaleCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QCheckBox" name="calcvarianceCheckBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;calculate and show intensity variance of image pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="calcvarianceLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;calculate and show intensity variance of image pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Calculate variance:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>calcvarianceCheckBox</cstring>
                     </property>
                    </widget>
                   </item>
@@ -697,6 +697,29 @@
                     </property>
                     <property name="value">
                      <double>0.020000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="crosschairLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;during start the crosshair locker of Intensity tool is switched on&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Crosshair locker switched on:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>crosshairCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QCheckBox" name="crosshairCheckBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;during start the crosshair locker of Intensity tool is switched on&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
                     </property>
                    </widget>
                   </item>
@@ -1739,18 +1762,19 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>aspectlockedCheckBox</tabstop>
   <tabstop>downsampleCheckBox</tabstop>
   <tabstop>floatComboBox</tabstop>
-  <tabstop>statsscaleCheckBox</tabstop>
-  <tabstop>calcvarianceCheckBox</tabstop>
   <tabstop>plusroiPushButton</tabstop>
   <tabstop>minusroiPushButton</tabstop>
   <tabstop>showallroisCheckBox</tabstop>
   <tabstop>sendroisCheckBox</tabstop>
+  <tabstop>statsscaleCheckBox</tabstop>
+  <tabstop>calcvarianceCheckBox</tabstop>
   <tabstop>secstreamCheckBox</tabstop>
   <tabstop>secautoportCheckBox</tabstop>
   <tabstop>secportLineEdit</tabstop>
   <tabstop>storegeometryCheckBox</tabstop>
   <tabstop>fetchgeometryCheckBox</tabstop>
   <tabstop>toolrefreshtimeDoubleSpinBox</tabstop>
+  <tabstop>crosshairCheckBox</tabstop>
   <tabstop>sardanaCheckBox</tabstop>
   <tabstop>doorLineEdit</tabstop>
   <tabstop>addroisCheckBox</tabstop>
@@ -1785,8 +1809,8 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>dirattrLineEdit</tabstop>
   <tabstop>dirtransLineEdit</tabstop>
   <tabstop>doocspropLineEdit</tabstop>
-  <tabstop>filterButtonBox</tabstop>
   <tabstop>filterTableWidget</tabstop>
+  <tabstop>filterButtonBox</tabstop>
  </tabstops>
  <resources/>
  <connections>

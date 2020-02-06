@@ -1430,6 +1430,7 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.doorname = self.__sardana.getDeviceName("Door")
         cnfdlg.sardana = True if self.__sardana is not None else False
         cnfdlg.door = self.__settings.doorname
+        cnfdlg.crosshairlocker = self.__settings.crosshairlocker
         cnfdlg.addrois = self.__settings.addrois
         cnfdlg.orderrois = self.__settings.orderrois
         cnfdlg.showsub = self.__settings.showsub
@@ -1510,6 +1511,7 @@ class LiveViewer(QtGui.QDialog):
         self.__settings.addrois = dialog.addrois
         self.__settings.orderrois = dialog.orderrois
         self.__settings.floattype = dialog.floattype
+        self.__settings.crosshairlocker = dialog.crosshairlocker
 
         if self.__settings.showsub != dialog.showsub:
             self.__prepwg.changeView(showsub=dialog.showsub)

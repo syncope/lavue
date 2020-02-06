@@ -268,6 +268,8 @@ class ConfigDialog(QtGui.QDialog):
         self.keepcoords = False
         #: (:obj:`bool`) lazy image slider
         self.lazyimageslider = True
+        #: (:obj:`bool`) crosshair locker switched on
+        self.crosshairlocker = True
 
         #: (:obj:`str`) json hidra detector server list
         self.detservers = "[]"
@@ -439,6 +441,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.sendroisCheckBox.setChecked(self.sendrois)
         self.__ui.showallroisCheckBox.setChecked(self.showallrois)
         self.__ui.sourcedisplayCheckBox.setChecked(self.sourcedisplay)
+        self.__ui.crosshairCheckBox.setChecked(self.crosshairlocker)
 
         if self.floattype not in ["float", "float32", "float64"]:
             self.floattype = "float"
@@ -733,6 +736,7 @@ class ConfigDialog(QtGui.QDialog):
         self.showallrois = self.__ui.showallroisCheckBox.isChecked()
         self.sourcedisplay = self.__ui.sourcedisplayCheckBox.isChecked()
         self.defdetservers = self.__ui.defdetserversCheckBox.isChecked()
+        self.crosshairlocker = self.__ui.crosshairCheckBox.isChecked()
 
         try:
             dirtrans = str(self.__ui.dirtransLineEdit.text()).strip()
