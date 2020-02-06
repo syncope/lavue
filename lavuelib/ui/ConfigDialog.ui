@@ -298,7 +298,7 @@
                   <item row="7" column="0">
                    <widget class="QLabel" name="floatLabel">
                     <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Float type for intensity for pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Float type for intensity of pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string>Float type for intensity:</string>
@@ -311,7 +311,7 @@
                   <item row="7" column="1">
                    <widget class="QComboBox" name="floatComboBox">
                     <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Float type for intensity for pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Float type for intensity of pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <item>
                      <property name="text">
