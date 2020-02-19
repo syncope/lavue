@@ -71,6 +71,10 @@ _doocspropformclass, _doocspropbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "DOOCSPropSourceWidget.ui"))
 
+_epicspvformclass, _epicspvbaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "EpicsPVSourceWidget.ui"))
+
 __all__ = [
     'SourceBaseWidget',
     'HidraSourceWidget',
@@ -81,6 +85,7 @@ __all__ = [
     'DOOCSPropSourceWidget',
     'ZMQSourceWidget',
     'NXSFileSourceWidget',
+    'EpicsPVSourceWidget',
     # 'FixTestSourceWidget',
     'TestSourceWidget',
     'swproperties'
@@ -1189,6 +1194,226 @@ class TangoFileSourceWidget(SourceBaseWidget):
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 
+class EpicsPVSourceWidget(SourceBaseWidget):
+
+    """ test source widget """
+
+    #: (:obj:`str`) source name
+    name = "Epics PV"
+    #: (:obj:`str`) source alias
+    alias = "epicspv"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("PYEPICS",)
+    #: (:obj:`str`) datasource class name
+    datasource = "EpicsPVSource"
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
+        """
+        SourceBaseWidget.__init__(self, parent)
+
+        self._ui = _epicspvformclass()
+        self._ui.setupUi(self)
+
+        #: (:obj:`list` <:obj:`str`>) subwidget object names
+        self.widgetnames = [
+            "pvnameLabel", "pvnameComboBox",
+            "pvshapeLabel", "pvshapeComboBox"
+        ]
+
+        #: (:obj:`dict` <:obj:`str`, :obj:`str`>) dictionary with
+        #:                     (label, pv name) items
+        self.__epicspvnames = {}
+        #: (:obj:`list` <:obj:`str`>) user pv names
+        self.__userpvnames = []
+
+        #: (:obj:`dict` <:obj:`str`, :obj:`str`>) dictionary with
+        #:                     (label, pv shape) items
+        self.__epicspvshapes = {}
+        #: (:obj:`list` <:obj:`str`>) user pv shapes
+        self.__userpvshapes = []
+
+        self._detachWidgets()
+
+        #: (:obj:`str`) default pv name tip
+        self.__defaultpvnametip = self._ui.pvnameComboBox.toolTip()
+
+        #: (:obj:`str`) default dir tip
+        self.__defaultpvshapetip = self._ui.pvshapeComboBox.toolTip()
+
+        self._connectComboBox(self._ui.pvnameComboBox)
+        self._connectComboBox(self._ui.pvshapeComboBox)
+        self._ui.pvnameComboBox.installEventFilter(self)
+        self._ui.pvshapeComboBox.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        """ event filter
+
+        :param obj: qt object
+        :type obj: :class: `pyqtgraph.QtCore.QObject`
+        :param event: qt event
+        :type event: :class: `pyqtgraph.QtCore.QEvent`
+        :returns: status flag
+        :rtype: :obj:`bool`
+        """
+        if obj == self._ui.pvnameComboBox:
+            return self.eventObjectFilter(
+                event,
+                combobox=self._ui.pvnameComboBox,
+                varname="epicspvnames",
+                atdict=self.__epicspvnames,
+                atlist=self.__userpvnames
+            )
+        if obj == self._ui.pvshapeComboBox:
+            return self.eventObjectFilter(
+                event,
+                combobox=self._ui.pvshapeComboBox,
+                varname="epicspvshapes",
+                atdict=self.__epicspvshapes,
+                atlist=self.__userpvshapes
+            )
+        return False
+
+    @QtCore.pyqtSlot()
+    def updateButton(self):
+        """ update slot for Epics file source
+        """
+        if not self.active:
+            return
+        pvnm, pvsh = self.__configuration()
+        if not pvnm:
+            self.buttonEnabled.emit(False)
+        else:
+            self.buttonEnabled.emit(True)
+            self.sourceLabelChanged.emit()
+        self._ui.pvnameComboBox.setToolTip(pvnm or self.__defaultpvnametip)
+        self._ui.pvshapeComboBox.setToolTip(pvsh or self.__defaultpvshapetip)
+
+    def __configuration(self):
+        """ provides configuration for the current image source
+
+        :returns configuration: configuration tuple
+        :rtype configuration: :obj:`tuple`
+        """
+        pvsh = str(self._ui.pvshapeComboBox.currentText()).strip()
+        pvnm = str(self._ui.pvnameComboBox.currentText()).strip()
+        if pvnm in self.__epicspvnames.keys():
+            pvnm = str(self.__epicspvnames[pvnm]).strip()
+        if pvsh in self.__epicspvshapes.keys():
+            pvsh = str(self.__epicspvshapes[pvsh]).strip()
+        return (pvnm, pvsh)
+
+    def configuration(self):
+        """ provides configuration for the current image source
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        return "%s;[%s]" % self.__configuration()
+
+    def updateMetaData(self, epicspvnames=None, epicspvshapes=None, **kargs):
+        """ update source input parameters
+
+        :param epicspvnames: json dictionary with
+                           (label, file epics attribute) items
+        :type epicspvnames: :obj:`str`
+        :param epicspvshapes: json dictionary with
+                           (label, dir epics attribute) items
+        :type epicspvshapes: :obj:`str`
+        :param kargs:  source widget input parameter dictionary
+        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        if epicspvnames is not None:
+            self.__epicspvnames = json.loads(epicspvnames)
+            self._updateComboBox(
+                self._ui.pvnameComboBox, self.__epicspvnames,
+                self.__userpvnames)
+        if epicspvshapes is not None:
+            self.__epicspvshapes = json.loads(epicspvshapes)
+            self._updateComboBox(
+                self._ui.pvshapeComboBox, self.__epicspvshapes,
+                self.__userpvshapes)
+        self.sourceLabelChanged.emit()
+
+    @QtCore.pyqtSlot()
+    def updateComboBox(self):
+        """ updates ComboBox
+        """
+        self._updateComboBox(
+            self._ui.pvnameComboBox, self.__epicspvnames,
+            self.__userpvnames)
+        self._updateComboBox(
+            self._ui.pvshapeComboBox, self.__epicspvshapes,
+            self.__userpvshapes)
+        self.updateButton()
+
+    def connectWidget(self):
+        """ connects widget
+        """
+        self._connected = True
+        self._ui.pvnameComboBox.lineEdit().setReadOnly(True)
+        self._ui.pvnameComboBox.setEnabled(False)
+        pvnm = str(self._ui.pvnameComboBox.currentText()).strip()
+        attrs = self.__epicspvnames.keys()
+        if pvnm not in attrs and pvnm not in self.__userpvnames:
+            self.__userpvnames.append(pvnm)
+            self._updateComboBox(
+                self._ui.pvnameComboBox, self.__epicspvnames,
+                self.__userpvnames)
+        self._ui.pvshapeComboBox.lineEdit().setReadOnly(True)
+        self._ui.pvshapeComboBox.setEnabled(False)
+        pvsh = str(self._ui.pvshapeComboBox.currentText()).strip()
+        attrs = self.__epicspvshapes.keys()
+        if pvsh not in attrs and pvsh not in self.__userpvshapes:
+            self.__userpvshapes.append(pvsh)
+            self._updateComboBox(
+                self._ui.pvshapeComboBox, self.__epicspvshapes,
+                self.__userpvshapes)
+
+    def disconnectWidget(self):
+        """ disconnects widget
+        """
+        self._connected = False
+        self._ui.pvnameComboBox.lineEdit().setReadOnly(False)
+        self._ui.pvnameComboBox.setEnabled(True)
+        self._ui.pvshapeComboBox.lineEdit().setReadOnly(False)
+        self._ui.pvshapeComboBox.setEnabled(True)
+
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        cnflst = configuration.split(",")
+        filecnf = cnflst[0] if cnflst else ""
+        dircnf = cnflst[1] if len(cnflst) > 1 else ""
+
+        iid = self._ui.pvnameComboBox.findText(filecnf)
+        if iid == -1:
+            self._ui.pvnameComboBox.addItem(filecnf)
+            iid = self._ui.pvnameComboBox.findText(filecnf)
+        self._ui.pvnameComboBox.setCurrentIndex(iid)
+
+        iid = self._ui.pvshapeComboBox.findText(dircnf)
+        if iid == -1:
+            self._ui.pvshapeComboBox.addItem(dircnf)
+            iid = self._ui.pvshapeComboBox.findText(dircnf)
+        self._ui.pvshapeComboBox.setCurrentIndex(iid)
+
+    def label(self):
+        """ return a label of the current detector
+
+        :return: label of the current detector
+        :rtype: :obj:`str`
+        """
+        label = str(self._ui.pvshapeComboBox.currentText()).strip()
+        return re.sub("[^a-zA-Z0-9_]+", "_", label)
+
+
 class NXSFileSourceWidget(SourceBaseWidget):
 
     """ test source widget """
@@ -1287,7 +1512,7 @@ class NXSFileSourceWidget(SourceBaseWidget):
 
     @QtCore.pyqtSlot()
     def updateButton(self):
-        """ update slot for Tango file source
+        """ update slot for nexus file source
         """
         if not self.active:
             return
@@ -1716,7 +1941,7 @@ class DOOCSPropSourceWidget(SourceBaseWidget):
 
     @QtCore.pyqtSlot()
     def updateButton(self):
-        """ update slot for Tango attribute source
+        """ update slot for Doocs attribute source
         """
         if not self.active:
             return
@@ -1743,7 +1968,7 @@ class DOOCSPropSourceWidget(SourceBaseWidget):
         """ update source input parameters
 
         :param doocsprops: json dictionary with
-                           (label, tango attribute) items
+                           (label, doocs attribute) items
         :type doocsprops: :obj:`str`
         :param kargs:  source widget input parameter dictionary
         :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
