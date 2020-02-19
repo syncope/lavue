@@ -767,7 +767,9 @@ class LiveViewer(QtGui.QDialog):
             nxsopen=self.__settings.nxsopen,
             serverdict=serverdict,
             hidraport=self.__settings.hidraport,
-            doocsprops=self.__settings.doocsprops
+            doocsprops=self.__settings.doocsprops,
+            epicspvnames=self.__settings.epicspvnames,
+            epicspvshapes=self.__settings.epicspvshapes
         )
 
     @QtCore.pyqtSlot(str)
@@ -1471,6 +1473,8 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.interruptonerror = self.__settings.interruptonerror
         cnfdlg.dirtrans = self.__settings.dirtrans
         cnfdlg.tangoattrs = self.__settings.tangoattrs
+        cnfdlg.epicspvnames = self.__settings.epicspvnames
+        cnfdlg.epicspvshapes = self.__settings.epicspvshapes
         cnfdlg.doocsprops = self.__settings.doocsprops
         cnfdlg.tangoevattrs = self.__settings.tangoevattrs
         cnfdlg.tangofileattrs = self.__settings.tangofileattrs
@@ -1659,6 +1663,12 @@ class LiveViewer(QtGui.QDialog):
             setsrc = True
         if self.__settings.tangoattrs != dialog.tangoattrs:
             self.__settings.tangoattrs = dialog.tangoattrs
+            setsrc = True
+        if self.__settings.epicspvnames != dialog.epicspvnames:
+            self.__settings.epicspvnames = dialog.epicspvnames
+            setsrc = True
+        if self.__settings.epicspvshapes != dialog.epicspvshapes:
+            self.__settings.epicspvshapes = dialog.epicspvshapes
             setsrc = True
         if self.__settings.doocsprops != dialog.doocsprops:
             self.__settings.doocsprops = dialog.doocsprops

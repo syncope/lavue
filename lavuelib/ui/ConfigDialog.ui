@@ -1525,7 +1525,7 @@
        </widget>
        <widget class="QWidget" name="tangosourceTab">
         <attribute name="title">
-         <string>Tango/DOOCS Image Sources</string>
+         <string>Tango/DOOCS/Epics Image Sources</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_48">
          <item row="0" column="0">
@@ -1690,6 +1690,45 @@ in the file name and the file directory for Tango File Source</string>
              </layout>
             </widget>
            </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_4">
+             <property name="title">
+              <string>Epics PV</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_31">
+              <item row="0" column="0">
+               <layout class="QGridLayout" name="gridLayout_30">
+                <item row="0" column="1">
+                 <widget class="QLineEdit" name="pvnameLineEdit"/>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="pvnameLabel">
+                  <property name="text">
+                   <string>PV Names:</string>
+                  </property>
+                  <property name="buddy">
+                   <cstring>pvnameLineEdit</cstring>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="pvshapeLabel">
+                  <property name="text">
+                   <string>PV Shape:</string>
+                  </property>
+                  <property name="buddy">
+                   <cstring>pvshapeLineEdit</cstring>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QLineEdit" name="pvshapeLineEdit"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
           </layout>
          </item>
          <item row="3" column="0">
@@ -1809,6 +1848,8 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>dirattrLineEdit</tabstop>
   <tabstop>dirtransLineEdit</tabstop>
   <tabstop>doocspropLineEdit</tabstop>
+  <tabstop>pvnameLineEdit</tabstop>
+  <tabstop>pvshapeLineEdit</tabstop>
   <tabstop>filterTableWidget</tabstop>
   <tabstop>filterButtonBox</tabstop>
  </tabstops>

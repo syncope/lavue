@@ -303,6 +303,12 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`str`) JSON dictionary with {label: doocs property}
         #  for DOOCS Property source
         self.doocsprops = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: epics PV name}
+        #  for Epics PV source
+        self.epicspvnames = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: epics PV shape}
+        #  for Epics PV source
+        self.epicspvshapes = '{}'
         #: (:obj:`str`) JSON dictionary with {label: url}
         #  for HTTP responce source
         self.httpurls = '{}'
@@ -429,6 +435,8 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.dirtransLineEdit.setText(self.dirtrans)
         self.__ui.attrLineEdit.setText(self.tangoattrs)
         self.__ui.doocspropLineEdit.setText(self.doocsprops)
+        self.__ui.pvnameLineEdit.setText(self.epicspvnames)
+        self.__ui.pvshapeLineEdit.setText(self.epicspvshapes)
         self.__ui.evattrLineEdit.setText(self.tangoevattrs)
         self.__ui.fileattrLineEdit.setText(self.tangofileattrs)
         self.__ui.dirattrLineEdit.setText(self.tangodirattrs)
@@ -781,6 +789,28 @@ class ConfigDialog(QtGui.QDialog):
             # print(str(e))
             self.__ui.tabWidget.setCurrentIndex(3)
             self.__ui.evattrLineEdit.setFocus(True)
+            return
+        try:
+            attr = str(self.__ui.pvnameLineEdit.text()).strip()
+            mytr = json.loads(attr)
+            if isinstance(mytr, dict):
+                self.epicspvnames = attr
+        except Exception as e:
+            logger.warning(str(e))
+            # print(str(e))
+            self.__ui.tabWidget.setCurrentIndex(3)
+            self.__ui.pvnameLineEdit.setFocus(True)
+            return
+        try:
+            attr = str(self.__ui.pvshapeLineEdit.text()).strip()
+            mytr = json.loads(attr)
+            if isinstance(mytr, dict):
+                self.epicspvshapes = attr
+        except Exception as e:
+            logger.warning(str(e))
+            # print(str(e))
+            self.__ui.tabWidget.setCurrentIndex(3)
+            self.__ui.pvshapeLineEdit.setFocus(True)
             return
         try:
             fileattr = str(self.__ui.fileattrLineEdit.text()).strip()
