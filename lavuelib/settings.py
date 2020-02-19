@@ -134,6 +134,12 @@ class Settings(object):
         #: (:obj:`str`) JSON dictionary with {label: tango attribute}
         #  for Tango Attribute source
         self.tangoattrs = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: epics PV name}
+        #  for Epics PV source
+        self.epicspvnames = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: epics PV shape}
+        #  for Epics PV source
+        self.epicspvshapes = '{}'
         #: (:obj:`str`) JSON dictionary with {label: doocs property}
         #  for DOOCS Property source
         self.doocsprops = '{}'
@@ -529,6 +535,15 @@ class Settings(object):
             self.tangoattrs = qstval
 
         qstval = str(
+            settings.value("Configuration/EpicsPVNames", type=str))
+        if qstval:
+            self.epicspvnames = qstval
+        qstval = str(
+            settings.value("Configuration/EpicsPVShapes", type=str))
+        if qstval:
+            self.epicspvshapes = qstval
+
+        qstval = str(
             settings.value("Configuration/DOOCSProperties", type=str))
         if qstval:
             self.doocsprops = qstval
@@ -769,6 +784,12 @@ class Settings(object):
         settings.setValue(
             "Configuration/TangoAttributes",
             self.tangoattrs)
+        settings.setValue(
+            "Configuration/EpicsPVNames",
+            self.epicspvnames)
+        settings.setValue(
+            "Configuration/EpicsPVShapes",
+            self.epicspvshapes)
         settings.setValue(
             "Configuration/DOOCSProperties",
             self.doocsprops)

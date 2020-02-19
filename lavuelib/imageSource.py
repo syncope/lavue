@@ -71,6 +71,7 @@ try:
 except ImportError:
     #: (:obj:`bool`) PIL imported
     PILLOW = False
+
 try:
     import zmq
     #: (:obj:`str`,:obj:`str`) zmq major version, zmq minor version
@@ -78,6 +79,14 @@ try:
 except Exception:
     #: (:obj:`str`,:obj:`str`) zmq major version, zmq minor version
     ZMQMAJOR, ZMQMINOR = 0, 0
+
+try:
+    import epics
+    #: (:obj:`bool`) pyepics imported
+    PYEPICS = True
+except ImportError:
+    #: (:obj:`bool`) pyepics imported
+    PYEPICS = False
 
 
 import socket
@@ -1431,3 +1440,75 @@ class DOOCSPropSource(BaseSource):
         """ connects the source
         """
         return True
+
+
+class EpicsPVSource(BaseSource):
+
+    """ image source as Epics Process variable"""
+
+    def __init__(self, timeout=None):
+        """ constructor
+
+        :param timeout: timeout for setting connection in ms
+        :type timeout: :obj:`int`
+        """
+        BaseSource.__init__(self, timeout)
+        #: (:class:`epics.PV`)
+        #:       epics process variable
+        self.__pv = None
+        #: (:obj:`list` < :obj:`int` >)
+        #:      process variable shape
+        self.__shape = None
+        #: (:obj:`list` < :obj:`int` >)
+        #:      process variable size
+        self.__size = 0
+
+    def getData(self):
+        """ provides image name, image data and metadata
+
+        :returns:  image name, image data, json dictionary with metadata
+        :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
+        """
+
+        if self.__pv is None:
+            return "No PV defined", "__ERROR__", None
+        try:
+            rawdata = self.__pv.get(as_numpy=True,
+                                    timeout=float(self._timeout/1000.))
+            if not hasattr(rawdata, "size"):
+                return None, None, None
+            else:
+                if self.__shape and rawdata.size >= self.__size:
+                    image = rawdata[:self.__size].reshape(self.__shape)
+                else:
+                    image = rawdata
+                return (np.transpose(image),
+                        '%s (%s)' % (self._configuration, time.time()), None)
+        except Exception as e:
+            logger.warning(str(e))
+            # print(str(e))
+            return str(e), "__ERROR__", ""
+            pass  # this needs a bit more care
+        return None, None, None
+
+    def connect(self):
+        """ connects the source
+        """
+        try:
+            pvnm, pvsh = str(
+                self._configuration).strip().rsplit(";", 1)
+            if not self._initiated:
+                self.__pv = epics.PV(pvnm)
+                try:
+                    shape = json.loads(pvsh)
+                    self.__shape = list(reversed([int(s) for s in shape]))
+                    self.__size = np.prod(self.__shape)
+                except Exception:
+                    self.__size = 0
+                    self.__shape = None
+            return True
+        except Exception as e:
+            self._updaterror()
+            logger.warning(str(e))
+            # print(str(e))
+            return False
