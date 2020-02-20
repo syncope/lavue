@@ -1904,8 +1904,11 @@ class LiveViewer(QtGui.QDialog):
     def _updateSource(self, status, sid):
         """ update the current source
 
-        :param status: current source status id
+        :param status: current source combobox status id from starting from 1,
+                       0 is disconnected, -1 current source
         :type status: :obj:`int`
+        :param sid: source tab id starting from 0 and -1 for all
+        :type sid: :obj:`int`
         """
         if status:
             dss = self.__sourcewg.currentDataSources()
@@ -2129,7 +2132,7 @@ class LiveViewer(QtGui.QDialog):
             topic = 10001
             self.__settings.secsocket.send_string("%d %s" % (
                 topic, str(json.dumps(messagedata)).encode("ascii")))
-        self._updateSource(-1, -1)
+        self._updateSource(0, -1)
         self.__setSourceLabel()
         # self.__datasources[0] = None
 
