@@ -1618,8 +1618,8 @@ class TinePropSource(BaseSource):
             return "No Tine Property defined", "__ERROR__", None
         try:
             prop = PyTine.get(address=self.__address,
-                                  property=self.__prop,
-                                  timeout=self._timeout)
+                              property=self.__prop,
+                              timeout=self._timeout)
             rawdata = prop["data"]
 
             if "imageMatrix" in rawdata:
