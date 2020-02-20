@@ -71,6 +71,10 @@ _doocspropformclass, _doocspropbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "DOOCSPropSourceWidget.ui"))
 
+_tinepropformclass, _tinepropbaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "TinePropSourceWidget.ui"))
+
 _epicspvformclass, _epicspvbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "EpicsPVSourceWidget.ui"))
@@ -85,6 +89,7 @@ __all__ = [
     'DOOCSPropSourceWidget',
     'ZMQSourceWidget',
     'NXSFileSourceWidget',
+    'TinePropSourceWidget',
     'EpicsPVSourceWidget',
     # 'FixTestSourceWidget',
     'TestSourceWidget',
@@ -808,6 +813,162 @@ class TangoAttrSourceWidget(SourceBaseWidget):
         :rtype: :obj:`str`
         """
         label = str(self._ui.attrComboBox.currentText()).strip()
+        return re.sub("[^a-zA-Z0-9_]+", "_", label)
+
+
+class TinePropSourceWidget(SourceBaseWidget):
+
+    """ test source widget """
+
+    #: (:obj:`str`) source name
+    name = "Tine Property"
+    #: (:obj:`str`) source alias
+    alias = "tineprop"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("PYTINE",)
+    #: (:obj:`str`) datasource class name
+    datasource = "TinePropSource"
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
+        """
+        SourceBaseWidget.__init__(self, parent)
+
+        self._ui = _tinepropformclass()
+        self._ui.setupUi(self)
+
+        #: (:obj:`list` <:obj:`str`>) subwidget object names
+        self.widgetnames = [
+            "tinepropLabel", "tinepropComboBox"
+        ]
+
+        #: (:obj:`dict` <:obj:`str`, :obj:`str`>) dictionary with
+        #:                     (label, tine properties) items
+        self.__tineprops = {}
+        #: (:obj:`list` <:obj:`str`>) user tine property
+        self.__userprops = []
+
+        self._detachWidgets()
+
+        #: (:obj:`str`) default tip
+        self.__defaulttip = self._ui.tinepropComboBox.toolTip()
+
+        self._connectComboBox(self._ui.tinepropComboBox)
+        self._ui.tinepropComboBox.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        """ event filter
+
+        :param obj: qt object
+        :type obj: :class: `pyqtgraph.QtCore.QObject`
+        :param event: qt event
+        :type event: :class: `pyqtgraph.QtCore.QEvent`
+        :returns: status flag
+        :rtype: :obj:`bool`
+        """
+        return self.eventObjectFilter(
+            event,
+            combobox=self._ui.tinepropComboBox,
+            varname="tineprops",
+            atdict=self.__tineprops,
+            atlist=self.__userprops
+        )
+
+    @QtCore.pyqtSlot()
+    def updateButton(self):
+        """ update slot for Tine property source
+        """
+        if not self.active:
+
+            return
+        currentprop = self.configuration()
+        if not currentprop:
+            self.buttonEnabled.emit(False)
+        else:
+            self.buttonEnabled.emit(True)
+            self.sourceLabelChanged.emit()
+        self._ui.tinepropComboBox.setToolTip(
+            currentprop or self.__defaulttip)
+
+    def configuration(self):
+        """ provides configuration for the current image source
+
+        :returns: configuration string
+        :rtype: :obj:`str`
+        """
+        currentprop = str(self._ui.tinepropComboBox.currentText()).strip()
+        if currentprop in self.__tineprops.keys():
+            currentprop = str(self.__tineprops[currentprop]).strip()
+        return currentprop
+
+    def updateMetaData(self, tineprops=None, **kargs):
+        """ update source input parameters
+
+        :param tineprops: json dictionary with
+                           (label, tine property) items
+        :type tineprops: :obj:`str`
+        :param kargs:  source widget input parameter dictionary
+        :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        if tineprops is not None:
+            self.__tineprops = json.loads(tineprops)
+            self._updateComboBox(
+                self._ui.tinepropComboBox,
+                self.__tineprops,
+                self.__userprops)
+        self.sourceLabelChanged.emit()
+
+    def configure(self, configuration):
+        """ set configuration for the current image source
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        iid = self._ui.tinepropComboBox.findText(configuration)
+        if iid == -1:
+            self._ui.tinepropComboBox.addItem(configuration)
+            iid = self._ui.tinepropComboBox.findText(configuration)
+        self._ui.tinepropComboBox.setCurrentIndex(iid)
+
+    @QtCore.pyqtSlot()
+    def updateComboBox(self):
+        """ updates ComboBox
+        """
+        self._updateComboBox(
+            self._ui.tinepropComboBox, self.__tineprops, self.__userprops)
+        self.updateButton()
+
+    def disconnectWidget(self):
+        """ disconnects widget
+        """
+        self._connected = False
+        self._ui.tinepropComboBox.lineEdit().setReadOnly(False)
+        self._ui.tinepropComboBox.setEnabled(True)
+
+    def connectWidget(self):
+        """ connects widget
+        """
+        self._connected = True
+        self._ui.tinepropComboBox.lineEdit().setReadOnly(True)
+        self._ui.tinepropComboBox.setEnabled(False)
+        currentprop = str(self._ui.tinepropComboBox.currentText()).strip()
+        props = self.__tineprops.keys()
+        if currentprop not in props and currentprop not in self.__userprops:
+            self.__userprops.append(currentprop)
+            self._updateComboBox(
+                self._ui.tinepropComboBox,
+                self.__tineprops, self.__userprops)
+
+    def label(self):
+        """ return a label of the current detector
+
+        :return: label of the current detector
+        :rtype: :obj:`str`
+        """
+        label = str(self._ui.tinepropComboBox.currentText()).strip()
         return re.sub("[^a-zA-Z0-9_]+", "_", label)
 
 

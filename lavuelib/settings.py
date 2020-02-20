@@ -134,6 +134,9 @@ class Settings(object):
         #: (:obj:`str`) JSON dictionary with {label: tango attribute}
         #  for Tango Attribute source
         self.tangoattrs = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: tina properties}
+        #  for Tine Property source
+        self.tineprops = '{}'
         #: (:obj:`str`) JSON dictionary with {label: epics PV name}
         #  for Epics PV source
         self.epicspvnames = '{}'
@@ -535,6 +538,11 @@ class Settings(object):
             self.tangoattrs = qstval
 
         qstval = str(
+            settings.value("Configuration/TineProperties", type=str))
+        if qstval:
+            self.tineprops = qstval
+
+        qstval = str(
             settings.value("Configuration/EpicsPVNames", type=str))
         if qstval:
             self.epicspvnames = qstval
@@ -784,6 +792,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/TangoAttributes",
             self.tangoattrs)
+        settings.setValue(
+            "Configuration/TineProperties",
+            self.tineprops)
         settings.setValue(
             "Configuration/EpicsPVNames",
             self.epicspvnames)
