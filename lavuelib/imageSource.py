@@ -1617,23 +1617,26 @@ class TinePropSource(BaseSource):
         if not self.__address or not self.__prop:
             return "No Tine Property defined", "__ERROR__", None
         try:
-            property = PyTine.get(address=self.__address,
-                                  property=self.__prop,
-                                  timeout=self._timeout)
-            rawdata = property["data"]
-            header = rawdata["frameHeader"]
-            dtype = self.__dtype(header)
-            height = self.__height(header)
-            width = self.__width(header)
+            prop = PyTine.get(address=self.__address,
+                              property=self.__prop,
+                              timeout=self._timeout)
+            rawdata = prop["data"]
 
-            image = np.frombuffer(rawdata["imageBytes"], dtype=dtype)
-            if len(image) != height * width:
-                raise ValueError(
-                    "Dimension mismatch: size: %s != %s"
-                    % (len(image), height * width))
-            image = image.reshape((height, width))
+            if "imageMatrix" in rawdata:
+                image = rawdata["imageMatrix"]
+            else:
+                header = rawdata["frameHeader"]
+                dtype = self.__dtype(header)
+                height = self.__height(header)
+                width = self.__width(header)
+                image = np.frombuffer(rawdata["imageBytes"], dtype=dtype)
+                if len(image) != height * width:
+                    raise ValueError(
+                        "Dimension mismatch: size: %s != %s"
+                        % (len(image), height * width))
+                image = image.reshape((height, width))
 
-            timestamp = property["timestamp"]
+            timestamp = prop["timestamp"]
             return (np.transpose(image),
                     '%s (%s)' % (self._configuration, timestamp), None)
         except Exception as e:
