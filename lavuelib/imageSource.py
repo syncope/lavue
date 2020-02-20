@@ -1335,6 +1335,7 @@ class HiDRASource(BaseSource):
             if self.__query is not None:
                 with QtCore.QMutexLocker(self.__mutex):
                     self.__query.stop()
+            self._initiated = False
         except Exception:
             self._updaterror()
 
@@ -1348,6 +1349,8 @@ class HiDRASource(BaseSource):
         data = None
         if self.__query is None:
             return "No server defined", "__ERROR__", None
+        if not self._initiated:
+            return None, None, None
         try:
             with QtCore.QMutexLocker(self.__mutex):
                 # [metadata, data] = self.__query.get()
