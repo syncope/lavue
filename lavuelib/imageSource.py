@@ -1626,12 +1626,15 @@ class TinePropSource(BaseSource):
             height = self.__height(header)
             width = self.__width(header)
 
-            image = np.frombuffer(rawdata["imageBytes"], dtype=dtype)
-            if len(image) != height * width:
-                raise ValueError(
-                    "Dimension mismatch: size: %s != %s"
-                    % (len(image), height * width))
-            image = image.reshape((height, width))
+            if "imageMatrix" in rawdata:
+                image = rawdata["imageMatrix"]
+            else:
+                image = np.frombuffer(rawdata["imageBytes"], dtype=dtype)
+                if len(image) != height * width:
+                    raise ValueError(
+                        "Dimension mismatch: size: %s != %s"
+                        % (len(image), height * width))
+                image = image.reshape((height, width))
 
             timestamp = property["timestamp"]
             return (np.transpose(image),
