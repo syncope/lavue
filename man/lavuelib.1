@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Feb 06, 2020" "2.34" "lavuelib"
+.TH "LAVUELIB" "1" "Feb 20, 2020" "2.35" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -6282,6 +6282,38 @@ image name, image data, json dictionary with metadata
 .UNINDENT
 .INDENT 0.0
 .TP
+.B class lavuelib.imageSource.EpicsPVSource(timeout=None)
+Bases: \fI\%lavuelib.imageSource.BaseSource\fP
+.sp
+image source as Epics Process variable
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.UNINDENT
+.INDENT 7.0
+.TP
+.B connect()
+connects the source
+.UNINDENT
+.INDENT 7.0
+.TP
+.B getData()
+provides image name, image data and metadata
+.INDENT 7.0
+.TP
+.B Returns
+image name, image data, json dictionary with metadata
+.TP
+.B Return type
+(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
 .B class lavuelib.imageSource.FixTestSource(timeout=None)
 Bases: \fI\%lavuelib.imageSource.BaseSource\fP
 .sp
@@ -6452,8 +6484,18 @@ image name, image data, json dictionary with metadata
 .UNINDENT
 .INDENT 0.0
 .TP
+.B lavuelib.imageSource.PYEPICS = True
+(\fI\%bool\fP) pyepics imported
+.UNINDENT
+.INDENT 0.0
+.TP
 .B lavuelib.imageSource.PYTANGO = True
 (\fI\%bool\fP) PyTango imported
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.imageSource.PYTINE = False
+(\fI\%bool\fP) PyTine imported
 .UNINDENT
 .INDENT 0.0
 .TP
@@ -6595,6 +6637,43 @@ image name, image data, json dictionary with metadata
 .TP
 .B Return type
 (\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.imageSource.TinePropSource(timeout=None)
+Bases: \fI\%lavuelib.imageSource.BaseSource\fP
+.sp
+image source as Tine Property
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.UNINDENT
+.INDENT 7.0
+.TP
+.B getData()
+provides image name, image data and metadata
+.INDENT 7.0
+.TP
+.B Returns
+image name, image data, json dictionary with metadata
+.TP
+.B Return type
+(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setConfiguration(configuration)
+set configuration
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -12333,7 +12412,7 @@ label of the current detector
 .INDENT 7.0
 .TP
 .B updateButton()
-update slot for Tango attribute source
+update slot for Doocs attribute source
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -12350,7 +12429,7 @@ update source input parameters
 .INDENT 7.0
 .IP \(bu 2
 \fBdoocsprops\fP (\fI\%str\fP) – json dictionary with
-(label, tango attribute) items
+(label, doocs attribute) items
 .IP \(bu 2
 \fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
 .UNINDENT
@@ -12595,7 +12674,7 @@ label of the current detector
 .INDENT 7.0
 .TP
 .B updateButton()
-update slot for Tango file source
+update slot for nexus file source
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -12609,6 +12688,273 @@ update source input parameters
 \fBnxsopen\fP (\fI\%bool\fP) – nexus file source keeps the file open
 .IP \(bu 2
 \fBnxslast\fP (\fI\%bool\fP) – nexus file source starts from the last image
+.IP \(bu 2
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B widgetnames = None
+(\fBlist\fP <\fI\%str\fP>) subwidget object names
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.sourceWidget.TinePropSourceWidget(parent=None)
+Bases: \fI\%lavuelib.sourceWidget.SourceBaseWidget\fP
+.sp
+test source widget
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B alias = \(aqtineprop\(aq
+(\fI\%str\fP) source alias
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configuration()
+provides configuration for the current image source
+.INDENT 7.0
+.TP
+.B Returns
+configuration string
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current image source
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B connectWidget()
+connects widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B datasource = \(aqTinePropSource\(aq
+(\fI\%str\fP) datasource class name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B disconnectWidget()
+disconnects widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B eventFilter(obj, event)
+event filter
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – qt object
+.IP \(bu 2
+\fBevent\fP – qt event
+.UNINDENT
+.TP
+.B Returns
+status flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B label()
+return a label of the current detector
+.INDENT 7.0
+.TP
+.B Returns
+label of the current detector
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = \(aqTine Property\(aq
+(\fI\%str\fP) source name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B requires = (\(aqPYTINE\(aq,)
+(\fI\%tuple\fP <\fI\%str\fP>) capitalized required packages
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateButton()
+update slot for Tine property source
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateComboBox()
+updates ComboBox
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateMetaData(tineprops=None, **kargs)
+update source input parameters
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBtineprops\fP (\fI\%str\fP) – json dictionary with
+(label, tine property) items
+.IP \(bu 2
+\fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B widgetnames = None
+(\fBlist\fP <\fI\%str\fP>) subwidget object names
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.sourceWidget.EpicsPVSourceWidget(parent=None)
+Bases: \fI\%lavuelib.sourceWidget.SourceBaseWidget\fP
+.sp
+test source widget
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B alias = \(aqepicspv\(aq
+(\fI\%str\fP) source alias
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configuration()
+provides configuration for the current image source
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current image source
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B connectWidget()
+connects widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B datasource = \(aqEpicsPVSource\(aq
+(\fI\%str\fP) datasource class name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B disconnectWidget()
+disconnects widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B eventFilter(obj, event)
+event filter
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – qt object
+.IP \(bu 2
+\fBevent\fP – qt event
+.UNINDENT
+.TP
+.B Returns
+status flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B label()
+return a label of the current detector
+.INDENT 7.0
+.TP
+.B Returns
+label of the current detector
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = \(aqEpics PV\(aq
+(\fI\%str\fP) source name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B requires = (\(aqPYEPICS\(aq,)
+(\fI\%tuple\fP <\fI\%str\fP>) capitalized required packages
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateButton()
+update slot for Epics file source
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateComboBox()
+updates ComboBox
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateMetaData(epicspvnames=None, epicspvshapes=None, **kargs)
+update source input parameters
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBepicspvnames\fP (\fI\%str\fP) – json dictionary with
+(label, file epics attribute) items
+.IP \(bu 2
+\fBepicspvshapes\fP (\fI\%str\fP) – json dictionary with
+(label, dir epics attribute) items
 .IP \(bu 2
 \fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – source widget input parameter dictionary
 .UNINDENT
@@ -12636,7 +12982,7 @@ constructor
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.sourceWidget.swproperties = [{\(aqalias\(aq: \(aqhidra\(aq, \(aqwidget\(aq: \(aqHidraSourceWidget\(aq, \(aqrequires\(aq: (\(aqHIDRA\(aq,), \(aqname\(aq: \(aqHidra\(aq}, {\(aqalias\(aq: \(aqhttp\(aq, \(aqwidget\(aq: \(aqHTTPSourceWidget\(aq, \(aqrequires\(aq: (\(aqREQUESTS\(aq,), \(aqname\(aq: \(aqHTTP response\(aq}, {\(aqalias\(aq: \(aqtangoattr\(aq, \(aqwidget\(aq: \(aqTangoAttrSourceWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqTango Attribute\(aq}, {\(aqalias\(aq: \(aqtangoevents\(aq, \(aqwidget\(aq: \(aqTangoEventsSourceWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqTango Events\(aq}, {\(aqalias\(aq: \(aqtangofile\(aq, \(aqwidget\(aq: \(aqTangoFileSourceWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqTango File\(aq}, {\(aqalias\(aq: \(aqdoocsprop\(aq, \(aqwidget\(aq: \(aqDOOCSPropSourceWidget\(aq, \(aqrequires\(aq: (\(aqPYDOOCS\(aq,), \(aqname\(aq: \(aqDOOCS Property\(aq}, {\(aqalias\(aq: \(aqzmqsource\(aq, \(aqwidget\(aq: \(aqZMQSourceWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqZMQ Stream\(aq}, {\(aqalias\(aq: \(aqnxsfile\(aq, \(aqwidget\(aq: \(aqNXSFileSourceWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqNeXus File\(aq}, {\(aqalias\(aq: \(aqtest\(aq, \(aqwidget\(aq: \(aqTestSourceWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqTest\(aq}]
+.B lavuelib.sourceWidget.swproperties = [{\(aqalias\(aq: \(aqhidra\(aq, \(aqwidget\(aq: \(aqHidraSourceWidget\(aq, \(aqrequires\(aq: (\(aqHIDRA\(aq,), \(aqname\(aq: \(aqHidra\(aq}, {\(aqalias\(aq: \(aqhttp\(aq, \(aqwidget\(aq: \(aqHTTPSourceWidget\(aq, \(aqrequires\(aq: (\(aqREQUESTS\(aq,), \(aqname\(aq: \(aqHTTP response\(aq}, {\(aqalias\(aq: \(aqtangoattr\(aq, \(aqwidget\(aq: \(aqTangoAttrSourceWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqTango Attribute\(aq}, {\(aqalias\(aq: \(aqtangoevents\(aq, \(aqwidget\(aq: \(aqTangoEventsSourceWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqTango Events\(aq}, {\(aqalias\(aq: \(aqtangofile\(aq, \(aqwidget\(aq: \(aqTangoFileSourceWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqTango File\(aq}, {\(aqalias\(aq: \(aqdoocsprop\(aq, \(aqwidget\(aq: \(aqDOOCSPropSourceWidget\(aq, \(aqrequires\(aq: (\(aqPYDOOCS\(aq,), \(aqname\(aq: \(aqDOOCS Property\(aq}, {\(aqalias\(aq: \(aqzmqsource\(aq, \(aqwidget\(aq: \(aqZMQSourceWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqZMQ Stream\(aq}, {\(aqalias\(aq: \(aqnxsfile\(aq, \(aqwidget\(aq: \(aqNXSFileSourceWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqNeXus File\(aq}, {\(aqalias\(aq: \(aqtineprop\(aq, \(aqwidget\(aq: \(aqTinePropSourceWidget\(aq, \(aqrequires\(aq: (\(aqPYTINE\(aq,), \(aqname\(aq: \(aqTine Property\(aq}, {\(aqalias\(aq: \(aqepicspv\(aq, \(aqwidget\(aq: \(aqEpicsPVSourceWidget\(aq, \(aqrequires\(aq: (\(aqPYEPICS\(aq,), \(aqname\(aq: \(aqEpics PV\(aq}, {\(aqalias\(aq: \(aqtest\(aq, \(aqwidget\(aq: \(aqTestSourceWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqTest\(aq}]
 ( \fI\%dict\fP < \fI\%str\fP, any > ) source widget properties
 .UNINDENT
 .SS lavuelib.statisticsGroupBox module
