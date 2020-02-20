@@ -1644,7 +1644,9 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.lazyimageslider = dialog.lazyimageslider
             self.__switchlazysignals(self.__settings.lazyimageslider)
 
+        setsrc = False
         if self.__settings.nrsources != dialog.nrsources:
+            setsrc = True
             if self.__sourcewg.isConnected():
                 self.__sourcewg.toggleServerConnection()
                 QtCore.QCoreApplication.processEvents()
@@ -1656,7 +1658,6 @@ class LiveViewer(QtGui.QDialog):
         self.__settings.geometryfromsource = dialog.geometryfromsource
         self.__settings.interruptonerror = dialog.interruptonerror
         self.__settings.sourcedisplay = dialog.sourcedisplay
-        setsrc = False
         if self.__settings.hidraport != dialog.hidraport:
             self.__settings.hidraport = dialog.hidraport
             setsrc = True
