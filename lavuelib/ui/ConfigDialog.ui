@@ -1525,7 +1525,7 @@
        </widget>
        <widget class="QWidget" name="tangosourceTab">
         <attribute name="title">
-         <string>Tango/DOOCS/Epics Image Sources</string>
+         <string>Tango/DOOCS/Tine/Epics Image Sources</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_48">
          <item row="0" column="0">
@@ -1691,6 +1691,32 @@ in the file name and the file directory for Tango File Source</string>
             </widget>
            </item>
            <item>
+            <widget class="QGroupBox" name="groupBox_5">
+             <property name="title">
+              <string>Tine Property</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_33">
+              <item row="0" column="0">
+               <layout class="QGridLayout" name="gridLayout_32">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="tinepropLabel">
+                  <property name="text">
+                   <string>Properties:</string>
+                  </property>
+                  <property name="buddy">
+                   <cstring>tinepropLineEdit</cstring>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLineEdit" name="tinepropLineEdit"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
             <widget class="QGroupBox" name="groupBox_4">
              <property name="title">
               <string>Epics PV</string>
@@ -1714,7 +1740,7 @@ in the file name and the file directory for Tango File Source</string>
                 <item row="1" column="0">
                  <widget class="QLabel" name="pvshapeLabel">
                   <property name="text">
-                   <string>PV Shape:</string>
+                   <string>PV Shapes:</string>
                   </property>
                   <property name="buddy">
                    <cstring>pvshapeLineEdit</cstring>
@@ -1848,10 +1874,11 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>dirattrLineEdit</tabstop>
   <tabstop>dirtransLineEdit</tabstop>
   <tabstop>doocspropLineEdit</tabstop>
+  <tabstop>tinepropLineEdit</tabstop>
   <tabstop>pvnameLineEdit</tabstop>
   <tabstop>pvshapeLineEdit</tabstop>
-  <tabstop>filterTableWidget</tabstop>
   <tabstop>filterButtonBox</tabstop>
+  <tabstop>filterTableWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>

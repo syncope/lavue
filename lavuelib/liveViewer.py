@@ -768,6 +768,7 @@ class LiveViewer(QtGui.QDialog):
             serverdict=serverdict,
             hidraport=self.__settings.hidraport,
             doocsprops=self.__settings.doocsprops,
+            tineprops=self.__settings.tineprops,
             epicspvnames=self.__settings.epicspvnames,
             epicspvshapes=self.__settings.epicspvshapes
         )
@@ -1473,6 +1474,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.interruptonerror = self.__settings.interruptonerror
         cnfdlg.dirtrans = self.__settings.dirtrans
         cnfdlg.tangoattrs = self.__settings.tangoattrs
+        cnfdlg.tineprops = self.__settings.tineprops
         cnfdlg.epicspvnames = self.__settings.epicspvnames
         cnfdlg.epicspvshapes = self.__settings.epicspvshapes
         cnfdlg.doocsprops = self.__settings.doocsprops
@@ -1663,6 +1665,9 @@ class LiveViewer(QtGui.QDialog):
             setsrc = True
         if self.__settings.tangoattrs != dialog.tangoattrs:
             self.__settings.tangoattrs = dialog.tangoattrs
+            setsrc = True
+        if self.__settings.tineprops != dialog.tineprops:
+            self.__settings.tineprops = dialog.tineprops
             setsrc = True
         if self.__settings.epicspvnames != dialog.epicspvnames:
             self.__settings.epicspvnames = dialog.epicspvnames

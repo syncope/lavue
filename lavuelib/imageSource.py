@@ -88,6 +88,18 @@ except ImportError:
     #: (:obj:`bool`) pyepics imported
     PYEPICS = False
 
+try:
+    import PyTine
+    #: (:obj:`bool`) PyTine imported
+    PyTine.get
+    PYTINE = True
+except ImportError:
+    #: (:obj:`bool`) PyTine imported
+    PYTINE = False
+except AttributeError:
+    #: (:obj:`bool`) PyTine imported
+    PYTINE = False
+
 
 import socket
 import numpy as np
@@ -1512,3 +1524,132 @@ class EpicsPVSource(BaseSource):
             logger.warning(str(e))
             # print(str(e))
             return False
+
+
+class TinePropSource(BaseSource):
+
+    """ image source as Tine Property """
+
+    def __init__(self, timeout=None):
+        """ constructor
+
+        :param timeout: timeout for setting connection in ms
+        :type timeout: :obj:`int`
+        """
+        BaseSource.__init__(self, timeout)
+        #: (:obj:`str`)
+        #:       tine device address name
+        self.__address = None
+        #: (:obj:`str`)
+        #:       tine property name
+        self.__prop = None
+
+    @classmethod
+    def __dtype(cls, header):
+        """ provides dtype of tine property
+
+        :param header: tine frameHeader
+        :type header: :obj:`dict` <:obj:`str`, `any`>
+        :returns: numpy dtype
+        :rtype: :obj:`str`
+        """
+        dtype = ""
+        if not header or "bytesPerPixel" not in header:
+            raise ValueError("bytesPerPixel not defined in the header")
+
+        if header["bytesPerPixel"] == 1:
+            dtype = "u1"
+        elif header["bytesPerPixel"] == 2:
+            dtype = "u2"
+        else:
+            raise ValueError("Invalid bytesPerPixel: %s"
+                             % header["bytesPerPixel"])
+
+        return dtype
+
+    @classmethod
+    def __height(cls, header):
+        """ provides height of tine property
+
+        :param header: tine frameHeader
+        :type header: :obj:`dict` <:obj:`str`, `any`>
+        :returns: numpy dtype
+        :rtype: :obj:`str`
+        """
+        height = 0
+        if "aoiHeight" in header and header["aoiHeight"] > 0:
+            height = header["aoiHeight"]
+        elif "sourceHeight" in header:
+            height = header["sourceHeight"]
+
+        if not 0 < height <= 65535:
+            raise ValueError("Invalid height: %s" % height)
+
+        return height
+
+    @classmethod
+    def __width(cls, header):
+        """ provides width of tine property
+
+        :param header: tine frameHeader
+        :type header: :obj:`dict` <:obj:`str`, `any`>
+        :returns: numpy dtype
+        :rtype: :obj:`str`
+        """
+        width = 0
+        if "aoiWidth" in header and header["aoiWidth"] > 0:
+            width = header["aoiWidth"]
+        elif "sourceWidth" in header:
+            width = header["sourceWidth"]
+
+        if not 0 < width <= 65535:
+            raise ValueError("Invalid width: %s" % width)
+
+        return width
+
+    def getData(self):
+        """ provides image name, image data and metadata
+
+        :returns:  image name, image data, json dictionary with metadata
+        :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
+        """
+
+        if not self.__address or not self.__prop:
+            return "No Tine Property defined", "__ERROR__", None
+        try:
+            property = PyTine.get(address=self.__address,
+                                  property=self.__prop,
+                                  timeout=self._timeout)
+            rawdata = property["data"]
+            header = rawdata["frameHeader"]
+            dtype = self.__dtype(header)
+            height = self.__height(header)
+            width = self.__width(header)
+
+            image = np.frombuffer(rawdata["imageBytes"], dtype=dtype)
+            if len(image) != height * width:
+                raise ValueError(
+                    "Dimension mismatch: size: %s != %s"
+                    % (len(image), height * width))
+            image = image.reshape((height, width))
+
+            timestamp = property["timestamp"]
+            return (np.transpose(image),
+                    '%s (%s)' % (self._configuration, timestamp), None)
+        except Exception as e:
+            logger.warning(str(e))
+            # print(str(e))
+            return str(e), "__ERROR__", ""
+            pass  # this needs a bit more care
+        return None, None, None
+
+    def setConfiguration(self, configuration):
+        """ set configuration
+
+        :param configuration:  configuration string
+        :type configuration: :obj:`str`
+        """
+        if self._configuration != configuration:
+            self._configuration = configuration
+            self.__address, self.__prop = str(
+                self._configuration).rsplit("/", 1)

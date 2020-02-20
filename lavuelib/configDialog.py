@@ -297,6 +297,9 @@ class ConfigDialog(QtGui.QDialog):
         #: (:obj:`str`) JSON dictionary with {label: file tango attribute}
         #  for Tango Attribute source
         self.tangofileattrs = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: tina properties}
+        #  for Tine Property source
+        self.tineprops = '{}'
         #: (:obj:`str`) JSON dictionary with {label: dir tango attribute}
         #  for Tango Attribute source
         self.tangodirattrs = '{}'
@@ -434,6 +437,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.interruptCheckBox.setChecked(self.interruptonerror)
         self.__ui.dirtransLineEdit.setText(self.dirtrans)
         self.__ui.attrLineEdit.setText(self.tangoattrs)
+        self.__ui.tinepropLineEdit.setText(self.tineprops)
         self.__ui.doocspropLineEdit.setText(self.doocsprops)
         self.__ui.pvnameLineEdit.setText(self.epicspvnames)
         self.__ui.pvshapeLineEdit.setText(self.epicspvshapes)
@@ -757,6 +761,7 @@ class ConfigDialog(QtGui.QDialog):
             self.__ui.tabWidget.setCurrentIndex(3)
             self.__ui.dirtransLineEdit.setFocus(True)
             return
+
         try:
             attr = str(self.__ui.attrLineEdit.text()).strip()
             mytr = json.loads(attr)
@@ -767,6 +772,18 @@ class ConfigDialog(QtGui.QDialog):
             # print(str(e))
             self.__ui.tabWidget.setCurrentIndex(3)
             self.__ui.attrLineEdit.setFocus(True)
+            return
+
+        try:
+            prop = str(self.__ui.tinepropLineEdit.text()).strip()
+            mytr = json.loads(prop)
+            if isinstance(mytr, dict):
+                self.tineprops = prop
+        except Exception as e:
+            logger.warning(str(e))
+            # print(str(e))
+            self.__ui.tabWidget.setCurrentIndex(3)
+            self.__ui.tinepropLineEdit.setFocus(True)
             return
         try:
             prop = str(self.__ui.doocspropLineEdit.text()).strip()

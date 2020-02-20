@@ -1,5 +1,6 @@
-2020-02-XX Jan Kotanski <jan.kotanski@desy.de>
-	* add Epic PV image source
+2020-02-20 Jan Kotanski <jan.kotanski@desy.de>
+	* add Tine Property image source
+	* add Epics PV image source
 	* tagged as 2.35.0
 
 2020-02-06 Jan Kotanski <jan.kotanski@desy.de>
