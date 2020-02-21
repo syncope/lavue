@@ -1,3 +1,7 @@
+2020-02-21 Jan Kotanski <jan.kotanski@desy.de>
+	* set refreshrate for tine
+	* tagged as 2.35.3
+
 2020-02-20 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for source status
 	* tagged as 2.35.2

@@ -31,6 +31,8 @@ import json
 import struct
 import logging
 
+from . import dataFetchThread
+
 try:
     import requests
     #: (:obj:`bool`) requests imported
@@ -1620,9 +1622,10 @@ class TinePropSource(BaseSource):
         if not self.__address or not self.__prop:
             return "No Tine Property defined", "__ERROR__", None
         try:
+            interval = int(dataFetchThread.GLOBALREFRESHRATE*1000)
             prop = PyTine.get(address=self.__address,
                               property=self.__prop,
-                              timeout=self._timeout)
+                              timeout=interval)
             rawdata = prop["data"]
 
             if "imageMatrix" in rawdata:
