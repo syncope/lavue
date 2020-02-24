@@ -34,6 +34,7 @@ import logging
 
 from . import axesDialog
 from . import memoExportDialog
+from . import globallogger
 
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \

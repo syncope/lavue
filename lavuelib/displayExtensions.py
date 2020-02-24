@@ -34,6 +34,7 @@ import time
 import logging
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI, Handle
 
+from . import globallogger
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
     if _pg.__version__ else ("0", "9", "0")

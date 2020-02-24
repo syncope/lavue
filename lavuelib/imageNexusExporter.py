@@ -32,6 +32,7 @@ from pyqtgraph.exporters import Exporter
 from pyqtgraph.parametertree import Parameter
 
 from . import filewriter
+from . import globallogger
 
 #: (:obj:`dict` <:obj:`str`, :obj:`module`> ) nexus writer modules
 WRITERS = {}
@@ -106,6 +107,7 @@ class ImageNexusExporter(Exporter):
         :param item: :class: `pyqtgraph.PlotItem` or `pyqtgraph.GraphicsScene`
         """
         Exporter.__init__(self, item)
+        logger.setLevel(globallogger.level)
 
         #: (:class:`pyqtgraph.parametertree.Parameter`) exporter parameters
         self.params = Parameter(name='params', type='group', children=[

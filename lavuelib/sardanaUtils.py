@@ -31,6 +31,8 @@ import time
 import sys
 import logging
 
+from . import globallogger
+
 try:
     import PyTango
     #: (:obj:`bool`) PyTango imported
@@ -43,7 +45,6 @@ if sys.version_info > (3,):
     basestring = str
 
 logger = logging.getLogger(__name__)
-
 
 class SardanaUtils(object):
 
@@ -59,6 +60,8 @@ class SardanaUtils(object):
             self.__db = PyTango.Database()
         except Exception:
             self.__db = None
+        logger.setLevel(globallogger.level)
+
 
     @classmethod
     def openProxy(cls, device, counter=1000):
@@ -98,6 +101,7 @@ class SardanaUtils(object):
         """
         if not door:
             raise Exception("Door '%s' cannot be found" % door)
+        print(door)
         logger.debug("Door: %s" % door)
         sdoor = door.split("/")
         tangohost = None
@@ -110,10 +114,10 @@ class SardanaUtils(object):
             db = PyTango.Database(host, int(port))
         else:
             db = self.__db
-        logger.debug("Database: %s" % db)
+        logger.debug("Database: %s" % str(db))
 
         servers = db.get_device_exported_for_class("MacroServer").value_string
-        logger.debug("MacroSevers: %s" % servers)
+        logger.debug("MacroSevers: %s" % str(servers))
         ms = None
 
         for server in servers:
@@ -130,11 +134,11 @@ class SardanaUtils(object):
                 dp = None
             if hasattr(dp, "DoorList"):
                 lst = dp.DoorList
-                logger.debug("DoorList: %s" % lst)
+                logger.debug("DoorList: %s" % str(lst))
                 if lst and (door in lst or
                             ("%s/%s" % (tangohost, door) in lst)):
                     ms = dp
-                    logger.debug("Door MacroServer: %s" % ms)
+                    logger.debug("Door MacroServer: %s" % str(ms))
                     break
         return ms
 

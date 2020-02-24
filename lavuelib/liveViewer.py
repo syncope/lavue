@@ -46,6 +46,7 @@ import logging
 
 from . import imageSource as isr
 from . import messageBox
+from . import globallogger
 
 # from . import sourceGroupBox
 from . import sourceTabWidget

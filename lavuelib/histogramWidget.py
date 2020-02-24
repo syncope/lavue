@@ -31,6 +31,8 @@ from pyqtgraph import QtCore, QtGui
 import numpy as np
 import logging
 
+from . import globallogger
+
 #: ( (:obj:`str`,:obj:`str`,:obj:`str`) )
 #:         pg major version, pg minor verion, pg patch version
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \

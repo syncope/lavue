@@ -34,6 +34,7 @@ import json
 import logging
 
 from . import filewriter
+from . import globallogger
 
 if sys.version_info > (3,):
     long = int

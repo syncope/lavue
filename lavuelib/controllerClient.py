@@ -31,6 +31,8 @@ from pyqtgraph import QtCore
 import logging
 import PyTango
 
+from . import globallogger
+
 
 logger = logging.getLogger(__name__)
 

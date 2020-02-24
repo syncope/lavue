@@ -31,6 +31,8 @@ from pyqtgraph import QtCore, QtGui
 from .histogramWidget import HistogramHLUTWidget
 from . import messageBox
 from . import gradientDialog
+from . import globallogger
+
 # from .histogramWidget import HistogramHLUTItem
 import math
 import os

@@ -42,6 +42,7 @@ from . import rangeDialog
 from . import takeMotorsDialog
 from . import intervalsDialog
 from . import motorWatchThread
+from . import globallogger
 
 _intensityformclass, _intensitybaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),

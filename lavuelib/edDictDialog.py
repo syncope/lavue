@@ -30,6 +30,7 @@ import os
 
 
 # from .EdDataDlg import EdDataDlg
+from . import globallogger
 
 import logging
 #: (:obj:`logging.Logger`) logger object

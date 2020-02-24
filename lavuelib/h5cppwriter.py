@@ -28,6 +28,7 @@ from pninexus import h5cpp
 
 from . import filewriter
 # from .Types import nptype
+from . import globallogger
 
 logger = logging.getLogger(__name__)
 

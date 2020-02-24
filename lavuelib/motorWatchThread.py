@@ -33,6 +33,8 @@ import logging
 
 from pyqtgraph import QtCore
 
+from . import globallogger
+
 #: (:obj:`float`) refresh rate in seconds
 GLOBALREFRESHRATE = .1
 

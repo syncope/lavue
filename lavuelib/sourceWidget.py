@@ -35,6 +35,8 @@ import logging
 
 from . import imageField
 from . import imageFileHandler
+from . import globallogger
+
 _testformclass, _testbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "TestSourceWidget.ui"))

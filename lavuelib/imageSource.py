@@ -32,6 +32,7 @@ import struct
 import logging
 
 from . import dataFetchThread
+from . import globallogger
 
 try:
     import requests

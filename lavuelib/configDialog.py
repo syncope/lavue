@@ -33,6 +33,7 @@ import json
 import logging
 
 from . import edDictDialog
+from . import globallogger
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),

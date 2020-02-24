@@ -43,6 +43,7 @@ from . import imageSource as isr
 from . import toolWidget
 from . import memoExportDialog
 from . import sardanaUtils
+from . import globallogger
 
 # _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
 #     if _pg.__version__ else ("0", "9", "0")
