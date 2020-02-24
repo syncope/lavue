@@ -132,6 +132,7 @@ class SourceBaseWidget(QtGui.QWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QWidget.__init__(self, parent)
+        logger.setLevel(globallogger.level)
 
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = []

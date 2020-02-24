@@ -119,6 +119,7 @@ class ImageWidget(QtGui.QWidget):
         :type rgbtooltypes: :obj:`list` <:obj:`str`>
         """
         QtGui.QWidget.__init__(self, parent)
+        logger.setLevel(globallogger.level)
 
         #: (:obj:`list` < :obj:`str` > ) tool class names
         self.__tooltypes = tooltypes or []

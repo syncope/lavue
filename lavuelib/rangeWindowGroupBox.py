@@ -58,6 +58,7 @@ class RangeWindowGroupBox(QtGui.QWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QWidget.__init__(self, parent)
+        logger.setLevel(globallogger.level)
 
         #: (:class:`Ui_RangeWindowGroupBox') ui_widget object from qtdesigner
         self.__ui = _formclass()

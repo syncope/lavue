@@ -52,6 +52,7 @@ class EdDictDialog(QtGui.QDialog):
         :type parent: :class:`.QtCore.QObject`
         """
         QtGui.QDialog.__init__(self, parent)
+        logger.setLevel(globallogger.level)
 
         #: (:class:`Ui_Dialog') ui_dialog object from qtdesigner
         self.__ui = _formclass()

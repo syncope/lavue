@@ -60,6 +60,7 @@ class MotorWatchThread(QtCore.QThread):
         :type mserver: :class:`PyTango.DeviceProxy`
         """
         QtCore.QThread.__init__(self)
+        logger.setLevel(globallogger.level)
         #: (:obj:`bool`) execute loop flag
         self.__loop = False
         #: (:class:`PyTango.DeviceProxy`) first motor device proxy

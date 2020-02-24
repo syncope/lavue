@@ -27,5 +27,5 @@
 
 import logging
 
-#: (:obj:`str`) logger level
+#: (:obj:`int`) logger level
 level = logging.INFO

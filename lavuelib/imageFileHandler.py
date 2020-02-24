@@ -90,6 +90,7 @@ class NexusFieldHandler(object):
         :param writer: h5 writer module: "pni" or "h5py"
         :type writer: :obj:`str`
         """
+        logger.setLevel(globallogger.level)
         #: (:obj:`any`) module image object
         self.__image = None
         #: (:obj:`numpy.ndarray`) image data

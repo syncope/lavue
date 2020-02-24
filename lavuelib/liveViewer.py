@@ -112,6 +112,7 @@ class MainWindow(QtGui.QMainWindow):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QMainWindow.__init__(self, parent)
+        logger.setLevel(globallogger.level)
         self.__lavue = LiveViewer(options, self)
         self.centralwidget = QtGui.QWidget(self)
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
@@ -193,6 +194,7 @@ class LiveViewer(QtGui.QDialog):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QDialog.__init__(self, parent)
+        logger.setLevel(globallogger.level)
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         if options.mode and options.mode.lower() in ["expert"]:

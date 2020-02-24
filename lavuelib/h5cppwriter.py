@@ -336,6 +336,7 @@ class H5CppFile(filewriter.FTFile):
         :type filename: :obj:`str`
         """
         filewriter.FTFile.__init__(self, h5object, filename)
+        logger.setLevel(globallogger.level)
         #: (:obj:`str`) object nexus path
         self.path = None
         if hasattr(h5object, "path"):

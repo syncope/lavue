@@ -46,6 +46,7 @@ if sys.version_info > (3,):
 
 logger = logging.getLogger(__name__)
 
+
 class SardanaUtils(object):
 
     """ sardanamacro server"""
@@ -61,7 +62,6 @@ class SardanaUtils(object):
         except Exception:
             self.__db = None
         logger.setLevel(globallogger.level)
-
 
     @classmethod
     def openProxy(cls, device, counter=1000):

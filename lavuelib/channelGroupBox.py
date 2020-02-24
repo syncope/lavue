@@ -62,6 +62,7 @@ class ChannelGroupBox(QtGui.QWidget):
         :type expertmode: :obj:`bool`
         """
         QtGui.QGroupBox.__init__(self, parent)
+        logger.setLevel(globallogger.level)
 
         #: (:class:`Ui_LevelsGroupBox') ui_groupbox object from qtdesigner
         self.__ui = _formclass()

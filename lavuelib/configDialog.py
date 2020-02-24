@@ -52,6 +52,7 @@ class TableWidgetDragCheckBoxes(QtGui.QTableWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QTableWidget.__init__(self, parent)
+        logger.setLevel(globallogger.level)
 
         #: (:obj:`list` < [ :obj:`str`, :obj:`bool` ] > ) checkbox item list
         self.__checkboxdata = []
@@ -182,6 +183,7 @@ class ConfigDialog(QtGui.QDialog):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QDialog.__init__(self, parent)
+        logger.setLevel(globallogger.level)
 
         #: (:class:`Ui_ConfigDialog') ui_dialog object from qtdesigner
         self.__ui = _formclass()
