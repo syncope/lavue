@@ -35,7 +35,6 @@ from argparse import RawTextHelpFormatter
 
 import lavuelib
 import lavuelib.liveViewer
-import lavuelib.globallogger
 from pyqtgraph import QtCore, QtGui
 
 dialog = None
@@ -251,10 +250,11 @@ def main():
               'critical': logging.CRITICAL}
 
     level = levels.get(options.log, logging.INFO)
-    logging.basicConfig()
-    logger = logging.getLogger(__name__)
+    handler = logging.Handler()
+    logging.basicConfig(
+        format="%(levelname)s: %(message)s")
+    logger = logging.getLogger("lavue")
     logger.setLevel(level)
-    lavuelib.globallogger.level = level
 
     app = QtGui.QApplication(['LaVue'])
     setupHandler()

@@ -34,7 +34,6 @@ import json
 import logging
 
 from . import filewriter
-from . import globallogger
 
 if sys.version_info > (3,):
     long = int
@@ -74,7 +73,7 @@ except Exception:
     pass
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("lavue")
 
 
 class NexusFieldHandler(object):
@@ -90,7 +89,6 @@ class NexusFieldHandler(object):
         :param writer: h5 writer module: "pni" or "h5py"
         :type writer: :obj:`str`
         """
-        logger.setLevel(globallogger.level)
         #: (:obj:`any`) module image object
         self.__image = None
         #: (:obj:`numpy.ndarray`) image data

@@ -43,7 +43,6 @@ from . import imageSource as isr
 from . import toolWidget
 from . import memoExportDialog
 from . import sardanaUtils
-from . import globallogger
 
 # _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
 #     if _pg.__version__ else ("0", "9", "0")
@@ -52,7 +51,7 @@ _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "ImageWidget.ui"))
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("lavue")
 
 
 class ImageWidget(QtGui.QWidget):
@@ -119,7 +118,6 @@ class ImageWidget(QtGui.QWidget):
         :type rgbtooltypes: :obj:`list` <:obj:`str`>
         """
         QtGui.QWidget.__init__(self, parent)
-        logger.setLevel(globallogger.level)
 
         #: (:obj:`list` < :obj:`str` > ) tool class names
         self.__tooltypes = tooltypes or []

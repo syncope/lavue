@@ -42,7 +42,6 @@ from . import rangeDialog
 from . import takeMotorsDialog
 from . import intervalsDialog
 from . import motorWatchThread
-from . import globallogger
 
 _intensityformclass, _intensitybaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -98,7 +97,7 @@ __all__ = [
     'twproperties',
 ]
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("lavue")
 
 
 class ToolParameters(object):
@@ -108,7 +107,6 @@ class ToolParameters(object):
         """ constructor
 
         """
-        logger.setLevel(globallogger.level)
         #: (:obj:`bool`) lines enabled
         # self.lines = False
         #: (:obj:`bool`) rois enabled
@@ -161,7 +159,6 @@ class ToolBaseWidget(QtGui.QWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QWidget.__init__(self, parent)
-        logger.setLevel(globallogger.level)
         #: (:class:`pyqtgraph.QtCore.QObject`) mainwidget
         self._mainwidget = parent
         #: (:class:`Ui_ToolBaseWidget')

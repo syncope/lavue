@@ -31,7 +31,6 @@ from pyqtgraph import QtCore, QtGui
 from .histogramWidget import HistogramHLUTWidget
 from . import messageBox
 from . import gradientDialog
-from . import globallogger
 
 # from .histogramWidget import HistogramHLUTItem
 import math
@@ -43,7 +42,7 @@ _formclass, _baseclass = uic.loadUiType(
                  "ui", "LevelsGroupBox.ui"))
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("lavue")
 
 
 class LevelsGroupBox(QtGui.QWidget):
@@ -74,7 +73,6 @@ class LevelsGroupBox(QtGui.QWidget):
         :type expertmode: :obj:`bool`
         """
         QtGui.QGroupBox.__init__(self, parent)
-        logger.setLevel(globallogger.level)
 
         #: (:class:`Ui_LevelsGroupBox') ui_groupbox object from qtdesigner
         self.__ui = _formclass()

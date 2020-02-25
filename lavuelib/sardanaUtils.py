@@ -31,8 +31,6 @@ import time
 import sys
 import logging
 
-from . import globallogger
-
 try:
     import PyTango
     #: (:obj:`bool`) PyTango imported
@@ -44,7 +42,7 @@ except ImportError:
 if sys.version_info > (3,):
     basestring = str
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("lavue")
 
 
 class SardanaUtils(object):
@@ -61,7 +59,6 @@ class SardanaUtils(object):
             self.__db = PyTango.Database()
         except Exception:
             self.__db = None
-        logger.setLevel(globallogger.level)
 
     @classmethod
     def openProxy(cls, device, counter=1000):

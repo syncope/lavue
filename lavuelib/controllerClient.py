@@ -31,10 +31,8 @@ from pyqtgraph import QtCore
 import logging
 import PyTango
 
-from . import globallogger
 
-
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("lavue")
 
 
 class TangoCB(object):
@@ -51,7 +49,6 @@ class TangoCB(object):
         :param signal: signal to emit
         :type signal: :class:`pyqtgraph.QtCore.pyqtSignal`
         """
-        logger.setLevel(globallogger.level)
         self.__client = client
         self.__name = name
         self.__signal = signal
@@ -92,7 +89,6 @@ class ControllerClient(QtCore.QObject):
         :type device: :obj:`str`
         """
         QtCore.QObject.__init__(self)
-        logger.setLevel(globallogger.level)
         #: :class:`PyTango.DeviceProxy` controller device proxy
         self.__dp = PyTango.DeviceProxy(device)
         #: subscribe flag

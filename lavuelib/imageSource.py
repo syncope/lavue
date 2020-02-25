@@ -32,7 +32,6 @@ import struct
 import logging
 
 from . import dataFetchThread
-from . import globallogger
 
 try:
     import requests
@@ -124,7 +123,7 @@ else:
     bytes = str
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("lavue")
 
 
 def tobytes(x):
@@ -169,7 +168,6 @@ class BaseSource(object):
         :param timeout: timeout for setting connection in ms
         :type timeout: :obj:`int`
         """
-        logger.setLevel(globallogger.level)
         #: (:obj:`int`) timeout in ms
         self._timeout = timeout
         #: (:obj:`str`) configuration string

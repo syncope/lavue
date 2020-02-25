@@ -30,11 +30,10 @@ import os
 
 
 # from .EdDataDlg import EdDataDlg
-from . import globallogger
 
 import logging
 #: (:obj:`logging.Logger`) logger object
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("lavue")
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -52,7 +51,6 @@ class EdDictDialog(QtGui.QDialog):
         :type parent: :class:`.QtCore.QObject`
         """
         QtGui.QDialog.__init__(self, parent)
-        logger.setLevel(globallogger.level)
 
         #: (:class:`Ui_Dialog') ui_dialog object from qtdesigner
         self.__ui = _formclass()
