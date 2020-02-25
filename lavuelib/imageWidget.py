@@ -1118,7 +1118,7 @@ class ImageWidget(QtGui.QWidget):
                 _, warn = self.__sardana.runMacro(
                     str(self.__settings.doorname), command, wait=False)
                 if warn:
-                    logger.warning(str(warn))
+                    logger.warning("ImageWidget.runMacro %s" % str(warn))
                     # print("Warning: %s" % str(warn))
                     msg = str(warn)
                     messageBox.MessageBox.warning(
@@ -1356,7 +1356,7 @@ class ImageWidget(QtGui.QWidget):
                         text, str(value))
         else:
             # print("Connection error")
-            logger.error("Connection error")
+            logger.error("ImageWidget.applyROI: Connection error")
 
     @QtCore.pyqtSlot(str)
     def fetchROIs(self, rlabel):
@@ -1435,7 +1435,7 @@ class ImageWidget(QtGui.QWidget):
             self.updateROIs(len(coords), coords)
         else:
             # print("Connection error")
-            logger.error("Connection error")
+            logger.error("ImageWidget.fetchROIs: Connection error")
 
     def currentIntensity(self):
         """ provides intensity for current mouse position

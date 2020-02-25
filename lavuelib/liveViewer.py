@@ -843,6 +843,7 @@ class LiveViewer(QtGui.QDialog):
         :returns: start flag
         :rtype: :obj:`bool`
         """
+        logger.debug("LiveViewer.__applyoptions %s" % options)
         if hasattr(options, "doordevice") and options.doordevice is not None:
             self.__settings.doorname = str(options.doordevice)
 
@@ -1013,6 +1014,8 @@ class LiveViewer(QtGui.QDialog):
         self.restoreGeometry(settings.value(
             "Layout/DialogGeometry", type=QtCore.QByteArray))
         status = self.__settings.load(settings)
+        logger.debug("LiveViewer.__loadSettings %s"
+                     % self.__settings.__dict__)
         self.__levelswg.updateCustomGradients(
             self.__settings.customGradients())
         for topic, value in status:
@@ -1744,6 +1747,7 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.roiscolors = dialog.roiscolors
             self.__imagewg.setROIsColors(self.__settings.roiscolors)
 
+        logger.debug("LiveViewer.__updateConfig %s" % self.__settings.__dict__)
         if remasking:
             self.__remasking()
 
@@ -2241,6 +2245,12 @@ class LiveViewer(QtGui.QDialog):
                     x, y = self.__translations[i]
                 else:
                     x, y = None, None
+                logger.debug(
+                    "LiveViewer.__getNewData %s: %s %s %s, [%s, %s]" %
+                    (i, name, metadata,
+                     rawimage.shape if hasattr(rawimage, "shape") else "",
+                     x or "", y or "")
+                )
                 fulldata.append(PartialData(name, rawimage, metadata, x, y))
         if not self.__sourcewg.isConnected():
             return

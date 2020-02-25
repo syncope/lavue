@@ -600,6 +600,7 @@ class LevelsGroupBox(QtGui.QWidget):
             self._updateGradient(0)
         else:
             logger.error(
+                "_removeGradientItem: "
                 "Error in _removeGradientItem for %s" % name)
             # print("Error %s" % name)
 
@@ -637,7 +638,9 @@ class LevelsGroupBox(QtGui.QWidget):
             if cid > -1:
                 self.__ui.gradientComboBox.setCurrentIndex(cid)
             else:
-                logger.error("Error in _changeGradient for %s" % name)
+                logger.error(
+                    "LevelsGroupBox.changeGradient: "
+                    "Error in _changeGradient for %s" % name)
                 # print("Error %s" % name)
 
     def updateHistoImage(self, autoLevel=None):

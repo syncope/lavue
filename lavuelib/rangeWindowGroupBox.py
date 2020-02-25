@@ -108,7 +108,9 @@ class RangeWindowGroupBox(QtGui.QWidget):
                 self.__ui.functionComboBox.setCurrentIndex(cid)
             else:
                 # print("Error %s" % name)
-                logger.warning("Error  in setFunction for %s" % name)
+                logger.warning(
+                    "RangeWindowGroupBox.setFunction: "
+                    "Error in setFunction for %s" % name)
 
     def factor(self):
         """ provides the current resize factor

@@ -976,8 +976,8 @@ class HTTPSource(BaseSource):
                             return (np.transpose(img),
                                     "%s (%s)" % (name, time.ctime()), "")
                 else:
-                    # print("HTTP Source: %s" % str(response.content))
-                    logger.info("HTTP Source: %s" % str(response.content))
+                    logger.info(
+                        "HTTPSource.getData: %s" % str(response.content))
                     pass
             except Exception as e:
                 # print(str(e))
@@ -1315,7 +1315,8 @@ class HiDRASource(BaseSource):
             if not self._initiated:
                 with QtCore.QMutexLocker(self.__mutex):
                     # print("TARGET %s" % self.__target)
-                    logger.info("TARGET %s" % self.__target)
+                    logger.info(
+                        "HiDRASource.connect: TARGET %s" % self.__target)
                     self.__query.initiate(self.__target)
                 self._initiated = True
                 with QtCore.QMutexLocker(self.__mutex):
@@ -1379,6 +1380,7 @@ class HiDRASource(BaseSource):
             if data[:10] == "###CBF: VE":
                 # print("[cbf source module]::metadata", metadata["filename"])
                 logger.info(
+                    "HiDRASource.getData: "
                     "[cbf source module]::metadata", metadata["filename"])
                 npdata = np.fromstring(data[:], dtype=np.uint8)
                 img = imageFileHandler.CBFLoader().load(npdata)
@@ -1391,6 +1393,7 @@ class HiDRASource(BaseSource):
             else:
                 # elif data[:2] in ["II\x2A\x00", "MM\x00\x2A"]:
                 logger.info(
+                    "HiDRASource.getData:"
                     "[tif source module]::metadata", metadata["filename"])
                 # print("[tif source module]::metadata", metadata["filename"])
                 if PILLOW and not self.__tiffloader:

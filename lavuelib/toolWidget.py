@@ -839,13 +839,14 @@ class MeshToolWidget(ToolBaseWidget):
         macrocommand.append("True")
         self.__door = self._mainwidget.getDoor()
         if self.__door is None:
-            logger.error("Cannot access Door device")
-            # print("Error: Cannot access Door device")
+            logger.error(
+                "MeshToolWidget.__startScan: Cannot access Door device")
             return False
 
         if not self._mainwidget.runMacro(macrocommand):
-            logger.error("Cannot in running %s " % macrocommand)
-            # print("Error: Cannot in running %s " % macrocommand)
+            logger.error(
+                "MeshToolWidget.__startScan: Cannot in running %s"
+                % macrocommand)
             return False
 
         self.__motorWatcher = motorWatchThread.MotorWatchThread(

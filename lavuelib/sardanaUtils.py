@@ -98,22 +98,24 @@ class SardanaUtils(object):
         """
         if not door:
             raise Exception("Door '%s' cannot be found" % door)
-        logger.debug("Door: %s" % door)
+        logger.debug("SardanaUtils.getMacroServer: Door = %s" % door)
         sdoor = door.split("/")
         tangohost = None
         if len(sdoor) > 1 and ":" in sdoor[0]:
             door = "/".join(sdoor[1:])
             tangohost = sdoor[0]
-        logger.debug("Tango Host: %s" % tangohost)
+        logger.debug(
+            "SardanaUtils.getMacroServer: Tango Host = %s" % tangohost)
         if tangohost or not self.__db:
             host, port = tangohost.split(":")
             db = PyTango.Database(host, int(port))
         else:
             db = self.__db
-        logger.debug("Database: %s" % str(db))
+        logger.debug("SardanaUtils.getMacroServer: Database = %s" % str(db))
 
         servers = db.get_device_exported_for_class("MacroServer").value_string
-        logger.debug("MacroSevers: %s" % str(servers))
+        logger.debug(
+            "SardanaUtils.getMacroServer: MacroSevers = %s" % str(servers))
         ms = None
 
         for server in servers:
@@ -125,16 +127,19 @@ class SardanaUtils(object):
             try:
                 dp = self.openProxy(msname)
             except Exception as e:
-                logger.warning(str(e))
+                logger.warning("SardanaUtils.getMacroServer: %s" % str(e))
                 # print(str(e))
                 dp = None
             if hasattr(dp, "DoorList"):
                 lst = [str(dr).lower() for dr in dp.DoorList]
-                logger.debug("DoorList: %s" % str(lst))
+                logger.debug(
+                    "SardanaUtils.getMacroServer: DoorList = %s" % str(lst))
                 if lst and (door.lower() in lst or
                             ("%s/%s" % (tangohost, door.lower()) in lst)):
                     ms = dp
-                    logger.debug("Door MacroServer: %s" % str(ms))
+                    logger.debug(
+                        "SardanaUtils.getMacroServer: "
+                        "Door MacroServer = %s" % str(ms))
                     break
         return ms
 
