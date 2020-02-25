@@ -35,6 +35,8 @@ import logging
 
 from . import imageField
 from . import imageFileHandler
+from . import globallogger
+
 _testformclass, _testbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "TestSourceWidget.ui"))
@@ -130,6 +132,7 @@ class SourceBaseWidget(QtGui.QWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QWidget.__init__(self, parent)
+        logger.setLevel(globallogger.level)
 
         #: (:obj:`list` <:obj:`str`>) subwidget object names
         self.widgetnames = []

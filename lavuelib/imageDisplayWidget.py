@@ -34,6 +34,7 @@ import logging
 
 from . import axesDialog
 from . import memoExportDialog
+from . import globallogger
 
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
@@ -56,6 +57,7 @@ class SafeImageItem(_pg.ImageItem):
         :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
         """
         _pg.ImageItem.__init__(self, *args, **kargs)
+        logger.setLevel(globallogger.level)
 
     def paint(self, p, *args):
         """ safe paint method
@@ -148,6 +150,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         _pg.GraphicsLayoutWidget.__init__(self, parent)
+        logger.setLevel(globallogger.level)
         #: (:class:`PyQt5.QtGui.QLayout`) the main layout
         self.__layout = self.ci
 

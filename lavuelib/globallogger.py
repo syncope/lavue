@@ -23,7 +23,9 @@
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
-""" release version """
+""" logger level """
 
-#: (:obj:`str`) the live viewer version
-__version__ = "2.35.5"
+import logging
+
+#: (:obj:`int`) logger level
+level = logging.INFO

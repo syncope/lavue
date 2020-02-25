@@ -31,6 +31,8 @@ from pyqtgraph import QtCore, QtGui
 import numpy as np
 import logging
 
+from . import globallogger
+
 #: ( (:obj:`str`,:obj:`str`,:obj:`str`) )
 #:         pg major version, pg minor verion, pg patch version
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
@@ -91,6 +93,7 @@ class HistogramHLUTWidget(_pg.widgets.GraphicsView.GraphicsView):
         background = kargs.get('background', 'default')
         _pg.widgets.GraphicsView.GraphicsView.__init__(
             self, parent, useOpenGL=False, background=background)
+        logger.setLevel(globallogger.level)
         #: (:class:`HistogramHLUTItem`) histogram item
         self.item = HistogramHLUTItem(bins, step, *args, **kargs)
         self.setCentralItem(self.item)
@@ -153,6 +156,7 @@ class GradientEditorItemWS(
         :param kargs:  GradientEditorItem parameter dictionary
         :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
         """
+        logger.setLevel(globallogger.level)
         self.__skipupdate = True
         _pg.graphicsItems.GradientEditorItem.GradientEditorItem.__init__(
             self, *args, **kargs)
@@ -254,6 +258,7 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         :type expertmode: :obj:`bool`
         """
         _pg.graphicsItems.GraphicsWidget.GraphicsWidget.__init__(self)
+        logger.setLevel(globallogger.level)
 
         #: (:obj:`bool`) expert mode
         self.__expertmode = expertmode

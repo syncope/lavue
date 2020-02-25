@@ -32,6 +32,7 @@ import struct
 import logging
 
 from . import dataFetchThread
+from . import globallogger
 
 try:
     import requests
@@ -168,6 +169,7 @@ class BaseSource(object):
         :param timeout: timeout for setting connection in ms
         :type timeout: :obj:`int`
         """
+        logger.setLevel(globallogger.level)
         #: (:obj:`int`) timeout in ms
         self._timeout = timeout
         #: (:obj:`str`) configuration string

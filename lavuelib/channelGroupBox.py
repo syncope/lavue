@@ -30,6 +30,9 @@ from pyqtgraph import QtCore, QtGui
 import os
 import logging
 
+
+from . import globallogger
+
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "ChannelGroupBox.ui"))
@@ -59,6 +62,7 @@ class ChannelGroupBox(QtGui.QWidget):
         :type expertmode: :obj:`bool`
         """
         QtGui.QGroupBox.__init__(self, parent)
+        logger.setLevel(globallogger.level)
 
         #: (:class:`Ui_LevelsGroupBox') ui_groupbox object from qtdesigner
         self.__ui = _formclass()
