@@ -101,7 +101,6 @@ class SardanaUtils(object):
         """
         if not door:
             raise Exception("Door '%s' cannot be found" % door)
-        print(door)
         logger.debug("Door: %s" % door)
         sdoor = door.split("/")
         tangohost = None
