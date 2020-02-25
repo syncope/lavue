@@ -1515,7 +1515,7 @@ class EpicsPVSource(BaseSource):
         """
         try:
             pvnm, pvsh = str(
-                self._configuration).strip().rsplit(";", 1)
+                self._configuration).strip().split(",", 1)
             if not self._initiated:
                 self.__pv = epics.PV(pvnm)
                 try:

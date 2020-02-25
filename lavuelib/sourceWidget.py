@@ -1476,7 +1476,7 @@ class EpicsPVSourceWidget(SourceBaseWidget):
         :returns configuration: configuration string
         :rtype configuration: :obj:`str`
         """
-        return "%s;[%s]" % self.__configuration()
+        return "%s,[%s]" % self.__configuration()
 
     def updateMetaData(self, epicspvnames=None, epicspvshapes=None, **kargs):
         """ update source input parameters
@@ -1552,20 +1552,25 @@ class EpicsPVSourceWidget(SourceBaseWidget):
         :param configuration: configuration string
         :type configuration: :obj:`str`
         """
-        cnflst = configuration.split(",")
-        filecnf = cnflst[0] if cnflst else ""
-        dircnf = cnflst[1] if len(cnflst) > 1 else ""
+        cnflst = configuration.split(",", 1)
+        pvnm = cnflst[0] if cnflst else ""
+        shcnf = cnflst[1] if len(cnflst) > 1 else ""
 
-        iid = self._ui.pvnameComboBox.findText(filecnf)
+        iid = self._ui.pvnameComboBox.findText(pvnm)
         if iid == -1:
-            self._ui.pvnameComboBox.addItem(filecnf)
-            iid = self._ui.pvnameComboBox.findText(filecnf)
+            self._ui.pvnameComboBox.addItem(pvnm)
+            iid = self._ui.pvnameComboBox.findText(pvnm)
         self._ui.pvnameComboBox.setCurrentIndex(iid)
 
-        iid = self._ui.pvshapeComboBox.findText(dircnf)
+        iid = self._ui.pvshapeComboBox.findText(shcnf)
         if iid == -1:
-            self._ui.pvshapeComboBox.addItem(dircnf)
-            iid = self._ui.pvshapeComboBox.findText(dircnf)
+            try:
+                json.loads(shcnf)
+                shcnf = shcnf[1:-1]
+            except Exception:
+                shcnf = ""
+            self._ui.pvshapeComboBox.addItem(shcnf)
+            iid = self._ui.pvshapeComboBox.findText(shcnf)
         self._ui.pvshapeComboBox.setCurrentIndex(iid)
 
     def label(self):
