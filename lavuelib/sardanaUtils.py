@@ -132,10 +132,10 @@ class SardanaUtils(object):
                 # print(str(e))
                 dp = None
             if hasattr(dp, "DoorList"):
-                lst = dp.DoorList
+                lst = [str(dr).lower() for dr in dp.DoorList]
                 logger.debug("DoorList: %s" % str(lst))
-                if lst and (door in lst or
-                            ("%s/%s" % (tangohost, door) in lst)):
+                if lst and (door.lower() in lst or
+                            ("%s/%s" % (tangohost, door.lower()) in lst)):
                     ms = dp
                     logger.debug("Door MacroServer: %s" % str(ms))
                     break
