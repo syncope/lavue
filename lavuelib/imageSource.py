@@ -850,7 +850,7 @@ class TangoReadyEventsCB(object):
                     try:
                         self.__client.reading = True
                         self.__client.attr = event_data.device.read_attribute(
-                            self.__client.atname)
+                            event_data.attr_name)
                         self.__client.fresh = True
                     finally:
                         self.__client.reading = False
@@ -880,7 +880,6 @@ class TangoEventsSource(BaseSource):
         self.__proxy = None
         self.__attrid = None
         self.__rattrid = None
-        self.atname = None
         self.attr = None
         #: (:dict: <:obj:`str`, :obj:`any`>)
         #:      dictionary of external decorders
@@ -970,7 +969,6 @@ class TangoEventsSource(BaseSource):
                 self.disconnect()
                 # with QtCore.QMutexLocker(self.__mutex):
                 dvname, atname = str(self._configuration).rsplit('/', 1)
-                self.atname = atname
                 attr_cb = TangoEventsCB(self, atname, self.__mutex)
                 rattr_cb = TangoReadyEventsCB(self, atname, self.__mutex)
                 self.__proxy = PyTango.DeviceProxy(dvname)
