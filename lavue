@@ -250,7 +250,6 @@ def main():
               'critical': logging.CRITICAL}
 
     level = levels.get(options.log, logging.INFO)
-    handler = logging.Handler()
     logging.basicConfig(
         format="%(levelname)s: %(message)s")
     logger = logging.getLogger("lavue")
