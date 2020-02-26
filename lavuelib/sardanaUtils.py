@@ -427,7 +427,6 @@ class SardanaUtils(object):
         self.__pools = self.getProxies(poolNames)
         return self.__pools
 
-    @debugmethod
     @classmethod
     def getProxies(cls, names):
         """ provides proxies of given device names
