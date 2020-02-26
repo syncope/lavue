@@ -783,18 +783,17 @@ class TangoEventsCB(object):
         self.__mutex = mutex
 
     # @debugmethod
-    def push_event(self, *args, **kwargs):
+    def push_event(self, event_data):
         """callback method receiving the event
         """
 
         if logger.getEffectiveLevel() >= 10:
-            trunk = str(args[0])
+            trunk = str(event_data)
             if len(trunk) > 1300:
                 trunk = trunk[:800] + " ... " + trunk[-500:]
             logger.debug(
                 "lavuelib.imageSource.TangoEventCB.push_event: %s"
                 % trunk)
-        event_data = args[0]
         if event_data.err:
             result = event_data.errors
             logger.warning(str(result))
@@ -805,6 +804,53 @@ class TangoEventsCB(object):
                     try:
                         self.__client.reading = True
                         self.__client.attr = event_data.attr_value
+                        self.__client.fresh = True
+                    finally:
+                        self.__client.reading = False
+
+
+class TangoReadyEventsCB(object):
+
+    """ tango attribute callback class"""
+
+    @debugmethod
+    def __init__(self, client, name, mutex):
+        """ constructor
+
+        :param client: tango controller client
+        :type client: :class:`str`
+        :param name: attribute name
+        :type name: :obj:`str`
+        :param mutex: mutex lock for CB
+        :type type: :class:`pyqtgraph.QtCore.QMutex`
+        """
+        self.__client = client
+        self.__name = name
+        self.__mutex = mutex
+
+    # @debugmethod
+    def push_event(self, event_data):
+        """callback method receiving the event
+        """
+
+        if logger.getEffectiveLevel() >= 10:
+            trunk = str(event_data)
+            if len(trunk) > 1300:
+                trunk = trunk[:800] + " ... " + trunk[-500:]
+            logger.debug(
+                "lavuelib.imageSource.TangoEventCB.push_event: %s"
+                % trunk)
+        if event_data.err:
+            result = event_data.errors
+            logger.warning(str(result))
+            # print(str(result))
+        else:
+            if not self.__client.reading:
+                with QtCore.QMutexLocker(self.__mutex):
+                    try:
+                        self.__client.reading = True
+                        self.__client.attr = event_data.device.read_attribute(
+                            self.__client.atname)
                         self.__client.fresh = True
                     finally:
                         self.__client.reading = False
@@ -833,6 +879,8 @@ class TangoEventsSource(BaseSource):
         #:      device proxy for the image attribute
         self.__proxy = None
         self.__attrid = None
+        self.__rattrid = None
+        self.atname = None
         self.attr = None
         #: (:dict: <:obj:`str`, :obj:`any`>)
         #:      dictionary of external decorders
@@ -922,12 +970,29 @@ class TangoEventsSource(BaseSource):
                 self.disconnect()
                 # with QtCore.QMutexLocker(self.__mutex):
                 dvname, atname = str(self._configuration).rsplit('/', 1)
+                self.atname = atname
                 attr_cb = TangoEventsCB(self, atname, self.__mutex)
+                rattr_cb = TangoReadyEventsCB(self, atname, self.__mutex)
                 self.__proxy = PyTango.DeviceProxy(dvname)
-                self.__attrid = self.__proxy.subscribe_event(
-                    atname,
-                    PyTango.EventType.CHANGE_EVENT,
-                    attr_cb)
+                exc = ""
+                try:
+                    self.__attrid = self.__proxy.subscribe_event(
+                        atname,
+                        PyTango.EventType.CHANGE_EVENT,
+                        attr_cb)
+                except Exception as e:
+                    self.__attrid = None
+                    exc += str(e)
+                try:
+                    self.__rattrid = self.__proxy.subscribe_event(
+                        atname,
+                        PyTango.EventType.DATA_READY_EVENT,
+                        rattr_cb)
+                except Exception as e:
+                    self.__rattrid = None
+                    exc += str(e)
+                if self.__attrid is None and self.__rattrid is None:
+                    raise Exception(exc)
                 self._initiated = True
             return True
         except Exception as e:
@@ -944,8 +1009,11 @@ class TangoEventsSource(BaseSource):
             if self._initiated:
                 with QtCore.QMutexLocker(self.__mutex):
                     self._initiated = False
-                    if self.__proxy is not None and self.__attrid is not None:
-                        self.__proxy.unsubscribe_event(self.__attrid)
+                    if self.__proxy is not None:
+                        if self.__attrid is not None:
+                            self.__proxy.unsubscribe_event(self.__attrid)
+                        if self.__rattrid is not None:
+                            self.__proxy.unsubscribe_event(self.__rattrid)
         except Exception:
             self._updaterror()
 
