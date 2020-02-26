@@ -32,6 +32,7 @@ import struct
 import logging
 
 from . import dataFetchThread
+from .sardanaUtils import debugmethod
 
 try:
     import requests
@@ -162,6 +163,7 @@ class BaseSource(object):
 
     """ source base class"""
 
+    @debugmethod
     def __init__(self, timeout=None):
         """ constructor
 
@@ -187,6 +189,7 @@ class BaseSource(object):
         """
         return {}
 
+    @debugmethod
     @QtCore.pyqtSlot(str)
     def setConfiguration(self, configuration):
         """ set configuration
@@ -198,6 +201,7 @@ class BaseSource(object):
             self._configuration = configuration
             self._initiated = False
 
+    @debugmethod
     def setTimeOut(self, timeout):
         """ set timeout
 
@@ -206,6 +210,7 @@ class BaseSource(object):
         """
         self._timeout = timeout
 
+    @debugmethod
     def getData(self):
         """ provides image name, image data and metadata
 
@@ -222,6 +227,7 @@ class BaseSource(object):
             ]),
             '__random_%s__' % self.__counter, "")
 
+    @debugmethod
     def connect(self):
         """ connects the source
         """
@@ -229,6 +235,7 @@ class BaseSource(object):
         self.__counter = 0
         return True
 
+    @debugmethod
     def disconnect(self):
         """ disconnects the source
         """
@@ -237,6 +244,7 @@ class BaseSource(object):
         except Exception:
             pass
 
+    @debugmethod
     def _updaterror(self):
         """ updates error  message
         """
@@ -249,6 +257,7 @@ class FixTestSource(BaseSource):
     """ image source as Tango attributes describing
         an image file name and its directory"""
 
+    @debugmethod
     def __init__(self, timeout=None):
         """ constructor
 
@@ -271,6 +280,7 @@ class FixTestSource(BaseSource):
                 for _ in range(self.__shape[1])
             ])
 
+    @debugmethod
     def getData(self):
         """ provides image name, image data and metadata
 
@@ -281,6 +291,7 @@ class FixTestSource(BaseSource):
         return (self.__image,
                 '__random_%s__' % self.__counter, "")
 
+    @debugmethod
     def connect(self):
         """ connects the source
         """
@@ -288,6 +299,7 @@ class FixTestSource(BaseSource):
         self.__counter = 0
         return True
 
+    @debugmethod
     def disconnect(self):
         """ disconnects the source
         """
@@ -302,6 +314,7 @@ class NXSFileSource(BaseSource):
     """ image source as Tango attributes describing
         an image file name and its directory"""
 
+    @debugmethod
     def __init__(self, timeout=None):
         """ constructor
 
@@ -328,6 +341,7 @@ class NXSFileSource(BaseSource):
         #: (:obj:`bool`) nexus file source starts from the last image
         self.__nxslast = False
 
+    @debugmethod
     def getData(self):
         """ provides image name, image data and metadata
 
@@ -401,6 +415,7 @@ class NXSFileSource(BaseSource):
             pass  # this needs a bit more care
         return None, None, None
 
+    @debugmethod
     def connect(self):
         """ connects the source
         """
@@ -430,6 +445,7 @@ class NXSFileSource(BaseSource):
             self._updaterror()
             return False
 
+    @debugmethod
     def disconnect(self):
         """ disconnects the source
         """
@@ -442,6 +458,7 @@ class TangoFileSource(BaseSource):
     """ image source as Tango attributes describing
         an image file name and its directory"""
 
+    @debugmethod
     def __init__(self, timeout=None):
         """ constructor
 
@@ -459,6 +476,7 @@ class TangoFileSource(BaseSource):
         #:      translation dictionary for the image directory
         self.__dirtrans = {"/ramdisk/": "/gpfs/"}
 
+    @debugmethod
     def getData(self):
         """ provides image name, image data and metadata
 
@@ -490,6 +508,7 @@ class TangoFileSource(BaseSource):
             pass  # this needs a bit more care
         return None, None, None
 
+    @debugmethod
     def connect(self):
         """ connects the source
         """
@@ -516,6 +535,7 @@ class VDEOdecoder(object):
     """ VIDEO IMAGE LIMA decoder
     """
 
+    @debugmethod
     def __init__(self):
         """ constructor
 
@@ -541,6 +561,7 @@ class VDEOdecoder(object):
         #: (:obj:`dict` <:obj:`int`, :obj:`str` > ) dtype modes
         self.__dtypeID = {0: 'uint8', 1: 'uint16', 2: 'uint32', 3: 'uint64'}
 
+    @debugmethod
     def load(self, data):
         """  loads encoded data
 
@@ -552,6 +573,7 @@ class VDEOdecoder(object):
         self._loadHeader(data[1][:struct.calcsize(self.__headerFormat)])
         self.__value = None
 
+    @debugmethod
     def _loadHeader(self, headerData):
         """ loads the image header
 
@@ -572,6 +594,7 @@ class VDEOdecoder(object):
 
         self.dtype = self.__dtypeID[self.__header['imageMode']]
 
+    @debugmethod
     def shape(self):
         """ provides the data shape
 
@@ -581,6 +604,7 @@ class VDEOdecoder(object):
         if self.__header:
             return [self.__header['height'], self.__header['width']]
 
+    @debugmethod
     def frameNumber(self):
         """ provides the frame number
 
@@ -590,6 +614,7 @@ class VDEOdecoder(object):
         if 'frameNumber' in self.__header.keys():
             return self.__header['frameNumber']
 
+    @debugmethod
     def decode(self):
         """ provides the decoded data
 
@@ -622,6 +647,7 @@ class TangoAttrSource(BaseSource):
     """ image source as IMAGE Tango attribute
     """
 
+    @debugmethod
     def __init__(self, timeout=None):
         """ constructor
 
@@ -648,6 +674,7 @@ class TangoAttrSource(BaseSource):
         #: (:obj:`bool`) bytearray flag
         self.__bytearray = False
 
+    @debugmethod
     def getData(self):
         """ provides image name, image data and metadata
 
@@ -717,6 +744,7 @@ class TangoAttrSource(BaseSource):
             return str(e), "__ERROR__", ""
         return None, None, None
 
+    @debugmethod
     def connect(self):
         """ connects the source
         """
@@ -737,6 +765,7 @@ class TangoEventsCB(object):
 
     """ tango attribute callback class"""
 
+    @debugmethod
     def __init__(self, client, name, mutex):
         """ constructor
 
@@ -751,6 +780,7 @@ class TangoEventsCB(object):
         self.__name = name
         self.__mutex = mutex
 
+    @debugmethod
     def push_event(self, *args, **kwargs):
         """callback method receiving the event
         """
@@ -776,6 +806,7 @@ class TangoEventsSource(BaseSource):
     """ image source as IMAGE Tango attribute
     """
 
+    @debugmethod
     def __init__(self, timeout=None):
         """ constructor
 
@@ -808,6 +839,7 @@ class TangoEventsSource(BaseSource):
             "RGB24": "decode_rgb32"
         }
 
+    @debugmethod
     def getData(self):
         """ provides image name, image data and metadata
 
@@ -872,6 +904,7 @@ class TangoEventsSource(BaseSource):
             pass  # this needs a bit more care
         return None, None, None
 
+    @debugmethod
     def connect(self):
         """ connects the source
         """
@@ -894,6 +927,7 @@ class TangoEventsSource(BaseSource):
             self._updaterror()
             return False
 
+    @debugmethod
     def disconnect(self):
         """ disconnects the source
         """
@@ -912,6 +946,7 @@ class HTTPSource(BaseSource):
     """ image source as HTTP request response
     """
 
+    @debugmethod
     def __init__(self, timeout=None):
         """ constructor
 
@@ -924,6 +959,7 @@ class HTTPSource(BaseSource):
         #: (:obj:`dict` <:obj:`str`, :obj:`any` > ) HTTP header data
         self.__header = {}
 
+    @debugmethod
     def getData(self):
         """ provides image name, image data and metadata
 
@@ -985,6 +1021,7 @@ class HTTPSource(BaseSource):
                 return str(e), "__ERROR__", ""
         return "No url defined", "__ERROR__", None
 
+    @debugmethod
     def connect(self):
         """ connects the source
         """
@@ -1018,6 +1055,7 @@ class ZMQSource(BaseSource):
 
     """ image source as ZMQ stream"""
 
+    @debugmethod
     def __init__(self, timeout=None):
         """ constructor
 
@@ -1039,6 +1077,7 @@ class ZMQSource(BaseSource):
         #: (:class:`pyqtgraph.QtCore.QMutex`) mutex lock for zmq source
         self.__mutex = QtCore.QMutex()
 
+    @debugmethod
     @QtCore.pyqtSlot(str)
     def setConfiguration(self, configuration):
         """ set configuration
@@ -1065,6 +1104,7 @@ class ZMQSource(BaseSource):
                     self.__topic = tobytes(topic)
                     self.__socket.connect(self.__bindaddress)
 
+    @debugmethod
     def __loads(self, message, encoding=None):
         """ loads json or pickle string
 
@@ -1086,6 +1126,7 @@ class ZMQSource(BaseSource):
                 metadata = json.loads(smessage)
         return metadata
 
+    @debugmethod
     def getData(self):
         """ provides image name, image data and metadata
 
@@ -1186,6 +1227,7 @@ class ZMQSource(BaseSource):
             return str(e), "__ERROR__", ""
         return None, None, None
 
+    @debugmethod
     def connect(self):
         """ connects the source
         """
@@ -1221,6 +1263,7 @@ class ZMQSource(BaseSource):
             self._updaterror()
             return False
 
+    @debugmethod
     def disconnect(self):
         """ disconnects the source
         """
@@ -1249,6 +1292,7 @@ class HiDRASource(BaseSource):
 
     """ hidra image source"""
 
+    @debugmethod
     def __init__(self, timeout=None):
         """ constructor
 
@@ -1275,6 +1319,7 @@ class HiDRASource(BaseSource):
         #: (:obj:`bool`) use tiff loader
         self.__tiffloader = False
 
+    @debugmethod
     @QtCore.pyqtSlot(str)
     def setConfiguration(self, configuration):
         """ set configuration
@@ -1303,6 +1348,7 @@ class HiDRASource(BaseSource):
                 self.__query = None
             self._initiated = False
 
+    @debugmethod
     def connect(self):
         """ connects the source
         """
@@ -1331,6 +1377,7 @@ class HiDRASource(BaseSource):
             self._updaterror()
             return False
 
+    @debugmethod
     def disconnect(self):
         """ disconnects the source
         """
@@ -1342,6 +1389,7 @@ class HiDRASource(BaseSource):
         except Exception:
             self._updaterror()
 
+    @debugmethod
     def getData(self):
         """ provides image name, image data and metadata
 
@@ -1426,6 +1474,7 @@ class DOOCSPropSource(BaseSource):
     """ image source as IMAGE DOOCS property
     """
 
+    @debugmethod
     def __init__(self, timeout=None):
         """ constructor
 
@@ -1434,6 +1483,7 @@ class DOOCSPropSource(BaseSource):
         """
         BaseSource.__init__(self, timeout)
 
+    @debugmethod
     def getData(self):
         """ provides image name, image data and metadata
 
@@ -1456,6 +1506,7 @@ class DOOCSPropSource(BaseSource):
             return str(e), "__ERROR__", ""
         return None, None, None
 
+    @debugmethod
     def connect(self):
         """ connects the source
         """
@@ -1466,6 +1517,7 @@ class EpicsPVSource(BaseSource):
 
     """ image source as Epics Process variable"""
 
+    @debugmethod
     def __init__(self, timeout=None):
         """ constructor
 
@@ -1483,6 +1535,7 @@ class EpicsPVSource(BaseSource):
         #:      process variable size
         self.__size = 0
 
+    @debugmethod
     def getData(self):
         """ provides image name, image data and metadata
 
@@ -1511,6 +1564,7 @@ class EpicsPVSource(BaseSource):
             pass  # this needs a bit more care
         return None, None, None
 
+    @debugmethod
     def connect(self):
         """ connects the source
         """
@@ -1538,6 +1592,7 @@ class TinePropSource(BaseSource):
 
     """ image source as Tine Property """
 
+    @debugmethod
     def __init__(self, timeout=None):
         """ constructor
 
@@ -1615,6 +1670,7 @@ class TinePropSource(BaseSource):
 
         return width
 
+    @debugmethod
     def getData(self):
         """ provides image name, image data and metadata
 
@@ -1655,6 +1711,7 @@ class TinePropSource(BaseSource):
             pass  # this needs a bit more care
         return None, None, None
 
+    @debugmethod
     def setConfiguration(self, configuration):
         """ set configuration
 
