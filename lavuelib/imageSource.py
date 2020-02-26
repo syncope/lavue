@@ -790,7 +790,7 @@ class TangoEventsCB(object):
         if logger.getEffectiveLevel() >= 10:
             trunk = str(args[0])
             if len(trunk) > 1300:
-                trunk =  trunk[:800] + " ... " + trunk[-500:]
+                trunk = trunk[:800] + " ... " + trunk[-500:]
             logger.debug(
                 "lavuelib.imageSource.TangoEventCB.push_event: %s"
                 % trunk)
