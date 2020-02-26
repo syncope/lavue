@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Feb 25, 2020" "2.35" "lavuelib"
+.TH "LAVUELIB" "1" "Feb 26, 2020" "2.35" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -3197,14 +3197,6 @@ sets filter label
 .UNINDENT
 .UNINDENT
 .UNINDENT
-.SS lavuelib.globalogger
-.sp
-logger level
-.INDENT 0.0
-.TP
-.B lavuelib.globallogger.level = 20
-(\fI\%int\fP) logger level
-.UNINDENT
 .SS lavuelib.geometryDialog module
 .sp
 detector geometry widget
@@ -6183,26 +6175,17 @@ image data
 set of image sources
 .INDENT 0.0
 .TP
-.B class lavuelib.imageSource.BaseSource(timeout=None)
+.B class lavuelib.imageSource.BaseSource(**kwargs)
 Bases: \fI\%object\fP
 .sp
 source base class
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Parameters
-\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.B connect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connect()
-connects the source
-.UNINDENT
-.INDENT 7.0
-.TP
-.B disconnect()
-disconnects the source
+.B disconnect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6211,16 +6194,7 @@ disconnects the source
 .UNINDENT
 .INDENT 7.0
 .TP
-.B getData()
-provides image name, image data and metadata
-.INDENT 7.0
-.TP
-.B Returns
-image name, image data, json dictionary with metadata
-.TP
-.B Return type
-(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
-.UNINDENT
+.B getData(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6237,125 +6211,61 @@ dictionary with metadata
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setConfiguration(configuration)
-set configuration
-.INDENT 7.0
-.TP
-.B Parameters
-\fBconfiguration\fP (\fI\%str\fP) – configuration string
-.UNINDENT
+.B setConfiguration(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setTimeOut(timeout)
-set timeout
-.INDENT 7.0
-.TP
-.B Parameters
-\fBtimeout\fP (\fI\%int\fP) – timeout in ms
-.UNINDENT
+.B setTimeOut(**kwargs)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.imageSource.DOOCSPropSource(timeout=None)
+.B class lavuelib.imageSource.DOOCSPropSource(**kwargs)
 Bases: \fI\%lavuelib.imageSource.BaseSource\fP
 .sp
 image source as IMAGE DOOCS property
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Parameters
-\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.B connect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connect()
-connects the source
-.UNINDENT
-.INDENT 7.0
-.TP
-.B getData()
-provides image name, image data and metadata
-.INDENT 7.0
-.TP
-.B Returns
-image name, image data, json dictionary with metadata
-.TP
-.B Return type
-(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
-.UNINDENT
+.B getData(**kwargs)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.imageSource.EpicsPVSource(timeout=None)
+.B class lavuelib.imageSource.EpicsPVSource(**kwargs)
 Bases: \fI\%lavuelib.imageSource.BaseSource\fP
 .sp
 image source as Epics Process variable
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Parameters
-\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.B connect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connect()
-connects the source
-.UNINDENT
-.INDENT 7.0
-.TP
-.B getData()
-provides image name, image data and metadata
-.INDENT 7.0
-.TP
-.B Returns
-image name, image data, json dictionary with metadata
-.TP
-.B Return type
-(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
-.UNINDENT
+.B getData(**kwargs)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.imageSource.FixTestSource(timeout=None)
+.B class lavuelib.imageSource.FixTestSource(**kwargs)
 Bases: \fI\%lavuelib.imageSource.BaseSource\fP
 .sp
 image source as Tango attributes describing
 an image file name and its directory
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Parameters
-\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.B connect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connect()
-connects the source
+.B disconnect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B disconnect()
-disconnects the source
-.UNINDENT
-.INDENT 7.0
-.TP
-.B getData()
-provides image name, image data and metadata
-.INDENT 7.0
-.TP
-.B Returns
-image name, image data, json dictionary with metadata
-.TP
-.B Return type
-(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
-.UNINDENT
+.B getData(**kwargs)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -6365,119 +6275,60 @@ image name, image data, json dictionary with metadata
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.imageSource.HTTPSource(timeout=None)
+.B class lavuelib.imageSource.HTTPSource(**kwargs)
 Bases: \fI\%lavuelib.imageSource.BaseSource\fP
 .sp
 image source as HTTP request response
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Parameters
-\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.B connect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connect()
-connects the source
-.UNINDENT
-.INDENT 7.0
-.TP
-.B getData()
-provides image name, image data and metadata
-.INDENT 7.0
-.TP
-.B Returns
-image name, image data, json dictionary with metadata
-.TP
-.B Return type
-(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
-.UNINDENT
+.B getData(**kwargs)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.imageSource.HiDRASource(timeout=None)
+.B class lavuelib.imageSource.HiDRASource(**kwargs)
 Bases: \fI\%lavuelib.imageSource.BaseSource\fP
 .sp
 hidra image source
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Parameters
-\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.B connect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connect()
-connects the source
+.B disconnect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B disconnect()
-disconnects the source
+.B getData(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B getData()
-provides image name, image data and metadata
-.INDENT 7.0
-.TP
-.B Returns
-image name, image data, json dictionary with metadata
-.TP
-.B Return type
-(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B setConfiguration(configuration)
-set configuration
-.INDENT 7.0
-.TP
-.B Parameters
-\fBconfiguration\fP (\fI\%str\fP) – configuration string
-.UNINDENT
+.B setConfiguration(**kwargs)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.imageSource.NXSFileSource(timeout=None)
+.B class lavuelib.imageSource.NXSFileSource(**kwargs)
 Bases: \fI\%lavuelib.imageSource.BaseSource\fP
 .sp
 image source as Tango attributes describing
 an image file name and its directory
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Parameters
-\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.B connect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connect()
-connects the source
+.B disconnect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B disconnect()
-disconnects the source
-.UNINDENT
-.INDENT 7.0
-.TP
-.B getData()
-provides image name, image data and metadata
-.INDENT 7.0
-.TP
-.B Returns
-image name, image data, json dictionary with metadata
-.TP
-.B Return type
-(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
-.UNINDENT
+.B getData(**kwargs)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -6512,84 +6363,43 @@ image name, image data, json dictionary with metadata
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.imageSource.TangoAttrSource(timeout=None)
+.B class lavuelib.imageSource.TangoAttrSource(**kwargs)
 Bases: \fI\%lavuelib.imageSource.BaseSource\fP
 .sp
 image source as IMAGE Tango attribute
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Parameters
-\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.B connect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connect()
-connects the source
-.UNINDENT
-.INDENT 7.0
-.TP
-.B getData()
-provides image name, image data and metadata
-.INDENT 7.0
-.TP
-.B Returns
-image name, image data, json dictionary with metadata
-.TP
-.B Return type
-(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
-.UNINDENT
+.B getData(**kwargs)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.imageSource.TangoEventsCB(client, name, mutex)
+.B class lavuelib.imageSource.TangoEventsCB(**kwargs)
 Bases: \fI\%object\fP
 .sp
 tango attribute callback class
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBclient\fP (\fI\%str\fP) – tango controller client
-.IP \(bu 2
-\fBname\fP (\fI\%str\fP) – attribute name
-.IP \(bu 2
-\fBmutex\fP – mutex lock for CB
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B push_event(*args, **kwargs)
-callback method receiving the event
+.B push_event(**kwargs)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.imageSource.TangoEventsSource(timeout=None)
+.B class lavuelib.imageSource.TangoEventsSource(**kwargs)
 Bases: \fI\%lavuelib.imageSource.BaseSource\fP
 .sp
 image source as IMAGE Tango attribute
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Parameters
-\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.B connect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connect()
-connects the source
-.UNINDENT
-.INDENT 7.0
-.TP
-.B disconnect()
-disconnects the source
+.B disconnect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6598,16 +6408,7 @@ disconnects the source
 .UNINDENT
 .INDENT 7.0
 .TP
-.B getData()
-provides image name, image data and metadata
-.INDENT 7.0
-.TP
-.B Returns
-image name, image data, json dictionary with metadata
-.TP
-.B Return type
-(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
-.UNINDENT
+.B getData(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6617,99 +6418,44 @@ image name, image data, json dictionary with metadata
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.imageSource.TangoFileSource(timeout=None)
+.B class lavuelib.imageSource.TangoFileSource(**kwargs)
 Bases: \fI\%lavuelib.imageSource.BaseSource\fP
 .sp
 image source as Tango attributes describing
 an image file name and its directory
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Parameters
-\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.B connect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connect()
-connects the source
-.UNINDENT
-.INDENT 7.0
-.TP
-.B getData()
-provides image name, image data and metadata
-.INDENT 7.0
-.TP
-.B Returns
-image name, image data, json dictionary with metadata
-.TP
-.B Return type
-(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
-.UNINDENT
+.B getData(**kwargs)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.imageSource.TinePropSource(timeout=None)
+.B class lavuelib.imageSource.TinePropSource(**kwargs)
 Bases: \fI\%lavuelib.imageSource.BaseSource\fP
 .sp
 image source as Tine Property
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Parameters
-\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.B getData(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B getData()
-provides image name, image data and metadata
-.INDENT 7.0
-.TP
-.B Returns
-image name, image data, json dictionary with metadata
-.TP
-.B Return type
-(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B setConfiguration(configuration)
-set configuration
-.INDENT 7.0
-.TP
-.B Parameters
-\fBconfiguration\fP (\fI\%str\fP) – configuration string
-.UNINDENT
+.B setConfiguration(**kwargs)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.imageSource.VDEOdecoder
+.B class lavuelib.imageSource.VDEOdecoder(**kwargs)
 Bases: \fI\%object\fP
 .sp
 VIDEO IMAGE LIMA decoder
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Brief
-It clears the local variables
-.UNINDENT
-.INDENT 7.0
-.TP
-.B decode()
-provides the decoded data
-.INDENT 7.0
-.TP
-.B Returns
-the decoded data if data was loaded
-.TP
-.B Return type
-\fI\%numpy.ndarray\fP
-.UNINDENT
+.B decode(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6723,26 +6469,11 @@ the decoded data if data was loaded
 .UNINDENT
 .INDENT 7.0
 .TP
-.B frameNumber()
-provides the frame number
-.INDENT 7.0
-.TP
-.B Returns
-the frame number
-.TP
-.B Return type
-\fI\%int\fP
-.UNINDENT
+.B frameNumber(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B load(data)
-loads encoded data
-.INDENT 7.0
-.TP
-.B Parameters
-\fBdata\fP ([\fI\%str\fP, \fI\%str\fP]) – encoded data
-.UNINDENT
+.B load(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6751,16 +6482,7 @@ loads encoded data
 .UNINDENT
 .INDENT 7.0
 .TP
-.B shape()
-provides the data shape
-.INDENT 7.0
-.TP
-.B Returns
-the data shape if data was loaded
-.TP
-.B Return type
-\fBlist\fP <\fI\%int\fP >
-.UNINDENT
+.B shape(**kwargs)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -6775,49 +6497,25 @@ the data shape if data was loaded
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.imageSource.ZMQSource(timeout=None)
+.B class lavuelib.imageSource.ZMQSource(**kwargs)
 Bases: \fI\%lavuelib.imageSource.BaseSource\fP
 .sp
 image source as ZMQ stream
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Parameters
-\fBtimeout\fP (\fI\%int\fP) – timeout for setting connection in ms
+.B connect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connect()
-connects the source
+.B disconnect(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B disconnect()
-disconnects the source
+.B getData(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B getData()
-provides image name, image data and metadata
-.INDENT 7.0
-.TP
-.B Returns
-image name, image data, json dictionary with metadata
-.TP
-.B Return type
-(\fI\%str\fP , \fI\%numpy.ndarray\fP , \fI\%str\fP)
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B setConfiguration(configuration)
-set configuration
-.INDENT 7.0
-.TP
-.B Parameters
-\fBconfiguration\fP (\fI\%str\fP) – configuration string
-.UNINDENT
+.B setConfiguration(**kwargs)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -8354,102 +8052,43 @@ set min/max level spinboxes and histogram from the parameters
 live viewer settings
 .INDENT 0.0
 .TP
-.B class lavuelib.liveViewer.LiveViewer(options, parent=None)
+.B class lavuelib.liveViewer.LiveViewer(**kwargs)
 Bases: \fBPyQt5.QtWidgets.QDialog\fP
 .sp
 The master class for the dialog, contains all other
 widget and handles communication.
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBoptions\fP (\fI\%argparse.Namespace\fP) – commandline options
-.IP \(bu 2
-\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
-.UNINDENT
+.B closeEvent(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B closeEvent(event)
-stores the setting before finishing the application
-.INDENT 7.0
-.TP
-.B Parameters
-\fBevent\fP (\fBpyqtgraph.QtCore.QEvent\fP:) – close event
-.UNINDENT
+.B keyPressEvent(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B keyPressEvent(event)
-skips escape key action
-.INDENT 7.0
-.TP
-.B Parameters
-\fBevent\fP (\fBpyqtgraph.QtCore.QEvent\fP:) – close event
-.UNINDENT
+.B rgb(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B rgb()
-gets RGB on/off
-.INDENT 7.0
-.TP
-.B Returns
-True for on and False for off
-.TP
-.B Return type
-\fI\%bool\fP
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B setrgb(status=True)
-sets RGB on/off
-.INDENT 7.0
-.TP
-.B Parameters
-\fBstatus\fP (\fI\%bool\fP) – True for on and False for off
-.UNINDENT
+.B setrgb(**kwargs)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.liveViewer.MainWindow(options, parent=None)
+.B class lavuelib.liveViewer.MainWindow(**kwargs)
 Bases: \fBPyQt5.QtWidgets.QMainWindow\fP
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBoptions\fP (\fI\%argparse.Namespace\fP) – commandline options
-.IP \(bu 2
-\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B closeEvent(event)
-stores the setting before finishing the application
-.INDENT 7.0
-.TP
-.B Parameters
-\fBevent\fP (\fBpyqtgraph.QtCore.QEvent\fP:) – close event
-.UNINDENT
+.B closeEvent(**kwargs)
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.liveViewer.PartialData(name, rawdata, metadata, x, y)
+.B class lavuelib.liveViewer.PartialData(**kwargs)
 Bases: \fI\%object\fP
 .sp
 partial data
-.sp
-constructor
 .INDENT 7.0
 .TP
 .B metadata = None
@@ -8477,17 +8116,7 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
-.B tolist()
-converts partial data to a list
-.INDENT 7.0
-.TP
-.B Returns
-a list: [name, rawdata, metadata, x, y, sx, sy]
-.TP
-.B Return type
-[\fI\%str\fP, \fI\%str\fP, \fI\%str\fP,
-\fI\%int\fP, \fI\%int\fP, \fI\%int\fP, \fI\%int\fP]
-.UNINDENT
+.B tolist(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9956,129 +9585,37 @@ sardana utils
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.sardanaUtils.SardanaUtils
+.B class lavuelib.sardanaUtils.SardanaUtils(**kwargs)
 Bases: \fI\%object\fP
 .sp
 sardanamacro server
-.sp
-constructor
 .INDENT 7.0
 .TP
-.B getDeviceName(cname, db=None)
-finds device of give class
-.INDENT 7.0
-.TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBcname\fP (\fI\%str\fP) – device class name
-.IP \(bu 2
-\fBdb\fP (\fBPyTango.Database\fP) – tango database
-.UNINDENT
-.TP
-.B Returns
-device name if exists
-.TP
-.B Return type
-\fI\%str\fP
-.UNINDENT
+.B getDeviceName(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B getElementNames(door, listattr, typefilter=None)
-provides experimental Channels
-.INDENT 7.0
-.TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBdoor\fP (\fI\%str\fP) – door device name
-.IP \(bu 2
-\fBlistattr\fP (\fI\%str\fP) – pool attribute with list
-.IP \(bu 2
-\fBtypefilter\fP (\fBlist\fP <\fI\%str\fP>) – pool attribute with list
-.UNINDENT
-.TP
-.B Returns
-names from given pool listattr
-.TP
-.B Return type
-\fBlist\fP <\fI\%str\fP>
-.UNINDENT
+.B getElementNames(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B getError(door)
-stores Scan Environment Data
-.INDENT 7.0
-.TP
-.B Parameters
-\fBdoor\fP (\fI\%str\fP) – door device
-.TP
-.B Returns
-error or warning
-.TP
-.B Return type
-\fI\%str\fP
-.UNINDENT
+.B getError(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B getMacroServer(door)
-door macro server device name
-.INDENT 7.0
-.TP
-.B Parameters
-\fBdoor\fP (\fI\%str\fP) – door device name
-.TP
-.B Returns
-macroserver device proxy
-.TP
-.B Return type
-\fBPyTango.DeviceProxy\fP
-.UNINDENT
+.B getMacroServer(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B getPools(door)
-provides pool devices
-.INDENT 7.0
-.TP
-.B Parameters
-\fBdoor\fP (\fI\%str\fP) – door device name
-.UNINDENT
+.B getPools(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B classmethod getProxies(names)
-provides proxies of given device names
-.INDENT 7.0
-.TP
-.B Parameters
-\fBnames\fP (\fBlist\fP <\fI\%str\fP>) – given device names
-.TP
-.B Returns
-list of device DeviceProxies
-.TP
-.B Return type
-\fBlist\fP <\fBPyTango.DeviceProxy\fP>
-.UNINDENT
+.B getProxies(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B getScanEnv(door, params=None)
-fetches Scan Environment Data
-.INDENT 7.0
-.TP
-.B Parameters
-\fBdoor\fP (\fI\%str\fP) – door device
-.TP
-.B Returns
-JSON String with important variables
-.TP
-.B Return type
-\fI\%str\fP
-.UNINDENT
+.B getScanEnv(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10098,41 +9635,20 @@ DeviceProxy of device
 .UNINDENT
 .INDENT 7.0
 .TP
-.B runMacro(door, command, wait=True)
-stores Scan Environment Data
-.INDENT 7.0
-.TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBdoor\fP (\fI\%str\fP) – door device
-.IP \(bu 2
-\fBcommand\fP (\fBlist\fP <\fI\%str\fP>) – list with the macro name and its parameters
-.IP \(bu 2
-\fBwait\fP (\fI\%bool\fP) – wait till macro is finished
-.UNINDENT
-.TP
-.B Returns
-result, error or warning
-.TP
-.B Return type
-[\fI\%str\fP, \fI\%str\fP]
-.UNINDENT
+.B classmethod pickleloads(bytestr)
+loads pickle byte string
+:param bytestr: byte string to convert
+:type bytesstr: \fBbytes\fP
+:returns: loaded bytestring
+:rtype: \fI\%any\fP
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setScanEnv(door, jdata)
-stores Scan Environment Data
+.B runMacro(**kwargs)
+.UNINDENT
 .INDENT 7.0
 .TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBdoor\fP (\fI\%str\fP) – door device
-.IP \(bu 2
-\fBjdata\fP (\fI\%str\fP) – JSON String with important variables
-.UNINDENT
-.UNINDENT
+.B setScanEnv(**kwargs)
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10152,21 +9668,17 @@ string object
 .UNINDENT
 .INDENT 7.0
 .TP
-.B wait(name=None, proxy=None, maxcount=100)
-stores Scan Environment Data
-.INDENT 7.0
+.B wait(**kwargs)
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
 .TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBname\fP (\fI\%str\fP) – device name
-.IP \(bu 2
-\fBproxy\fP (\fI\%str\fP) – door device proxy
-.IP \(bu 2
-\fBmaxcount\fP (\fI\%int\fP) – number of 0.01s to wait
-.UNINDENT
-.UNINDENT
-.UNINDENT
+.B lavuelib.sardanaUtils.debugmethod(method)
+debug wrapper for methods
+:param method: any class method
+:type method: \fBany\fP
+:returns: wrapped class method
+:rtype: \fBany\fP
 .UNINDENT
 .SS lavuelib.scalingGroupBox module
 .sp
