@@ -561,13 +561,15 @@ class VDEOdecoder(object):
         #: (:obj:`dict` <:obj:`int`, :obj:`str` > ) dtype modes
         self.__dtypeID = {0: 'uint8', 1: 'uint16', 2: 'uint32', 3: 'uint64'}
 
-    @debugmethod
+    # @debugmethod
     def load(self, data):
         """  loads encoded data
 
         :param data: encoded data
         :type data: [:obj:`str`, :obj:`str`]
         """
+        logger.debug(
+            "lavuelib.imageSource.VDEOdecoder.load:  %s" % str(data[0]))
         self.__data = data
         self.format = data[0]
         self._loadHeader(data[1][:struct.calcsize(self.__headerFormat)])
@@ -780,11 +782,18 @@ class TangoEventsCB(object):
         self.__name = name
         self.__mutex = mutex
 
-    @debugmethod
+    # @debugmethod
     def push_event(self, *args, **kwargs):
         """callback method receiving the event
         """
 
+        if logger.getEffectiveLevel() >= 10:
+            trunk = str(args[0])
+            if len(trunk) > 1300:
+                trunk =  trunk[:800] + " ... " + trunk[-500:]
+            logger.debug(
+                "lavuelib.imageSource.TangoEventCB.push_event: %s"
+                % trunk)
         event_data = args[0]
         if event_data.err:
             result = event_data.errors
@@ -932,7 +941,7 @@ class TangoEventsSource(BaseSource):
         """ disconnects the source
         """
         try:
-            if not self._initiated:
+            if self._initiated:
                 with QtCore.QMutexLocker(self.__mutex):
                     self._initiated = False
                     if self.__proxy is not None and self.__attrid is not None:
