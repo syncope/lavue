@@ -100,14 +100,6 @@ lavuelib.filtersGroupBox module
     :undoc-members:
     :show-inheritance:
 
-lavuelib.globalogger
-====================
-
-.. automodule:: lavuelib.globallogger
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 lavuelib.geometryDialog module
 ==============================
 

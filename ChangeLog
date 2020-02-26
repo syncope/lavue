@@ -1,4 +1,9 @@
-2020-02-22 Jan Kotanski <jan.kotanski@desy.de>
+2020-02-26 Jan Kotanski <jan.kotanski@desy.de>
+	* impove logger and add liveViewer.sardanaUtils and imageSource logging
+	* make py2/py3 compatibility for sardana
+	* tagged as 2.35.6
+
+2020-02-25 Jan Kotanski <jan.kotanski@desy.de>
 	* add globallogger
 	* impove epicspv configuration
 	* tagged as 2.35.5

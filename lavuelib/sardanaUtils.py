@@ -31,8 +31,6 @@ import time
 import sys
 import logging
 
-from . import globallogger
-
 try:
     import PyTango
     #: (:obj:`bool`) PyTango imported
@@ -44,13 +42,45 @@ except ImportError:
 if sys.version_info > (3,):
     basestring = str
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("lavue")
+
+if sys.version_info > (3,):
+    unicode = str
+
+
+def debugmethod(method):
+    """ debug wrapper for methods
+    :param method: any class method
+    :type method: :class:`any`
+    :returns: wrapped class method
+    :rtype: :class:`any`
+    """
+    if logger.getEffectiveLevel() >= 10:
+        def decmethod(*args, **kwargs):
+            name = "%s.%s.%s" % (
+                args[0].__class__.__module__,
+                args[0].__class__.__name__,
+                method.__name__
+            )
+            if args[1:]:
+                margs = " with %s " % str(args[1:])
+            else:
+                margs = ""
+            logger.debug("%s: excecuted %s" % (name, margs))
+            ret = method(*args, **kwargs)
+            logger.debug("%s: returns %s" % (
+                name, str(ret) if ret is not None else ''))
+            return ret
+        return decmethod
+    else:
+        return method
 
 
 class SardanaUtils(object):
 
     """ sardanamacro server"""
 
+    @debugmethod
     def __init__(self):
         """ constructor """
 
@@ -61,7 +91,6 @@ class SardanaUtils(object):
             self.__db = PyTango.Database()
         except Exception:
             self.__db = None
-        logger.setLevel(globallogger.level)
 
     @classmethod
     def openProxy(cls, device, counter=1000):
@@ -91,6 +120,7 @@ class SardanaUtils(object):
 
         return cnfServer
 
+    @debugmethod
     def getMacroServer(self, door):
         """ door macro server device name
 
@@ -101,22 +131,24 @@ class SardanaUtils(object):
         """
         if not door:
             raise Exception("Door '%s' cannot be found" % door)
-        logger.debug("Door: %s" % door)
+        logger.debug("SardanaUtils.getMacroServer: Door = %s" % door)
         sdoor = door.split("/")
         tangohost = None
         if len(sdoor) > 1 and ":" in sdoor[0]:
             door = "/".join(sdoor[1:])
             tangohost = sdoor[0]
-        logger.debug("Tango Host: %s" % tangohost)
+        logger.debug(
+            "SardanaUtils.getMacroServer: Tango Host = %s" % tangohost)
         if tangohost or not self.__db:
             host, port = tangohost.split(":")
             db = PyTango.Database(host, int(port))
         else:
             db = self.__db
-        logger.debug("Database: %s" % str(db))
+        logger.debug("SardanaUtils.getMacroServer: Database = %s" % str(db))
 
         servers = db.get_device_exported_for_class("MacroServer").value_string
-        logger.debug("MacroSevers: %s" % str(servers))
+        logger.debug(
+            "SardanaUtils.getMacroServer: MacroSevers = %s" % str(servers))
         ms = None
 
         for server in servers:
@@ -128,19 +160,36 @@ class SardanaUtils(object):
             try:
                 dp = self.openProxy(msname)
             except Exception as e:
-                logger.warning(str(e))
+                logger.warning("SardanaUtils.getMacroServer: %s" % str(e))
                 # print(str(e))
                 dp = None
             if hasattr(dp, "DoorList"):
                 lst = [str(dr).lower() for dr in dp.DoorList]
-                logger.debug("DoorList: %s" % str(lst))
+                logger.debug(
+                    "SardanaUtils.getMacroServer: DoorList = %s" % str(lst))
                 if lst and (door.lower() in lst or
                             ("%s/%s" % (tangohost, door.lower()) in lst)):
                     ms = dp
-                    logger.debug("Door MacroServer: %s" % str(ms))
+                    logger.debug(
+                        "SardanaUtils.getMacroServer: "
+                        "Door MacroServer = %s" % str(ms))
                     break
         return ms
 
+    @classmethod
+    def pickleloads(cls, bytestr):
+        """ loads pickle byte string
+        :param bytestr: byte string to convert
+        :type bytesstr: :obj:`bytes`
+        :returns: loaded bytestring
+        :rtype: :obj:`any`
+        """
+        if sys.version_info > (3,):
+            return pickle.loads(bytestr, encoding='latin1')
+        else:
+            return pickle.loads(bytestr)
+
+    @debugmethod
     def getScanEnv(self, door, params=None):
         """ fetches Scan Environment Data
 
@@ -154,13 +203,14 @@ class SardanaUtils(object):
         msp = self.getMacroServer(door)
         rec = msp.Environment
         if rec[0] == 'pickle':
-            dc = pickle.loads(rec[1])
+            dc = self.pickleloads(rec[1])
             if 'new' in dc.keys():
                 for var in params:
                     if var in dc['new'].keys():
                         res[var] = dc['new'][var]
         return json.dumps(res)
 
+    @debugmethod
     def getDeviceName(self, cname, db=None):
         """ finds device of give class
 
@@ -188,6 +238,7 @@ class SardanaUtils(object):
                 pass
         return device
 
+    @debugmethod
     def setScanEnv(self, door, jdata):
         """ stores Scan Environment Data
 
@@ -201,9 +252,31 @@ class SardanaUtils(object):
         dc = {'new': {}}
         for var in data.keys():
             dc['new'][str(var)] = self.toString(data[var])
-            pk = pickle.dumps(dc)
-        msp.Environment = ['pickle', pk]
+        try:
+            pk = pickle.dumps(dc, protocol=2)
+            msp.Environment = ['pickle', pk]
+        except Exception:
+            if sys.version_info < (3,):
+                raise
+            if isinstance(data, dict):
+                newvalue = {}
+                for key, vl in dc.items():
+                    if isinstance(vl, dict):
+                        nvl = {}
+                        for ky, it in vl.items():
+                            nvl[bytes(ky, "utf8")
+                                if isinstance(ky, unicode) else ky] = it
+                        newvalue[bytes(key, "utf8")
+                                 if isinstance(key, unicode) else key] = nvl
+                    else:
+                        newvalue[bytes(key, "utf8")
+                                 if isinstance(key, unicode) else key] = vl
+            else:
+                newvalue = dc
+            pk = pickle.dumps(newvalue, protocol=2)
+            msp.Environment = ['pickle', pk]
 
+    @debugmethod
     def wait(self, name=None, proxy=None, maxcount=100):
         """ stores Scan Environment Data
 
@@ -221,6 +294,7 @@ class SardanaUtils(object):
                 break
             time.sleep(0.01)
 
+    @debugmethod
     def runMacro(self, door, command, wait=True):
         """ stores Scan Environment Data
 
@@ -263,6 +337,7 @@ class SardanaUtils(object):
         else:
             return None, None
 
+    @debugmethod
     def getError(self, door):
         """ stores Scan Environment Data
 
@@ -295,6 +370,7 @@ class SardanaUtils(object):
         else:
             return obj
 
+    @debugmethod
     def getElementNames(self, door, listattr, typefilter=None):
         """ provides experimental Channels
 
@@ -326,6 +402,7 @@ class SardanaUtils(object):
                     elements.append(chan['name'])
         return elements
 
+    @debugmethod
     def getPools(self, door):
         """ provides pool devices
 
@@ -350,6 +427,7 @@ class SardanaUtils(object):
         self.__pools = self.getProxies(poolNames)
         return self.__pools
 
+    @debugmethod
     @classmethod
     def getProxies(cls, names):
         """ provides proxies of given device names

@@ -33,13 +33,12 @@ import json
 import logging
 
 from . import edDictDialog
-from . import globallogger
 
 _formclass, _baseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "ConfigDialog.ui"))
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("lavue")
 
 
 class TableWidgetDragCheckBoxes(QtGui.QTableWidget):
@@ -52,7 +51,6 @@ class TableWidgetDragCheckBoxes(QtGui.QTableWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QTableWidget.__init__(self, parent)
-        logger.setLevel(globallogger.level)
 
         #: (:obj:`list` < [ :obj:`str`, :obj:`bool` ] > ) checkbox item list
         self.__checkboxdata = []
@@ -183,7 +181,6 @@ class ConfigDialog(QtGui.QDialog):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QDialog.__init__(self, parent)
-        logger.setLevel(globallogger.level)
 
         #: (:class:`Ui_ConfigDialog') ui_dialog object from qtdesigner
         self.__ui = _formclass()

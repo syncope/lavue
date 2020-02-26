@@ -42,7 +42,6 @@ from . import rangeDialog
 from . import takeMotorsDialog
 from . import intervalsDialog
 from . import motorWatchThread
-from . import globallogger
 
 _intensityformclass, _intensitybaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -98,7 +97,7 @@ __all__ = [
     'twproperties',
 ]
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("lavue")
 
 
 class ToolParameters(object):
@@ -108,7 +107,6 @@ class ToolParameters(object):
         """ constructor
 
         """
-        logger.setLevel(globallogger.level)
         #: (:obj:`bool`) lines enabled
         # self.lines = False
         #: (:obj:`bool`) rois enabled
@@ -161,7 +159,6 @@ class ToolBaseWidget(QtGui.QWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtGui.QWidget.__init__(self, parent)
-        logger.setLevel(globallogger.level)
         #: (:class:`pyqtgraph.QtCore.QObject`) mainwidget
         self._mainwidget = parent
         #: (:class:`Ui_ToolBaseWidget')
@@ -842,13 +839,14 @@ class MeshToolWidget(ToolBaseWidget):
         macrocommand.append("True")
         self.__door = self._mainwidget.getDoor()
         if self.__door is None:
-            logger.error("Cannot access Door device")
-            # print("Error: Cannot access Door device")
+            logger.error(
+                "MeshToolWidget.__startScan: Cannot access Door device")
             return False
 
         if not self._mainwidget.runMacro(macrocommand):
-            logger.error("Cannot in running %s " % macrocommand)
-            # print("Error: Cannot in running %s " % macrocommand)
+            logger.error(
+                "MeshToolWidget.__startScan: Cannot in running %s"
+                % macrocommand)
             return False
 
         self.__motorWatcher = motorWatchThread.MotorWatchThread(

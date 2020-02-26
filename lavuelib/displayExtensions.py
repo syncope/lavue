@@ -34,12 +34,10 @@ import time
 import logging
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI, Handle
 
-from . import globallogger
-
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
     if _pg.__version__ else ("0", "9", "0")
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("lavue")
 
 
 class HandleWithSignals(Handle):
@@ -59,7 +57,6 @@ class HandleWithSignals(Handle):
         :param parent: roi object
         :type parent: :class:`pyqtgraph.graphicsItems.ROI.ROI`
         """
-        logger.setLevel(globallogger.level)
         pos = _pg.Point(pos)
         center = _pg.Point(center)
         if pos[0] != center[0] and pos[1] != center[1]:
@@ -93,8 +90,6 @@ class SimpleLineROI(LineROI):
         :param args: dictionary with ROI parameters
         :type args: :obj:`dict`<:obj:`str`, :obj:`any`>
         """
-        logger.setLevel(globallogger.level)
-
         pos1 = _pg.Point(pos1)
         pos2 = _pg.Point(pos2)
         d = pos2 - pos1
@@ -151,7 +146,6 @@ class DisplayExtension(QtCore.QObject):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         QtCore.QObject.__init__(self)
-        logger.setLevel(globallogger.level)
         #: (:obj:`str`) extension name
         self.name = "none"
         #: (:class:`pyqtgraph.QtCore.QObject`) mainwidget
