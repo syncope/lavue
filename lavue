@@ -236,7 +236,6 @@ def main():
         "--log", dest="log",
         help="logging level, i.e. debug, info, warning, error, critical")
 
-
     options = parser.parse_args()
 
     if options.version:
