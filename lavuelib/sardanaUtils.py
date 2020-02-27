@@ -80,7 +80,7 @@ class SardanaUtils(object):
 
     """ sardanamacro server"""
 
-    # @debugmethod
+    @debugmethod
     def __init__(self):
         """ constructor """
 
@@ -120,7 +120,7 @@ class SardanaUtils(object):
 
         return cnfServer
 
-    # @debugmethod
+    @debugmethod
     def getMacroServer(self, door):
         """ door macro server device name
 
@@ -189,7 +189,7 @@ class SardanaUtils(object):
         else:
             return pickle.loads(bytestr)
 
-    # @debugmethod
+    @debugmethod
     def getScanEnv(self, door, params=None):
         """ fetches Scan Environment Data
 
@@ -210,7 +210,7 @@ class SardanaUtils(object):
                         res[var] = dc['new'][var]
         return json.dumps(res)
 
-    # @debugmethod
+    @debugmethod
     def getDeviceName(self, cname, db=None):
         """ finds device of give class
 
@@ -238,7 +238,7 @@ class SardanaUtils(object):
                 pass
         return device
 
-    # @debugmethod
+    @debugmethod
     def setScanEnv(self, door, jdata):
         """ stores Scan Environment Data
 

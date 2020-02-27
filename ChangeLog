@@ -1,4 +1,9 @@
 2020-02-28 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for loading Nexus files with unknown extension
+	* add @debugmethod statement back
+	* tagged as 2.36.1
+
+2020-02-28 Jan Kotanski <jan.kotanski@desy.de>
 	* add support DATA_READY_EVENT in Tango Events image source
 	* tagged as 2.36.0
 
