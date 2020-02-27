@@ -238,9 +238,6 @@ def main():
         "-n", "--analysis-device", dest="analysisdevice",
         help="tango analysis device of LambdaOnlineAnalysis"
         " to communicate with analysis clients during the run")
-    parser.add_option(
-        "--log", dest="log",
-        help="logging level, i.e. debug, info, warning, error, critical")
 
 
     (options, _) = parser.parse_args()

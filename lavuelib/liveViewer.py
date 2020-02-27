@@ -569,7 +569,7 @@ class LiveViewer(QtGui.QDialog):
 
     @debugmethod
     @QtCore.pyqtSlot(bool)
-    def _showhelp(self, _=None):
+    def _showhelp(self, _=False):
         """ shows the detail help
         """
         form = helpForm.HelpForm("index.html", self)
@@ -1153,15 +1153,12 @@ class LiveViewer(QtGui.QDialog):
 
     @debugmethod
     @QtCore.pyqtSlot(bool)
-    @QtCore.pyqtSlot()
-    def _clickloadfile(self, _=None):
+    def _clickloadfile(self, _=False):
         """ reloads the image file
         """
         self._loadfile()
 
     @debugmethod
-    @QtCore.pyqtSlot(int)
-    @QtCore.pyqtSlot()
     def _loadfile(self, fid=None):
         """ reloads the image file
 
@@ -1487,7 +1484,7 @@ class LiveViewer(QtGui.QDialog):
 
     @debugmethod
     @QtCore.pyqtSlot(bool)
-    def _configuration(self, _=None):
+    def _configuration(self, _=False):
         """ launches the configuration dialog
         """
         cnfdlg = configDialog.ConfigDialog(self)
