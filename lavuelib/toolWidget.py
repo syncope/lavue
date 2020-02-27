@@ -424,8 +424,8 @@ class MotorsToolWidget(ToolBaseWidget):
                 "Move to x- and y-motors to (%s, %s)"
                 % (self.__xfinal, self.__yfinal))
 
-    @QtCore.pyqtSlot()
-    def _moveStopMotors(self):
+    @QtCore.pyqtSlot(bool)
+    def _moveStopMotors(self, _=False):
         """ move or stop motors depending on movePushButton
         """
         if str(self.__ui.movePushButton.text()) == "Move":
@@ -565,8 +565,8 @@ class MotorsToolWidget(ToolBaseWidget):
                 self.__ui.ycurLineEdit.setStyleSheet(
                     "color: black; background-color: #90EE90;")
 
-    @QtCore.pyqtSlot()
-    def _setMotors(self):
+    @QtCore.pyqtSlot(bool)
+    def _setMotors(self, _=False):
         """ launches motors widget
 
         :returns: apply status
@@ -736,8 +736,8 @@ class MeshToolWidget(ToolBaseWidget):
 
         self.roiInfoChanged.emit("%s, %s = %s" % (text, roilabel, roiVal))
 
-    @QtCore.pyqtSlot()
-    def _scanStopMotors(self):
+    @QtCore.pyqtSlot(bool)
+    def _scanStopMotors(self, _=False):
         """ starts or stops scan
         """
         if str(self.__ui.scanPushButton.text()) == "Scan":
@@ -884,8 +884,8 @@ class MeshToolWidget(ToolBaseWidget):
                 self.__ui.ycurLineEdit.setStyleSheet(
                     "color: black; background-color: #90EE90;")
 
-    @QtCore.pyqtSlot()
-    def _setMotors(self):
+    @QtCore.pyqtSlot(bool)
+    def _setMotors(self, _=False):
         """ launches motors widget
 
         :returns: apply status
@@ -919,8 +919,8 @@ class MeshToolWidget(ToolBaseWidget):
             return True
         return False
 
-    @QtCore.pyqtSlot()
-    def _setIntervals(self):
+    @QtCore.pyqtSlot(bool)
+    def _setIntervals(self, _=False):
         """ launches motors widget
 
         :returns: apply status
@@ -996,13 +996,12 @@ class ROIToolWidget(ToolBaseWidget):
         #: (:class:`lavuelib.settings.Settings`:) configuration settings
         self.__settings = self._mainwidget.settings()
 
-        self.__ui.applyROIPushButton.clicked.connect(self._emitApplyROIPressed)
-        self.__ui.fetchROIPushButton.clicked.connect(self._emitFetchROIPressed)
-
         self._updateApplyButton()
         #: (:obj:`list` < [:class:`pyqtgraph.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
+            [self.__ui.applyROIPushButton.clicked, self._emitApplyROIPressed],
+            [self.__ui.fetchROIPushButton.clicked, self._emitFetchROIPressed],
             [self.applyROIPressed, self._mainwidget.applyROIs],
             [self.fetchROIPressed, self._mainwidget.fetchROIs],
             [self.roiInfoChanged, self._mainwidget.updateDisplayedText],
@@ -1018,7 +1017,6 @@ class ROIToolWidget(ToolBaseWidget):
             [self._mainwidget.roiNumberChanged, self.setROIsNumber],
             [self._mainwidget.sardanaEnabled, self.updateROIButton],
             [self._mainwidget.mouseImagePositionChanged, self._message],
-
         ]
 
     def activate(self):
@@ -1076,8 +1074,8 @@ class ROIToolWidget(ToolBaseWidget):
             message = "%s" % coords[current]
         self._mainwidget.setDisplayedText(message)
 
-    @QtCore.pyqtSlot()
-    def _emitApplyROIPressed(self):
+    @QtCore.pyqtSlot(bool)
+    def _emitApplyROIPressed(self, _=False):
         """ emits applyROIPressed signal"""
 
         text = str(self.__ui.labelROILineEdit.text()).strip()
@@ -1088,8 +1086,8 @@ class ROIToolWidget(ToolBaseWidget):
         roispin = int(self.__ui.roiSpinBox.value())
         self.applyROIPressed.emit(text, roispin)
 
-    @QtCore.pyqtSlot()
-    def _emitFetchROIPressed(self):
+    @QtCore.pyqtSlot(bool)
+    def _emitFetchROIPressed(self, _=False):
         """ emits fetchROIPressed signal"""
         text = str(self.__ui.labelROILineEdit.text())
         self.fetchROIPressed.emit(text)
@@ -1881,14 +1879,14 @@ class OneDToolWidget(ToolBaseWidget):
         self.__curves = []
         self.__nrplots = 0
 
-    @QtCore.pyqtSlot()
-    def _resetAccu(self):
+    @QtCore.pyqtSlot(bool)
+    def _resetAccu(self, _=False):
         """ reset accumulation buffer
         """
         self.__buffer = None
 
-    @QtCore.pyqtSlot()
-    def _startStopAccu(self):
+    @QtCore.pyqtSlot(bool)
+    def _startStopAccu(self, _=False):
         """ start/stop accumulation buffer
         """
         if not self.__accumulate:
@@ -2603,8 +2601,8 @@ class AngleQToolWidget(ToolBaseWidget):
                 self.__settings.energy
             )
 
-    @QtCore.pyqtSlot()
-    def _setPolarRange(self):
+    @QtCore.pyqtSlot(bool)
+    def _setPolarRange(self, _=False):
         """ launches range widget
 
         :returns: apply status
@@ -2637,8 +2635,8 @@ class AngleQToolWidget(ToolBaseWidget):
             if self.__plotindex:
                 self._mainwidget.emitReplotImage()
 
-    @QtCore.pyqtSlot()
-    def _setGeometry(self):
+    @QtCore.pyqtSlot(bool)
+    def _setGeometry(self, _=False):
         """ launches geometry widget
 
         :returns: apply status
@@ -3053,8 +3051,8 @@ class MaximaToolWidget(ToolBaseWidget):
                 self.__settings.energy
             )
 
-    @QtCore.pyqtSlot()
-    def _setGeometry(self):
+    @QtCore.pyqtSlot(bool)
+    def _setGeometry(self, _=False):
         """ launches geometry widget
 
         :returns: apply status
@@ -3177,13 +3175,12 @@ class QROIProjToolWidget(ToolBaseWidget):
         #: (:class:`lavuelib.settings.Settings`:) configuration settings
         self.__settings = self._mainwidget.settings()
 
-        self.__ui.applyROIPushButton.clicked.connect(self._emitApplyROIPressed)
-        self.__ui.fetchROIPushButton.clicked.connect(self._emitFetchROIPressed)
-
         self._updateApplyButton()
         #: (:obj:`list` < [:class:`pyqtgraph.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
+            [self.__ui.applyROIPushButton.clicked, self._emitApplyROIPressed],
+            [self.__ui.fetchROIPushButton.clicked, self._emitFetchROIPressed],
             [self.__ui.angleqPushButton.clicked, self._setGeometry],
             [self.__ui.angleqComboBox.currentIndexChanged,
              self._setGSpaceIndex],
@@ -3535,16 +3532,16 @@ class QROIProjToolWidget(ToolBaseWidget):
         else:
             self.__ui.roiinfoLineEdit.setText(text)
 
-    @QtCore.pyqtSlot()
-    def _emitApplyROIPressed(self):
+    @QtCore.pyqtSlot(bool)
+    def _emitApplyROIPressed(self, _=False):
         """ emits applyROIPressed signal"""
 
         text = str(self.__ui.labelROILineEdit.text())
         roispin = int(self.__ui.roiSpinBox.value())
         self.applyROIPressed.emit(text, roispin)
 
-    @QtCore.pyqtSlot()
-    def _emitFetchROIPressed(self):
+    @QtCore.pyqtSlot(bool)
+    def _emitFetchROIPressed(self, _=False):
         """ emits fetchROIPressed signal"""
         text = str(self.__ui.labelROILineEdit.text())
         self.fetchROIPressed.emit(text)
@@ -3771,8 +3768,8 @@ class QROIProjToolWidget(ToolBaseWidget):
                 self.__settings.energy
             )
 
-    @QtCore.pyqtSlot()
-    def _setGeometry(self):
+    @QtCore.pyqtSlot(bool)
+    def _setGeometry(self, _=False):
         """ launches geometry widget
 
         :returns: apply status

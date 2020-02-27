@@ -71,8 +71,8 @@ class ScalingGroupBox(QtGui.QGroupBox):
         """
         return self.__current
 
-    @QtCore.pyqtSlot()
-    def _onScalingChanged(self):
+    @QtCore.pyqtSlot(bool)
+    def _onScalingChanged(self, _=False):
         """ updates the current scaling
         """
         if self.__ui.linRadioButton.isChecked():
