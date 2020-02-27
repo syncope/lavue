@@ -491,7 +491,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.secautoportCheckBox.stateChanged.connect(
             self._updateSecPortLineEdit)
         self.__ui.plusroiPushButton.clicked.connect(
-            self._addROIColorWidget)
+            self._addROIColorWidgetClicked)
         self.__ui.minusroiPushButton.clicked.connect(
             self._removeROIColorWidget)
 
@@ -513,17 +513,13 @@ class ConfigDialog(QtGui.QDialog):
             "Insert Row &Above", QtGui.QDialogButtonBox.ActionRole)
         self.__ui.adddownPushButton = self.__ui.filterButtonBox.addButton(
             "Insert Row &Below", QtGui.QDialogButtonBox.ActionRole)
-        # self.__ui.editPushButton = self.__ui.filterButtonBox.addButton(
-        #     "&Edit", QtGui.QDialogButtonBox.ActionRole)
         self.__ui.removePushButton = self.__ui.filterButtonBox.addButton(
             "&Delete Row", QtGui.QDialogButtonBox.ActionRole)
         self.__populateTable(0)
         self.__ui.addupPushButton.clicked.connect(self.__addup)
         self.__ui.adddownPushButton.clicked.connect(self.__adddown)
-        # self.__ui.editPushButton.clicked.connect(self.__edit)
         self.__ui.filterTableWidget.itemChanged.connect(
             self.__tableItemChanged)
-        # self.__ui.filterTableWidget.itemDoubleClicked.connect(self.__edit)
         self.__ui.removePushButton.clicked.connect(self.__remove)
 
     def __updateRecord(self):
@@ -559,8 +555,8 @@ class ConfigDialog(QtGui.QDialog):
         """
         self.__updateRecord()
 
-    @QtCore.pyqtSlot()
-    def __addup(self):
+    @QtCore.pyqtSlot(bool)
+    def __addup(self, _=False):
         """ adds a new record into the table
         """
         row = self.__ui.filterTableWidget.currentRow()
@@ -574,8 +570,8 @@ class ConfigDialog(QtGui.QDialog):
         self.__populateTable()
         self.__updateRecord()
 
-    @QtCore.pyqtSlot()
-    def __adddown(self):
+    @QtCore.pyqtSlot(bool)
+    def __adddown(self, _=False):
         """ adds a new record into the table
         """
         row = self.__ui.filterTableWidget.currentRow()
@@ -589,8 +585,8 @@ class ConfigDialog(QtGui.QDialog):
         self.__populateTable()
         self.__updateRecord()
 
-    @QtCore.pyqtSlot()
-    def __remove(self):
+    @QtCore.pyqtSlot(bool)
+    def __remove(self, _=False):
         """ removes the current record from the table
         """
         row = self.__ui.filterTableWidget.currentRow()
@@ -659,7 +655,12 @@ class ConfigDialog(QtGui.QDialog):
             if cid >= len(self.__roiswidgets):
                 self._addROIColorWidget(tuple(color))
 
-    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(bool)
+    def _addROIColorWidgetClicked(self, _=False):
+        """ add ROIs colors widgets
+        """
+        self._addROIColorWidget()
+
     def _addROIColorWidget(self, color=None):
         """ add ROIs colors widgets
 
@@ -672,8 +673,8 @@ class ConfigDialog(QtGui.QDialog):
         self.__roiswidgets.append(cb)
         self.__ui.colorHorizontalLayout.addWidget(cb)
 
-    @QtCore.pyqtSlot()
-    def _removeROIColorWidget(self):
+    @QtCore.pyqtSlot(bool)
+    def _removeROIColorWidget(self, _=False):
         """ updates ROIs colors widgets
         """
         cb = self.__roiswidgets.pop()
