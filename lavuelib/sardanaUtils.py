@@ -163,7 +163,7 @@ class SardanaUtils(object):
                 logger.warning("SardanaUtils.getMacroServer: %s" % str(e))
                 # print(str(e))
                 dp = None
-            if hasattr(dp, "DoorList"):
+            if hasattr(dp, "DoorList") and dp.DoorList:
                 lst = [str(dr).lower() for dr in dp.DoorList]
                 logger.debug(
                     "SardanaUtils.getMacroServer: DoorList = %s" % str(lst))

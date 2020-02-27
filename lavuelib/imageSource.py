@@ -190,7 +190,6 @@ class BaseSource(object):
         return {}
 
     @debugmethod
-    @QtCore.pyqtSlot(str)
     def setConfiguration(self, configuration):
         """ set configuration
 
@@ -1168,7 +1167,6 @@ class ZMQSource(BaseSource):
         self.__mutex = QtCore.QMutex()
 
     @debugmethod
-    @QtCore.pyqtSlot(str)
     def setConfiguration(self, configuration):
         """ set configuration
 
@@ -1410,7 +1408,6 @@ class HiDRASource(BaseSource):
         self.__tiffloader = False
 
     @debugmethod
-    @QtCore.pyqtSlot(str)
     def setConfiguration(self, configuration):
         """ set configuration
 
