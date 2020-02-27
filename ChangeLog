@@ -1,3 +1,7 @@
+2020-02-28 Jan Kotanski <jan.kotanski@desy.de>
+	* add support DATA_READY_EVENT in Tango Events image source
+	* tagged as 2.36.0
+
 2020-02-27 Jan Kotanski <jan.kotanski@desy.de>
 	* tune long debug printout
 	* tagged as 2.35.8

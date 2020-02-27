@@ -453,7 +453,7 @@ class LiveViewer(QtGui.QDialog):
         self.__levelswg.levelsChanged.connect(self._plot)
         self.__ui.cnfPushButton.clicked.connect(self._configuration)
         self.__ui.quitPushButton.clicked.connect(self.close)
-        self.__ui.loadPushButton.clicked.connect(self._loadfile)
+        self.__ui.loadPushButton.clicked.connect(self._clickloadfile)
         self.__ui.helpPushButton.clicked.connect(self._showhelp)
         if self.__umode in ["user"]:
             self.__ui.cnfPushButton.hide()
@@ -567,14 +567,16 @@ class LiveViewer(QtGui.QDialog):
 
         self.__updateTool(options.tool)
 
-    @debugmethod
-    def _showhelp(self):
+    # @debugmethod
+    @QtCore.pyqtSlot(bool)
+    def _showhelp(self, _=None):
         """ shows the detail help
         """
         form = helpForm.HelpForm("index.html", self)
         form.show()
 
-    @debugmethod
+    # @debugmethod
+    @QtCore.pyqtSlot(str, int)
     def _setTranslation(self, trans, sid):
         """ stores translation of the given source
 
@@ -707,7 +709,7 @@ class LiveViewer(QtGui.QDialog):
                 "%s" % value)
             # print(str(e))
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(str, str)
     def _addLabel(self, name, value):
         """ emits addIconClicked signal
@@ -735,7 +737,7 @@ class LiveViewer(QtGui.QDialog):
             self.__updateSource()
             self._storeSettings()
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(str, str)
     def _removeLabel(self, name, label):
         """ emits addIconClicked signal
@@ -789,7 +791,7 @@ class LiveViewer(QtGui.QDialog):
             epicspvshapes=self.__settings.epicspvshapes
         )
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(str)
     def _updateLavueState(self, state):
         """ updates lavue state configuration
@@ -1113,7 +1115,7 @@ class LiveViewer(QtGui.QDialog):
         self.__settings.sardana = True if self.__sardana is not None else False
         self.__settings.store(settings)
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(bool)
     def _setAspectLocked(self, status):
         self.__settings.aspectlocked = status
@@ -1149,7 +1151,15 @@ class LiveViewer(QtGui.QDialog):
         if event is not None:
             event.accept()
 
-    @debugmethod
+    # @debugmethod
+    @QtCore.pyqtSlot(bool)
+    @QtCore.pyqtSlot()
+    def _clickloadfile(self, _=None):
+        """ reloads the image file
+        """
+        self._loadfile()
+
+    # @debugmethod
     @QtCore.pyqtSlot(int)
     @QtCore.pyqtSlot()
     def _loadfile(self, fid=None):
@@ -1160,7 +1170,7 @@ class LiveViewer(QtGui.QDialog):
          """
         self._reloadfile(fid, showmessage=True)
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot()
     def _spinreloadfile(self, fid=None, showmessage=False):
@@ -1185,9 +1195,10 @@ class LiveViewer(QtGui.QDialog):
         finally:
             self.__reloadflag = False
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot()
-    def _lowerframepushed(self):
+    @QtCore.pyqtSlot(bool)
+    def _lowerframepushed(self, _=None):
         step = self.__ui.framestepSpinBox.value()
         try:
             frame = int(self.__ui.frameLineEdit.text())
@@ -1198,9 +1209,10 @@ class LiveViewer(QtGui.QDialog):
             nframe = max(nframe, 0)
         self.__ui.frameLineEdit.setText(str(nframe))
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot()
-    def _higherframepushed(self):
+    @QtCore.pyqtSlot(bool)
+    def _higherframepushed(self, _=None):
         step = self.__ui.framestepSpinBox.value()
         try:
             frame = int(self.__ui.frameLineEdit.text())
@@ -1211,9 +1223,10 @@ class LiveViewer(QtGui.QDialog):
             nframe = min(nframe, -1)
         self.__ui.frameLineEdit.setText(str(nframe))
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot()
-    def _sliderreloadfilelazy(self):
+    @QtCore.pyqtSlot(bool)
+    def _sliderreloadfilelazy(self, _=None):
         """ reloads the image file or
         if lazy flag it displays only splider value
         """
@@ -1228,7 +1241,7 @@ class LiveViewer(QtGui.QDialog):
         else:
             self._sliderreloadfile()
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(int)
     @QtCore.pyqtSlot()
     def _sliderreloadfile(self, fid=None, showmessage=False):
@@ -1248,7 +1261,7 @@ class LiveViewer(QtGui.QDialog):
         finally:
             self.__reloadflag = False
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(int)
     @QtCore.pyqtSlot()
     def _reloadfile(self, fid=None, showmessage=False):
@@ -1458,8 +1471,8 @@ class LiveViewer(QtGui.QDialog):
                         % self.__settings.imagename))
 
     @debugmethod
-    @QtCore.pyqtSlot()
-    def _configuration(self, _=""):
+    @QtCore.pyqtSlot(bool)
+    def _configuration(self, _=None):
         """ launches the configuration dialog
         """
         cnfdlg = configDialog.ConfigDialog(self)
@@ -1855,7 +1868,7 @@ class LiveViewer(QtGui.QDialog):
             servers = list(set(detserverlist) - defservers)
         return list(servers)
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(str)
     def _setSourceConfiguration(self, sourceConfiguration=None):
         """ sets the source configuration
@@ -1872,7 +1885,7 @@ class LiveViewer(QtGui.QDialog):
                str(type(self.__datasources[i]).__name__):
                 self.__datasources[i].setConfiguration(sourceConfiguration[i])
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(str)
     def _switchSourceDisplay(self, label):
         """switches source display parameters
@@ -1925,7 +1938,7 @@ class LiveViewer(QtGui.QDialog):
             self.__sardana = sardanaUtils.SardanaUtils()
         self.__imagewg.setSardanaUtils(self.__sardana)
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(str)
     def _onSourceChanged(self, status):
         """ update a list of sources according to the status
@@ -1943,7 +1956,7 @@ class LiveViewer(QtGui.QDialog):
             self.__sourcewg.updateSourceMetaData(
                 i, **self.__datasources[i].getMetaData())
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(int, int)
     def _updateSource(self, status, sid):
         """ update the current source
@@ -1977,7 +1990,7 @@ class LiveViewer(QtGui.QDialog):
                         sid, **ds.getMetaData())
         self._stateUpdated.emit(bool(status))
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(bool)
     def _replot(self, autorange):
         """ The main command of the live viewer class:
@@ -1987,7 +2000,7 @@ class LiveViewer(QtGui.QDialog):
         if autorange:
             self.__imagewg.autoRange()
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _plot(self):
         """ The main command of the live viewer class:
@@ -2034,7 +2047,7 @@ class LiveViewer(QtGui.QDialog):
             self.__levelswg.updateHistoImage()
             self.__updatehisto = False
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _calcUpdateStatsSec(self):
         """ calcuates statistics without  sending security stream
@@ -2094,7 +2107,7 @@ class LiveViewer(QtGui.QDialog):
         if auto:
             self.__levelswg.updateAutoLevels(minval, maxsval)
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _startPlotting(self):
         """ mode changer: start plotting mode.
@@ -2108,7 +2121,7 @@ class LiveViewer(QtGui.QDialog):
             if not dft.isRunning():
                 dft.start()
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _stopPlotting(self):
         """ mode changer: stop plotting mode
@@ -2118,7 +2131,7 @@ class LiveViewer(QtGui.QDialog):
             if dft is not None:
                 dft.changeStatus(False)
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(str)
     def _connectSource(self, status):
         """  calls the connect function of the source interface
@@ -2165,7 +2178,7 @@ class LiveViewer(QtGui.QDialog):
         self.__setSourceLabel()
         self._startPlotting()
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _disconnectSource(self):
         """ calls the disconnect function of the source interface
@@ -2266,7 +2279,7 @@ class LiveViewer(QtGui.QDialog):
                             pd.rawdata
         return name, rawimage, metadata
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(str, str)
     def _getNewData(self, name, metadata=None):
         """ checks if data is there at all
@@ -2961,7 +2974,7 @@ class LiveViewer(QtGui.QDialog):
             self.__maskvalue = None
         self._plot()
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(int)
     def _checkMasking(self, state):
         """ replots the image with mask if mask exists
@@ -2971,7 +2984,7 @@ class LiveViewer(QtGui.QDialog):
             self.__maskwg.noImage()
         self._plot()
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(str)
     def _prepareMasking(self, imagename):
         """ reads the mask image, select non-zero elements and store the indices
@@ -3025,7 +3038,7 @@ class LiveViewer(QtGui.QDialog):
             else:
                 self.__maskindices = (self.__maskimage != 0)
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(int)
     def _checkBkgSubtraction(self, state):
         """ replots the image with subtranction if background image exists
@@ -3038,7 +3051,7 @@ class LiveViewer(QtGui.QDialog):
         self.__imagewg.setDoBkgSubtraction(state)
         self._plot()
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(str)
     def _prepareBkgSubtraction(self, imagename):
         """ reads the background image
@@ -3078,7 +3091,7 @@ class LiveViewer(QtGui.QDialog):
         else:
             self.__backgroundimage = None
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _setCurrentImageAsBkg(self):
         """ sets the chrrent image as the background image
@@ -3089,7 +3102,7 @@ class LiveViewer(QtGui.QDialog):
         else:
             self.__bkgsubwg.setDisplayedName("")
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(bool)
     def _assessFilters(self, state):
         """ assesses the filter on/off state
@@ -3117,7 +3130,7 @@ class LiveViewer(QtGui.QDialog):
             if self.__displayimage is not None:
                 self._plot()
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(str)
     def _assessTransformation(self, trafoname):
         """ assesses the transformation and replot it
@@ -3133,7 +3146,7 @@ class LiveViewer(QtGui.QDialog):
                 self.__settings.keepcoords, False)
         self._plot()
 
-    @debugmethod
+    # @debugmethod
     def keyPressEvent(self,  event):
         """ skips escape key action
 
@@ -3145,7 +3158,7 @@ class LiveViewer(QtGui.QDialog):
         # else:
         #     self.closeEvent(None)
 
-    @debugmethod
+    # @debugmethod
     @QtCore.pyqtSlot(bool)
     def setrgb(self, status=True):
         """ sets RGB on/off
@@ -3157,7 +3170,7 @@ class LiveViewer(QtGui.QDialog):
         self.__imagewg.setrgb(status)
         self._plot()
 
-    @debugmethod
+    # @debugmethod
     def rgb(self):
         """ gets RGB on/off
 
