@@ -1420,7 +1420,7 @@
               <item row="3" column="0">
                <widget class="QLabel" name="defdetserversLabel">
                 <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;use default hadcoded detector server names dedicated for DESY beamlines&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;use default hardcoded detector server names dedicated for DESY beamlines&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
                  <string>Use default detector servers:</string>
@@ -1433,7 +1433,7 @@
               <item row="3" column="1" colspan="2">
                <widget class="QCheckBox" name="defdetserversCheckBox">
                 <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;use default hadcoded detector server names dedicated for DESY beamlines&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;use default hardcoded detector server names dedicated for DESY beamlines&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
                  <string/>
