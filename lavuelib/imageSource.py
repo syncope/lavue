@@ -190,7 +190,6 @@ class BaseSource(object):
         return {}
 
     @debugmethod
-    @QtCore.pyqtSlot(str)
     def setConfiguration(self, configuration):
         """ set configuration
 
@@ -1043,11 +1042,7 @@ class HTTPSource(BaseSource):
         """
         if self._configuration:
             try:
-                if self.__header:
-                    response = requests.get(
-                        self._configuration, headers=self.__header)
-                else:
-                    response = requests.get(self._configuration)
+                response = self.__get()
                 if response.ok:
                     name = self._configuration
                     data = response.content
@@ -1096,6 +1091,28 @@ class HTTPSource(BaseSource):
                 return str(e), "__ERROR__", ""
         return "No url defined", "__ERROR__", None
 
+    # @debugmethod
+    def __get(self):
+        """ get response
+
+        :returns: response object
+        :rtype: :class:`requests.Response`
+        """
+        if self.__header:
+            try:
+                return requests.get(
+                    self._configuration, headers=self.__header,
+                    timeout=self._timeout/1000.)
+            except AttributeError:
+                return requests.get(
+                    self._configuration, headers=self.__header)
+        else:
+            try:
+                return requests.get(self._configuration,
+                                    timeout=self._timeout/1000.)
+            except AttributeError:
+                return requests.get(self._configuration)
+
     @debugmethod
     def connect(self):
         """ connects the source
@@ -1114,10 +1131,7 @@ class HTTPSource(BaseSource):
                             x * (100 ** i) for i, x in enumerate(lst))
                         if lversion >= 10800:
                             self.__header = {'Accept': 'application/tiff'}
-                if self.__header:
-                    requests.get(self._configuration, headers=self.__header)
-                else:
-                    requests.get(self._configuration)
+                self.__get()
             return True
         except Exception as e:
             logger.warning(str(e))
@@ -1153,7 +1167,6 @@ class ZMQSource(BaseSource):
         self.__mutex = QtCore.QMutex()
 
     @debugmethod
-    @QtCore.pyqtSlot(str)
     def setConfiguration(self, configuration):
         """ set configuration
 
@@ -1395,7 +1408,6 @@ class HiDRASource(BaseSource):
         self.__tiffloader = False
 
     @debugmethod
-    @QtCore.pyqtSlot(str)
     def setConfiguration(self, configuration):
         """ set configuration
 

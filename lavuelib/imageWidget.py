@@ -920,8 +920,8 @@ class ImageWidget(QtGui.QWidget):
         """
         self.__ui.infoLineEdit.setToolTip(text)
 
-    @QtCore.pyqtSlot()
-    def setTicks(self):
+    @QtCore.pyqtSlot(bool)
+    def setTicks(self, _=False):
         """ launch axes widget
 
         :returns: apply status

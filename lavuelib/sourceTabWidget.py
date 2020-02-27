@@ -435,8 +435,8 @@ class SourceForm(QtGui.QWidget):
         """
         return self.__connected
 
-    @QtCore.pyqtSlot()
-    def toggleServerConnection(self):
+    @QtCore.pyqtSlot(bool)
+    def toggleServerConnection(self, _=False):
         """ toggles server connection
         """
         self.pushButtonClicked.emit()
