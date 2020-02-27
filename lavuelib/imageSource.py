@@ -849,8 +849,9 @@ class TangoReadyEventsCB(object):
                 with QtCore.QMutexLocker(self.__mutex):
                     try:
                         self.__client.reading = True
+                        _, attrnm = str(event_data.attr_name).rsplit("/", 1)
                         self.__client.attr = event_data.device.read_attribute(
-                            event_data.attr_name)
+                            attrnm)
                         self.__client.fresh = True
                     finally:
                         self.__client.reading = False
@@ -981,16 +982,15 @@ class TangoEventsSource(BaseSource):
                 except Exception as e:
                     self.__attrid = None
                     exc += str(e)
-                try:
-                    self.__rattrid = self.__proxy.subscribe_event(
-                        atname,
-                        PyTango.EventType.DATA_READY_EVENT,
-                        rattr_cb)
-                except Exception as e:
-                    self.__rattrid = None
-                    exc += str(e)
-                if self.__attrid is None and self.__rattrid is None:
-                    raise Exception(exc)
+                    try:
+                        self.__rattrid = self.__proxy.subscribe_event(
+                            atname,
+                            PyTango.EventType.DATA_READY_EVENT,
+                            rattr_cb)
+                    except Exception as e:
+                        self.__rattrid = None
+                        exc += str(e)
+                        raise Exception(exc)
                 self._initiated = True
             return True
         except Exception as e:
