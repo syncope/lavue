@@ -502,8 +502,6 @@ class LiveViewer(QtGui.QDialog):
         self.__sourcewg.sourceStateChanged.connect(self._updateSource)
         self.__sourcewg.sourceChanged.connect(self._onSourceChanged)
         self.__sourcewg.sourceConnected.connect(self._connectSource)
-        # self.__sourcewg.sourceConnected.connect(self._startPlotting)
-        # self.__sourcewg.sourceDisconnected.connect(self._stopPlotting)
         self.__sourcewg.sourceDisconnected.connect(self._disconnectSource)
 
         self.__bkgsubwg.bkgFileSelected.connect(self._prepareBkgSubtraction)
@@ -850,7 +848,7 @@ class LiveViewer(QtGui.QDialog):
             if 'levels' not in dctcnf.keys():
                 self.__levelswg.setAutoLevels(2)
             if 'bkgfile' not in dctcnf.keys():
-                self.__bkgsubwg.checkBkgSubtraction(False)
+                self.__bkgsubwg.checkBkgSubtraction(0)
                 self.__dobkgsubtraction = None
             if 'maskfile' not in dctcnf.keys():
                 self.__maskwg.noImage()
@@ -1169,12 +1167,11 @@ class LiveViewer(QtGui.QDialog):
 
     @debugmethod
     @QtCore.pyqtSlot(str)
-    @QtCore.pyqtSlot()
     def _spinreloadfile(self, fid=None, showmessage=False):
         """ reloads the image file
 
         :param fid: frame id
-        :type fid: :obj:`int`
+        :type fid: :obj:`int` or :obj:`str`
         :param showmessage: no image message
         :type showmessage: :obj:`bool`
          """
@@ -1193,7 +1190,6 @@ class LiveViewer(QtGui.QDialog):
             self.__reloadflag = False
 
     @debugmethod
-    @QtCore.pyqtSlot()
     @QtCore.pyqtSlot(bool)
     def _lowerframepushed(self, _=None):
         step = self.__ui.framestepSpinBox.value()
@@ -1207,7 +1203,6 @@ class LiveViewer(QtGui.QDialog):
         self.__ui.frameLineEdit.setText(str(nframe))
 
     @debugmethod
-    @QtCore.pyqtSlot()
     @QtCore.pyqtSlot(bool)
     def _higherframepushed(self, _=None):
         step = self.__ui.framestepSpinBox.value()
@@ -1259,8 +1254,6 @@ class LiveViewer(QtGui.QDialog):
             self.__reloadflag = False
 
     @debugmethod
-    @QtCore.pyqtSlot(int)
-    @QtCore.pyqtSlot()
     def _reloadfile(self, fid=None, showmessage=False, nexus=None):
         """ reloads the image file
 
@@ -1881,7 +1874,6 @@ class LiveViewer(QtGui.QDialog):
         return list(servers)
 
     @debugmethod
-    @QtCore.pyqtSlot(str)
     def _setSourceConfiguration(self, sourceConfiguration=None):
         """ sets the source configuration
 
@@ -1898,7 +1890,6 @@ class LiveViewer(QtGui.QDialog):
                 self.__datasources[i].setConfiguration(sourceConfiguration[i])
 
     @debugmethod
-    @QtCore.pyqtSlot(str)
     def _switchSourceDisplay(self, label):
         """switches source display parameters
 
@@ -2120,8 +2111,7 @@ class LiveViewer(QtGui.QDialog):
             self.__levelswg.updateAutoLevels(minval, maxsval)
 
     @debugmethod
-    @QtCore.pyqtSlot()
-    def _startPlotting(self):
+    def _startPlotting(self, _=None):
         """ mode changer: start plotting mode.
         It starts plotting if the connection is really established.
         """
@@ -2134,7 +2124,6 @@ class LiveViewer(QtGui.QDialog):
                 dft.start()
 
     @debugmethod
-    @QtCore.pyqtSlot()
     def _stopPlotting(self):
         """ mode changer: stop plotting mode
         """
@@ -2606,7 +2595,7 @@ class LiveViewer(QtGui.QDialog):
                     self.__displayimage = \
                         self.__rawgreyimage - self.__backgroundimage
             except Exception:
-                self._checkBkgSubtraction(False)
+                self._checkBkgSubtraction(0)
                 self.__backgroundimage = None
                 self.__dobkgsubtraction = False
                 import traceback
@@ -2862,6 +2851,7 @@ class LiveViewer(QtGui.QDialog):
         return scale
 
     @debugmethod
+    @QtCore.pyqtSlot()
     def _resizePlot(self, show=True):
         """ resize window and plot
         :param show: enable/disable resizing
@@ -2974,8 +2964,8 @@ class LiveViewer(QtGui.QDialog):
         return (maxval, meanval, varval, minval, maxrawval,  maxsval)
 
     @debugmethod
-    @QtCore.pyqtSlot()
     @QtCore.pyqtSlot(str)
+    @QtCore.pyqtSlot(int)
     def _checkHighMasking(self, _=''):
         """ reads the mask image, select non-zero elements and store the indices
         """
@@ -3054,8 +3044,11 @@ class LiveViewer(QtGui.QDialog):
     @QtCore.pyqtSlot(int)
     def _checkBkgSubtraction(self, state):
         """ replots the image with subtranction if background image exists
+
+        :param state: checkbox state
+        :type state:  :obj:`int`
         """
-        self.__dobkgsubtraction = state
+        self.__dobkgsubtraction = bool(state)
         if self.__dobkgsubtraction and self.__backgroundimage is None:
             self.__bkgsubwg.setDisplayedName("")
         else:
@@ -3067,6 +3060,9 @@ class LiveViewer(QtGui.QDialog):
     @QtCore.pyqtSlot(str)
     def _prepareBkgSubtraction(self, imagename):
         """ reads the background image
+
+        :param imagename: image name
+        :type imagename: :obj:`str`
         """
         imagename = str(imagename)
         if imagename:
@@ -3118,6 +3114,9 @@ class LiveViewer(QtGui.QDialog):
     @QtCore.pyqtSlot(bool)
     def _assessFilters(self, state):
         """ assesses the filter on/off state
+
+        :param state: assess filter status
+        :type state:  :obj:`bool`
         """
         if self.__filterstate != state:
             self.__filterstate = state
@@ -3146,6 +3145,9 @@ class LiveViewer(QtGui.QDialog):
     @QtCore.pyqtSlot(str)
     def _assessTransformation(self, trafoname):
         """ assesses the transformation and replot it
+
+        :param imagename: transformation name
+        :type imagename: :obj:`str`
         """
         self.__trafoname = trafoname
         if trafoname in [
