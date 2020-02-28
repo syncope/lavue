@@ -30,6 +30,7 @@ import json
 import time
 import sys
 import logging
+import functools
 
 try:
     import PyTango
@@ -56,6 +57,7 @@ def debugmethod(method):
     :rtype: :class:`any`
     """
     if logger.getEffectiveLevel() >= 10:
+        @functools.wraps(method)
         def decmethod(*args, **kwargs):
             name = "%s.%s.%s" % (
                 args[0].__class__.__module__,

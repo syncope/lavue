@@ -568,8 +568,8 @@ class LiveViewer(QtGui.QDialog):
         self.__updateTool(options.tool)
 
     @debugmethod
-    @QtCore.pyqtSlot(bool)
-    def _showhelp(self, _=False):
+    @QtCore.pyqtSlot()
+    def _showhelp(self):
         """ shows the detail help
         """
         form = helpForm.HelpForm("index.html", self)
@@ -1152,10 +1152,10 @@ class LiveViewer(QtGui.QDialog):
             QtGui.QApplication.closeAllWindows()
         if event is not None:
             event.accept()
-            
+
     @debugmethod
-    @QtCore.pyqtSlot(bool)
-    def _clickloadfile(self, _=False):
+    @QtCore.pyqtSlot()
+    def _clickloadfile(self):
         """ reloads the image file
         """
         self._loadfile()
@@ -1194,8 +1194,8 @@ class LiveViewer(QtGui.QDialog):
             self.__reloadflag = False
 
     @debugmethod
-    @QtCore.pyqtSlot(bool)
-    def _lowerframepushed(self, _=None):
+    @QtCore.pyqtSlot()
+    def _lowerframepushed(self):
         step = self.__ui.framestepSpinBox.value()
         try:
             frame = int(self.__ui.frameLineEdit.text())
@@ -1207,8 +1207,8 @@ class LiveViewer(QtGui.QDialog):
         self.__ui.frameLineEdit.setText(str(nframe))
 
     @debugmethod
-    @QtCore.pyqtSlot(bool)
-    def _higherframepushed(self, _=None):
+    @QtCore.pyqtSlot()
+    def _higherframepushed(self):
         step = self.__ui.framestepSpinBox.value()
         try:
             frame = int(self.__ui.frameLineEdit.text())
@@ -1220,8 +1220,7 @@ class LiveViewer(QtGui.QDialog):
         self.__ui.frameLineEdit.setText(str(nframe))
 
     @debugmethod
-    @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
+    @QtCore.pyqtSlot(int)
     def _sliderreloadfilelazy(self, _=None):
         """ reloads the image file or
         if lazy flag it displays only splider value
@@ -1238,7 +1237,6 @@ class LiveViewer(QtGui.QDialog):
             self._sliderreloadfile()
 
     @debugmethod
-    @QtCore.pyqtSlot(int)
     @QtCore.pyqtSlot()
     def _sliderreloadfile(self, fid=None, showmessage=False):
         """ reloads the image file
@@ -1480,8 +1478,8 @@ class LiveViewer(QtGui.QDialog):
                         % self.__settings.imagename))
 
     @debugmethod
-    @QtCore.pyqtSlot(bool)
-    def _configuration(self, _=False):
+    @QtCore.pyqtSlot()
+    def _configuration(self):
         """ launches the configuration dialog
         """
         cnfdlg = configDialog.ConfigDialog(self)
@@ -2115,7 +2113,7 @@ class LiveViewer(QtGui.QDialog):
             self.__levelswg.updateAutoLevels(minval, maxsval)
 
     @debugmethod
-    def _startPlotting(self, _=None):
+    def _startPlotting(self):
         """ mode changer: start plotting mode.
         It starts plotting if the connection is really established.
         """
