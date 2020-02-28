@@ -340,8 +340,8 @@ class ChannelGroupBox(QtGui.QWidget):
     def rgbchannels(self):
         return (self.__rindex, self.__gindex, self.__bindex)
 
-    @QtCore.pyqtSlot(bool)
-    def _lowerchannelpushed(self, _=False):
+    @QtCore.pyqtSlot()
+    def _lowerchannelpushed(self):
         """ select the one-lower channel
         """
         channel = self.__ui.channelHorizontalSlider.value()
@@ -349,8 +349,8 @@ class ChannelGroupBox(QtGui.QWidget):
         if channel >= 0:
             self.__ui.channelHorizontalSlider.setValue(channel)
 
-    @QtCore.pyqtSlot(bool)
-    def _higherchannelpushed(self, _=False):
+    @QtCore.pyqtSlot()
+    def _higherchannelpushed(self):
         """ select the one-higher channel
         """
         channel = self.__ui.channelHorizontalSlider.value()
