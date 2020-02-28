@@ -1,6 +1,7 @@
 2020-02-28 Jan Kotanski <jan.kotanski@desy.de>
+	* add relative transformations for image sources
 	* skip execute closeEvent twice
-	* tagged as 2.36.2
+	* tagged as 2.37.0
 
 2020-02-27 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for loading Nexus files with unknown extension
