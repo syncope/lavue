@@ -269,6 +269,8 @@ class LiveViewer(QtGui.QDialog):
         self.__frame = None
         #: (:obj:`str`) nexus field path
         self.__fieldpath = None
+        #: (:obj:`str`) closing flag
+        self.__closing = False
 
         #: (:class:`filters.FilterList` ) user filters
         self.__filters = filters.FilterList()
@@ -1126,29 +1128,31 @@ class LiveViewer(QtGui.QDialog):
         :param event: close event
         :type event:  :class:`pyqtgraph.QtCore.QEvent`:
         """
-        if self.__tangoclient:
-            self.__tangoclient.unsubscribe()
-        self._storeSettings()
-        self.__settings.secstream = False
-        for dft in self.__dataFetchers:
-            try:
-                dft.newDataNameFetched.disconnect(self._getNewData)
-            except Exception:
-                pass
-        # except Exception as e:
-        #     print (str(e))
+        if not self.__closing:
+            if self.__tangoclient:
+                self.__tangoclient.unsubscribe()
+            self._storeSettings()
+            self.__settings.secstream = False
+            for dft in self.__dataFetchers:
+                try:
+                    dft.newDataNameFetched.disconnect(self._getNewData)
+                except Exception:
+                    pass
+            # except Exception as e:
+            #     print (str(e))
 
-        if self.__sourcewg.isConnected():
-            self.__sourcewg.toggleServerConnection()
-        self._disconnectSource()
-        for df in self.__dataFetchers:
-            df.stop()
-            df.wait()
-        self.__settings.seccontext.destroy()
-        QtGui.QApplication.closeAllWindows()
+            if self.__sourcewg.isConnected():
+                self.__sourcewg.toggleServerConnection()
+            self._disconnectSource()
+            for df in self.__dataFetchers:
+                df.stop()
+                df.wait()
+            self.__settings.seccontext.destroy()
+            self.__closing = True
+            QtGui.QApplication.closeAllWindows()
         if event is not None:
             event.accept()
-
+            
     @debugmethod
     @QtCore.pyqtSlot(bool)
     def _clickloadfile(self, _=False):
