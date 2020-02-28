@@ -143,10 +143,36 @@ class MainWindow(QtGui.QMainWindow):
 class PartialData(object):
     """ partial data
     """
+
+    #: ( :obj:`dict < :obj:`str`, :obj:'bool`> `)
+    #    transformation transpose map
+    tpose = {
+        "none": False,
+        "fup": False,
+        "flr": False,
+        "t": True,
+        "r90": True,
+        "r180": False,
+        "r270": True,
+        "r180t": True,
+    }
+
     @debugmethod
-    def __init__(self, name, rawdata, metadata, x, y):
+    def __init__(self, name, rawdata, metadata, x, y, tr):
         """ constructor
 
+        :param name: data name
+        :type name: :obj:`str`
+        :param rawdata: raw data
+        :type rawdata: :obj:`numpy.ndarray`
+        :param metadata:  json dictionary with metadata
+        :type metadata: :obj:`str`
+        :param x: x translation
+        :type x: :obj:`int`
+        :param y: y translation
+        :type y: :obj:`int`
+        :param tr: transformation, e.g. fup, flr, t, r90, r180, r270, r180t
+        :type tr: :obj:`str`
         """
         #: (:obj:`str`) data name
         self.name = name
@@ -162,22 +188,51 @@ class PartialData(object):
         self.sx = 1
         #: (:obj:`int`) y size
         self.sy = 1
+        #: (:obj:`str`) transformation
+        self.tr = tr
         if hasattr(rawdata, "shape"):
             if len(rawdata.shape) > 0:
                 self.sx = rawdata.shape[0]
             if len(rawdata.shape) > 1:
                 self.sy = rawdata.shape[1]
+            if tr and tr in self.tpose.keys() and self.tpose[tr]:
+                self.sx, self.sy = self.sy, self.sx
+
+    def data(self):
+        """ provides transformed data
+
+        :returns: transformed data
+        :rtype: :obj:`numpy.ndarray`
+        """
+        if not self.tr or self.tr == "none":
+            return self.rawdata
+        elif self.tr == 'fud':
+            return np.fliplr(self.rawdata)
+        elif self.tr == 'flr':
+            return np.flipud(self.rawdata)
+        elif self.tr == 't':
+            return np.swapaxes(self.rawdata, 0, 1)
+        elif self.tr == 'r90':
+            return np.swapaxes(np.flipud(self.rawdata), 0, 1)
+        elif self.tr == 'r180':
+            return np.flipud(np.fliplr(self.rawdata))
+        elif self.tr == 'r270':
+            return np.swapaxes(np.fliplr(self.rawdata), 0, 1)
+        elif self.tr == 'r180t':
+            return np.swapaxes(np.fliplr(np.flipud(self.rawdata)), 0, 1)
+        else:
+            return self.rawdata
 
     @debugmethod
     def tolist(self):
         """ converts partial data to a list
 
-        :returns: a list: [name, rawdata, metadata, x, y, sx, sy]
-        :rtype: [:obj:`str`, :obj:`str`, :obj:`str`,
-                 :obj:`int`, :obj:`int`, :obj:`int`, :obj:`int`]
+        :returns: a list: [name, rawdata, metadata, x, y, sx, sy, tr]
+        :rtype: [:obj:`str`, :obj:`numpy.ndarray', :obj:`str`, :obj:`int`,
+                 :obj:`int`, :obj:`int`, :obj:`int`, :obj:`str`]
         """
         return [self.name, self.rawdata, self.metadata,
-                self.x, self.y, self.sx, self.sy]
+                self.x, self.y, self.sx, self.sy, self.tr]
 
 
 class LiveViewer(QtGui.QDialog):
@@ -396,8 +451,32 @@ class LiveViewer(QtGui.QDialog):
         #: (:obj:`str`) source label
         self.__sourcelabel = None
 
-        #: ( (:obj:`int`,:obj:`int`)) image translations
+        #: (:obj:`list`< ( :obj:`int`,:obj:`int` ) > )
+        #        image module translations
         self.__translations = [(0, 0)]
+
+        #: (:obj:`list`< (:obj:`str`) > ) image module transformations
+        self.__transformations = ['']
+
+        #: (:obj:`dict`<  (:obj:`str`, :obj:`str`)) transformation names map
+        self.__transmap = {
+            "flipud": "fud",
+            "flip-up-down": "fud",
+            "r90t": "fud",
+            "rot90t": "fud",
+            "rot90+transpose": "fud",
+            "fliplr": "flr",
+            "flip-left-right": "flr",
+            "r270t": "flr",
+            "rot270t": "flr",
+            "rot270+transpose": "flr",
+            "transpose": "t",
+            "rot90": "r90",
+            "rot180": "r180",
+            "rot270": "r270",
+            "rot180t": "r180t",
+            "rot180+transpose": "r180t",
+        }
 
         #: (:obj:`str`) reload flag
         self.__reloadflag = False
@@ -588,6 +667,7 @@ class LiveViewer(QtGui.QDialog):
         try:
             x = None
             y = None
+            tr = ''
             strans = trans.split(",")
             if len(strans) > 0:
                 try:
@@ -599,9 +679,17 @@ class LiveViewer(QtGui.QDialog):
                     y = int(strans[1])
                 except Exception:
                     pass
+            if len(strans) > 2:
+                try:
+                    tr = str(strans[2]).lower()
+                except Exception:
+                    pass
             while len(self.__translations) <= sid:
                 self.__translations.append((None, None))
+            while len(self.__transformations) <= sid:
+                self.__transformations.append('')
             self.__translations[sid] = (x, y)
+            self.__transformations[sid] = self.__transmap.get(tr, tr)
         except Exception:
             pass
 
@@ -2245,7 +2333,7 @@ class LiveViewer(QtGui.QDialog):
                 name, rawimage, metadata = ldata[0].tolist()[:3]
             elif len(ldata) > 1:
                 pd = ldata[0]
-                shape = list(pd.rawdata.shape)
+                shape = [pd.sx, pd.sy]
                 dtype = pd.rawdata.dtype
                 while len(shape) < 2:
                     shape.append(1)
@@ -2257,7 +2345,7 @@ class LiveViewer(QtGui.QDialog):
                     pd.x = pd.x or 0
                     if pd.y is None:
                         pd.y = shape[1]
-                    psh = list(pd.rawdata.shape)
+                    psh = [pd.sx, pd.sy]
                     while len(psh) < 2:
                         psh.append(1)
                     psh[0] += pd.x
@@ -2275,11 +2363,11 @@ class LiveViewer(QtGui.QDialog):
                 for pd in ldata:
                     if len(shape) == 2:
                         rawimage[pd.x: pd.sx + pd.x, pd.y: pd.sy + pd.y] = \
-                            pd.rawdata
+                            pd.data()
                     else:
                         rawimage[
                             pd.x: pd.sx + pd.x, pd.y: pd.sy + pd.y, ...] = \
-                            pd.rawdata
+                            pd.data()
         return name, rawimage, metadata
 
     @debugmethod
@@ -2311,6 +2399,10 @@ class LiveViewer(QtGui.QDialog):
                     x, y = self.__translations[i]
                 else:
                     x, y = None, None
+                if i < len(self.__transformations):
+                    tr = self.__transformations[i]
+                else:
+                    tr = ''
                 logger.debug(
                     "lavuelib.liveViewer.LiveViewer.__getNewData "
                     "%s: %s %s %s, [%s, %s]" %
@@ -2318,7 +2410,8 @@ class LiveViewer(QtGui.QDialog):
                      rawimage.shape if hasattr(rawimage, "shape") else "",
                      x or "", y or "")
                 )
-                fulldata.append(PartialData(name, rawimage, metadata, x, y))
+                fulldata.append(
+                    PartialData(name, rawimage, metadata, x, y, tr))
         if not self.__sourcewg.isConnected():
             return
         if len(fulldata) == 1:

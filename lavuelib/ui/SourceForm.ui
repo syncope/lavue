@@ -31,7 +31,7 @@
      <item row="1" column="1">
       <widget class="QLineEdit" name="translationLineEdit">
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Translation in x,y-pixels, e.g. 0,300 or 150,140&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Translation in x,y-pixels or x,y[,TRANSFORMATION]  where TRANSFORMATION can be also: fud, flr, t, r90, r180, r270 or r180t, e.g. 0,300 or 150,140 or 640,0,t or 0,400,flip-up-down&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string/>
@@ -127,7 +127,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="translationLabel">
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Translation in x,y-pixels, e.g. 0,300 or 150,140&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Translation in x,y-pixels or x,y[,TRANSFORMATION]  where TRANSFORMATION can be also: fud, flr, t, r90, r180, r270 or r180t, e.g. 0,300 or 150,140 or 640,0,t or 0,400,flip-up-down&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string>Offset:</string>
