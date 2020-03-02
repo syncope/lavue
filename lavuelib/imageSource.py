@@ -1100,19 +1100,16 @@ class HTTPSource(BaseSource):
         """
         if self.__header:
             try:
-                # return requests.get(
-                #     self._configuration, headers=self.__header,
-                #     timeout=self._timeout/1000.)
                 return requests.get(
-                    self._configuration, headers=self.__header)
+                    self._configuration, headers=self.__header,
+                    timeout=self._timeout/1000.)
             except AttributeError:
                 return requests.get(
                     self._configuration, headers=self.__header)
         else:
             try:
-                return requests.get(self._configuration)
-                # return requests.get(self._configuration,
-                #                     timeout=self._timeout/1000.)
+                return requests.get(self._configuration,
+                                    timeout=self._timeout/1000.)
             except AttributeError:
                 return requests.get(self._configuration)
 
