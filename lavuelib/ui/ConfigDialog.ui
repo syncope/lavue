@@ -133,6 +133,26 @@
                     </property>
                    </widget>
                   </item>
+                  <item row="4" column="0">
+                   <widget class="QLabel" name="timeoutLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;source timeout in ms, e.g. for Hidra or HTTP response image soures&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Source timeout in ms:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>timeoutLineEdit</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QLineEdit" name="timeoutLineEdit">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;source timeout in ms, e.g. for Hidra or HTTP response image soures&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </item>
                </layout>
@@ -1357,54 +1377,7 @@
            <layout class="QGridLayout" name="gridLayout_6">
             <item row="0" column="0">
              <layout class="QGridLayout" name="sourcesGridLayout">
-              <item row="1" column="1" colspan="2">
-               <widget class="QLineEdit" name="detserversLineEdit">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;HIDRA detector servers separated by spaces, i.e. &lt;/p&gt;&lt;p&gt;haspp01pilatus haspp02pilatus&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-               </widget>
-              </item>
               <item row="1" column="0">
-               <widget class="QLabel" name="detserversLabel">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;HIDRA detector servers separated by spaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string>Detector servers:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>detserversLineEdit</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="timeoutLabel">
-                <property name="toolTip">
-                 <string>source timeout in ms</string>
-                </property>
-                <property name="text">
-                 <string>Source timeout in ms:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>timeoutLineEdit</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1" colspan="2">
-               <widget class="QLineEdit" name="timeoutLineEdit">
-                <property name="toolTip">
-                 <string>source timeout in ms</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1" colspan="2">
-               <widget class="QLineEdit" name="hidraportLineEdit">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;HIDRA data port&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
                <widget class="QLabel" name="hidraportLabel">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;HIDRA data port&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1417,7 +1390,27 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="0">
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="detserversLineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;HIDRA detector servers separated by spaces, i.e. &lt;/p&gt;&lt;p&gt;haspp01pilatus haspp02pilatus&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="detserversLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;HIDRA detector servers separated by spaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Detector servers:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>detserversLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
                <widget class="QLabel" name="defdetserversLabel">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;use default hardcoded detector server names dedicated for DESY beamlines&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1430,7 +1423,14 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="1" colspan="2">
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="hidraportLineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;HIDRA data port&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
                <widget class="QCheckBox" name="defdetserversCheckBox">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;use default hardcoded detector server names dedicated for DESY beamlines&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1819,6 +1819,7 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>nrsourcesSpinBox</tabstop>
   <tabstop>interruptCheckBox</tabstop>
   <tabstop>sourcedisplayCheckBox</tabstop>
+  <tabstop>timeoutLineEdit</tabstop>
   <tabstop>mbufsizeLineEdit</tabstop>
   <tabstop>nanmaskCheckBox</tabstop>
   <tabstop>zeromaskCheckBox</tabstop>
@@ -1858,7 +1859,6 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>showstatsCheckBox</tabstop>
   <tabstop>showframerateCheckBox</tabstop>
   <tabstop>showstepsCheckBox</tabstop>
-  <tabstop>timeoutLineEdit</tabstop>
   <tabstop>detserversLineEdit</tabstop>
   <tabstop>hidraportLineEdit</tabstop>
   <tabstop>defdetserversCheckBox</tabstop>

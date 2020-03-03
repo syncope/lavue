@@ -1089,6 +1089,11 @@ class HTTPSource(BaseSource):
                 # print(str(e))
                 logger.warning(str(e))
                 return str(e), "__ERROR__", ""
+            else:
+                if str(response.text) == 'Image not available':
+                    return str(response.text), None, None
+                else:
+                    return str(response.text), "__ERROR__", None
         return "No url defined", "__ERROR__", None
 
     # @debugmethod
@@ -1100,19 +1105,17 @@ class HTTPSource(BaseSource):
         """
         if self.__header:
             try:
-                # return requests.get(
-                #     self._configuration, headers=self.__header,
-                #     timeout=self._timeout/1000.)
                 return requests.get(
-                    self._configuration, headers=self.__header)
+                    self._configuration, headers=self.__header,
+                    timeout=(self._timeout/1000. if self._timeout else None))
             except AttributeError:
                 return requests.get(
                     self._configuration, headers=self.__header)
         else:
             try:
-                return requests.get(self._configuration)
-                # return requests.get(self._configuration,
-                #                     timeout=self._timeout/1000.)
+                return requests.get(
+                    self._configuration,
+                    timeout=(self._timeout/1000. if self._timeout else None))
             except AttributeError:
                 return requests.get(self._configuration)
 
