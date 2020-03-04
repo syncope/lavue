@@ -43,6 +43,7 @@ import sys
 import argparse
 import ntpath
 import logging
+import scipy.ndimage
 
 from . import imageSource as isr
 from . import messageBox
@@ -177,7 +178,9 @@ class PartialData(object):
         #: (:obj:`str`) data name
         self.name = name
         #: (:class:`numpy.ndarray`) raw data
-        self.rawdata = rawdata
+        self.__rawdata = rawdata
+        #: (:class:`numpy.ndarray`) transformed data
+        self.__data = None
         #: (:obj:`str`) json dictionary with metadata
         self.metadata = metadata
         #: (:obj:`int`) x translation
@@ -190,13 +193,23 @@ class PartialData(object):
         self.sy = 1
         #: (:obj:`str`) transformation
         self.tr = tr
-        if hasattr(rawdata, "shape"):
-            if len(rawdata.shape) > 0:
-                self.sx = rawdata.shape[0]
-            if len(rawdata.shape) > 1:
-                self.sy = rawdata.shape[1]
-            if tr and tr in self.tpose.keys() and self.tpose[tr]:
-                self.sx, self.sy = self.sy, self.sx
+        self.data()
+        if hasattr(self.__data, "shape"):
+            if len(self.__data.shape) > 0:
+                self.sx = self.__data.shape[0]
+            if len(self.__data.shape) > 1:
+                self.sy = self.__data.shape[1]
+
+    def dtype(self):
+        """ provides data type
+
+        :returns: numpy data type
+        :rtype: :obj:`numpy.dtype`
+        """
+        if hasattr(self.__data, "dtype"):
+            return self.__data.dtype
+        else:
+            return None
 
     def data(self):
         """ provides transformed data
@@ -204,24 +217,55 @@ class PartialData(object):
         :returns: transformed data
         :rtype: :obj:`numpy.ndarray`
         """
-        if not self.tr or self.tr == "none":
-            return self.rawdata
-        elif self.tr == 'fud':
-            return np.fliplr(self.rawdata)
-        elif self.tr == 'flr':
-            return np.flipud(self.rawdata)
-        elif self.tr == 't':
-            return np.swapaxes(self.rawdata, 0, 1)
-        elif self.tr == 'r90':
-            return np.swapaxes(np.flipud(self.rawdata), 0, 1)
-        elif self.tr == 'r180':
-            return np.flipud(np.fliplr(self.rawdata))
-        elif self.tr == 'r270':
-            return np.swapaxes(np.fliplr(self.rawdata), 0, 1)
-        elif self.tr == 'r180t':
-            return np.swapaxes(np.fliplr(np.flipud(self.rawdata)), 0, 1)
-        else:
-            return self.rawdata
+        if self.__data is None:
+            if not self.tr or self.tr == "none":
+                self.__data = self.__rawdata
+            elif self.tr == 'fud':
+                self.__data = np.fliplr(self.__rawdata)
+            elif self.tr == 'flr':
+                self.__data =  np.flipud(self.__rawdata)
+            elif self.tr == 't':
+                self.__data = np.swapaxes(self.__rawdata, 0, 1)
+            elif self.tr == 'r90':
+                self.__data = np.swapaxes(np.flipud(self.__rawdata), 0, 1)
+            elif self.tr == 'r180':
+                self.__data = np.flipud(np.fliplr(self.__rawdata))
+            elif self.tr == 'r270':
+                self.__data = np.swapaxes(np.fliplr(self.__rawdata), 0, 1)
+            elif self.tr == 'r180t':
+                self.__data = np.swapaxes(
+                    np.fliplr(np.flipud(self.__rawdata)), 0, 1)
+            elif self.tr.startswith("rot") and self.tr.endswith("t"):
+                try:
+                    rot = -float(self.tr[3:-1])
+                    self.__data = scipy.ndimage.rotate(self.__rawdata, rot).T
+                except Exception as e:
+                    logger.debug(str(e))
+                    self.__data = self.__rawdata
+            elif self.tr.startswith("rot"):
+                try:
+                    rot = -float(self.tr[3:]) 
+                    self.__data = scipy.ndimage.rotate(self.__rawdata, rot)
+                except Exception as e:
+                    logger.debug(str(e))
+                    self.__data = self.__rawdata
+            elif self.tr.startswith("r") and self.tr.endswith("t"):
+                try:
+                    rot = -float(self.tr[1:-1])
+                    self.__data = scipy.ndimage.rotate(self.__rawdata, rot).T
+                except Exception as e:
+                    logger.debug(str(e))
+                    self.__data = self.__rawdata
+            elif self.tr.startswith("r"):
+                try:
+                    rot = -float(self.tr[1:]) 
+                    self.__data = scipy.ndimage.rotate(self.__rawdata, rot)
+                except Exception as e:
+                    logger.debug(str(e))
+                    self.__data = self.__rawdata
+            else:
+                self.__data = self.__rawdata
+        return self.__data
 
     @debugmethod
     def tolist(self):
@@ -231,7 +275,7 @@ class PartialData(object):
         :rtype: [:obj:`str`, :obj:`numpy.ndarray', :obj:`str`, :obj:`int`,
                  :obj:`int`, :obj:`int`, :obj:`int`, :obj:`str`]
         """
-        return [self.name, self.rawdata, self.metadata,
+        return [self.name, self.__rawdata, self.metadata,
                 self.x, self.y, self.sx, self.sy, self.tr]
 
 
@@ -2310,7 +2354,7 @@ class LiveViewer(QtGui.QDialog):
         if "__ERROR__" in names:
             name = "__ERROR__"
             rawimage = " ".join(
-                [str(pdata.rawdata)
+                [str(pdata.tolist()[1])
                  for pdata in fulldata
                  if pdata.name == "__ERROR__"]
             )
@@ -2334,7 +2378,7 @@ class LiveViewer(QtGui.QDialog):
             elif len(ldata) > 1:
                 pd = ldata[0]
                 shape = [pd.sx, pd.sy]
-                dtype = pd.rawdata.dtype
+                dtype = pd.dtype()
                 while len(shape) < 2:
                     shape.append(1)
                 pd.x = pd.x or 0
@@ -2350,7 +2394,7 @@ class LiveViewer(QtGui.QDialog):
                         psh.append(1)
                     psh[0] += pd.x
                     psh[1] += pd.y
-                    if dtype != pd.rawdata.dtype:
+                    if dtype != pd.dtype():
                         dtype = self.__settings.floattype
                     shape[0] = max(shape[0], psh[0])
                     shape[1] = max(shape[1], psh[1])

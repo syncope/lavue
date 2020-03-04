@@ -1,3 +1,7 @@
+2020-03-04 Jan Kotanski <jan.kotanski@desy.de>
+	* add relative float rotation  for image sources
+	* tagged as 2.38.0
+
 2020-03-03 Jan Kotanski <jan.kotanski@desy.de>
 	* add timeout tho HTTPsource back
 	* do not interrupt  HTTP connection on 'Image not available'
