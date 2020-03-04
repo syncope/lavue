@@ -501,6 +501,9 @@ class LiveViewer(QtGui.QDialog):
 
         #: (:obj:`list`< (:obj:`str`) > ) image module transformations
         self.__transformations = ['']
+        #: (:obj:`list`< (:obj:`str`) >) image module
+        #                translations and transformations
+        self.__trans = ['']
 
         #: (:obj:`dict`<  (:obj:`str`, :obj:`str`)) transformation names map
         self.__transmap = {
@@ -699,12 +702,23 @@ class LiveViewer(QtGui.QDialog):
         form.show()
 
     @debugmethod
+    def _translations(self):
+        """ povides translations and optional transformations
+            of the given sources
+
+        :returns: x,y tranlation or x,y,transformations, e.g. 2345,354,r90
+        :rtype: :obj:`str`
+        """
+        nrsources = min(len(self.__datasources), len(self.__trans))
+        return ";".join(self.__trans[:nrsources])
+
+    @debugmethod
     @QtCore.pyqtSlot(str, int)
     def _setTranslation(self, trans, sid):
-        """ stores translation of the given source
+        """ sets translation and optional transfromation of the given source
 
-        :param: x,y tranlation, e.g. 2345,354
-        :type: :obj:`str`
+        :param trans: x,y tranlation or x,y,transformations, e.g. 2345,354
+        :type trans: :obj:`str`
         :param sid: source id
         :type sid: :obj:`int`
         """
@@ -732,8 +746,11 @@ class LiveViewer(QtGui.QDialog):
                 self.__translations.append((None, None))
             while len(self.__transformations) <= sid:
                 self.__transformations.append('')
+            while len(self.__trans) <= sid:
+                self.__trans.append('')
             self.__translations[sid] = (x, y)
             self.__transformations[sid] = self.__transmap.get(tr, tr)
+            self.__trans[sid] = trans
         except Exception:
             pass
 
@@ -2063,6 +2080,7 @@ class LiveViewer(QtGui.QDialog):
             else:
                 values["maskhighvalue"] = ""
             values["viewrange"] = self.__imagewg.viewRange()
+            values["offset"] = self._translations()
             self.__settings.setSourceDisplay(label, values)
 
     # @debugmethod
