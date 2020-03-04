@@ -223,7 +223,7 @@ class PartialData(object):
             elif self.tr == 'fud':
                 self.__data = np.fliplr(self.__rawdata)
             elif self.tr == 'flr':
-                self.__data =  np.flipud(self.__rawdata)
+                self.__data = np.flipud(self.__rawdata)
             elif self.tr == 't':
                 self.__data = np.swapaxes(self.__rawdata, 0, 1)
             elif self.tr == 'r90':
@@ -244,7 +244,7 @@ class PartialData(object):
                     self.__data = self.__rawdata
             elif self.tr.startswith("rot"):
                 try:
-                    rot = -float(self.tr[3:]) 
+                    rot = -float(self.tr[3:])
                     self.__data = scipy.ndimage.rotate(self.__rawdata, rot)
                 except Exception as e:
                     logger.debug(str(e))
@@ -258,7 +258,7 @@ class PartialData(object):
                     self.__data = self.__rawdata
             elif self.tr.startswith("r"):
                 try:
-                    rot = -float(self.tr[1:]) 
+                    rot = -float(self.tr[1:])
                     self.__data = scipy.ndimage.rotate(self.__rawdata, rot)
                 except Exception as e:
                     logger.debug(str(e))
