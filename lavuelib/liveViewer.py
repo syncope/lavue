@@ -235,36 +235,27 @@ class PartialData(object):
             elif self.tr == 'r180t':
                 self.__data = np.swapaxes(
                     np.fliplr(np.flipud(self.__rawdata)), 0, 1)
-            elif self.tr.startswith("rot") and self.tr.endswith("t"):
-                try:
-                    rot = -float(self.tr[3:-1])
-                    self.__data = scipy.ndimage.rotate(self.__rawdata, rot).T
-                except Exception as e:
-                    logger.debug(str(e))
-                    self.__data = self.__rawdata
-            elif self.tr.startswith("rot"):
-                try:
-                    rot = -float(self.tr[3:])
-                    self.__data = scipy.ndimage.rotate(self.__rawdata, rot)
-                except Exception as e:
-                    logger.debug(str(e))
-                    self.__data = self.__rawdata
-            elif self.tr.startswith("r") and self.tr.endswith("t"):
-                try:
-                    rot = -float(self.tr[1:-1])
-                    self.__data = scipy.ndimage.rotate(self.__rawdata, rot).T
-                except Exception as e:
-                    logger.debug(str(e))
-                    self.__data = self.__rawdata
-            elif self.tr.startswith("r"):
-                try:
-                    rot = -float(self.tr[1:])
-                    self.__data = scipy.ndimage.rotate(self.__rawdata, rot)
-                except Exception as e:
-                    logger.debug(str(e))
-                    self.__data = self.__rawdata
             else:
-                self.__data = self.__rawdata
+                try:
+                    if self.tr.startswith("rot") and self.tr.endswith("t"):
+                        rot = -float(self.tr[3:-1])
+                        self.__data = scipy.ndimage.rotate(
+                            self.__rawdata, rot).T
+                    elif self.tr.startswith("rot"):
+                        rot = -float(self.tr[3:])
+                        self.__data = scipy.ndimage.rotate(self.__rawdata, rot)
+                    elif self.tr.startswith("r") and self.tr.endswith("t"):
+                        rot = -float(self.tr[1:-1])
+                        self.__data = scipy.ndimage.rotate(
+                            self.__rawdata, rot).T
+                    elif self.tr.startswith("r"):
+                        rot = -float(self.tr[1:])
+                        self.__data = scipy.ndimage.rotate(self.__rawdata, rot)
+                    else:
+                        self.__data = self.__rawdata
+                except Exception as e:
+                    logger.debug(str(e))
+                    self.__data = self.__rawdata
         return self.__data
 
     @debugmethod
