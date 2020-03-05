@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Feb 28, 2020" "2.37" "lavuelib"
+.TH "LAVUELIB" "1" "Mar 05, 2020" "2.38" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -8501,6 +8501,19 @@ transformed data
 .UNINDENT
 .INDENT 7.0
 .TP
+.B dtype()
+provides data type
+.INDENT 7.0
+.TP
+.B Returns
+numpy data type
+.TP
+.B Return type
+\fI\%numpy.dtype\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B metadata = None
 (\fI\%str\fP) json dictionary with metadata
 .UNINDENT
@@ -8508,11 +8521,6 @@ transformed data
 .TP
 .B name = None
 (\fI\%str\fP) data name
-.UNINDENT
-.INDENT 7.0
-.TP
-.B rawdata = None
-(\fI\%numpy.ndarray\fP) raw data
 .UNINDENT
 .INDENT 7.0
 .TP
