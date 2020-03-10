@@ -1006,12 +1006,9 @@ class TangoEventsSource(BaseSource):
             if self._initiated:
                 with QtCore.QMutexLocker(self.__mutex):
                     self._initiated = False
-                    if self.__proxy is not None:
-                        if self.__attrid is not None:
-                            self.__proxy.unsubscribe_event(self.__attrid)
-                        if self.__rattrid is not None:
-                            self.__proxy.unsubscribe_event(self.__rattrid)
-        except Exception:
+                    # remove proxy instead of unsubscribe event
+                    # PyTango #292 #315
+                    self.__proxy = None
             self._updaterror()
 
 
