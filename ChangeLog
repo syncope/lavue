@@ -1,5 +1,5 @@
 2020-03-10 Jan Kotanski <jan.kotanski@desy.de>
-	* avoid deadlock by removing DeviceProxy instead of unsubscribe event
+	* fix deadlock problem in  unsubscribe tango events
 	* tagged as 2.38.1
 
 2020-03-05 Jan Kotanski <jan.kotanski@desy.de>

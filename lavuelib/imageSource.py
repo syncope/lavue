@@ -957,7 +957,6 @@ class TangoEventsSource(BaseSource):
             logger.warning(str(e))
             # print(str(e))
             return str(e), "__ERROR__", ""
-            pass  # this needs a bit more care
         return None, None, None
 
     @debugmethod
@@ -1006,9 +1005,13 @@ class TangoEventsSource(BaseSource):
             if self._initiated:
                 with QtCore.QMutexLocker(self.__mutex):
                     self._initiated = False
-                    # remove proxy instead of unsubscribe event
-                    # PyTango #292 #315
-                    self.__proxy = None
+                    proxy = self.__proxy
+                if proxy is not None:
+                    if self.__attrid is not None:
+                        self.__proxy.unsubscribe_event(self.__attrid)
+                    if self.__rattrid is not None:
+                        self.__proxy.unsubscribe_event(self.__rattrid)
+        except Exception:
             self._updaterror()
 
 
