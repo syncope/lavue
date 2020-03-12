@@ -832,7 +832,6 @@ class TangoReadyEventsCB(object):
         """callback method receiving the event
         """
 
-        print("PUSH %s" % event_data)
         if logger.getEffectiveLevel() >= 10:
             trunk = str(event_data)
             if len(trunk) > 1300:
