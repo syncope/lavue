@@ -69,8 +69,10 @@ class SafeImageItem(_pg.ImageItem):
             _pg.ImageItem.paint(self, p, *args)
         except ValueError as e:
             logger.warning(str(e))
-            # print(str(e))
-            # print("Shape mismatch: skip painting")
+        except TypeError as e:
+            logger.warning(str(e))
+        except Exception as e:
+            logger.warning(str(e))
 
 
 class AxesParameters(object):
