@@ -1147,6 +1147,10 @@ class LiveViewer(QtGui.QDialog):
                 self.__imagewg.updateBeamCenterX)
             self.__tangoclient.beamCenterYChanged.connect(
                 self.__imagewg.updateBeamCenterY)
+            self.__tangoclient.pixelSizeXChanged.connect(
+                self.__imagewg.updatePixelSizeX)
+            self.__tangoclient.pixelSizeYChanged.connect(
+                self.__imagewg.updatePixelSizeY)
             self.__tangoclient.detectorROIsChanged.connect(
                 self.__imagewg.updateDetectorROIs)
             self.__imagewg.setTangoClient(self.__tangoclient)

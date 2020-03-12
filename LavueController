@@ -80,6 +80,8 @@ class LavueController (PyTango.Device_4Impl):
         self.attr_DetectorROIsParams_read = ""
         self.attr_Energy_read = 0.0
         self.attr_LavueState_read = ""
+        self.attr_PixelSizeX_read = 0.0
+        self.attr_PixelSizeY_read = 0.0
         self.set_change_event("BeamCenterX", True, False)
         self.set_change_event("BeamCenterY", True, False)
         self.set_change_event("DetectorDistance", True, False)
@@ -88,6 +90,8 @@ class LavueController (PyTango.Device_4Impl):
         self.set_change_event("DetectorROIsParams", True, False)
         self.set_change_event("Energy", True, False)
         self.set_change_event("LavueState", True, False)
+        self.set_change_event("PixelSizeX", True, False)
+        self.set_change_event("PixelSizeY", True, False)
         self.attr_DetectorROIs_read = "{}"
         self.attr_DetectorROIsValues_read = "{}"
 
@@ -171,6 +175,29 @@ class LavueController (PyTango.Device_4Impl):
         if self.attr_BeamCenterY_read != float(data):
             self.attr_BeamCenterY_read = float(data)
             self.push_change_event("BeamCenterY", self.attr_BeamCenterY_read)
+
+
+    def read_PixelSizeX(self, attr):
+        self.debug_stream("In read_PixelSizeX()")
+        attr.set_value(self.attr_PixelSizeX_read)
+
+    def write_PixelSizeX(self, attr):
+        self.debug_stream("In write_PixelSizeX()")
+        data = attr.get_write_value()
+        if self.attr_PixelSizeX_read != float(data):
+            self.attr_PixelSizeX_read = float(data)
+            self.push_change_event("PixelSizeX", self.attr_PixelSizeX_read)
+
+    def read_PixelSizeY(self, attr):
+        self.debug_stream("In read_PixelSizeY()")
+        attr.set_value(self.attr_PixelSizeY_read)
+
+    def write_PixelSizeY(self, attr):
+        self.debug_stream("In write_PixelSizeY()")
+        data = attr.get_write_value()
+        if self.attr_PixelSizeY_read != float(data):
+            self.attr_PixelSizeY_read = float(data)
+            self.push_change_event("PixelSizeY", self.attr_PixelSizeY_read)
 
     def read_DetectorDistance(self, attr):
         self.debug_stream("In read_DetectorDistance()")
@@ -629,6 +656,28 @@ class LavueControllerClass(PyTango.DeviceClass):
                  'unit': "eV",
                  'abs_change': "0.0001",
                  'Memorized': "true"
+             }],
+        'PixelSizeX':
+            [[PyTango.DevDouble,
+              PyTango.SCALAR,
+              PyTango.READ_WRITE],
+             {
+                 'label': "pixel x-size",
+                 'unit': "um",
+                 'description': "pixel x- size in micrometers",
+                 'abs_change': "0.0001",
+                 'Memorized':"true"
+             }],
+        'PixelSizeY':
+            [[PyTango.DevDouble,
+              PyTango.SCALAR,
+              PyTango.READ_WRITE],
+             {
+                 'label': "pixel y-size",
+                 'unit': "um",
+                 'description': "pixel y- size in micrometers",
+                 'abs_change': "0.0001",
+                 'Memorized':"true"
              }],
         'LavueState':
             [[PyTango.DevString,
