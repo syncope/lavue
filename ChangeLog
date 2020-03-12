@@ -1,4 +1,8 @@
 2020-03-12 Jan Kotanski <jan.kotanski@desy.de>
+	* catch exceptions from paint method
+	* tagged as 2.38.3
+
+2020-03-12 Jan Kotanski <jan.kotanski@desy.de>
 	* remove callback on disconnect Tango Events
 	* tagged as 2.38.2
 
