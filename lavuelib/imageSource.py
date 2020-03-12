@@ -1011,7 +1011,7 @@ class TangoEventsSource(BaseSource):
                         self.__proxy.unsubscribe_event(self.__attrid)
                         self.__attrid = None
                     if self.__rattrid is not None:
-                        self.__proxy.unsubscribe_event(self.__rattrid) 
+                        self.__proxy.unsubscribe_event(self.__rattrid)
                         self.__rattrid = None
         except Exception:
             self._updaterror()
