@@ -1711,6 +1711,30 @@ class ImageWidget(QtGui.QWidget):
             self.mouseImagePositionChanged.emit()
             self.geometryChanged.emit()
 
+    @QtCore.pyqtSlot(float)
+    def updatePixelSizeX(self, x):
+        """ updates the pixel x-size
+
+        :param x: pixel x-size
+        :type x: :obj:`float`
+        """
+        if self.__settings.pixelsizex != x:
+            self.__settings.pixelsizex = x
+            self.mouseImagePositionChanged.emit()
+            self.geometryChanged.emit()
+
+    @QtCore.pyqtSlot(float)
+    def updatePixelSizeY(self, y):
+        """ updates the pixel y-size
+
+        :param y: pixel y-size
+        :type y: :obj:`float`
+        """
+        if self.__settings.pixelsizey != y:
+            self.__settings.pixelsizey = y
+            self.mouseImagePositionChanged.emit()
+            self.geometryChanged.emit()
+
     @QtCore.pyqtSlot(str)
     def updateDetectorROIs(self, rois):
         """ updates the detector ROIs

@@ -79,6 +79,10 @@ class ControllerClient(QtCore.QObject):
     beamCenterXChanged = QtCore.pyqtSignal(float)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) beam Center Y changed signal
     beamCenterYChanged = QtCore.pyqtSignal(float)
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) pixel Size X changed signal
+    pixelSizeXChanged = QtCore.pyqtSignal(float)
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) pixel Size Y changed signal
+    pixelSizeYChanged = QtCore.pyqtSignal(float)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) lavueState changed signal
     lavueStateChanged = QtCore.pyqtSignal(str)
 
@@ -107,6 +111,10 @@ class ControllerClient(QtCore.QObject):
             self, "BeamCenterX", self.beamCenterXChanged)
         centery_cb = TangoCB(
             self, "BeamCenterY", self.beamCenterYChanged)
+        pixelsizex_cb = TangoCB(
+            self, "PixelSizeX", self.pixelSizeXChanged)
+        pixelsizey_cb = TangoCB(
+            self, "PixelSizeY", self.pixelSizeYChanged)
         lavuestate_cb = TangoCB(
             self, "LavueState", self.lavueStateChanged)
 
@@ -130,6 +138,14 @@ class ControllerClient(QtCore.QObject):
             "BeamCenterY",
             PyTango.EventType.CHANGE_EVENT,
             centery_cb)
+        self.__pixelsizex_id = self.__dp.subscribe_event(
+            "PixelSizeX",
+            PyTango.EventType.CHANGE_EVENT,
+            pixelsizex_cb)
+        self.__pixelsizey_id = self.__dp.subscribe_event(
+            "PixelSizeY",
+            PyTango.EventType.CHANGE_EVENT,
+            pixelsizey_cb)
         self.__lavuestate_id = self.__dp.subscribe_event(
             "LavueState",
             PyTango.EventType.CHANGE_EVENT,
@@ -155,5 +171,7 @@ class ControllerClient(QtCore.QObject):
             self.__dp.unsubscribe_event(self.__rois_id)
             self.__dp.unsubscribe_event(self.__centerx_id)
             self.__dp.unsubscribe_event(self.__centery_id)
+            self.__dp.unsubscribe_event(self.__pixelsizex_id)
+            self.__dp.unsubscribe_event(self.__pixelsizey_id)
             self.__dp.unsubscribe_event(self.__lavuestate_id)
         self.__subscribed = False
