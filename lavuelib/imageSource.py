@@ -832,6 +832,7 @@ class TangoReadyEventsCB(object):
         """callback method receiving the event
         """
 
+        print("PUSH %s" % event_data)
         if logger.getEffectiveLevel() >= 10:
             trunk = str(event_data)
             if len(trunk) > 1300:
@@ -1009,8 +1010,10 @@ class TangoEventsSource(BaseSource):
                 if proxy is not None:
                     if self.__attrid is not None:
                         self.__proxy.unsubscribe_event(self.__attrid)
+                        self.__attrid = None
                     if self.__rattrid is not None:
-                        self.__proxy.unsubscribe_event(self.__rattrid)
+                        self.__proxy.unsubscribe_event(self.__rattrid) 
+                        self.__rattrid = None
         except Exception:
             self._updaterror()
 
