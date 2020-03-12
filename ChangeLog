@@ -1,3 +1,7 @@
+2020-03-12 Jan Kotanski <jan.kotanski@desy.de>
+	* remove callback on disconnect Tango Events
+	* tagged as 2.38.2
+
 2020-03-10 Jan Kotanski <jan.kotanski@desy.de>
 	* fix deadlock problem in  unsubscribe tango events
 	* tagged as 2.38.1
