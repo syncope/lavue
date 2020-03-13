@@ -246,17 +246,10 @@ def main():
         print(lavuelib.__version__)
         sys.exit(0)
 
-    levels = {'debug': logging.DEBUG,
-              'info': logging.INFO,
-              'warning': logging.WARNING,
-              'error': logging.ERROR,
-              'critical': logging.CRITICAL}
-
-    level = levels.get(options.log, logging.INFO)
     logging.basicConfig(
         format="%(levelname)s: %(message)s")
     logger = logging.getLogger("lavue")
-    logger.setLevel(level)
+    lavuelib.liveViewer.setLoggerLevel(logger, options.log)
 
     app = QtGui.QApplication(['LaVue'])
     setupHandler()

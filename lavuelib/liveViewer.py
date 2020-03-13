@@ -102,6 +102,23 @@ _formclass, _baseclass = uic.loadUiType(
                  "ui", "MainDialog.ui"))
 
 
+def setLoggerLevel(logger, level):
+    """ sets logging level from string
+    :param logger: logger
+    :type logger: :obj:`logging.logger`
+    :param level: logging level
+    :type level: :obj:`str`
+    """
+    levels = {'debug': logging.DEBUG,
+              'info': logging.INFO,
+              'warning': logging.WARNING,
+              'error': logging.ERROR,
+              'critical': logging.CRITICAL}
+
+    dlevel = levels.get(level, logging.INFO)
+    logger.setLevel(dlevel)
+
+
 class MainWindow(QtGui.QMainWindow):
 
     @debugmethod
@@ -1005,6 +1022,8 @@ class LiveViewer(QtGui.QDialog):
         :returns: start flag
         :rtype: :obj:`bool`
         """
+        if hasattr(options, "log") and options.log is not None:
+            setLoggerLevel(logger, options.log)
         if hasattr(options, "doordevice") and options.doordevice is not None:
             self.__settings.doorname = str(options.doordevice)
 
@@ -1137,6 +1156,8 @@ class LiveViewer(QtGui.QDialog):
 
         if hasattr(options, "tangodevice") and \
            TANGOCLIENT and options.tangodevice is not None:
+            if self.__tangoclient is not None:
+                self.__tangoclient.unsubscribe()
             self.__tangoclient = controllerClient.ControllerClient(
                 str(options.tangodevice))
             self.__tangoclient.energyChanged.connect(

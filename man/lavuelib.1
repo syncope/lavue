@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Mar 05, 2020" "2.38" "lavuelib"
+.TH "LAVUELIB" "1" "Mar 13, 2020" "2.39" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -1023,6 +1023,16 @@ constructor
 .TP
 .B lavueStateChanged
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) lavueState changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B pixelSizeXChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) pixel Size X changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B pixelSizeYChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) pixel Size Y changed signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7968,6 +7978,26 @@ update Metadata informations
 .UNINDENT
 .INDENT 7.0
 .TP
+.B updatePixelSizeX(x)
+updates the pixel x\-size
+.INDENT 7.0
+.TP
+.B Parameters
+\fBx\fP (\fI\%float\fP) – pixel x\-size
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updatePixelSizeY(y)
+updates the pixel y\-size
+.INDENT 7.0
+.TP
+.B Parameters
+\fBy\fP (\fI\%float\fP) – pixel y\-size
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B updatePositionMark(xdata, ydata)
 updates the position mark
 .INDENT 7.0
@@ -8565,6 +8595,15 @@ a list: [name, rawdata, metadata, x, y, sx, sy, tr]
 .B y = None
 (\fI\%int\fP) y translation
 .UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.liveViewer.setLoggerLevel(logger, level)
+sets logging level from string
+:param logger: logger
+:type logger: \fBlogging.logger\fP
+:param level: logging level
+:type level: \fI\%str\fP
 .UNINDENT
 .SS lavuelib.maskWidget module
 .sp
