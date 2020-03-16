@@ -224,7 +224,7 @@ class LavueController (PyTango.Device_4Impl):
             if not isinstance(key, (str, unicode)):
                 raise Exception(
                     "state key %s is not a string" % str(key))
-        if "__update__" in detcnf.keys() and detcnf["__update__"]:
+        if "__timestamp__" in detcnf.keys():
             self.attr_LavueState_read = data
         else:
             self.attr_LavueState_write = data
