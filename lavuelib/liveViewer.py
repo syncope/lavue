@@ -733,7 +733,7 @@ class LiveViewer(QtGui.QDialog):
         self.__updateTool(options.tool)
 
     @debugmethod
-    def updateLavueState(self, dct=None):
+    def setLavueState(self, dct=None):
         """ update LavueState of LavueController
 
         :param dct: lavue state dictionary
@@ -1007,6 +1007,12 @@ class LiveViewer(QtGui.QDialog):
                 stop = dctcnf["stop"] if "stop" in dctcnf.keys() else None
                 start = dctcnf["start"] if "start" in dctcnf.keys() else None
                 tool = dctcnf["tool"] if "tool" in dctcnf.keys() else None
+                if "connected" in dctcnf.keys() and \
+                   stop is None and start is None:
+                    if dctcnf["connected"]:
+                        start = True
+                    else:
+                        stop = True
                 running = self.__sourcewg.isConnected()
                 if srccnf or stop is True or start is True:
                     if self.__sourcewg.isConnected():
@@ -2388,7 +2394,7 @@ class LiveViewer(QtGui.QDialog):
                 topic, str(json.dumps(messagedata)).encode("ascii")))
         self.__updatehisto = True
         self.__setSourceLabel()
-        self.updateLavueState({"connected": True})
+        self.setLavueState({"connected": True})
         self._startPlotting()
 
     @debugmethod
@@ -2412,7 +2418,7 @@ class LiveViewer(QtGui.QDialog):
                 topic, str(json.dumps(messagedata)).encode("ascii")))
         self._updateSource(0, -1)
         self.__setSourceLabel()
-        self.updateLavueState({"connected": False})
+        self.setLavueState({"connected": False})
         # self.__datasources[0] = None
 
     # @debugmethod
