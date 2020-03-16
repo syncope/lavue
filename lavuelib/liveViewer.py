@@ -158,6 +158,35 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.closeEvent(self, event)
 
 
+class LavueState(object):
+    """ lavue state
+    """
+    @debugmethod
+    def __init__(self):
+        """  constructor
+        """
+        #: (:obj:`dict` < :obj:`str`, :obj:`any`>) lavue state dictionary
+        self.__state = {}
+
+    def updateState(self, dct):
+        """update lavue state dictonary
+
+        :param dct: lavue state dictionary
+        :type dct: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        if dct is not None:
+            self.__state.update(dct)
+            self.__state["__timestamp__"] = time.time()
+
+    def dump(self):
+        """ returns string representation
+
+        :returns: string representation
+        :rtype: :obj:`str`
+        """
+        return json.dumps(self.__state)
+
+
 class PartialData(object):
     """ partial data
     """
@@ -332,6 +361,8 @@ class LiveViewer(QtGui.QDialog):
         #: (:class:`lavuelib.settings.Settings`) settings
         self.__settings = settings.Settings()
         self.__settings.load(QtCore.QSettings())
+
+        self.__lavuestate = LavueState()
 
         # (:class:`lavuelib.imageSource.BaseSource`) data source object
         self.__datasources = [isr.BaseSource()
@@ -700,6 +731,18 @@ class LiveViewer(QtGui.QDialog):
             self.__sourcewg.start()
 
         self.__updateTool(options.tool)
+
+    @debugmethod
+    def updateLavueState(self, dct=None):
+        """ update LavueState of LavueController
+
+        :param dct: lavue state dictionary
+        :type dct: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        if dct is not None:
+            self.__lavuestate.updateState(dct)
+        self.__imagewg.writeAttribute(
+            "LavueState", self.__lavuestate.dump())
 
     @debugmethod
     @QtCore.pyqtSlot()
@@ -2345,6 +2388,7 @@ class LiveViewer(QtGui.QDialog):
                 topic, str(json.dumps(messagedata)).encode("ascii")))
         self.__updatehisto = True
         self.__setSourceLabel()
+        self.updateLavueState({"connected": True})
         self._startPlotting()
 
     @debugmethod
@@ -2368,6 +2412,7 @@ class LiveViewer(QtGui.QDialog):
                 topic, str(json.dumps(messagedata)).encode("ascii")))
         self._updateSource(0, -1)
         self.__setSourceLabel()
+        self.updateLavueState({"connected": False})
         # self.__datasources[0] = None
 
     # @debugmethod
