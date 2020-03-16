@@ -80,6 +80,7 @@ class LavueController (PyTango.Device_4Impl):
         self.attr_DetectorROIsParams_read = ""
         self.attr_Energy_read = 0.0
         self.attr_LavueState_read = ""
+        self.attr_LavueState_write = ""
         self.attr_PixelSizeX_read = 0.0
         self.attr_PixelSizeY_read = 0.0
         self.set_change_event("BeamCenterX", True, False)
@@ -176,7 +177,6 @@ class LavueController (PyTango.Device_4Impl):
             self.attr_BeamCenterY_read = float(data)
             self.push_change_event("BeamCenterY", self.attr_BeamCenterY_read)
 
-
     def read_PixelSizeX(self, attr):
         self.debug_stream("In read_PixelSizeX()")
         attr.set_value(self.attr_PixelSizeX_read)
@@ -224,9 +224,13 @@ class LavueController (PyTango.Device_4Impl):
             if not isinstance(key, (str, unicode)):
                 raise Exception(
                     "state key %s is not a string" % str(key))
-        self.attr_LavueState_read = data
-        self.push_change_event("LavueState",
-                               self.attr_LavueState_read)
+        if "__update__" in detcnf.keys() and detcnf["__update__"]:
+            self.attr_LavueState_read = data
+        else:
+            self.attr_LavueState_write = data
+            self.push_change_event(
+                "LavueState",
+                self.attr_LavueState_write)
 
     def read_DetectorROIs(self, attr):
         self.debug_stream("In read_DetectorROIs()")
@@ -552,7 +556,7 @@ class LavueControllerClass(PyTango.DeviceClass):
         for dev in dev_list:
             try:
                 dev.initialize_dynamic_attributes()
-            except:
+            except Exception:
                 import traceback
                 dev.warn_stream("Failed to initialize dynamic attributes")
                 dev.debug_stream("Details: " + traceback.format_exc())
@@ -666,7 +670,7 @@ class LavueControllerClass(PyTango.DeviceClass):
                  'unit': "um",
                  'description': "pixel x- size in micrometers",
                  'abs_change': "0.0001",
-                 'Memorized':"true"
+                 'Memorized': "true"
              }],
         'PixelSizeY':
             [[PyTango.DevDouble,
@@ -677,7 +681,7 @@ class LavueControllerClass(PyTango.DeviceClass):
                  'unit': "um",
                  'description': "pixel y- size in micrometers",
                  'abs_change': "0.0001",
-                 'Memorized':"true"
+                 'Memorized': "true"
              }],
         'LavueState':
             [[PyTango.DevString,
