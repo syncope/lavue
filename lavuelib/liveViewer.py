@@ -727,10 +727,20 @@ class LiveViewer(QtGui.QDialog):
 
         start = self.__applyoptions(options)
         self._plot()
+        self.setState()
         if start:
             self.__sourcewg.start()
 
         self.__updateTool(options.tool)
+
+    def setState(self):
+        """ set current state """
+
+        dssa = ";".join(self.__sourcewg.currentDataSourceAlias())
+        connected = self.__sourcewg.isConnected()
+        self.setLavueState(
+            {"connected": connected,
+             "source": dssa})
 
     @debugmethod
     def setLavueState(self, dct=None):
@@ -2175,6 +2185,8 @@ class LiveViewer(QtGui.QDialog):
                         isr, ds)(self.__settings.timeout)
             self.__sourcewg.updateSourceMetaData(
                 i, **self.__datasources[i].getMetaData())
+        dssa = ";".join(self.__sourcewg.currentDataSourceAlias())
+        self.setLavueState({"source": dssa})
 
     @debugmethod
     @QtCore.pyqtSlot(int, int)
@@ -2394,7 +2406,7 @@ class LiveViewer(QtGui.QDialog):
                 topic, str(json.dumps(messagedata)).encode("ascii")))
         self.__updatehisto = True
         self.__setSourceLabel()
-        self.setLavueState({"connected": True})
+        self.setLavueState({"connected": self.__sourcewg.isConnected()})
         self._startPlotting()
 
     @debugmethod
@@ -2418,7 +2430,7 @@ class LiveViewer(QtGui.QDialog):
                 topic, str(json.dumps(messagedata)).encode("ascii")))
         self._updateSource(0, -1)
         self.__setSourceLabel()
-        self.setLavueState({"connected": False})
+        self.setLavueState({"connected": self.__sourcewg.isConnected()})
         # self.__datasources[0] = None
 
     # @debugmethod
