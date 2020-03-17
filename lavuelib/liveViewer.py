@@ -751,6 +751,15 @@ class LiveViewer(QtGui.QDialog):
         else:
             autofactor = self.__levelswg.autoFactor()
             levels = ""
+        bkgfile = ""
+        if self.__bkgsubwg.isBkgSubApplied():
+            bkgfile = str(self.__settings.bkgimagename)
+        maskfile = ""
+        if self.__maskwg.isMaskApplied():
+            maskfile = str(self.__settings.maskimagename)
+        maskhighvalue = ""
+        if self.__settings.showhighvaluemask:
+            maskhighvalue = str(self.__highvaluemaskwg.mask() or "")
         self.setLavueState(
             {
                 "connected": self.__sourcewg.isConnected(),
@@ -765,6 +774,9 @@ class LiveViewer(QtGui.QDialog):
                 "levels": levels,
                 "autofactor": autofactor,
                 "gradient": self.__levelswg.gradient(),
+                "maskhighvalue": maskhighvalue,
+                "maskfile": maskfile,
+                "bkgfile": bkgfile,
                 "version": str(release.__version__),
             })
 
@@ -1908,6 +1920,7 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showhighvaluemask = dialog.showhighvaluemask
             self.__prepwg.changeView(
                 showhighvaluemask=dialog.showhighvaluemask)
+            self._checkHighMasking()
             replot = True
         if self.__settings.showrange != dialog.showrange:
             self.__settings.showrange = dialog.showrange
@@ -2517,8 +2530,6 @@ class LiveViewer(QtGui.QDialog):
         for ds in self.__datasources:
             ds.disconnect()
         self.__viewFrameRate(False)
-        self.__imagename = None
-        self.__imagename = None
         if self.__settings.secstream:
             calctime = time.time()
             messagedata = {
@@ -3309,6 +3320,10 @@ class LiveViewer(QtGui.QDialog):
             self.__maskvalue = float(value)
         except Exception:
             self.__maskvalue = None
+        maskhighvalue = ""
+        if self.__settings.showhighvaluemask:
+            maskhighvalue = str(value or "")
+        self.setLavueState({"maskhighvalue": maskhighvalue})
         self._plot()
 
     @debugmethod
@@ -3319,6 +3334,10 @@ class LiveViewer(QtGui.QDialog):
         self.__applymask = state
         if self.__applymask and self.__maskimage is None:
             self.__maskwg.noImage()
+        maskfile = ""
+        if self.__maskwg.isMaskApplied():
+            maskfile = str(self.__settings.maskimagename)
+        self.setLavueState({"maskfile": maskfile})
         self._plot()
 
     @debugmethod
@@ -3389,6 +3408,10 @@ class LiveViewer(QtGui.QDialog):
         else:
             self.__bkgsubwg.checkBkgSubtraction(state)
         self.__imagewg.setDoBkgSubtraction(state)
+        bkgfile = ""
+        if self.__bkgsubwg.isBkgSubApplied():
+            bkgfile = str(self.__settings.bkgimagename)
+        self.setLavueState({"bkgfile": bkgfile})
         self._plot()
 
     @debugmethod
