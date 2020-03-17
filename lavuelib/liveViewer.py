@@ -342,6 +342,9 @@ class LiveViewer(QtGui.QDialog):
         else:
             #: (:obj:`str`) execution mode: expert or user
             self.__umode = "user"
+
+        #: (:obj:`str`) instance name
+        self.__instance = options.instance
         #: (:obj:`bool`) histogram should be updated
         self.__updatehisto = False
         #: (:obj:`int`) program pid
@@ -612,6 +615,8 @@ class LiveViewer(QtGui.QDialog):
         self.__scalingwg.simpleScalingChanged.connect(self._plot)
         self.__scalingwg.scalingChanged.connect(
             self.__levelswg.setScalingLabel)
+        self.__scalingwg.scalingChanged.connect(
+            self.__setScalingState)
 
         # signal from limit setting widget
         self.__levelswg.minLevelChanged.connect(self.__imagewg.setMinLevel)
@@ -746,7 +751,20 @@ class LiveViewer(QtGui.QDialog):
                 "source": dssa,
                 "configuration": configuration,
                 "offset": offset,
+                "mode": self.__umode,
+                "instance": self.__instance or "",
+                "scaling": self.__scalingwg.currentScaling(),
+                "version": str(release.__version__),
             })
+
+    @QtCore.pyqtSlot(str)
+    def __setScalingState(self, scaling):
+        """ sets scaling state
+
+        :param scalingtype: scaling type, i.e. log, linear, sqrt
+        :type scalingtype: :obj:`str`
+        """
+        self.setLavueState({"scaling": scaling})
 
     @debugmethod
     def setLavueState(self, dct=None):
