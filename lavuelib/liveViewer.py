@@ -738,9 +738,15 @@ class LiveViewer(QtGui.QDialog):
 
         dssa = ";".join(self.__sourcewg.currentDataSourceAlias())
         connected = self.__sourcewg.isConnected()
+        configuration = ";".join(self.__sourcewg.configuration())
+        offset = self._translations()
         self.setLavueState(
-            {"connected": connected,
-             "source": dssa})
+            {
+                "connected": connected,
+                "source": dssa,
+                "configuration": configuration,
+                "offset": offset,
+            })
 
     @debugmethod
     def setLavueState(self, dct=None):
@@ -814,6 +820,8 @@ class LiveViewer(QtGui.QDialog):
             self.__trans[sid] = trans
         except Exception:
             pass
+        offset = self._translations()
+        self.setLavueState({"offset": offset})
 
     # @debugmethod
     def __updateTypeList(self, properties, typelist,
@@ -2114,6 +2122,8 @@ class LiveViewer(QtGui.QDialog):
             if ds == \
                str(type(self.__datasources[i]).__name__):
                 self.__datasources[i].setConfiguration(sourceConfiguration[i])
+        self.setLavueState(
+            {"configuration": ";".join(self.__sourceconfiguration or "")})
 
     @debugmethod
     def _switchSourceDisplay(self, label):
