@@ -614,15 +614,15 @@ class LiveViewer(QtGui.QDialog):
         # self.__scalingwg.scalingChanged.connect(self.scale)
         self.__scalingwg.simpleScalingChanged.connect(self._plot)
         self.__scalingwg.scalingChanged.connect(
-            self.__levelswg.setScalingLabel)
-        self.__scalingwg.scalingChanged.connect(
-            self.__setScalingState)
+            self._setScalingState)
 
         # signal from limit setting widget
-        self.__levelswg.minLevelChanged.connect(self.__imagewg.setMinLevel)
-        self.__levelswg.maxLevelChanged.connect(self.__imagewg.setMaxLevel)
-        self.__levelswg.autoLevelsChanged.connect(self.__imagewg.setAutoLevels)
-        self.__levelswg.levelsChanged.connect(self._plot)
+        self.__levelswg.minLevelChanged.connect(self._setMinLevelState)
+        self.__levelswg.maxLevelChanged.connect(self._setMaxLevelState)
+        self.__levelswg.autoLevelsChanged.connect(self._setAutoLevelsState)
+        self.__levelswg.levelsChanged.connect(self._setLevelState)
+        self.__levelswg.gradientChanged.connect(
+            self._setGradientState)
         self.__ui.cnfPushButton.clicked.connect(self._configuration)
         self.__ui.quitPushButton.clicked.connect(self.close)
         self.__ui.loadPushButton.clicked.connect(self._clickloadfile)
@@ -646,6 +646,7 @@ class LiveViewer(QtGui.QDialog):
             self.__ui.helpPushButton.setIcon(icon)
             # self.__ui.helpPushButton.setText("")
         self.__imagewg.roiCoordsChanged.connect(self._calcUpdateStatsSec)
+        self.__imagewg.currentToolChanged.connect(self._setToolState)
         # connecting signals from source widget:
 
         # gradient selector
@@ -738,33 +739,103 @@ class LiveViewer(QtGui.QDialog):
 
         self.__updateTool(options.tool)
 
+    @debugmethod
     def setState(self):
         """ set current state """
 
         dssa = ";".join(self.__sourcewg.currentDataSourceAlias())
-        connected = self.__sourcewg.isConnected()
         configuration = ";".join(self.__sourcewg.configuration())
-        offset = self._translations()
+        if not self.__levelswg.isAutoLevel():
+            levels = self.__levelswg.levels()
+            autofactor = None
+        else:
+            autofactor = self.__levelswg.autoFactor()
+            levels = ""
         self.setLavueState(
             {
-                "connected": connected,
+                "connected": self.__sourcewg.isConnected(),
                 "source": dssa,
                 "configuration": configuration,
-                "offset": offset,
+                "offset": self._translations(),
                 "mode": self.__umode,
                 "instance": self.__instance or "",
                 "scaling": self.__scalingwg.currentScaling(),
+                "transformation": self.__trafowg.transformation(),
+                "tool": self.__imagewg.tool(),
+                "levels": levels,
+                "autofactor": autofactor,
+                "gradient": self.__levelswg.gradient(),
                 "version": str(release.__version__),
             })
 
     @QtCore.pyqtSlot(str)
-    def __setScalingState(self, scaling):
+    def _setScalingState(self, scaling):
         """ sets scaling state
 
         :param scalingtype: scaling type, i.e. log, linear, sqrt
         :type scalingtype: :obj:`str`
         """
+        self.__levelswg.setScalingLabel(scaling)
         self.setLavueState({"scaling": scaling})
+
+    @QtCore.pyqtSlot()
+    def _setGradientState(self):
+        """ sets gradient state
+        """
+        self.setLavueState({"gradient": self.__levelswg.gradient()})
+
+    @QtCore.pyqtSlot(str)
+    def _setToolState(self, _):
+        """ sets tool state
+        """
+        self.setLavueState({"tool": self.__imagewg.tool()})
+
+    def __setLevelState(self):
+        """ sets intensity level state
+        """
+        if not self.__levelswg.isAutoLevel():
+            levels = self.__levelswg.levels()
+            autofactor = None
+        else:
+            autofactor = self.__levelswg.autoFactor()
+            levels = ""
+        self.setLavueState({"levels": levels, "autofactor": autofactor})
+
+    def _setLevelState(self):
+        """ sets intensity level state and plot
+        """
+        self.__setLevelState()
+        self._plot()
+
+    @QtCore.pyqtSlot(float)
+    def _setMinLevelState(self, level=None):
+        """ sets minimum intensity level
+
+        :param level: minimum intensity
+        :type level: :obj:`float`
+        """
+        self.__imagewg.setMinLevel(level)
+        self.__setLevelState()
+
+    @QtCore.pyqtSlot(float)
+    def _setMaxLevelState(self, level=None):
+        """ sets maximum intensity level
+
+        :param level: maximum intensity
+        :type level: :obj:`float`
+        """
+        self.__imagewg.setMaxLevel(level)
+        self.__setLevelState()
+
+    @QtCore.pyqtSlot(int)
+    def _setAutoLevelsState(self, autolevels):
+        """ sets auto levels
+
+        :param autolevels: 2: auto levels enabled 1: with autofactor
+        :type autolevels: :obj:'int`
+        """
+        self.__imagewg.setAutoLevels(autolevels)
+        self.__setLevelState()
 
     @debugmethod
     def setLavueState(self, dct=None):
@@ -2169,7 +2240,7 @@ class LiveViewer(QtGui.QDialog):
             values["scaling"] = self.__scalingwg.currentScaling()
             if not self.__levelswg.isAutoLevel():
                 values["levels"] = self.__levelswg.levels()
-                values["autofactor"] = ""
+                values["autofactor"] = None
             else:
                 values["autofactor"] = self.__levelswg.autoFactor()
             values["gradient"] = self.__levelswg.gradient()
@@ -3422,6 +3493,7 @@ class LiveViewer(QtGui.QDialog):
         else:
             self.__trafowg.setKeepCoordsLabel(
                 self.__settings.keepcoords, False)
+        self.setLavueState({"transformation": trafoname})
         self._plot()
 
     @debugmethod
