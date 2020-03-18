@@ -777,6 +777,11 @@ class LiveViewer(QtGui.QDialog):
                 "maskhighvalue": maskhighvalue,
                 "maskfile": maskfile,
                 "bkgfile": bkgfile,
+                # "viewrange": self.__imagewg.viewRange(),
+                "rangewindow": self.__rangewg.rangeWindow(),
+                "dsfactor": self.__rangewg.factor(),
+                "dsreduction": self.__rangewg.function(),
+                "imagefile": (self.__settings.imagename or ""),
                 "version": str(release.__version__),
             })
 
@@ -1217,6 +1222,8 @@ class LiveViewer(QtGui.QDialog):
                 self.__settings.imagename = oldname
                 self.__fieldpath = oldpath
                 self.__growing = oldgrowing
+            self.setLavueState(
+                {"imagefile": (self.__settings.imagename or "")})
 
         # set image source
         if hasattr(options, "source") and options.source is not None:
@@ -1660,6 +1667,8 @@ class LiveViewer(QtGui.QDialog):
                     logger.warning(str(e))
                     # print(str(e))
                     fields = None
+                self.setLavueState(
+                    {"imagefile": (self.__settings.imagename or "")})
                 currentfield = None
                 if fields:
                     if fid is None or self.__fieldpath is None:
@@ -1757,6 +1766,8 @@ class LiveViewer(QtGui.QDialog):
                             "Cannot read the image %s" % str(imagename))
                     metadata = fh.getMetaData()
                     self.__settings.imagename = imagename
+                    self.setLavueState(
+                        {"imagefile": (self.__settings.imagename or "")})
                     try:
                         ipath, iname = ntpath.split(imagename)
                         basename, ext = os.path.splitext(iname)
@@ -3214,6 +3225,10 @@ class LiveViewer(QtGui.QDialog):
             self.__imagewg.updateMetaData(
                 [0, 0, 1, 1],
                 rescale=False)
+        self.setLavueState({
+            "rangewindow": self.__rangewg.rangeWindow(),
+            "dsfactor": self.__rangewg.factor(),
+            "dsreduction": self.__rangewg.function()})
         self._plot()
 
     # @debugmethod
