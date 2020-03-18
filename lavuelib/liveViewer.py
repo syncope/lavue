@@ -698,6 +698,10 @@ class LiveViewer(QtGui.QDialog):
         self.__filterswg.filtersChanged.connect(
             self._assessFilters)
 
+        # signals from transformation widget
+        self.__mbufferwg.bufferSizeChanged.connect(
+            self._setBufferSizeState)
+
         # set the right target name for the source display at initialization
 
         self.__sourcewg.sourceLabelChanged.connect(
@@ -777,6 +781,7 @@ class LiveViewer(QtGui.QDialog):
                 "maskhighvalue": maskhighvalue,
                 "maskfile": maskfile,
                 "bkgfile": bkgfile,
+                "mbuffer": (self.__mbufferwg.bufferSize() or None),
                 # "viewrange": self.__imagewg.viewRange(),
                 "doordevice": self.__settings.doorname,
                 "tangodevice": (self.__tangoclient.device()
@@ -811,6 +816,12 @@ class LiveViewer(QtGui.QDialog):
         """ sets tool state
         """
         self.setLavueState({"tool": self.__imagewg.tool()})
+
+    @QtCore.pyqtSlot(int)
+    def _setBufferSizeState(self, size):
+        """ sets buffer size state
+        """
+        self.setLavueState({"mbuffer": size or None})
 
     def __setLevelState(self):
         """ sets intensity level state
