@@ -414,8 +414,10 @@ class LiveViewer(QtGui.QDialog):
         self.__frame = None
         #: (:obj:`str`) nexus field path
         self.__fieldpath = None
-        #: (:obj:`str`) closing flag
+        #: (:obj:`bool`) closing flag
         self.__closing = False
+        #: (:obj:`bool`) ploting flag
+        self.__ploting = False
 
         #: (:class:`filters.FilterList` ) user filters
         self.__filters = filters.FilterList()
@@ -654,8 +656,8 @@ class LiveViewer(QtGui.QDialog):
         # connecting signals from source widget:
 
         # gradient selector
-        self.__channelwg.rgbChanged.connect(self.setrgb)
-        self.__channelwg.channelChanged.connect(self._plot)
+        self.__channelwg.rgbChanged.connect(self._setRGBState)
+        self.__channelwg.channelChanged.connect(self._setChannelState)
         self.__imagewg.aspectLockedToggled.connect(self._setAspectLocked)
         self.__levelswg.storeSettingsRequested.connect(
             self._storeSettings)
@@ -785,6 +787,7 @@ class LiveViewer(QtGui.QDialog):
                 "maskhighvalue": maskhighvalue,
                 "maskfile": maskfile,
                 "bkgfile": bkgfile,
+                "channel": self.__channelwg.channelLabel(),
                 "mbuffer": (self.__mbufferwg.bufferSize() or None),
                 "doordevice": self.__settings.doorname,
                 "tangodevice": (self.__tangoclient.device()
@@ -807,6 +810,13 @@ class LiveViewer(QtGui.QDialog):
         """
         self.__levelswg.setScalingLabel(scaling)
         self.setLavueState({"scaling": scaling})
+
+    @QtCore.pyqtSlot()
+    def _setChannelState(self):
+        """ sets gradient state
+        """
+        self.setLavueState({"channel": self.__channelwg.channelLabel()})
+        self._plot()
 
     @QtCore.pyqtSlot()
     def _setGradientState(self):
@@ -2390,46 +2400,53 @@ class LiveViewer(QtGui.QDialog):
         """ The main command of the live viewer class:
         draw a numpy array with the given name.
         """
-        self.__filteredimage = self.__rawimage
-        # apply user range
-        self.__applyRange()
-        # apply user filters
-        self.__applyFilters()
-        if self.__settings.showmbuffer:
-            result = self.__mbufferwg.process(
-                self.__filteredimage, self.__imagename)
-            if isinstance(result, tuple) and len(result) == 2:
-                self.__filteredimage, mdata = result
-                self.__mdata.update(mdata)
+        if self.__ploting:
+            return
+        self.__ploting = True
+        try:
+            self.__filteredimage = self.__rawimage
+            # apply user range
+            self.__applyRange()
+            # apply user filters
+            self.__applyFilters()
+            if self.__settings.showmbuffer:
+                result = self.__mbufferwg.process(
+                    self.__filteredimage, self.__imagename)
+                if isinstance(result, tuple) and len(result) == 2:
+                    self.__filteredimage, mdata = result
+                    self.__mdata.update(mdata)
 
-        if "channellabels" in self.__mdata:
-            self.__channelwg.updateChannelLabels(self.__mdata["channellabels"])
+            if "channellabels" in self.__mdata:
+                self.__channelwg.updateChannelLabels(
+                    self.__mdata["channellabels"])
 
-        # prepare or preprocess the raw image if present:
-        self.__prepareImage()
+            # prepare or preprocess the raw image if present:
+            self.__prepareImage()
 
-        # perform transformation
-        # (crdtranspose, crdleftrightflip, crdupdownflip,
-        # orgtranspose, orgleftrightflip, orgupdownflip)
-        allcrds = self.__transform()
-        self.__imagewg.setTransformations(*allcrds)
-        # use the internal raw image to create a display image with chosen
-        # scaling
-        self.__scale(self.__scalingwg.currentScaling())
-        # calculate and update the stats for this
-        self.__calcUpdateStats()
-        # calls internally the plot function of the plot widget
-        if self.__imagename is not None and self.__scaledimage is not None:
-            self.__ui.fileNameLineEdit.setText(
-                self.__imagename.replace("\n", " "))
-            self.__ui.fileNameLineEdit.setToolTip(self.__imagename)
-        self.__imagewg.plot(
-            self.__scaledimage,
-            self.__displayimage
-            if self.__settings.statswoscaling else self.__scaledimage)
-        if self.__settings.showhisto and self.__updatehisto:
-            self.__levelswg.updateHistoImage()
-            self.__updatehisto = False
+            # perform transformation
+            # (crdtranspose, crdleftrightflip, crdupdownflip,
+            # orgtranspose, orgleftrightflip, orgupdownflip)
+            allcrds = self.__transform()
+            self.__imagewg.setTransformations(*allcrds)
+            # use the internal raw image to create a display image with chosen
+            # scaling
+            self.__scale(self.__scalingwg.currentScaling())
+            # calculate and update the stats for this
+            self.__calcUpdateStats()
+            # calls internally the plot function of the plot widget
+            if self.__imagename is not None and self.__scaledimage is not None:
+                self.__ui.fileNameLineEdit.setText(
+                    self.__imagename.replace("\n", " "))
+                self.__ui.fileNameLineEdit.setToolTip(self.__imagename)
+            self.__imagewg.plot(
+                self.__scaledimage,
+                self.__displayimage
+                if self.__settings.statswoscaling else self.__scaledimage)
+            if self.__settings.showhisto and self.__updatehisto:
+                self.__levelswg.updateHistoImage()
+                self.__updatehisto = False
+        finally:
+            self.__ploting = False
 
     @debugmethod
     @QtCore.pyqtSlot()
@@ -3586,6 +3603,19 @@ class LiveViewer(QtGui.QDialog):
         """
         self.__levelswg.setrgb(status)
         self.__imagewg.setrgb(status)
+        self._plot()
+
+    @debugmethod
+    @QtCore.pyqtSlot(bool)
+    def _setRGBState(self, status=True):
+        """ sets RGB on/off
+
+        :param status: True for on and False for off
+        :type status: :obj:`bool`
+        """
+        self.__levelswg.setrgb(status)
+        self.__imagewg.setrgb(status)
+        self.setLavueState({"channel": self.__channelwg.channelLabel()})
         self._plot()
 
     @debugmethod
