@@ -778,9 +778,14 @@ class LiveViewer(QtGui.QDialog):
                 "maskfile": maskfile,
                 "bkgfile": bkgfile,
                 # "viewrange": self.__imagewg.viewRange(),
+                "doordevice": self.__settings.doorname,
+                "tangodevice": (self.__tangoclient.device()
+                                if self.__tangoclient else ""),
+                "analysisdevice": self.__settings.analysisdevice,
                 "rangewindow": self.__rangewg.rangeWindow(),
                 "dsfactor": self.__rangewg.factor(),
                 "dsreduction": self.__rangewg.function(),
+                "filters": self.__filterstate,
                 "imagefile": (self.__settings.imagename or ""),
                 "version": str(release.__version__),
             })
@@ -1199,10 +1204,13 @@ class LiveViewer(QtGui.QDialog):
             setLoggerLevel(logger, options.log)
         if hasattr(options, "doordevice") and options.doordevice is not None:
             self.__settings.doorname = str(options.doordevice)
+            self.setLavueState({"doordevice": self.__settings.doorname})
 
         if hasattr(options, "analysisdevice") and \
            options.analysisdevice is not None:
             self.__settings.analysisdevice = str(options.analysisdevice)
+            self.setLavueState(
+                {"analysisdevice": self.__settings.analysisdevice})
 
         # load image file
         if hasattr(options, "imagefile") and options.imagefile is not None:
@@ -1353,8 +1361,10 @@ class LiveViewer(QtGui.QDialog):
             self.__tangoclient.subscribe()
             self.__tangoclient.lavueStateChanged.connect(
                 self._updateLavueState)
+            self.setLavueState({"tangodevice": self.__tangoclient.device()})
         else:
             self.__tangoclient = None
+            self.setLavueState({"tangodevice": ""})
 
         QtCore.QCoreApplication.processEvents()
         if hasattr(options, "viewrange") and options.viewrange is not None:
@@ -1910,6 +1920,7 @@ class LiveViewer(QtGui.QDialog):
         """
         replot = False
         self.__settings.doorname = dialog.door
+        self.setLavueState({"doordevice": self.__settings.doorname})
         if dialog.sardana != (True if self.__sardana is not None else False):
             self.__setSardana(dialog.sardana)
             self.__settings.sardana = dialog.sardana
@@ -3511,6 +3522,7 @@ class LiveViewer(QtGui.QDialog):
                         "%s" % value)
                     # print(str(e))
 
+            self.setLavueState({"filters": bool(self.__filterstate)})
             if self.__displayimage is not None:
                 self._plot()
 
