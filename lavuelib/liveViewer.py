@@ -102,7 +102,11 @@ _formclass, _baseclass = uic.loadUiType(
                  "ui", "MainDialog.ui"))
 
 
+_logginglevel = 'info'
+
+
 def setLoggerLevel(logger, level):
+    global _logginglevel
     """ sets logging level from string
     :param logger: logger
     :type logger: :obj:`logging.logger`
@@ -114,7 +118,7 @@ def setLoggerLevel(logger, level):
               'warning': logging.WARNING,
               'error': logging.ERROR,
               'critical': logging.CRITICAL}
-
+    _logginglevel = level if level in levels else "info"
     dlevel = levels.get(level, logging.INFO)
     logger.setLevel(dlevel)
 
@@ -782,7 +786,6 @@ class LiveViewer(QtGui.QDialog):
                 "maskfile": maskfile,
                 "bkgfile": bkgfile,
                 "mbuffer": (self.__mbufferwg.bufferSize() or None),
-                # "viewrange": self.__imagewg.viewRange(),
                 "doordevice": self.__settings.doorname,
                 "tangodevice": (self.__tangoclient.device()
                                 if self.__tangoclient else ""),
@@ -879,6 +882,10 @@ class LiveViewer(QtGui.QDialog):
         """
         if dct is not None:
             self.__lavuestate.updateState(dct)
+        self.__lavuestate.updateState({
+            "viewrange": self.__imagewg.viewRange(),
+            "log":  _logginglevel
+        })
         self.__imagewg.writeAttribute(
             "LavueState", self.__lavuestate.dump())
 
