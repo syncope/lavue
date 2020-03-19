@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Mar 13, 2020" "2.39" "lavuelib"
+.TH "LAVUELIB" "1" "Mar 19, 2020" "2.40" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -491,6 +491,19 @@ shows or hides the histogram widget
 .TP
 .B channelChanged
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) color channel changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B channelLabel()
+provides color channel label
+.INDENT 7.0
+.TP
+.B Returns
+color channel label
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -1013,6 +1026,19 @@ constructor
 .TP
 .B detectorROIsChanged
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) detector ROIs changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B device()
+provides tango device name
+.INDENT 7.0
+.TP
+.B Returns
+tango device name
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -6177,7 +6203,7 @@ image data
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.pyc\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.pyc\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.pyc\(aq>}
+.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.py\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.py\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.py\(aq>}
 (\fI\%dict\fP <\fI\%str\fP, \fBmodule\fP> ) nexus writer modules
 .UNINDENT
 .SS lavuelib.imageSource module
@@ -8220,6 +8246,11 @@ gradient name
 .UNINDENT
 .INDENT 7.0
 .TP
+.B gradientChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) gradient changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
 .B isAutoLevel()
 returns if automatics levels are enabled
 .INDENT 7.0
@@ -8402,6 +8433,38 @@ set min/max level spinboxes and histogram from the parameters
 live viewer settings
 .INDENT 0.0
 .TP
+.B class lavuelib.liveViewer.LavueState(**kwargs)
+Bases: \fI\%object\fP
+.sp
+lavue state
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B dump()
+returns string representation
+.INDENT 7.0
+.TP
+.B Returns
+string representation
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateState(dct)
+update lavue state dictonary
+.INDENT 7.0
+.TP
+.B Parameters
+\fBdct\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – lavue state dictionary
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
 .B class lavuelib.liveViewer.LiveViewer(**kwargs)
 Bases: \fBPyQt5.QtWidgets.QDialog\fP
 .sp
@@ -8451,6 +8514,21 @@ True for on and False for off
 .B Return type
 \fI\%bool\fP
 .UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setLavueState(**kwargs)
+update LavueState of LavueController
+.INDENT 7.0
+.TP
+.B Parameters
+\fBdct\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) – lavue state dictionary
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setState(**kwargs)
+set current state
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8599,11 +8677,6 @@ a list: [name, rawdata, metadata, x, y, sx, sy, tr]
 .INDENT 0.0
 .TP
 .B lavuelib.liveViewer.setLoggerLevel(logger, level)
-sets logging level from string
-:param logger: logger
-:type logger: \fBlogging.logger\fP
-:param level: logging level
-:type level: \fI\%str\fP
 .UNINDENT
 .SS lavuelib.maskWidget module
 .sp
@@ -8735,6 +8808,24 @@ constructor
 .TP
 .B Parameters
 \fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B bufferSize()
+provides buffer size
+.INDENT 7.0
+.TP
+.B Returns
+buffer size if buffer is on
+.TP
+.B Return type
+\fI\%int\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B bufferSizeChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) state updated signal
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -11007,6 +11098,19 @@ current datasource class name
 .UNINDENT
 .INDENT 7.0
 .TP
+.B currentDataSourceAlias()
+current data source name
+.INDENT 7.0
+.TP
+.B Returns
+current datasource class name alias
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B currentDataSourceName()
 current data source name
 .INDENT 7.0
@@ -11360,6 +11464,19 @@ set connection status on and display connection status
 .TP
 .B Parameters
 \fBport\fP – zmq port
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B currentDataSourceAlias()
+current data source name alias
+.INDENT 7.0
+.TP
+.B Returns
+current datasource class name alias
+.TP
+.B Return type
+\fI\%str\fP
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
