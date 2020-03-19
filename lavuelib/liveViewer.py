@@ -893,8 +893,7 @@ class LiveViewer(QtGui.QDialog):
         if dct is not None:
             self.__lavuestate.updateState(dct)
         self.__lavuestate.updateState({
-            "viewrange": self.__imagewg.viewRange(),
-            "log":  _logginglevel
+            "viewrange": self.__imagewg.viewRange()
         })
         self.__imagewg.writeAttribute(
             "LavueState", self.__lavuestate.dump())
@@ -1181,6 +1180,9 @@ class LiveViewer(QtGui.QDialog):
                     elif running and srccnf and stop is not True:
                         self.__sourcewg.toggleServerConnection()
                 self.__updateTool(tool)
+            if not dctcnf or \
+               ("__update__" in dctcnf.keys() and dctcnf["__update__"]):
+                self.setLavueState()
 
     # @debugmethod
     def __updateTool(self, tool):
@@ -1230,6 +1232,8 @@ class LiveViewer(QtGui.QDialog):
         """
         if hasattr(options, "log") and options.log is not None:
             setLoggerLevel(logger, options.log)
+            self.setLavueState({"log": _logginglevel})
+
         if hasattr(options, "doordevice") and options.doordevice is not None:
             self.__settings.doorname = str(options.doordevice)
             self.setLavueState({"doordevice": self.__settings.doorname})
