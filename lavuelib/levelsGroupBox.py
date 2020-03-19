@@ -56,11 +56,13 @@ class LevelsGroupBox(QtGui.QWidget):
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) maximum level changed signal
     maxLevelChanged = QtCore.pyqtSignal(float)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) automatic levels changed signal
-    autoLevelsChanged = QtCore.pyqtSignal(int)  # bool does not work...
+    autoLevelsChanged = QtCore.pyqtSignal(int)
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) levels changed signal
     levelsChanged = QtCore.pyqtSignal()
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) store settings requested
     storeSettingsRequested = QtCore.pyqtSignal()
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) gradient changed signal
+    gradientChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, settings=None, expertmode=False):
         """ constructor
@@ -624,6 +626,7 @@ class LevelsGroupBox(QtGui.QWidget):
             index = self.__ui.gradientComboBox.findText(name)
         self.__histogram.setGradientByName(
             self.__ui.gradientComboBox.itemText(index))
+        self.gradientChanged.emit()
 
     @QtCore.pyqtSlot(str)
     def _changeGradient(self, name):
@@ -642,6 +645,7 @@ class LevelsGroupBox(QtGui.QWidget):
                     "LevelsGroupBox.changeGradient: "
                     "Error in _changeGradient for %s" % name)
                 # print("Error %s" % name)
+        self.gradientChanged.emit()
 
     def updateHistoImage(self, autoLevel=None):
         """ executes imageChanged of histogram with the givel autoLevel

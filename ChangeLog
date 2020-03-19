@@ -1,3 +1,7 @@
+2020-03-19 Jan Kotanski <jan.kotanski@desy.de>
+	* add support for reading LavueState in LavueController
+	* tagged as 2.40.0
+
 2020-03-13 Jan Kotanski <jan.kotanski@desy.de>
 	* add PixelSizeX and PixelSizeY to LavueController
 	* add support for changing logging level from LavueController

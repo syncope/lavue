@@ -96,7 +96,8 @@ class ChannelGroupBox(QtGui.QWidget):
 
         #: (:obj:`dict`) channellabels
         self.__channellabels = {}
-
+        #: (:obj:`bool`) connected flag
+        self.__connected = False
         self.__connectChannels()
         self.setNumberOfChannels(-1)
         self.__ui.rComboBox.currentIndexChanged.connect(
@@ -253,7 +254,8 @@ class ChannelGroupBox(QtGui.QWidget):
             self.__rindex = index
         else:
             self.__rindex = -1
-        self.channelChanged.emit()
+        if self.__connected:
+            self.channelChanged.emit()
 
     @QtCore.pyqtSlot(int)
     def _onGChannelChanged(self, index):
@@ -263,7 +265,8 @@ class ChannelGroupBox(QtGui.QWidget):
             self.__gindex = index
         else:
             self.__gindex = -1
-        self.channelChanged.emit()
+        if self.__connected:
+            self.channelChanged.emit()
 
     @QtCore.pyqtSlot(int)
     def _onBChannelChanged(self, index):
@@ -273,7 +276,8 @@ class ChannelGroupBox(QtGui.QWidget):
             self.__bindex = index
         else:
             self.__bindex = -1
-        self.channelChanged.emit()
+        if self.__connected:
+            self.channelChanged.emit()
 
     def updateChannelLabels(self, chlabels):
         """ update red channel
@@ -366,6 +370,26 @@ class ChannelGroupBox(QtGui.QWidget):
         """
         return self.__colorchannel
 
+    def channelLabel(self):
+        """ provides color channel label
+
+        :returns: color channel label
+        :rtype: :obj:`str`
+        """
+        channel = self.__colorchannel
+        if channel == -1 or self.__numberofchannels + 2 == channel:
+            label = ",".join([str(ch) for ch in self.rgbchannels()])
+        elif channel == -2 or self.__numberofchannels + 1 == channel:
+            label = 'mean'
+        elif channel == 0:
+            if self.__numberofchannels:
+                label = 'sum'
+            else:
+                label = ""
+        else:
+            label = str(channel - 1)
+        return label
+
     def __connectChannels(self):
         """ connects channel signals
         """
@@ -381,6 +405,7 @@ class ChannelGroupBox(QtGui.QWidget):
             self._lowerchannelpushed)
         self.__ui.higherchannelPushButton.clicked.connect(
             self._higherchannelpushed)
+        self.__connected = True
 
     def __disconnectChannels(self):
         """ connects channel signals
@@ -397,6 +422,7 @@ class ChannelGroupBox(QtGui.QWidget):
             self._lowerchannelpushed)
         self.__ui.higherchannelPushButton.clicked.disconnect(
             self._higherchannelpushed)
+        self.__connected = False
 
     def setNumberOfChannels(self, number):
         """ sets maximum number of color channel
@@ -489,3 +515,4 @@ class ChannelGroupBox(QtGui.QWidget):
             self.__ui.channelComboBox.setCurrentIndex(channel)
             self.setChannel(channel, True)
             self.__connectChannels()
+            self.channelChanged.emit()

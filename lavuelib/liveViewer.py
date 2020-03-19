@@ -102,7 +102,11 @@ _formclass, _baseclass = uic.loadUiType(
                  "ui", "MainDialog.ui"))
 
 
+_logginglevel = 'info'
+
+
 def setLoggerLevel(logger, level):
+    global _logginglevel
     """ sets logging level from string
     :param logger: logger
     :type logger: :obj:`logging.logger`
@@ -114,7 +118,7 @@ def setLoggerLevel(logger, level):
               'warning': logging.WARNING,
               'error': logging.ERROR,
               'critical': logging.CRITICAL}
-
+    _logginglevel = level if level in levels else "info"
     dlevel = levels.get(level, logging.INFO)
     logger.setLevel(dlevel)
 
@@ -156,6 +160,35 @@ class MainWindow(QtGui.QMainWindow):
         """
         self.__lavue.closeEvent(event)
         QtGui.QMainWindow.closeEvent(self, event)
+
+
+class LavueState(object):
+    """ lavue state
+    """
+    @debugmethod
+    def __init__(self):
+        """  constructor
+        """
+        #: (:obj:`dict` < :obj:`str`, :obj:`any`>) lavue state dictionary
+        self.__state = {}
+
+    def updateState(self, dct):
+        """update lavue state dictonary
+
+        :param dct: lavue state dictionary
+        :type dct: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        if dct is not None:
+            self.__state.update(dct)
+            self.__state["__timestamp__"] = time.time()
+
+    def dump(self):
+        """ returns string representation
+
+        :returns: string representation
+        :rtype: :obj:`str`
+        """
+        return json.dumps(self.__state)
 
 
 class PartialData(object):
@@ -313,6 +346,9 @@ class LiveViewer(QtGui.QDialog):
         else:
             #: (:obj:`str`) execution mode: expert or user
             self.__umode = "user"
+
+        #: (:obj:`str`) instance name
+        self.__instance = options.instance
         #: (:obj:`bool`) histogram should be updated
         self.__updatehisto = False
         #: (:obj:`int`) program pid
@@ -332,6 +368,8 @@ class LiveViewer(QtGui.QDialog):
         #: (:class:`lavuelib.settings.Settings`) settings
         self.__settings = settings.Settings()
         self.__settings.load(QtCore.QSettings())
+
+        self.__lavuestate = LavueState()
 
         # (:class:`lavuelib.imageSource.BaseSource`) data source object
         self.__datasources = [isr.BaseSource()
@@ -376,8 +414,10 @@ class LiveViewer(QtGui.QDialog):
         self.__frame = None
         #: (:obj:`str`) nexus field path
         self.__fieldpath = None
-        #: (:obj:`str`) closing flag
+        #: (:obj:`bool`) closing flag
         self.__closing = False
+        #: (:obj:`bool`) ploting flag
+        self.__ploting = False
 
         #: (:class:`filters.FilterList` ) user filters
         self.__filters = filters.FilterList()
@@ -580,13 +620,15 @@ class LiveViewer(QtGui.QDialog):
         # self.__scalingwg.scalingChanged.connect(self.scale)
         self.__scalingwg.simpleScalingChanged.connect(self._plot)
         self.__scalingwg.scalingChanged.connect(
-            self.__levelswg.setScalingLabel)
+            self._setScalingState)
 
         # signal from limit setting widget
-        self.__levelswg.minLevelChanged.connect(self.__imagewg.setMinLevel)
-        self.__levelswg.maxLevelChanged.connect(self.__imagewg.setMaxLevel)
-        self.__levelswg.autoLevelsChanged.connect(self.__imagewg.setAutoLevels)
-        self.__levelswg.levelsChanged.connect(self._plot)
+        self.__levelswg.minLevelChanged.connect(self._setMinLevelState)
+        self.__levelswg.maxLevelChanged.connect(self._setMaxLevelState)
+        self.__levelswg.autoLevelsChanged.connect(self._setAutoLevelsState)
+        self.__levelswg.levelsChanged.connect(self._setLevelState)
+        self.__levelswg.gradientChanged.connect(
+            self._setGradientState)
         self.__ui.cnfPushButton.clicked.connect(self._configuration)
         self.__ui.quitPushButton.clicked.connect(self.close)
         self.__ui.loadPushButton.clicked.connect(self._clickloadfile)
@@ -610,11 +652,12 @@ class LiveViewer(QtGui.QDialog):
             self.__ui.helpPushButton.setIcon(icon)
             # self.__ui.helpPushButton.setText("")
         self.__imagewg.roiCoordsChanged.connect(self._calcUpdateStatsSec)
+        self.__imagewg.currentToolChanged.connect(self._setToolState)
         # connecting signals from source widget:
 
         # gradient selector
-        self.__channelwg.rgbChanged.connect(self.setrgb)
-        self.__channelwg.channelChanged.connect(self._plot)
+        self.__channelwg.rgbChanged.connect(self._setRGBState)
+        self.__channelwg.channelChanged.connect(self._setChannelState)
         self.__imagewg.aspectLockedToggled.connect(self._setAspectLocked)
         self.__levelswg.storeSettingsRequested.connect(
             self._storeSettings)
@@ -661,6 +704,10 @@ class LiveViewer(QtGui.QDialog):
         self.__filterswg.filtersChanged.connect(
             self._assessFilters)
 
+        # signals from transformation widget
+        self.__mbufferwg.bufferSizeChanged.connect(
+            self._setBufferSizeState)
+
         # set the right target name for the source display at initialization
 
         self.__sourcewg.sourceLabelChanged.connect(
@@ -696,10 +743,160 @@ class LiveViewer(QtGui.QDialog):
 
         start = self.__applyoptions(options)
         self._plot()
+        self.setState()
         if start:
             self.__sourcewg.start()
 
         self.__updateTool(options.tool)
+
+    @debugmethod
+    def setState(self):
+        """ set current state """
+
+        dssa = ";".join(self.__sourcewg.currentDataSourceAlias())
+        configuration = ";".join(self.__sourcewg.configuration())
+        if not self.__levelswg.isAutoLevel():
+            levels = self.__levelswg.levels()
+            autofactor = None
+        else:
+            autofactor = self.__levelswg.autoFactor()
+            levels = ""
+        bkgfile = ""
+        if self.__bkgsubwg.isBkgSubApplied():
+            bkgfile = str(self.__settings.bkgimagename)
+        maskfile = ""
+        if self.__maskwg.isMaskApplied():
+            maskfile = str(self.__settings.maskimagename)
+        maskhighvalue = ""
+        if self.__settings.showhighvaluemask:
+            maskhighvalue = str(self.__highvaluemaskwg.mask() or "")
+        self.setLavueState(
+            {
+                "connected": self.__sourcewg.isConnected(),
+                "source": dssa,
+                "configuration": configuration,
+                "offset": self._translations(),
+                "mode": self.__umode,
+                "instance": self.__instance or "",
+                "scaling": self.__scalingwg.currentScaling(),
+                "transformation": self.__trafowg.transformation(),
+                "tool": self.__imagewg.tool(),
+                "levels": levels,
+                "autofactor": autofactor,
+                "gradient": self.__levelswg.gradient(),
+                "maskhighvalue": maskhighvalue,
+                "maskfile": maskfile,
+                "bkgfile": bkgfile,
+                "channel": self.__channelwg.channelLabel(),
+                "mbuffer": (self.__mbufferwg.bufferSize() or None),
+                "doordevice": self.__settings.doorname,
+                "tangodevice": (self.__tangoclient.device()
+                                if self.__tangoclient else ""),
+                "analysisdevice": self.__settings.analysisdevice,
+                "rangewindow": self.__rangewg.rangeWindow(),
+                "dsfactor": self.__rangewg.factor(),
+                "dsreduction": self.__rangewg.function(),
+                "filters": self.__filterstate,
+                "imagefile": (self.__settings.imagename or ""),
+                "version": str(release.__version__),
+            })
+
+    @QtCore.pyqtSlot(str)
+    def _setScalingState(self, scaling):
+        """ sets scaling state
+
+        :param scalingtype: scaling type, i.e. log, linear, sqrt
+        :type scalingtype: :obj:`str`
+        """
+        self.__levelswg.setScalingLabel(scaling)
+        self.setLavueState({"scaling": scaling})
+
+    @QtCore.pyqtSlot()
+    def _setChannelState(self):
+        """ sets gradient state
+        """
+        self.setLavueState({"channel": self.__channelwg.channelLabel()})
+        self._plot()
+
+    @QtCore.pyqtSlot()
+    def _setGradientState(self):
+        """ sets gradient state
+        """
+        self.setLavueState({"gradient": self.__levelswg.gradient()})
+
+    @QtCore.pyqtSlot(str)
+    def _setToolState(self, _):
+        """ sets tool state
+        """
+        self.setLavueState({"tool": self.__imagewg.tool()})
+
+    @QtCore.pyqtSlot(int)
+    def _setBufferSizeState(self, size):
+        """ sets buffer size state
+        """
+        self.setLavueState({"mbuffer": size or None})
+
+    def __setLevelState(self):
+        """ sets intensity level state
+        """
+        if not self.__levelswg.isAutoLevel():
+            levels = self.__levelswg.levels()
+            autofactor = None
+        else:
+            autofactor = self.__levelswg.autoFactor()
+            levels = ""
+        self.setLavueState({"levels": levels, "autofactor": autofactor})
+
+    def _setLevelState(self):
+        """ sets intensity level state and plot
+        """
+        self.__setLevelState()
+        self._plot()
+
+    @QtCore.pyqtSlot(float)
+    def _setMinLevelState(self, level=None):
+        """ sets minimum intensity level
+
+        :param level: minimum intensity
+        :type level: :obj:`float`
+        """
+        self.__imagewg.setMinLevel(level)
+        self.__setLevelState()
+
+    @QtCore.pyqtSlot(float)
+    def _setMaxLevelState(self, level=None):
+        """ sets maximum intensity level
+
+        :param level: maximum intensity
+        :type level: :obj:`float`
+        """
+        self.__imagewg.setMaxLevel(level)
+        self.__setLevelState()
+
+    @QtCore.pyqtSlot(int)
+    def _setAutoLevelsState(self, autolevels):
+        """ sets auto levels
+
+        :param autolevels: 2: auto levels enabled 1: with autofactor
+        :type autolevels: :obj:'int`
+        """
+        self.__imagewg.setAutoLevels(autolevels)
+        self.__setLevelState()
+
+    @debugmethod
+    def setLavueState(self, dct=None):
+        """ update LavueState of LavueController
+
+        :param dct: lavue state dictionary
+        :type dct: :obj:`dict` < :obj:`str`, :obj:`any`>
+        """
+        if dct is not None:
+            self.__lavuestate.updateState(dct)
+        self.__lavuestate.updateState({
+            "viewrange": self.__imagewg.viewRange()
+        })
+        self.__imagewg.writeAttribute(
+            "LavueState", self.__lavuestate.dump())
 
     @debugmethod
     @QtCore.pyqtSlot()
@@ -761,6 +958,8 @@ class LiveViewer(QtGui.QDialog):
             self.__trans[sid] = trans
         except Exception:
             pass
+        offset = self._translations()
+        self.setLavueState({"offset": offset})
 
     # @debugmethod
     def __updateTypeList(self, properties, typelist,
@@ -964,6 +1163,12 @@ class LiveViewer(QtGui.QDialog):
                 stop = dctcnf["stop"] if "stop" in dctcnf.keys() else None
                 start = dctcnf["start"] if "start" in dctcnf.keys() else None
                 tool = dctcnf["tool"] if "tool" in dctcnf.keys() else None
+                if "connected" in dctcnf.keys() and \
+                   stop is None and start is None:
+                    if dctcnf["connected"]:
+                        start = True
+                    else:
+                        stop = True
                 running = self.__sourcewg.isConnected()
                 if srccnf or stop is True or start is True:
                     if self.__sourcewg.isConnected():
@@ -975,6 +1180,9 @@ class LiveViewer(QtGui.QDialog):
                     elif running and srccnf and stop is not True:
                         self.__sourcewg.toggleServerConnection()
                 self.__updateTool(tool)
+            if not dctcnf or \
+               ("__update__" in dctcnf.keys() and dctcnf["__update__"]):
+                self.setLavueState()
 
     # @debugmethod
     def __updateTool(self, tool):
@@ -1024,12 +1232,17 @@ class LiveViewer(QtGui.QDialog):
         """
         if hasattr(options, "log") and options.log is not None:
             setLoggerLevel(logger, options.log)
+            self.setLavueState({"log": _logginglevel})
+
         if hasattr(options, "doordevice") and options.doordevice is not None:
             self.__settings.doorname = str(options.doordevice)
+            self.setLavueState({"doordevice": self.__settings.doorname})
 
         if hasattr(options, "analysisdevice") and \
            options.analysisdevice is not None:
             self.__settings.analysisdevice = str(options.analysisdevice)
+            self.setLavueState(
+                {"analysisdevice": self.__settings.analysisdevice})
 
         # load image file
         if hasattr(options, "imagefile") and options.imagefile is not None:
@@ -1049,6 +1262,8 @@ class LiveViewer(QtGui.QDialog):
                 self.__settings.imagename = oldname
                 self.__fieldpath = oldpath
                 self.__growing = oldgrowing
+            self.setLavueState(
+                {"imagefile": (self.__settings.imagename or "")})
 
         # set image source
         if hasattr(options, "source") and options.source is not None:
@@ -1178,8 +1393,10 @@ class LiveViewer(QtGui.QDialog):
             self.__tangoclient.subscribe()
             self.__tangoclient.lavueStateChanged.connect(
                 self._updateLavueState)
+            self.setLavueState({"tangodevice": self.__tangoclient.device()})
         else:
             self.__tangoclient = None
+            self.setLavueState({"tangodevice": ""})
 
         QtCore.QCoreApplication.processEvents()
         if hasattr(options, "viewrange") and options.viewrange is not None:
@@ -1492,6 +1709,8 @@ class LiveViewer(QtGui.QDialog):
                     logger.warning(str(e))
                     # print(str(e))
                     fields = None
+                self.setLavueState(
+                    {"imagefile": (self.__settings.imagename or "")})
                 currentfield = None
                 if fields:
                     if fid is None or self.__fieldpath is None:
@@ -1589,6 +1808,8 @@ class LiveViewer(QtGui.QDialog):
                             "Cannot read the image %s" % str(imagename))
                     metadata = fh.getMetaData()
                     self.__settings.imagename = imagename
+                    self.setLavueState(
+                        {"imagefile": (self.__settings.imagename or "")})
                     try:
                         ipath, iname = ntpath.split(imagename)
                         basename, ext = os.path.splitext(iname)
@@ -1731,6 +1952,7 @@ class LiveViewer(QtGui.QDialog):
         """
         replot = False
         self.__settings.doorname = dialog.door
+        self.setLavueState({"doordevice": self.__settings.doorname})
         if dialog.sardana != (True if self.__sardana is not None else False):
             self.__setSardana(dialog.sardana)
             self.__settings.sardana = dialog.sardana
@@ -1752,6 +1974,7 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showhighvaluemask = dialog.showhighvaluemask
             self.__prepwg.changeView(
                 showhighvaluemask=dialog.showhighvaluemask)
+            self._checkHighMasking()
             replot = True
         if self.__settings.showrange != dialog.showrange:
             self.__settings.showrange = dialog.showrange
@@ -2055,6 +2278,8 @@ class LiveViewer(QtGui.QDialog):
             if ds == \
                str(type(self.__datasources[i]).__name__):
                 self.__datasources[i].setConfiguration(sourceConfiguration[i])
+        self.setLavueState(
+            {"configuration": ";".join(self.__sourceconfiguration or "")})
 
     @debugmethod
     def _switchSourceDisplay(self, label):
@@ -2082,7 +2307,7 @@ class LiveViewer(QtGui.QDialog):
             values["scaling"] = self.__scalingwg.currentScaling()
             if not self.__levelswg.isAutoLevel():
                 values["levels"] = self.__levelswg.levels()
-                values["autofactor"] = ""
+                values["autofactor"] = None
             else:
                 values["autofactor"] = self.__levelswg.autoFactor()
             values["gradient"] = self.__levelswg.gradient()
@@ -2126,6 +2351,8 @@ class LiveViewer(QtGui.QDialog):
                         isr, ds)(self.__settings.timeout)
             self.__sourcewg.updateSourceMetaData(
                 i, **self.__datasources[i].getMetaData())
+        dssa = ";".join(self.__sourcewg.currentDataSourceAlias())
+        self.setLavueState({"source": dssa})
 
     @debugmethod
     @QtCore.pyqtSlot(int, int)
@@ -2177,46 +2404,53 @@ class LiveViewer(QtGui.QDialog):
         """ The main command of the live viewer class:
         draw a numpy array with the given name.
         """
-        self.__filteredimage = self.__rawimage
-        # apply user range
-        self.__applyRange()
-        # apply user filters
-        self.__applyFilters()
-        if self.__settings.showmbuffer:
-            result = self.__mbufferwg.process(
-                self.__filteredimage, self.__imagename)
-            if isinstance(result, tuple) and len(result) == 2:
-                self.__filteredimage, mdata = result
-                self.__mdata.update(mdata)
+        if self.__ploting:
+            return
+        self.__ploting = True
+        try:
+            self.__filteredimage = self.__rawimage
+            # apply user range
+            self.__applyRange()
+            # apply user filters
+            self.__applyFilters()
+            if self.__settings.showmbuffer:
+                result = self.__mbufferwg.process(
+                    self.__filteredimage, self.__imagename)
+                if isinstance(result, tuple) and len(result) == 2:
+                    self.__filteredimage, mdata = result
+                    self.__mdata.update(mdata)
 
-        if "channellabels" in self.__mdata:
-            self.__channelwg.updateChannelLabels(self.__mdata["channellabels"])
+            if "channellabels" in self.__mdata:
+                self.__channelwg.updateChannelLabels(
+                    self.__mdata["channellabels"])
 
-        # prepare or preprocess the raw image if present:
-        self.__prepareImage()
+            # prepare or preprocess the raw image if present:
+            self.__prepareImage()
 
-        # perform transformation
-        # (crdtranspose, crdleftrightflip, crdupdownflip,
-        # orgtranspose, orgleftrightflip, orgupdownflip)
-        allcrds = self.__transform()
-        self.__imagewg.setTransformations(*allcrds)
-        # use the internal raw image to create a display image with chosen
-        # scaling
-        self.__scale(self.__scalingwg.currentScaling())
-        # calculate and update the stats for this
-        self.__calcUpdateStats()
-        # calls internally the plot function of the plot widget
-        if self.__imagename is not None and self.__scaledimage is not None:
-            self.__ui.fileNameLineEdit.setText(
-                self.__imagename.replace("\n", " "))
-            self.__ui.fileNameLineEdit.setToolTip(self.__imagename)
-        self.__imagewg.plot(
-            self.__scaledimage,
-            self.__displayimage
-            if self.__settings.statswoscaling else self.__scaledimage)
-        if self.__settings.showhisto and self.__updatehisto:
-            self.__levelswg.updateHistoImage()
-            self.__updatehisto = False
+            # perform transformation
+            # (crdtranspose, crdleftrightflip, crdupdownflip,
+            # orgtranspose, orgleftrightflip, orgupdownflip)
+            allcrds = self.__transform()
+            self.__imagewg.setTransformations(*allcrds)
+            # use the internal raw image to create a display image with chosen
+            # scaling
+            self.__scale(self.__scalingwg.currentScaling())
+            # calculate and update the stats for this
+            self.__calcUpdateStats()
+            # calls internally the plot function of the plot widget
+            if self.__imagename is not None and self.__scaledimage is not None:
+                self.__ui.fileNameLineEdit.setText(
+                    self.__imagename.replace("\n", " "))
+                self.__ui.fileNameLineEdit.setToolTip(self.__imagename)
+            self.__imagewg.plot(
+                self.__scaledimage,
+                self.__displayimage
+                if self.__settings.statswoscaling else self.__scaledimage)
+            if self.__settings.showhisto and self.__updatehisto:
+                self.__levelswg.updateHistoImage()
+                self.__updatehisto = False
+        finally:
+            self.__ploting = False
 
     @debugmethod
     @QtCore.pyqtSlot()
@@ -2345,6 +2579,7 @@ class LiveViewer(QtGui.QDialog):
                 topic, str(json.dumps(messagedata)).encode("ascii")))
         self.__updatehisto = True
         self.__setSourceLabel()
+        self.setLavueState({"connected": self.__sourcewg.isConnected()})
         self._startPlotting()
 
     @debugmethod
@@ -2356,8 +2591,6 @@ class LiveViewer(QtGui.QDialog):
         for ds in self.__datasources:
             ds.disconnect()
         self.__viewFrameRate(False)
-        self.__imagename = None
-        self.__imagename = None
         if self.__settings.secstream:
             calctime = time.time()
             messagedata = {
@@ -2368,6 +2601,7 @@ class LiveViewer(QtGui.QDialog):
                 topic, str(json.dumps(messagedata)).encode("ascii")))
         self._updateSource(0, -1)
         self.__setSourceLabel()
+        self.setLavueState({"connected": self.__sourcewg.isConnected()})
         # self.__datasources[0] = None
 
     # @debugmethod
@@ -3041,6 +3275,10 @@ class LiveViewer(QtGui.QDialog):
             self.__imagewg.updateMetaData(
                 [0, 0, 1, 1],
                 rescale=False)
+        self.setLavueState({
+            "rangewindow": self.__rangewg.rangeWindow(),
+            "dsfactor": self.__rangewg.factor(),
+            "dsreduction": self.__rangewg.function()})
         self._plot()
 
     # @debugmethod
@@ -3147,6 +3385,10 @@ class LiveViewer(QtGui.QDialog):
             self.__maskvalue = float(value)
         except Exception:
             self.__maskvalue = None
+        maskhighvalue = ""
+        if self.__settings.showhighvaluemask:
+            maskhighvalue = str(value or "")
+        self.setLavueState({"maskhighvalue": maskhighvalue})
         self._plot()
 
     @debugmethod
@@ -3157,6 +3399,10 @@ class LiveViewer(QtGui.QDialog):
         self.__applymask = state
         if self.__applymask and self.__maskimage is None:
             self.__maskwg.noImage()
+        maskfile = ""
+        if self.__maskwg.isMaskApplied():
+            maskfile = str(self.__settings.maskimagename)
+        self.setLavueState({"maskfile": maskfile})
         self._plot()
 
     @debugmethod
@@ -3227,6 +3473,10 @@ class LiveViewer(QtGui.QDialog):
         else:
             self.__bkgsubwg.checkBkgSubtraction(state)
         self.__imagewg.setDoBkgSubtraction(state)
+        bkgfile = ""
+        if self.__bkgsubwg.isBkgSubApplied():
+            bkgfile = str(self.__settings.bkgimagename)
+        self.setLavueState({"bkgfile": bkgfile})
         self._plot()
 
     @debugmethod
@@ -3311,6 +3561,7 @@ class LiveViewer(QtGui.QDialog):
                         "%s" % value)
                     # print(str(e))
 
+            self.setLavueState({"filters": bool(self.__filterstate)})
             if self.__displayimage is not None:
                 self._plot()
 
@@ -3331,6 +3582,7 @@ class LiveViewer(QtGui.QDialog):
         else:
             self.__trafowg.setKeepCoordsLabel(
                 self.__settings.keepcoords, False)
+        self.setLavueState({"transformation": trafoname})
         self._plot()
 
     @debugmethod
@@ -3355,6 +3607,19 @@ class LiveViewer(QtGui.QDialog):
         """
         self.__levelswg.setrgb(status)
         self.__imagewg.setrgb(status)
+        self._plot()
+
+    @debugmethod
+    @QtCore.pyqtSlot(bool)
+    def _setRGBState(self, status=True):
+        """ sets RGB on/off
+
+        :param status: True for on and False for off
+        :type status: :obj:`bool`
+        """
+        self.__levelswg.setrgb(status)
+        self.__imagewg.setrgb(status)
+        self.setLavueState({"channel": self.__channelwg.channelLabel()})
         self._plot()
 
     @debugmethod

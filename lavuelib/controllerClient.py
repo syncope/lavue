@@ -93,10 +93,20 @@ class ControllerClient(QtCore.QObject):
         :type device: :obj:`str`
         """
         QtCore.QObject.__init__(self)
-        #: :class:`PyTango.DeviceProxy` controller device proxy
+        #: (:class:`PyTango.DeviceProxy`) controller device proxy
         self.__dp = PyTango.DeviceProxy(device)
-        #: subscribe flag
+        #: (:obj:`str`) tango device name
+        self.__device = device
+        #: (:obj:`bool`) subscribe flag
         self.__subscribed = False
+
+    def device(self):
+        """ provides tango device name
+
+        :returns: tango device name
+        :rtype: :obj:`str`
+        """
+        return self.__device
 
     def subscribe(self):
         """ subscribe callback methods

@@ -46,6 +46,8 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
     """
     Set circular memory buffer for images
     """
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) state updated signal
+    bufferSizeChanged = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None):
         """ constructor
@@ -84,6 +86,17 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         self.__ui.sizeSpinBox.valueChanged.connect(self._onBufferSizeChanged)
         self.__ui.onoffCheckBox.stateChanged.connect(self.onOff)
         self.__ui.resetPushButton.clicked.connect(self._onBufferSizeChanged)
+
+    def bufferSize(self):
+        """ provides buffer size
+
+        :returns: buffer size if buffer is on
+        :rtype: int
+        """
+        size = 0
+        if self.__isOn:
+            size = self.__maxindex
+        return size
 
     def setBufferSize(self, buffersize):
         """ sets buffer size
@@ -128,6 +141,7 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
                     self.__maxindex = self.__maxbuffersize
                     self.__ui.sizeSpinBox.setValue(self.__maxbuffersize)
         self.initialize()
+        self.bufferSizeChanged.emit(size or 0)
 
     @QtCore.pyqtSlot(int)
     def onOff(self, status):
@@ -143,6 +157,7 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         self.__ui.sizeSpinBox.setEnabled(status)
         self.__ui.resetPushButton.setEnabled(status)
         self.__ui.sizeSpinBox.setStyleSheet("")
+        self.bufferSizeChanged.emit((self.__maxindex or 0) if status else 0)
 
     def initialize(self):
         """ initialize the filter

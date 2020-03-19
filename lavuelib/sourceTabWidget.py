@@ -167,6 +167,14 @@ class SourceForm(QtGui.QWidget):
         """
         return self.__currentSource.name
 
+    def currentDataSourceAlias(self):
+        """ current data source name
+
+        :returns: current datasource class name alias
+        :rtype: :obj:`str`
+        """
+        return self.__currentSource.alias
+
     def gridLayout(self):
         """ provide grid layout
 
@@ -732,6 +740,15 @@ class SourceTabWidget(QtGui.QTabWidget):
         :rtype: :obj:`str`
         """
         return [st.currentDataSourceName()
+                for st in self.__sourcetabs][:self.count()]
+
+    def currentDataSourceAlias(self):
+        """ current data source name alias
+
+        :returns: current datasource class name alias
+        :rtype: :obj:`str`
+        """
+        return [st.currentDataSourceAlias()
                 for st in self.__sourcetabs][:self.count()]
 
     def __addSourceWidgets(self, wg=None):
