@@ -1035,7 +1035,7 @@ class SourceTabWidget(QtGui.QTabWidget):
         :return: configuration string
         :rtype configuration: :obj:`str`
         """
-        return [st.configuration()
+        return [st.configuration() or ""
                 for st in self.__sourcetabs][:self.count()]
 
     def setTranslation(self, trans, sid):
