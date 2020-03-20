@@ -442,6 +442,7 @@ class LiveViewer(QtGui.QDialog):
              for twn in json.loads(str(self.__settings.imagesources))
              if twn in self.__srcaliasnames.keys()]
         )
+
         #: (:class:`lavuelib.rangeWindowGroupBox.RangeWindowGroupBox`)
         #: memory buffer groupbox
         self.__rangewg = rangeWindowGroupBox.RangeWindowGroupBox(
@@ -2090,6 +2091,7 @@ class LiveViewer(QtGui.QDialog):
         setsrc = False
         if self.__settings.nrsources != dialog.nrsources:
             setsrc = True
+            oldsize = self.__settings.nrsources
             if self.__sourcewg.isConnected():
                 self.__sourcewg.toggleServerConnection()
                 QtCore.QCoreApplication.processEvents()
@@ -2099,7 +2101,7 @@ class LiveViewer(QtGui.QDialog):
             self.__sourcewg.updateSourceComboBox(
                 [self.__srcaliasnames[twn]
                  for twn in json.loads(str(self.__settings.imagesources))],
-                self.__sourcewg.currentDataSourceNames())
+                self.__sourcewg.currentDataSourceNames()[:oldsize])
         self.__settings.secstream = dialog.secstream
         self.__settings.storegeometry = dialog.storegeometry
         self.__settings.geometryfromsource = dialog.geometryfromsource

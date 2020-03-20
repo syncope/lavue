@@ -66,7 +66,7 @@ class SourceForm(QtGui.QWidget):
     buttonEnabled = QtCore.pyqtSignal(bool, int)
 
     @debugmethod
-    def __init__(self, parent=None, sourceid=0):
+    def __init__(self, parent=None, sourceid=0, usersourcenames=None):
         """ constructor
 
         :param parent: parent object
@@ -75,6 +75,8 @@ class SourceForm(QtGui.QWidget):
         :type expertmode: :obj:`bool`
         :param sourceid: source id
         :type sourceid: :obj:`int`
+        :param usersourcenames: user source names
+        :type  usersourcenames: :obj:`list` < :obj:`str` >
         """
         QtGui.QWidget.__init__(self, parent)
 
@@ -90,6 +92,8 @@ class SourceForm(QtGui.QWidget):
 
         #: (:obj:`list` < :obj:`str` > ) source names
         self.__sourcenames = []
+        #: (:obj:`list` < :obj:`str` > ) user source names
+        self.__usersourcenames = usersourcenames or []
         #: (:obj:`dict` < :obj:`str`,
         #:      :class:`lavuelib.sourceWidget.SourceBaseWidget` >)
         #:           source names
@@ -261,7 +265,8 @@ class SourceForm(QtGui.QWidget):
         swg = getattr(swgm, st)()
         swg.expertmode = expertmode
         self.__sourcewidgets[swg.name] = swg
-        self.__sourcenames.append(swg.name)
+        if swg.name not in self.__sourcenames:
+            self.__sourcenames.append(swg.name)
         self._ui.sourceTypeComboBox.addItem(swg.name)
         widgets = zip(swg.widgets[0::2], swg.widgets[1::2])
         for wg1, wg2 in widgets:
@@ -310,6 +315,7 @@ class SourceForm(QtGui.QWidget):
         :param index: combobox index
         :type index: :obj:`int`
         """
+        self.__usersourcenames = sourcenames
         self._ui.sourceTypeComboBox.currentIndexChanged.disconnect(
             self.onSourceChanged)
         if sourcenames and name and name not in sourcenames:
@@ -327,6 +333,8 @@ class SourceForm(QtGui.QWidget):
         if index == -1:
             index = 0
         self._ui.sourceTypeComboBox.setCurrentIndex(index)
+
+        self.onSourceChanged()
         self.updateLayout()
         self._ui.sourceTypeComboBox.currentIndexChanged.connect(
            self.onSourceChanged)
@@ -552,7 +560,13 @@ class SourceForm(QtGui.QWidget):
     def onSourceChanged(self):
         """ update current source widgets
         """
-        self.setSource(str(self._ui.sourceTypeComboBox.currentText()))
+        name = str(self._ui.sourceTypeComboBox.currentText())
+        if self.__usersourcenames:
+            us = [sr for sr in self.__usersourcenames
+                  if sr in self.__sourcenames]
+            if name not in us and us:
+                name = us[0]
+        self.setSource(name)
 
     @debugmethod
     def connectFailure(self):
@@ -666,6 +680,8 @@ class SourceTabWidget(QtGui.QTabWidget):
 
         #: (:obj:`list` < :obj:`str` > ) source names
         self.__sourcenames = []
+        #: (:obj:`list` < :obj:`str` > ) user source names
+        self.__usersourcenames = []
         # (:obj:`str`) error status
         self.__errorstatus = ""
 
@@ -812,7 +828,8 @@ class SourceTabWidget(QtGui.QTabWidget):
         for st in self.__types:
             sln = wg.addWidgets(st, self.__expertmode)
             swg = getattr(swgm, st)
-            self.__sourcenames.append(swg.name)
+            if swg.name not in self.__sourcenames:
+                self.__sourcenames.append(swg.name)
 
         wg.addCommonWidgets(sln)
         wg.buttonEnabled.connect(self.updateButton)
@@ -844,7 +861,8 @@ class SourceTabWidget(QtGui.QTabWidget):
 
                 self.addTab(self.__sourcetabs[i], str(i + 1))
             for i in range(len(self.__sourcetabs), nrsources):
-                sf = SourceForm(self, sourceid=i)
+                sf = SourceForm(self, sourceid=i,
+                                usersourcenames=self.__usersourcenames)
                 self.__addSourceWidgets(sf)
                 sf.init()
                 self.addTab(sf, str(i + 1))
@@ -883,6 +901,7 @@ class SourceTabWidget(QtGui.QTabWidget):
         :param sourcenames: source names to set
         :type names: :obj:`list` < :obj:`str` >
         """
+        self.__usersourcenames = sourcenames
         for i, st in enumerate(self.__sourcetabs):
             if names and len(names) > i:
                 st.updateSourceComboBox(sourcenames, names[i])
