@@ -1,3 +1,7 @@
+2020-03-20 Jan Kotanski <jan.kotanski@desy.de>
+	* fix issue for pyqt4
+	* tagged as 2.40.2
+
 2020-03-19 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for configuration state for py3
 	* tagged as 2.40.1

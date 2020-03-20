@@ -439,7 +439,7 @@ class LiveViewer(QtGui.QDialog):
         )
         self.__sourcewg.updateSourceComboBox(
             [self.__srcaliasnames[twn]
-             for twn in json.loads(self.__settings.imagesources)
+             for twn in json.loads(str(self.__settings.imagesources))
              if twn in self.__srcaliasnames.keys()]
         )
         #: (:class:`lavuelib.rangeWindowGroupBox.RangeWindowGroupBox`)
@@ -482,7 +482,7 @@ class LiveViewer(QtGui.QDialog):
             rgbtooltypes=self.__rgbtooltypes)
         self.__imagewg.updateToolComboBox(
             [self.__tlaliasnames[twn]
-             for twn in json.loads(self.__settings.toolwidgets)
+             for twn in json.loads(str(self.__settings.toolwidgets))
              if twn in self.__tlaliasnames.keys()]
         )
 
@@ -778,9 +778,9 @@ class LiveViewer(QtGui.QDialog):
                 "offset": self._translations(),
                 "mode": self.__umode,
                 "instance": self.__instance or "",
-                "scaling": self.__scalingwg.currentScaling(),
-                "transformation": self.__trafowg.transformation(),
-                "tool": self.__imagewg.tool(),
+                "scaling": str(self.__scalingwg.currentScaling()),
+                "transformation": str(self.__trafowg.transformation()),
+                "tool": str(self.__imagewg.tool()),
                 "levels": levels,
                 "autofactor": autofactor,
                 "gradient": self.__levelswg.gradient(),
@@ -795,7 +795,7 @@ class LiveViewer(QtGui.QDialog):
                 "analysisdevice": self.__settings.analysisdevice,
                 "rangewindow": self.__rangewg.rangeWindow(),
                 "dsfactor": self.__rangewg.factor(),
-                "dsreduction": self.__rangewg.function(),
+                "dsreduction": str(self.__rangewg.function()),
                 "filters": self.__filterstate,
                 "imagefile": (self.__settings.imagename or ""),
                 "version": str(release.__version__),
@@ -809,7 +809,7 @@ class LiveViewer(QtGui.QDialog):
         :type scalingtype: :obj:`str`
         """
         self.__levelswg.setScalingLabel(scaling)
-        self.setLavueState({"scaling": scaling})
+        self.setLavueState({"scaling": str(scaling)})
 
     @QtCore.pyqtSlot()
     def _setChannelState(self):
@@ -2024,7 +2024,7 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.imagesources = dialog.imagesources
             self.__sourcewg.updateSourceComboBox(
                 [self.__srcaliasnames[twn]
-                 for twn in json.loads(self.__settings.imagesources)],
+                 for twn in json.loads(str(self.__settings.imagesources))],
                 self.__sourcewg.currentDataSourceNames())
         if self.__settings.toolwidgets != dialog.toolwidgets:
             self.__settings.toolwidgets = dialog.toolwidgets
@@ -2096,6 +2096,10 @@ class LiveViewer(QtGui.QDialog):
                 time.sleep(1)
             self.__setNumberOfSources(dialog.nrsources)
             self.__settings.nrsources = dialog.nrsources
+            self.__sourcewg.updateSourceComboBox(
+                [self.__srcaliasnames[twn]
+                 for twn in json.loads(str(self.__settings.imagesources))],
+                self.__sourcewg.currentDataSourceNames())
         self.__settings.secstream = dialog.secstream
         self.__settings.storegeometry = dialog.storegeometry
         self.__settings.geometryfromsource = dialog.geometryfromsource
@@ -2342,7 +2346,7 @@ class LiveViewer(QtGui.QDialog):
         :param status: json list on status, i.e source type ids
         :type status: :obj:`str`
         """
-        lstatus = json.loads(status)
+        lstatus = json.loads(str(status))
         dss = self.__sourcewg.currentDataSources()
         for i, ds in enumerate(dss):
             if lstatus[i]:
@@ -2542,7 +2546,7 @@ class LiveViewer(QtGui.QDialog):
         :param status: current source status id
         :type status: :obj:`int`
         """
-        lstatus = json.loads(status)
+        lstatus = json.loads(str(status))
         status = lstatus[0]
         self.__viewFrameRate(self.__settings.showframerate)
         for i, status in enumerate(lstatus):
@@ -3278,7 +3282,7 @@ class LiveViewer(QtGui.QDialog):
         self.setLavueState({
             "rangewindow": self.__rangewg.rangeWindow(),
             "dsfactor": self.__rangewg.factor(),
-            "dsreduction": self.__rangewg.function()})
+            "dsreduction": str(self.__rangewg.function())})
         self._plot()
 
     # @debugmethod

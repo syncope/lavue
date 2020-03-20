@@ -119,14 +119,18 @@ class TableWidgetDragCheckBoxes(QtGui.QTableWidget):
         selected = []
         for ri, (name, checked) in enumerate(self.__checkboxdata):
             ridx = self.model().index(ri, 0)
-            self.__checkboxdata[ri][1] = bool(
-                self.model().data(ridx, QtCore.Qt.CheckStateRole))
-            name = str(
-                self.model().data(ridx, QtCore.Qt.DisplayRole))
+            chst = self.model().data(ridx, QtCore.Qt.CheckStateRole)
+            if hasattr(chst, "toBool"):
+                chst = chst.toBool()
+            self.__checkboxdata[ri][1] = bool(chst)
+            name = self.model().data(ridx, QtCore.Qt.DisplayRole)
+            if hasattr(name, "toString"):
+                name = name.toString()
+            name = str(name)
             self.__checkboxdata[ri][0] = self.__nameitems[name] \
                 if name in self.__nameitems else name
             if self.__checkboxdata[ri][1]:
-                selected.append(self.__checkboxdata[ri][0])
+                selected.append(str(self.__checkboxdata[ri][0]))
         if selected == available:
             selected = []
         return selected

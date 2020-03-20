@@ -493,13 +493,13 @@ class Settings(object):
             settings.value(
                 "Configuration/ImageSources", type=str)
         if qstval:
-            self.imagesources = qstval
+            self.imagesources = str(qstval)
 
         qstval = \
             settings.value(
                 "Configuration/ToolWidgets", type=str)
         if qstval:
-            self.toolwidgets = qstval
+            self.toolwidgets = str(qstval)
 
         qstval = \
             settings.value(
