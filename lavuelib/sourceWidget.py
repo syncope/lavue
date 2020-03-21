@@ -278,10 +278,14 @@ class SourceBaseWidget(QtGui.QWidget):
         attrs = sorted(atdict.keys())
         try:
             mkicon = QtGui.QIcon.fromTheme("starred")
+            if mkicon.isNull():
+                mkicon = QtGui.QIcon(":/star2.png")
         except Exception:
             mkicon = QtGui.QIcon(":/star2.png")
         try:
             umkicon = QtGui.QIcon.fromTheme("non-starred")
+            if umkicon.isNull():
+                umkicon = QtGui.QIcon(":/star1.png")
         except Exception:
             umkicon = QtGui.QIcon(":/star1.png")
         for mt in attrs:

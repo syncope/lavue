@@ -138,7 +138,7 @@ class toolBuild(build_py):
             sys.stderr.flush()
 
         if get_platform()[:3] == 'win':
-            for script in SCRIPTS:
+            for script in GUISCRIPTS:
                 shutil.copy(script, script + ".pyw")
         build_py.run(self)
 
