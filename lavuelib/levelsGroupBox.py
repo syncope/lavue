@@ -194,7 +194,6 @@ class LevelsGroupBox(QtGui.QWidget):
             self.minLevelChanged.emit(lowlim)
             self.maxLevelChanged.emit(uplim)
 
-
     def changeView(self, showhistogram=None, showlevels=None,
                    showadd=None):
         """ shows or hides the histogram widget
