@@ -498,6 +498,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                     # levels=[[0,255], [0, 255], [0, 255]],
                     autoLevels=False)
             elif (self.__autodisplaylevels
+                  and self.__displaylevels[0] is not None
+                  and self.__displaylevels[1] is not None):
+                self.__image.setImage(
+                    img, autoLevels=False,
+                    levels=self.__displaylevels,
+                    autoDownsample=self.__autodownsample)
+            elif (self.__autodisplaylevels
                   or self.__displaylevels[0] is None
                   or self.__displaylevels[1] is None):
                 self.__image.setImage(
