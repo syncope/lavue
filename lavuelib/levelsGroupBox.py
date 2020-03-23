@@ -188,6 +188,11 @@ class LevelsGroupBox(QtGui.QWidget):
                     self.__histogram.region.setRegion([lowlim, uplim])
             finally:
                 self.__connectMinMax()
+        else:
+            lowlim = self.__ui.minDoubleSpinBox.value()
+            uplim = self.__ui.maxDoubleSpinBox.value()
+            self.minLevelChanged.emit(lowlim)
+            self.maxLevelChanged.emit(uplim)
 
     def changeView(self, showhistogram=None, showlevels=None,
                    showadd=None):

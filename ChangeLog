@@ -1,3 +1,8 @@
+2020-03-23 Jan Kotanski <jan.kotanski@desy.de>
+	* fix auto levels when histogram is off
+	* fix for [un-]starred icons when fromTheme icons are not available
+	* tagged as 2.40.3
+
 2020-03-20 Jan Kotanski <jan.kotanski@desy.de>
 	* fix issue for pyqt4
 	* fixes for image source combobox and adding image sources
