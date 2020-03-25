@@ -78,13 +78,13 @@ Finally,
 
    $ apt-get update
    $ apt-get install python-lavue
-
-for python 2.7 version
+   $ apt-get install lavue-controller
 
 .. code-block:: console
 
    $ apt-get update
    $ apt-get install python3-lavue
+   $ apt-get install lavue-controller3
 
 for python 3 version. Please notice that `HiDRA
 <https://confluence.desy.de/display/hidra>`_ is not available for python 3 yet.
