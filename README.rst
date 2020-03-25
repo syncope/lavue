@@ -37,7 +37,7 @@ The ``setup.py`` script may need: ``setuptools  sphinx  numpy  pytest`` python p
 Debian packages
 """""""""""""""
 
-Debian `stretch` (and `jessie`) ot Ubuntu  `bionic` packages can be found in the HDRI repository.
+Debian `buster` and `stretch` or Ubuntu  `focal`, `eoan`, `bionic` packages can be found in the HDRI repository.
 
 To install the debian packages, add the PGP repository key
 
@@ -56,19 +56,19 @@ and
 
 .. code-block:: console
 
+   $ wget http://repos.pni-hdri.de/buster-pni-hdri.list
+
+or
+
+.. code-block:: console
+
    $ wget http://repos.pni-hdri.de/stretch-pni-hdri.list
 
 or
 
 .. code-block:: console
 
-   $ wget http://repos.pni-hdri.de/jessie-pni-hdri.list
-
-or
-
-.. code-block:: console
-
-   $ wget http://repos.pni-hdri.de/bionic-pni-hdri.list
+   $ wget http://repos.pni-hdri.de/focal-pni-hdri.list
 
 respectively.
 
