@@ -30,6 +30,7 @@ from __future__ import unicode_literals
 
 import time
 import logging
+import json
 
 from pyqtgraph import QtCore
 
@@ -98,6 +99,63 @@ class MotorWatchThread(QtCore.QThread):
             except Exception as e:
                 logger.warning(str(e))
                 # print(str(e))
+
+    def isRunning(self):
+        """ is datasource source connected
+
+        :returns: if datasource source connected
+        :rtype: :obj:`bool`
+        """
+        return self.__loop
+
+    def stop(self):
+        """ stops loop
+
+        """
+        self.__loop = False
+
+
+# subclass for threading
+class AttributeWatchThread(QtCore.QThread):
+
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) signal with attribute values
+    attrValuesSignal = QtCore.pyqtSignal(str)
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) watching finished
+    watchingFinished = QtCore.pyqtSignal()
+
+    def __init__(self, aproxies, refreshtime=None):
+        """ constructor
+
+        :param refreshtime: refresh time
+        :type refreshtime: :class:`PyTango.DeviceProxy`
+        :param aproxies: attribute proxies
+        :type aproxies: :obj:`list` <:class:`PyTango.DeviceProxy`>
+        """
+        QtCore.QThread.__init__(self)
+        #: (:obj:`bool`) execute loop flag
+        self.__loop = False
+        #: (:obj:`bool`) execute loop flag
+        self.__refreshtime = refreshtime or 3
+
+        #: (:obj:`list` <:class:`PyTango.DeviceProxy`>)  attribute proxies
+        self.__aproxies = aproxies or []
+
+    def run(self):
+        """ runner of the fetching thread
+        """
+        self.__loop = True
+        while self.__loop:
+            try:
+                attrs = []
+                for ap in self.__aproxies:
+                    ra = ap.read()
+                    attrs.append(ra.value)
+                self.attrValuesSignal.emit(str(json.dumps(attrs)))
+            except Exception as e:
+                logger.warning(str(e))
+                # print(str(e))
+            if time:
+                time.sleep(self.__refreshtime)
 
     def isRunning(self):
         """ is datasource source connected
