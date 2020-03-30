@@ -744,27 +744,33 @@ class ParametersToolWidget(ToolBaseWidget):
         while len(self.__detparams) > len(self.__widgets):
             self.__widgets.append(
                 [
-                    QtGui.QLabel(),
-                    QtGui.QLineEdit(),
-                    QtGui.QLabel()
+                    QtGui.QLabel(parent=self._mainwidget),
+                    QtGui.QLineEdit(parent=self._mainwidget),
+                    QtGui.QPushButton("Apply", parent=self._mainwidget),
+                    QtGui.QLabel(parent=self._mainwidget)
                 ]
             )
             last = len(self.__widgets)
             layout.addWidget(self.__widgets[-1][0], last, 0)
             layout.addWidget(self.__widgets[-1][1], last, 1)
             layout.addWidget(self.__widgets[-1][2], last, 2)
+            layout.addWidget(self.__widgets[-1][3], last, 3)
         while len(self.__detparams) < len(self.__widgets):
-            w1, w2, w3 = self.__widgets.pop()
+            w1, w2, w3, w4 = self.__widgets.pop()
             w1.hide()
             w2.hide()
             w3.hide()
+            w4.hide()
             layout.removeWidget(w1)
             layout.removeWidget(w2)
             layout.removeWidget(w3)
+            layout.removeWidget(w4)
         for i, pars in enumerate(self.__detparams):
             self.__widgets[i][0].setText("%s:" % pars[0])
+            self.__widgets[i][0].setToolTip("%s" % pars[1])
             self.__widgets[i][1].setText("")
-            self.__widgets[i][2].setText(str(self.__avalues[i] or ""))
+            self.__widgets[i][1].setToolTip("%s" % pars[1])
+            self.__widgets[i][3].setText(str(self.__avalues[i] or ""))
 
     def deactivate(self):
         """ activates tool widget
@@ -788,7 +794,7 @@ class ParametersToolWidget(ToolBaseWidget):
         # print([type(vl).__name__ for vl in vls])
         for i, pars in enumerate(self.__widgets):
             if i < len(vls):
-                self.__widgets[i][2].setText(str(vls[i]))
+                self.__widgets[i][3].setText(str(vls[i]))
 
     @QtCore.pyqtSlot()
     def _setParameters(self):
