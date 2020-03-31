@@ -31,6 +31,7 @@ from .qtuic import uic
 import os
 import re
 import math
+import sys
 import numpy as np
 import scipy.interpolate
 import pyqtgraph as _pg
@@ -52,6 +53,10 @@ try:
 except ImportError:
     #: (:obj:`bool`) PyTango imported
     PYTANGO = False
+
+if sys.version_info > (3,):
+    long = int
+
 
 _intensityformclass, _intensitybaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -113,6 +118,31 @@ __all__ = [
 ]
 
 logger = logging.getLogger("lavue")
+
+
+class Converters(object):
+
+    """ set of converters
+    """
+
+    @classmethod
+    def toBool(cls, value):
+        """ converts to bool
+
+        :param value: variable to convert
+        :type value: any
+        :returns: result in bool type
+        :rtype: :obj:`bool`
+        """
+        if type(value).__name__ == 'str' or type(value).__name__ == 'unicode':
+            lvalue = value.strip().lower()
+            if lvalue == 'false' or lvalue == '0':
+                return False
+            else:
+                return True
+        elif value:
+            return True
+        return False
 
 
 class ToolParameters(object):
@@ -659,6 +689,15 @@ class ParametersToolWidget(ToolBaseWidget):
     #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
     requires = ("PYTANGO",)
 
+    #: (:obj:`dict` <:obj:`str` , :obj:`type` or :obj:`types.MethodType` >) \
+    #:      map of type : converting function
+    convert = {"float16": float, "float32": float, "float64": float,
+               "float": float, "int64": long, "int32": int,
+               "int16": int, "int8": int, "int": int, "uint64": long,
+               "uint32": long, "uint16": int,
+               "uint8": int, "uint": int, "string": str, "str": str,
+               "bool": Converters.toBool}
+
     def __init__(self, parent=None):
         """ constructor
 
@@ -701,6 +740,32 @@ class ParametersToolWidget(ToolBaseWidget):
             [self.__ui.setupPushButton.clicked, self._setParameters],
             [self._mainwidget.mouseImagePositionChanged, self._message],
          ]
+
+        #: (:class:`pyqtgraph.QtCore.QSignalMapper`) apply mapper
+        self.__applymapper = QtCore.QSignalMapper(self)
+        self.__applymapper.mapped.connect(self._applypars)
+
+    def _applypars(self, wid):
+        """ apply the parameter with the given widget id
+
+        :param wid: widget id
+        :type wid: :obj:`int`
+        """
+        txt = str(self.__widgets[wid][1].text() or "")
+        tp = self.__detparams[wid][2]
+        ap = self.__aproxies[wid]
+        try:
+            if tp and tp in self.convert.keys():
+                vl = self.convert[tp](txt)
+            else:
+                vl = txt
+        except Exception as e:
+            logger.warning(str(e))
+            vl = txt
+        try:
+            ap.write(vl)
+        except Exception as e:
+            logger.warning(str(e))
 
     def activate(self):
         """ activates tool widget
@@ -755,12 +820,17 @@ class ParametersToolWidget(ToolBaseWidget):
             layout.addWidget(self.__widgets[-1][1], last, 1)
             layout.addWidget(self.__widgets[-1][2], last, 2)
             layout.addWidget(self.__widgets[-1][3], last, 3)
+            self.__widgets[-1][2].clicked.connect(
+                self.__applymapper.map)
+            self.__applymapper.setMapping(self.__widgets[-1][2], last - 1)
+
         while len(self.__detparams) < len(self.__widgets):
             w1, w2, w3, w4 = self.__widgets.pop()
             w1.hide()
             w2.hide()
             w3.hide()
             w4.hide()
+            self.__applymapper.removeMappings(w3)
             layout.removeWidget(w1)
             layout.removeWidget(w2)
             layout.removeWidget(w3)
