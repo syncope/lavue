@@ -812,10 +812,14 @@ class ParametersToolWidget(ToolBaseWidget):
                     QtGui.QLabel(parent=self._mainwidget),
                     QtGui.QLineEdit(parent=self._mainwidget),
                     QtGui.QPushButton("Apply", parent=self._mainwidget),
-                    QtGui.QLabel(parent=self._mainwidget)
+                    QtGui.QLineEdit(parent=self._mainwidget)
                 ]
             )
             last = len(self.__widgets)
+            self.__widgets[-1][3].setReadOnly(False)
+            self.__widgets[-1][3].setStyleSheet(
+                "color: black; background-color: #90EE90;")
+
             layout.addWidget(self.__widgets[-1][0], last, 0)
             layout.addWidget(self.__widgets[-1][1], last, 1)
             layout.addWidget(self.__widgets[-1][2], last, 2)
@@ -823,7 +827,7 @@ class ParametersToolWidget(ToolBaseWidget):
             self.__widgets[-1][2].clicked.connect(
                 self.__applymapper.map)
             self.__applymapper.setMapping(self.__widgets[-1][2], last - 1)
-
+            self.__widgets[-1][3].setMaximumWidth(200)
         while len(self.__detparams) < len(self.__widgets):
             w1, w2, w3, w4 = self.__widgets.pop()
             w1.hide()
@@ -840,7 +844,9 @@ class ParametersToolWidget(ToolBaseWidget):
             self.__widgets[i][0].setToolTip("%s" % pars[1])
             self.__widgets[i][1].setText("")
             self.__widgets[i][1].setToolTip("%s" % pars[1])
-            self.__widgets[i][3].setText(str(self.__avalues[i] or ""))
+            vl = str(self.__avalues[i] or "")
+            self.__widgets[i][3].setToolTip(vl)
+            self.__widgets[i][3].setText(vl)
 
     def deactivate(self):
         """ activates tool widget
@@ -864,7 +870,9 @@ class ParametersToolWidget(ToolBaseWidget):
         # print([type(vl).__name__ for vl in vls])
         for i, pars in enumerate(self.__widgets):
             if i < len(vls):
-                self.__widgets[i][3].setText(str(vls[i]))
+                vl = str(vls[i])
+                self.__widgets[i][3].setToolTip(vl)
+                self.__widgets[i][3].setText(vl)
 
     @QtCore.pyqtSlot()
     def _setParameters(self):
