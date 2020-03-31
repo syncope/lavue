@@ -134,6 +134,9 @@ class Settings(object):
         #: (:obj:`str`) JSON dictionary with {label: tango attribute}
         #  for Tango Attribute source
         self.tangoattrs = '{}'
+        #: (:obj:`str`) JSON dictionary with {label: tango detector attribute}
+        #  for Tango Attribute source
+        self.tangodetattrs = '{}'
         #: (:obj:`str`) JSON dictionary with {label: tina properties}
         #  for Tine Property source
         self.tineprops = '{}'
@@ -538,6 +541,11 @@ class Settings(object):
             self.tangoattrs = qstval
 
         qstval = str(
+            settings.value("Configuration/TangoDetectorAttributes", type=str))
+        if qstval:
+            self.tangodetattrs = qstval
+
+        qstval = str(
             settings.value("Configuration/TineProperties", type=str))
         if qstval:
             self.tineprops = qstval
@@ -792,6 +800,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/TangoAttributes",
             self.tangoattrs)
+        settings.setValue(
+            "Configuration/TangoDetectorAttributes",
+            self.tangodetattrs)
         settings.setValue(
             "Configuration/TineProperties",
             self.tineprops)

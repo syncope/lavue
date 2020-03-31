@@ -537,7 +537,7 @@ class ImageWidget(QtGui.QWidget):
                 except Exception as e:
                     # print(str(e))
                     logger.warning(str(e))
-                self.__currenttool.disactivate()
+                self.__currenttool.deactivate()
 
     def updateMetaData(self, axisscales=None, axislabels=None,
                        rescale=False):

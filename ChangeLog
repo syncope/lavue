@@ -1,4 +1,8 @@
 2020-03-23 Jan Kotanski <jan.kotanski@desy.de>
+	* add Parameters tool
+	* tagged as 2.41.0
+
+2020-03-23 Jan Kotanski <jan.kotanski@desy.de>
 	* fix auto levels when histogram is off
 	* fix for [un-]starred icons when fromTheme icons are not available
 	* tagged as 2.40.3

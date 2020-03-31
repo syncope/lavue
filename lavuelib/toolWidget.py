@@ -31,10 +31,12 @@ from .qtuic import uic
 import os
 import re
 import math
+import sys
 import numpy as np
 import scipy.interpolate
 import pyqtgraph as _pg
 import logging
+import json
 from pyqtgraph import QtCore, QtGui
 
 from . import geometryDialog
@@ -42,6 +44,19 @@ from . import rangeDialog
 from . import takeMotorsDialog
 from . import intervalsDialog
 from . import motorWatchThread
+from . import edDictDialog
+
+try:
+    import PyTango
+    #: (:obj:`bool`) PyTango imported
+    PYTANGO = True
+except ImportError:
+    #: (:obj:`bool`) PyTango imported
+    PYTANGO = False
+
+if sys.version_info > (3,):
+    long = int
+
 
 _intensityformclass, _intensitybaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -79,6 +94,10 @@ _projectionformclass, _projectionbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "ProjectionToolWidget.ui"))
 
+_parametersformclass, _parametersbaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "ParametersToolWidget.ui"))
+
 _qroiprojformclass, _qroiprojbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "QROIProjToolWidget.ui"))
@@ -93,11 +112,37 @@ __all__ = [
     'OneDToolWidget',
     'ProjectionToolWidget',
     'MaximaToolWidget',
+    'ParametersToolWidget',
     'QROIProjToolWidget',
     'twproperties',
 ]
 
 logger = logging.getLogger("lavue")
+
+
+class Converters(object):
+
+    """ set of converters
+    """
+
+    @classmethod
+    def toBool(cls, value):
+        """ converts to bool
+
+        :param value: variable to convert
+        :type value: any
+        :returns: result in bool type
+        :rtype: :obj:`bool`
+        """
+        if type(value).__name__ == 'str' or type(value).__name__ == 'unicode':
+            lvalue = value.strip().lower()
+            if lvalue == 'false' or lvalue == '0':
+                return False
+            else:
+                return True
+        elif value:
+            return True
+        return False
 
 
 class ToolParameters(object):
@@ -175,8 +220,8 @@ class ToolBaseWidget(QtGui.QWidget):
         """ activates tool widget
         """
 
-    def disactivate(self):
-        """ disactivates tool widget
+    def deactivate(self):
+        """ deactivates tool widget
         """
 
     def afterplot(self):
@@ -633,6 +678,262 @@ class MotorsToolWidget(ToolBaseWidget):
         self._mainwidget.setDisplayedText(message)
 
 
+class ParametersToolWidget(ToolBaseWidget):
+    """ motors tool widget
+    """
+
+    #: (:obj:`str`) tool name
+    name = "Parameters"
+    #: (:obj:`str`) tool name alias
+    alias = "parameters"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("PYTANGO",)
+
+    #: (:obj:`dict` <:obj:`str` , :obj:`type` or :obj:`types.MethodType` >) \
+    #:      map of type : converting function
+    convert = {"float16": float, "float32": float, "float64": float,
+               "float": float, "int64": long, "int32": int,
+               "int16": int, "int8": int, "int": int, "uint64": long,
+               "uint32": long, "uint16": int,
+               "uint8": int, "uint": int, "string": str, "str": str,
+               "bool": Converters.toBool}
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
+        """
+        ToolBaseWidget.__init__(self, parent)
+
+        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        self.__settings = self._mainwidget.settings()
+
+        # #: (:obj:`list` <str, str, str>)
+        #        detector parameters (label, devicename, type)
+        self.__detparams = []
+        #: (:obj:`list` <:class:`PyTango.DeviceProxy`>)  attribute proxies
+        self.__aproxies = []
+        #: (:obj:`list` <:list:`any`>)  attribute values
+        self.__avalues = []
+        #: (:class:`lavuelib.motorWatchThread.attributeWatchThread`)
+        #               attribute watcher
+        self.__attrWatcher = None
+        #: (:obj:`bool`) is watching
+        self.__watching = False
+        #: (:obj:`list` <:obj:`list` <:class:`pyqtgraph.QtCore.QObject`> >)
+        # widgets
+        self.__widgets = []
+
+        #: (:class:`Ui_ParametersToolWidget')
+        #:        ui_toolwidget object from qtdesigner
+        self.__ui = _parametersformclass()
+        self.__ui.setupUi(self)
+
+        self.parameters.infolineedit = ""
+        self.parameters.infotips = \
+            "coordinate info display for the mouse pointer"
+
+        #: (:obj:`list` < [:class:`pyqtgraph.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: list of [signal, slot] object to connect
+        self.signal2slot = [
+            [self.__ui.setupPushButton.clicked, self._setParameters],
+            [self._mainwidget.mouseImagePositionChanged, self._message],
+         ]
+
+        #: (:class:`pyqtgraph.QtCore.QSignalMapper`) apply mapper
+        self.__applymapper = QtCore.QSignalMapper(self)
+        self.__applymapper.mapped.connect(self._applypars)
+
+    def _applypars(self, wid):
+        """ apply the parameter with the given widget id
+
+        :param wid: widget id
+        :type wid: :obj:`int`
+        """
+        txt = str(self.__widgets[wid][1].text() or "")
+        tp = self.__detparams[wid][2]
+        ap = self.__aproxies[wid]
+        try:
+            if tp and tp in self.convert.keys():
+                vl = self.convert[tp](txt)
+            else:
+                vl = txt
+        except Exception as e:
+            logger.warning(str(e))
+            vl = txt
+        try:
+            ap.write(vl)
+        except Exception as e:
+            logger.warning(str(e))
+
+    def activate(self):
+        """ activates tool widget
+        """
+        record = json.loads(str(self.__settings.tangodetattrs or "{}").strip())
+        if not isinstance(record, dict):
+            record = {}
+        self.__aproxies = []
+        self.__detparams = []
+        self.__avalues = []
+        for lb in sorted(record.keys()):
+            try:
+                dv = record[lb]
+                ap = PyTango.AttributeProxy(dv)
+                try:
+                    vl = ap.read().value
+                    tp = type(vl).__name__
+                except Exception as e:
+                    logger.warning(str(e))
+                    vl = None
+                    tp = ""
+            except Exception as e:
+                logger.warning(str(e))
+                dv = None
+            if dv is not None:
+                self.__aproxies.append(ap)
+                self.__detparams.append([lb, dv, tp])
+                self.__avalues.append(vl)
+        self.__updateWidgets()
+        self.__attrWatcher = motorWatchThread.AttributeWatchThread(
+            self.__aproxies, 3)
+        self.__attrWatcher.attrValuesSignal.connect(self._showValues)
+        # self.__attrWatcher.watchingFinished.connect(self._finished)
+        self.__attrWatcher.start()
+
+    def __updateWidgets(self):
+        """ add widgets
+        """
+        layout = self.__ui.parGridLayout
+
+        while len(self.__detparams) > len(self.__widgets):
+            self.__widgets.append(
+                [
+                    QtGui.QLabel(parent=self._mainwidget),
+                    QtGui.QLineEdit(parent=self._mainwidget),
+                    QtGui.QPushButton("Apply", parent=self._mainwidget),
+                    QtGui.QLineEdit(parent=self._mainwidget)
+                ]
+            )
+            last = len(self.__widgets)
+            self.__widgets[-1][3].setReadOnly(False)
+            self.__widgets[-1][3].setStyleSheet(
+                "color: black; background-color: #90EE90;")
+
+            layout.addWidget(self.__widgets[-1][0], last, 0)
+            layout.addWidget(self.__widgets[-1][1], last, 1)
+            layout.addWidget(self.__widgets[-1][2], last, 2)
+            layout.addWidget(self.__widgets[-1][3], last, 3)
+            self.__widgets[-1][2].clicked.connect(
+                self.__applymapper.map)
+            self.__applymapper.setMapping(self.__widgets[-1][2], last - 1)
+            self.__widgets[-1][3].setMaximumWidth(200)
+        while len(self.__detparams) < len(self.__widgets):
+            w1, w2, w3, w4 = self.__widgets.pop()
+            w1.hide()
+            w2.hide()
+            w3.hide()
+            w4.hide()
+            self.__applymapper.removeMappings(w3)
+            layout.removeWidget(w1)
+            layout.removeWidget(w2)
+            layout.removeWidget(w3)
+            layout.removeWidget(w4)
+        for i, pars in enumerate(self.__detparams):
+            self.__widgets[i][0].setText("%s:" % pars[0])
+            self.__widgets[i][0].setToolTip("%s" % pars[1])
+            self.__widgets[i][1].setText("")
+            self.__widgets[i][1].setToolTip("%s" % pars[1])
+            vl = str(self.__avalues[i] or "")
+            self.__widgets[i][3].setToolTip(vl)
+            self.__widgets[i][3].setText(vl)
+
+    def deactivate(self):
+        """ activates tool widget
+        """
+        if self.__attrWatcher:
+            self.__attrWatcher.attrValuesSignal.disconnect(self._showValues)
+            # self.__attrWatcher.watchingFinished.disconnect(self._finished)
+            self.__attrWatcher.stop()
+            self.__attrWatcher.wait()
+            self.__attrWatcher = None
+        self.__aproxies = []
+        self.__detparams = []
+        self.__avalues = []
+
+    @QtCore.pyqtSlot(str)
+    def _showValues(self, values):
+        """ show values
+        """
+        vls = json.loads(values)
+        # print(vls)
+        # print([type(vl).__name__ for vl in vls])
+        for i, pars in enumerate(self.__widgets):
+            if i < len(vls):
+                vl = str(vls[i])
+                self.__widgets[i][3].setToolTip(vl)
+                self.__widgets[i][3].setText(vl)
+
+    @QtCore.pyqtSlot()
+    def _setParameters(self):
+        """ launches parameters widget
+
+        :returns: apply status
+        :rtype: :obj:`bool`
+        """
+        record = json.loads(str(self.__settings.tangodetattrs or "{}").strip())
+        if not isinstance(record, dict):
+            record = {}
+        dform = edDictDialog.EdDictDialog(self)
+        dform.record = record
+        dform.title = "Tango Detector Attributes"
+        dform.createGUI()
+        dform.exec_()
+        if dform.dirty:
+            for key in list(record.keys()):
+                if not str(key).strip():
+                    record.pop(key)
+            if self.__settings.tangodetattrs != str(json.dumps(record)):
+                self.__settings.tangodetattrs = str(json.dumps(record))
+                print(self.__settings.tangodetattrs)
+                self.__updateParams()
+
+    def __updateParams(self):
+        """ update parameters
+        """
+        self.deactivate()
+        self.activate()
+
+    @QtCore.pyqtSlot()
+    def _message(self):
+        """ provides intensity message
+        """
+        _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
+        ilabel = self._mainwidget.scalingLabel()
+        txdata, tydata = self._mainwidget.scaledxy(x, y)
+        xunits, yunits = self._mainwidget.axesunits()
+        if txdata is not None:
+            message = "x = %f%s, y = %f%s, %s = %.2f" % (
+                txdata,
+                (" %s" % xunits) if xunits else "",
+                tydata,
+                (" %s" % yunits) if yunits else "",
+                ilabel,
+                intensity
+            )
+        else:
+            message = "x = %f%s, y = %f%s, %s = %.2f" % (
+                x,
+                (" %s" % xunits) if xunits else "",
+                y,
+                (" %s" % yunits) if yunits else "",
+                ilabel,
+                intensity)
+        self._mainwidget.setDisplayedText(message)
+
+
 class MeshToolWidget(ToolBaseWidget):
     """ mesh tool widget
     """
@@ -712,8 +1013,8 @@ class MeshToolWidget(ToolBaseWidget):
         self._mainwidget.changeMeshRegion()
         # self._mainwidget.updateROIs(1)
 
-    def disactivate(self):
-        """ disactivates tool widget
+    def deactivate(self):
+        """ deactivates tool widget
         """
         self._mainwidget.meshCoordsChanged.emit()
 
@@ -1051,8 +1352,8 @@ class ROIToolWidget(ToolBaseWidget):
         completer = QtGui.QCompleter(hints, self)
         self.__ui.labelROILineEdit.setCompleter(completer)
 
-    def disactivate(self):
-        """ disactivates tool widget
+    def deactivate(self):
+        """ deactivates tool widget
         """
         self._mainwidget.roiCoordsChanged.emit()
 
@@ -1305,7 +1606,7 @@ class LineCutToolWidget(ToolBaseWidget):
         self._plotCuts()
         self._mainwidget.bottomplotShowMenu(True, True)
 
-    def disactivate(self):
+    def deactivate(self):
         """ activates tool widget
         """
         self._mainwidget.bottomplotShowMenu()
@@ -1662,7 +1963,7 @@ class ProjectionToolWidget(ToolBaseWidget):
         self._updateSlices()
         self._plotCurves()
 
-    def disactivate(self):
+    def deactivate(self):
         """ activates tool widget
         """
         if self.__bottomplot is not None:
@@ -1869,7 +2170,7 @@ class OneDToolWidget(ToolBaseWidget):
         self.__ui.sizeLineEdit.setText(str(self.__buffersize))
         self._updateRows()
 
-    def disactivate(self):
+    def deactivate(self):
         """ activates tool widget
         """
         for cr in self.__curves:
@@ -2184,8 +2485,8 @@ class AngleQToolWidget(ToolBaseWidget):
         self._mainwidget.updateCenter(
             self.__settings.centerx, self.__settings.centery)
 
-    def disactivate(self):
-        """ disactivates tool widget
+    def deactivate(self):
+        """ deactivates tool widget
         """
         self._setPlotIndex(0)
 
@@ -2835,8 +3136,8 @@ class MaximaToolWidget(ToolBaseWidget):
         self._mainwidget.updateCenter(
             self.__settings.centerx, self.__settings.centery)
 
-    def disactivate(self):
-        """ disactivates tool widget
+    def deactivate(self):
+        """ deactivates tool widget
         """
 
     def beforeplot(self, array, rawarray):
@@ -3240,8 +3541,8 @@ class QROIProjToolWidget(ToolBaseWidget):
         self._updateSlices()
         self._plotCurves()
 
-    def disactivate(self):
-        """ disactivates tool widget
+    def deactivate(self):
+        """ deactivates tool widget
         """
         self._mainwidget.roiCoordsChanged.emit()
 
