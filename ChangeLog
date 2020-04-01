@@ -1,5 +1,7 @@
 2020-04-01 Jan Kotanski <jan.kotanski@desy.de>
 	* add polling interval for Parameters tool to the configuration
+	* add support for non-scalar parameters
+	* change layout of Parameters tool
 	* tagged as 2.41.1
 
 2020-03-31 Jan Kotanski <jan.kotanski@desy.de>

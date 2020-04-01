@@ -38,6 +38,7 @@ import pyqtgraph as _pg
 import logging
 import json
 from pyqtgraph import QtCore, QtGui
+from enum import Enum
 
 from . import geometryDialog
 from . import rangeDialog
@@ -678,10 +679,18 @@ class MotorsToolWidget(ToolBaseWidget):
         self._mainwidget.setDisplayedText(message)
 
 
+class WD(Enum):
+    """ Enum with Parameter Widget positions
+    """
+    label = 0
+    read = 1
+    write = 2
+    button = 3
+
+
 class ParametersToolWidget(ToolBaseWidget):
     """ motors tool widget
     """
-
     #: (:obj:`str`) tool name
     name = "Parameters"
     #: (:obj:`str`) tool name alias
@@ -751,17 +760,37 @@ class ParametersToolWidget(ToolBaseWidget):
         :param wid: widget id
         :type wid: :obj:`int`
         """
-        txt = str(self.__widgets[wid][1].text() or "")
+        txt = str(self.__widgets[wid][WD.write.value].text() or "")
         tp = self.__detparams[wid][2]
+        frm = self.__detparams[wid][4]
         ap = self.__aproxies[wid]
-        try:
-            if tp and tp in self.convert.keys():
-                vl = self.convert[tp](txt)
-            else:
+        if frm == "SPECTRUM":
+            try:
+                vl = json.loads(txt)
+            except Exception as e:
+                try:
+                    vl = txt.split()
+                    if tp and tp in self.convert.keys():
+                        vl = [self.convert[tp](v) for v in vl]
+                except Exception as e2:
+                    logger.warning(str(e))
+                    logger.warning(str(e2))
+                    vl = txt
+        elif frm == "IMAGE":
+            try:
+                vl = json.loads(txt)
+            except Exception as e:
+                logger.warning(str(e))
                 vl = txt
-        except Exception as e:
-            logger.warning(str(e))
-            vl = txt
+        else:
+            try:
+                if tp and tp in self.convert.keys():
+                    vl = self.convert[tp](txt)
+                else:
+                    vl = txt
+            except Exception as e:
+                logger.warning(str(e))
+                vl = txt
         try:
             ap.write(vl)
         except Exception as e:
@@ -780,9 +809,16 @@ class ParametersToolWidget(ToolBaseWidget):
             try:
                 dv = record[lb]
                 ap = PyTango.AttributeProxy(dv)
+                unit = ""
+                frm = ""
                 try:
+                    cap = ap.get_config()
+                    unit = cap.unit or ""
                     vl = ap.read().value
                     tp = type(vl).__name__
+                    if tp == "ndarray":
+                        tp = str(vl.dtype)
+                    frm = str(cap.data_format)
                 except Exception as e:
                     logger.warning(str(e))
                     vl = None
@@ -792,13 +828,12 @@ class ParametersToolWidget(ToolBaseWidget):
                 dv = None
             if dv is not None:
                 self.__aproxies.append(ap)
-                self.__detparams.append([lb, dv, tp])
+                self.__detparams.append([lb, dv, tp, unit, frm])
                 self.__avalues.append(vl)
         self.__updateWidgets()
         self.__attrWatcher = motorWatchThread.AttributeWatchThread(
             self.__aproxies, self.__settings.toolpollinginterval)
         self.__attrWatcher.attrValuesSignal.connect(self._showValues)
-        # self.__attrWatcher.watchingFinished.connect(self._finished)
         self.__attrWatcher.start()
 
     def __updateWidgets(self):
@@ -811,42 +846,44 @@ class ParametersToolWidget(ToolBaseWidget):
                 [
                     QtGui.QLabel(parent=self._mainwidget),
                     QtGui.QLineEdit(parent=self._mainwidget),
+                    QtGui.QLineEdit(parent=self._mainwidget),
                     QtGui.QPushButton("Apply", parent=self._mainwidget),
-                    QtGui.QLineEdit(parent=self._mainwidget)
                 ]
             )
             last = len(self.__widgets)
-            self.__widgets[-1][3].setReadOnly(False)
-            self.__widgets[-1][3].setStyleSheet(
+            self.__widgets[-1][WD.read.value].setReadOnly(True)
+            self.__widgets[-1][WD.read.value].setStyleSheet(
                 "color: black; background-color: #90EE90;")
-
-            layout.addWidget(self.__widgets[-1][0], last, 0)
-            layout.addWidget(self.__widgets[-1][1], last, 1)
-            layout.addWidget(self.__widgets[-1][2], last, 2)
-            layout.addWidget(self.__widgets[-1][3], last, 3)
-            self.__widgets[-1][2].clicked.connect(
+            self.__widgets[-1][WD.read.value].setAlignment(
+                QtCore.Qt.AlignCenter)
+            self.__widgets[-1][WD.write.value].setAlignment(
+                QtCore.Qt.AlignRight)
+            for i, w in enumerate(self.__widgets[-1]):
+                layout.addWidget(w, last, i)
+            self.__widgets[-1][WD.button.value].clicked.connect(
                 self.__applymapper.map)
-            self.__applymapper.setMapping(self.__widgets[-1][2], last - 1)
-            self.__widgets[-1][3].setMaximumWidth(200)
+            self.__applymapper.setMapping(
+                self.__widgets[-1][WD.button.value], last - 1)
+            # self.__widgets[-1][WD.read.value].setMaximumWidth(200)
         while len(self.__detparams) < len(self.__widgets):
-            w1, w2, w3, w4 = self.__widgets.pop()
-            w1.hide()
-            w2.hide()
-            w3.hide()
-            w4.hide()
-            self.__applymapper.removeMappings(w3)
-            layout.removeWidget(w1)
-            layout.removeWidget(w2)
-            layout.removeWidget(w3)
-            layout.removeWidget(w4)
+            wds = self.__widgets.pop()
+            self.__applymapper.removeMappings(wds[WD.button.value])
+            for w in wds:
+                w.hide()
+                layout.removeWidget(w)
         for i, pars in enumerate(self.__detparams):
-            self.__widgets[i][0].setText("%s:" % pars[0])
-            self.__widgets[i][0].setToolTip("%s" % pars[1])
-            self.__widgets[i][1].setText("")
-            self.__widgets[i][1].setToolTip("%s" % pars[1])
-            vl = str(self.__avalues[i] or "")
-            self.__widgets[i][3].setToolTip(vl)
-            self.__widgets[i][3].setText(vl)
+            self.__widgets[i][WD.label.value].setText("%s:" % pars[0])
+            self.__widgets[i][WD.label.value].setToolTip("%s" % pars[1])
+            self.__widgets[i][WD.write.value].setText("")
+            self.__widgets[i][WD.write.value].setToolTip("%s" % pars[1])
+            self.__widgets[i][WD.read.value].setToolTip("%s" % pars[1])
+            if self.__avalues[i] is None:
+                vl = ""
+            else:
+                vl = str(self.__avalues[i])
+            if pars[3]:
+                vl = "%s %s" % (vl, pars[3])
+            self.__widgets[i][WD.read.value].setText(vl)
 
     def deactivate(self):
         """ activates tool widget
@@ -871,8 +908,9 @@ class ParametersToolWidget(ToolBaseWidget):
         for i, pars in enumerate(self.__widgets):
             if i < len(vls):
                 vl = str(vls[i])
-                self.__widgets[i][3].setToolTip(vl)
-                self.__widgets[i][3].setText(vl)
+                if self.__detparams[i][3]:
+                    vl = "%s %s" % (vl, self.__detparams[i][3])
+                self.__widgets[i][WD.read.value].setText(vl)
 
     @QtCore.pyqtSlot()
     def _setParameters(self):
@@ -895,7 +933,6 @@ class ParametersToolWidget(ToolBaseWidget):
                     record.pop(key)
             if self.__settings.tangodetattrs != str(json.dumps(record)):
                 self.__settings.tangodetattrs = str(json.dumps(record))
-                print(self.__settings.tangodetattrs)
                 self.__updateParams()
 
     def __updateParams(self):
