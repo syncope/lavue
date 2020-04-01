@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Mar 19, 2020" "2.40" "lavuelib"
+.TH "LAVUELIB" "1" "Mar 31, 2020" "2.41" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -62,7 +62,7 @@ $ python setup.py install
 The \fBsetup.py\fP script may need: \fBsetuptools  sphinx  numpy  pytest\fP python packages as well as \fBlibqt4\-dev\-bin\fP\&.
 .SS Debian packages
 .sp
-Debian \fIstretch\fP (and \fIjessie\fP) ot Ubuntu  \fIbionic\fP packages can be found in the HDRI repository.
+Debian \fIbuster\fP and \fIstretch\fP or Ubuntu  \fIfocal\fP, \fIeoan\fP, \fIbionic\fP packages can be found in the HDRI repository.
 .sp
 To install the debian packages, add the PGP repository key
 .INDENT 0.0
@@ -95,6 +95,18 @@ and
 .sp
 .nf
 .ft C
+$ wget http://repos.pni\-hdri.de/buster\-pni\-hdri.list
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+or
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
 $ wget http://repos.pni\-hdri.de/stretch\-pni\-hdri.list
 .ft P
 .fi
@@ -107,19 +119,7 @@ or
 .sp
 .nf
 .ft C
-$ wget http://repos.pni\-hdri.de/jessie\-pni\-hdri.list
-.ft P
-.fi
-.UNINDENT
-.UNINDENT
-.sp
-or
-.INDENT 0.0
-.INDENT 3.5
-.sp
-.nf
-.ft C
-$ wget http://repos.pni\-hdri.de/bionic\-pni\-hdri.list
+$ wget http://repos.pni\-hdri.de/focal\-pni\-hdri.list
 .ft P
 .fi
 .UNINDENT
@@ -135,12 +135,11 @@ Finally,
 .ft C
 $ apt\-get update
 $ apt\-get install python\-lavue
+$ apt\-get install lavue\-controller
 .ft P
 .fi
 .UNINDENT
 .UNINDENT
-.sp
-for python 2.7 version
 .INDENT 0.0
 .INDENT 3.5
 .sp
@@ -148,6 +147,7 @@ for python 2.7 version
 .ft C
 $ apt\-get update
 $ apt\-get install python3\-lavue
+$ apt\-get install lavue\-controller3
 .ft P
 .fi
 .UNINDENT
@@ -6203,7 +6203,7 @@ image data
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.py\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.py\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.py\(aq>}
+.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.pyc\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.pyc\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.pyc\(aq>}
 (\fI\%dict\fP <\fI\%str\fP, \fBmodule\fP> ) nexus writer modules
 .UNINDENT
 .SS lavuelib.imageSource module
@@ -8964,6 +8964,56 @@ creates warning messagebox
 motor watch thread
 .INDENT 0.0
 .TP
+.B class lavuelib.motorWatchThread.AttributeWatchThread(aproxies, refreshtime=None)
+Bases: \fBPyQt5.QtCore.QThread\fP
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBrefreshtime\fP (\fBPyTango.DeviceProxy\fP) – refresh time
+.IP \(bu 2
+\fBaproxies\fP (\fBlist\fP <\fBPyTango.DeviceProxy\fP>) – attribute proxies
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B attrValuesSignal
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) signal with attribute values
+.UNINDENT
+.INDENT 7.0
+.TP
+.B isRunning()
+is datasource source connected
+.INDENT 7.0
+.TP
+.B Returns
+if datasource source connected
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B run()
+runner of the fetching thread
+.UNINDENT
+.INDENT 7.0
+.TP
+.B stop()
+stops loop
+.UNINDENT
+.INDENT 7.0
+.TP
+.B watchingFinished
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) watching finished
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
 .B lavuelib.motorWatchThread.GLOBALREFRESHRATE = 0.1
 (\fI\%float\fP) refresh rate in seconds
 .UNINDENT
@@ -10987,7 +11037,7 @@ xy\-position in  pixels
 image source selection
 .INDENT 0.0
 .TP
-.B class lavuelib.sourceTabWidget.SourceForm(parent=None, sourceid=0)
+.B class lavuelib.sourceTabWidget.SourceForm(**kwargs)
 Bases: \fBPyQt5.QtWidgets.QWidget\fP
 .sp
 source form
@@ -11003,11 +11053,13 @@ constructor
 \fBexpertmode\fP (\fI\%bool\fP) – expert mode flag
 .IP \(bu 2
 \fBsourceid\fP (\fI\%int\fP) – source id
+.IP \(bu 2
+\fBusersourcenames\fP (\fBlist\fP < \fI\%str\fP >) – user source names
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
-.B addCommonWidgets(sln)
+.B addCommonWidgets(**kwargs)
 add common widgets after given row in the grid layout
 .INDENT 7.0
 .TP
@@ -11022,7 +11074,7 @@ add common widgets after given row in the grid layout
 .UNINDENT
 .INDENT 7.0
 .TP
-.B addWidgets(st, expertmode)
+.B addWidgets(**kwargs)
 add widgets
 .INDENT 7.0
 .TP
@@ -11042,7 +11094,7 @@ add widgets
 .UNINDENT
 .INDENT 7.0
 .TP
-.B configuration()
+.B configuration(**kwargs)
 provides configuration for the current image source
 .INDENT 7.0
 .TP
@@ -11055,7 +11107,7 @@ configuration string
 .UNINDENT
 .INDENT 7.0
 .TP
-.B configure(configuration)
+.B configure(**kwargs)
 set configuration for the current image source
 .INDENT 7.0
 .TP
@@ -11065,12 +11117,12 @@ set configuration for the current image source
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connectFailure()
+.B connectFailure(**kwargs)
 set connection status off and display connection status
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connectSuccess(port=None)
+.B connectSuccess(**kwargs)
 set connection status on and display connection status
 .INDENT 7.0
 .TP
@@ -11080,12 +11132,12 @@ set connection status on and display connection status
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connectWidget()
+.B connectWidget(**kwargs)
 connect widget
 .UNINDENT
 .INDENT 7.0
 .TP
-.B currentDataSource()
+.B currentDataSource(**kwargs)
 current data source
 .INDENT 7.0
 .TP
@@ -11098,7 +11150,7 @@ current datasource class name
 .UNINDENT
 .INDENT 7.0
 .TP
-.B currentDataSourceAlias()
+.B currentDataSourceAlias(**kwargs)
 current data source name
 .INDENT 7.0
 .TP
@@ -11111,7 +11163,7 @@ current datasource class name alias
 .UNINDENT
 .INDENT 7.0
 .TP
-.B currentDataSourceName()
+.B currentDataSourceName(**kwargs)
 current data source name
 .INDENT 7.0
 .TP
@@ -11124,12 +11176,12 @@ current datasource class name
 .UNINDENT
 .INDENT 7.0
 .TP
-.B disconnectWidget()
+.B disconnectWidget(**kwargs)
 disconnect widget
 .UNINDENT
 .INDENT 7.0
 .TP
-.B emitButtonEnabled(status)
+.B emitButtonEnabled(**kwargs)
 emit buttonEnabled
 .INDENT 7.0
 .TP
@@ -11139,12 +11191,12 @@ emit buttonEnabled
 .UNINDENT
 .INDENT 7.0
 .TP
-.B emitSourceChanged()
+.B emitSourceChanged(**kwargs)
 emits sourceChanged signal
 .UNINDENT
 .INDENT 7.0
 .TP
-.B emitTranslationChanged(trans)
+.B emitTranslationChanged(**kwargs)
 emit translationChanged
 .INDENT 7.0
 .TP
@@ -11154,7 +11206,7 @@ emit translationChanged
 .UNINDENT
 .INDENT 7.0
 .TP
-.B gridLayout()
+.B gridLayout(**kwargs)
 provide grid layout
 .INDENT 7.0
 .TP
@@ -11167,12 +11219,12 @@ grid layout
 .UNINDENT
 .INDENT 7.0
 .TP
-.B init()
+.B init(**kwargs)
 initialize widget
 .UNINDENT
 .INDENT 7.0
 .TP
-.B isConnected()
+.B isConnected(**kwargs)
 is datasource source connected
 .INDENT 7.0
 .TP
@@ -11185,7 +11237,7 @@ if datasource source connected
 .UNINDENT
 .INDENT 7.0
 .TP
-.B label()
+.B label(**kwargs)
 return a label of the current detector
 .INDENT 7.0
 .TP
@@ -11198,7 +11250,7 @@ label of the current detector
 .UNINDENT
 .INDENT 7.0
 .TP
-.B onSourceChanged()
+.B onSourceChanged(**kwargs)
 update current source widgets
 .UNINDENT
 .INDENT 7.0
@@ -11208,7 +11260,7 @@ update current source widgets
 .UNINDENT
 .INDENT 7.0
 .TP
-.B pushButtonEnabled()
+.B pushButtonEnabled(**kwargs)
 provide status of push button
 .INDENT 7.0
 .TP
@@ -11221,7 +11273,7 @@ if push button enabled
 .UNINDENT
 .INDENT 7.0
 .TP
-.B removeCommonWidgets()
+.B removeCommonWidgets(**kwargs)
 remove common widgets
 .UNINDENT
 .INDENT 7.0
@@ -11231,7 +11283,7 @@ remove common widgets
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setErrorStatus(status=\(aq\(aq)
+.B setErrorStatus(**kwargs)
 set error status
 .INDENT 7.0
 .TP
@@ -11241,7 +11293,7 @@ set error status
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setSource(name=None, disconnect=True)
+.B setSource(**kwargs)
 set source with the given name
 .INDENT 7.0
 .TP
@@ -11256,7 +11308,7 @@ set source with the given name
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setSourceComboBoxByName(name)
+.B setSourceComboBoxByName(**kwargs)
 set source by changing combobox by name
 .INDENT 7.0
 .TP
@@ -11266,7 +11318,7 @@ set source by changing combobox by name
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setTranslation(trans)
+.B setTranslation(**kwargs)
 stores translation of the given source
 .INDENT 7.0
 .TP
@@ -11279,7 +11331,7 @@ x,y tranlation, e.g. 2345,354
 .UNINDENT
 .INDENT 7.0
 .TP
-.B showItem(trans)
+.B showItem(**kwargs)
 show items of the widget
 .INDENT 7.0
 .TP
@@ -11309,7 +11361,7 @@ show items of the widget
 .UNINDENT
 .INDENT 7.0
 .TP
-.B sourceStatus()
+.B sourceStatus(**kwargs)
 source status
 .INDENT 7.0
 .TP
@@ -11322,12 +11374,12 @@ source type id
 .UNINDENT
 .INDENT 7.0
 .TP
-.B start()
+.B start(**kwargs)
 starts viewing if pushButton enable
 .UNINDENT
 .INDENT 7.0
 .TP
-.B toggleServerConnection()
+.B toggleServerConnection(**kwargs)
 toggles server connection
 .UNINDENT
 .INDENT 7.0
@@ -11337,7 +11389,7 @@ toggles server connection
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updateButton(status)
+.B updateButton(**kwargs)
 update slot for source button
 .INDENT 7.0
 .TP
@@ -11347,12 +11399,12 @@ update slot for source button
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updateLayout()
+.B updateLayout(**kwargs)
 update source layout
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updateMetaData(**kargs)
+.B updateMetaData(**kwargs)
 update source input parameters
 .INDENT 7.0
 .TP
@@ -11362,7 +11414,7 @@ update source input parameters
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updateSourceComboBox(sourcenames, name=None)
+.B updateSourceComboBox(**kwargs)
 set source by changing combobox
 .INDENT 7.0
 .TP
@@ -11383,7 +11435,7 @@ set source by changing combobox
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.sourceTabWidget.SourceTabWidget(parent=None, sourcetypes=None, expertmode=False, nrsources=1)
+.B class lavuelib.sourceTabWidget.SourceTabWidget(**kwargs)
 Bases: \fBPyQt5.QtWidgets.QTabWidget\fP
 .sp
 image source selection
@@ -11410,7 +11462,7 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
-.B addTab(widget, title)
+.B addTab(**kwargs)
 add tab widget
 .INDENT 7.0
 .TP
@@ -11425,7 +11477,7 @@ add tab widget
 .UNINDENT
 .INDENT 7.0
 .TP
-.B configuration()
+.B configuration(**kwargs)
 provides configuration for the current image source
 .INDENT 7.0
 .TP
@@ -11438,7 +11490,7 @@ configuration string
 .UNINDENT
 .INDENT 7.0
 .TP
-.B configure(sid, configuration)
+.B configure(**kwargs)
 set configuration for the current image source
 .INDENT 7.0
 .TP
@@ -11453,12 +11505,12 @@ set configuration for the current image source
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connectFailure()
+.B connectFailure(**kwargs)
 set connection status off and display connection status
 .UNINDENT
 .INDENT 7.0
 .TP
-.B connectSuccess(port=None)
+.B connectSuccess(**kwargs)
 set connection status on and display connection status
 .INDENT 7.0
 .TP
@@ -11468,7 +11520,7 @@ set connection status on and display connection status
 .UNINDENT
 .INDENT 7.0
 .TP
-.B currentDataSourceAlias()
+.B currentDataSourceAlias(**kwargs)
 current data source name alias
 .INDENT 7.0
 .TP
@@ -11481,7 +11533,7 @@ current datasource class name alias
 .UNINDENT
 .INDENT 7.0
 .TP
-.B currentDataSourceNames()
+.B currentDataSourceNames(**kwargs)
 current data source name
 .INDENT 7.0
 .TP
@@ -11494,7 +11546,7 @@ current datasource class name
 .UNINDENT
 .INDENT 7.0
 .TP
-.B currentDataSources()
+.B currentDataSources(**kwargs)
 current data source
 .INDENT 7.0
 .TP
@@ -11507,12 +11559,12 @@ current datasource class name
 .UNINDENT
 .INDENT 7.0
 .TP
-.B emitSourceChanged()
+.B emitSourceChanged(**kwargs)
 emits sourceChanged signal
 .UNINDENT
 .INDENT 7.0
 .TP
-.B isChecked(sid)
+.B isChecked(**kwargs)
 check if tab is active
 .INDENT 7.0
 .TP
@@ -11528,7 +11580,7 @@ check state
 .UNINDENT
 .INDENT 7.0
 .TP
-.B isConnected()
+.B isConnected(**kwargs)
 is datasource source connected
 .INDENT 7.0
 .TP
@@ -11541,7 +11593,7 @@ if datasource source connected
 .UNINDENT
 .INDENT 7.0
 .TP
-.B onSourceChanged()
+.B onSourceChanged(**kwargs)
 update current source widgets
 .UNINDENT
 .INDENT 7.0
@@ -11551,7 +11603,7 @@ update current source widgets
 .UNINDENT
 .INDENT 7.0
 .TP
-.B removeTab(sid)
+.B removeTab(**kwargs)
 remove tab widget
 .INDENT 7.0
 .TP
@@ -11561,7 +11613,7 @@ remove tab widget
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setCheckState(sid, state)
+.B setCheckState(**kwargs)
 set check status
 .INDENT 7.0
 .TP
@@ -11576,7 +11628,7 @@ set check status
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setErrorStatus(status=\(aq\(aq)
+.B setErrorStatus(**kwargs)
 set error status
 .INDENT 7.0
 .TP
@@ -11586,7 +11638,7 @@ set error status
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setNumberOfSources(nrsources)
+.B setNumberOfSources(**kwargs)
 set a number of image sources
 .INDENT 7.0
 .TP
@@ -11596,7 +11648,7 @@ set a number of image sources
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setSourceComboBoxByName(sid, name)
+.B setSourceComboBoxByName(**kwargs)
 set source by changing combobox by name
 .INDENT 7.0
 .TP
@@ -11611,7 +11663,7 @@ set source by changing combobox by name
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setTranslation(trans, sid)
+.B setTranslation(**kwargs)
 stores translation of the given source
 .INDENT 7.0
 .TP
@@ -11627,7 +11679,7 @@ x,y tranlation, e.g. 2345,354
 .UNINDENT
 .INDENT 7.0
 .TP
-.B showItem(trans)
+.B showItem(**kwargs)
 show items of the widget
 .INDENT 7.0
 .TP
@@ -11662,12 +11714,12 @@ show items of the widget
 .UNINDENT
 .INDENT 7.0
 .TP
-.B start()
+.B start(**kwargs)
 starts viewing if pushButton enable
 .UNINDENT
 .INDENT 7.0
 .TP
-.B tabCheckBoxStates()
+.B tabCheckBoxStates(**kwargs)
 provides checkbox states
 .INDENT 7.0
 .TP
@@ -11680,7 +11732,7 @@ checkbox state
 .UNINDENT
 .INDENT 7.0
 .TP
-.B toggleServerConnection()
+.B toggleServerConnection(**kwargs)
 toggles server connection
 .UNINDENT
 .INDENT 7.0
@@ -11690,7 +11742,7 @@ toggles server connection
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updateButton(status, sid)
+.B updateButton(**kwargs)
 update slot for image source
 .INDENT 7.0
 .TP
@@ -11705,12 +11757,12 @@ update slot for image source
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updateLayout()
+.B updateLayout(**kwargs)
 update source layout
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updateMetaData(**kargs)
+.B updateMetaData(**kwargs)
 update source input parameters
 .INDENT 7.0
 .TP
@@ -11720,7 +11772,7 @@ update source input parameters
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updateSourceComboBox(sourcenames, names=None)
+.B updateSourceComboBox(**kwargs)
 set source by changing combobox
 .INDENT 7.0
 .TP
@@ -11735,7 +11787,7 @@ set source by changing combobox
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updateSourceMetaData(sid, **kargs)
+.B updateSourceMetaData(**kwargs)
 update source input parameters
 .INDENT 7.0
 .TP
@@ -13400,8 +13452,8 @@ activates tool widget
 .UNINDENT
 .INDENT 7.0
 .TP
-.B disactivate()
-disactivates tool widget
+.B deactivate()
+deactivates tool widget
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -13517,7 +13569,7 @@ command after plot
 .UNINDENT
 .INDENT 7.0
 .TP
-.B disactivate()
+.B deactivate()
 activates tool widget
 .UNINDENT
 .INDENT 7.0
@@ -13583,8 +13635,8 @@ command  before plot
 .UNINDENT
 .INDENT 7.0
 .TP
-.B disactivate()
-disactivates tool widget
+.B deactivate()
+deactivates tool widget
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -13678,8 +13730,8 @@ activates tool widget
 .UNINDENT
 .INDENT 7.0
 .TP
-.B disactivate()
-disactivates tool widget
+.B deactivate()
+deactivates tool widget
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -13771,7 +13823,7 @@ command  before plot
 .UNINDENT
 .INDENT 7.0
 .TP
-.B disactivate()
+.B deactivate()
 activates tool widget
 .UNINDENT
 .INDENT 7.0
@@ -13821,7 +13873,7 @@ command after plot
 .UNINDENT
 .INDENT 7.0
 .TP
-.B disactivate()
+.B deactivate()
 activates tool widget
 .UNINDENT
 .INDENT 7.0
@@ -13887,8 +13939,8 @@ command  before plot
 .UNINDENT
 .INDENT 7.0
 .TP
-.B disactivate()
-disactivates tool widget
+.B deactivate()
+deactivates tool widget
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -13910,6 +13962,56 @@ list of [signal, slot] object to connect
 .TP
 .B updateGeometryTip()
 update geometry tips
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.toolWidget.ParametersToolWidget(parent=None)
+Bases: \fBlavuelib.toolWidget.ToolBaseWidget\fP
+.sp
+motors tool widget
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B activate()
+activates tool widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B alias = \(aqparameters\(aq
+(\fI\%str\fP) tool name alias
+.UNINDENT
+.INDENT 7.0
+.TP
+.B convert = {\(aqbool\(aq: <bound method type.toBool of <class \(aqlavuelib.toolWidget.Converters\(aq>>, \(aqfloat\(aq: <type \(aqfloat\(aq>, \(aqfloat16\(aq: <type \(aqfloat\(aq>, \(aqfloat32\(aq: <type \(aqfloat\(aq>, \(aqfloat64\(aq: <type \(aqfloat\(aq>, \(aqint\(aq: <type \(aqint\(aq>, \(aqint16\(aq: <type \(aqint\(aq>, \(aqint32\(aq: <type \(aqint\(aq>, \(aqint64\(aq: <type \(aqlong\(aq>, \(aqint8\(aq: <type \(aqint\(aq>, \(aqstr\(aq: <type \(aqstr\(aq>, \(aqstring\(aq: <type \(aqstr\(aq>, \(aquint\(aq: <type \(aqint\(aq>, \(aquint16\(aq: <type \(aqint\(aq>, \(aquint32\(aq: <type \(aqlong\(aq>, \(aquint64\(aq: <type \(aqlong\(aq>, \(aquint8\(aq: <type \(aqint\(aq>}
+(\fI\%dict\fP <\fI\%str\fP , \fI\%type\fP or \fI\%types.MethodType\fP >) map of type : converting function
+.UNINDENT
+.INDENT 7.0
+.TP
+.B deactivate()
+activates tool widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = \(aqParameters\(aq
+(\fI\%str\fP) tool name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B requires = (\(aqPYTANGO\(aq,)
+(\fI\%tuple\fP <\fI\%str\fP>) capitalized required packages
+.UNINDENT
+.INDENT 7.0
+.TP
+.B signal2slot = None
+(\fBlist\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+list of [signal, slot] object to connect
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -13947,8 +14049,8 @@ command after plot
 .UNINDENT
 .INDENT 7.0
 .TP
-.B disactivate()
-disactivates tool widget
+.B deactivate()
+deactivates tool widget
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -14041,7 +14143,7 @@ updates ROI line edit text
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.toolWidget.twproperties = [{\(aqalias\(aq: \(aqintensity\(aq, \(aqwidget\(aq: \(aqIntensityToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqIntensity\(aq}, {\(aqalias\(aq: \(aqroi\(aq, \(aqwidget\(aq: \(aqROIToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqROI\(aq}, {\(aqalias\(aq: \(aqlinecut\(aq, \(aqwidget\(aq: \(aqLineCutToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqLineCut\(aq}, {\(aqalias\(aq: \(aqangle/q\(aq, \(aqwidget\(aq: \(aqAngleQToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqAngle/Q\(aq}, {\(aqalias\(aq: \(aqmovemotors\(aq, \(aqwidget\(aq: \(aqMotorsToolWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqMoveMotors\(aq}, {\(aqalias\(aq: \(aqmeshscan\(aq, \(aqwidget\(aq: \(aqMeshToolWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqMeshScan\(aq}, {\(aqalias\(aq: \(aq1d\-plot\(aq, \(aqwidget\(aq: \(aqOneDToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aq1d\-Plot\(aq}, {\(aqalias\(aq: \(aqprojections\(aq, \(aqwidget\(aq: \(aqProjectionToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqProjections\(aq}, {\(aqalias\(aq: \(aqmaxima\(aq, \(aqwidget\(aq: \(aqMaximaToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqMaxima\(aq}, {\(aqalias\(aq: \(aqq+roi+proj\(aq, \(aqwidget\(aq: \(aqQROIProjToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqQ+ROI+Proj\(aq}]
+.B lavuelib.toolWidget.twproperties = [{\(aqalias\(aq: \(aqintensity\(aq, \(aqwidget\(aq: \(aqIntensityToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqIntensity\(aq}, {\(aqalias\(aq: \(aqroi\(aq, \(aqwidget\(aq: \(aqROIToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqROI\(aq}, {\(aqalias\(aq: \(aqlinecut\(aq, \(aqwidget\(aq: \(aqLineCutToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqLineCut\(aq}, {\(aqalias\(aq: \(aqangle/q\(aq, \(aqwidget\(aq: \(aqAngleQToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqAngle/Q\(aq}, {\(aqalias\(aq: \(aqmovemotors\(aq, \(aqwidget\(aq: \(aqMotorsToolWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqMoveMotors\(aq}, {\(aqalias\(aq: \(aqmeshscan\(aq, \(aqwidget\(aq: \(aqMeshToolWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqMeshScan\(aq}, {\(aqalias\(aq: \(aq1d\-plot\(aq, \(aqwidget\(aq: \(aqOneDToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aq1d\-Plot\(aq}, {\(aqalias\(aq: \(aqprojections\(aq, \(aqwidget\(aq: \(aqProjectionToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqProjections\(aq}, {\(aqalias\(aq: \(aqmaxima\(aq, \(aqwidget\(aq: \(aqMaximaToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqMaxima\(aq}, {\(aqalias\(aq: \(aqparameters\(aq, \(aqwidget\(aq: \(aqParametersToolWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqParameters\(aq}, {\(aqalias\(aq: \(aqq+roi+proj\(aq, \(aqwidget\(aq: \(aqQROIProjToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqQ+ROI+Proj\(aq}]
 ( \fI\%dict\fP < \fI\%str\fP, any > ) tool widget properties
 .UNINDENT
 .SS lavuelib.transformationsWidget module
