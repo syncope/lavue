@@ -36,6 +36,8 @@ from pyqtgraph import QtCore
 
 #: (:obj:`float`) refresh rate in seconds
 GLOBALREFRESHRATE = .1
+#: (:obj:`float`) polling inverval in seconds
+POLLINGINTERVAL = 1.
 
 logger = logging.getLogger("lavue")
 
@@ -67,7 +69,6 @@ class MotorWatchThread(QtCore.QThread):
         self.__motor2 = motor2
         #: (:class:`PyTango.DeviceProxy`) door server device proxy
         self.__mserver = server
-        # print("SET %s" % (str(server)))
 
     def run(self):
         """ runner of the fetching thread
@@ -81,11 +82,9 @@ class MotorWatchThread(QtCore.QThread):
                 pos1 = float(self.__motor1.position)
                 state2 = str(self.__motor2.state())
                 pos2 = float(self.__motor2.position)
-                # print("POS")
                 self.motorStatusSignal.emit(pos1, state1, pos2, state2)
                 if self.__mserver is not None:
                     mstate = str(self.__mserver.state())
-                    # print("STATE %s " % (mstate))
                 else:
                     if state1 == "MOVING" or state2 == "MOVING":
                         mstate = "MOVING"
@@ -94,11 +93,9 @@ class MotorWatchThread(QtCore.QThread):
                     else:
                         mstate = "ON"
                 if mstate not in ["RUNNING", "MOVING"]:
-                    # print("TF")
                     self.watchingFinished.emit()
             except Exception as e:
                 logger.warning(str(e))
-                # print(str(e))
 
     def isRunning(self):
         """ is datasource source connected
@@ -135,7 +132,7 @@ class AttributeWatchThread(QtCore.QThread):
         #: (:obj:`bool`) execute loop flag
         self.__loop = False
         #: (:obj:`bool`) execute loop flag
-        self.__refreshtime = refreshtime or 3
+        self.__refreshtime = refreshtime or POLLINGINTERVAL
 
         #: (:obj:`list` <:class:`PyTango.DeviceProxy`>)  attribute proxies
         self.__aproxies = aproxies or []
@@ -149,11 +146,13 @@ class AttributeWatchThread(QtCore.QThread):
                 attrs = []
                 for ap in self.__aproxies:
                     ra = ap.read()
-                    attrs.append(ra.value)
+                    vl = ra.value
+                    if hasattr(vl, "tolist"):
+                        vl = vl.tolist()
+                    attrs.append(vl)
                 self.attrValuesSignal.emit(str(json.dumps(attrs)))
             except Exception as e:
                 logger.warning(str(e))
-                # print(str(e))
             if time:
                 time.sleep(self.__refreshtime)
 

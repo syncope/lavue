@@ -218,6 +218,8 @@ class ConfigDialog(QtGui.QDialog):
         self.refreshrate = 0.2
         #: (:obj:`float`) tool refresh rate time is s
         self.toolrefreshtime = 0.02
+        #: (:obj:`float`) tool polling interval is s
+        self.toolpollinginterval = 1.0
         #: (:obj:`str`) maximal number of images in memory buffer
         self.maxmbuffersize = "1000"
         #: (:obj:`str`) float type for pixel intensity
@@ -401,6 +403,8 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.rateDoubleSpinBox.setValue(self.refreshrate)
         self.__ui.nrsourcesSpinBox.setValue(self.nrsources)
         self.__ui.toolrefreshtimeDoubleSpinBox.setValue(self.toolrefreshtime)
+        self.__ui.pollingintervalDoubleSpinBox.setValue(
+            self.toolpollinginterval)
         self.__ui.aspectlockedCheckBox.setChecked(self.aspectlocked)
         self.__ui.downsampleCheckBox.setChecked(self.autodownsample)
         self.__ui.keepCoordsCheckBox.setChecked(self.keepcoords)
@@ -723,6 +727,8 @@ class ConfigDialog(QtGui.QDialog):
         self.floattype = str(self.__ui.floatComboBox.currentText())
         self.toolrefreshtime = float(
             self.__ui.toolrefreshtimeDoubleSpinBox.value())
+        self.toolpollinginterval = float(
+            self.__ui.pollingintervalDoubleSpinBox.value())
         self.nrsources = int(
             self.__ui.nrsourcesSpinBox.value())
         self.showsub = self.__ui.showsubCheckBox.isChecked()

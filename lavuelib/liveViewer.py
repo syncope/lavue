@@ -1903,6 +1903,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.nanmask = self.__settings.nanmask
         cnfdlg.refreshrate = dataFetchThread.GLOBALREFRESHRATE
         cnfdlg.toolrefreshtime = self.__settings.toolrefreshtime
+        cnfdlg.toolpollinginterval = self.__settings.toolpollinginterval
         cnfdlg.timeout = self.__settings.timeout
         cnfdlg.nrsources = self.__settings.nrsources
         cnfdlg.aspectlocked = self.__settings.aspectlocked
@@ -2040,6 +2041,10 @@ class LiveViewer(QtGui.QDialog):
             self.__updateframeratetip(self.__settings.refreshrate)
         if self.__settings.toolrefreshtime != dialog.toolrefreshtime:
             self.__settings.toolrefreshtime = dialog.toolrefreshtime
+            self.__imagewg.setExtensionsRefreshTime(
+                self.__settings.toolrefreshtime)
+        if self.__settings.toolpollinginterval != dialog.toolpollinginterval:
+            self.__settings.toolpollinginterval = dialog.toolpollinginterval
             self.__imagewg.setExtensionsRefreshTime(
                 self.__settings.toolrefreshtime)
         if self.__settings.filters != dialog.filters:
