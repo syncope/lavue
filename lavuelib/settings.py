@@ -115,6 +115,8 @@ class Settings(object):
         self.refreshrate = 0.2
         #: (:obj:`float`) tool refresh rate time is s
         self.toolrefreshtime = 0.02
+        #: (:obj:`float`) tool polling interval is s
+        self.toolpollinginterval = 1.0
         #: (:obj:`bool`) interrupt on error
         self.interruptonerror = True
         #: (:obj:`str`) last image file name
@@ -466,6 +468,12 @@ class Settings(object):
         except Exception:
             pass
 
+        try:
+            self.toolpollinginterval = float(
+                settings.value("Configuration/ToolPollingInterval", type=str))
+        except Exception:
+            pass
+
         qstval = str(
             settings.value("Configuration/InterruptOnError", type=str))
         if qstval.lower() == "false":
@@ -716,6 +724,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ToolRefreshTime",
             self.toolrefreshtime)
+        settings.setValue(
+            "Configuration/ToolPollingInterval",
+            self.toolpollinginterval)
         settings.setValue(
             "Configuration/SecPort",
             self.secport)
