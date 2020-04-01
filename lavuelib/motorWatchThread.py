@@ -36,6 +36,8 @@ from pyqtgraph import QtCore
 
 #: (:obj:`float`) refresh rate in seconds
 GLOBALREFRESHRATE = .1
+#: (:obj:`float`) polling inverval in seconds
+POLLINGINTERVAL = 1.
 
 logger = logging.getLogger("lavue")
 
@@ -135,7 +137,7 @@ class AttributeWatchThread(QtCore.QThread):
         #: (:obj:`bool`) execute loop flag
         self.__loop = False
         #: (:obj:`bool`) execute loop flag
-        self.__refreshtime = refreshtime or 3
+        self.__refreshtime = refreshtime or POLLINGINTERVAL
 
         #: (:obj:`list` <:class:`PyTango.DeviceProxy`>)  attribute proxies
         self.__aproxies = aproxies or []

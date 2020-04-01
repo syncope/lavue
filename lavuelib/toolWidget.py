@@ -796,7 +796,7 @@ class ParametersToolWidget(ToolBaseWidget):
                 self.__avalues.append(vl)
         self.__updateWidgets()
         self.__attrWatcher = motorWatchThread.AttributeWatchThread(
-            self.__aproxies, 3)
+            self.__aproxies)
         self.__attrWatcher.attrValuesSignal.connect(self._showValues)
         # self.__attrWatcher.watchingFinished.connect(self._finished)
         self.__attrWatcher.start()
