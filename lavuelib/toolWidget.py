@@ -876,13 +876,15 @@ class ParametersToolWidget(ToolBaseWidget):
             self.__widgets[i][WD.label.value].setToolTip("%s" % pars[1])
             self.__widgets[i][WD.write.value].setText("")
             self.__widgets[i][WD.write.value].setToolTip("%s" % pars[1])
-            self.__widgets[i][WD.read.value].setToolTip("%s" % pars[1])
+            self.__widgets[i][WD.write.button.value].setToolTip(
+                "Write the new value of %s" % pars[0])
             if self.__avalues[i] is None:
                 vl = ""
             else:
                 vl = str(self.__avalues[i])
             if pars[3]:
                 vl = "%s %s" % (vl, pars[3])
+            self.__widgets[i][WD.read.value].setToolTip(vl)
             self.__widgets[i][WD.read.value].setText(vl)
 
     def deactivate(self):
@@ -911,6 +913,7 @@ class ParametersToolWidget(ToolBaseWidget):
                 if self.__detparams[i][3]:
                     vl = "%s %s" % (vl, self.__detparams[i][3])
                 self.__widgets[i][WD.read.value].setText(vl)
+                self.__widgets[i][WD.read.value].setToolTip(vl)
 
     @QtCore.pyqtSlot()
     def _setParameters(self):
