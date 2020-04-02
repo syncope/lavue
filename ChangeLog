@@ -1,3 +1,7 @@
+2020-04-02 Jan Kotanski <jan.kotanski@desy.de>
+	* update help widget
+	* tagged as 2.41.2
+
 2020-04-01 Jan Kotanski <jan.kotanski@desy.de>
 	* add polling interval for Parameters tool to the configuration
 	* add support for non-scalar parameters
