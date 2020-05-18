@@ -1,26 +1,34 @@
-#!/usr/bin/env python
-#   This file is part of nexdatas - Tango Server for NeXus data writer
+# Copyright (C) 2017  DESY, Notkestr. 85, D-22607 Hamburg
 #
-#    Copyright (C) 2012-2018 DESY, Jan Kotanski <jkotan@mail.desy.de>
+# lavue is an image viewing program for photon science imaging detectors.
+# Its usual application is as a live viewer using hidra as data source.
 #
-#    nexdatas is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation in  version 2
+# of the License.
 #
-#    nexdatas is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with nexdatas.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301, USA.
 #
-# the unittest runner
+# Authors:
+#     Jan Kotanski <jan.kotanski@desy.de>
 #
 
 # import os
 import sys
+
+
+from lavuelib.qtuic import qt_api
+from pyqtgraph import QtGui
+# from pyqtgraph import QtCore
 
 try:
     import PyTango
@@ -60,6 +68,7 @@ except ImportError as e:
 
 
 import unittest
+import CommandLineArgument_test
 
 if not PNI_AVAILABLE and not H5PY_AVAILABLE:
     raise Exception("Please install h5py or pni")
@@ -71,6 +80,7 @@ if not PNI_AVAILABLE and not H5PY_AVAILABLE:
 
 # list of available databases
 DB_AVAILABLE = []
+
 
 if PYTANGO_AVAILABLE:
     import LavueController_test
@@ -98,10 +108,14 @@ def main():
 
     # test server
     # ts = None
-
     # test suit
     suite = unittest.TestSuite()
-
+    print("Using: %s" % qt_api)
+    app = QtGui.QApplication([])
+    CommandLineArgument_test.app = app
+    suite.addTests(
+        unittest.defaultTestLoader.loadTestsFromModule(
+            CommandLineArgument_test))
     if PNI_AVAILABLE:
         suite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(FileWriter_test))
