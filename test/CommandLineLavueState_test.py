@@ -67,9 +67,9 @@ class CommandLineLavueStateTest(unittest.TestCase):
 
     def __init__(self, methodName):
         unittest.TestCase.__init__(self, methodName)
-        # global app
-        # if app is None:
-        #     app = QtGui.QApplication([])
+        global app
+        if app is None:
+            app = QtGui.QApplication([])
 
         self.__lcsu = ControllerSetUp()
 
@@ -202,7 +202,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
         dialog.show()
         self.__dialog = dialog
 
-        QtCore.QTimer.singleShot(2000, self.getLavueStateAndClose)
+        QtCore.QTimer.singleShot(1000, self.getLavueStateAndClose)
         status = app.exec_()
         self.assertEqual(status, 0)
         ls = json.loads(self.__lavuestate)

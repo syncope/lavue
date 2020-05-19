@@ -52,9 +52,9 @@ class CommandLineArgumentTest(unittest.TestCase):
 
     def __init__(self, methodName):
         unittest.TestCase.__init__(self, methodName)
-        # global app
-        # if app is None:
-        #     app = QtGui.QApplication([])
+        global app
+        if app is None:
+            app = QtGui.QApplication([])
 
         try:
             self.__seed = long(binascii.hexlify(os.urandom(16)), 16)
