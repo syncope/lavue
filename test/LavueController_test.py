@@ -1,19 +1,32 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# Copyright (C) 2017  DESY, Notkestr. 85, D-22607 Hamburg
 #
-# This file is part of the LavueController project
+# lavue is an image viewing program for photon science imaging detectors.
+# Its usual application is as a live viewer using hidra as data source.
 #
-# GPL 2
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation in  version 2
+# of the License.
 #
-# Distributed under the terms of the GPL license.
-# See LICENSE.txt for more info.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301, USA.
+#
+# Authors:
+#     Jan Kotanski <jan.kotanski@desy.de>
+#
+
 """Contain the tests for the Lavue Controller."""
 
 # Path
 import sys
 import os
-import subprocess
-import time
 import unittest
 import PyTango
 import numpy as np
@@ -23,27 +36,18 @@ if sys.version_info > (3,):
 else:
     import Queue
 
+try:
+    from .LavueControllerSetUp import ControllerSetUp, TangoCB
+except Exception:
+    from LavueControllerSetUp import ControllerSetUp, TangoCB
+
+
 # Path
 path = os.path.join(os.path.dirname(__file__), os.pardir)
 sys.path.insert(0, os.path.abspath(path))
 
 #: python3 running
 PY3 = (sys.version_info > (3,))
-
-
-class TangoCB(object):
-
-    def __init__(self, queue):
-        self.__queue = queue
-
-    def push_event(self, *args, **kwargs):
-        event_data = args[0]
-        if event_data.err:
-            result = event_data.errors
-            print(result)
-        else:
-            result = event_data.attr_value.value
-        self.__queue.put(result)
 
 
 # Device test case
@@ -56,104 +60,15 @@ class LavueControllerTest(unittest.TestCase):
         :param methodName: name of the test method
         """
         unittest.TestCase.__init__(self, methodName)
-        self.instance = 'TEST'
-        self.device = 'test/lavuecontroller/00'
-        self.new_device_info_controller = PyTango.DbDevInfo()
-        self.new_device_info_controller._class = "LavueController"
-        self.new_device_info_controller.server = "LavueController/%s" % \
-                                                 self.instance
-        self.new_device_info_controller.name = self.device
-        self.proxy = None
-
-        if PY3:
-            if os.path.isfile("../LavueController"):
-                self._startserver = \
-                    "cd ..; python3 ./LavueController %s &" % self.instance
-            else:
-                self._startserver = \
-                    "python3 LavueController %s &" % self.instance
-        else:
-            if os.path.isfile("../LavueController"):
-                self._startserver = \
-                    "cd ..; python2 ./LavueController %s &" % self.instance
-            else:
-                self._startserver = \
-                    "python2 LavueController %s &" % self.instance
-        self._grepserver = \
-            "ps -ef | grep 'LavueController %s' | grep -v grep" % \
-            self.instance
+        self.__lcsu = ControllerSetUp()
 
     def setUp(self):
         print("\nsetting up ...")
-        db = PyTango.Database()
-        db.add_device(self.new_device_info_controller)
-        db.add_server(
-            self.new_device_info_controller.server,
-            self.new_device_info_controller)
-        self._psub = subprocess.call(
-            self._startserver,
-            stdout=None,
-            stderr=None, shell=True)
-        sys.stdout.write("waiting for server ")
-
-        found = False
-        cnt = 0
-        dvname = self.new_device_info_controller.name
-        while not found and cnt < 1000:
-            try:
-                sys.stdout.write(".")
-                sys.stdout.flush()
-                exl = db.get_device_exported(dvname)
-                if dvname not in exl.value_string:
-                    time.sleep(0.01)
-                    cnt += 1
-                    continue
-                dp = PyTango.DeviceProxy(dvname)
-                time.sleep(0.1)
-                if dp.state() == PyTango.DevState.ON:
-                    found = True
-            except Exception:
-                found = False
-            cnt += 1
-        print("")
-        self.proxy = dp
+        self.__lcsu.setUp()
 
     def tearDown(self):
         print("tearing down ...")
-        db = PyTango.Database()
-        db.delete_server(self.new_device_info_controller.server)
-
-        if PY3:
-            with subprocess.Popen(self._grepserver,
-                                  stdout=subprocess.PIPE,
-                                  shell=True) as proc:
-                try:
-                    outs, errs = proc.communicate(timeout=15)
-                except subprocess.TimeoutExpired:
-                    proc.kill()
-                    outs, errs = proc.communicate()
-                res = str(outs, "utf8").split("\n")
-                for r in res:
-                    sr = r.split()
-                    if len(sr) > 2:
-                        subprocess.call(
-                            "kill -9 %s" % sr[1], stderr=subprocess.PIPE,
-                            shell=True)
-        else:
-            pipe = subprocess.Popen(self._grepserver,
-                                    stdout=subprocess.PIPE,
-                                    shell=True).stdout
-
-            res = str(pipe.read()).split("\n")
-            for r in res:
-                sr = r.split()
-                if len(sr) > 2:
-                    subprocess.call(
-                        "kill -9 %s" % sr[1], stderr=subprocess.PIPE,
-                        shell=True)
-            pipe.close()
-
-        self.proxy = None
+        self.__lcsu.tearDown()
 
     def test_property_DynamicROIs(self):
         """ test the property DynamicROIs """
@@ -188,38 +103,39 @@ class LavueControllerTest(unittest.TestCase):
         ]
 
         db = PyTango.Database()
-        db.put_device_property(self.proxy.name(), {'DynamicROIs': True})
-        self.proxy.Init()
+        db.put_device_property(self.__lcsu.proxy.name(), {'DynamicROIs': True})
+        self.__lcsu.proxy.Init()
 
         for wvl in testvalues:
-            self.proxy.DetectorROIs = str(wvl[0])
-            rvl = self.proxy.DetectorROIs
+            self.__lcsu.proxy.DetectorROIs = str(wvl[0])
+            rvl = self.__lcsu.proxy.DetectorROIs
             self.assertEqual(wvl[0], rvl)
             for at, vl in wvl[1]:
-                self.assertTrue(hasattr(self.proxy, at))
-                rvl = self.proxy.read_attribute(at).value
+                self.assertTrue(hasattr(self.__lcsu.proxy, at))
+                rvl = self.__lcsu.proxy.read_attribute(at).value
                 self.assertTrue(np.array_equal(np.array(vl), rvl))
 
-        db.put_device_property(self.proxy.name(), {'DynamicROIs': False})
-        self.proxy.Init()
+        db.put_device_property(
+            self.__lcsu.proxy.name(), {'DynamicROIs': False})
+        self.__lcsu.proxy.Init()
 
         for wvl in testvalues:
-            self.proxy.DetectorROIs = str(wvl[0])
-            rvl = self.proxy.DetectorROIs
+            self.__lcsu.proxy.DetectorROIs = str(wvl[0])
+            rvl = self.__lcsu.proxy.DetectorROIs
             self.assertEqual(wvl[0], rvl)
             for at, vl in wvl[1]:
-                self.assertTrue(not hasattr(self.proxy, at))
+                self.assertTrue(not hasattr(self.__lcsu.proxy, at))
 
-        db.put_device_property(self.proxy.name(), {'DynamicROIs': True})
-        self.proxy.Init()
+        db.put_device_property(self.__lcsu.proxy.name(), {'DynamicROIs': True})
+        self.__lcsu.proxy.Init()
 
         for wvl in testvalues:
-            self.proxy.DetectorROIs = str(wvl[0])
-            rvl = self.proxy.DetectorROIs
+            self.__lcsu.proxy.DetectorROIs = str(wvl[0])
+            rvl = self.__lcsu.proxy.DetectorROIs
             self.assertEqual(wvl[0], rvl)
             for at, vl in wvl[1]:
-                self.assertTrue(hasattr(self.proxy, at))
-                rvl = self.proxy.read_attribute(at).value
+                self.assertTrue(hasattr(self.__lcsu.proxy, at))
+                rvl = self.__lcsu.proxy.read_attribute(at).value
                 self.assertTrue(np.array_equal(np.array(vl), rvl))
 
     def test_property_DynamicROIsValues(self):
@@ -252,39 +168,42 @@ class LavueControllerTest(unittest.TestCase):
         ]
 
         db = PyTango.Database()
-        db.put_device_property(self.proxy.name(), {'DynamicROIsValues': True})
-        self.proxy.Init()
+        db.put_device_property(
+            self.__lcsu.proxy.name(), {'DynamicROIsValues': True})
+        self.__lcsu.proxy.Init()
 
         for wvl in testvalues:
-            self.proxy.DetectorROIsValues = str(wvl[0])
-            rvl = self.proxy.DetectorROIsValues
+            self.__lcsu.proxy.DetectorROIsValues = str(wvl[0])
+            rvl = self.__lcsu.proxy.DetectorROIsValues
             self.assertEqual(wvl[0], rvl)
             for at, vl in wvl[1]:
-                rvl = self.proxy.read_attribute(at).value
+                rvl = self.__lcsu.proxy.read_attribute(at).value
                 if at.endswith("Sums"):
                     self.assertTrue(np.array_equal(np.array(vl), rvl))
                 else:
                     self.assertEqual(vl[0], rvl)
 
-        db.put_device_property(self.proxy.name(), {'DynamicROIsValues': False})
-        self.proxy.Init()
+        db.put_device_property(
+            self.__lcsu.proxy.name(), {'DynamicROIsValues': False})
+        self.__lcsu.proxy.Init()
 
         for wvl in testvalues:
-            self.proxy.DetectorROIsValues = str(wvl[0])
-            rvl = self.proxy.DetectorROIsValues
+            self.__lcsu.proxy.DetectorROIsValues = str(wvl[0])
+            rvl = self.__lcsu.proxy.DetectorROIsValues
             self.assertEqual(wvl[0], rvl)
             for at, vl in wvl[1]:
-                self.assertTrue(not hasattr(self.proxy, at))
+                self.assertTrue(not hasattr(self.__lcsu.proxy, at))
 
-        db.put_device_property(self.proxy.name(), {'DynamicROIsValues': True})
-        self.proxy.Init()
+        db.put_device_property(
+            self.__lcsu.proxy.name(), {'DynamicROIsValues': True})
+        self.__lcsu.proxy.Init()
 
         for wvl in testvalues:
-            self.proxy.DetectorROIsValues = str(wvl[0])
-            rvl = self.proxy.DetectorROIsValues
+            self.__lcsu.proxy.DetectorROIsValues = str(wvl[0])
+            rvl = self.__lcsu.proxy.DetectorROIsValues
             self.assertEqual(wvl[0], rvl)
             for at, vl in wvl[1]:
-                rvl = self.proxy.read_attribute(at).value
+                rvl = self.__lcsu.proxy.read_attribute(at).value
                 if at.endswith("Sums"):
                     self.assertTrue(np.array_equal(np.array(vl), rvl))
                 else:
@@ -328,35 +247,36 @@ class LavueControllerTest(unittest.TestCase):
 
         for wvl in testvalues:
             db.put_device_property(
-                self.proxy.name(), {'ROIAttributesNames': wvl[0]})
-            db.put_device_property(self.proxy.name(), {'DynamicROIs': wvl[1]})
+                self.__lcsu.proxy.name(), {'ROIAttributesNames': wvl[0]})
             db.put_device_property(
-                self.proxy.name(), {'DynamicROIsValues': wvl[2]})
-            self.proxy.Init()
-            self.proxy.DetectorROIs = DetectorROIs if wvl[3] else "{}"
-            self.proxy.DetectorROIsValues = DetectorROIsValues \
+                self.__lcsu.proxy.name(), {'DynamicROIs': wvl[1]})
+            db.put_device_property(
+                self.__lcsu.proxy.name(), {'DynamicROIsValues': wvl[2]})
+            self.__lcsu.proxy.Init()
+            self.__lcsu.proxy.DetectorROIs = DetectorROIs if wvl[3] else "{}"
+            self.__lcsu.proxy.DetectorROIsValues = DetectorROIsValues \
                 if wvl[3] else "{}"
 
-            attrs = [el for el in dir(self.proxy)
+            attrs = [el for el in dir(self.__lcsu.proxy)
                      if (el.endswith("ROI") or el.endswith("Sum")
                          or el.endswith("Sums"))]
             self.assertTrue(not (set(attrs) - set(wvl[4])))
             for at in wvl[4]:
-                self.assertTrue(hasattr(self.proxy, at))
+                self.assertTrue(hasattr(self.__lcsu.proxy, at))
             for at in list(set(wvl[0]) - set(wvl[4])):
-                self.assertTrue(not hasattr(self.proxy, at))
+                self.assertTrue(not hasattr(self.__lcsu.proxy, at))
 
     def test_State(self):
         """Test for State"""
         print("Run: %s.%s() " % (
             self.__class__.__name__, sys._getframe().f_code.co_name))
-        self.assertEqual(self.proxy.state(), PyTango.DevState.ON)
+        self.assertEqual(self.__lcsu.proxy.state(), PyTango.DevState.ON)
 
     def test_Status(self):
         """Test for Status"""
         print("Run: %s.%s() " % (
             self.__class__.__name__, sys._getframe().f_code.co_name))
-        self.assertEqual(self.proxy.Status(), 'State is ON')
+        self.assertEqual(self.__lcsu.proxy.Status(), 'State is ON')
 
     def test_BeamCenterX(self):
         """Test for BeamCenterX"""
@@ -366,19 +286,19 @@ class LavueControllerTest(unittest.TestCase):
 
         queue = Queue.Queue()
         cb = TangoCB(queue)
-        cb_id = self.proxy.subscribe_event(
+        cb_id = self.__lcsu.proxy.subscribe_event(
             "BeamCenterX", PyTango.EventType.CHANGE_EVENT, cb)
         elem = queue.get(block=True, timeout=3)
 
         for wvl in testvalues:
-            self.proxy.BeamCenterX = wvl
-            rvl = self.proxy.BeamCenterX
+            self.__lcsu.proxy.BeamCenterX = wvl
+            rvl = self.__lcsu.proxy.BeamCenterX
             self.assertEqual(wvl, rvl)
 
             elem = queue.get(block=True, timeout=3)
             self.assertEqual(elem, wvl)
 
-        self.proxy.unsubscribe_event(cb_id)
+        self.__lcsu.proxy.unsubscribe_event(cb_id)
 
     def test_BeamCenterY(self):
         """Test for BeamCenterY"""
@@ -388,19 +308,19 @@ class LavueControllerTest(unittest.TestCase):
 
         queue = Queue.Queue()
         cb = TangoCB(queue)
-        cb_id = self.proxy.subscribe_event(
+        cb_id = self.__lcsu.proxy.subscribe_event(
             "BeamCenterY", PyTango.EventType.CHANGE_EVENT, cb)
         elem = queue.get(block=True, timeout=3)
 
         for wvl in testvalues:
-            self.proxy.BeamCenterY = wvl
-            rvl = self.proxy.BeamCenterY
+            self.__lcsu.proxy.BeamCenterY = wvl
+            rvl = self.__lcsu.proxy.BeamCenterY
             self.assertEqual(wvl, rvl)
 
             elem = queue.get(block=True, timeout=3)
             self.assertEqual(elem, wvl)
 
-        self.proxy.unsubscribe_event(cb_id)
+        self.__lcsu.proxy.unsubscribe_event(cb_id)
 
     def test_DetectorDistance(self):
         """Test for DetectorDistance"""
@@ -410,19 +330,19 @@ class LavueControllerTest(unittest.TestCase):
 
         queue = Queue.Queue()
         cb = TangoCB(queue)
-        cb_id = self.proxy.subscribe_event(
+        cb_id = self.__lcsu.proxy.subscribe_event(
             "DetectorDistance", PyTango.EventType.CHANGE_EVENT, cb)
         elem = queue.get(block=True, timeout=3)
 
         for wvl in testvalues:
-            self.proxy.DetectorDistance = wvl
-            rvl = self.proxy.DetectorDistance
+            self.__lcsu.proxy.DetectorDistance = wvl
+            rvl = self.__lcsu.proxy.DetectorDistance
             self.assertEqual(wvl, rvl)
 
             elem = queue.get(block=True, timeout=3)
             self.assertEqual(elem, wvl)
 
-        self.proxy.unsubscribe_event(cb_id)
+        self.__lcsu.proxy.unsubscribe_event(cb_id)
 
     def test_DetectorROIs(self):
         """Test for DetectorROIs"""
@@ -457,22 +377,22 @@ class LavueControllerTest(unittest.TestCase):
         ]
         queue = Queue.Queue()
         cb = TangoCB(queue)
-        cb_id = self.proxy.subscribe_event(
+        cb_id = self.__lcsu.proxy.subscribe_event(
             "DetectorROIs", PyTango.EventType.CHANGE_EVENT, cb)
         elem = queue.get(block=True, timeout=3)
 
         for wvl in testvalues:
-            self.proxy.DetectorROIs = str(wvl[0])
-            rvl = self.proxy.DetectorROIs
+            self.__lcsu.proxy.DetectorROIs = str(wvl[0])
+            rvl = self.__lcsu.proxy.DetectorROIs
             self.assertEqual(wvl[0], rvl)
             for at, vl in wvl[1]:
-                rvl = self.proxy.read_attribute(at).value
+                rvl = self.__lcsu.proxy.read_attribute(at).value
                 self.assertTrue(np.array_equal(np.array(vl), rvl))
 
                 elem = queue.get(block=True, timeout=3)
                 self.assertEqual(elem, wvl[0])
 
-        self.proxy.unsubscribe_event(cb_id)
+        self.__lcsu.proxy.unsubscribe_event(cb_id)
 
     def test_DetectorROIsValues(self):
         """Test for DetectorROIsValues"""
@@ -504,16 +424,16 @@ class LavueControllerTest(unittest.TestCase):
 
         queue = Queue.Queue()
         cb = TangoCB(queue)
-        cb_id = self.proxy.subscribe_event(
+        cb_id = self.__lcsu.proxy.subscribe_event(
             "DetectorROIsValues", PyTango.EventType.CHANGE_EVENT, cb)
         elem = queue.get(block=True, timeout=3)
 
         for wvl in testvalues:
-            self.proxy.DetectorROIsValues = str(wvl[0])
-            rvl = self.proxy.DetectorROIsValues
+            self.__lcsu.proxy.DetectorROIsValues = str(wvl[0])
+            rvl = self.__lcsu.proxy.DetectorROIsValues
             self.assertEqual(wvl[0], rvl)
             for at, vl in wvl[1]:
-                rvl = self.proxy.read_attribute(at).value
+                rvl = self.__lcsu.proxy.read_attribute(at).value
                 if at.endswith("Sums"):
                     self.assertTrue(np.array_equal(np.array(vl), rvl))
                 else:
@@ -522,7 +442,7 @@ class LavueControllerTest(unittest.TestCase):
                 elem = queue.get(block=True, timeout=3)
                 self.assertEqual(elem, wvl[0])
 
-        self.proxy.unsubscribe_event(cb_id)
+        self.__lcsu.proxy.unsubscribe_event(cb_id)
 
     def test_Energy(self):
         """Test for Energy"""
@@ -532,18 +452,18 @@ class LavueControllerTest(unittest.TestCase):
 
         queue = Queue.Queue()
         cb = TangoCB(queue)
-        cb_id = self.proxy.subscribe_event(
+        cb_id = self.__lcsu.proxy.subscribe_event(
             "Energy", PyTango.EventType.CHANGE_EVENT, cb)
         elem = queue.get(block=True, timeout=3)
 
         for wvl in testvalues:
-            self.proxy.Energy = wvl
-            rvl = self.proxy.Energy
+            self.__lcsu.proxy.Energy = wvl
+            rvl = self.__lcsu.proxy.Energy
             self.assertEqual(wvl, rvl)
             elem = queue.get(block=True, timeout=3)
             self.assertEqual(wvl, elem)
 
-        self.proxy.unsubscribe_event(cb_id)
+        self.__lcsu.proxy.unsubscribe_event(cb_id)
 
 
 def main():

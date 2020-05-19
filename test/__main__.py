@@ -84,6 +84,7 @@ DB_AVAILABLE = []
 
 if PYTANGO_AVAILABLE:
     import LavueController_test
+    import CommandLineLavueState_test
 
 
 if PNI_AVAILABLE:
@@ -113,6 +114,7 @@ def main():
     print("Using: %s" % qt_api)
     app = QtGui.QApplication([])
     CommandLineArgument_test.app = app
+    CommandLineLavueState_test.app = app
     suite.addTests(
         unittest.defaultTestLoader.loadTestsFromModule(
             CommandLineArgument_test))
@@ -141,6 +143,9 @@ def main():
         suite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(
                 LavueController_test))
+        suite.addTests(
+            unittest.defaultTestLoader.loadTestsFromModule(
+                CommandLineLavueState_test))
 
     # test runner
     runner = unittest.TextTestRunner()
