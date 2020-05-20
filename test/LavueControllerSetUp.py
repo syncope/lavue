@@ -122,6 +122,7 @@ class ControllerSetUp(object):
                 found = False
                 sys.stdout.write("%s\n" % str(e))
             cnt += 1
+        print("")
         self.proxy = dp
 
     def tearDown(self):

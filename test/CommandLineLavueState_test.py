@@ -70,6 +70,10 @@ class CommandLineLavueStateTest(unittest.TestCase):
         global app
         if app is None:
             app = QtGui.QApplication([])
+        app.setOrganizationName("DESY")
+        app.setApplicationName("LaVue: unittests")
+        app.setOrganizationDomain("desy.de")
+        app.setApplicationVersion(lavuelib.__version__)
 
         self.__lcsu = ControllerSetUp()
 
@@ -86,41 +90,43 @@ class CommandLineLavueStateTest(unittest.TestCase):
 
         self.__defaultls = {
             '__timestamp__': 0.0,
-            'viewrange': '0,0,0,0',
-            'mbuffer': None,
-            'doordevice': '',
-            'filters': 0,
-            'analysisdevice': '',
-            'log': 'info',
+            'version': lavuelib.__version__,
+            'mode': 'user',
             'instance': 'test',
-            'gradient': 'grey',
             'imagefile': '',
             'source': 'test',
-            'version': lavuelib.__version__,
-            'dsreduction': 'max',
-            'transformation': 'none',
-            'channel': '',
-            'tool': 'intensity',
+            'configuration': '',
+            'offset': '',
+            'rangewindow': [None, None, None, None],
             'dsfactor': 1,
+            'dsreduction': 'max',
+            'filters': 0,
+            'mbuffer': None,
+            'channel': '',
+            'bkgfile': '',
+            'maskfile': '',
+            'maskhighvalue': '',
+            'transformation': 'none',
             'scaling': 'sqrt',
             'levels': '',
+            'autofactor': '',
+            'gradient': 'grey',
+            'viewrange': '0,0,0,0',
             'connected': False,
-            'bkgfile': '',
-            'offset': '',
-            'configuration': '',
+            'tool': 'intensity',
             'tangodevice': 'test/lavuecontroller/00',
-            'maskhighvalue': '',
-            'maskfile': '',
-            'rangewindow': [None, None, None, None],
-            'mode': 'user',
-            'autofactor': ''}
+            'doordevice': '',
+            'analysisdevice': '',
+            'log': 'info',
+        }
 
     def compareStates(self, state, defstate=None, exclude=None):
         if defstate is None:
             defstate = self.__defaultls
         if exclude is None:
             exclude = ['viewrange', '__timestamp__',
-                       'configuration', 'source']
+                       'configuration', 'source',
+                       'doordevice']
         for ky, vl in defstate.items():
             if ky not in exclude:
                 if state[ky] != vl:
@@ -131,6 +137,11 @@ class CommandLineLavueStateTest(unittest.TestCase):
         print("\nsetting up...")
         print("SEED = %s" % self.__seed)
         self.__lcsu.setUp()
+        home = os.path.expanduser("~")
+        fname = "%s/%s" % (home, ".config/DESY/LaVue: unittests.conf")
+        if os.path.exists(fname):
+            print("removing '%s'" % fname)
+            os.remove(fname)
 
     def tearDown(self):
         print("tearing down ...")
@@ -208,7 +219,114 @@ class CommandLineLavueStateTest(unittest.TestCase):
         ls = json.loads(self.__lavuestate)
         dls = dict(self.__defaultls)
         dls.update({"connected": True, "source": "test"})
-        self.compareStates(ls, dls, ['viewrange', '__timestamp__'])
+        self.compareStates(ls, dls,
+                           ['viewrange', '__timestamp__', 'doordevice'])
+
+    def test_tango(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        self.__lcsu.proxy.Init()
+        self.__lavuestate = None
+
+        options = argparse.Namespace(
+            mode='expert',
+            source='tangoattr',
+            configuration='test/lavuecontroller/00/Image',
+            instance='tgtest',
+            tool='roi',
+            transformation='flip-up-down',
+            log='debug',
+            scaling='log',
+            levels='m20,20',
+            gradient='thermal',
+            tangodevice='test/lavuecontroller/00'
+        )
+        logging.basicConfig(
+             format="%(levelname)s: %(message)s")
+        logger = logging.getLogger("lavue")
+        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+        dialog = lavuelib.liveViewer.MainWindow(options=options)
+        dialog.show()
+        self.__dialog = dialog
+
+        QtCore.QTimer.singleShot(1000, self.getLavueStateAndClose)
+        status = app.exec_()
+        self.assertEqual(status, 0)
+        ls = json.loads(self.__lavuestate)
+        dls = dict(self.__defaultls)
+        dls.update(dict(
+            mode='expert',
+            source='tangoattr',
+            configuration='test/lavuecontroller/00/Image',
+            instance='tgtest',
+            tool='roi',
+            transformation='flip-up-down',
+            log='debug',
+            scaling='log',
+            levels='-20.0,20.0',
+            gradient='thermal',
+            tangodevice='test/lavuecontroller/00',
+            autofactor=None
+        ))
+        self.compareStates(ls, dls,
+                           ['viewrange', '__timestamp__', 'doordevice'])
+
+    def test_multi(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        self.__lcsu.proxy.Init()
+        self.__lavuestate = None
+
+        options = argparse.Namespace(
+            mode='expert',
+            source='test;test;test',
+            offset=';200,300,r45;400,3,r180t',
+            start=True,
+            instance='test3',
+            tool='projections',
+            transformation='flip-up-down',
+            log='error',
+            dsfactor=2,
+            scaling='linear',
+            autofactor='1.3',
+            gradient='flame',
+            maskhighvalue='100',
+            tangodevice='test/lavuecontroller/00'
+        )
+        logging.basicConfig(
+             format="%(levelname)s: %(message)s")
+        logger = logging.getLogger("lavue")
+        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+        dialog = lavuelib.liveViewer.MainWindow(options=options)
+        dialog.show()
+        self.__dialog = dialog
+
+        QtCore.QTimer.singleShot(1000, self.getLavueStateAndClose)
+        status = app.exec_()
+        self.assertEqual(status, 0)
+        ls = json.loads(self.__lavuestate)
+        dls = dict(self.__defaultls)
+        dls.update(dict(
+            mode='expert',
+            source='test;test;test',
+            configuration=';;',
+            connected=True,
+            instance='test3',
+            offset=';200,300,r45;400,3,r180t',
+            tool='projections',
+            transformation='flip-up-down',
+            log='error',
+            scaling='linear',
+            dsfactor=2,
+            autofactor='1.3',
+            gradient='flame',
+            maskhighvalue='100',
+            tangodevice='test/lavuecontroller/00'
+        ))
+        self.compareStates(ls, dls,
+                           ['viewrange', '__timestamp__', 'doordevice'])
 
 
 if __name__ == '__main__':
