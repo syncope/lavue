@@ -1295,26 +1295,43 @@ class LiveViewer(QtGui.QDialog):
 
         if hasattr(options, "rangewindow") and \
            options.rangewindow is not None:
+            if not self.__settings.showrange:
+                self.__settings.showrange = True
+                self.__rangewg.changeView(True)
+                self._resizePlot(True)
+            self.__rangewg.setFactor(str(options.dsfactor))
             self.__rangewg.setRangeWindow(str(options.rangewindow))
 
         if hasattr(options, "dsfactor") and \
            options.dsfactor is not None:
+            if not self.__settings.showrange:
+                self.__settings.showrange = True
+                self.__rangewg.changeView(True)
+                self._resizePlot(True)
             self.__rangewg.setFactor(str(options.dsfactor))
 
         if hasattr(options, "dsreduction") and \
            options.dsreduction is not None:
+            if not self.__settings.showrange:
+                self.__settings.showrange = True
+                self.__rangewg.changeView(True)
+                self._resizePlot(True)
             self.__rangewg.setFunction(str(options.dsreduction))
 
         if hasattr(options, "mbuffer") and options.mbuffer is not None:
-            self.__mbufferwg.changeView(True)
+            if not self.__settings.showmbuffer:
+                self.__settings.showmbuffer = True
+                self.__mbufferwg.changeView(True)
             self.__mbufferwg.onOff(True)
-            self.__settings.showmbuffer = True
             try:
                 self.__mbufferwg.setBufferSize(int(options.mbuffer))
             except Exception:
                 pass
 
         if hasattr(options, "bkgfile") and options.bkgfile is not None:
+            if not self.__settings.showsub:
+                self.__settings.showsub = True
+                self.__prepwg.changeView(showsub=True)
             self.__bkgsubwg.setBackground(str(options.bkgfile))
 
         if hasattr(options, "channel") and options.channel is not None:
@@ -1335,33 +1352,61 @@ class LiveViewer(QtGui.QDialog):
             self.__channelwg.setDefaultColorChannel(ich)
 
         if hasattr(options, "maskfile") and options.maskfile is not None:
+            if not self.__settings.showmask:
+                self.__settings.showmask = True
+                self.__prepwg.changeView(True)
             self.__maskwg.setMask(str(options.maskfile))
 
         if hasattr(options, "maskhighvalue") and \
            options.maskhighvalue is not None:
+            if not self.__settings.showhighvaluemask:
+                self.__settings.showhighvaluemask = True
+                self.__prepwg.changeView(showhighvaluemask=True)
             self.__highvaluemaskwg.setMask(str(options.maskhighvalue))
             self._checkHighMasking()
         if hasattr(options, "transformation") and \
            options.transformation is not None:
+            if not self.__settings.showtrans:
+                self.__settings.showtrans = True
+                self.__prepwg.changeView(showtrans=True)
             self.__trafowg.setTransformation(str(options.transformation))
 
         if hasattr(options, "filters"):
             if options.filters is True:
+                if not self.__settings.showfilters:
+                    self.__settings.showfilters = True
+                    self.__filterswg.changeView(
+                        showfilters=True)
                 self.__filterswg.setState(2)
             elif options.filters is False:
                 self.__filterswg.setState(0)
 
         if hasattr(options, "scaling") and options.scaling is not None:
+            if not self.__settings.showscale:
+                self.__settings.showscale = True
+                self.__scalingwg.changeView(True)
             self.__scalingwg.setScaling(str(options.scaling))
 
         QtCore.QCoreApplication.processEvents()
         if hasattr(options, "levels") and options.levels is not None:
+            if not self.__settings.showlevels:
+                self.__settings.showslevels = True
+                self.__levelswg.changeView(showlevels=True)
+                self.__channelwg.changeView(showlevels=True)
             self.__levelswg.setLevels(str(options.levels))
 
         if hasattr(options, "autofactor") and options.autofactor is not None:
+            if not self.__settings.showlevels:
+                self.__settings.showslevels = True
+                self.__levelswg.changeView(showlevels=True)
+                self.__channelwg.changeView(showlevels=True)
             self.__levelswg.setAutoFactor(str(options.autofactor))
 
         if hasattr(options, "gradient") and options.gradient is not None:
+            if not self.__settings.showlevels:
+                self.__settings.showslevels = True
+                self.__levelswg.changeView(showlevels=True)
+                self.__channelwg.changeView(showlevels=True)
             self.__levelswg.setGradient(str(options.gradient))
 
         if hasattr(options, "tool") and options.tool is not None:
@@ -1448,9 +1493,7 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.showaddhisto
         )
         self.__channelwg.changeView(
-            self.__settings.showhisto,
-            self.__settings.showlevels,
-            self.__settings.showaddhisto
+            self.__settings.showlevels
         )
         self.__prepwg.changeView(
             self.__settings.showmask,

@@ -55,6 +55,10 @@ class CommandLineArgumentTest(unittest.TestCase):
         global app
         if app is None:
             app = QtGui.QApplication([])
+        app.setOrganizationName("DESY")
+        app.setApplicationName("LaVue: unittests")
+        app.setOrganizationDomain("desy.de")
+        app.setApplicationVersion(lavuelib.__version__)
 
         try:
             self.__seed = long(binascii.hexlify(os.urandom(16)), 16)
@@ -67,6 +71,11 @@ class CommandLineArgumentTest(unittest.TestCase):
     def setUp(self):
         print("\nsetting up...")
         print("SEED = %s" % self.__seed)
+        home = os.path.expanduser("~")
+        fname = "%s/%s" % (home, ".config/DESY/LaVue: unittests.conf")
+        if os.path.exists(fname):
+            print("removing '%s'" % fname)
+            os.remove(fname)
 
     def tearDown(self):
         print("tearing down ...")

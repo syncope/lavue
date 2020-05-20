@@ -128,16 +128,11 @@ class ChannelGroupBox(QtGui.QWidget):
         else:
             self.__defaultchannel = channel
 
-    def changeView(self, showhistogram=None, showlevels=None,
-                   showadd=None):
+    def changeView(self, showlevels=None):
         """ shows or hides the histogram widget
 
-        :param showhistogram: if histogram should be shown
-        :type showhistogram: :obj:`bool`
         :param showlevels: if levels should be shown
         :type showlevels: :obj:`bool`
-        :param showadd: if additional histogram should be shown
-        :type showadd: :obj:`bool`
         """
         if showlevels is True and self.__levels is False:
             if self.__colors:

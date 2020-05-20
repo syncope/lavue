@@ -117,7 +117,7 @@ def main():
         help="image source(s), i.e. hidra, http, tangoattr,\n"
         "    tangoevents, tangofile, doocsprop, tineprop,\n"
         "    epicspv, zmq, nxsfile, test\n"
-        "multiple-source names can be separated by semicolon ';'")
+        "multiple-source names is separated by semicolon ';'")
     parser.add_argument(
         "-c", "--configuration", dest="configuration",
         help="configuration strings for the image source separated by comma"
@@ -133,16 +133,25 @@ def main():
         "  nxsfile -> '-c /tmp/myfile.nxs://entry/data/pilatus'  \n"
         "  tineprop -> '-c '/HASYLAB/P00_LM00/Output/Frame'\n"
         "  epicspv -> '-c '00SIM0:cam1:,[640,480]'\n"
-        "configuration for multiple-source names can be separated"
+        "configuration for multiple-sources is separated"
         " by semicolon ';'"
     )
     parser.add_argument(
         "--offset", dest="offset",
-        help="relative x,y offset for multiple-sources to the first source"
-        "separated by semicolon ';'\n"
+        help="relative offset x,y[,TRANSFORMATION]\n"
+        "  where x,y are position of the first pixel "
+        "for a particular image source\n"
+        "  while optional TRANSFORMATION can be:\n"
+        "    flip-up-down, flipud, fud, flip-left-right, "
+        "fliplr, flr, transpose, t,\n"
+        "    rot90, r90, rot180, r180, r270, rot270, rot180+transpose,"
+        " rot180t or r180t\n"
+        "offset for multiple-sources is separated by semicolon ';'\n"
         "   e.g.\n"
         "    ;200,300;,54;121,3\n"
         "    200,300;100,\n"
+        "    200,300;100,200,t\n"
+        "    ;200,300,r45;,52;11,3,r180t\n"
     )
     parser.add_argument(
         "-w", "--range-window", dest="rangewindow",
