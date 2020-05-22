@@ -35,7 +35,7 @@ import lavuelib
 import lavuelib.liveViewer
 from pyqtgraph import QtGui
 from pyqtgraph import QtCore
-
+from pyqtgraph.Qt import QtTest
 #  Qt-application
 app = None
 
@@ -94,7 +94,13 @@ class CommandLineArgumentTest(unittest.TestCase):
             if cdl:
                 parent = self.__dialog
                 for cm in cdl[:-1]:
-                    parent = getattr(parent, cm)
+                    if "[]," in cm:
+                        scm = cm.split(",")
+                        cm = scm[0][:-2]
+                        idx = int(scm[1])
+                        parent = getattr(parent, cm)[idx]
+                    else:
+                        parent = getattr(parent, cm)
                 if cdl[-1].endswith("()"):
                     cmd = getattr(parent, cdl[-1][:-2])
                     if cd[1]:
@@ -102,7 +108,14 @@ class CommandLineArgumentTest(unittest.TestCase):
                     else:
                         self.__results.append(cmd())
                 else:
-                    self.__results.append(getattr(parent, cdl[-1]))
+                    if len(cd) == 2:
+                        self.__results.append(cd[1](
+                            getattr(parent, cdl[-1])))
+                    elif len(cd) == 3:
+                        self.__results.append(cd[1](
+                            getattr(parent, cdl[-1]), cd[2]))
+                    else:
+                        self.__results.append(getattr(parent, cdl[-1]))
         self.closeDialog()
 
     def test_run(self):
@@ -158,6 +171,16 @@ class CommandLineArgumentTest(unittest.TestCase):
              None],
             ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()",
              None],
+            ["_MainWindow__lavue._LiveViewer__sourcewg"
+             "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+             QtTest.QTest.mouseClick, QtCore.Qt.LeftButton],
+            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()",
+             None],
+            ["_MainWindow__lavue._LiveViewer__sourcewg"
+             "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+             QtTest.QTest.mouseClick, QtCore.Qt.LeftButton],
+            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()",
+             None],
             ]
         QtCore.QTimer.singleShot(1000, self.executeAndClose)
         status = app.exec_()
@@ -165,6 +188,10 @@ class CommandLineArgumentTest(unittest.TestCase):
         self.assertEqual(self.__results[0], True)
         self.assertEqual(self.__results[1], None)
         self.assertEqual(self.__results[2], False)
+        self.assertEqual(self.__results[3], None)
+        self.assertEqual(self.__results[4], True)
+        self.assertEqual(self.__results[5], None)
+        self.assertEqual(self.__results[6], False)
 
 
 if __name__ == '__main__':
