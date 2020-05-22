@@ -141,8 +141,7 @@ class CommandLineArgumentTest(unittest.TestCase):
         self.__dialog = dialog
         self.__results = []
         self.__commands = [
-            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()",
-             None],
+            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()"],
             ]
         QtCore.QTimer.singleShot(1000, self.executeAndClose)
         status = app.exec_()
