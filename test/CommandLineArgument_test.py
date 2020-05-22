@@ -88,7 +88,7 @@ class CommandLineArgumentTest(unittest.TestCase):
             sys.stderr.write("Close Dialog\n")
             self.__dialog = None
 
-    def executeAndClose(self):
+    def executeCommands(self):
         for cd in self.__commands:
             cdl = cd[0].split(".")
             if cdl:
@@ -97,13 +97,15 @@ class CommandLineArgumentTest(unittest.TestCase):
                     if "[]," in cm:
                         scm = cm.split(",")
                         cm = scm[0][:-2]
-                        idx = int(scm[1])
-                        parent = getattr(parent, cm)[idx]
+                        try:
+                            parent = getattr(parent, cm)[int(scm[1])]
+                        except Exception:
+                            parent = getattr(parent, cm)[scm[1]]
                     else:
                         parent = getattr(parent, cm)
                 if cdl[-1].endswith("()"):
                     cmd = getattr(parent, cdl[-1][:-2])
-                    if cd[1]:
+                    if len(cd) == 2:
                         self.__results.append(cmd(**cd[1]))
                     else:
                         self.__results.append(cmd())
@@ -116,6 +118,9 @@ class CommandLineArgumentTest(unittest.TestCase):
                             getattr(parent, cdl[-1]), cd[2]))
                     else:
                         self.__results.append(getattr(parent, cdl[-1]))
+
+    def executeAndClose(self):
+        self.executeCommands()
         self.closeDialog()
 
     def test_run(self):
@@ -164,23 +169,18 @@ class CommandLineArgumentTest(unittest.TestCase):
         self.__dialog = dialog
         self.__results = []
         self.__commands = [
-            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()",
-             None],
+            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()"],
             ["_MainWindow__lavue._LiveViewer__sourcewg"
-             ".toggleServerConnection()",
-             None],
-            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()",
-             None],
+             ".toggleServerConnection()"],
+            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()"],
             ["_MainWindow__lavue._LiveViewer__sourcewg"
              "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
              QtTest.QTest.mouseClick, QtCore.Qt.LeftButton],
-            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()",
-             None],
+            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()"],
             ["_MainWindow__lavue._LiveViewer__sourcewg"
              "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
              QtTest.QTest.mouseClick, QtCore.Qt.LeftButton],
-            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()",
-             None],
+            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()"],
             ]
         QtCore.QTimer.singleShot(1000, self.executeAndClose)
         status = app.exec_()
