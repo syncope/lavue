@@ -35,7 +35,7 @@ import argparse
 import lavuelib
 import lavuelib.liveViewer
 from pyqtgraph import QtGui
-from pyqtgraph import QtCore
+# from pyqtgraph import QtCore
 
 #  Qt-application
 app = None
@@ -44,7 +44,6 @@ app = None
 IS64BIT = (struct.calcsize("P") == 8)
 
 if sys.version_info > (3,):
-    unicode = str
     long = int
 
 try:
@@ -53,6 +52,12 @@ try:
 except Exception:
     from LavueControllerSetUp import ControllerSetUp
     # from LavueControllerSetUp import TangoCB
+
+try:
+    import qtchecker
+except Exception:
+    from . import qtchecker
+
 
 # Path
 path = os.path.join(os.path.dirname(__file__), os.pardir)
@@ -147,18 +152,8 @@ class CommandLineLavueStateTest(unittest.TestCase):
         print("tearing down ...")
         self.__lcsu.tearDown()
 
-    def closeDialog(self):
-        if self.__dialog:
-            self.__dialog.close()
-            sys.stderr.write("closing a dialog\n")
-            self.__dialog = None
-
     def getLavueState(self):
         self.__lavuestate = self.__lcsu.proxy.LavueState
-
-    def getLavueStateAndClose(self):
-        self.getLavueState()
-        self.closeDialog()
 
     def test_run(self):
         fun = sys._getframe().f_code.co_name
@@ -180,14 +175,20 @@ class CommandLineLavueStateTest(unittest.TestCase):
         lavuelib.liveViewer.setLoggerLevel(logger, options.log)
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
-        self.__dialog = dialog
 
-        # loop = QtCore.QEventLoop()
-        QtCore.QTimer.singleShot(1000, self.getLavueStateAndClose)
-        status = app.exec_()
+        qtck = qtchecker.QtChecker(app, dialog, True)
+        qtck.setChecks([
+            qtchecker.CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            qtchecker.ExtCmdCheck(self, "getLavueState")
+        ])
+
+        status = qtck.executeChecksAndClose()
+
         self.assertEqual(status, 0)
-        ls = json.loads(self.__lavuestate)
-        self.compareStates(ls)
+        qtck.compareResults(self, [False, None])
+
+        self.compareStates(json.loads(self.__lavuestate))
 
     def test_start(self):
         fun = sys._getframe().f_code.co_name
@@ -211,11 +212,19 @@ class CommandLineLavueStateTest(unittest.TestCase):
         lavuelib.liveViewer.setLoggerLevel(logger, options.log)
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
-        self.__dialog = dialog
 
-        QtCore.QTimer.singleShot(1000, self.getLavueStateAndClose)
-        status = app.exec_()
+        qtck = qtchecker.QtChecker(app, dialog, True)
+        qtck.setChecks([
+            qtchecker.CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            qtchecker.ExtCmdCheck(self, "getLavueState")
+        ])
+
+        status = qtck.executeChecksAndClose()
+
         self.assertEqual(status, 0)
+        qtck.compareResults(self, [True, None])
+
         ls = json.loads(self.__lavuestate)
         dls = dict(self.__defaultls)
         dls.update({"connected": True, "source": "test"})
@@ -248,11 +257,19 @@ class CommandLineLavueStateTest(unittest.TestCase):
         lavuelib.liveViewer.setLoggerLevel(logger, options.log)
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
-        self.__dialog = dialog
 
-        QtCore.QTimer.singleShot(1000, self.getLavueStateAndClose)
-        status = app.exec_()
+        qtck = qtchecker.QtChecker(app, dialog, True)
+        qtck.setChecks([
+            qtchecker.CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            qtchecker.ExtCmdCheck(self, "getLavueState")
+        ])
+
+        status = qtck.executeChecksAndClose()
+
         self.assertEqual(status, 0)
+        qtck.compareResults(self, [False, None])
+
         ls = json.loads(self.__lavuestate)
         dls = dict(self.__defaultls)
         dls.update(dict(
@@ -303,11 +320,19 @@ class CommandLineLavueStateTest(unittest.TestCase):
         lavuelib.liveViewer.setLoggerLevel(logger, options.log)
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
-        self.__dialog = dialog
 
-        QtCore.QTimer.singleShot(1000, self.getLavueStateAndClose)
-        status = app.exec_()
+        qtck = qtchecker.QtChecker(app, dialog, True)
+        qtck.setChecks([
+            qtchecker.CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            qtchecker.ExtCmdCheck(self, "getLavueState")
+        ])
+
+        status = qtck.executeChecksAndClose()
+
         self.assertEqual(status, 0)
+        qtck.compareResults(self, [True, None])
+
         ls = json.loads(self.__lavuestate)
         dls = dict(self.__defaultls)
         dls.update(dict(

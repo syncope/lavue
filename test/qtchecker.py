@@ -327,16 +327,20 @@ class QtChecker(object):
             if self.__sleep:
                 QtTest.QTest.qWait(self.__sleep)
 
-    def compareResults(self, testcase, results):
+    def compareResults(self, testcase, results, mask=None):
         """ compare results with use of testcase.assertEqual
 
         :param testcase: test case object
         :type testcase: :class:`unittest.TestCase`
         :param results: a list of template result objects
         :type results: :obj:`list` <:class:`any`>
+        :param mask: a list of flags
+        :type mask: :obj:`list` <:obj:`bool`>
         """
+        mask = mask or []
         testcase.assertEqual(len(self.__results), len(results))
         for i, rs in enumerate(self.__results):
-            if self.__verbose and rs != results[i]:
-                print("Difference at %s: %s <> %s" % (i, rs, results[i]))
-            testcase.assertEqual(rs, results[i])
+            if len(mask) <= i or not mask[i]:
+                if self.__verbose and rs != results[i]:
+                    print("Difference at %s: %s <> %s" % (i, rs, results[i]))
+                testcase.assertEqual(rs, results[i])
