@@ -36,6 +36,12 @@ import lavuelib.liveViewer
 from pyqtgraph import QtGui
 from pyqtgraph import QtCore
 from pyqtgraph.Qt import QtTest
+
+try:
+    import qtchecker
+except Exception:
+    from . import qtchecker
+
 #  Qt-application
 app = None
 
@@ -66,9 +72,6 @@ class CommandLineArgumentTest(unittest.TestCase):
             self.__seed = long(time.time() * 256)
 #        self.__seed = 332115341842367128541506422124286219441
         self.__rnd = random.Random(self.__seed)
-        self.__dialog = None
-        self.__commands = []
-        self.__results = []
 
     def setUp(self):
         print("\nsetting up...")
@@ -82,115 +85,79 @@ class CommandLineArgumentTest(unittest.TestCase):
     def tearDown(self):
         print("tearing down ...")
 
-    def closeDialog(self):
-        if self.__dialog:
-            self.__dialog.close()
-            sys.stderr.write("Close Dialog\n")
-            self.__dialog = None
-
-    def executeCommands(self):
-        for cd in self.__commands:
-            cdl = cd[0].split(".")
-            if cdl:
-                parent = self.__dialog
-                for cm in cdl[:-1]:
-                    if "[]," in cm:
-                        scm = cm.split(",")
-                        cm = scm[0][:-2]
-                        try:
-                            parent = getattr(parent, cm)[int(scm[1])]
-                        except Exception:
-                            parent = getattr(parent, cm)[scm[1]]
-                    else:
-                        parent = getattr(parent, cm)
-                if cdl[-1].endswith("()"):
-                    cmd = getattr(parent, cdl[-1][:-2])
-                    if len(cd) == 2:
-                        self.__results.append(cmd(**cd[1]))
-                    else:
-                        self.__results.append(cmd())
-                else:
-                    if len(cd) == 2:
-                        self.__results.append(cd[1](
-                            getattr(parent, cdl[-1])))
-                    elif len(cd) == 3:
-                        self.__results.append(cd[1](
-                            getattr(parent, cdl[-1]), cd[2]))
-                    else:
-                        self.__results.append(getattr(parent, cdl[-1]))
-
-    def executeAndClose(self):
-        self.executeCommands()
-        self.closeDialog()
-
     def test_run(self):
         fun = sys._getframe().f_code.co_name
         print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
         options = argparse.Namespace(
             mode='user',
             instance='test',
             tool=None,
-            log='info'
-        )
+            log='info')
         logging.basicConfig(
              format="%(levelname)s: %(message)s")
         logger = logging.getLogger("lavue")
         lavuelib.liveViewer.setLoggerLevel(logger, options.log)
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
-        self.__dialog = dialog
-        self.__results = []
-        self.__commands = [
-            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()"],
-            ]
-        QtCore.QTimer.singleShot(1000, self.executeAndClose)
-        status = app.exec_()
+
+        qtck = qtchecker.QtChecker(app, dialog, True)
+        qtck.setChecks([
+            qtchecker.CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected")
+        ])
+
+        status = qtck.executeChecksAndClose()
+
         self.assertEqual(status, 0)
-        self.assertEqual(self.__results[0], False)
+        qtck.compareResults(self, [False])
 
     def test_start(self):
         fun = sys._getframe().f_code.co_name
         print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
         options = argparse.Namespace(
             mode='user',
             instance='test',
             tool=None,
             start=True,
             source='test',
-            log='info'
-        )
+            log='info')
         logging.basicConfig(
              format="%(levelname)s: %(message)s")
         logger = logging.getLogger("lavue")
         lavuelib.liveViewer.setLoggerLevel(logger, options.log)
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
-        self.__dialog = dialog
-        self.__results = []
-        self.__commands = [
-            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()"],
-            ["_MainWindow__lavue._LiveViewer__sourcewg"
-             ".toggleServerConnection()"],
-            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()"],
-            ["_MainWindow__lavue._LiveViewer__sourcewg"
-             "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
-             QtTest.QTest.mouseClick, QtCore.Qt.LeftButton],
-            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()"],
-            ["_MainWindow__lavue._LiveViewer__sourcewg"
-             "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
-             QtTest.QTest.mouseClick, QtCore.Qt.LeftButton],
-            ["_MainWindow__lavue._LiveViewer__sourcewg.isConnected()"],
-            ]
-        QtCore.QTimer.singleShot(1000, self.executeAndClose)
-        status = app.exec_()
+
+        qtck = qtchecker.QtChecker(app, dialog, True)
+        qtck.setChecks([
+            qtchecker.CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            qtchecker.CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg"
+                ".toggleServerConnection"),
+            qtchecker.CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            qtchecker.WrapAttrCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg"
+                "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+            qtchecker.CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            qtchecker.WrapAttrCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg"
+                "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+            qtchecker.CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected")
+        ])
+
+        status = qtck.executeChecksAndClose()
+
         self.assertEqual(status, 0)
-        self.assertEqual(self.__results[0], True)
-        self.assertEqual(self.__results[1], None)
-        self.assertEqual(self.__results[2], False)
-        self.assertEqual(self.__results[3], None)
-        self.assertEqual(self.__results[4], True)
-        self.assertEqual(self.__results[5], None)
-        self.assertEqual(self.__results[6], False)
+        qtck.compareResults(
+            self, [True, None, False, None, True, None, False])
 
 
 if __name__ == '__main__':
