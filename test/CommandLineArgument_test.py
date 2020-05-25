@@ -130,7 +130,7 @@ class CommandLineArgumentTest(unittest.TestCase):
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
 
-        qtck = qtchecker.QtChecker(app, dialog, True)
+        qtck = qtchecker.QtChecker(app, dialog, True, sleep=100)
         qtck.setChecks([
             qtchecker.CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
