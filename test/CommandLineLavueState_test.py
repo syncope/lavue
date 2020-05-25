@@ -216,7 +216,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
         QtCore.QTimer.singleShot(1000, self.getLavueStateAndClose)
         status = app.exec_()
         self.assertEqual(status, 0)
-        ls = json.loads(self.__lauvestate)
+        ls = json.loads(self.__lavuestate)
         dls = dict(self.__defaultls)
         dls.update({"connected": True, "source": "test"})
         self.compareStates(ls, dls,
