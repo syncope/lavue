@@ -21,6 +21,7 @@
 # Authors:
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
+
 import os
 
 qt_api = os.getenv("QT_API", os.getenv('DEFAULT_QT_API', 'pyqt5'))
@@ -28,12 +29,15 @@ if qt_api != 'pyqt4':
     try:
         from PyQt5 import QtGui
         from PyQt5 import QtCore
+        from PyQt5 import QtTest
     except Exception:
         from PyQt4 import QtGui
         from PyQt4 import QtCore
+        from PyQt4 import QtTest
 else:
     from PyQt4 import QtGui
     from PyQt4 import QtCore
+    from PyQt4 import QtTest
 
 
 """ qt checker for testing gui """
@@ -51,7 +55,7 @@ class Check(object):
         """
 
         #: (:obj:`str`) checker path
-        self._path = path
+        self._path = path or ""
         spath = path.split(".")
         self._lpath = spath[:-1]
         self._item = spath[-1]
@@ -138,6 +142,51 @@ class AttrCheck(Check):
         return getattr(parent, self._item)
 
 
+class ExtAttrCheck(Check):
+
+    def __init__(self, parent, atname):
+        Check.__init__(self, "")
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :obj:`any`
+        :param atname: attribute name
+        :type atname: :obj:`str`
+        """
+        self._parent = parent
+        self._atname = atname
+
+    def execute(self, _):
+        """ execute command
+        """
+        return getattr(self._parent, self._atname)
+
+
+class ExtCmdCheck(Check):
+
+    def __init__(self, parent, cmdname, cmdparams=None):
+        Check.__init__(self, "")
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :obj:`any`
+        :param atname: command name
+        :type atname: :obj:`str`
+        """
+        self._parent = parent
+        self._cmdname = cmdname
+        self._cmdparams = cmdparams
+
+    def execute(self, _):
+        """ execute command
+        """
+        cmd = getattr(self._parent, self._cmdname)
+        if not self._cmdparams:
+            return cmd()
+        else:
+            return cmd(*self._cmdparams)
+
+
 class WrapAttrCheck(AttrCheck):
 
     def __init__(self, path, wcmd, wparams=None, wpos=0):
@@ -176,7 +225,7 @@ class WrapAttrCheck(AttrCheck):
 class QtChecker(object):
 
     def __init__(self, app=None, dialog=None, verbose=False,
-                 qtgui=None, qtcore=None):
+                 qtgui=None, qtcore=None, qttest=None, sleep=0):
         """ constructor
 
         :param app:  application object
@@ -185,9 +234,18 @@ class QtChecker(object):
         :type dialog: :obj:`any`
         :param verbose: verbose flag
         :type verbose: :obj:`bool`
+        :param qtgui: QtGui module
+        :type qtgui:  :obj:`any`
+        :param qtcore: QtCore module
+        :type qtcore:  :obj:`any`
+        :param qttest: QtTest module
+        :type qttest:  :obj:`any`
+        :param sleep: sleep time in ms
+        :type sleep: :obj:`int`
         """
         self.QtGui = qtgui or QtGui
         self.QtCore = qtcore or QtCore
+        self.QtTest = qttest or QtTest
         self.__app = app
         if app is None:
             self.__app = self.QtGui.QApplication([])
@@ -196,6 +254,7 @@ class QtChecker(object):
         self.__checks = []
         self.__results = []
         self.__verbose = verbose
+        self.__sleep = sleep
 
     def setDialog(self, dialog):
         """ sets dialog
@@ -264,17 +323,24 @@ class QtChecker(object):
             if self.__verbose:
                 print("Execute %s: %s" % (i, ch.path()))
             self.__results.append(ch.execute(self.__dialog))
+            self.QtCore.QCoreApplication.processEvents()
+            if self.__sleep:
+                QtTest.QTest.qWait(self.__sleep)
 
-    def compareResults(self, testcase, results):
+    def compareResults(self, testcase, results, mask=None):
         """ compare results with use of testcase.assertEqual
 
         :param testcase: test case object
         :type testcase: :class:`unittest.TestCase`
         :param results: a list of template result objects
         :type results: :obj:`list` <:class:`any`>
+        :param mask: a list of flags
+        :type mask: :obj:`list` <:obj:`bool`>
         """
+        mask = mask or []
         testcase.assertEqual(len(self.__results), len(results))
         for i, rs in enumerate(self.__results):
-            if self.__verbose and rs != results[i]:
-                print("Difference at %s: %s <> %s" % (i, rs, results[i]))
-            testcase.assertEqual(rs, results[i])
+            if len(mask) <= i or not mask[i]:
+                if self.__verbose and rs != results[i]:
+                    print("Difference at %s: %s <> %s" % (i, rs, results[i]))
+                testcase.assertEqual(rs, results[i])
