@@ -122,6 +122,44 @@ class CmdCheck(Check):
             return cmd()
 
 
+class WrapCmdCheck(Check):
+
+    def __init__(self, path, params,
+                 wcmd, wparams=None, wpos=0):
+        CmdCheck.__init__(self, path, params)
+        Check.__init__(self, path)
+        """ constructor
+
+        :param path: check item path
+        :type path: :obj:`str`
+        :param params: a list of wrapper parameters or None
+        :type params: :obj:`dict` <:obj:`str`, :obj:`any`>
+        :param wcmd: wcmd command
+        :type wcmd: :obj:`func`
+        :param wparams: a list of wrapper parameters
+        :type wparams: :obj:`list`
+        :param wpos: position of wrapping object
+        :type wpos: :obj:`int`
+        """
+        self._wcmd = wcmd
+        self._wparams = wparams
+        self._wpos = wpos
+
+    def execute(self, dialog):
+        """ execute command
+
+        :param dialog: qt dialog
+        :type dialog: :obj:`any`
+        """
+        cmdres = CmdCheck.execute(self, dialog)
+        if not self._wparams:
+            wp = [cmdres]
+        else:
+            wp = list(self._wparams)
+            wp.insert(self._wpos, cmdres)
+        return self._wcmd(*wp)
+
+
 class AttrCheck(Check):
 
     def __init__(self, path):
