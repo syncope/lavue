@@ -171,7 +171,7 @@ class CommandLineArgumentTest(unittest.TestCase):
 
         cfg = '[Configuration]\n' \
             'Filters="[[\\"test.testFilters.ImageStack\\", \\"\\"]]\n'
-        with open(self.__cfgfname, "w") as cf:
+        with open(self.__cfgfname, "w+") as cf:
             cf.write(cfg)
         options = argparse.Namespace(
             mode='user',
