@@ -78,8 +78,8 @@ class CommandLineArgumentTest(unittest.TestCase):
 #        self.__seed = 332115341842367128541506422124286219441
         self.__rnd = random.Random(self.__seed)
         home = os.path.expanduser("~")
-        self.__cfgfname = "%s/%s" % (
-            home, ".config/DESY/LaVue: unittests.conf")
+        self.__cfgfdir = "%s/%s" % (home, ".config/DESY")
+        self.__cfgfname = "%s/%s" % (self.__cfgfdir, "LaVue: unittests.conf")
 
     def setUp(self):
         print("\nsetting up...")
@@ -171,6 +171,8 @@ class CommandLineArgumentTest(unittest.TestCase):
 
         cfg = '[Configuration]\n' \
             'Filters="[[\\"test.testFilters.ImageStack\\", \\"\\"]]\n'
+        if not os.path.exists(self.__cfgfdif):
+            os.remove(self.__cfgfdir)
         with open(self.__cfgfname, "w+") as cf:
             cf.write(cfg)
         options = argparse.Namespace(
