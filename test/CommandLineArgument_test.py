@@ -38,7 +38,12 @@ from pyqtgraph import QtCore
 from pyqtgraph.Qt import QtTest
 
 try:
-    import qtchecker
+    import testFilters
+except Exception:
+    from . import testFilters
+
+try:
+    import filters
 except Exception:
     from . import qtchecker
 
@@ -72,15 +77,15 @@ class CommandLineArgumentTest(unittest.TestCase):
             self.__seed = long(time.time() * 256)
 #        self.__seed = 332115341842367128541506422124286219441
         self.__rnd = random.Random(self.__seed)
+        home = os.path.expanduser("~")
+        self.__cfgfname = "%s/%s" % (home, ".config/DESY/LaVue: unittests.conf")
 
     def setUp(self):
         print("\nsetting up...")
         print("SEED = %s" % self.__seed)
-        home = os.path.expanduser("~")
-        fname = "%s/%s" % (home, ".config/DESY/LaVue: unittests.conf")
-        if os.path.exists(fname):
-            print("removing '%s'" % fname)
-            os.remove(fname)
+        if os.path.exists(self.__cfgfname):
+            print("removing '%s'" % self.__cfgfname)
+            os.remove(self.__cfgfname)
 
     def tearDown(self):
         print("tearing down ...")
@@ -158,6 +163,61 @@ class CommandLineArgumentTest(unittest.TestCase):
         self.assertEqual(status, 0)
         qtck.compareResults(
             self, [True, None, False, None, True, None, False])
+
+    def test_filters(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        cfg = '[Configuration]\n' \
+            'Filters="[[\\"test.testFilters.ImageStack\\", \\"\\"]]\n'
+        with open(self.__cfgfname, "w") as cf:
+            cf.write(cfg)
+        options = argparse.Namespace(
+            mode='user',
+            instance='test',
+            tool=None,
+            source='test',
+            filters=True,
+            log='info')
+        logging.basicConfig(
+             format="%(levelname)s: %(message)s")
+        logger = logging.getLogger("lavue")
+        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+        dialog = lavuelib.liveViewer.MainWindow(options=options)
+        dialog.show()
+
+        qtck = qtchecker.QtChecker(app, dialog, True, sleep=1000)
+        qtck.setChecks([
+            qtchecker.CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            qtchecker.CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg"
+                ".toggleServerConnection"),
+            qtchecker.CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            qtchecker.WrapAttrCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg"
+                "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+            qtchecker.CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+        ])
+
+        status = qtck.executeChecksAndClose()
+
+        self.assertEqual(status, 0)
+        qtck.compareResults(
+            self, [False, None, True, None, False])
+
+        self.assertEqual(
+            len(testFilters.imagenamestack),
+            len(testFilters.imagestack))
+        for i, iname in enumerate(testFilters.imagenamestack):
+            image = testFilters.imagestack[i]
+            self.assertEqual(iname, '__random_%s__' % (i + 1))
+            self.assertEqual(image.shape, (512, 256))
+            self.assertEqual(str(image.dtype), "int64")
+
 
 
 if __name__ == '__main__':
