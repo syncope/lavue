@@ -172,7 +172,7 @@ class CommandLineArgumentTest(unittest.TestCase):
         cfg = '[Configuration]\n' \
             'Filters="[[\\"test.testFilters.ImageStack\\", \\"\\"]]\n'
         if not os.path.exists(self.__cfgfdir):
-            os.remove(self.__cfgfdir)
+            os.makedirs(self.__cfgfdir)
         with open(self.__cfgfname, "w+") as cf:
             cf.write(cfg)
         options = argparse.Namespace(
