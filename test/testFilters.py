@@ -32,6 +32,7 @@
 imagestack = []
 imagenamestack = []
 
+
 def ImageStack(image, imagename, metadata, imagewg):
     """ image stack filter
 

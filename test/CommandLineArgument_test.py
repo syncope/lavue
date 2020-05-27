@@ -43,7 +43,7 @@ except Exception:
     from . import testFilters
 
 try:
-    import filters
+    import qtchecker
 except Exception:
     from . import qtchecker
 
@@ -78,7 +78,8 @@ class CommandLineArgumentTest(unittest.TestCase):
 #        self.__seed = 332115341842367128541506422124286219441
         self.__rnd = random.Random(self.__seed)
         home = os.path.expanduser("~")
-        self.__cfgfname = "%s/%s" % (home, ".config/DESY/LaVue: unittests.conf")
+        self.__cfgfname = "%s/%s" % (
+            home, ".config/DESY/LaVue: unittests.conf")
 
     def setUp(self):
         print("\nsetting up...")
@@ -217,7 +218,6 @@ class CommandLineArgumentTest(unittest.TestCase):
             self.assertEqual(iname, '__random_%s__' % (i + 1))
             self.assertEqual(image.shape, (512, 256))
             self.assertEqual(str(image.dtype), "int64")
-
 
 
 if __name__ == '__main__':
