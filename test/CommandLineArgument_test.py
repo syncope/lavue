@@ -37,15 +37,15 @@ from pyqtgraph import QtGui
 from pyqtgraph import QtCore
 from pyqtgraph.Qt import QtTest
 
+from qtchecker.qtChecker import (
+    QtChecker, CmdCheck, WrapAttrCheck)
+
+
 try:
     import testFilters
 except Exception:
     from . import testFilters
 
-try:
-    import qtchecker
-except Exception:
-    from . import qtchecker
 
 #  Qt-application
 app = None
@@ -107,9 +107,9 @@ class CommandLineArgumentTest(unittest.TestCase):
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
 
-        qtck = qtchecker.QtChecker(app, dialog, True)
+        qtck = QtChecker(app, dialog, True)
         qtck.setChecks([
-            qtchecker.CmdCheck(
+            CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected")
         ])
 
@@ -136,26 +136,26 @@ class CommandLineArgumentTest(unittest.TestCase):
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
 
-        qtck = qtchecker.QtChecker(app, dialog, True, sleep=100)
+        qtck = QtChecker(app, dialog, True, sleep=100)
         qtck.setChecks([
-            qtchecker.CmdCheck(
+            CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
-            qtchecker.CmdCheck(
+            CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg"
                 ".toggleServerConnection"),
-            qtchecker.CmdCheck(
+            CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
-            qtchecker.WrapAttrCheck(
+            WrapAttrCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg"
                 "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
                 QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
-            qtchecker.CmdCheck(
+            CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
-            qtchecker.WrapAttrCheck(
+            WrapAttrCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg"
                 "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
                 QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
-            qtchecker.CmdCheck(
+            CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected")
         ])
 
@@ -189,20 +189,20 @@ class CommandLineArgumentTest(unittest.TestCase):
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
 
-        qtck = qtchecker.QtChecker(app, dialog, True, sleep=1000)
+        qtck = QtChecker(app, dialog, True, sleep=1000)
         qtck.setChecks([
-            qtchecker.CmdCheck(
+            CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
-            qtchecker.CmdCheck(
+            CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg"
                 ".toggleServerConnection"),
-            qtchecker.CmdCheck(
+            CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
-            qtchecker.WrapAttrCheck(
+            WrapAttrCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg"
                 "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
                 QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
-            qtchecker.CmdCheck(
+            CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
         ])
 

@@ -37,6 +37,10 @@ import lavuelib.liveViewer
 from pyqtgraph import QtGui
 # from pyqtgraph import QtCore
 
+
+from qtchecker.qtChecker import (
+    QtChecker, CmdCheck, ExtCmdCheck)
+
 #  Qt-application
 app = None
 
@@ -52,11 +56,6 @@ try:
 except Exception:
     from LavueControllerSetUp import ControllerSetUp
     # from LavueControllerSetUp import TangoCB
-
-try:
-    import qtchecker
-except Exception:
-    from . import qtchecker
 
 
 # Path
@@ -176,11 +175,11 @@ class CommandLineLavueStateTest(unittest.TestCase):
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
 
-        qtck = qtchecker.QtChecker(app, dialog, True)
+        qtck = QtChecker(app, dialog, True)
         qtck.setChecks([
-            qtchecker.CmdCheck(
+            CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
-            qtchecker.ExtCmdCheck(self, "getLavueState")
+            ExtCmdCheck(self, "getLavueState")
         ])
 
         status = qtck.executeChecksAndClose()
@@ -213,11 +212,11 @@ class CommandLineLavueStateTest(unittest.TestCase):
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
 
-        qtck = qtchecker.QtChecker(app, dialog, True)
+        qtck = QtChecker(app, dialog, True)
         qtck.setChecks([
-            qtchecker.CmdCheck(
+            CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
-            qtchecker.ExtCmdCheck(self, "getLavueState")
+            ExtCmdCheck(self, "getLavueState")
         ])
 
         status = qtck.executeChecksAndClose()
@@ -258,11 +257,11 @@ class CommandLineLavueStateTest(unittest.TestCase):
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
 
-        qtck = qtchecker.QtChecker(app, dialog, True)
+        qtck = QtChecker(app, dialog, True)
         qtck.setChecks([
-            qtchecker.CmdCheck(
+            CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
-            qtchecker.ExtCmdCheck(self, "getLavueState")
+            ExtCmdCheck(self, "getLavueState")
         ])
 
         status = qtck.executeChecksAndClose()
@@ -321,11 +320,11 @@ class CommandLineLavueStateTest(unittest.TestCase):
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
 
-        qtck = qtchecker.QtChecker(app, dialog, True)
+        qtck = QtChecker(app, dialog, True)
         qtck.setChecks([
-            qtchecker.CmdCheck(
+            CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
-            qtchecker.ExtCmdCheck(self, "getLavueState")
+            ExtCmdCheck(self, "getLavueState")
         ])
 
         status = qtck.executeChecksAndClose()
