@@ -35,11 +35,12 @@ import argparse
 import lavuelib
 import lavuelib.liveViewer
 from pyqtgraph import QtGui
-# from pyqtgraph import QtCore
+from pyqtgraph import QtCore
+from pyqtgraph.Qt import QtTest
 
 
 from qtchecker.qtChecker import (
-    QtChecker, CmdCheck, ExtCmdCheck)
+    QtChecker, CmdCheck, ExtCmdCheck, WrapAttrCheck)
 
 #  Qt-application
 app = None
@@ -351,6 +352,78 @@ class CommandLineLavueStateTest(unittest.TestCase):
             autofactor='1.3',
             gradient='flame',
             maskhighvalue='100',
+            tangodevice='test/lavuecontroller/00'
+        ))
+        self.compareStates(ls, dls,
+                           ['viewrange', '__timestamp__', 'doordevice'])
+
+    def test_mbuffer(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        self.__lcsu.proxy.Init()
+        self.__lavuestate = None
+
+        options = argparse.Namespace(
+            mode='expert',
+            source='test',
+            start=True,
+            instance='test3',
+            channel='rgb',
+            mbuffer=10,
+            tool='rgbintensity',
+            transformation='flip-up-down',
+            log='error',
+            scaling='linear',
+            autofactor='1.3',
+            gradient='flame',
+            tangodevice='test/lavuecontroller/00'
+        )
+        logging.basicConfig(
+             format="%(levelname)s: %(message)s")
+        logger = logging.getLogger("lavue")
+        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+        dialog = lavuelib.liveViewer.MainWindow(options=options)
+        dialog.show()
+
+        qtck = QtChecker(app, dialog, True, sleep=1000)
+        qtck.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            ExtCmdCheck(self, "getLavueState"),
+            WrapAttrCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg"
+                "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__mbufferwg.bufferSize"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__channelwg.rgbchannels"),
+        ])
+
+        status = qtck.executeChecksAndClose()
+
+        self.assertEqual(status, 0)
+        qtck.compareResults(self, [True, None, None, False, 10, (0, 1, 2)])
+
+        ls = json.loads(self.__lavuestate)
+        dls = dict(self.__defaultls)
+        dls.update(dict(
+            mode='expert',
+            source='test',
+            configuration='',
+            connected=True,
+            instance='test3',
+            tool='rgbintensity',
+            transformation='flip-up-down',
+            log='error',
+            scaling='linear',
+            mbuffer=10,
+            channel='0,1,2',
+            autofactor='1.3',
+            gradient='flame',
             tangodevice='test/lavuecontroller/00'
         ))
         self.compareStates(ls, dls,
