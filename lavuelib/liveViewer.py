@@ -935,12 +935,12 @@ class LiveViewer(QtGui.QDialog):
             strans = trans.split(",")
             if len(strans) > 0:
                 try:
-                    x = int(strans[0])
+                    x = int(strans[0].replace("m", "-"))
                 except Exception:
                     pass
             if len(strans) > 1:
                 try:
-                    y = int(strans[1])
+                    y = int(strans[1].replace("m", "-"))
                 except Exception:
                     pass
             if len(strans) > 2:
