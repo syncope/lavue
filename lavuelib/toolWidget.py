@@ -75,6 +75,10 @@ _angleqformclass, _angleqbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "AngleQToolWidget.ui"))
 
+_diffractogramformclass, _diffractogrambaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "DiffractogramToolWidget.ui"))
+
 _maximaformclass, _maximabaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "MaximaToolWidget.ui"))
@@ -114,6 +118,7 @@ __all__ = [
     'ProjectionToolWidget',
     'MaximaToolWidget',
     'ParametersToolWidget',
+    'DiffractogramToolWidget',
     'QROIProjToolWidget',
     'twproperties',
 ]
@@ -3071,6 +3076,468 @@ class AngleQToolWidget(ToolBaseWidget):
             % message)
         self.__ui.angleqPushButton.setToolTip(
             "Input physical parameters\n%s" % message)
+        self.__ui.angleqComboBox.setToolTip(
+            "Select the display space\n%s" % message)
+        self.__ui.toolLabel.setToolTip(
+            "coordinate info display for the mouse pointer\n%s" % message)
+
+    @QtCore.pyqtSlot()
+    def updateRangeTip(self):
+        """ update geometry tips
+        """
+        self.__ui.rangePushButton.setToolTip(
+            u"Polar: [%s, %s] deg, size=%s\n"
+            u"th_tot: [%s, %s] deg, size=%s\n"
+            u"q: [%s, %s] 1/\u212B, size=%s" % (
+                self.__polstart if self.__polstart is not None else "0",
+                self.__polend if self.__polstart is not None else "360",
+                self.__polsize if self.__polstart is not None else "360",
+                self.__radthstart if self.__radthstart is not None else "0",
+                self.__radthend if self.__radthend is not None else "thmax",
+                self.__radthsize if self.__radthsize is not None else "max",
+                self.__radqstart if self.__radqstart is not None else "0",
+                self.__radqend if self.__radqend is not None else "qmax",
+                self.__radqsize if self.__radqsize is not None else "max")
+        )
+
+
+class DiffractogramToolWidget(ToolBaseWidget):
+    """ diffractogram tool widget
+    """
+
+    #: (:obj:`str`) tool name
+    name = "Diffractogram"
+    #: (:obj:`str`) tool name alias
+    alias = "diffractogram"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ()
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
+        """
+        ToolBaseWidget.__init__(self, parent)
+
+        #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
+        self.__gspaceindex = 0
+
+        #: (:obj:`int`) plot index -> 0: Cartesian, 1 polar-th, 2 polar-q
+        self.__plotindex = 0
+
+        #: (:class:`Ui_ROIToolWidget') ui_toolwidget object from qtdesigner
+        self.__ui = _diffractogramformclass()
+        self.__ui.setupUi(self)
+
+        #: (:obj:`bool`) old lock value
+        self.__oldlocked = None
+
+        #: (:class:`numpy.array`) radial array cache
+        self.__lastradial = None
+        #: (:class:`numpy.array`) angle array cache
+        self.__lastangle = None
+        #: (:obj:`float`) energy cache
+        self.__lastenergy = None
+        #: (:obj:`float`) radmax cache
+        self.__lastradmax = None
+        #: (:obj:`float`) plotindex cache
+        self.__lastpindex = None
+        #: (:obj:`float`) detdistance cache
+        self.__lastdistance = None
+        #: (:obj:`float`) center x cache
+        self.__lastcenterx = None
+        #: (:obj:`float`) center y cache
+        self.__lastcentery = None
+        #: (:obj:`float`) pixelsizeycache
+        self.__lastpsizex = None
+        #: (:obj:`float`) pixelsizey cache
+        self.__lastpsizey = None
+        #: (:class:`numpy.array`) x array cache
+        self.__lastx = None
+        #: (:class:`numpy.array`) y array cache
+        self.__lasty = None
+        #: (:obj:`float`) maxdim cache
+        self.__lastmaxdim = None
+
+        #: (:obj:`float`) start position of radial q coordinate
+        self.__radqstart = None
+        #: (:obj:`float`) end position of radial q coordinate
+        self.__radqend = None
+        #: (:obj:`int`) grid size of radial q coordinate
+        self.__radqsize = None
+        #: (:obj:`float`) start position of radial theta coordinate
+        self.__radthstart = None
+        #: (:obj:`float`) end position of radial theta coordinate
+        self.__radthend = None
+        #: (:obj:`int`) grid size of radial theta coordinate
+        self.__radthsize = None
+        #: (:obj:`float`) start position of polar angle
+        self.__polstart = None
+        #: (:obj:`float`) end position of polar angle
+        self.__polend = None
+        #: (:obj:`int`) grid size of polar angle
+        self.__polsize = None
+
+        #: (:obj:`float`) range changed flag
+        self.__rangechanged = True
+
+        # self.parameters.lines = True
+        #: (:obj:`str`) infolineedit text
+        self.parameters.infolineedit = ""
+        self.parameters.infotips = ""
+        self.parameters.bottomplot = True
+        self.parameters.centerlines = True
+        self.parameters.polarscale = False
+        # self.parameters.rightplot = True
+
+        #: (`lavuelib.imageDisplayWidget.AxesParameters`) axes backup
+        self.__axes = None
+
+        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        self.__settings = self._mainwidget.settings()
+
+        #: (:obj:`float`) radial coordinate factor
+        self.__radmax = 1.
+
+        #: (:obj:`float`) polar coordinate factor
+        self.__polmax = 1.
+
+        #: (:obj:`list` < [:class:`pyqtgraph.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: list of [signal, slot] object to connect
+        self.signal2slot = [
+            # [self.__ui.angleqPushButton.clicked, self._setGeometry],
+            [self.__ui.rangePushButton.clicked, self._setPolarRange],
+            [self.__ui.angleqComboBox.currentIndexChanged,
+             self._setGSpaceIndex],
+            # [self.__ui.plotComboBox.currentIndexChanged,
+            #  self._setPlotIndex],
+            [self._mainwidget.mouseImageDoubleClicked,
+             self._updateCenter],
+            # [self._mainwidget.geometryChanged, self.updateGeometryTip],
+            [self._mainwidget.mouseImagePositionChanged, self._message]
+        ]
+
+    def activate(self):
+        """ activates tool widget
+        """
+        self.__oldlocked = None
+        # self.updateGeometryTip()
+        self.updateRangeTip()
+        self._mainwidget.updateCenter(
+            self.__settings.centerx, self.__settings.centery)
+
+    def deactivate(self):
+        """ deactivates tool widget
+        """
+
+    def beforeplot(self, array, rawarray):
+        """ command  before plot
+
+        :param array: 2d image array
+        :type array: :class:`numpy.ndarray`
+        :param rawarray: 2d raw image array
+        :type rawarray: :class:`numpy.ndarray`
+        :return: 2d image array and raw image
+        :rtype: (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
+        """
+
+    @QtCore.pyqtSlot(float, float)
+    def _updateCenter(self, xdata, ydata):
+        """ updates the image center
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        """
+        if self.__plotindex == 0:
+            txdata = None
+            if self._mainwidget.rangeWindowEnabled():
+                txdata, tydata = self._mainwidget.scaledxy(
+                    xdata, ydata, useraxes=False)
+                if txdata is not None:
+                    xdata = txdata
+                    ydata = tydata
+            self.__settings.centerx = float(xdata)
+            self.__settings.centery = float(ydata)
+            self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
+            self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
+            self._message()
+            self.updateGeometryTip()
+
+    @QtCore.pyqtSlot()
+    def _message(self):
+        """ provides geometry message
+        """
+        message = ""
+        _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
+        if self._mainwidget.rangeWindowEnabled():
+            txdata, tydata = self._mainwidget.scaledxy(
+                x, y, useraxes=False)
+            if txdata is not None:
+                x = txdata
+                y = tydata
+        ilabel = self._mainwidget.scalingLabel()
+        if self.__plotindex == 0:
+            if self.__gspaceindex == 0:
+                thetax, thetay, thetatotal = self.__pixel2theta(x, y)
+                if thetax is not None:
+                    message = "th_x = %f deg, th_y = %f deg," \
+                              " th_tot = %f deg, %s = %.2f" \
+                              % (thetax * 180 / math.pi,
+                                 thetay * 180 / math.pi,
+                                 thetatotal * 180 / math.pi,
+                                 ilabel, intensity)
+            else:
+                qx, qy, q = self.__pixel2q(x, y)
+                if qx is not None:
+                    message = u"q_x = %f 1/\u212B, q_y = %f 1/\u212B, " \
+                              u"q = %f 1/\u212B, %s = %.2f" \
+                              % (qx, qy, q, ilabel, intensity)
+        elif self.__plotindex == 1:
+            rstart = self.__radthstart \
+                if self.__radthstart is not None else 0
+            pstart = self.__polstart if self.__polstart is not None else 0
+            iscaling = self._mainwidget.scaling()
+            if iscaling != "linear" and not ilabel.startswith(iscaling):
+                if ilabel[0] == "(":
+                    ilabel = "%s%s" % (iscaling, ilabel)
+                else:
+                    ilabel = "%s(%s)" % (iscaling, ilabel)
+
+            message = u"th_tot = %f deg, polar = %f deg, " \
+                      u" %s = %.2f" % (
+                          x * 180 / math.pi * self.__radmax + rstart,
+                          y * self.__polmax + pstart,
+                          ilabel, intensity)
+        elif self.__plotindex == 2:
+            iscaling = self._mainwidget.scaling()
+            pstart = self.__polstart if self.__polstart is not None else 0
+            rstart = self.__radqstart \
+                if self.__radqstart is not None else 0
+            if iscaling != "linear" and not ilabel.startswith(iscaling):
+                if ilabel[0] == "(":
+                    ilabel = "%s%s" % (iscaling, ilabel)
+                else:
+                    ilabel = "%s(%s)" % (iscaling, ilabel)
+
+            message = u"q = %f 1/\u212B, polar = %f deg, " \
+                      u" %s = %.2f" % (
+                          x * self.__radmax + rstart,
+                          y * self.__polmax + pstart,
+                          ilabel, intensity)
+
+        self._mainwidget.setDisplayedText(message)
+
+    def __pixel2theta(self, xdata, ydata, xy=True):
+        """ converts coordinates from pixel positions to theta angles
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        :param xy: flag
+        :type xy: :obj:`bool`
+        :returns: x-theta, y-theta, total-theta
+        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
+        """
+        thetax = None
+        thetay = None
+        thetatotal = None
+        if self.__settings.energy > 0 and self.__settings.detdistance > 0:
+            xcentered = xdata - self.__settings.centerx
+            ycentered = ydata - self.__settings.centery
+            if xy:
+                thetax = math.atan(
+                    xcentered * self.__settings.pixelsizex / 1000.
+                    / self.__settings.detdistance)
+                thetay = math.atan(
+                    ycentered * self.__settings.pixelsizey / 1000.
+                    / self.__settings.detdistance)
+            r = math.sqrt(
+                (xcentered * self.__settings.pixelsizex / 1000.) ** 2
+                + (ycentered * self.__settings.pixelsizey / 1000.) ** 2)
+            thetatotal = math.atan(
+                r / self.__settings.detdistance)
+        return thetax, thetay, thetatotal
+
+    def __pixel2q(self, xdata, ydata, xy=True):
+        """ converts coordinates from pixel positions to q-space coordinates
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        :param xy: flag
+        :type xy: :obj:`bool`
+        :returns: q_x, q_y, q_total
+        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
+        """
+        qx = None
+        qy = None
+        q = None
+        if self.__settings.energy > 0 and self.__settings.detdistance > 0:
+            thetax, thetay, thetatotal = self.__pixel2theta(
+                xdata, ydata, xy)
+            wavelength = 12400./self.__settings.energy
+            if xy:
+                qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
+                qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
+            q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)
+        return qx, qy, q
+
+    def __tipmessage(self):
+        """ provides geometry messate
+
+        :returns: geometry text
+        :rtype: :obj:`unicode`
+        """
+
+        return u"geometry:\n" \
+            u"  center = (%s, %s) pixels\n" \
+            u"  pixel_size = (%s, %s) \u00B5m\n" \
+            u"  detector_distance = %s mm\n" \
+            u"  energy = %s eV" % (
+                self.__settings.centerx,
+                self.__settings.centery,
+                self.__settings.pixelsizex,
+                self.__settings.pixelsizey,
+                self.__settings.detdistance,
+                self.__settings.energy
+            )
+
+    @QtCore.pyqtSlot()
+    def _setPolarRange(self):
+        """ launches range widget
+
+        :returns: apply status
+        :rtype: :obj:`bool`
+        """
+        cnfdlg = rangeDialog.RangeDialog()
+        cnfdlg.polstart = self.__polstart
+        cnfdlg.polend = self.__polend
+        cnfdlg.polsize = self.__polsize
+        cnfdlg.radqstart = self.__radqstart
+        cnfdlg.radqend = self.__radqend
+        cnfdlg.radqsize = self.__radqsize
+        cnfdlg.radthstart = self.__radthstart
+        cnfdlg.radthend = self.__radthend
+        cnfdlg.radthsize = self.__radthsize
+        cnfdlg.createGUI()
+        if cnfdlg.exec_():
+            self.__polstart = cnfdlg.polstart
+            self.__polend = cnfdlg.polend
+            self.__polsize = cnfdlg.polsize
+            self.__radthstart = cnfdlg.radthstart
+            self.__radthend = cnfdlg.radthend
+            self.__radthsize = cnfdlg.radthsize
+            self.__radqstart = cnfdlg.radqstart
+            self.__radqend = cnfdlg.radqend
+            self.__radqsize = cnfdlg.radqsize
+            self.__rangechanged = True
+            self.updateRangeTip()
+            self._setPlotIndex(self.__plotindex)
+            if self.__plotindex:
+                self._mainwidget.emitReplotImage()
+
+    @QtCore.pyqtSlot()
+    def _setGeometry(self):
+        """ launches geometry widget
+
+        :returns: apply status
+        :rtype: :obj:`bool`
+        """
+        cnfdlg = geometryDialog.GeometryDialog()
+        cnfdlg.centerx = self.__settings.centerx
+        cnfdlg.centery = self.__settings.centery
+        cnfdlg.energy = self.__settings.energy
+        cnfdlg.pixelsizex = self.__settings.pixelsizex
+        cnfdlg.pixelsizey = self.__settings.pixelsizey
+        cnfdlg.detdistance = self.__settings.detdistance
+        cnfdlg.createGUI()
+        if cnfdlg.exec_():
+            self.__settings.centerx = cnfdlg.centerx
+            self.__settings.centery = cnfdlg.centery
+            self.__settings.energy = cnfdlg.energy
+            self.__settings.pixelsizex = cnfdlg.pixelsizex
+            self.__settings.pixelsizey = cnfdlg.pixelsizey
+            self.__settings.detdistance = cnfdlg.detdistance
+            self._mainwidget.writeAttribute(
+                "BeamCenterX", float(self.__settings.centerx))
+            self._mainwidget.writeAttribute(
+                "BeamCenterY", float(self.__settings.centery))
+            self._mainwidget.writeAttribute(
+                "Energy", float(self.__settings.energy))
+            self._mainwidget.writeAttribute(
+                "DetectorDistance",
+                float(self.__settings.detdistance))
+            self.updateGeometryTip()
+            self._mainwidget.updateCenter(
+                self.__settings.centerx, self.__settings.centery)
+            if self.__plotindex:
+                self._mainwidget.emitReplotImage()
+
+    @QtCore.pyqtSlot(int)
+    def _setGSpaceIndex(self, gindex):
+        """ set gspace index
+
+        :param gspace: g-space index, i.e. angle or q-space
+        :type gspace: :obj:`int`
+        """
+        self.__gspaceindex = gindex
+
+    @QtCore.pyqtSlot(int)
+    def _setPlotIndex(self, pindex=None):
+        """ set gspace index
+
+        :param gspace: g-space index,
+        :         i.e. 0: Cartesian, 1: polar-th, 2: polar-q
+        :type gspace: :obj:`int`
+        """
+        if pindex:
+            while not self.__calculateRadMax(pindex):
+                pass
+            self.parameters.centerlines = False
+            self.parameters.polarscale = True
+            if pindex == 1:
+                rscale = 180. / math.pi * self.__radmax
+                rstart = self.__radthstart \
+                    if self.__radthstart is not None else 0
+            else:
+                rscale = self.__radmax
+                rstart = self.__radqstart \
+                    if self.__radqstart is not None else 0
+            pstart = self.__polstart if self.__polstart is not None else 0
+            pscale = self.__polmax
+            self._mainwidget.setPolarScale([rstart, pstart], [rscale, pscale])
+            if not self.__plotindex:
+                self.__oldlocked = self._mainwidget.setAspectLocked(False)
+        else:
+            if self.__oldlocked is not None:
+                self._mainwidget.setAspectLocked(self.__oldlocked)
+            self.parameters.centerlines = True
+            self.parameters.polarscale = False
+        if pindex is not None:
+            self.__plotindex = pindex
+            if self.__ui.plotComboBox.currentIndex != pindex:
+                self.__ui.plotComboBox.setCurrentIndex(pindex)
+        self._mainwidget.updateinfowidgets(self.parameters)
+
+        self._mainwidget.emitReplotImage()
+
+    @QtCore.pyqtSlot()
+    def updateGeometryTip(self):
+        """ update geometry tips
+        """
+        message = self.__tipmessage()
+        self._mainwidget.updateDisplayedTextTip(
+            "coordinate info display for the mouse pointer\n%s"
+            % message)
+        # self.__ui.angleqPushButton.setToolTip(
+        #     "Input physical parameters\n%s" % message)
         self.__ui.angleqComboBox.setToolTip(
             "Select the display space\n%s" % message)
         self.__ui.toolLabel.setToolTip(
