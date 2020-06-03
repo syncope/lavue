@@ -299,7 +299,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
         options = argparse.Namespace(
             mode='expert',
             source='test;test;test',
-            offset=';200,300,r45;400,3,r180t',
+            offset=';200,m300,r45;400,3,r180t',
             start=True,
             instance='test3',
             tool='projections',
@@ -341,7 +341,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
             configuration=';;',
             connected=True,
             instance='test3',
-            offset=';200,300,r45;400,3,r180t',
+            offset=';200,m300,r45;400,3,r180t',
             tool='projections',
             transformation='flip-up-down',
             log='error',

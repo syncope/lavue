@@ -1,4 +1,8 @@
 2020-05-20 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for negative offset values in multi-source mode
+	* tagged as 2.41.4
+
+2020-05-20 Jan Kotanski <jan.kotanski@desy.de>
 	* show widget if the corresponding options is set
 	* improve ChannekGroupBox changeView()
 	* tagged as 2.41.3

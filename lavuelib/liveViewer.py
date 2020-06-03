@@ -935,12 +935,12 @@ class LiveViewer(QtGui.QDialog):
             strans = trans.split(",")
             if len(strans) > 0:
                 try:
-                    x = int(strans[0])
+                    x = int(strans[0].replace("m", "-"))
                 except Exception:
                     pass
             if len(strans) > 1:
                 try:
-                    y = int(strans[1])
+                    y = int(strans[1].replace("m", "-"))
                 except Exception:
                     pass
             if len(strans) > 2:
@@ -2707,6 +2707,8 @@ class LiveViewer(QtGui.QDialog):
                 pd.y = pd.y or 0
                 shape[0] += pd.x
                 shape[1] += pd.y
+                nx = min(0, pd.x)
+                ny = min(0, pd.y)
                 for pd in ldata[1:]:
                     pd.x = pd.x or 0
                     if pd.y is None:
@@ -2720,19 +2722,27 @@ class LiveViewer(QtGui.QDialog):
                         dtype = self.__settings.floattype
                     shape[0] = max(shape[0], psh[0])
                     shape[1] = max(shape[1], psh[1])
+                    nx = min(nx, pd.x)
+                    ny = min(ny, pd.y)
                 if self.__settings.nanmask:
                     rawimage = np.zeros(
-                        shape=shape, dtype=self.__settings.floattype)
+                        shape=(shape[0] - nx, shape[1] - ny),
+                        dtype=self.__settings.floattype)
                     rawimage.fill(np.nan)
                 else:
-                    rawimage = np.zeros(shape=shape, dtype=dtype)
+                    rawimage = np.zeros(
+                        shape=(shape[0] - nx, shape[1] - ny),
+                        dtype=dtype)
                 for pd in ldata:
                     if len(shape) == 2:
-                        rawimage[pd.x: pd.sx + pd.x, pd.y: pd.sy + pd.y] = \
+                        rawimage[
+                            pd.x - nx: pd.sx + pd.x - nx,
+                            pd.y - ny: pd.sy + pd.y - ny] = \
                             pd.data()
                     else:
                         rawimage[
-                            pd.x: pd.sx + pd.x, pd.y: pd.sy + pd.y, ...] = \
+                            pd.x - nx: pd.sx + pd.x - nx,
+                            pd.y - ny: pd.sy + pd.y - ny, ...] = \
                             pd.data()
         return name, rawimage, metadata
 
