@@ -75,7 +75,7 @@
       <widget class="QComboBox" name="unitComboBox">
        <item>
         <property name="text">
-         <string>q_nm^2</string>
+         <string>q_nm^-1</string>
         </property>
        </item>
        <item>
@@ -112,19 +112,16 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="integratePushButton">
+      <widget class="QPushButton" name="showPushButton">
        <property name="text">
-        <string>Integrate</string>
+        <string>Show</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="stepPushButton">
+      <widget class="QPushButton" name="nextPushButton">
        <property name="text">
-        <string>One Step</string>
-       </property>
-       <property name="autoRepeatDelay">
-        <number>300</number>
+        <string>Next</string>
        </property>
       </widget>
      </item>

@@ -121,6 +121,8 @@ class Settings(object):
         self.interruptonerror = True
         #: (:obj:`str`) last image file name
         self.imagename = None
+        #: (:obj:`str`) calibration file name
+        self.calibrationfilename = None
         #: (:obj:`str`) last mask image file name
         self.maskimagename = None
         #: (:obj:`str`) last background image file name
@@ -493,6 +495,10 @@ class Settings(object):
                 "Configuration/LastBackgroundImageFileName", type=str))
         if qstval:
             self.bkgimagename = qstval
+        qstval = str(
+            settings.value("Configuration/LastCalibrationFileName", type=str))
+        if qstval:
+            self.calibrationfilename = qstval
 
         qstval = str(
             settings.value(
@@ -781,6 +787,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/LastMaskImageFileName",
             self.maskimagename)
+        settings.setValue(
+            "Configuration/LastCalibrationFileName",
+            self.calibrationfilename)
         settings.setValue(
             "Configuration/LastBackgroundImageFileName",
             self.bkgimagename)

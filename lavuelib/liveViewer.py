@@ -1718,9 +1718,15 @@ class LiveViewer(QtGui.QDialog):
                         except Exception:
                             ival = False
                     fprefix, ffid = basename[:-w], basename[-w:]
-                    fmt = "%sd" % w
-                    fmtfid = ("%0" + fmt) % fid
+                    if w:
+                        fmt = "%sd" % w
+                        fmtfid = ("%0" + fmt) % fid
+                    else:
+                        fmtfid = ""
+                        fprefix = ffid
+                        ffid = ""
                     self.__frame = int(fid)
+
                     iname = "%s%s%s" % (fprefix, fmtfid, ext)
                     imagename = os.path.join(ipath, iname)
                 except Exception:

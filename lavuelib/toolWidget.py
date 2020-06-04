@@ -55,6 +55,14 @@ except ImportError:
     #: (:obj:`bool`) PyTango imported
     PYTANGO = False
 
+try:
+    import pyFAI
+    #: (:obj:`bool`) pyFAI imported
+    PYFAI = True
+except ImportError:
+    #: (:obj:`bool`) pyFAI imported
+    PYFAI = False
+
 if sys.version_info > (3,):
     long = int
 
@@ -3110,7 +3118,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
     #: (:obj:`str`) tool name alias
     alias = "diffractogram"
     #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
-    requires = ()
+    requires = ("PYFAI",)
 
     def __init__(self, parent=None):
         """ constructor
@@ -3123,8 +3131,10 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
         self.__gspaceindex = 0
 
-        #: (:obj:`int`) plot index -> 0: Cartesian, 1 polar-th, 2 polar-q
-        self.__plotindex = 0
+        #: (:obj:`int`) unit index
+        #               ->  0: q_nm^-1, 1: q_A-1, 2: 2th_deg, 3: 2th_rad
+        self.__unitindex = 0
+        self.__units = ["q_nm^-1", "q_A^-1", "2th_deg", "2th_rad"]
 
         #: (:class:`Ui_ROIToolWidget') ui_toolwidget object from qtdesigner
         self.__ui = _diffractogramformclass()
@@ -3133,32 +3143,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #: (:obj:`bool`) old lock value
         self.__oldlocked = None
 
-        #: (:class:`numpy.array`) radial array cache
-        self.__lastradial = None
-        #: (:class:`numpy.array`) angle array cache
-        self.__lastangle = None
-        #: (:obj:`float`) energy cache
-        self.__lastenergy = None
-        #: (:obj:`float`) radmax cache
-        self.__lastradmax = None
-        #: (:obj:`float`) plotindex cache
-        self.__lastpindex = None
-        #: (:obj:`float`) detdistance cache
-        self.__lastdistance = None
-        #: (:obj:`float`) center x cache
-        self.__lastcenterx = None
-        #: (:obj:`float`) center y cache
-        self.__lastcentery = None
-        #: (:obj:`float`) pixelsizeycache
-        self.__lastpsizex = None
-        #: (:obj:`float`) pixelsizey cache
-        self.__lastpsizey = None
-        #: (:class:`numpy.array`) x array cache
-        self.__lastx = None
-        #: (:class:`numpy.array`) y array cache
-        self.__lasty = None
-        #: (:obj:`float`) maxdim cache
-        self.__lastmaxdim = None
+        #: ((:obj:`bool`) show diffractogram status
+        self.__showdiff = False
 
         #: (:obj:`float`) start position of radial q coordinate
         self.__radqstart = None
@@ -3181,6 +3167,18 @@ class DiffractogramToolWidget(ToolBaseWidget):
 
         #: (:obj:`float`) range changed flag
         self.__rangechanged = True
+
+        #: (:class:`pyFAI.azimuthalIntegrator.AzimuthalIntegrator`)
+        #       azimuthal integrator
+        self.__ai = None
+
+        #: (:obj:`list`<:class:`pyqtgraph.PlotDataItem`>) 1D plot freezed
+        self.__freezed = []
+
+        #: (:obj:`list`<:class:`pyqtgraph.PlotDataItem`>) 1D plot
+        self.__curves = []
+        #: (:obj:`int`) current plot number
+        self.__nrplots = 0
 
         # self.parameters.lines = True
         #: (:obj:`str`) infolineedit text
@@ -3208,15 +3206,23 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.signal2slot = [
             # [self.__ui.angleqPushButton.clicked, self._setGeometry],
             [self.__ui.rangePushButton.clicked, self._setPolarRange],
+            [self.__ui.showPushButton.clicked, self._showhideDiff],
+            [self.__ui.nextPushButton.clicked, self._plotDiff],
+            [self.__ui.calibrationPushButton.clicked, self._loadCalibration],
             [self.__ui.angleqComboBox.currentIndexChanged,
              self._setGSpaceIndex],
-            # [self.__ui.plotComboBox.currentIndexChanged,
-            #  self._setPlotIndex],
+            [self.__ui.unitComboBox.currentIndexChanged,
+             self._setUnitIndex],
             [self._mainwidget.mouseImageDoubleClicked,
              self._updateCenter],
             # [self._mainwidget.geometryChanged, self.updateGeometryTip],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    def afterplot(self):
+        """ command after plot
+        """
+        self._plotDiff()
 
     def activate(self):
         """ activates tool widget
@@ -3226,10 +3232,35 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.updateRangeTip()
         self._mainwidget.updateCenter(
             self.__settings.centerx, self.__settings.centery)
+        self.__updateButtons()
+        if not self.__curves:
+            self.__curves.append(self._mainwidget.onedbottomplot(True))
+            self.__nrplots = 1
+        for curve in self.__curves:
+            curve.show()
+            curve.setVisible(True)
+        # self._updateAllCuts(self.__allcuts)
+
+        if self.__settings.calibrationfilename:
+            self._loadCalibration(
+                self.__settings.calibrationfilename)
+        self._plotDiff()
+        self._mainwidget.bottomplotShowMenu(True, True)
 
     def deactivate(self):
         """ deactivates tool widget
         """
+        self._mainwidget.bottomplotShowMenu()
+        for curve in self.__curves:
+            curve.hide()
+            curve.setVisible(False)
+            self._mainwidget.removebottomplot(curve)
+        self.__curves = []
+        # for freezed in self.__freezed:
+        #     freezed.hide()
+        #     freezed.setVisible(False)
+        #     self._mainwidget.removebottomplot(freezed)
+        # self.__freezed = []
 
     def beforeplot(self, array, rawarray):
         """ command  before plot
@@ -3251,20 +3282,55 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
         """
-        if self.__plotindex == 0:
-            txdata = None
-            if self._mainwidget.rangeWindowEnabled():
-                txdata, tydata = self._mainwidget.scaledxy(
-                    xdata, ydata, useraxes=False)
-                if txdata is not None:
-                    xdata = txdata
-                    ydata = tydata
-            self.__settings.centerx = float(xdata)
-            self.__settings.centery = float(ydata)
-            self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
-            self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
-            self._message()
-            self.updateGeometryTip()
+        txdata = None
+        if self._mainwidget.rangeWindowEnabled():
+            txdata, tydata = self._mainwidget.scaledxy(
+                xdata, ydata, useraxes=False)
+            if txdata is not None:
+                xdata = txdata
+                ydata = tydata
+        self.__settings.centerx = float(xdata)
+        self.__settings.centery = float(ydata)
+        self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
+        self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
+        self._message()
+        self.updateGeometryTip()
+
+    @QtCore.pyqtSlot()
+    def _loadCalibration(self, fileName=None):
+        """ load calibration file
+        """
+        if fileName is None:
+            fileDialog = QtGui.QFileDialog()
+            fileout = fileDialog.getOpenFileName(
+                self._mainwidget, 'Open calibration file',
+                self.__settings.calibrationfilename or '/ramdisk/',
+                "PONI (*.poni);;All files (*)"
+            )
+            if isinstance(fileout, tuple):
+                fileName = str(fileout[0])
+            else:
+                fileName = str(fileout)
+        if fileName:
+            try:
+                self.__ai = pyFAI.load(fileName)
+                self.__settings.calibrationfilename = fileName
+            except Exception as e:
+                # print(str(e))
+                logger.warning(str(e))
+                self.__ai = None
+            self.__updateButtons(self.__ai is not None)
+
+    def __updateButtons(self, status=None):
+        """ update buttons
+
+        :param status: show button flag
+        :type status: :obj:`bool`
+        """
+        if status is None:
+            status = self.__ai is not None
+        self.__ui.showPushButton.setEnabled(status)
+        self.__ui.nextPushButton.setEnabled(status)
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -3281,55 +3347,21 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 x = txdata
                 y = tydata
         ilabel = self._mainwidget.scalingLabel()
-        if self.__plotindex == 0:
-            if self.__gspaceindex == 0:
-                thetax, thetay, thetatotal = self.__pixel2theta(x, y)
-                if thetax is not None:
-                    message = "th_x = %f deg, th_y = %f deg," \
-                              " th_tot = %f deg, %s = %.2f" \
-                              % (thetax * 180 / math.pi,
-                                 thetay * 180 / math.pi,
-                                 thetatotal * 180 / math.pi,
-                                 ilabel, intensity)
-            else:
-                qx, qy, q = self.__pixel2q(x, y)
-                if qx is not None:
-                    message = u"q_x = %f 1/\u212B, q_y = %f 1/\u212B, " \
-                              u"q = %f 1/\u212B, %s = %.2f" \
-                              % (qx, qy, q, ilabel, intensity)
-        elif self.__plotindex == 1:
-            rstart = self.__radthstart \
-                if self.__radthstart is not None else 0
-            pstart = self.__polstart if self.__polstart is not None else 0
-            iscaling = self._mainwidget.scaling()
-            if iscaling != "linear" and not ilabel.startswith(iscaling):
-                if ilabel[0] == "(":
-                    ilabel = "%s%s" % (iscaling, ilabel)
-                else:
-                    ilabel = "%s(%s)" % (iscaling, ilabel)
-
-            message = u"th_tot = %f deg, polar = %f deg, " \
-                      u" %s = %.2f" % (
-                          x * 180 / math.pi * self.__radmax + rstart,
-                          y * self.__polmax + pstart,
-                          ilabel, intensity)
-        elif self.__plotindex == 2:
-            iscaling = self._mainwidget.scaling()
-            pstart = self.__polstart if self.__polstart is not None else 0
-            rstart = self.__radqstart \
-                if self.__radqstart is not None else 0
-            if iscaling != "linear" and not ilabel.startswith(iscaling):
-                if ilabel[0] == "(":
-                    ilabel = "%s%s" % (iscaling, ilabel)
-                else:
-                    ilabel = "%s(%s)" % (iscaling, ilabel)
-
-            message = u"q = %f 1/\u212B, polar = %f deg, " \
-                      u" %s = %.2f" % (
-                          x * self.__radmax + rstart,
-                          y * self.__polmax + pstart,
-                          ilabel, intensity)
-
+        if self.__gspaceindex == 0:
+            thetax, thetay, thetatotal = self.__pixel2theta(x, y)
+            if thetax is not None:
+                message = "th_x = %f deg, th_y = %f deg," \
+                          " th_tot = %f deg, %s = %.2f" \
+                          % (thetax * 180 / math.pi,
+                             thetay * 180 / math.pi,
+                             thetatotal * 180 / math.pi,
+                             ilabel, intensity)
+        else:
+            qx, qy, q = self.__pixel2q(x, y)
+            if qx is not None:
+                message = u"q_x = %f 1/\u212B, q_y = %f 1/\u212B, " \
+                          u"q = %f 1/\u212B, %s = %.2f" \
+                          % (qx, qy, q, ilabel, intensity)
         self._mainwidget.setDisplayedText(message)
 
     def __pixel2theta(self, xdata, ydata, xy=True):
@@ -3410,6 +3442,50 @@ class DiffractogramToolWidget(ToolBaseWidget):
             )
 
     @QtCore.pyqtSlot()
+    def _showhideDiff(self):
+        """ show or hide diffractogram
+        """
+        if not self.__showdiff:
+            self.__showdiff = True
+            self.__ui.showPushButton.setText("Freeze")
+            self._plotDiff()
+        else:
+            self.__showdiff = False
+            self.__ui.showPushButton.setText("Show")
+
+    @QtCore.pyqtSlot()
+    def _plotDiff(self):
+        """ plot diffractogram
+        """
+        if self.__ai is not None:
+            if self.__nrplots > 1:
+                for i in range(1, len(self.__curves)):
+                    self.__curves[i].setVisible(False)
+                    self.__curves[i].hide()
+                self.__nrplots = 1
+            if self._mainwidget.currentTool() == self.name:
+                dts = self._mainwidget.rawData()
+                # print(dts)
+                # self.__curves[0].setPen(_pg.mkColor('r'))
+                if dts is not None:
+                    try:
+                        res = self.__ai.integrate1d(
+                            dts.T, 1000, unit=self.__units[self.__unitindex])
+                        # print(res)
+                        x = res[0]
+                        y = res[1]
+                        self.__curves[0].setData(x=x, y=y)
+                    except Exception as e:
+                        # print(str(e))
+                        logger.warning(str(e))
+                        x = []
+                        y = []
+                        self.__curves[0].setData(x=x, y=y)
+                    self.__curves[0].setVisible(True)
+                else:
+                    self.__curves[0].setVisible(False)
+
+    @QtCore.pyqtSlot()
     def _setPolarRange(self):
         """ launches range widget
 
@@ -3439,9 +3515,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self.__radqsize = cnfdlg.radqsize
             self.__rangechanged = True
             self.updateRangeTip()
-            self._setPlotIndex(self.__plotindex)
-            if self.__plotindex:
-                self._mainwidget.emitReplotImage()
+            # if self.__plotindex:
+            #     self._mainwidget.emitReplotImage()
 
     @QtCore.pyqtSlot()
     def _setGeometry(self):
@@ -3477,8 +3552,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self.updateGeometryTip()
             self._mainwidget.updateCenter(
                 self.__settings.centerx, self.__settings.centery)
-            if self.__plotindex:
-                self._mainwidget.emitReplotImage()
+            # if self.__plotindex:
+            #     self._mainwidget.emitReplotImage()
 
     @QtCore.pyqtSlot(int)
     def _setGSpaceIndex(self, gindex):
@@ -3490,43 +3565,14 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.__gspaceindex = gindex
 
     @QtCore.pyqtSlot(int)
-    def _setPlotIndex(self, pindex=None):
-        """ set gspace index
+    def _setUnitIndex(self, uindex):
+        """ set unit index
 
-        :param gspace: g-space index,
-        :         i.e. 0: Cartesian, 1: polar-th, 2: polar-q
+        :param gspace: unit index, i.e. q_nm^-1, q_A^-1, 2th_deg, 2th_rad
         :type gspace: :obj:`int`
         """
-        if pindex:
-            while not self.__calculateRadMax(pindex):
-                pass
-            self.parameters.centerlines = False
-            self.parameters.polarscale = True
-            if pindex == 1:
-                rscale = 180. / math.pi * self.__radmax
-                rstart = self.__radthstart \
-                    if self.__radthstart is not None else 0
-            else:
-                rscale = self.__radmax
-                rstart = self.__radqstart \
-                    if self.__radqstart is not None else 0
-            pstart = self.__polstart if self.__polstart is not None else 0
-            pscale = self.__polmax
-            self._mainwidget.setPolarScale([rstart, pstart], [rscale, pscale])
-            if not self.__plotindex:
-                self.__oldlocked = self._mainwidget.setAspectLocked(False)
-        else:
-            if self.__oldlocked is not None:
-                self._mainwidget.setAspectLocked(self.__oldlocked)
-            self.parameters.centerlines = True
-            self.parameters.polarscale = False
-        if pindex is not None:
-            self.__plotindex = pindex
-            if self.__ui.plotComboBox.currentIndex != pindex:
-                self.__ui.plotComboBox.setCurrentIndex(pindex)
-        self._mainwidget.updateinfowidgets(self.parameters)
-
-        self._mainwidget.emitReplotImage()
+        self.__unitindex = uindex
+        self._plotDiff()
 
     @QtCore.pyqtSlot()
     def updateGeometryTip(self):
@@ -3540,8 +3586,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #     "Input physical parameters\n%s" % message)
         self.__ui.angleqComboBox.setToolTip(
             "Select the display space\n%s" % message)
-        self.__ui.toolLabel.setToolTip(
-            "coordinate info display for the mouse pointer\n%s" % message)
+        # self.__ui.toolLabel.setToolTip(
+        #     "coordinate info display for the mouse pointer\n%s" % message)
 
     @QtCore.pyqtSlot()
     def updateRangeTip(self):
