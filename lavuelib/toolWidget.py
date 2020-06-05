@@ -42,6 +42,7 @@ from enum import Enum
 
 from . import geometryDialog
 from . import rangeDialog
+from . import diffRangeDialog
 from . import takeMotorsDialog
 from . import intervalsDialog
 from . import motorWatchThread
@@ -2623,7 +2624,7 @@ class AngleQToolWidget(ToolBaseWidget):
                     if self.__radthstart is not None else 0
                 theta = radial * self.__radmax + rstart * math.pi / 180
             else:
-                wavelength = 12400./self.__settings.energy
+                wavelength = 12398.4193/self.__settings.energy
                 rstart = self.__radqstart \
                     if self.__radqstart is not None else 0
                 theta = 2. * np.arcsin(
@@ -2928,7 +2929,7 @@ class AngleQToolWidget(ToolBaseWidget):
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             thetax, thetay, thetatotal = self.__pixel2theta(
                 xdata, ydata, xy)
-            wavelength = 12400./self.__settings.energy
+            wavelength = 12398.4193/self.__settings.energy
             if xy:
                 qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
                 qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
@@ -3098,8 +3099,8 @@ class AngleQToolWidget(ToolBaseWidget):
             u"th_tot: [%s, %s] deg, size=%s\n"
             u"q: [%s, %s] 1/\u212B, size=%s" % (
                 self.__polstart if self.__polstart is not None else "0",
-                self.__polend if self.__polstart is not None else "360",
-                self.__polsize if self.__polstart is not None else "360",
+                self.__polend if self.__polend is not None else "360",
+                self.__polsize if self.__polsize is not None else "max",
                 self.__radthstart if self.__radthstart is not None else "0",
                 self.__radthend if self.__radthend is not None else "thmax",
                 self.__radthsize if self.__radthsize is not None else "max",
@@ -3128,9 +3129,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
         """
         ToolBaseWidget.__init__(self, parent)
 
-        #: (:obj:`int`) geometry space index -> 0: angle, 1 q-space
-        self.__gspaceindex = 0
-
         #: (:obj:`int`) unit index
         #               ->  0: q_nm^-1, 1: q_A-1, 2: 2th_deg, 3: 2th_rad
         self.__unitindex = 0
@@ -3146,24 +3144,18 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #: ((:obj:`bool`) show diffractogram status
         self.__showdiff = False
 
-        #: (:obj:`float`) start position of radial q coordinate
-        self.__radqstart = None
-        #: (:obj:`float`) end position of radial q coordinate
-        self.__radqend = None
-        #: (:obj:`int`) grid size of radial q coordinate
-        self.__radqsize = None
-        #: (:obj:`float`) start position of radial theta coordinate
-        self.__radthstart = None
-        #: (:obj:`float`) end position of radial theta coordinate
-        self.__radthend = None
+        #: (:obj:`float`) start position of radial in deg
+        self.__raddegstart = None
+        #: (:obj:`float`) end position of radial in deg
+        self.__raddegend = None
+        #: (:obj:`float`) start position of radial in the current units
+        self.__radstart = None
+        #: (:obj:`float`) end position of radial in the current units
+        self.__radend = None
         #: (:obj:`int`) grid size of radial theta coordinate
-        self.__radthsize = None
-        #: (:obj:`float`) start position of polar angle
-        self.__polstart = None
+        self.__azstart = None
         #: (:obj:`float`) end position of polar angle
-        self.__polend = None
-        #: (:obj:`int`) grid size of polar angle
-        self.__polsize = None
+        self.__azend = None
 
         #: (:obj:`float`) range changed flag
         self.__rangechanged = True
@@ -3209,8 +3201,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
             [self.__ui.showPushButton.clicked, self._showhideDiff],
             [self.__ui.nextPushButton.clicked, self._plotDiff],
             [self.__ui.calibrationPushButton.clicked, self._loadCalibration],
-            [self.__ui.angleqComboBox.currentIndexChanged,
-             self._setGSpaceIndex],
             [self.__ui.unitComboBox.currentIndexChanged,
              self._setUnitIndex],
             [self._mainwidget.mouseImageDoubleClicked,
@@ -3353,9 +3343,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.__settings.detrot1 = aic["rot1"]
         self.__settings.detrot2 = aic["rot2"]
         self.__settings.detrot3 = aic["rot3"]
-        self.__settings.pixelsizex = self.__settings.distance2mm(
+        self.__settings.pixelsizex = self.__settings.distance2um(
             (self.__ai.get_pixel2(), "m"))
-        self.__settings.pixelsizey = self.__settings.distance2mm(
+        self.__settings.pixelsizey = self.__settings.distance2um(
             (self.__ai.get_pixel1(), "m"))
         self.__settings.detdistance = self.__settings.distance2mm(
             (aic["dist"], "m"))
@@ -3391,21 +3381,34 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 x = txdata
                 y = tydata
         ilabel = self._mainwidget.scalingLabel()
-        if self.__gspaceindex == 0:
+        if self.__unitindex in [2, 3]:
             thetax, thetay, thetatotal = self.__pixel2theta(x, y)
             if thetax is not None:
-                message = "th_x = %f deg, th_y = %f deg," \
-                          " th_tot = %f deg, %s = %.2f" \
-                          % (thetax * 180 / math.pi,
-                             thetay * 180 / math.pi,
-                             thetatotal * 180 / math.pi,
+                unit = "rad"
+                if self.__unitindex == 2:
+                    unit = "deg"
+                    thetax = thetax * 180./math.pi
+                    thetay = thetay * 180./math.pi
+                    thetatotal = thetatotal * 180./math.pi
+                    unit = "rad"
+                message = "th_x = %f %s, th_y = %f %s," \
+                          " th_tot = %f %s, %s = %.2f" \
+                          % (thetax, unit,
+                             thetay, unit,
+                             thetatotal, unit,
                              ilabel, intensity)
         else:
             qx, qy, q = self.__pixel2q(x, y)
             if qx is not None:
-                message = u"q_x = %f 1/\u212B, q_y = %f 1/\u212B, " \
-                          u"q = %f 1/\u212B, %s = %.2f" \
-                          % (qx, qy, q, ilabel, intensity)
+                unit = u"1/\u212B"
+                if self.__unitindex == 0:
+                    qx = qx * 10
+                    qy = qy * 10
+                    q = q * 10
+                    unit = "1/nm"
+                message = u"q_x = %f %s, q_y = %f %s, " \
+                          u"q = %f %s, %s = %.2f" \
+                          % (qx, unit, qy, unit, q, unit, ilabel, intensity)
         self._mainwidget.setDisplayedText(message)
 
     def __pixel2theta(self, xdata, ydata, xy=True):
@@ -3458,7 +3461,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             thetax, thetay, thetatotal = self.__pixel2theta(
                 xdata, ydata, xy)
-            wavelength = 12400./self.__settings.energy
+            wavelength = 12398.4193/self.__settings.energy
             if xy:
                 qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
                 qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
@@ -3491,7 +3494,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         """
         if not self.__showdiff:
             self.__showdiff = True
-            self.__ui.showPushButton.setText("Freeze")
+            self.__ui.showPushButton.setText("Stop")
             self._plotDiff()
         else:
             self.__showdiff = False
@@ -3513,8 +3516,21 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 # self.__curves[0].setPen(_pg.mkColor('r'))
                 if dts is not None:
                     try:
-                        res = self.__ai.integrate1d(
-                            dts.T, 1000, unit=self.__units[self.__unitindex])
+                        trans = self._mainwidget.transformations()[0]
+                        csa = self.__settings.correctsolidangle
+                        unit = self.__units[self.__unitindex]
+                        if trans:
+                            res = self.__ai.integrate1d(
+                                dts,
+                                self.__settings.diffnpt,
+                                correctSolidAngle=csa,
+                                unit=unit)
+                        else:
+                            res = self.__ai.integrate1d(
+                                dts.T,
+                                self.__settings.diffnpt,
+                                correctSolidAngle=csa,
+                                unit=unit)
                         # print(res)
                         x = res[0]
                         y = res[1]
@@ -3536,31 +3552,44 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :returns: apply status
         :rtype: :obj:`bool`
         """
-        cnfdlg = rangeDialog.RangeDialog()
-        cnfdlg.polstart = self.__polstart
-        cnfdlg.polend = self.__polend
-        cnfdlg.polsize = self.__polsize
-        cnfdlg.radqstart = self.__radqstart
-        cnfdlg.radqend = self.__radqend
-        cnfdlg.radqsize = self.__radqsize
-        cnfdlg.radthstart = self.__radthstart
-        cnfdlg.radthend = self.__radthend
-        cnfdlg.radthsize = self.__radthsize
+        cnfdlg = diffRangeDialog.DiffRangeDialog()
+        cnfdlg.azstart = self.__azstart
+        cnfdlg.azend = self.__azend
+        cnfdlg.radstart = self.__radstart
+        cnfdlg.radend = self.__radend
+        cnfdlg.radunitindex = self.__unitindex
         cnfdlg.createGUI()
         if cnfdlg.exec_():
-            self.__polstart = cnfdlg.polstart
-            self.__polend = cnfdlg.polend
-            self.__polsize = cnfdlg.polsize
-            self.__radthstart = cnfdlg.radthstart
-            self.__radthend = cnfdlg.radthend
-            self.__radthsize = cnfdlg.radthsize
-            self.__radqstart = cnfdlg.radqstart
-            self.__radqend = cnfdlg.radqend
-            self.__radqsize = cnfdlg.radqsize
+            self.__azstart = cnfdlg.azstart
+            self.__azend = cnfdlg.azend
+            self.__radstart = cnfdlg.radstart
+            self.__radend = cnfdlg.radend
+            self.__updateraddeg()
             self.__rangechanged = True
             self.updateRangeTip()
             # if self.__plotindex:
             #     self._mainwidget.emitReplotImage()
+
+    def __updateraddeg(self):
+        """ update radial range in deg
+        """
+        if self.__unitindex < 2:
+            wavelength = 12398.4193/self.__settings.energy
+            rs = self.__radstart
+            re = self.__radend
+            if self.__unitindex == 0:
+                rs = rs / 10.
+                re = re / 10.
+            self.__raddegstart = 360. / math.pi * \
+                math.asin(rs * wavelength / (4 * math.pi))
+            self.__raddegend = 360. / math.pi * \
+                math.asin(re * wavelength / (4 * math.pi))
+        elif self.__unitindex == 2:
+            self.__raddegstart = self.__radstart
+            self.__raddegend = self.__radend
+        elif self.__unitindex == 3:
+            self.__raddegstart = self.__radstart * 180. / math.pi
+            self.__raddegend = self.__radend * 180. / math.pi
 
     @QtCore.pyqtSlot()
     def _setGeometry(self):
@@ -3600,15 +3629,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
             #     self._mainwidget.emitReplotImage()
 
     @QtCore.pyqtSlot(int)
-    def _setGSpaceIndex(self, gindex):
-        """ set gspace index
-
-        :param gspace: g-space index, i.e. angle or q-space
-        :type gspace: :obj:`int`
-        """
-        self.__gspaceindex = gindex
-
-    @QtCore.pyqtSlot(int)
     def _setUnitIndex(self, uindex):
         """ set unit index
 
@@ -3638,18 +3658,13 @@ class DiffractogramToolWidget(ToolBaseWidget):
         """ update geometry tips
         """
         self.__ui.rangePushButton.setToolTip(
-            u"Polar: [%s, %s] deg, size=%s\n"
-            u"th_tot: [%s, %s] deg, size=%s\n"
-            u"q: [%s, %s] 1/\u212B, size=%s" % (
-                self.__polstart if self.__polstart is not None else "0",
-                self.__polend if self.__polstart is not None else "360",
-                self.__polsize if self.__polstart is not None else "360",
-                self.__radthstart if self.__radthstart is not None else "0",
-                self.__radthend if self.__radthend is not None else "thmax",
-                self.__radthsize if self.__radthsize is not None else "max",
-                self.__radqstart if self.__radqstart is not None else "0",
-                self.__radqend if self.__radqend is not None else "qmax",
-                self.__radqsize if self.__radqsize is not None else "max")
+            u"radial range: [%s, %s] %s \n"
+            u"azimuth range: [%s, %s] deg\n" % (
+                self.__radstart if self.__radstart is not None else "0",
+                self.__radend if self.__radend is not None else "max",
+                self.__units[self.__unitindex],
+                self.__azstart if self.__azstart is not None else "0",
+                self.__azend if self.__azend is not None else "360")
         )
 
 
@@ -3922,7 +3937,7 @@ class MaximaToolWidget(ToolBaseWidget):
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             thetax, thetay, thetatotal = self.__pixel2theta(
                 xdata, ydata, xy)
-            wavelength = 12400./self.__settings.energy
+            wavelength = 12398.4193/self.__settings.energy
             if xy:
                 qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
                 qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
@@ -4640,7 +4655,7 @@ class QROIProjToolWidget(ToolBaseWidget):
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             thetax, thetay, thetatotal = self.__pixel2theta(
                 xdata, ydata)
-            wavelength = 12400./self.__settings.energy
+            wavelength = 12398.4193/self.__settings.energy
             qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
             qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
             q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)

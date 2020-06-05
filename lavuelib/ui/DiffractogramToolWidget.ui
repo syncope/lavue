@@ -55,42 +55,25 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="angleqComboBox">
-       <property name="toolTip">
-        <string>select the display space</string>
-       </property>
-       <item>
-        <property name="text">
-         <string>angles</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>q-space</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
       <widget class="QComboBox" name="unitComboBox">
        <item>
         <property name="text">
-         <string>q_nm^-1</string>
+         <string>q [1/nm]</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>q_A^-1</string>
+         <string>q [1/Å]</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>2th_deg</string>
+         <string>2th [deg]</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>2th_rad</string>
+         <string>2th [rad]</string>
         </property>
        </item>
       </widget>

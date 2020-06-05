@@ -222,6 +222,10 @@ class Settings(object):
         self.detrot2 = 0.0
         #: (:obj:`float`) rot3 parameter in rad
         self.detrot3 = 0.0
+        #: (:obj:`int`) number of points for diffractogram
+        self.diffnpt = 1000
+        #: (:obj:`bool`) correct solid angle flag
+        self.correctsolidangle = True
         #: (:obj:`bool`) show all rois flag
         self.showallrois = False
         #: (:obj:`bool`) send rois to LavueController flag
@@ -685,6 +689,15 @@ class Settings(object):
         except Exception:
             pass
         try:
+            self.diffnpt = float(
+                settings.value("Tools/DiffractogramNPT", type=str))
+        except Exception:
+            pass
+        qstval = str(settings.value(
+            "Tools/CorrectSolidAngle", type=str))
+        if qstval.lower() == "false":
+            self.correctsolidangle = False
+        try:
             self.detrot1 = float(
                 settings.value("Tools/DetectorRot1", type=str))
         except Exception:
@@ -899,6 +912,9 @@ class Settings(object):
             "Configuration/StoreGeometry",
             self.storegeometry)
         settings.setValue(
+            "Tools/CorrectSolidAngle",
+            self.correctsolidangle)
+        settings.setValue(
             "Configuration/GeometryFromSource",
             self.geometryfromsource)
         settings.setValue(
@@ -949,6 +965,9 @@ class Settings(object):
         settings.setValue(
             "Tools/DetectorPONI2",
             self.detponi2)
+        settings.setValue(
+            "Tools/DiffractogramNPT",
+            self.diffnpt)
         settings.setValue(
             "Tools/DetectorRot1",
             self.detrot1)
