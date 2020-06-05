@@ -3222,7 +3222,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
     def afterplot(self):
         """ command after plot
         """
-        self._plotDiff()
+        if self.__showdiff:
+            self._plotDiff()
 
     def activate(self):
         """ activates tool widget
@@ -3291,9 +3292,27 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 ydata = tydata
         self.__settings.centerx = float(xdata)
         self.__settings.centery = float(ydata)
+        if self.__ai is not None:
+            # print("center: %s %s" % (xdata, ydata))
+            # self.__ai.set_poni1(
+            #     self.__settings.centery * self.__settings.pixelsizex
+            # / 1000000.)
+            # self.__ai.set_poni2(
+            #     self.__settings.centerx * self.__settings.pixelsizey
+            # / 1000000.)
+            # aic = self.__ai.get_config()
+            aif = self.__ai.getFit2D()
+            # print(self.__ai)
+            self.__ai.setFit2D(aif["directDist"],
+                               self.__settings.centerx,
+                               self.__settings.centery,
+                               aif["tilt"],
+                               aif["tiltPlanRotation"])
+            # print(self.__ai)
         self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
         self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
         self._message()
+        self._plotDiff()
         self.updateGeometryTip()
 
     @QtCore.pyqtSlot()
@@ -3314,12 +3333,37 @@ class DiffractogramToolWidget(ToolBaseWidget):
         if fileName:
             try:
                 self.__ai = pyFAI.load(fileName)
+                # print(str(self.__ai))
                 self.__settings.calibrationfilename = fileName
+                self.__writedetsettings()
+                self._mainwidget.updateCenter(
+                    self.__settings.centerx, self.__settings.centery)
             except Exception as e:
                 # print(str(e))
                 logger.warning(str(e))
                 self.__ai = None
             self.__updateButtons(self.__ai is not None)
+
+    def __writedetsettings(self):
+        """ write detector settings from ai object
+        """
+        aic = self.__ai.get_config()
+        self.__settings.detponi1 = aic["poni1"]
+        self.__settings.detponi2 = aic["poni2"]
+        self.__settings.detrot1 = aic["rot1"]
+        self.__settings.detrot2 = aic["rot2"]
+        self.__settings.detrot3 = aic["rot3"]
+        self.__settings.pixelsizex = self.__settings.distance2mm(
+            (self.__ai.get_pixel2(), "m"))
+        self.__settings.pixelsizey = self.__settings.distance2mm(
+            (self.__ai.get_pixel1(), "m"))
+        self.__settings.detdistance = self.__settings.distance2mm(
+            (aic["dist"], "m"))
+        self.__settings.energy = self.__settings.length2ev(
+            (float(aic["wavelength"]), "m"))
+        aif = self.__ai.getFit2D()
+        self.__settings.centerx = float(aif["centerX"])
+        self.__settings.centery = float(aif["centerY"])
 
     def __updateButtons(self, status=None):
         """ update buttons
