@@ -2,8 +2,9 @@ FROM debian:stretch
 
 MAINTAINER DESY, Jan Kotanski <jankotan@gmail.com>
 RUN /bin/bash -c 'echo "deb http://ftp.de.debian.org/debian stretch main" > /etc/apt/sources.list.d/debian9de.list'
-RUN apt-get -qq update && apt-get -qq install -y libterm-readline-gnu-perl software-properties-common coreutils gnupg2 procps apt-utils curl apt-transport-https gnupg2 ca-certificates
-RUN curl http://repos.pni-hdri.de/debian_repo.pub.gpg | apt-key add -
+RUN apt-get -qq update && apt-get -qq install -y libterm-readline-gnu-perl software-properties-common coreutils gnupg2 procps apt-utils curl apt-transport-https gnupg2 ca-certificates wget
+RUN wget --retry-connrefused http://repos.pni-hdri.de/debian_repo.pub.gpg
+RUN apt-key add debian_repo.pub.gpg
 RUN add-apt-repository "deb http://repos.pni-hdri.de/apt/debian stretch main" -y
 RUN apt-get -qq update && apt-get -qq -y dist-upgrade
 RUN apt-get -qq update && apt-get -qq install -y default-mysql-client  python-h5py  python-sphinx  apt-utils debconf-utils net-tools  omniidl libomniorb4-dev libcos4-dev libomnithread3-dev libzmq3-dev python-pninexus python-pni python-mysqldb python-pyqt5 python-pyqt5.qtsvg python-enum34 python-qtchecker
