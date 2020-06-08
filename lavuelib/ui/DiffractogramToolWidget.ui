@@ -76,6 +76,11 @@
          <string>2th [rad]</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>r [mm]</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>

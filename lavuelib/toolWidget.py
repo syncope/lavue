@@ -3132,7 +3132,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #: (:obj:`int`) unit index
         #               ->  0: q_nm^-1, 1: q_A-1, 2: 2th_deg, 3: 2th_rad
         self.__unitindex = 0
-        self.__units = ["q_nm^-1", "q_A^-1", "2th_deg", "2th_rad"]
+        self.__units = ["q_nm^-1", "q_A^-1", "2th_deg", "2th_rad", "r_mm"]
 
         #: (:class:`Ui_ROIToolWidget') ui_toolwidget object from qtdesigner
         self.__ui = _diffractogramformclass()
@@ -3144,18 +3144,19 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #: ((:obj:`bool`) show diffractogram status
         self.__showdiff = False
 
+        #: ([:obj:`float`, :obj:`float`] )
+        #          range positions of radial in current units
+        self.__radrange = None
         #: (:obj:`float`) start position of radial in deg
-        self.__raddegstart = None
-        #: (:obj:`float`) end position of radial in deg
-        self.__raddegend = None
-        #: (:obj:`float`) start position of radial in the current units
         self.__radstart = None
-        #: (:obj:`float`) end position of radial in the current units
+        #: (:obj:`float`) end position of radial in deg
         self.__radend = None
-        #: (:obj:`int`) grid size of radial theta coordinate
+        #: (:obj:`int`) start position of azimuth angle in deg
         self.__azstart = None
-        #: (:obj:`float`) end position of polar angle
+        #: (:obj:`float`) end position of azimuth angle in deg
         self.__azend = None
+        #: ([:obj:`float`, :obj:`float`] ) range positions of azimuth in deg
+        self.__azrange = None
 
         #: (:obj:`float`) range changed flag
         self.__rangechanged = True
@@ -3186,12 +3187,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
 
         #: (:class:`lavuelib.settings.Settings`:) configuration settings
         self.__settings = self._mainwidget.settings()
-
-        #: (:obj:`float`) radial coordinate factor
-        self.__radmax = 1.
-
-        #: (:obj:`float`) polar coordinate factor
-        self.__polmax = 1.
 
         #: (:obj:`list` < [:class:`pyqtgraph.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
@@ -3354,6 +3349,15 @@ class DiffractogramToolWidget(ToolBaseWidget):
         aif = self.__ai.getFit2D()
         self.__settings.centerx = float(aif["centerX"])
         self.__settings.centery = float(aif["centerY"])
+        self._mainwidget.writeAttribute("BeamCenterX",
+                                        float(self.__settings.centerx))
+        self._mainwidget.writeAttribute("BeamCenterY",
+                                        float(self.__settings.centery))
+        self._mainwidget.writeAttribute(
+            "Energy", float(self.__settings.energy))
+        self._mainwidget.writeAttribute(
+            "DetectorDistance",
+            float(self.__settings.detdistance))
 
     def __updateButtons(self, status=None):
         """ update buttons
@@ -3381,112 +3385,93 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 x = txdata
                 y = tydata
         ilabel = self._mainwidget.scalingLabel()
+        chi = None
+        if self.__ai is not None:
+            chi = self.__ai.chi(
+                np.array([y - 0.5]), np.array([x - 0.5]))
+            if len(chi):
+                chi = chi[0]
         if self.__unitindex in [2, 3]:
-            thetax, thetay, thetatotal = self.__pixel2theta(x, y)
-            if thetax is not None:
+            tth = None
+            if self.__ai is not None:
+                tth = self.__ai.tth(
+                    np.array([y - 0.5]), np.array([x - 0.5])),
+            if len(tth):
+                tth = tth[0]
+            if tth is not None and chi is not None:
                 unit = "rad"
                 if self.__unitindex == 2:
                     unit = "deg"
-                    thetax = thetax * 180./math.pi
-                    thetay = thetay * 180./math.pi
-                    thetatotal = thetatotal * 180./math.pi
-                    unit = "rad"
-                message = "th_x = %f %s, th_y = %f %s," \
-                          " th_tot = %f %s, %s = %.2f" \
-                          % (thetax, unit,
-                             thetay, unit,
-                             thetatotal, unit,
+                    chi = chi * 180./math.pi
+                    tth = tth * 180./math.pi
+                message = "x, y = [%s, %s], tth = %f %s, chi = %f %s," \
+                          " %s = %.2f" \
+                          % (x, y, tth, unit,
+                             chi, unit,
                              ilabel, intensity)
-        else:
-            qx, qy, q = self.__pixel2q(x, y)
-            if qx is not None:
+            else:
+                message = "x, y = [%s, %s], %s = %.2f" % (
+                    x, y, ilabel, intensity)
+        elif self.__unitindex in [0, 1]:
+            qa = None
+            if self.__ai is not None:
+                qa = self.__ai.qFunction(
+                    np.array([y - 0.5]), np.array([x - 0.5])),
+            if len(qa):
+                qa = qa[0]
+            if qa is not None and chi is not None:
                 unit = u"1/\u212B"
+                chi = chi * 180./math.pi
                 if self.__unitindex == 0:
-                    qx = qx * 10
-                    qy = qy * 10
-                    q = q * 10
                     unit = "1/nm"
-                message = u"q_x = %f %s, q_y = %f %s, " \
-                          u"q = %f %s, %s = %.2f" \
-                          % (qx, unit, qy, unit, q, unit, ilabel, intensity)
+                if self.__unitindex == 1:
+                    qa = qa / 10.
+                message = "x, y = [%s, %s], q = %f %s, chi = %f %s," \
+                          " %s = %.2f" \
+                          % (x, y, qa, unit,
+                             chi, "deg",
+                             ilabel, intensity)
+            else:
+                message = "x, y = [%s, %s], %s = %.2f" % (
+                    x, y, ilabel, intensity)
+        elif self.__unitindex in [4]:
+            ra = None
+            if self.__ai is not None:
+                ra = self.__ai.rFunction(
+                    np.array([y - 0.5]), np.array([x - 0.5])),
+            if len(ra):
+                ra = ra[0] * 1000.
+            if ra is not None and chi is not None:
+                chi = chi * 180./math.pi
+                message = "x, y = [%s, %s], r = %f %s, chi = %f %s," \
+                          " %s = %.2f" \
+                          % (x, y, ra, "mm",
+                             chi, "deg",
+                             ilabel, intensity)
+            else:
+                message = "x, y = [%s, %s], %s = %.2f" % (
+                    x, y, ilabel, intensity)
         self._mainwidget.setDisplayedText(message)
 
-    def __pixel2theta(self, xdata, ydata, xy=True):
-        """ converts coordinates from pixel positions to theta angles
+    # def __tipmessage(self):
+    #     """ provides geometry messate
 
-        :param xdata: x pixel position
-        :type xdata: :obj:`float`
-        :param ydata: y-pixel position
-        :type ydata: :obj:`float`
-        :param xy: flag
-        :type xy: :obj:`bool`
-        :returns: x-theta, y-theta, total-theta
-        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
-        """
-        thetax = None
-        thetay = None
-        thetatotal = None
-        if self.__settings.energy > 0 and self.__settings.detdistance > 0:
-            xcentered = xdata - self.__settings.centerx
-            ycentered = ydata - self.__settings.centery
-            if xy:
-                thetax = math.atan(
-                    xcentered * self.__settings.pixelsizex / 1000.
-                    / self.__settings.detdistance)
-                thetay = math.atan(
-                    ycentered * self.__settings.pixelsizey / 1000.
-                    / self.__settings.detdistance)
-            r = math.sqrt(
-                (xcentered * self.__settings.pixelsizex / 1000.) ** 2
-                + (ycentered * self.__settings.pixelsizey / 1000.) ** 2)
-            thetatotal = math.atan(
-                r / self.__settings.detdistance)
-        return thetax, thetay, thetatotal
+    #     :returns: geometry text
+    #     :rtype: :obj:`unicode`
+    #     """
 
-    def __pixel2q(self, xdata, ydata, xy=True):
-        """ converts coordinates from pixel positions to q-space coordinates
-
-        :param xdata: x pixel position
-        :type xdata: :obj:`float`
-        :param ydata: y-pixel position
-        :type ydata: :obj:`float`
-        :param xy: flag
-        :type xy: :obj:`bool`
-        :returns: q_x, q_y, q_total
-        :rtype: (:obj:`float`, :obj:`float`, :obj:`float`)
-        """
-        qx = None
-        qy = None
-        q = None
-        if self.__settings.energy > 0 and self.__settings.detdistance > 0:
-            thetax, thetay, thetatotal = self.__pixel2theta(
-                xdata, ydata, xy)
-            wavelength = 12398.4193/self.__settings.energy
-            if xy:
-                qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
-                qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
-            q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)
-        return qx, qy, q
-
-    def __tipmessage(self):
-        """ provides geometry messate
-
-        :returns: geometry text
-        :rtype: :obj:`unicode`
-        """
-
-        return u"geometry:\n" \
-            u"  center = (%s, %s) pixels\n" \
-            u"  pixel_size = (%s, %s) \u00B5m\n" \
-            u"  detector_distance = %s mm\n" \
-            u"  energy = %s eV" % (
-                self.__settings.centerx,
-                self.__settings.centery,
-                self.__settings.pixelsizex,
-                self.__settings.pixelsizey,
-                self.__settings.detdistance,
-                self.__settings.energy
-            )
+    #     return u"geometry:\n" \
+    #         u"  center = (%s, %s) pixels\n" \
+    #         u"  pixel_size = (%s, %s) \u00B5m\n" \
+    #         u"  detector_distance = %s mm\n" \
+    #         u"  energy = %s eV" % (
+    #             self.__settings.centerx,
+    #             self.__settings.centery,
+    #             self.__settings.pixelsizex,
+    #             self.__settings.pixelsizey,
+    #             self.__settings.detdistance,
+    #             self.__settings.energy
+    #         )
 
     @QtCore.pyqtSlot()
     def _showhideDiff(self):
@@ -3519,18 +3504,33 @@ class DiffractogramToolWidget(ToolBaseWidget):
                         trans = self._mainwidget.transformations()[0]
                         csa = self.__settings.correctsolidangle
                         unit = self.__units[self.__unitindex]
-                        if trans:
-                            res = self.__ai.integrate1d(
-                                dts,
-                                self.__settings.diffnpt,
-                                correctSolidAngle=csa,
-                                unit=unit)
-                        else:
-                            res = self.__ai.integrate1d(
-                                dts.T,
-                                self.__settings.diffnpt,
-                                correctSolidAngle=csa,
-                                unit=unit)
+                        dts = dts if trans else dts.T
+                        mask = None
+                        if dts.dtype.kind == 'f' and np.isnan(dts.min()):
+                            mask = np.isnan(dts)
+                            dts = np.array(dts)
+                            dts[mask] = 0.
+                            if mask is not None:
+                                mask = mask.astype("int")
+                        if self.__settings.showhighvaluemask and \
+                           self._mainwidget.maskValue() is not None and \
+                           self._mainwidget.maskValueIndices() is not None:
+                            if mask is None:
+                                mask = np.zeros(dts.shape)
+                            mask[self._mainwidget.maskValueIndices().T] = 1
+                        if self.__settings.showmask and \
+                           self._mainwidget.applyMask() and \
+                           self._mainwidget.maskIndices() is not None:
+                            if mask is None:
+                                mask = np.zeros(dts.shape)
+                            mask[self._mainwidget.maskIndices().T] = 1
+                        res = self.__ai.integrate1d(
+                            dts,
+                            self.__settings.diffnpt,
+                            correctSolidAngle=csa,
+                            radial_range=self.__radrange,
+                            azimuth_range=self.__azrange,
+                            unit=unit, mask=mask)
                         # print(res)
                         x = res[0]
                         y = res[1]
@@ -3557,76 +3557,58 @@ class DiffractogramToolWidget(ToolBaseWidget):
         cnfdlg.azend = self.__azend
         cnfdlg.radstart = self.__radstart
         cnfdlg.radend = self.__radend
-        cnfdlg.radunitindex = self.__unitindex
+        cnfdlg.radunitindex = 2
         cnfdlg.createGUI()
         if cnfdlg.exec_():
             self.__azstart = cnfdlg.azstart
             self.__azend = cnfdlg.azend
+            if self.__azend is None and self.__azstart is None:
+                self.__azrange = None
+            elif self.__azend is not None or self.__azstart is not None:
+                if self.__azstart is None:
+                    self.__azstart = 0
+                if self.__azend is None:
+                    self.__azend = 360
+                self.__azrange = [self.__azstart, self.__azend]
             self.__radstart = cnfdlg.radstart
             self.__radend = cnfdlg.radend
-            self.__updateraddeg()
+            if self.__radend is not None or self.__radstart is not None:
+                if self.__radstart is None:
+                    self.__radstart = 0
+                if self.__radend is None:
+                    self.__radend = 90
+            self.__updaterad()
             self.__rangechanged = True
             self.updateRangeTip()
-            # if self.__plotindex:
-            #     self._mainwidget.emitReplotImage()
+            self._plotDiff()
 
-    def __updateraddeg(self):
+    def __updaterad(self):
         """ update radial range in deg
         """
-        if self.__unitindex < 2:
-            wavelength = 12398.4193/self.__settings.energy
-            rs = self.__radstart
-            re = self.__radend
-            if self.__unitindex == 0:
-                rs = rs / 10.
-                re = re / 10.
-            self.__raddegstart = 360. / math.pi * \
-                math.asin(rs * wavelength / (4 * math.pi))
-            self.__raddegend = 360. / math.pi * \
-                math.asin(re * wavelength / (4 * math.pi))
-        elif self.__unitindex == 2:
-            self.__raddegstart = self.__radstart
-            self.__raddegend = self.__radend
-        elif self.__unitindex == 3:
-            self.__raddegstart = self.__radstart * 180. / math.pi
-            self.__raddegend = self.__radend * 180. / math.pi
 
-    @QtCore.pyqtSlot()
-    def _setGeometry(self):
-        """ launches geometry widget
-
-        :returns: apply status
-        :rtype: :obj:`bool`
-        """
-        cnfdlg = geometryDialog.GeometryDialog()
-        cnfdlg.centerx = self.__settings.centerx
-        cnfdlg.centery = self.__settings.centery
-        cnfdlg.energy = self.__settings.energy
-        cnfdlg.pixelsizex = self.__settings.pixelsizex
-        cnfdlg.pixelsizey = self.__settings.pixelsizey
-        cnfdlg.detdistance = self.__settings.detdistance
-        cnfdlg.createGUI()
-        if cnfdlg.exec_():
-            self.__settings.centerx = cnfdlg.centerx
-            self.__settings.centery = cnfdlg.centery
-            self.__settings.energy = cnfdlg.energy
-            self.__settings.pixelsizex = cnfdlg.pixelsizex
-            self.__settings.pixelsizey = cnfdlg.pixelsizey
-            self.__settings.detdistance = cnfdlg.detdistance
-            self._mainwidget.writeAttribute(
-                "BeamCenterX", float(self.__settings.centerx))
-            self._mainwidget.writeAttribute(
-                "BeamCenterY", float(self.__settings.centery))
-            self._mainwidget.writeAttribute(
-                "Energy", float(self.__settings.energy))
-            self._mainwidget.writeAttribute(
-                "DetectorDistance",
-                float(self.__settings.detdistance))
-            self.updateGeometryTip()
-            self._mainwidget.updateCenter(
-                self.__settings.centerx, self.__settings.centery)
-            # if self.__plotindex:
-            #     self._mainwidget.emitReplotImage()
+        if self.__radend is None or self.__radstart is None:
+            self.__radrange = None
+        else:
+            if self.__unitindex == 2:
+                self.__radrange = [self.__radstart, self.__radend]
+            else:
+                rs = self.__radstart * math.pi / 180.
+                re = self.__radend * math.pi / 180.
+                if self.__unitindex < 2:
+                    wavelength = 12398.4193/self.__settings.energy
+                    fac = 4 * math.pi / wavelength
+                    qs = fac * math.sin(rs/2.)
+                    qe = fac * math.sin(re/2.)
+                    if self.__unitindex == 0:
+                        qs = qs * 10.
+                        qe = qe * 10.
+                    self.__radrange = [qs, qe]
+                elif self.__unitindex == 3:
+                    self.__radrange = [rs, re]
+                elif self.__unitindex == 4:
+                    rs = math.tan(rs) * self.__settings.detdistance
+                    re = math.tan(re) * self.__settings.detdistance
+                    self.__radrange = [rs, re]
 
     @QtCore.pyqtSlot(int)
     def _setUnitIndex(self, uindex):
@@ -3636,33 +3618,18 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :type gspace: :obj:`int`
         """
         self.__unitindex = uindex
+        self.__updaterad()
         self._plotDiff()
-
-    @QtCore.pyqtSlot()
-    def updateGeometryTip(self):
-        """ update geometry tips
-        """
-        message = self.__tipmessage()
-        self._mainwidget.updateDisplayedTextTip(
-            "coordinate info display for the mouse pointer\n%s"
-            % message)
-        # self.__ui.angleqPushButton.setToolTip(
-        #     "Input physical parameters\n%s" % message)
-        self.__ui.angleqComboBox.setToolTip(
-            "Select the display space\n%s" % message)
-        # self.__ui.toolLabel.setToolTip(
-        #     "coordinate info display for the mouse pointer\n%s" % message)
 
     @QtCore.pyqtSlot()
     def updateRangeTip(self):
         """ update geometry tips
         """
         self.__ui.rangePushButton.setToolTip(
-            u"radial range: [%s, %s] %s \n"
+            u"radial range: [%s, %s] deg \n"
             u"azimuth range: [%s, %s] deg\n" % (
                 self.__radstart if self.__radstart is not None else "0",
-                self.__radend if self.__radend is not None else "max",
-                self.__units[self.__unitindex],
+                self.__radend if self.__radend is not None else "90",
                 self.__azstart if self.__azstart is not None else "0",
                 self.__azend if self.__azend is not None else "360")
         )

@@ -38,7 +38,7 @@ class DiffRangeDialog(QtGui.QDialog):
     """ diffractogram range widget class"""
 
     def __init__(self, parent=None):
-        """ constructor
+        """ constructort
 
         :param parent: parent object
         :type parent: :class:`pyqtgraph.QtCore.QObject`
@@ -60,7 +60,7 @@ class DiffRangeDialog(QtGui.QDialog):
         #: (:obj:`int`) radial angle index
         self.radunitindex = 2
         #: (:obj:`list` <:obj:`unicode`>) list of units
-        self.radunits = [u"1/nm", u"1/\u212B", u"deg", u"rad"]
+        self.radunits = [u"1/nm", u"1/\u212B", u"deg", u"rad", u"mm"]
 
     def createGUI(self):
         """ create GUI

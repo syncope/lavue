@@ -159,6 +159,14 @@ class ImageWidget(QtGui.QWidget):
         self.__data = None
         #: (:class:`numpy.ndarray`) raw data to cut plots
         self.__rawdata = None
+        #: (:obj:`bool`) apply mask
+        self.__applymask = False
+        #: (:class:`numpy.ndarray`) mask image indices
+        self.__maskindices = None
+        #: (:class:`numpy.ndarray`) mask image value indices
+        self.__maskvalueindices = None
+        #: (:obj:`float`) file name
+        self.__maskvalue = None
 
         #: ( ( :obj:`bool`, :obj:`bool`,:obj:`bool`) )
         #        selected (transpose, leftright-flip, updown-flip )
@@ -1840,6 +1848,70 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :obj:`bool`
         """
         return self.__displaywidget.rgb()
+
+    def applyMask(self):
+        """ provides apply mask flag
+
+        :returns: True for apply mask
+        :rtype: :obj:`bool`
+        """
+        return self.__applymask
+
+    def setApplyMask(self, applymask=True):
+        """ sets apply mask flag
+
+        :params applymask: True for apply mask
+        :type applymask: :obj:`bool`
+        """
+        self.__applymask = applymask
+
+    def maskValue(self):
+        """ provides high mask value
+
+        :returns: high mask value
+        :rtype: :obj:`float`
+        """
+        return self.__maskvalue
+
+    def setMaskValue(self, maskvalue):
+        """ sets high mask value
+
+        :params applymask: high mask value
+        :type applymask: :obj:`float`
+        """
+        self.__maskvalue = maskvalue
+
+    def maskIndices(self):
+        """ provides mask image indices
+
+        :returns: mask image indices
+        :rtype: :class:`numpy.ndarray`
+        """
+        return self.__maskIndices
+
+    def setMaskIndices(self, maskindices):
+        """ sets mask image indices
+
+        :params maskindices: mask image indices
+        :type maskindices: :class:`numpy.ndarray`
+        """
+        self.__maskIndices = maskindices
+
+    def maskValueIndices(self):
+        """ provides mask image value indices
+
+        :returns: mask image indices
+        :rtype: :class:`numpy.ndarray`
+        """
+        return self.__maskValueIndices
+
+    def setMaskValueIndices(self, maskindices):
+        """ sets mask image indices
+
+        :params maskindices: mask image  value indices
+        :type maskindices: :class:`numpy.ndarray`
+        """
+        self.__maskValueIndices = maskindices
 
     def rangeWindowEnabled(self):
         """ provide info if range window enabled
