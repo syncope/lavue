@@ -199,6 +199,8 @@ class ToolParameters(object):
         self.maxima = False
         #: (:obj:`bool`) vertical and horizontal bounds
         self.vhbounds = False
+        #: (:obj:`bool`) angle range enabled
+        self.regions = False
 
 
 class ToolBaseWidget(QtGui.QWidget):
@@ -3180,6 +3182,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.parameters.bottomplot = True
         self.parameters.centerlines = True
         self.parameters.polarscale = False
+        self.parameters.regions = True
         # self.parameters.rightplot = True
 
         #: (`lavuelib.imageDisplayWidget.AxesParameters`) axes backup
@@ -3581,10 +3584,19 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self.__updaterad()
             self.__rangechanged = True
             self.updateRangeTip()
+            if self.__azrange and self.__radrange:
+                self._mainwidget.updateRegions(
+                    1, [[self.__radstart, self.__azstart,
+                         self.__radstart, self.__azend,
+                         self.__radend, self.__azend,
+                         self.__radend, self.__azstart]])
+            else:
+                self._mainwidget.updateRegions(
+                    1, [[0, 0]])
             self._plotDiff()
 
     def __updaterad(self):
-        """ update radial range in deg
+        """update radial range in deg
         """
 
         if self.__radend is None or self.__radstart is None:

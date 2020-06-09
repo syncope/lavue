@@ -190,6 +190,7 @@ class ImageWidget(QtGui.QWidget):
                 displayExtensions.MeshExtension,
                 displayExtensions.MaximaExtension,
                 displayExtensions.VHBoundsExtension,
+                displayExtensions.RegionsExtension,
             ]
         )
 
@@ -578,6 +579,21 @@ class ImageWidget(QtGui.QWidget):
         self.applyTipsChanged.emit(rid)
         self.roiCoordsChanged.emit()
         self.roiNumberChanged.emit(rid)
+
+    @QtCore.pyqtSlot(int)
+    def updateRegions(self, rid, points=None):
+        """ update Ranges
+
+        :param rid: region id
+        :type rid: :obj:`int`
+        :param points: roi coordinates
+        :type points: :obj:`list`
+                  < [:obj:`float`, :obj:`float`] >
+        """
+        self.__displaywidget.extension('regions').updateRegions(rid, points)
+        # self.applyTipsChanged.emit(rid)
+        # self.roiCoordsChanged.emit()
+        # self.roiNumberChanged.emit(rid)
 
     @QtCore.pyqtSlot(int)
     def updateCuts(self, cid, coords=None):

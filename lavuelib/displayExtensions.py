@@ -33,6 +33,7 @@ import json
 import time
 import logging
 from pyqtgraph.graphicsItems.ROI import ROI, LineROI, Handle
+from pyqtgraph.graphicsItems.IsocurveItem import IsocurveItem
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
     if _pg.__version__ else ("0", "9", "0")
@@ -134,6 +135,25 @@ class SimpleLineROI(LineROI):
             size.x() * math.cos(ra),
             size.x() * math.sin(ra))
         return [pos1.x(), pos1.y(), pos2.x(), pos2.y(), size.y()]
+
+
+class RegionItem(IsocurveItem):
+
+    def __init__(self, points=None, pen='w', axisOrder=None, **args):
+        """ constructor
+        """
+        IsocurveItem.__init__(self, points, 0, pen, axisOrder)
+
+    def generatePath(self):
+        if self.data is None:
+            self.path = None
+            return
+
+        self.path = _pg.QtGui.QPainterPath()
+        line = [self.data[i:i + 2] for i in range(0, len(self.data), 2)]
+        self.path.moveTo(*line[-1])
+        for p in line:
+            self.path.lineTo(*p)
 
 
 class DisplayExtension(QtCore.QObject):
@@ -1105,6 +1125,198 @@ class MeshExtension(DisplayExtension):
             size = crd.size()
             crd.setPos([pos[1], pos[0]])
             crd.setSize([size[1], size[0]])
+
+
+class RegionsExtension(DisplayExtension):
+
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) region points changed signal
+    regionPointsChanged = QtCore.pyqtSignal()
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
+        """
+        DisplayExtension.__init__(self, parent)
+
+        #: (:obj:`str`) tool name
+        self.name = "regions"
+
+        #: (:obj:`int`) current roi id
+        self.__current = 0
+        #: (:obj:`list` < [int, int, int, int] > )
+        #: x1,y1,x2,y2 regions coordinates
+        self.__points = [[0, 0, 0, 100, 100, 100, 100, 0]]
+        #: (:obj:`list` < (int, int, int) > ) list with region colors
+        self.__colors = []
+
+        #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.TextItem`>)
+        #:            list of region widgets
+        self.__regiontext = []
+        #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.ROI`>)
+        #:            list of region widgets
+        self.__region = []
+        self.__region.append(RegionItem(self.__points[0],
+                                        pen=_pg.mkPen('g', width=2)))
+        # text = _pg.TextItem("1.", anchor=(1, 1))
+        # text.setParentItem(self.__region[0])
+        # self.__regiontext.append(text)
+        self._mainwidget.viewbox().addItem(self.__region[0])
+        self.__region[0].hide()
+
+    def show(self, parameters):
+        """ set subwidget properties
+
+        :param parameters: tool parameters
+        :type parameters: :class:`lavuelib.toolWidget.ToolParameters`
+        """
+        if parameters.regions is not None:
+            self.__showRegions(parameters.regions)
+            self._enabled = parameters.regions
+
+    def scalingLabel(self):
+        """ provides scaling label
+
+        :returns:  scaling label
+        :rtype: str
+        """
+        return "intensity"
+
+    def __addRegion(self, points=None):
+        """ adds Regions
+
+        :param points: region coordinates
+        :type points: :obj:`list`
+                 < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
+        if not points or not isinstance(points, list) or len(points) % 2 != 0:
+            points = [0, 0]
+
+        if self._mainwidget.transformations()[0]:
+            points = [points[i - 1 if i % 2 else i + 1]
+                      for i in range(len(points))]
+        self.__region.append(
+            RegionItem(points, pen=_pg.mkPen('g', width=2)))
+        # text = _pg.TextItem("%s." % len(self.__region), anchor=(1, 1))
+        # text.setParentItem(self.__region[-1])
+        # self.__regiontext.append(text)
+        self._mainwidget.viewbox().addItem(self.__region[-1])
+
+        self.__points.append(points)
+        # self.setREGIONsColors()
+
+    def __removeRegion(self):
+        """ removes the last region
+        """
+        region = self.__region.pop()
+        region.hide()
+        # regiontext = self.__regiontext.pop()
+        # regiontext.hide()
+        self._mainwidget.viewbox().removeItem(region)
+        self.__points.pop()
+
+    def _getRegion(self, rid=-1):
+        """ get the given or the last region
+
+        :param rid: region id
+        :type rid: :obj:`int`
+        """
+        if self.__region and len(self.__region) > rid:
+            return self.__region[rid]
+        else:
+            return None
+
+    def __showRegions(self, status):
+        """ shows or hides regions
+
+        :param status: will be shown
+        :type status: :obj:`bool`
+        """
+        if status:
+            for rng in self.__region:
+                rng.show()
+        else:
+            for rng in self.__region:
+                rng.hide()
+
+    def __addRegionPoints(self, points):
+        """ adds region coorinates
+
+        :param points: region coordinates
+        :type points: :obj:`list`
+                < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
+        if points:
+            for i, crd in enumerate(self.__region):
+                if i < len(points):
+                    self.__points[i] = points[i]
+                    if self._mainwidget.transformations()[0]:
+                        pnts = [points[i][j - 1 if j % 2 else j + 1]
+                                for j in range(len(points[i]))]
+                    else:
+                        pnts = points[i]
+                    crd.setData(pnts)
+
+    def updateRegions(self, rid, points):
+        """ update Regions
+
+        :param rid: rng id
+        :type rid: :obj:`int`
+        :param points: rng coordinates
+        :type points: :obj:`list`
+                 < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
+        self.__addRegionPoints(points)
+        while rid > len(self.__region):
+            if points and len(points) >= len(self.__region):
+                self.__addRegion(points[len(self.__region)])
+            else:
+                self.__addRegion()
+        if rid <= 0:
+            self.__current = -1
+        elif self.__current >= rid:
+            self.__current = 0
+        while self._getRegion(max(rid, 0)) is not None:
+            self.__removeRegion()
+        self.__showRegions(self._enabled)
+
+    def regionPoints(self):
+        """ provides region coordinates
+
+        :return: region coordinates
+        :rtype: :obj:`list`
+               < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        """
+        return self.__points
+
+    def isRegionEnabled(self):
+        """ provides flag regions enabled
+
+        :return: region enabled flag
+        :rtype: :obj:`bool`
+        """
+        return self._enabled
+
+    def currentRegion(self):
+        """ provides current region id
+
+        :return: region id
+        :rtype: :obj:`int`
+        """
+        return self.__current
+
+    def transpose(self):
+        """ transposes Regions
+        """
+        for i, crd in enumerate(self.__region):
+            if i < len(self.__points):
+                if self._mainwidget.transformations()[0]:
+                    pnts = [self.__points[i][j - 1 if j % 2 else j + 1]
+                            for j in range(len(self.__points[i]))]
+                else:
+                    pnts = self.__points[i]
+                crd.setData(pnts)
 
 
 class LockerExtension(DisplayExtension):
