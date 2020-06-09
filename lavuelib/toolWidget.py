@@ -3227,10 +3227,11 @@ class DiffractogramToolWidget(ToolBaseWidget):
             curve.setVisible(True)
         # self._updateAllCuts(self.__allcuts)
 
-        if self.__settings.calibrationfilename:
-            self._loadCalibration(
-                self.__settings.calibrationfilename)
-        self._plotDiff()
+        # if self.__settings.calibrationfilename:
+        #     self._loadCalibration(
+        #         self.__settings.calibrationfilename)
+        if self.__ai:
+            self._plotDiff()
         self._mainwidget.bottomplotShowMenu(True, True)
 
     def deactivate(self):
@@ -3396,8 +3397,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
             if self.__ai is not None:
                 tth = self.__ai.tth(
                     np.array([y - 0.5]), np.array([x - 0.5])),
-            if len(tth):
-                tth = tth[0]
+                if len(tth):
+                    tth = tth[0]
             if tth is not None and chi is not None:
                 unit = "rad"
                 if self.__unitindex == 2:
@@ -3417,8 +3418,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
             if self.__ai is not None:
                 qa = self.__ai.qFunction(
                     np.array([y - 0.5]), np.array([x - 0.5])),
-            if len(qa):
-                qa = qa[0]
+                if len(qa):
+                    qa = qa[0]
             if qa is not None and chi is not None:
                 unit = u"1/\u212B"
                 chi = chi * 180./math.pi
@@ -3439,8 +3440,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
             if self.__ai is not None:
                 ra = self.__ai.rFunction(
                     np.array([y - 0.5]), np.array([x - 0.5])),
-            if len(ra):
-                ra = ra[0] * 1000.
+                if len(ra):
+                    ra = ra[0] * 1000.
             if ra is not None and chi is not None:
                 chi = chi * 180./math.pi
                 message = "x, y = [%s, %s], r = %f %s, chi = %f %s," \
