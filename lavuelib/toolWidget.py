@@ -33,9 +33,11 @@ import re
 import math
 import sys
 import numpy as np
+import scipy.optimize
 import scipy.interpolate
 import pyqtgraph as _pg
 import logging
+import random
 import json
 from pyqtgraph import QtCore, QtGui
 from enum import Enum
@@ -3585,15 +3587,85 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self.__rangechanged = True
             self.updateRangeTip()
             if self.__azrange and self.__radrange:
-                self._mainwidget.updateRegions(
-                    1, [[self.__radstart, self.__azstart,
-                         self.__radstart, self.__azend,
-                         self.__radend, self.__azend,
-                         self.__radend, self.__azstart]])
+                self.__findregion()
             else:
                 self._mainwidget.updateRegions(
                     1, [[0, 0]])
             self._plotDiff()
+
+    def __findregion(self):
+        """ find region defined by angle range
+        """
+        [rbb, rbe, reb, ree] = self.__getcorners()
+        print("RESULT %s %s " % (str(rbb.x), rbb.success))
+        print("RESULT %s %s" % (str(rbe.x), rbe.success))
+        print("RESULT %s %s" % (str(reb.x), reb.success))
+        print("RESULT %s %s" % (str(ree.x), ree.success))
+        self._mainwidget.updateRegions(
+            4, [[rbb.x[0], rbb.x[1], rbe.x[0], rbe.x[1]],
+                [rbe.x[0], rbe.x[1], ree.x[0], ree.x[1]],
+                [ree.x[0], ree.x[1], reb.x[0], reb.x[1]],
+                [reb.x[0], reb.x[1], rbb.x[0], rbb.x[1]]])
+
+        # def rsfun(al, step, rad, chi, d10, d20):
+        #     return [self.__ai.tth(d10 +  step * math.sin(al),
+        #                           d20 * math.cos(al)) - rad,
+        #             self.__ai.chi(d10, d20)- chi]
+
+    def __trim(self, vl, lowbound, upbound):
+        """ trim angle value to bounds
+        """
+        while vl >= upbound:
+            vl -= 360
+        while vl < lowbound:
+            vl += 360
+        return vl
+
+    def __findpoint(self, rd, az, shape, start=None, itmax=20):
+        """ find a point
+        """
+        def rafun(x, f1, f2):
+            # print("D1D2: %s %s" % (x[1], x[0] ))
+            return [float(self.__ai.tth(np.array([x[1] - 0.5]),
+                                        np.array([x[0] - 0.5]))[0]) - f1,
+                    float(self.__ai.chi(np.array([x[1] - 0.5]),
+                                        np.array([x[0] - 0.5]))[0]) - f2]
+        found = False
+        it = 0
+        if start is None:
+            start = [random.randint(0, shape[0]),
+                     random.randint(0, shape[1])]
+        while not found and it < itmax:
+            res = scipy.optimize.root(rafun, start, (rd, az))
+            found = res.success
+            it += 1
+            start = [random.randint(0, shape[0]),
+                     random.randint(0, shape[1])]
+        print("Tries: %s" % it)
+        return res
+
+    def __getcorners(self):
+        """ find region corners
+        """
+
+        if self.__ai:
+            dts = self._mainwidget.rawData()
+            if dts is not None and dts.shape and len(dts.shape) == 2:
+                shape = dts.shape
+            else:
+                shape = [1000., 1000.]
+
+            rb = self.__trim(self.__radstart, 0, 360) * math.pi / 180.
+            re = self.__trim(self.__radend, 0, 360) * math.pi / 180.
+            ab = self.__trim(self.__azstart, -180, 180) * math.pi / 180.
+            ae = self.__trim(self.__azend, -180, 180) * math.pi / 180.
+
+            rbb = self.__findpoint(rb, ab, shape)
+            rbe = self.__findpoint(rb, ae, shape, rbb.x)
+            ree = self.__findpoint(re, ae, shape, rbe.x)
+            reb = self.__findpoint(re, ab, shape, ree.x)
+
+            return [rbb, rbe, reb, ree]
 
     def __updaterad(self):
         """update radial range in deg

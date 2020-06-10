@@ -1147,7 +1147,7 @@ class RegionsExtension(DisplayExtension):
         self.__current = 0
         #: (:obj:`list` < [int, int, int, int] > )
         #: x1,y1,x2,y2 regions coordinates
-        self.__points = [[0, 0, 0, 100, 100, 100, 100, 0]]
+        self.__points = [[0, 0]]
         #: (:obj:`list` < (int, int, int) > ) list with region colors
         self.__colors = []
 
@@ -1158,7 +1158,7 @@ class RegionsExtension(DisplayExtension):
         #:            list of region widgets
         self.__region = []
         self.__region.append(RegionItem(self.__points[0],
-                                        pen=_pg.mkPen('g', width=2)))
+                                        pen=_pg.mkPen('#00ff7f', width=2)))
         # text = _pg.TextItem("1.", anchor=(1, 1))
         # text.setParentItem(self.__region[0])
         # self.__regiontext.append(text)
@@ -1197,7 +1197,7 @@ class RegionsExtension(DisplayExtension):
             points = [points[i - 1 if i % 2 else i + 1]
                       for i in range(len(points))]
         self.__region.append(
-            RegionItem(points, pen=_pg.mkPen('g', width=2)))
+            RegionItem(points, pen=_pg.mkPen('#00ff7f', width=2)))
         # text = _pg.TextItem("%s." % len(self.__region), anchor=(1, 1))
         # text.setParentItem(self.__region[-1])
         # self.__regiontext.append(text)
