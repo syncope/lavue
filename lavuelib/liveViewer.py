@@ -3083,7 +3083,7 @@ class LiveViewer(QtGui.QDialog):
            self.__imagewg.maskIndices() is not None:
             # set all masked (non-zero values) to zero by index
             try:
-                if self.__settings.nanmask:
+                if not self.__settings.nanmask:
                     self.__displayimage = np.array(self.__displayimage)
                     self.__displayimage[self.__imagewg.maskIndices()] = 0
                 else:
