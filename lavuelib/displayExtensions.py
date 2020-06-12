@@ -1256,7 +1256,7 @@ class RegionsExtension(DisplayExtension):
                         pnts = points[i]
                     crd.setData(pnts)
 
-    def updateRegions(self, rid, points):
+    def updateRegions(self, points, rid=None):
         """ update Regions
 
         :param rid: rng id
@@ -1265,6 +1265,10 @@ class RegionsExtension(DisplayExtension):
         :type points: :obj:`list`
                  < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
         """
+        if rid is None:
+            if points is None:
+                points = []
+            rid = len(points)
         self.__addRegionPoints(points)
         while rid > len(self.__region):
             if points and len(points) >= len(self.__region):

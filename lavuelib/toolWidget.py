@@ -3331,6 +3331,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 logger.warning(str(e))
                 self.__ai = None
             self.__updateButtons(self.__ai is not None)
+            self.__updateregion()
 
     def __writedetsettings(self):
         """ write detector settings from ai object
@@ -3565,40 +3566,44 @@ class DiffractogramToolWidget(ToolBaseWidget):
         if cnfdlg.exec_():
             self.__azstart = cnfdlg.azstart
             self.__azend = cnfdlg.azend
-            if self.__azend is None and self.__azstart is None:
-                self.__azrange = None
-            elif self.__azend is not None or self.__azstart is not None:
-                if self.__azstart is None:
-                    self.__azstart = 0
-                if self.__azend is None:
-                    self.__azend = 360
-                self.__azrange = [self.__azstart, self.__azend]
             self.__radstart = cnfdlg.radstart
             self.__radend = cnfdlg.radend
-            if self.__radend is not None or self.__radstart is not None:
-                if self.__radstart is None:
-                    self.__radstart = 0
-                if self.__radend is None:
-                    self.__radend = 90
             self.__updateregion()
+
+    def __updateaz(self):
+        if self.__azend is None and self.__azstart is None:
+            self.__azrange = None
+        elif self.__azend is not None or self.__azstart is not None:
+            if self.__azstart is None:
+                self.__azstart = 0
+            if self.__azend is None:
+                self.__azend = 360
+            self.__azrange = [self.__azstart, self.__azend]
 
     def __updateregion(self):
         """ update diffractogram region
         """
+        self.__updateaz()
         self.__updaterad()
         self.updateRangeTip()
-        if self.__azrange and self.__radrange and self.__ai:
+        if (self.__azrange or self.__radrange) and self.__ai:
+            azstart = self.__azstart if self.__azstart is not None else 0
+            azend = self.__azend if self.__azend is not None else 360
+            radstart = self.__radstart if self.__radstart is not None else 0
+            radend = self.__radend if self.__radend is not None else 70
             try:
-                self.__findregion()
+                self.__findregion(radstart, radend, azstart, azend)
             except Exception as e:
                 try:
+                    logger.warning(str(e))
                     print(str(e))
-                    self.__findregion2()
+                    self.__findregion2(radstart, radend, azstart, azend)
                 except Exception as e2:
+                    logger.warning(str(e2))
                     print(str(e2))
-                    self._mainwidget.updateRegions(1, [[(0, 0)]])
+                    self._mainwidget.updateRegions([[(0, 0)]])
         else:
-            self._mainwidget.updateRegions(1, [[(0, 0)]])
+            self._mainwidget.updateRegions([[(0, 0)]])
         self._plotDiff()
 
     def __tranpars(self, lx):
@@ -3608,7 +3613,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         return [lx[j - 1 if j % 2 else j + 1]
                 for j in reversed(range(len(lx)))]
 
-    def __findregion2(self):
+    def __findregion2(self, radstart, radend, azstart, azend):
         """ find region defined by angle range
 
         """
@@ -3643,13 +3648,15 @@ class DiffractogramToolWidget(ToolBaseWidget):
             ttaa[chmask] = 6
             rblines = functions.isocurve(
                 ttaa, 0, connected=True)
-            print("RUN1 %s " % len(rblines))
+            logger.debug("RUN1 %s " % len(rblines))
+            # print("RUN1 %s " % len(rblines))
 
             chaa = (cha - ab) * (cha - ae)
             chaa[thmask] = 6
             ablines = functions.isocurve(
                 chaa, 0, connected=True)
-            print("RUN2 %s " % len(ablines))
+            logger.debug("RUN2 %s " % len(ablines))
+            # print("RUN2 %s " % len(ablines))
 
             for line in rblines:
                 lines.append([(p[1], p[0]) for p in line])
@@ -3659,38 +3666,52 @@ class DiffractogramToolWidget(ToolBaseWidget):
             #     lines.append([(p[1], p[0]) for p in line])
 
             # print(lines)
-            self._mainwidget.updateRegions(len(lines), lines)
+            self._mainwidget.updateRegions(lines)
 
         else:
-            self._mainwidget.updateRegions(1, [[(0, 0)]])
+            self._mainwidget.updateRegions([[(0, 0)]])
 
-    def __findregion(self):
+    def __findregion(self, radstart, radend, azstart, azend):
         """ find region defined by angle range
         """
-        [rbb, rbe, reb, ree, rb, re, ab, ae] = self.__getcorners()
-        azb = self.__azstart * math.pi / 180.
-        aze = self.__azend * math.pi / 180.
-        print("RESULT %s %s %s" % (str(rbb.x), rbb.success, rbb.fun))
-        print("RESULT %s %s %s" % (str(rbe.x), rbe.success, rbe.fun))
-        print("RESULT %s %s %s" % (str(reb.x), reb.success, reb.fun))
-        print("RESULT %s %s %s" % (str(ree.x), ree.success, ree.fun))
-
-        pbbeb = self.__findfixchipath(rbb.x, reb.x, ab, rb, re)
-        print(pbbeb)
-        pbeee = self.__findfixchipath(rbe.x, ree.x, ae, rb, re)
-        print(pbeee)
-        pbbbe = self.__findfixradpath(rbb.x, rbe.x, rb, azb, aze)
-        print(pbbbe)
-        pebee = self.__findfixradpath(reb.x, ree.x, re, azb, aze)
-        print(pebee)
-        self._mainwidget.updateRegions(
-            4, [pbbeb, pebee, pbeee, pbbbe])
+        if azend - azstart >= 360:
+            azstart = 0
+            azend = 360
+        [rbb, rbe, reb, ree, rb, re, ab, ae] = self.__getcorners(
+            radstart, radend, azstart, azend)
+        azb = azstart * math.pi / 180.
+        aze = azend * math.pi / 180.
+        logger.debug("RESULT %s %s %s" % (str(rbb.x), rbb.success, rbb.fun))
+        logger.debug("RESULT %s %s %s" % (str(rbe.x), rbe.success, rbe.fun))
+        logger.debug("RESULT %s %s %s" % (str(reb.x), reb.success, reb.fun))
+        logger.debug("RESULT %s %s %s" % (str(ree.x), ree.success, ree.fun))
+        # print("RESULT %s %s %s" % (str(rbb.x), rbb.success, rbb.fun))
+        # print("RESULT %s %s %s" % (str(rbe.x), rbe.success, rbe.fun))
+        # print("RESULT %s %s %s" % (str(reb.x), reb.success, reb.fun))
+        # print("RESULT %s %s %s" % (str(ree.x), ree.success, ree.fun))
+        lines = []
+        if azend - azstart < 360:
+            pbbeb = self.__findfixchipath(rbb.x, reb.x, ab, rb, re)
+            lines.append(pbbeb)
+            # print(pbbeb)
+            pbeee = self.__findfixchipath(rbe.x, ree.x, ae, rb, re)
+            # print(pbeee)
+            lines.append(pbeee)
+        if self.__radstart > 0:
+            pbbbe = self.__findfixradpath(rbb.x, rbe.x, rb, azb, aze)
+            lines.append(pbbbe)
+            # print(pbbbe)
+        if self.__radend < 60:
+            pebee = self.__findfixradpath(reb.x, ree.x, re, azb, aze)
+            lines.append(pebee)
+            # print(pebee)
+        self._mainwidget.updateRegions(lines)
         # self._mainwidget.updateRegions(
-        #     2, [pbbeb, pbeee])
+        #      [pbbeb, pbeee])
         # self._mainwidget.updateRegions(
-        #     3, [pbbeb, pbeee, pbbbe])
+        #      [pbbeb, pbeee, pbbbe])
         # self._mainwidget.updateRegions(
-        #     4, [[rbb.x[0], rbb.x[1], rbe.x[0], rbe.x[1]],
+        #      [[rbb.x[0], rbb.x[1], rbe.x[0], rbe.x[1]],
         #         [rbe.x[0], rbe.x[1], ree.x[0], ree.x[1]],
         #         [ree.x[0], ree.x[1], reb.x[0], reb.x[1]],
         #         [reb.x[0], reb.x[1], rbb.x[0], rbb.x[1]]])
@@ -3746,11 +3767,12 @@ class DiffractogramToolWidget(ToolBaseWidget):
                  x[1] + step * math.sin(res.x[0])]
             if self.__tth(x) - self.__tth(y) > 0 or \
                (not res.success and abs(res.fun) > fmax):
-                print("W1 %s " % res)
+                # print("W1 %s " % res)
                 raise Exception("Cannot find the next point")
 
         points.append(tuple(y))
         if self.__dist2(y, xend) < step * step:
+            points.append(tuple(xend))
             return points
         alphas.append(res.x[0])
 
@@ -3786,15 +3808,26 @@ class DiffractogramToolWidget(ToolBaseWidget):
         points = [tuple(xstart)]
         while azstart > aze:
             aze += 2 * math.pi
-        print("RAD %s %s %s" % (rad, xstart, self.__tth(xstart)))
-        print("AZ: %s %s %s" % (azstart, azend, aze))
+
+        alphas = []
+        cut = None
+        tth1 = self.__tth(xstart)
+        tth2 = self.__tth([xstart[0] + 1, xstart[1]])
+        tth3 = self.__tth([xstart[0], xstart[1] + 1])
+        dth = max(abs(tth1 - tth2), abs(tth1 - tth3))
+        # print(rad)
+        # print(rad/dth)
+        if (rad/dth) < 10. * step:
+            step = (rad / dth) / 10.
+        elif (rad/dth) > 10000. * step:
+            step = (rad / dth) / 10000.
+
+        # print("RAD %s %s %s" % (rad, xstart, self.__tth(xstart)))
+        # print("AZ: %s %s %s" % (azstart, azend, aze))
         if self.__dist2(xstart, xend) < step * step \
            and abs(azstart - aze) < math.pi:
             points.append(tuple(xend))
             return points
-
-        alphas = []
-        cut = None
 
         # tth = self.__tth(xstart)
         tchi = self.__chi(xstart)
@@ -3803,7 +3836,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
             cut = 0
         cchi = self.__chi(xstart, cut)
         x = xstart
-        print("CUT %s %s " % (cut, cchi))
+        logger.debug("CUT %s %s " % (cut, cchi))
 
         def rsfun(alpha, x, step, cut, tth):
             y = [x[0] + step * math.cos(alpha),
@@ -3831,21 +3864,22 @@ class DiffractogramToolWidget(ToolBaseWidget):
                                           (x, istep, cut, rad))
                 y = [x[0] + istep * math.cos(res.x[0]),
                      x[1] + istep * math.sin(res.x[0])]
-                print("W2a %s " % res)
+                # print("W2a %s " % res)
                 if self.__chi(x, cut) - self.__chi(y, cut) > 0 or \
                    (not res.success and abs(res.fun) > fmax):
                     istep = istep / 2.
-                    print("W2b %s %s " % (res, it))
+                    # print("W2b %s %s " % (res, it))
                 else:
                     break
             else:
                 break
         if it == itm:
-            print("W2c %s %s" % (res, it))
+            # print("W2c %s %s" % (res, it))
             raise Exception("Cannot find the next point")
 
         points.append(tuple(y))
         if self.__dist2(y, xend) < step * step:
+            points.append(tuple(xend))
             return points
         alphas.append(res.x[0])
 
@@ -3924,16 +3958,16 @@ class DiffractogramToolWidget(ToolBaseWidget):
             res = scipy.optimize.root(rafun, start, (rd, az))
             f = res.fun
             f2 = f[0] * f[0] + f[1] * f[1]
-            print("F2 %s" % f2)
+            # print("F2 %s" % f2)
             found = res.success and f2 < fmax
             it += 1
             start = [random.randint(0, shape[0]),
                      random.randint(0, shape[1])]
-        print("Tries: %s" % it)
-        print(res)
+        logger.debug("Tries: %s" % it)
+        logger.debug(res)
         return res
 
-    def __getcorners(self):
+    def __getcorners(self, radstart, radend, azstart, azend):
         """ find region corners
         """
 
@@ -3944,10 +3978,10 @@ class DiffractogramToolWidget(ToolBaseWidget):
             else:
                 shape = [1000., 1000.]
 
-            rb = self.__degtrim(self.__radstart, 0, 360) * math.pi / 180.
-            re = self.__degtrim(self.__radend, 0, 360) * math.pi / 180.
-            ab = self.__degtrim(self.__azstart, -180, 180) * math.pi / 180.
-            ae = self.__degtrim(self.__azend, -180, 180) * math.pi / 180.
+            rb = self.__degtrim(radstart, 0, 360) * math.pi / 180.
+            re = self.__degtrim(radend, 0, 360) * math.pi / 180.
+            ab = self.__degtrim(azstart, -180, 180) * math.pi / 180.
+            ae = self.__degtrim(azend, -180, 180) * math.pi / 180.
 
             rbb = self.__findpoint(rb, ab, shape)
             rbe = self.__findpoint(rb, ae, shape, rbb.x)
@@ -3960,6 +3994,11 @@ class DiffractogramToolWidget(ToolBaseWidget):
         """update radial range in deg
         """
 
+        if self.__radend is not None or self.__radstart is not None:
+            if self.__radstart is None:
+                self.__radstart = 0
+            if self.__radend is None:
+                self.__radend = 90
         if self.__radend is None or self.__radstart is None:
             self.__radrange = None
         else:

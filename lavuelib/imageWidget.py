@@ -581,16 +581,16 @@ class ImageWidget(QtGui.QWidget):
         self.roiNumberChanged.emit(rid)
 
     @QtCore.pyqtSlot(int)
-    def updateRegions(self, rid, points=None):
+    def updateRegions(self, points=None, rid=None):
         """ update Ranges
 
+        :param points: roi coordinates
+        :type points: :obj:`list` <  :obj:`list`
+                  < (:obj:`float`, :obj:`float`) > >
         :param rid: region id
         :type rid: :obj:`int`
-        :param points: roi coordinates
-        :type points: :obj:`list`
-                  < [:obj:`float`, :obj:`float`] >
         """
-        self.__displaywidget.extension('regions').updateRegions(rid, points)
+        self.__displaywidget.extension('regions').updateRegions(points, rid)
         # self.applyTipsChanged.emit(rid)
         # self.roiCoordsChanged.emit()
         # self.roiNumberChanged.emit(rid)
