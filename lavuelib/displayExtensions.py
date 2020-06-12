@@ -150,9 +150,9 @@ class RegionItem(IsocurveItem):
             return
 
         self.path = _pg.QtGui.QPainterPath()
-        line = [self.data[i:i + 2] for i in range(0, len(self.data), 2)]
-        self.path.moveTo(*line[-1])
-        for p in line:
+        line = self.data
+        self.path.moveTo(*line[0])
+        for p in line[1:]:
             self.path.lineTo(*p)
 
 
@@ -1147,7 +1147,7 @@ class RegionsExtension(DisplayExtension):
         self.__current = 0
         #: (:obj:`list` < [int, int, int, int] > )
         #: x1,y1,x2,y2 regions coordinates
-        self.__points = [[0, 0]]
+        self.__points = [[(0, 0)]]
         #: (:obj:`list` < (int, int, int) > ) list with region colors
         self.__colors = []
 
@@ -1190,12 +1190,11 @@ class RegionsExtension(DisplayExtension):
         :type points: :obj:`list`
                  < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
         """
-        if not points or not isinstance(points, list) or len(points) % 2 != 0:
+        if not points or not isinstance(points, list):
             points = [0, 0]
 
         if self._mainwidget.transformations()[0]:
-            points = [points[i - 1 if i % 2 else i + 1]
-                      for i in range(len(points))]
+            points = [(pt[1], pt[0]) for pt in points]
         self.__region.append(
             RegionItem(points, pen=_pg.mkPen('#00ff7f', width=2)))
         # text = _pg.TextItem("%s." % len(self.__region), anchor=(1, 1))
@@ -1252,8 +1251,7 @@ class RegionsExtension(DisplayExtension):
                 if i < len(points):
                     self.__points[i] = points[i]
                     if self._mainwidget.transformations()[0]:
-                        pnts = [points[i][j - 1 if j % 2 else j + 1]
-                                for j in range(len(points[i]))]
+                        pnts = [(pt[1], pt[0]) for pt in points[i]]
                     else:
                         pnts = points[i]
                     crd.setData(pnts)
@@ -1312,8 +1310,7 @@ class RegionsExtension(DisplayExtension):
         for i, crd in enumerate(self.__region):
             if i < len(self.__points):
                 if self._mainwidget.transformations()[0]:
-                    pnts = [self.__points[i][j - 1 if j % 2 else j + 1]
-                            for j in range(len(self.__points[i]))]
+                    pnts = [(pt[1], pt[0]) for pt in self.__points[i]]
                 else:
                     pnts = self.__points[i]
                 crd.setData(pnts)

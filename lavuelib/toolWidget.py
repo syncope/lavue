@@ -39,7 +39,7 @@ import pyqtgraph as _pg
 import logging
 import random
 import json
-from pyqtgraph import QtCore, QtGui
+from pyqtgraph import QtCore, QtGui, functions
 from enum import Enum
 
 from . import geometryDialog
@@ -3162,9 +3162,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #: ([:obj:`float`, :obj:`float`] ) range positions of azimuth in deg
         self.__azrange = None
 
-        #: (:obj:`float`) range changed flag
-        self.__rangechanged = True
-
         #: (:class:`pyFAI.azimuthalIntegrator.AzimuthalIntegrator`)
         #       azimuthal integrator
         self.__ai = None
@@ -3304,7 +3301,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
         self._message()
         self._plotDiff()
-        self.updateGeometryTip()
+        # self.updateGeometryTip()
 
     @QtCore.pyqtSlot()
     def _loadCalibration(self, fileName=None):
@@ -3583,36 +3580,122 @@ class DiffractogramToolWidget(ToolBaseWidget):
                     self.__radstart = 0
                 if self.__radend is None:
                     self.__radend = 90
-            self.__updaterad()
-            self.__rangechanged = True
-            self.updateRangeTip()
-            if self.__azrange and self.__radrange:
+            self.__updateregion()
+
+    def __updateregion(self):
+        """ update diffractogram region
+        """
+        self.__updaterad()
+        self.updateRangeTip()
+        if self.__azrange and self.__radrange and self.__ai:
+            try:
                 self.__findregion()
+            except Exception as e:
+                try:
+                    print(str(e))
+                    self.__findregion2()
+                except Exception as e2:
+                    print(str(e2))
+                    self._mainwidget.updateRegions(1, [[(0, 0)]])
+        else:
+            self._mainwidget.updateRegions(1, [[(0, 0)]])
+        self._plotDiff()
+
+    def __tranpars(self, lx):
+        return [lx[j - 1 if j % 2 else j + 1] for j in range(len(lx))]
+
+    def __revpars(self, lx):
+        return [lx[j - 1 if j % 2 else j + 1]
+                for j in reversed(range(len(lx)))]
+
+    def __findregion2(self):
+        """ find region defined by angle range
+
+        """
+        if self.__ai:
+            dts = self._mainwidget.rawData()
+            if dts is not None and dts.shape and len(dts.shape) == 2:
+                shape = dts.shape
             else:
-                self._mainwidget.updateRegions(
-                    1, [[0, 0]])
-            self._plotDiff()
+                shape = [1000., 1000.]
+            tta = self.__ai.twoThetaArray(shape)
+            cha = self.__ai.chiArray(shape)
+            rb = self.__degtrim(self.__radstart, 0, 360) * math.pi / 180.
+            re = self.__degtrim(self.__radend, 0, 360) * math.pi / 180.
+
+            ab = self.__degtrim(self.__azstart, -180, 180) * math.pi / 180.
+            ae = self.__degtrim(self.__azend, -180, 180) * math.pi / 180.
+
+            thmask = (tta < rb) | (tta > re)
+            chmask = (cha < ab) | (cha > ae)
+            # tta[chmask] =  65000
+
+            # print("RUN")
+            lines = []
+            # rblines = functions.isocurve(
+            #     tta, rb, connected=True, extendToEdge=True)
+            # print("RUN1 %s " % len(rblines))
+            # relines = functions.isocurve(
+            #     tta, re, connected=True, extendToEdge=True)
+            # print("RUN2 %s " % len(relines))
+
+            ttaa = (tta - rb) * (tta - re)
+            ttaa[chmask] = 6
+            rblines = functions.isocurve(
+                ttaa, 0, connected=True)
+            print("RUN1 %s " % len(rblines))
+
+            chaa = (cha - ab) * (cha - ae)
+            chaa[thmask] = 6
+            ablines = functions.isocurve(
+                chaa, 0, connected=True)
+            print("RUN2 %s " % len(ablines))
+
+            for line in rblines:
+                lines.append([(p[1], p[0]) for p in line])
+            for line in ablines:
+                lines.append([(p[1], p[0]) for p in line])
+            # for line in relines:
+            #     lines.append([(p[1], p[0]) for p in line])
+
+            # print(lines)
+            self._mainwidget.updateRegions(len(lines), lines)
+
+        else:
+            self._mainwidget.updateRegions(1, [[(0, 0)]])
 
     def __findregion(self):
         """ find region defined by angle range
         """
-        [rbb, rbe, reb, ree] = self.__getcorners()
-        print("RESULT %s %s " % (str(rbb.x), rbb.success))
-        print("RESULT %s %s" % (str(rbe.x), rbe.success))
-        print("RESULT %s %s" % (str(reb.x), reb.success))
-        print("RESULT %s %s" % (str(ree.x), ree.success))
+        [rbb, rbe, reb, ree, rb, re, ab, ae] = self.__getcorners()
+        azb = self.__azstart * math.pi / 180.
+        aze = self.__azend * math.pi / 180.
+        print("RESULT %s %s %s" % (str(rbb.x), rbb.success, rbb.fun))
+        print("RESULT %s %s %s" % (str(rbe.x), rbe.success, rbe.fun))
+        print("RESULT %s %s %s" % (str(reb.x), reb.success, reb.fun))
+        print("RESULT %s %s %s" % (str(ree.x), ree.success, ree.fun))
+
+        pbbeb = self.__findfixchipath(rbb.x, reb.x, ab, rb, re)
+        print(pbbeb)
+        pbeee = self.__findfixchipath(rbe.x, ree.x, ae, rb, re)
+        print(pbeee)
+        pbbbe = self.__findfixradpath(rbb.x, rbe.x, rb, azb, aze)
+        print(pbbbe)
+        pebee = self.__findfixradpath(reb.x, ree.x, re, azb, aze)
+        print(pebee)
         self._mainwidget.updateRegions(
-            4, [[rbb.x[0], rbb.x[1], rbe.x[0], rbe.x[1]],
-                [rbe.x[0], rbe.x[1], ree.x[0], ree.x[1]],
-                [ree.x[0], ree.x[1], reb.x[0], reb.x[1]],
-                [reb.x[0], reb.x[1], rbb.x[0], rbb.x[1]]])
+            4, [pbbeb, pebee, pbeee, pbbbe])
+        # self._mainwidget.updateRegions(
+        #     2, [pbbeb, pbeee])
+        # self._mainwidget.updateRegions(
+        #     3, [pbbeb, pbeee, pbbbe])
+        # self._mainwidget.updateRegions(
+        #     4, [[rbb.x[0], rbb.x[1], rbe.x[0], rbe.x[1]],
+        #         [rbe.x[0], rbe.x[1], ree.x[0], ree.x[1]],
+        #         [ree.x[0], ree.x[1], reb.x[0], reb.x[1]],
+        #         [reb.x[0], reb.x[1], rbb.x[0], rbb.x[1]]])
 
-        # def rsfun(al, step, rad, chi, d10, d20):
-        #     return [self.__ai.tth(d10 +  step * math.sin(al),
-        #                           d20 * math.cos(al)) - rad,
-        #             self.__ai.chi(d10, d20)- chi]
-
-    def __trim(self, vl, lowbound, upbound):
+    def __degtrim(self, vl, lowbound, upbound):
         """ trim angle value to bounds
         """
         while vl >= upbound:
@@ -3621,15 +3704,217 @@ class DiffractogramToolWidget(ToolBaseWidget):
             vl += 360
         return vl
 
-    def __findpoint(self, rd, az, shape, start=None, itmax=20):
+    def __radtrim(self, vl, lowbound, upbound):
+        """ trim angle value to bounds
+        """
+        while vl >= upbound:
+            vl -= 2 * math.pi
+        while vl < lowbound:
+            vl += 2 * math.pi
+        return vl
+
+    def __findfixchipath(self, xstart, xend, chi, radstart, radend,
+                         step=4, growing=True, fmax=1.e-10):
+        """ find a path
+        """
+        points = [tuple(xstart)]
+
+        if self.__dist2(xstart, xend) < step * step:
+            points.append(tuple(xend))
+            return points
+
+        alphas = []
+        cut = None
+        tchi = self.__radtrim(chi, -math.pi, math.pi)
+        if tchi < -math.pi/2 or tchi > math.pi/2:
+            cut = 0
+        cchi = self.__chi(xstart, cut)
+        x = xstart
+
+        def rsfun(alpha, x, step, cut, chi):
+            y = [x[0] + step * math.cos(alpha),
+                 x[1] + step * math.sin(alpha)]
+            return [self.__chi(y, cut) - chi]
+
+        res = scipy.optimize.root(rsfun, cchi, (x, step, cut, cchi))
+        y = [x[0] + step * math.cos(res.x[0]),
+             x[1] + step * math.sin(res.x[0])]
+        if self.__tth(x) - self.__tth(y) > 0 or \
+           (not res.success and abs(res.fun) > fmax):
+            res = scipy.optimize.root(rsfun, - cchi, (x, step, cut, cchi))
+            y = [x[0] + step * math.cos(res.x[0]),
+                 x[1] + step * math.sin(res.x[0])]
+            if self.__tth(x) - self.__tth(y) > 0 or \
+               (not res.success and abs(res.fun) > fmax):
+                print("W1 %s " % res)
+                raise Exception("Cannot find the next point")
+
+        points.append(tuple(y))
+        if self.__dist2(y, xend) < step * step:
+            return points
+        alphas.append(res.x[0])
+
+        waking = True
+        maxit = 10000
+        it = 0
+        istep = step
+        while waking and maxit > it:
+            it += 1
+            alp = self.__fitnext(alphas[-5:])
+            x = y
+            res = scipy.optimize.root(rsfun, alp, (x, istep, cut, cchi))
+            y = [x[0] + istep * math.cos(res.x[0]),
+                 x[1] + istep * math.sin(res.x[0])]
+            if self.__tth(x) - self.__tth(y) > 0 or \
+               (not res.success and abs(res.fun) > fmax):
+                istep = step / 2.
+                continue
+
+            points.append(tuple(y))
+            if self.__dist2(y, xend) < istep * istep:
+                waking = False
+            alphas.append(res.x[0])
+            istep = step
+        points.append(tuple(xend))
+        return points
+
+    def __findfixradpath(self, xstart, xend, rad, azstart, azend,
+                         step=4, growing=True, fmax=1.e-10):
+        """ find a path
+        """
+        aze = azend
+        points = [tuple(xstart)]
+        while azstart > aze:
+            aze += 2 * math.pi
+        print("RAD %s %s %s" % (rad, xstart, self.__tth(xstart)))
+        print("AZ: %s %s %s" % (azstart, azend, aze))
+        if self.__dist2(xstart, xend) < step * step \
+           and abs(azstart - aze) < math.pi:
+            points.append(tuple(xend))
+            return points
+
+        alphas = []
+        cut = None
+
+        # tth = self.__tth(xstart)
+        tchi = self.__chi(xstart)
+
+        if tchi < -math.pi/2 or tchi > math.pi/2:
+            cut = 0
+        cchi = self.__chi(xstart, cut)
+        x = xstart
+        print("CUT %s %s " % (cut, cchi))
+
+        def rsfun(alpha, x, step, cut, tth):
+            y = [x[0] + step * math.cos(alpha),
+                 x[1] + step * math.sin(alpha)]
+            # print("RSFUN: %s %s %s %s %s %s %s" % (y, tth, self.__tth(y),
+            # self.__tth(y, path="cos"), self.__tth(y,path="cython"),
+            # self.__tth(y,path="tan"), self.__tth(y) - tth) )
+            return [self.__tth(y) - tth]
+
+        itm = 10
+        it = 0
+        istep = step
+        while it < itm:
+            it += 1
+            res = scipy.optimize.root(rsfun, cchi + math.pi/2,
+                                      (x, istep, cut, rad))
+            y = [x[0] + istep * math.cos(res.x[0]),
+                 x[1] + istep * math.sin(res.x[0])]
+            # print("COND %s %s %s" %
+            # (self.__chi(x, cut) - self.__chi(y, cut) > 0 ,
+            # res.success , abs(res.fun) > fmax))
+            if self.__chi(x, cut) - self.__chi(y, cut) > 0 or \
+               (not res.success and abs(res.fun) > fmax):
+                res = scipy.optimize.root(rsfun, -cchi - math.pi/2,
+                                          (x, istep, cut, rad))
+                y = [x[0] + istep * math.cos(res.x[0]),
+                     x[1] + istep * math.sin(res.x[0])]
+                print("W2a %s " % res)
+                if self.__chi(x, cut) - self.__chi(y, cut) > 0 or \
+                   (not res.success and abs(res.fun) > fmax):
+                    istep = istep / 2.
+                    print("W2b %s %s " % (res, it))
+                else:
+                    break
+            else:
+                break
+        if it == itm:
+            print("W2c %s %s" % (res, it))
+            raise Exception("Cannot find the next point")
+
+        points.append(tuple(y))
+        if self.__dist2(y, xend) < step * step:
+            return points
+        alphas.append(res.x[0])
+
+        waking = True
+        maxit = 10000
+        it = 0
+        istep = step
+        while waking and maxit > it:
+            it += 1
+            alp = self.__fitnext(alphas[-5:])
+            x = y
+            tchi = self.__chi(x, cut)
+            if tchi < -math.pi/2 or tchi > math.pi/2:
+                cut = 0
+            else:
+                cut = None
+
+            res = scipy.optimize.root(rsfun, alp, (x, istep, cut, rad))
+            y = [x[0] + istep * math.cos(res.x[0]),
+                 x[1] + istep * math.sin(res.x[0])]
+            if self.__chi(x, cut) - self.__chi(y, cut) > 0 or \
+               (not res.success and abs(res.fun) > fmax):
+                istep = step / 2.
+                continue
+
+            points.append(tuple(y))
+            # print("%s %s" % (y, tchi))
+            if self.__dist2(y, xend) < istep * istep:
+                waking = False
+            alphas.append(res.x[0])
+            istep = step
+        points.append(tuple(xend))
+        return points
+
+    def __fitnext(self, y, x=None, x0=None):
+        """ fits next y value
+        """
+        n = len(y)
+        if x is None:
+            x = range(n)
+            x0 = n
+        return np.poly1d(np.polyfit(x, y, n - 1))(x0)
+
+    def __dist2(self, x, y):
+        d0 = x[0] - y[0]
+        d1 = x[1] - y[1]
+        return d0 * d0 + d1 * d1
+
+    def __chi(self, x, cut=None):
+        """ chi of left bottom pixel corner
+        """
+        chi = float(self.__ai.chi(
+            np.array([x[1] - 0.5]), np.array([x[0] - 0.5]))[0])
+        if cut is not None and chi > cut and cut > -math.pi:
+            chi += 2 * math.pi
+        return chi
+
+    def __tth(self, x, path=None):
+        """ tth of left bottom pixel corner
+        """
+        return float(self.__ai.tth(
+            np.array([x[1] - 0.5]), np.array([x[0] - 0.5]), path=path)[0])
+
+    def __findpoint(self, rd, az, shape, start=None, itmax=20, fmax=1e-9):
         """ find a point
         """
         def rafun(x, f1, f2):
             # print("D1D2: %s %s" % (x[1], x[0] ))
-            return [float(self.__ai.tth(np.array([x[1] - 0.5]),
-                                        np.array([x[0] - 0.5]))[0]) - f1,
-                    float(self.__ai.chi(np.array([x[1] - 0.5]),
-                                        np.array([x[0] - 0.5]))[0]) - f2]
+            return [self.__tth(x) - f1, self.__chi(x) - f2]
         found = False
         it = 0
         if start is None:
@@ -3637,11 +3922,15 @@ class DiffractogramToolWidget(ToolBaseWidget):
                      random.randint(0, shape[1])]
         while not found and it < itmax:
             res = scipy.optimize.root(rafun, start, (rd, az))
-            found = res.success
+            f = res.fun
+            f2 = f[0] * f[0] + f[1] * f[1]
+            print("F2 %s" % f2)
+            found = res.success and f2 < fmax
             it += 1
             start = [random.randint(0, shape[0]),
                      random.randint(0, shape[1])]
         print("Tries: %s" % it)
+        print(res)
         return res
 
     def __getcorners(self):
@@ -3655,17 +3944,17 @@ class DiffractogramToolWidget(ToolBaseWidget):
             else:
                 shape = [1000., 1000.]
 
-            rb = self.__trim(self.__radstart, 0, 360) * math.pi / 180.
-            re = self.__trim(self.__radend, 0, 360) * math.pi / 180.
-            ab = self.__trim(self.__azstart, -180, 180) * math.pi / 180.
-            ae = self.__trim(self.__azend, -180, 180) * math.pi / 180.
+            rb = self.__degtrim(self.__radstart, 0, 360) * math.pi / 180.
+            re = self.__degtrim(self.__radend, 0, 360) * math.pi / 180.
+            ab = self.__degtrim(self.__azstart, -180, 180) * math.pi / 180.
+            ae = self.__degtrim(self.__azend, -180, 180) * math.pi / 180.
 
             rbb = self.__findpoint(rb, ab, shape)
             rbe = self.__findpoint(rb, ae, shape, rbb.x)
-            ree = self.__findpoint(re, ae, shape, rbe.x)
+            ree = self.__findpoint(re, ae, shape)
             reb = self.__findpoint(re, ab, shape, ree.x)
 
-            return [rbb, rbe, reb, ree]
+            return [rbb, rbe, reb, ree, rb, re, ab, ae]
 
     def __updaterad(self):
         """update radial range in deg
