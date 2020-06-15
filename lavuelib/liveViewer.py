@@ -531,12 +531,6 @@ class LiveViewer(QtGui.QDialog):
 
         #: (:class:`numpy.ndarray`) mask image
         self.__maskimage = None
-        #: (:obj:`float`) file name
-        self.__maskvalue = None
-        #: (:class:`numpy.ndarray`) mask image indices
-        self.__maskindices = None
-        #: (:obj:`bool`) apply mask
-        self.__applymask = False
 
         #: (:obj:`str`) source configuration string
         self.__sourceconfiguration = None
@@ -1220,7 +1214,7 @@ class LiveViewer(QtGui.QDialog):
                 self.__dobkgsubtraction = None
             if 'maskfile' not in dctcnf.keys():
                 self.__maskwg.noImage()
-                self.__applymask = False
+                self.__imagewg.setApplyMask(False)
 
     @debugmethod
     def __applyoptions(self, options):
@@ -1977,6 +1971,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.nxslast = self.__settings.nxslast
         cnfdlg.nxsopen = self.__settings.nxsopen
         cnfdlg.sendrois = self.__settings.sendrois
+        cnfdlg.singlerois = self.__settings.singlerois
         cnfdlg.showallrois = self.__settings.showallrois
         cnfdlg.storegeometry = self.__settings.storegeometry
         cnfdlg.geometryfromsource = self.__settings.geometryfromsource
@@ -1986,6 +1981,8 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.imagesourcenames = self.__srcaliasnames
         cnfdlg.toolwidgets = self.__settings.toolwidgets
         cnfdlg.toolwidgetnames = {}
+        cnfdlg.diffnpt = self.__settings.diffnpt
+        cnfdlg.correctsolidangle = self.__settings.correctsolidangle
         cnfdlg.availimagesources = self.__allsourcealiases
         cnfdlg.availtoolwidgets = self.__alltoolaliases
         cnfdlg.defdetservers = self.__settings.defdetservers
@@ -2220,6 +2217,8 @@ class LiveViewer(QtGui.QDialog):
             setsrc = True
         if self.__settings.sendrois != dialog.sendrois:
             self.__settings.sendrois = dialog.sendrois
+        if self.__settings.singlerois != dialog.singlerois:
+            self.__settings.singlerois = dialog.singlerois
         if self.__settings.showallrois != dialog.showallrois:
             self.__settings.showallrois = dialog.showallrois
         if setsrc:
@@ -2236,6 +2235,14 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.zeromask != dialog.zeromask:
             self.__settings.zeromask = dialog.zeromask
             remasking = True
+            replot = True
+
+        if self.__settings.diffnpt != dialog.diffnpt:
+            self.__settings.diffnpt = dialog.diffnpt
+            replot = True
+
+        if self.__settings.correctsolidangle != dialog.correctsolidangle:
+            self.__settings.correctsolidangle = dialog.correctsolidangle
             replot = True
 
         if self.__settings.nanmask != dialog.nanmask:
@@ -3037,7 +3044,7 @@ class LiveViewer(QtGui.QDialog):
                 self.setrgb(False)
                 self.__channelwg.showGradient(True)
                 self.__levelswg.showGradient(True)
-            if self.__applymask:
+            if self.__imagewg.applyMask():
                 self.__rawgreyimage = np.array(self.__filteredimage)
             else:
                 self.__rawgreyimage = self.__filteredimage
@@ -3085,21 +3092,21 @@ class LiveViewer(QtGui.QDialog):
                     "to the current image",
                     text, str(value))
 
-        if self.__settings.showmask and self.__applymask and \
-           self.__maskindices is not None:
+        if self.__settings.showmask and self.__imagewg.applyMask() and \
+           self.__imagewg.maskIndices() is not None:
             # set all masked (non-zero values) to zero by index
             try:
-                if self.__settings.nanmask:
+                if not self.__settings.nanmask:
                     self.__displayimage = np.array(self.__displayimage)
-                    self.__displayimage[self.__maskindices] = 0
+                    self.__displayimage[self.__imagewg.maskIndices()] = 0
                 else:
                     self.__displayimage = np.array(
                         self.__displayimage,
                         dtype=self.__settings.floattype)
-                    self.__displayimage[self.__maskindices] = np.nan
+                    self.__displayimage[self.__imagewg.maskIndices()] = np.nan
             except IndexError:
                 self.__maskwg.noImage()
-                self.__applymask = False
+                self.__imagewg.setApplyMask(False)
                 import traceback
                 value = traceback.format_exc()
                 text = messageBox.MessageBox.getText(
@@ -3111,7 +3118,7 @@ class LiveViewer(QtGui.QDialog):
                     text, str(value))
 
         if self.__settings.showhighvaluemask and \
-           self.__maskvalue is not None:
+           self.__imagewg.maskValue() is not None:
             try:
                 if self.__settings.nanmask:
                     self.__displayimage = np.array(
@@ -3120,12 +3127,16 @@ class LiveViewer(QtGui.QDialog):
                     with np.warnings.catch_warnings():
                         np.warnings.filterwarnings(
                             'ignore', r'invalid value encountered in greater')
+                        self.__imagewg.setMaskValueIndices(
+                            self.__displayimage > self.__imagewg.maskValue())
                         self.__displayimage[
-                            self.__displayimage > self.__maskvalue] = np.nan
+                            self.__imagewg.maskValueIndices()] = np.nan
                 else:
                     self.__displayimage = np.array(self.__displayimage)
+                    self.__imagewg.setMaskValueIndices(
+                        self.__displayimage > self.__imagewg.maskValue())
                     self.__displayimage[
-                        self.__displayimage > self.__maskvalue] = 0
+                            self.__imagewg.maskValueIndices()] = 0
             except IndexError:
                 # self.__highvaluemaskwg.noValue()
                 import traceback
@@ -3452,9 +3463,9 @@ class LiveViewer(QtGui.QDialog):
         """
         value = self.__highvaluemaskwg.mask()
         try:
-            self.__maskvalue = float(value)
+            self.__imagewg.setMaskValue(float(value))
         except Exception:
-            self.__maskvalue = None
+            self.__imagewg.setMaskValue(None)
         maskhighvalue = ""
         if self.__settings.showhighvaluemask:
             maskhighvalue = str(value or "")
@@ -3466,8 +3477,8 @@ class LiveViewer(QtGui.QDialog):
     def _checkMasking(self, state):
         """ replots the image with mask if mask exists
         """
-        self.__applymask = state
-        if self.__applymask and self.__maskimage is None:
+        self.__imagewg.setApplyMask(state)
+        if self.__imagewg.applyMask() and self.__maskimage is None:
             self.__maskwg.noImage()
         maskfile = ""
         if self.__maskwg.isMaskApplied():
@@ -3512,12 +3523,11 @@ class LiveViewer(QtGui.QDialog):
                     imageFileHandler.ImageFileHandler(
                         str(imagename)).getImage())
             if self.__settings.zeromask:
-                self.__maskindices = (self.__maskimage == 0)
+                self.__imagewg.setMaskIndices(self.__maskimage == 0)
             else:
-                self.__maskindices = (self.__maskimage != 0)
+                self.__imagewg.setMaskIndices(self.__maskimage != 0)
         else:
             self.__maskimage = None
-        # self.__maskindices = np.nonzero(self.__maskimage != 0)
 
     # @debugmethod
     def __remasking(self):
@@ -3525,9 +3535,9 @@ class LiveViewer(QtGui.QDialog):
         """
         if self.__maskimage is not None:
             if self.__settings.zeromask:
-                self.__maskindices = (self.__maskimage == 0)
+                self.__imagewg.setMaskIndices(self.__maskimage == 0)
             else:
-                self.__maskindices = (self.__maskimage != 0)
+                self.__imagewg.setMaskIndices(self.__maskimage != 0)
 
     @debugmethod
     @QtCore.pyqtSlot(int)

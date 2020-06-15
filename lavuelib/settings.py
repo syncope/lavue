@@ -121,6 +121,8 @@ class Settings(object):
         self.interruptonerror = True
         #: (:obj:`str`) last image file name
         self.imagename = None
+        #: (:obj:`str`) calibration file name
+        self.calibrationfilename = None
         #: (:obj:`str`) last mask image file name
         self.maskimagename = None
         #: (:obj:`str`) last background image file name
@@ -210,8 +212,24 @@ class Settings(object):
         self.pixelsizey = 0.0
         #: (:obj:`float`) detector distance in mm
         self.detdistance = 0.0
+        #: (:obj:`float`) poni1 parameter in m
+        self.detponi1 = 0.0
+        #: (:obj:`float`) poni2 parameter in m
+        self.detponi2 = 0.0
+        #: (:obj:`float`) rot1 parameter in rad
+        self.detrot1 = 0.0
+        #: (:obj:`float`) rot2 parameter in rad
+        self.detrot2 = 0.0
+        #: (:obj:`float`) rot3 parameter in rad
+        self.detrot3 = 0.0
+        #: (:obj:`int`) number of points for diffractogram
+        self.diffnpt = 1000
+        #: (:obj:`bool`) correct solid angle flag
+        self.correctsolidangle = True
         #: (:obj:`bool`) show all rois flag
         self.showallrois = False
+        #: (:obj:`bool`) single rois flag
+        self.singlerois = False
         #: (:obj:`bool`) send rois to LavueController flag
         self.sendrois = False
         #: (:obj:`dict` < :obj:`str`, :obj:`dict` < :obj:`str`,`any`> >
@@ -225,8 +243,12 @@ class Settings(object):
         self.__sourcedisplay = {}
 
         self.__units = {
+            'eV': ['eV'],
+            'keV': ['keV'],
+            'MeV': ['MeV'],
             'A': ['A', 'Angstrom'],
             'm': ['m', 'meter', 'metre'],
+            'nm': ['nm', 'nanometer', 'nanometre'],
             'um': ['um', 'micrometer', 'micrometre'],
             'mm': ['mm', 'millimeter', 'millimetre'],
             'cm': ['cm', 'centimeter', 'centimetre'],
@@ -391,6 +413,10 @@ class Settings(object):
         qstval = str(settings.value("Configuration/NXSLastImage", type=str))
         if qstval.lower() == "true":
             self.nxslast = True
+        qstval = str(settings.value(
+            "Configuration/SingleROIAliases", type=str))
+        if qstval.lower() == "true":
+            self.singlerois = True
         qstval = str(settings.value("Configuration/SendROIs", type=str))
         if qstval.lower() == "true":
             self.sendrois = True
@@ -493,6 +519,10 @@ class Settings(object):
                 "Configuration/LastBackgroundImageFileName", type=str))
         if qstval:
             self.bkgimagename = qstval
+        qstval = str(
+            settings.value("Configuration/LastCalibrationFileName", type=str))
+        if qstval:
+            self.calibrationfilename = qstval
 
         qstval = str(
             settings.value(
@@ -654,6 +684,40 @@ class Settings(object):
                 settings.value("Tools/DetectorDistance", type=str))
         except Exception:
             pass
+        try:
+            self.detponi1 = float(
+                settings.value("Tools/DetectorPONI1", type=str))
+        except Exception:
+            pass
+        try:
+            self.detponi2 = float(
+                settings.value("Tools/DetectorPONI2", type=str))
+        except Exception:
+            pass
+        try:
+            self.diffnpt = float(
+                settings.value("Tools/DiffractogramNPT", type=str))
+        except Exception:
+            pass
+        qstval = str(settings.value(
+            "Tools/CorrectSolidAngle", type=str))
+        if qstval.lower() == "false":
+            self.correctsolidangle = False
+        try:
+            self.detrot1 = float(
+                settings.value("Tools/DetectorRot1", type=str))
+        except Exception:
+            pass
+        try:
+            self.detrot2 = float(
+                settings.value("Tools/DetectorRot2", type=str))
+        except Exception:
+            pass
+        try:
+            self.detrot3 = float(
+                settings.value("Tools/DetectorRot3", type=str))
+        except Exception:
+            pass
         self.__loadDisplayParams(settings)
         self.__loadCustomGradients(settings)
         return status
@@ -782,6 +846,9 @@ class Settings(object):
             "Configuration/LastMaskImageFileName",
             self.maskimagename)
         settings.setValue(
+            "Configuration/LastCalibrationFileName",
+            self.calibrationfilename)
+        settings.setValue(
             "Configuration/LastBackgroundImageFileName",
             self.bkgimagename)
         settings.setValue(
@@ -851,6 +918,9 @@ class Settings(object):
             "Configuration/StoreGeometry",
             self.storegeometry)
         settings.setValue(
+            "Tools/CorrectSolidAngle",
+            self.correctsolidangle)
+        settings.setValue(
             "Configuration/GeometryFromSource",
             self.geometryfromsource)
         settings.setValue(
@@ -862,6 +932,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/SendROIs",
             self.sendrois)
+        settings.setValue(
+            "Configuration/SingleROIAliases",
+            self.singlerois)
         settings.setValue(
             "Configuration/ShowAllROIs",
             self.showallrois)
@@ -895,6 +968,25 @@ class Settings(object):
         settings.setValue(
             "Tools/DetectorDistance",
             self.detdistance)
+        settings.setValue(
+            "Tools/DetectorPONI1",
+            self.detponi1)
+        settings.setValue(
+            "Tools/DetectorPONI2",
+            self.detponi2)
+        settings.setValue(
+            "Tools/DiffractogramNPT",
+            self.diffnpt)
+        settings.setValue(
+            "Tools/DetectorRot1",
+            self.detrot1)
+        settings.setValue(
+            "Tools/DetectorRot2",
+            self.detrot2)
+        settings.setValue(
+            "Tools/DetectorRot3",
+            self.detrot3)
+
         self.__storeDisplayParams(settings)
         self.__storeCustomGradients(settings)
 
@@ -916,6 +1008,8 @@ class Settings(object):
                 elif len(length) > 1:
                     if length[1] in self.__units['A']:
                         energy = hc * 10000 / length[0]
+                    elif length[1] in self.__units['nm']:
+                        energy = hc * 1000 / length[0]
                     elif length[1] in self.__units['um']:
                         energy = hc / length[0]
                     elif length[1] in self.__units['m']:
@@ -927,6 +1021,32 @@ class Settings(object):
             else:
                 energy = hc * 10000 / length
         return energy
+
+    def energy2m(self, energy):
+        """ converts energy to m
+
+        :param energy: energy as value in eV or tuple with units
+        :type energy: :obj:`float` or (:obj:`float`, :obj:`str`)
+        :returns: length in m
+        :rtype: :obj:`float`
+        """
+        length = None
+        #: :obj:`float`  value of hc in eV * um
+        hc = 1.23984193
+        if energy is not None:
+            if type(energy) in [list, tuple]:
+                if len(energy) == 1:
+                    length = hc * 1e-6 / energy
+                elif len(energy) > 1:
+                    if energy[1] in self.__units['eV']:
+                        length = hc * 1e-6 / energy[0]
+                    elif energy[1] in self.__units['keV']:
+                        length = hc * 1e-3 / energy[0]
+                    elif energy[1] in self.__units['MeV']:
+                        length = hc / energy[0]
+            else:
+                length = hc * 1e-6 / energy
+        return length
 
     def distance2mm(self, distance):
         """ converts distance to mm units
@@ -944,6 +1064,8 @@ class Settings(object):
                 elif len(distance) > 1:
                     if distance[1] in self.__units['A']:
                         res = distance[0] * 1e-7
+                    elif distance[1] in self.__units['nm']:
+                        res = distance[0] * 1e-6
                     elif distance[1] in self.__units['um']:
                         res = distance[0] * 1e-3
                     elif distance[1] in self.__units['km']:
@@ -974,6 +1096,8 @@ class Settings(object):
                 elif len(distance) > 1:
                     if distance[1] in self.__units['A']:
                         res = distance[0] * 1e-4
+                    elif distance[1] in self.__units['nm']:
+                        res = distance[0] * 1e-3
                     elif distance[1] in self.__units['um']:
                         res = distance[0]
                     elif distance[1] in self.__units['km']:
@@ -1006,6 +1130,8 @@ class Settings(object):
                 elif len(distance) > 1:
                     if distance[1] in self.__units['pixel']:
                         res = distance[0]
+                    elif distance[1] in self.__units['nm']:
+                        res = distance[0] * 1e+3 / psize
                     elif distance[1] in self.__units['um']:
                         res = distance[0] / psize
                     elif distance[1] in self.__units['m']:

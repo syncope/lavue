@@ -2,8 +2,9 @@ FROM ubuntu:18.04
 
 MAINTAINER DESY, Jan Kotanski <jankotan@gmail.com>
 
-RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get -qq install -y software-properties-common curl
-RUN curl http://repos.pni-hdri.de/debian_repo.pub.gpg | apt-key add -
+RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get -qq install -y software-properties-common curl wget
+RUN wget --retry-connrefused http://repos.pni-hdri.de/debian_repo.pub.gpg
+RUN apt-key add debian_repo.pub.gpg
 RUN add-apt-repository "deb http://repos.pni-hdri.de/apt/debian bionic main" -y
 RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get -qq dist-upgrade
 RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get install -y mysql-client mysql-client python-h5py python-sphinx apt-utils debconf-utils net-tools  omniidl libomniorb4-dev libcos4-dev libzmq3-dev  python-pninexus python-pyqt5 python-pyqt5.qtsvg python-qtchecker

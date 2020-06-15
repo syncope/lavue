@@ -33,15 +33,18 @@ import re
 import math
 import sys
 import numpy as np
+import scipy.optimize
 import scipy.interpolate
 import pyqtgraph as _pg
 import logging
+import random
 import json
-from pyqtgraph import QtCore, QtGui
+from pyqtgraph import QtCore, QtGui, functions
 from enum import Enum
 
 from . import geometryDialog
 from . import rangeDialog
+from . import diffRangeDialog
 from . import takeMotorsDialog
 from . import intervalsDialog
 from . import motorWatchThread
@@ -54,6 +57,14 @@ try:
 except ImportError:
     #: (:obj:`bool`) PyTango imported
     PYTANGO = False
+
+try:
+    import pyFAI
+    #: (:obj:`bool`) pyFAI imported
+    PYFAI = True
+except ImportError:
+    #: (:obj:`bool`) pyFAI imported
+    PYFAI = False
 
 if sys.version_info > (3,):
     long = int
@@ -74,6 +85,10 @@ _cutformclass, _cutbaseclass = uic.loadUiType(
 _angleqformclass, _angleqbaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
                  "ui", "AngleQToolWidget.ui"))
+
+_diffractogramformclass, _diffractogrambaseclass = uic.loadUiType(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "ui", "DiffractogramToolWidget.ui"))
 
 _maximaformclass, _maximabaseclass = uic.loadUiType(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -114,6 +129,7 @@ __all__ = [
     'ProjectionToolWidget',
     'MaximaToolWidget',
     'ParametersToolWidget',
+    'DiffractogramToolWidget',
     'QROIProjToolWidget',
     'twproperties',
 ]
@@ -185,6 +201,8 @@ class ToolParameters(object):
         self.maxima = False
         #: (:obj:`bool`) vertical and horizontal bounds
         self.vhbounds = False
+        #: (:obj:`bool`) angle range enabled
+        self.regions = False
 
 
 class ToolBaseWidget(QtGui.QWidget):
@@ -1420,6 +1438,17 @@ class ROIToolWidget(ToolBaseWidget):
         """ emits applyROIPressed signal"""
 
         text = str(self.__ui.labelROILineEdit.text()).strip()
+        if self.__settings.singlerois:
+            slabel = re.split(';|,| |\n', str(text))
+            slabel = [lb for lb in slabel if lb]
+            lsl = len(slabel)
+            while lsl < len(self._mainwidget.roiCoords()):
+                lsl += 1
+                slabel.append("roi%s" % lsl)
+
+            self.__ui.labelROILineEdit.setText(" ".join(slabel))
+            self._updateApplyButton()
+            text = str(self.__ui.labelROILineEdit.text()).strip()
         if not text:
             self.__ui.labelROILineEdit.setText("rois")
             self._updateApplyButton()
@@ -2610,7 +2639,7 @@ class AngleQToolWidget(ToolBaseWidget):
                     if self.__radthstart is not None else 0
                 theta = radial * self.__radmax + rstart * math.pi / 180
             else:
-                wavelength = 12400./self.__settings.energy
+                wavelength = 12398.4193/self.__settings.energy
                 rstart = self.__radqstart \
                     if self.__radqstart is not None else 0
                 theta = 2. * np.arcsin(
@@ -2915,7 +2944,7 @@ class AngleQToolWidget(ToolBaseWidget):
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             thetax, thetay, thetatotal = self.__pixel2theta(
                 xdata, ydata, xy)
-            wavelength = 12400./self.__settings.energy
+            wavelength = 12398.4193/self.__settings.energy
             if xy:
                 qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
                 qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
@@ -3085,14 +3114,990 @@ class AngleQToolWidget(ToolBaseWidget):
             u"th_tot: [%s, %s] deg, size=%s\n"
             u"q: [%s, %s] 1/\u212B, size=%s" % (
                 self.__polstart if self.__polstart is not None else "0",
-                self.__polend if self.__polstart is not None else "360",
-                self.__polsize if self.__polstart is not None else "360",
+                self.__polend if self.__polend is not None else "360",
+                self.__polsize if self.__polsize is not None else "max",
                 self.__radthstart if self.__radthstart is not None else "0",
                 self.__radthend if self.__radthend is not None else "thmax",
                 self.__radthsize if self.__radthsize is not None else "max",
                 self.__radqstart if self.__radqstart is not None else "0",
                 self.__radqend if self.__radqend is not None else "qmax",
                 self.__radqsize if self.__radqsize is not None else "max")
+        )
+
+
+class DiffractogramToolWidget(ToolBaseWidget):
+    """ diffractogram tool widget
+    """
+
+    #: (:obj:`str`) tool name
+    name = "Diffractogram"
+    #: (:obj:`str`) tool name alias
+    alias = "diffractogram"
+    #: (:obj:`tuple` <:obj:`str`>) capitalized required packages
+    requires = ("PYFAI",)
+
+    def __init__(self, parent=None):
+        """ constructor
+
+        :param parent: parent object
+        :type parent: :class:`pyqtgraph.QtCore.QObject`
+        """
+        ToolBaseWidget.__init__(self, parent)
+
+        #: (:obj:`int`) unit index
+        #               ->  0: q_nm^-1, 1: q_A-1, 2: 2th_deg, 3: 2th_rad
+        self.__unitindex = 0
+        self.__units = ["q_nm^-1", "q_A^-1", "2th_deg", "2th_rad", "r_mm"]
+
+        #: (:class:`Ui_ROIToolWidget') ui_toolwidget object from qtdesigner
+        self.__ui = _diffractogramformclass()
+        self.__ui.setupUi(self)
+
+        #: (:obj:`bool`) old lock value
+        self.__oldlocked = None
+
+        #: ((:obj:`bool`) show diffractogram status
+        self.__showdiff = False
+
+        #: ([:obj:`float`, :obj:`float`] )
+        #          range positions of radial in current units
+        self.__radrange = None
+        #: (:obj:`float`) start position of radial in deg
+        self.__radstart = None
+        #: (:obj:`float`) end position of radial in deg
+        self.__radend = None
+        #: (:obj:`int`) start position of azimuth angle in deg
+        self.__azstart = None
+        #: (:obj:`float`) end position of azimuth angle in deg
+        self.__azend = None
+        #: ([:obj:`float`, :obj:`float`] ) range positions of azimuth in deg
+        self.__azrange = None
+
+        #: (:class:`pyFAI.azimuthalIntegrator.AzimuthalIntegrator`)
+        #       azimuthal integrator
+        self.__ai = None
+
+        #: (:obj:`list`<:class:`pyqtgraph.PlotDataItem`>) 1D plot freezed
+        self.__freezed = []
+
+        #: (:obj:`list`<:class:`pyqtgraph.PlotDataItem`>) 1D plot
+        self.__curves = []
+        #: (:obj:`int`) current plot number
+        self.__nrplots = 0
+
+        # self.parameters.lines = True
+        #: (:obj:`str`) infolineedit text
+        self.parameters.infolineedit = ""
+        self.parameters.infotips = ""
+        self.parameters.bottomplot = True
+        self.parameters.centerlines = True
+        self.parameters.polarscale = False
+        self.parameters.regions = True
+        # self.parameters.rightplot = True
+
+        #: (`lavuelib.imageDisplayWidget.AxesParameters`) axes backup
+        self.__axes = None
+
+        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        self.__settings = self._mainwidget.settings()
+
+        #: (:obj:`list` < [:class:`pyqtgraph.QtCore.pyqtSignal`, :obj:`str`] >)
+        #: list of [signal, slot] object to connect
+        self.signal2slot = [
+            # [self.__ui.angleqPushButton.clicked, self._setGeometry],
+            [self.__ui.rangePushButton.clicked, self._setPolarRange],
+            [self.__ui.showPushButton.clicked, self._showhideDiff],
+            [self.__ui.nextPushButton.clicked, self._plotDiff],
+            [self.__ui.calibrationPushButton.clicked, self._loadCalibration],
+            [self.__ui.unitComboBox.currentIndexChanged,
+             self._setUnitIndex],
+            [self._mainwidget.mouseImageDoubleClicked,
+             self._updateCenter],
+            [self._mainwidget.geometryChanged, self.updateGeometryTip],
+            # [self._mainwidget.freezeBottomPlotClicked, self._freezeplot],
+            [self._mainwidget.mouseImagePositionChanged, self._message]
+        ]
+
+    @QtCore.pyqtSlot()
+    def _freezeplot(self):
+        """ freeze plot
+        """
+        self._clearplot()
+        nrplots = self.__nrplots
+        while nrplots > len(self.__freezed):
+            cr = self._mainwidget.onedbottomplot()
+            cr.setPen(_pg.mkColor(0.5))
+            self.__freezed.append(cr)
+
+        for i in range(nrplots):
+            self.__freezed[i].setData(*self.__curves[i].getData())
+            self.__freezed[i].show()
+            self.__freezed[i].setVisible(True)
+        for i in range(nrplots, len(self.__freezed)):
+            self.__freezed[i].hide()
+            self.__freezed[i].setVisible(True)
+            # print(type(cr))
+
+    @QtCore.pyqtSlot()
+    def _clearplot(self):
+        """ clear plot
+        """
+        for cr in self.__freezed:
+            cr.setVisible(False)
+
+    def afterplot(self):
+        """ command after plot
+        """
+        if self.__showdiff:
+            self._plotDiff()
+
+    def activate(self):
+        """ activates tool widget
+        """
+        self.__oldlocked = None
+        self.updateGeometryTip()
+        self.updateRangeTip()
+        self._mainwidget.updateCenter(
+            self.__settings.centerx, self.__settings.centery)
+        self.__updateButtons()
+        if not self.__curves:
+            self.__curves.append(self._mainwidget.onedbottomplot(True))
+            self.__nrplots = 1
+        for curve in self.__curves:
+            curve.show()
+            curve.setVisible(True)
+        # self._updateAllCuts(self.__allcuts)
+
+        # if self.__settings.calibrationfilename:
+        #     self._loadCalibration(
+        #         self.__settings.calibrationfilename)
+        self.__ui.diffSpinBox.setEnabled(False)
+        if self.__ai:
+            self._plotDiff()
+        self._mainwidget.bottomplotShowMenu(True, True)
+
+    def deactivate(self):
+        """ deactivates tool widget
+        """
+        self._mainwidget.bottomplotShowMenu()
+        for curve in self.__curves:
+            curve.hide()
+            curve.setVisible(False)
+            self._mainwidget.removebottomplot(curve)
+        self.__curves = []
+        for freezed in self.__freezed:
+            freezed.hide()
+            freezed.setVisible(False)
+            self._mainwidget.removebottomplot(freezed)
+        self.__freezed = []
+
+    def beforeplot(self, array, rawarray):
+        """ command  before plot
+
+        :param array: 2d image array
+        :type array: :class:`numpy.ndarray`
+        :param rawarray: 2d raw image array
+        :type rawarray: :class:`numpy.ndarray`
+        :return: 2d image array and raw image
+        :rtype: (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
+        """
+
+    @QtCore.pyqtSlot(float, float)
+    def _updateCenter(self, xdata, ydata):
+        """ updates the image center
+
+        :param xdata: x pixel position
+        :type xdata: :obj:`float`
+        :param ydata: y-pixel position
+        :type ydata: :obj:`float`
+        """
+        txdata = None
+        if self._mainwidget.rangeWindowEnabled():
+            txdata, tydata = self._mainwidget.scaledxy(
+                xdata, ydata, useraxes=False)
+            if txdata is not None:
+                xdata = txdata
+                ydata = tydata
+        self.__settings.centerx = float(xdata)
+        self.__settings.centery = float(ydata)
+        if self.__ai is not None:
+            # print("center: %s %s" % (xdata, ydata))
+            # self.__ai.set_poni1(
+            #     self.__settings.centery * self.__settings.pixelsizex
+            # / 1000000.)
+            # self.__ai.set_poni2(
+            #     self.__settings.centerx * self.__settings.pixelsizey
+            # / 1000000.)
+            # aic = self.__ai.get_config()
+            aif = self.__ai.getFit2D()
+            # print(self.__ai)
+            self.__ai.setFit2D(aif["directDist"],
+                               self.__settings.centerx,
+                               self.__settings.centery,
+                               aif["tilt"],
+                               aif["tiltPlanRotation"])
+            # print(self.__ai)
+        self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
+        self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
+        self._message()
+        self._plotDiff()
+        self.updateGeometryTip()
+
+    @QtCore.pyqtSlot()
+    def _loadCalibration(self, fileName=None):
+        """ load calibration file
+        """
+        if fileName is None:
+            fileDialog = QtGui.QFileDialog()
+            fileout = fileDialog.getOpenFileName(
+                self._mainwidget, 'Open calibration file',
+                self.__settings.calibrationfilename or '/ramdisk/',
+                "PONI (*.poni);;All files (*)"
+            )
+            if isinstance(fileout, tuple):
+                fileName = str(fileout[0])
+            else:
+                fileName = str(fileout)
+        if fileName:
+            try:
+                self.__ai = pyFAI.load(fileName)
+                # print(str(self.__ai))
+                self.__settings.calibrationfilename = fileName
+                self.__writedetsettings()
+                self._mainwidget.updateCenter(
+                    self.__settings.centerx, self.__settings.centery)
+            except Exception as e:
+                # print(str(e))
+                logger.warning(str(e))
+                self.__ai = None
+            self.__updateButtons(self.__ai is not None)
+            self.__updateregion()
+            self.updateGeometryTip()
+
+    def __writedetsettings(self):
+        """ write detector settings from ai object
+        """
+        aic = self.__ai.get_config()
+        self.__settings.detponi1 = aic["poni1"]
+        self.__settings.detponi2 = aic["poni2"]
+        self.__settings.detrot1 = aic["rot1"]
+        self.__settings.detrot2 = aic["rot2"]
+        self.__settings.detrot3 = aic["rot3"]
+        self.__settings.pixelsizex = self.__settings.distance2um(
+            (self.__ai.get_pixel2(), "m"))
+        self.__settings.pixelsizey = self.__settings.distance2um(
+            (self.__ai.get_pixel1(), "m"))
+        self.__settings.detdistance = self.__settings.distance2mm(
+            (aic["dist"], "m"))
+        self.__settings.energy = self.__settings.length2ev(
+            (float(aic["wavelength"]), "m"))
+        aif = self.__ai.getFit2D()
+        self.__settings.centerx = float(aif["centerX"])
+        self.__settings.centery = float(aif["centerY"])
+        self._mainwidget.writeAttribute("BeamCenterX",
+                                        float(self.__settings.centerx))
+        self._mainwidget.writeAttribute("BeamCenterY",
+                                        float(self.__settings.centery))
+        self._mainwidget.writeAttribute(
+            "Energy", float(self.__settings.energy))
+        self._mainwidget.writeAttribute(
+            "DetectorDistance",
+            float(self.__settings.detdistance))
+
+    def __updateButtons(self, status=None):
+        """ update buttons
+
+        :param status: show button flag
+        :type status: :obj:`bool`
+        """
+        if status is None:
+            status = self.__ai is not None
+        self.__ui.showPushButton.setEnabled(status)
+        self.__ui.nextPushButton.setEnabled(status)
+
+    @QtCore.pyqtSlot()
+    def _message(self):
+        """ provides geometry message
+        """
+        message = ""
+        _, _, intensity, x, y = self._mainwidget.currentIntensity()
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
+        if self._mainwidget.rangeWindowEnabled():
+            txdata, tydata = self._mainwidget.scaledxy(
+                x, y, useraxes=False)
+            if txdata is not None:
+                x = txdata
+                y = tydata
+        ilabel = self._mainwidget.scalingLabel()
+        chi = None
+        if self.__ai is not None:
+            chi = self.__ai.chi(
+                np.array([y - 0.5]), np.array([x - 0.5]))
+            if len(chi):
+                chi = chi[0]
+        if self.__unitindex in [2, 3]:
+            tth = None
+            if self.__ai is not None:
+                tth = self.__ai.tth(
+                    np.array([y - 0.5]), np.array([x - 0.5])),
+                if len(tth):
+                    tth = tth[0]
+            if tth is not None and chi is not None:
+                unit = "rad"
+                if self.__unitindex == 2:
+                    unit = "deg"
+                    chi = chi * 180./math.pi
+                    tth = tth * 180./math.pi
+                message = "x, y = [%s, %s], tth = %f %s, chi = %f %s," \
+                          " %s = %.2f" \
+                          % (x, y, tth, unit,
+                             chi, unit,
+                             ilabel, intensity)
+            else:
+                message = "x, y = [%s, %s], %s = %.2f" % (
+                    x, y, ilabel, intensity)
+        elif self.__unitindex in [0, 1]:
+            qa = None
+            if self.__ai is not None:
+                qa = self.__ai.qFunction(
+                    np.array([y - 0.5]), np.array([x - 0.5])),
+                if len(qa):
+                    qa = qa[0]
+            if qa is not None and chi is not None:
+                unit = u"1/\u212B"
+                chi = chi * 180./math.pi
+                if self.__unitindex == 0:
+                    unit = "1/nm"
+                if self.__unitindex == 1:
+                    qa = qa / 10.
+                message = "x, y = [%s, %s], q = %f %s, chi = %f %s," \
+                          " %s = %.2f" \
+                          % (x, y, qa, unit,
+                             chi, "deg",
+                             ilabel, intensity)
+            else:
+                message = "x, y = [%s, %s], %s = %.2f" % (
+                    x, y, ilabel, intensity)
+        elif self.__unitindex in [4]:
+            ra = None
+            if self.__ai is not None:
+                ra = self.__ai.rFunction(
+                    np.array([y - 0.5]), np.array([x - 0.5])),
+                if len(ra):
+                    ra = ra[0] * 1000.
+            if ra is not None and chi is not None:
+                chi = chi * 180./math.pi
+                message = "x, y = [%s, %s], r = %f %s, chi = %f %s," \
+                          " %s = %.2f" \
+                          % (x, y, ra, "mm",
+                             chi, "deg",
+                             ilabel, intensity)
+            else:
+                message = "x, y = [%s, %s], %s = %.2f" % (
+                    x, y, ilabel, intensity)
+        self._mainwidget.setDisplayedText(message)
+
+    def __tipmessage(self):
+        """ provides geometry messate
+
+        :returns: geometry text
+        :rtype: :obj:`unicode`
+        """
+        if self.__ai:
+            return str(self.__ai)
+        else:
+            return ""
+
+        # return u"geometry:\n" \
+        #     u"  center = (%s, %s) pixels\n" \
+        #     u"  pixel_size = (%s, %s) \u00B5m\n" \
+        #     u"  detector_distance = %s mm\n" \
+        #     u"  energy = %s eV" % (
+        #         self.__settings.centerx,
+        #         self.__settings.centery,
+        #         self.__settings.pixelsizex,
+        #         self.__settings.pixelsizey,
+        #         self.__settings.detdistance,
+        #         self.__settings.energy
+        #     )
+
+    @QtCore.pyqtSlot()
+    def updateGeometryTip(self):
+        """ update geometry tips
+        """
+        message = self.__tipmessage()
+        self.__ui.calibrationPushButton.setToolTip(
+            "Input physical parameters\n%s" % message)
+
+    @QtCore.pyqtSlot()
+    def _showhideDiff(self):
+        """ show or hide diffractogram
+        """
+        if not self.__showdiff:
+            self.__showdiff = True
+            self.__ui.showPushButton.setText("Stop")
+            self._plotDiff()
+        else:
+            self.__showdiff = False
+            self.__ui.showPushButton.setText("Show")
+
+    @QtCore.pyqtSlot()
+    def _plotDiff(self):
+        """ plot diffractogram
+        """
+        if self.__ai is not None:
+            if self.__nrplots > 1:
+                for i in range(1, len(self.__curves)):
+                    self.__curves[i].setVisible(False)
+                    self.__curves[i].hide()
+                self.__nrplots = 1
+            if self._mainwidget.currentTool() == self.name:
+                dts = self._mainwidget.rawData()
+                # print(dts)
+                # self.__curves[0].setPen(_pg.mkColor('r'))
+                if dts is not None:
+                    try:
+                        trans = self._mainwidget.transformations()[0]
+                        csa = self.__settings.correctsolidangle
+                        unit = self.__units[self.__unitindex]
+                        dts = dts if trans else dts.T
+                        mask = None
+                        if dts.dtype.kind == 'f' and np.isnan(dts.min()):
+                            mask = np.isnan(dts)
+                            dts = np.array(dts)
+                            dts[mask] = 0.
+                            if mask is not None:
+                                mask = mask.astype("int")
+                        if self.__settings.showhighvaluemask and \
+                           self._mainwidget.maskValue() is not None and \
+                           self._mainwidget.maskValueIndices() is not None:
+                            if mask is None:
+                                mask = np.zeros(dts.shape)
+                            mask[self._mainwidget.maskValueIndices().T] = 1
+                        if self.__settings.showmask and \
+                           self._mainwidget.applyMask() and \
+                           self._mainwidget.maskIndices() is not None:
+                            if mask is None:
+                                mask = np.zeros(dts.shape)
+                            mask[self._mainwidget.maskIndices().T] = 1
+                        res = self.__ai.integrate1d(
+                            dts,
+                            self.__settings.diffnpt,
+                            correctSolidAngle=csa,
+                            radial_range=self.__radrange,
+                            azimuth_range=self.__azrange,
+                            unit=unit, mask=mask)
+                        # print(res)
+                        x = res[0]
+                        y = res[1]
+                        self.__curves[0].setData(x=x, y=y)
+                    except Exception as e:
+                        # print(str(e))
+                        logger.warning(str(e))
+                        x = []
+                        y = []
+                        self.__curves[0].setData(x=x, y=y)
+                    self.__curves[0].setVisible(True)
+                else:
+                    self.__curves[0].setVisible(False)
+
+    @QtCore.pyqtSlot()
+    def _setPolarRange(self):
+        """ launches range widget
+
+        :returns: apply status
+        :rtype: :obj:`bool`
+        """
+        cnfdlg = diffRangeDialog.DiffRangeDialog()
+        cnfdlg.azstart = self.__azstart
+        cnfdlg.azend = self.__azend
+        cnfdlg.radstart = self.__radstart
+        cnfdlg.radend = self.__radend
+        cnfdlg.radunitindex = 2
+        cnfdlg.createGUI()
+        if cnfdlg.exec_():
+            self.__azstart = cnfdlg.azstart
+            self.__azend = cnfdlg.azend
+            self.__radstart = cnfdlg.radstart
+            self.__radend = cnfdlg.radend
+            self.__updateregion()
+
+    def __updateaz(self):
+        if self.__azend is None and self.__azstart is None:
+            self.__azrange = None
+        elif self.__azend is not None or self.__azstart is not None:
+            if self.__azstart is None:
+                self.__azstart = 0
+            if self.__azend is None:
+                self.__azend = 360
+            self.__azrange = [self.__azstart, self.__azend]
+
+    def __updateregion(self):
+        """ update diffractogram region
+        """
+        self.__updateaz()
+        self.__updaterad()
+        self.updateRangeTip()
+        if (self.__azrange or self.__radrange) and self.__ai:
+            azstart = self.__azstart if self.__azstart is not None else 0
+            azend = self.__azend if self.__azend is not None else 360
+            radstart = self.__radstart if self.__radstart is not None else 0
+            radend = self.__radend if self.__radend is not None else 70
+            try:
+                self.__findregion(radstart, radend, azstart, azend)
+            except Exception as e:
+                try:
+                    logger.warning(str(e))
+                    print(str(e))
+                    self.__findregion2(radstart, radend, azstart, azend)
+                except Exception as e2:
+                    logger.warning(str(e2))
+                    print(str(e2))
+                    self._mainwidget.updateRegions([[(0, 0)]])
+        else:
+            self._mainwidget.updateRegions([[(0, 0)]])
+        self._plotDiff()
+
+    def __tranpars(self, lx):
+        return [lx[j - 1 if j % 2 else j + 1] for j in range(len(lx))]
+
+    def __revpars(self, lx):
+        return [lx[j - 1 if j % 2 else j + 1]
+                for j in reversed(range(len(lx)))]
+
+    def __findregion2(self, radstart, radend, azstart, azend):
+        """ find region defined by angle range
+
+        """
+        if self.__ai:
+            dts = self._mainwidget.rawData()
+            if dts is not None and dts.shape and len(dts.shape) == 2:
+                shape = dts.shape
+            else:
+                shape = [1000., 1000.]
+            tta = self.__ai.twoThetaArray(shape)
+            cha = self.__ai.chiArray(shape)
+            rb = self.__degtrim(self.__radstart, 0, 360) * math.pi / 180.
+            re = self.__degtrim(self.__radend, 0, 360) * math.pi / 180.
+
+            ab = self.__degtrim(self.__azstart, -180, 180) * math.pi / 180.
+            ae = self.__degtrim(self.__azend, -180, 180) * math.pi / 180.
+
+            thmask = (tta < rb) | (tta > re)
+            chmask = (cha < ab) | (cha > ae)
+            # tta[chmask] =  65000
+
+            # print("RUN")
+            lines = []
+            # rblines = functions.isocurve(
+            #     tta, rb, connected=True, extendToEdge=True)
+            # print("RUN1 %s " % len(rblines))
+            # relines = functions.isocurve(
+            #     tta, re, connected=True, extendToEdge=True)
+            # print("RUN2 %s " % len(relines))
+
+            ttaa = (tta - rb) * (tta - re)
+            ttaa[chmask] = 6
+            rblines = functions.isocurve(
+                ttaa, 0, connected=True)
+            logger.debug("RUN1 %s " % len(rblines))
+            # print("RUN1 %s " % len(rblines))
+
+            chaa = (cha - ab) * (cha - ae)
+            chaa[thmask] = 6
+            ablines = functions.isocurve(
+                chaa, 0, connected=True)
+            logger.debug("RUN2 %s " % len(ablines))
+            # print("RUN2 %s " % len(ablines))
+
+            for line in rblines:
+                lines.append([(p[1], p[0]) for p in line])
+            for line in ablines:
+                lines.append([(p[1], p[0]) for p in line])
+            # for line in relines:
+            #     lines.append([(p[1], p[0]) for p in line])
+
+            # print(lines)
+            self._mainwidget.updateRegions(lines)
+
+        else:
+            self._mainwidget.updateRegions([[(0, 0)]])
+
+    def __findregion(self, radstart, radend, azstart, azend):
+        """ find region defined by angle range
+        """
+        if azend - azstart >= 360:
+            azstart = 0
+            azend = 360
+        [rbb, rbe, reb, ree, rb, re, ab, ae] = self.__getcorners(
+            radstart, radend, azstart, azend)
+        azb = azstart * math.pi / 180.
+        aze = azend * math.pi / 180.
+        logger.debug("RESULT %s %s %s" % (str(rbb.x), rbb.success, rbb.fun))
+        logger.debug("RESULT %s %s %s" % (str(rbe.x), rbe.success, rbe.fun))
+        logger.debug("RESULT %s %s %s" % (str(reb.x), reb.success, reb.fun))
+        logger.debug("RESULT %s %s %s" % (str(ree.x), ree.success, ree.fun))
+        # print("RESULT %s %s %s" % (str(rbb.x), rbb.success, rbb.fun))
+        # print("RESULT %s %s %s" % (str(rbe.x), rbe.success, rbe.fun))
+        # print("RESULT %s %s %s" % (str(reb.x), reb.success, reb.fun))
+        # print("RESULT %s %s %s" % (str(ree.x), ree.success, ree.fun))
+        lines = []
+        if azend - azstart < 360:
+            pbbeb = self.__findfixchipath(rbb.x, reb.x, ab, rb, re)
+            lines.append(pbbeb)
+            # print(pbbeb)
+            pbeee = self.__findfixchipath(rbe.x, ree.x, ae, rb, re)
+            # print(pbeee)
+            lines.append(pbeee)
+        if self.__radstart > 0:
+            pbbbe = self.__findfixradpath(rbb.x, rbe.x, rb, azb, aze)
+            lines.append(pbbbe)
+            # print(pbbbe)
+        if self.__radend < 60:
+            pebee = self.__findfixradpath(reb.x, ree.x, re, azb, aze)
+            lines.append(pebee)
+            # print(pebee)
+        self._mainwidget.updateRegions(lines)
+        # self._mainwidget.updateRegions(
+        #      [pbbeb, pbeee])
+        # self._mainwidget.updateRegions(
+        #      [pbbeb, pbeee, pbbbe])
+        # self._mainwidget.updateRegions(
+        #      [[rbb.x[0], rbb.x[1], rbe.x[0], rbe.x[1]],
+        #         [rbe.x[0], rbe.x[1], ree.x[0], ree.x[1]],
+        #         [ree.x[0], ree.x[1], reb.x[0], reb.x[1]],
+        #         [reb.x[0], reb.x[1], rbb.x[0], rbb.x[1]]])
+
+    def __degtrim(self, vl, lowbound, upbound):
+        """ trim angle value to bounds
+        """
+        while vl >= upbound:
+            vl -= 360
+        while vl < lowbound:
+            vl += 360
+        return vl
+
+    def __radtrim(self, vl, lowbound, upbound):
+        """ trim angle value to bounds
+        """
+        while vl >= upbound:
+            vl -= 2 * math.pi
+        while vl < lowbound:
+            vl += 2 * math.pi
+        return vl
+
+    def __findfixchipath(self, xstart, xend, chi, radstart, radend,
+                         step=4, growing=True, fmax=1.e-10):
+        """ find a path
+        """
+        points = [tuple(xstart)]
+
+        if self.__dist2(xstart, xend) < step * step:
+            points.append(tuple(xend))
+            return points
+
+        alphas = []
+        cut = None
+        tchi = self.__radtrim(chi, -math.pi, math.pi)
+        if tchi < -math.pi/2 or tchi > math.pi/2:
+            cut = 0
+        cchi = self.__chi(xstart, cut)
+        x = xstart
+
+        def rsfun(alpha, x, step, cut, chi):
+            y = [x[0] + step * math.cos(alpha),
+                 x[1] + step * math.sin(alpha)]
+            return [self.__chi(y, cut) - chi]
+
+        res = scipy.optimize.root(rsfun, cchi, (x, step, cut, cchi))
+        y = [x[0] + step * math.cos(res.x[0]),
+             x[1] + step * math.sin(res.x[0])]
+        if self.__tth(x) - self.__tth(y) > 0 or \
+           (not res.success and abs(res.fun) > fmax):
+            res = scipy.optimize.root(rsfun, - cchi, (x, step, cut, cchi))
+            y = [x[0] + step * math.cos(res.x[0]),
+                 x[1] + step * math.sin(res.x[0])]
+            if self.__tth(x) - self.__tth(y) > 0 or \
+               (not res.success and abs(res.fun) > fmax):
+                # print("W1 %s " % res)
+                raise Exception("Cannot find the next point")
+
+        points.append(tuple(y))
+        if self.__dist2(y, xend) < step * step:
+            points.append(tuple(xend))
+            return points
+        alphas.append(res.x[0])
+
+        waking = True
+        maxit = 10000
+        it = 0
+        istep = step
+        while waking and maxit > it:
+            it += 1
+            alp = self.__fitnext(alphas[-5:])
+            x = y
+            res = scipy.optimize.root(rsfun, alp, (x, istep, cut, cchi))
+            y = [x[0] + istep * math.cos(res.x[0]),
+                 x[1] + istep * math.sin(res.x[0])]
+            if self.__tth(x) - self.__tth(y) > 0 or \
+               (not res.success and abs(res.fun) > fmax):
+                istep = step / 2.
+                continue
+
+            points.append(tuple(y))
+            if self.__dist2(y, xend) < istep * istep:
+                waking = False
+            alphas.append(res.x[0])
+            istep = step
+        points.append(tuple(xend))
+        return points
+
+    def __findfixradpath(self, xstart, xend, rad, azstart, azend,
+                         step=4, growing=True, fmax=1.e-10):
+        """ find a path
+        """
+        aze = azend
+        points = [tuple(xstart)]
+        while azstart > aze:
+            aze += 2 * math.pi
+
+        alphas = []
+        cut = None
+        tth1 = self.__tth(xstart)
+        tth2 = self.__tth([xstart[0] + 1, xstart[1]])
+        tth3 = self.__tth([xstart[0], xstart[1] + 1])
+        dth = max(abs(tth1 - tth2), abs(tth1 - tth3))
+        # print(rad)
+        # print(rad/dth)
+        if (rad/dth) < 10. * step:
+            step = (rad / dth) / 10.
+        elif (rad/dth) > 10000. * step:
+            step = (rad / dth) / 10000.
+
+        # print("RAD %s %s %s" % (rad, xstart, self.__tth(xstart)))
+        # print("AZ: %s %s %s" % (azstart, azend, aze))
+        if self.__dist2(xstart, xend) < step * step \
+           and abs(azstart - aze) < math.pi:
+            points.append(tuple(xend))
+            return points
+
+        # tth = self.__tth(xstart)
+        tchi = self.__chi(xstart)
+
+        if tchi < -math.pi/2 or tchi > math.pi/2:
+            cut = 0
+        cchi = self.__chi(xstart, cut)
+        x = xstart
+        logger.debug("CUT %s %s " % (cut, cchi))
+
+        def rsfun(alpha, x, step, cut, tth):
+            y = [x[0] + step * math.cos(alpha),
+                 x[1] + step * math.sin(alpha)]
+            # print("RSFUN: %s %s %s %s %s %s %s" % (y, tth, self.__tth(y),
+            # self.__tth(y, path="cos"), self.__tth(y,path="cython"),
+            # self.__tth(y,path="tan"), self.__tth(y) - tth) )
+            return [self.__tth(y) - tth]
+
+        itm = 10
+        it = 0
+        istep = step
+        while it < itm:
+            it += 1
+            res = scipy.optimize.root(rsfun, cchi + math.pi/2,
+                                      (x, istep, cut, rad))
+            y = [x[0] + istep * math.cos(res.x[0]),
+                 x[1] + istep * math.sin(res.x[0])]
+            # print("COND %s %s %s" %
+            # (self.__chi(x, cut) - self.__chi(y, cut) > 0 ,
+            # res.success , abs(res.fun) > fmax))
+            if self.__chi(x, cut) - self.__chi(y, cut) > 0 or \
+               (not res.success and abs(res.fun) > fmax):
+                res = scipy.optimize.root(rsfun, -cchi - math.pi/2,
+                                          (x, istep, cut, rad))
+                y = [x[0] + istep * math.cos(res.x[0]),
+                     x[1] + istep * math.sin(res.x[0])]
+                # print("W2a %s " % res)
+                if self.__chi(x, cut) - self.__chi(y, cut) > 0 or \
+                   (not res.success and abs(res.fun) > fmax):
+                    istep = istep / 2.
+                    # print("W2b %s %s " % (res, it))
+                else:
+                    break
+            else:
+                break
+        if it == itm:
+            # print("W2c %s %s" % (res, it))
+            raise Exception("Cannot find the next point")
+
+        points.append(tuple(y))
+        if self.__dist2(y, xend) < step * step:
+            points.append(tuple(xend))
+            return points
+        alphas.append(res.x[0])
+
+        waking = True
+        maxit = 10000
+        it = 0
+        istep = step
+        while waking and maxit > it:
+            it += 1
+            alp = self.__fitnext(alphas[-5:])
+            x = y
+            tchi = self.__chi(x, cut)
+            if tchi < -math.pi/2 or tchi > math.pi/2:
+                cut = 0
+            else:
+                cut = None
+
+            res = scipy.optimize.root(rsfun, alp, (x, istep, cut, rad))
+            y = [x[0] + istep * math.cos(res.x[0]),
+                 x[1] + istep * math.sin(res.x[0])]
+            if self.__chi(x, cut) - self.__chi(y, cut) > 0 or \
+               (not res.success and abs(res.fun) > fmax):
+                istep = step / 2.
+                continue
+
+            points.append(tuple(y))
+            # print("%s %s" % (y, tchi))
+            if self.__dist2(y, xend) < istep * istep:
+                waking = False
+            alphas.append(res.x[0])
+            istep = step
+        points.append(tuple(xend))
+        return points
+
+    def __fitnext(self, y, x=None, x0=None):
+        """ fits next y value
+        """
+        n = len(y)
+        if x is None:
+            x = range(n)
+            x0 = n
+        return np.poly1d(np.polyfit(x, y, n - 1))(x0)
+
+    def __dist2(self, x, y):
+        d0 = x[0] - y[0]
+        d1 = x[1] - y[1]
+        return d0 * d0 + d1 * d1
+
+    def __chi(self, x, cut=None):
+        """ chi of left bottom pixel corner
+        """
+        chi = float(self.__ai.chi(
+            np.array([x[1] - 0.5]), np.array([x[0] - 0.5]))[0])
+        if cut is not None and chi > cut and cut > -math.pi:
+            chi += 2 * math.pi
+        return chi
+
+    def __tth(self, x, path=None):
+        """ tth of left bottom pixel corner
+        """
+        return float(self.__ai.tth(
+            np.array([x[1] - 0.5]), np.array([x[0] - 0.5]), path=path)[0])
+
+    def __findpoint(self, rd, az, shape, start=None, itmax=20, fmax=1e-9):
+        """ find a point
+        """
+        def rafun(x, f1, f2):
+            # print("D1D2: %s %s" % (x[1], x[0] ))
+            return [self.__tth(x) - f1, self.__chi(x) - f2]
+        found = False
+        it = 0
+        if start is None:
+            start = [random.randint(0, shape[0]),
+                     random.randint(0, shape[1])]
+        while not found and it < itmax:
+            res = scipy.optimize.root(rafun, start, (rd, az))
+            f = res.fun
+            f2 = f[0] * f[0] + f[1] * f[1]
+            # print("F2 %s" % f2)
+            found = res.success and f2 < fmax
+            it += 1
+            start = [random.randint(0, shape[0]),
+                     random.randint(0, shape[1])]
+        logger.debug("Tries: %s" % it)
+        logger.debug(res)
+        return res
+
+    def __getcorners(self, radstart, radend, azstart, azend):
+        """ find region corners
+        """
+
+        if self.__ai:
+            dts = self._mainwidget.rawData()
+            if dts is not None and dts.shape and len(dts.shape) == 2:
+                shape = dts.shape
+            else:
+                shape = [1000., 1000.]
+
+            rb = self.__degtrim(radstart, 0, 360) * math.pi / 180.
+            re = self.__degtrim(radend, 0, 360) * math.pi / 180.
+            ab = self.__degtrim(azstart, -180, 180) * math.pi / 180.
+            ae = self.__degtrim(azend, -180, 180) * math.pi / 180.
+
+            rbb = self.__findpoint(rb, ab, shape)
+            rbe = self.__findpoint(rb, ae, shape, rbb.x)
+            ree = self.__findpoint(re, ae, shape)
+            reb = self.__findpoint(re, ab, shape, ree.x)
+
+            return [rbb, rbe, reb, ree, rb, re, ab, ae]
+
+    def __updaterad(self):
+        """update radial range in deg
+        """
+
+        if self.__radend is not None or self.__radstart is not None:
+            if self.__radstart is None:
+                self.__radstart = 0
+            if self.__radend is None:
+                self.__radend = 90
+        if self.__radend is None or self.__radstart is None:
+            self.__radrange = None
+        else:
+            if self.__unitindex == 2:
+                self.__radrange = [self.__radstart, self.__radend]
+            else:
+                rs = self.__radstart * math.pi / 180.
+                re = self.__radend * math.pi / 180.
+                if self.__unitindex < 2:
+                    wavelength = 12398.4193/self.__settings.energy
+                    fac = 4 * math.pi / wavelength
+                    qs = fac * math.sin(rs/2.)
+                    qe = fac * math.sin(re/2.)
+                    if self.__unitindex == 0:
+                        qs = qs * 10.
+                        qe = qe * 10.
+                    self.__radrange = [qs, qe]
+                elif self.__unitindex == 3:
+                    self.__radrange = [rs, re]
+                elif self.__unitindex == 4:
+                    rs = math.tan(rs) * self.__settings.detdistance
+                    re = math.tan(re) * self.__settings.detdistance
+                    self.__radrange = [rs, re]
+
+    @QtCore.pyqtSlot(int)
+    def _setUnitIndex(self, uindex):
+        """ set unit index
+
+        :param gspace: unit index, i.e. q_nm^-1, q_A^-1, 2th_deg, 2th_rad
+        :type gspace: :obj:`int`
+        """
+        self.__unitindex = uindex
+        self.__updaterad()
+        self._plotDiff()
+
+    @QtCore.pyqtSlot()
+    def updateRangeTip(self):
+        """ update geometry tips
+        """
+        self.__ui.rangePushButton.setToolTip(
+            u"radial range: [%s, %s] deg \n"
+            u"azimuth range: [%s, %s] deg\n" % (
+                self.__radstart if self.__radstart is not None else "0",
+                self.__radend if self.__radend is not None else "90",
+                self.__azstart if self.__azstart is not None else "0",
+                self.__azend if self.__azend is not None else "360")
         )
 
 
@@ -3365,7 +4370,7 @@ class MaximaToolWidget(ToolBaseWidget):
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             thetax, thetay, thetatotal = self.__pixel2theta(
                 xdata, ydata, xy)
-            wavelength = 12400./self.__settings.energy
+            wavelength = 12398.4193/self.__settings.energy
             if xy:
                 qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
                 qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
@@ -4083,7 +5088,7 @@ class QROIProjToolWidget(ToolBaseWidget):
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             thetax, thetay, thetatotal = self.__pixel2theta(
                 xdata, ydata)
-            wavelength = 12400./self.__settings.energy
+            wavelength = 12398.4193/self.__settings.energy
             qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
             qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
             q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)

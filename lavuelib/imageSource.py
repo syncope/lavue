@@ -59,6 +59,14 @@ except ImportError:
     PYTANGO = False
 
 try:
+    __import__("pyFAI")
+    #: (:obj:`bool`) pyFAI imported
+    PYFAI = True
+except ImportError:
+    #: (:obj:`bool`) pyFAI imported
+    PYFAI = False
+
+try:
     import pydoocs
     #: (:obj:`bool`) pydoocs imported
     PYDOOCS = True
