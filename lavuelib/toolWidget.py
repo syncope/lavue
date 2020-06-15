@@ -3219,6 +3219,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
             # [self._mainwidget.clearBottomPlotClicked, self._clearplot],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+        self.__ui.showPushButton.hide()
+        self.__ui.nextPushButton.hide()
 
     @QtCore.pyqtSlot()
     def _freezeplot(self):
@@ -3257,12 +3259,13 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.updateRangeTip()
         # self.__nrplots = self.__ui.diffSpinBox.value()
         #
+        self._plotDiff()
 
     def afterplot(self):
         """ command after plot
         """
-        if self.__showdiff:
-            self._plotDiff()
+        # if self.__showdiff:
+        self._plotDiff()
 
     def activate(self):
         """ activates tool widget
@@ -3427,6 +3430,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
             status = self.__ai is not None
         self.__ui.showPushButton.setEnabled(status)
         self.__ui.nextPushButton.setEnabled(status)
+        self.__ui.diffSpinBox.setEnabled(status)
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -3704,19 +3708,20 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :rtype: :obj:`bool`
         """
         nrplots = self.__ui.diffSpinBox.value()
-        cnfdlg = diffRangeDialog.DiffRangeTabDialog(nrplots)
-        cnfdlg.azstart = self.__azstart
-        cnfdlg.azend = self.__azend
-        cnfdlg.radstart = self.__radstart
-        cnfdlg.radend = self.__radend
-        cnfdlg.radunitindex = 2
-        cnfdlg.createGUI()
-        if cnfdlg.exec_():
-            self.__azstart = cnfdlg.azstart
-            self.__azend = cnfdlg.azend
-            self.__radstart = cnfdlg.radstart
-            self.__radend = cnfdlg.radend
-            self.__updateregion()
+        if nrplots:
+            cnfdlg = diffRangeDialog.DiffRangeTabDialog(nrplots)
+            cnfdlg.azstart = self.__azstart
+            cnfdlg.azend = self.__azend
+            cnfdlg.radstart = self.__radstart
+            cnfdlg.radend = self.__radend
+            cnfdlg.radunitindex = 2
+            cnfdlg.createGUI()
+            if cnfdlg.exec_():
+                self.__azstart = cnfdlg.azstart
+                self.__azend = cnfdlg.azend
+                self.__radstart = cnfdlg.radstart
+                self.__radend = cnfdlg.radend
+                self.__updateregion()
 
     def __updateaz(self):
         nrplots = self.__ui.diffSpinBox.value()

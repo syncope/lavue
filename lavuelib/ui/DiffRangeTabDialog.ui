@@ -507,6 +507,7 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>tabWidget</tabstop>
   <tabstop>azstartLineEdit</tabstop>
   <tabstop>azendLineEdit</tabstop>
   <tabstop>radstartLineEdit</tabstop>
@@ -523,7 +524,6 @@
   <tabstop>azend4LineEdit</tabstop>
   <tabstop>radstart4LineEdit</tabstop>
   <tabstop>radend4LineEdit</tabstop>
-  <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>
