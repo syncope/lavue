@@ -1445,7 +1445,7 @@ class ROIToolWidget(ToolBaseWidget):
             while lsl < len(self._mainwidget.roiCoords()):
                 lsl += 1
                 slabel.append("roi%s" % lsl)
-        
+
             self.__ui.labelROILineEdit.setText(" ".join(slabel))
             self._updateApplyButton()
             text = str(self.__ui.labelROILineEdit.text()).strip()
@@ -3243,7 +3243,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         # if self.__settings.calibrationfilename:
         #     self._loadCalibration(
         #         self.__settings.calibrationfilename)
-        self.__ui.diffSpinBox.seEnabled(False)
+        self.__ui.diffSpinBox.setEnabled(False)
         if self.__ai:
             self._plotDiff()
         self._mainwidget.bottomplotShowMenu(True, True)

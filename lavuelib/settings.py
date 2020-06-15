@@ -413,7 +413,8 @@ class Settings(object):
         qstval = str(settings.value("Configuration/NXSLastImage", type=str))
         if qstval.lower() == "true":
             self.nxslast = True
-        qstval = str(settings.value("Configuration/SingleROIAliases", type=str))
+        qstval = str(settings.value(
+            "Configuration/SingleROIAliases", type=str))
         if qstval.lower() == "true":
             self.singlerois = True
         qstval = str(settings.value("Configuration/SendROIs", type=str))
