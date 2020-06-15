@@ -3243,6 +3243,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         # if self.__settings.calibrationfilename:
         #     self._loadCalibration(
         #         self.__settings.calibrationfilename)
+        self.__ui.diffSpinBox.seEnabled(False)
         if self.__ai:
             self._plotDiff()
         self._mainwidget.bottomplotShowMenu(True, True)
