@@ -3213,9 +3213,37 @@ class DiffractogramToolWidget(ToolBaseWidget):
              self._setUnitIndex],
             [self._mainwidget.mouseImageDoubleClicked,
              self._updateCenter],
-            # [self._mainwidget.geometryChanged, self.updateGeometryTip],
+            [self._mainwidget.geometryChanged, self.updateGeometryTip],
+            # [self._mainwidget.freezeBottomPlotClicked, self._freezeplot],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    @QtCore.pyqtSlot()
+    def _freezeplot(self):
+        """ freeze plot
+        """
+        self._clearplot()
+        nrplots = self.__nrplots
+        while nrplots > len(self.__freezed):
+            cr = self._mainwidget.onedbottomplot()
+            cr.setPen(_pg.mkColor(0.5))
+            self.__freezed.append(cr)
+
+        for i in range(nrplots):
+            self.__freezed[i].setData(*self.__curves[i].getData())
+            self.__freezed[i].show()
+            self.__freezed[i].setVisible(True)
+        for i in range(nrplots, len(self.__freezed)):
+            self.__freezed[i].hide()
+            self.__freezed[i].setVisible(True)
+            # print(type(cr))
+
+    @QtCore.pyqtSlot()
+    def _clearplot(self):
+        """ clear plot
+        """
+        for cr in self.__freezed:
+            cr.setVisible(False)
 
     def afterplot(self):
         """ command after plot
@@ -3227,7 +3255,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         """ activates tool widget
         """
         self.__oldlocked = None
-        # self.updateGeometryTip()
+        self.updateGeometryTip()
         self.updateRangeTip()
         self._mainwidget.updateCenter(
             self.__settings.centerx, self.__settings.centery)
@@ -3257,11 +3285,11 @@ class DiffractogramToolWidget(ToolBaseWidget):
             curve.setVisible(False)
             self._mainwidget.removebottomplot(curve)
         self.__curves = []
-        # for freezed in self.__freezed:
-        #     freezed.hide()
-        #     freezed.setVisible(False)
-        #     self._mainwidget.removebottomplot(freezed)
-        # self.__freezed = []
+        for freezed in self.__freezed:
+            freezed.hide()
+            freezed.setVisible(False)
+            self._mainwidget.removebottomplot(freezed)
+        self.__freezed = []
 
     def beforeplot(self, array, rawarray):
         """ command  before plot
@@ -3313,7 +3341,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
         self._message()
         self._plotDiff()
-        # self.updateGeometryTip()
+        self.updateGeometryTip()
 
     @QtCore.pyqtSlot()
     def _loadCalibration(self, fileName=None):
@@ -3344,6 +3372,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 self.__ai = None
             self.__updateButtons(self.__ai is not None)
             self.__updateregion()
+            self.updateGeometryTip()
 
     def __writedetsettings(self):
         """ write detector settings from ai object
@@ -3469,25 +3498,37 @@ class DiffractogramToolWidget(ToolBaseWidget):
                     x, y, ilabel, intensity)
         self._mainwidget.setDisplayedText(message)
 
-    # def __tipmessage(self):
-    #     """ provides geometry messate
+    def __tipmessage(self):
+        """ provides geometry messate
 
-    #     :returns: geometry text
-    #     :rtype: :obj:`unicode`
-    #     """
+        :returns: geometry text
+        :rtype: :obj:`unicode`
+        """
+        if self.__ai:
+            return str(self.__ai)
+        else:
+            return ""
 
-    #     return u"geometry:\n" \
-    #         u"  center = (%s, %s) pixels\n" \
-    #         u"  pixel_size = (%s, %s) \u00B5m\n" \
-    #         u"  detector_distance = %s mm\n" \
-    #         u"  energy = %s eV" % (
-    #             self.__settings.centerx,
-    #             self.__settings.centery,
-    #             self.__settings.pixelsizex,
-    #             self.__settings.pixelsizey,
-    #             self.__settings.detdistance,
-    #             self.__settings.energy
-    #         )
+        # return u"geometry:\n" \
+        #     u"  center = (%s, %s) pixels\n" \
+        #     u"  pixel_size = (%s, %s) \u00B5m\n" \
+        #     u"  detector_distance = %s mm\n" \
+        #     u"  energy = %s eV" % (
+        #         self.__settings.centerx,
+        #         self.__settings.centery,
+        #         self.__settings.pixelsizex,
+        #         self.__settings.pixelsizey,
+        #         self.__settings.detdistance,
+        #         self.__settings.energy
+        #     )
+
+    @QtCore.pyqtSlot()
+    def updateGeometryTip(self):
+        """ update geometry tips
+        """
+        message = self.__tipmessage()
+        self.__ui.calibrationPushButton.setToolTip(
+            "Input physical parameters\n%s" % message)
 
     @QtCore.pyqtSlot()
     def _showhideDiff(self):
