@@ -344,6 +344,12 @@ class ConfigDialog(QtGui.QDialog):
         self.showallrois = False
         #: (:obj:`bool`) send rois to LavueController flag
         self.sendrois = False
+        #: (:obj:`bool`) set roi1, roi2, roi3, ... when alias names are missing
+        self.singlerois = False
+        #: (:obj:`int`) number of points for diffractogram
+        self.diffnpt = 1000
+        #: (:obj:`bool`) correct solid angle flag
+        self.correctsolidangle = True
         #: (:obj:`bool`) store display parameters for specific sources
         self.sourcedisplay = False
         #: (:obj:`dict` <:obj: `str`, :obj: `str` >) object title dictionary
@@ -402,6 +408,7 @@ class ConfigDialog(QtGui.QDialog):
         """
         self.__ui.rateDoubleSpinBox.setValue(self.refreshrate)
         self.__ui.nrsourcesSpinBox.setValue(self.nrsources)
+        self.__ui.diffsizeSpinBox.setValue(self.diffnpt)
         self.__ui.toolrefreshtimeDoubleSpinBox.setValue(self.toolrefreshtime)
         self.__ui.pollingintervalDoubleSpinBox.setValue(
             self.toolpollinginterval)
@@ -459,9 +466,11 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.storegeometryCheckBox.setChecked(self.storegeometry)
         self.__ui.fetchgeometryCheckBox.setChecked(self.geometryfromsource)
         self.__ui.sendroisCheckBox.setChecked(self.sendrois)
+        self.__ui.singleroisCheckBox.setChecked(self.singlerois)
         self.__ui.showallroisCheckBox.setChecked(self.showallrois)
         self.__ui.sourcedisplayCheckBox.setChecked(self.sourcedisplay)
         self.__ui.crosshairCheckBox.setChecked(self.crosshairlocker)
+        self.__ui.csaCheckBox.setChecked(self.correctsolidangle)
 
         if self.floattype not in ["float", "float32", "float64"]:
             self.floattype = "float"
@@ -731,6 +740,8 @@ class ConfigDialog(QtGui.QDialog):
             self.__ui.pollingintervalDoubleSpinBox.value())
         self.nrsources = int(
             self.__ui.nrsourcesSpinBox.value())
+        self.diffnpt = int(
+            self.__ui.diffsizeSpinBox.value())
         self.showsub = self.__ui.showsubCheckBox.isChecked()
         self.showtrans = self.__ui.showtransCheckBox.isChecked()
         self.showmbuffer = self.__ui.showmbufferCheckBox.isChecked()
@@ -756,10 +767,12 @@ class ConfigDialog(QtGui.QDialog):
         self.storegeometry = self.__ui.storegeometryCheckBox.isChecked()
         self.geometryfromsource = self.__ui.fetchgeometryCheckBox.isChecked()
         self.sendrois = self.__ui.sendroisCheckBox.isChecked()
+        self.singlerois = self.__ui.singleroisCheckBox.isChecked()
         self.showallrois = self.__ui.showallroisCheckBox.isChecked()
         self.sourcedisplay = self.__ui.sourcedisplayCheckBox.isChecked()
         self.defdetservers = self.__ui.defdetserversCheckBox.isChecked()
         self.crosshairlocker = self.__ui.crosshairCheckBox.isChecked()
+        self.correctsolidangle = self.__ui.csaCheckBox.isChecked()
 
         try:
             dirtrans = str(self.__ui.dirtransLineEdit.text()).strip()

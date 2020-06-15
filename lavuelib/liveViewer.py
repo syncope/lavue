@@ -1971,6 +1971,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.nxslast = self.__settings.nxslast
         cnfdlg.nxsopen = self.__settings.nxsopen
         cnfdlg.sendrois = self.__settings.sendrois
+        cnfdlg.singlerois = self.__settings.singlerois
         cnfdlg.showallrois = self.__settings.showallrois
         cnfdlg.storegeometry = self.__settings.storegeometry
         cnfdlg.geometryfromsource = self.__settings.geometryfromsource
@@ -1980,6 +1981,8 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.imagesourcenames = self.__srcaliasnames
         cnfdlg.toolwidgets = self.__settings.toolwidgets
         cnfdlg.toolwidgetnames = {}
+        cnfdlg.diffnpt = self.__settings.diffnpt
+        cnfdlg.correctsolidangle = self.__settings.correctsolidangle
         cnfdlg.availimagesources = self.__allsourcealiases
         cnfdlg.availtoolwidgets = self.__alltoolaliases
         cnfdlg.defdetservers = self.__settings.defdetservers
@@ -2214,6 +2217,8 @@ class LiveViewer(QtGui.QDialog):
             setsrc = True
         if self.__settings.sendrois != dialog.sendrois:
             self.__settings.sendrois = dialog.sendrois
+        if self.__settings.singlerois != dialog.singlerois:
+            self.__settings.singlerois = dialog.singlerois
         if self.__settings.showallrois != dialog.showallrois:
             self.__settings.showallrois = dialog.showallrois
         if setsrc:
@@ -2230,6 +2235,14 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.zeromask != dialog.zeromask:
             self.__settings.zeromask = dialog.zeromask
             remasking = True
+            replot = True
+
+        if self.__settings.diffnpt != dialog.diffnpt:
+            self.__settings.diffnpt = dialog.diffnpt
+            replot = True
+
+        if self.__settings.correctsolidangle != dialog.correctsolidangle:
+            self.__settings.correctsolidangle = dialog.correctsolidangle
             replot = True
 
         if self.__settings.nanmask != dialog.nanmask:

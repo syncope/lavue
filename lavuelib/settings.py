@@ -228,6 +228,8 @@ class Settings(object):
         self.correctsolidangle = True
         #: (:obj:`bool`) show all rois flag
         self.showallrois = False
+        #: (:obj:`bool`) single rois flag
+        self.singlerois = False
         #: (:obj:`bool`) send rois to LavueController flag
         self.sendrois = False
         #: (:obj:`dict` < :obj:`str`, :obj:`dict` < :obj:`str`,`any`> >
@@ -411,6 +413,9 @@ class Settings(object):
         qstval = str(settings.value("Configuration/NXSLastImage", type=str))
         if qstval.lower() == "true":
             self.nxslast = True
+        qstval = str(settings.value("Configuration/SingleROIAliases", type=str))
+        if qstval.lower() == "true":
+            self.singlerois = True
         qstval = str(settings.value("Configuration/SendROIs", type=str))
         if qstval.lower() == "true":
             self.sendrois = True
@@ -926,6 +931,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/SendROIs",
             self.sendrois)
+        settings.setValue(
+            "Configuration/SingleROIAliases",
+            self.singlerois)
         settings.setValue(
             "Configuration/ShowAllROIs",
             self.showallrois)

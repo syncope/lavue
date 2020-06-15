@@ -1,3 +1,8 @@
+2020-06-16 Jan Kotanski <jan.kotanski@desy.de>
+	* add diffractogram tool
+	* and single roi aliases
+	* tagged as 2.42.0
+
 2020-05-21 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for load file names from command lines
 	* tagged as 2.41.5

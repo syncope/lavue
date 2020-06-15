@@ -1438,6 +1438,17 @@ class ROIToolWidget(ToolBaseWidget):
         """ emits applyROIPressed signal"""
 
         text = str(self.__ui.labelROILineEdit.text()).strip()
+        if self.__settings.singlerois:
+            slabel = re.split(';|,| |\n', str(text))
+            slabel = [lb for lb in slabel if lb]
+            lsl = len(slabel)
+            while lsl < len(self._mainwidget.roiCoords()):
+                lsl += 1
+                slabel.append("roi%s" % lsl)
+        
+            self.__ui.labelROILineEdit.setText(" ".join(slabel))
+            self._updateApplyButton()
+            text = str(self.__ui.labelROILineEdit.text()).strip()
         if not text:
             self.__ui.labelROILineEdit.setText("rois")
             self._updateApplyButton()
