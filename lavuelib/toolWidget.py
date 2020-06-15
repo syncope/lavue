@@ -3159,19 +3159,20 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #: ((:obj:`bool`) show diffractogram status
         self.__showdiff = False
 
-        #: ([:obj:`float`, :obj:`float`] )
+        #: (:obj:`list` < [:obj:`float`, :obj:`float`] >)
         #          range positions of radial in current units
-        self.__radrange = None
-        #: (:obj:`float`) start position of radial in deg
-        self.__radstart = None
-        #: (:obj:`float`) end position of radial in deg
-        self.__radend = None
-        #: (:obj:`int`) start position of azimuth angle in deg
-        self.__azstart = None
-        #: (:obj:`float`) end position of azimuth angle in deg
-        self.__azend = None
-        #: ([:obj:`float`, :obj:`float`] ) range positions of azimuth in deg
-        self.__azrange = None
+        self.__radrange = [None]
+        #: (:obj:`list` < :obj:`float`>) start position of radial in deg
+        self.__radstart = [None]
+        #: (:obj:`list` < :obj:`float >) end position of radial in deg
+        self.__radend = [None]
+        #: (:obj:`list` < :obj:`float`>) start position of azimuth angle in deg
+        self.__azstart = [None]
+        #: (:obj:`list` < :obj:`float`>) end position of azimuth angle in deg
+        self.__azend = [None]
+        #: (:obj:`list` < [:obj:`float`, :obj:`float`] > )
+        #          range positions of azimuth in deg
+        self.__azrange = [None]
 
         #: (:class:`pyFAI.azimuthalIntegrator.AzimuthalIntegrator`)
         #       azimuthal integrator
@@ -3204,7 +3205,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #: (:obj:`list` < [:class:`pyqtgraph.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
-            # [self.__ui.angleqPushButton.clicked, self._setGeometry],
+            [self.__ui.diffSpinBox.valueChanged, self._updateDiffNumber],
             [self.__ui.rangePushButton.clicked, self._setPolarRange],
             [self.__ui.showPushButton.clicked, self._showhideDiff],
             [self.__ui.nextPushButton.clicked, self._plotDiff],
@@ -3215,6 +3216,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
              self._updateCenter],
             [self._mainwidget.geometryChanged, self.updateGeometryTip],
             # [self._mainwidget.freezeBottomPlotClicked, self._freezeplot],
+            # [self._mainwidget.clearBottomPlotClicked, self._clearplot],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
@@ -3245,6 +3247,17 @@ class DiffractogramToolWidget(ToolBaseWidget):
         for cr in self.__freezed:
             cr.setVisible(False)
 
+    @QtCore.pyqtSlot(int)
+    def _updateDiffNumber(self, did):
+        """ update diffractorgram number
+
+        :param did: diffractogram id
+        :type did: :obj:`int`
+        """
+        self.updateRangeTip()
+        # self.__nrplots = self.__ui.diffSpinBox.value()
+        #
+
     def afterplot(self):
         """ command after plot
         """
@@ -3271,7 +3284,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         # if self.__settings.calibrationfilename:
         #     self._loadCalibration(
         #         self.__settings.calibrationfilename)
-        self.__ui.diffSpinBox.setEnabled(False)
+        # self.__ui.diffSpinBox.setEnabled(False)
         if self.__ai:
             self._plotDiff()
         self._mainwidget.bottomplotShowMenu(True, True)
@@ -3544,6 +3557,83 @@ class DiffractogramToolWidget(ToolBaseWidget):
 
     @QtCore.pyqtSlot()
     def _plotDiff(self):
+        """ plot all diffractograms
+        """
+
+        if self.__ai is not None:
+            if self._mainwidget.currentTool() == self.name:
+                nrplots = self.__ui.diffSpinBox.value()
+                if self.__nrplots != nrplots:
+                    while nrplots > len(self.__curves):
+                        self.__curves.append(self._mainwidget.onedbottomplot())
+                    for i in range(nrplots):
+                        self.__curves[i].show()
+                    for i in range(nrplots, len(self.__curves)):
+                        self.__curves[i].hide()
+                    self.__nrplots = nrplots
+                    if nrplots:
+                        for i, cr in enumerate(self.__curves):
+                            if i < nrplots:
+                                cr.setPen(_pg.hsvColor(i/float(nrplots)))
+                # coords = self._mainwidget.cutCoords()
+                # rws = self._mainwidget.rangeWindowScale()
+                dts = self._mainwidget.rawData()
+                # print(dts)
+                # self.__curves[0].setPen(_pg.mkColor('r'))
+                if dts is not None:
+                    trans = self._mainwidget.transformations()[0]
+                    csa = self.__settings.correctsolidangle
+                    unit = self.__units[self.__unitindex]
+                    dts = dts if trans else dts.T
+                    mask = None
+                    if dts.dtype.kind == 'f' and np.isnan(dts.min()):
+                        mask = np.isnan(dts)
+                        dts = np.array(dts)
+                        dts[mask] = 0.
+                        if mask is not None:
+                            mask = mask.astype("int")
+                    if self.__settings.showhighvaluemask and \
+                       self._mainwidget.maskValue() is not None and \
+                       self._mainwidget.maskValueIndices() is not None:
+                        if mask is None:
+                            mask = np.zeros(dts.shape)
+                        mask[self._mainwidget.maskValueIndices().T] = 1
+                    if self.__settings.showmask and \
+                       self._mainwidget.applyMask() and \
+                       self._mainwidget.maskIndices() is not None:
+                        if mask is None:
+                            mask = np.zeros(dts.shape)
+                        mask[self._mainwidget.maskIndices().T] = 1
+                    for i in range(nrplots):
+                        try:
+                            res = self.__ai.integrate1d(
+                                dts,
+                                self.__settings.diffnpt,
+                                correctSolidAngle=csa,
+                                radial_range=(
+                                    self.__radrange[i]
+                                    if len(self.__radrange) > i else None),
+                                azimuth_range=(
+                                    self.__azrange[i]
+                                    if len(self.__azrange) > i else None),
+                                unit=unit, mask=mask)
+                            # print(res)
+                            x = res[0]
+                            y = res[1]
+                            self.__curves[i].setData(x=x, y=y)
+                        except Exception as e:
+                            # print(str(e))
+                            logger.warning(str(e))
+                            x = []
+                            y = []
+                            self.__curves[i].setData(x=x, y=y)
+                        self.__curves[i].setVisible(True)
+                else:
+                    for i in range(nrplots):
+                        self.__curves[i].setVisible(False)
+
+    @QtCore.pyqtSlot()
+    def __plotDiff(self):
         """ plot diffractogram
         """
         if self.__ai is not None:
@@ -3585,8 +3675,12 @@ class DiffractogramToolWidget(ToolBaseWidget):
                             dts,
                             self.__settings.diffnpt,
                             correctSolidAngle=csa,
-                            radial_range=self.__radrange,
-                            azimuth_range=self.__azrange,
+                            radial_range=(
+                                self.__radrange[0]
+                                if self.__radrange else None),
+                            azimuth_range=(
+                                self.__azrange[0]
+                                if self.__azrange else None),
                             unit=unit, mask=mask)
                         # print(res)
                         x = res[0]
@@ -3609,7 +3703,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :returns: apply status
         :rtype: :obj:`bool`
         """
-        cnfdlg = diffRangeDialog.DiffRangeDialog()
+        nrplots = self.__ui.diffSpinBox.value()
+        cnfdlg = diffRangeDialog.DiffRangeTabDialog(nrplots)
         cnfdlg.azstart = self.__azstart
         cnfdlg.azend = self.__azend
         cnfdlg.radstart = self.__radstart
@@ -3624,14 +3719,63 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self.__updateregion()
 
     def __updateaz(self):
-        if self.__azend is None and self.__azstart is None:
-            self.__azrange = None
-        elif self.__azend is not None or self.__azstart is not None:
-            if self.__azstart is None:
-                self.__azstart = 0
-            if self.__azend is None:
-                self.__azend = 360
-            self.__azrange = [self.__azstart, self.__azend]
+        nrplots = self.__ui.diffSpinBox.value()
+        self.__azrange = []
+        for _ in range(len(self.__azend), nrplots):
+            self.__azend.append(None)
+        for _ in range(len(self.__azstart), nrplots):
+            self.__azstart.append(None)
+        for i in range(nrplots):
+            if self.__azend[i] is None and self.__azstart[i] is None:
+                self.__azrange.append(None)
+            elif (self.__azend[i] is not None
+                  or self.__azstart[i] is not None):
+                if self.__azstart[i] is None:
+                    self.__azstart[i] = 0
+                if self.__azend[i] is None:
+                    self.__azend[i] = 360
+                self.__azrange.append([self.__azstart[i], self.__azend[i]])
+
+    def __updaterad(self):
+        """update radial range in deg
+        """
+        nrplots = self.__ui.diffSpinBox.value()
+        self.__radrange = []
+        for _ in range(len(self.__radend), nrplots):
+            self.__radend.append(None)
+        for _ in range(len(self.__radstart), nrplots):
+            self.__radstart.append(None)
+        for i in range(nrplots):
+            if self.__radend[i] is not None or \
+               self.__radstart[i] is not None:
+                if self.__radstart[i] is None:
+                    self.__radstart[i] = 0
+                if self.__radend[i] is None:
+                    self.__radend[i] = 90
+            if self.__radend[i] is None or self.__radstart[i] is None:
+                self.__radrange.append(None)
+            else:
+                if self.__unitindex == 2:
+                    self.__radrange.append(
+                        [self.__radstart[i], self.__radend[i]])
+                else:
+                    rs = self.__radstart[i] * math.pi / 180.
+                    re = self.__radend[i] * math.pi / 180.
+                    if self.__unitindex < 2:
+                        wavelength = 12398.4193/self.__settings.energy
+                        fac = 4 * math.pi / wavelength
+                        qs = fac * math.sin(rs/2.)
+                        qe = fac * math.sin(re/2.)
+                        if self.__unitindex == 0:
+                            qs = qs * 10.
+                            qe = qe * 10.
+                        self.__radrange.append([qs, qe])
+                    elif self.__unitindex == 3:
+                        self.__radrange.append([rs, re])
+                    elif self.__unitindex == 4:
+                        rs = math.tan(rs) * self.__settings.detdistance
+                        re = math.tan(re) * self.__settings.detdistance
+                        self.__radrange.append([rs, re])
 
     def __updateregion(self):
         """ update diffractogram region
@@ -3639,32 +3783,35 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.__updateaz()
         self.__updaterad()
         self.updateRangeTip()
-        if (self.__azrange or self.__radrange) and self.__ai:
-            azstart = self.__azstart if self.__azstart is not None else 0
-            azend = self.__azend if self.__azend is not None else 360
-            radstart = self.__radstart if self.__radstart is not None else 0
-            radend = self.__radend if self.__radend is not None else 70
-            try:
-                self.__findregion(radstart, radend, azstart, azend)
-            except Exception as e:
+        nrplots = self.__ui.diffSpinBox.value()
+        regions = []
+        for i in range(nrplots):
+            if ((self.__azrange and self.__azrange[i]) or
+               (self.__radrange and self.__radrange[i])) and self.__ai:
+                azstart = self.__azstart[i] \
+                    if self.__azstart[i] is not None else 0
+                azend = self.__azend[i] \
+                    if self.__azend[i] is not None else 360
+                radstart = self.__radstart[i] \
+                    if self.__radstart[i] is not None else 0
+                radend = self.__radend[i] \
+                    if self.__radend[i] is not None else 70
                 try:
-                    logger.warning(str(e))
-                    print(str(e))
-                    self.__findregion2(radstart, radend, azstart, azend)
-                except Exception as e2:
-                    logger.warning(str(e2))
-                    print(str(e2))
-                    self._mainwidget.updateRegions([[(0, 0)]])
-        else:
-            self._mainwidget.updateRegions([[(0, 0)]])
+                    regions.extend(
+                        self.__findregion(radstart, radend, azstart, azend))
+                except Exception as e:
+                    try:
+                        logger.warning(str(e))
+                        print(str(e))
+                        regions.extend(
+                            self.__findregion2(
+                                radstart, radend, azstart, azend))
+                    except Exception as e2:
+                        logger.warning(str(e2))
+                        print(str(e2))
+                        # regions.append([])
+        self._mainwidget.updateRegions(regions)
         self._plotDiff()
-
-    def __tranpars(self, lx):
-        return [lx[j - 1 if j % 2 else j + 1] for j in range(len(lx))]
-
-    def __revpars(self, lx):
-        return [lx[j - 1 if j % 2 else j + 1]
-                for j in reversed(range(len(lx)))]
 
     def __findregion2(self, radstart, radend, azstart, azend):
         """ find region defined by angle range
@@ -3678,11 +3825,11 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 shape = [1000., 1000.]
             tta = self.__ai.twoThetaArray(shape)
             cha = self.__ai.chiArray(shape)
-            rb = self.__degtrim(self.__radstart, 0, 360) * math.pi / 180.
-            re = self.__degtrim(self.__radend, 0, 360) * math.pi / 180.
+            rb = self.__degtrim(radstart, 0, 360) * math.pi / 180.
+            re = self.__degtrim(radend, 0, 360) * math.pi / 180.
 
-            ab = self.__degtrim(self.__azstart, -180, 180) * math.pi / 180.
-            ae = self.__degtrim(self.__azend, -180, 180) * math.pi / 180.
+            ab = self.__degtrim(azstart, -180, 180) * math.pi / 180.
+            ae = self.__degtrim(azend, -180, 180) * math.pi / 180.
 
             thmask = (tta < rb) | (tta > re)
             chmask = (cha < ab) | (cha > ae)
@@ -3719,10 +3866,12 @@ class DiffractogramToolWidget(ToolBaseWidget):
             #     lines.append([(p[1], p[0]) for p in line])
 
             # print(lines)
-            self._mainwidget.updateRegions(lines)
+            return lines
+            # self._mainwidget.updateRegions(lines)
 
         else:
-            self._mainwidget.updateRegions([[(0, 0)]])
+            return []
+            # self._mainwidget.updateRegions([[(0, 0)]])
 
     def __findregion(self, radstart, radend, azstart, azend):
         """ find region defined by angle range
@@ -3750,15 +3899,16 @@ class DiffractogramToolWidget(ToolBaseWidget):
             pbeee = self.__findfixchipath(rbe.x, ree.x, ae, rb, re)
             # print(pbeee)
             lines.append(pbeee)
-        if self.__radstart > 0:
+        if self.__radstart[0] > 0:
             pbbbe = self.__findfixradpath(rbb.x, rbe.x, rb, azb, aze)
             lines.append(pbbbe)
             # print(pbbbe)
-        if self.__radend < 60:
+        if self.__radend[0] < 60:
             pebee = self.__findfixradpath(reb.x, ree.x, re, azb, aze)
             lines.append(pebee)
             # print(pebee)
-        self._mainwidget.updateRegions(lines)
+        return lines
+        # self._mainwidget.updateRegions(lines)
         # self._mainwidget.updateRegions(
         #      [pbbeb, pbeee])
         # self._mainwidget.updateRegions(
@@ -4043,39 +4193,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
 
             return [rbb, rbe, reb, ree, rb, re, ab, ae]
 
-    def __updaterad(self):
-        """update radial range in deg
-        """
-
-        if self.__radend is not None or self.__radstart is not None:
-            if self.__radstart is None:
-                self.__radstart = 0
-            if self.__radend is None:
-                self.__radend = 90
-        if self.__radend is None or self.__radstart is None:
-            self.__radrange = None
-        else:
-            if self.__unitindex == 2:
-                self.__radrange = [self.__radstart, self.__radend]
-            else:
-                rs = self.__radstart * math.pi / 180.
-                re = self.__radend * math.pi / 180.
-                if self.__unitindex < 2:
-                    wavelength = 12398.4193/self.__settings.energy
-                    fac = 4 * math.pi / wavelength
-                    qs = fac * math.sin(rs/2.)
-                    qe = fac * math.sin(re/2.)
-                    if self.__unitindex == 0:
-                        qs = qs * 10.
-                        qe = qe * 10.
-                    self.__radrange = [qs, qe]
-                elif self.__unitindex == 3:
-                    self.__radrange = [rs, re]
-                elif self.__unitindex == 4:
-                    rs = math.tan(rs) * self.__settings.detdistance
-                    re = math.tan(re) * self.__settings.detdistance
-                    self.__radrange = [rs, re]
-
     @QtCore.pyqtSlot(int)
     def _setUnitIndex(self, uindex):
         """ set unit index
@@ -4091,14 +4208,32 @@ class DiffractogramToolWidget(ToolBaseWidget):
     def updateRangeTip(self):
         """ update geometry tips
         """
-        self.__ui.rangePushButton.setToolTip(
-            u"radial range: [%s, %s] deg \n"
-            u"azimuth range: [%s, %s] deg\n" % (
-                self.__radstart if self.__radstart is not None else "0",
-                self.__radend if self.__radend is not None else "90",
-                self.__azstart if self.__azstart is not None else "0",
-                self.__azend if self.__azend is not None else "360")
-        )
+        text = u""
+        nrplots = self.__ui.diffSpinBox.value()
+        for i in range(nrplots):
+            if nrplots > 1:
+                text += "%s. " % i
+            text += \
+                u"Radial range: [%s, %s] deg; Azimuth range: [%s, %s] deg" % (
+                    self.__radstart[i]
+                    if (len(self.__radstart) > i and
+                        self.__radstart[i] is not None)
+                    else "0",
+                    self.__radend[i]
+                    if (len(self.__radend) > i and
+                        self.__radend[i] is not None)
+                    else "90",
+                    self.__azstart[i]
+                    if (len(self.__azstart) > i and
+                        self.__azstart[i] is not None)
+                    else "0",
+                    self.__azend[i]
+                    if (len(self.__azend) > i and
+                        self.__azend[i] is not None)
+                    else "360")
+            if i < nrplots - 1:
+                text += "\n"
+        self.__ui.rangePushButton.setToolTip(text)
 
 
 class MaximaToolWidget(ToolBaseWidget):
