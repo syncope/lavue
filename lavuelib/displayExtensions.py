@@ -141,10 +141,21 @@ class RegionItem(IsocurveItem):
 
     def __init__(self, points=None, pen='w', axisOrder=None, **args):
         """ constructor
+
+        :param points: list of points
+        :type points:  :obj:`list` < (float, float) >
+        :param pen: qt pen
+        :type pen: :class:`pyqtgraph.QtGui.QPen`
+        :param axisOrder: axis order flag
+        :type axisOrder: :obj:`bool`
+        :param args: axis order flag
+        :type args: :obj:`dict` <:obj:`str`, `any`>
         """
         IsocurveItem.__init__(self, points, 0, pen, axisOrder)
 
     def generatePath(self):
+        """ generate QPainterPath
+        """
         if self.data is None:
             self.path = None
             return
