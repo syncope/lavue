@@ -3220,8 +3220,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
             [self._mainwidget.clearBottomPlotClicked, self._clearplot],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
-        self.__ui.showPushButton.hide()
-        self.__ui.nextPushButton.hide()
+        # self.__ui.showPushButton.hide()
+        # self.__ui.nextPushButton.hide()
 
     @QtCore.pyqtSlot()
     def _freezeplot(self):
@@ -3266,8 +3266,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
     def afterplot(self):
         """ command after plot
         """
-        # if self.__showdiff:
-        self._plotDiff()
+        if self.__showdiff:
+            self._plotDiff()
 
     def activate(self):
         """ activates tool widget
