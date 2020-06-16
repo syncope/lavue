@@ -128,6 +128,11 @@ class DiffRangeTabDialog(QtGui.QDialog):
                 self.azend.append(float(self.__azendLineEdit[i].text()))
             except Exception:
                 self.azend.append(None)
+
+            if self.azend[-1] is not None and self.azstart[-1] is not None \
+               and self.azend[-1] < self.azstart[-1]:
+                self.azstart[-1], self.azend[-1] = \
+                    self.azend[-1], self.azstart[-1]
             try:
                 self.radstart.append(float(self.__radstartLineEdit[i].text()))
             except Exception:
@@ -137,4 +142,8 @@ class DiffRangeTabDialog(QtGui.QDialog):
             except Exception:
                 self.radend.append(None)
 
+            if self.radend[-1] is not None and self.radstart[-1] is not None \
+               and self.radend[-1] < self.radstart[-1]:
+                self.radstart[-1], self.radend[-1] = \
+                    self.radend[-1], self.radstart[-1]
         QtGui.QDialog.accept(self)

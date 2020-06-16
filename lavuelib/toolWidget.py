@@ -3284,7 +3284,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
         for curve in self.__curves:
             curve.show()
             curve.setVisible(True)
-        # self._updateAllCuts(self.__allcuts)
 
         # if self.__settings.calibrationfilename:
         #     self._loadCalibration(
