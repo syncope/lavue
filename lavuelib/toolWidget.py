@@ -4217,7 +4217,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         nrplots = self.__ui.diffSpinBox.value()
         for i in range(nrplots):
             if nrplots > 1:
-                text += "%s. " % i
+                text += "%s. " % (i + 1)
             text += \
                 u"Radial range: [%s, %s] deg; Azimuth range: [%s, %s] deg" % (
                     self.__radstart[i]
