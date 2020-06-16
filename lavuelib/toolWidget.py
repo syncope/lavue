@@ -49,6 +49,7 @@ from . import takeMotorsDialog
 from . import intervalsDialog
 from . import motorWatchThread
 from . import edDictDialog
+from . import commandThread
 
 try:
     import PyTango
@@ -3148,6 +3149,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #: (:obj:`int`) unit index
         #               ->  0: q_nm^-1, 1: q_A-1, 2: 2th_deg, 3: 2th_rad
         self.__unitindex = 0
+        #: (:obj:`list` <:obj:`str`>) list of units
         self.__units = ["q_nm^-1", "q_A^-1", "2th_deg", "2th_rad", "r_mm"]
 
         #: (:class:`Ui_ROIToolWidget') ui_toolwidget object from qtdesigner
@@ -3187,6 +3189,18 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #: (:obj:`int`) current plot number
         self.__nrplots = 0
 
+        #: (:obj:`bool`) progressbar is running
+        self.__progressFlag = False
+        #: (:class:`pyqtgraph.QtGui.QProgressDialog`) progress bar
+        self.__progress = None
+        #: (:obj:`list` <:class:`lavuelib.commandThread.CommandThread`>) \
+        #:     command thread
+        self.__commandthread = None
+
+        #: (:obj:`list` < :obj:`list` < (float, float) > >)
+        #    list of region lines
+        self.__regions = []
+
         # self.parameters.lines = True
         #: (:obj:`str`) infolineedit text
         self.parameters.infolineedit = ""
@@ -3223,6 +3237,45 @@ class DiffractogramToolWidget(ToolBaseWidget):
         # self.__ui.showPushButton.hide()
         # self.__ui.nextPushButton.hide()
 
+    def runProgress(self, commands, onclose="_closeReset",
+                    text="Updating diffractogram ranges ..."):
+        """ starts progress thread with the given commands
+
+        :param commands: list of commands
+        :type commands: :obj:`list` <:obj:`str`>
+        :param onclose: close command name
+        :type onclose: :obj:`str`
+        :param text: text to display
+        :type text: :obj:`str`
+        """
+        if self.__progress:
+            return
+        if self.__commandthread:
+            self.__commandthread.setParent(None)
+            self.__commandthread = None
+        self.__commandthread = commandThread.CommandThread(
+            self, commands, self._mainwidget)
+        oncloseaction = getattr(self, onclose)
+        self.__commandthread.finished.connect(
+            oncloseaction, QtCore.Qt.QueuedConnection)
+        self.__progress = None
+        self.__progress = QtGui.QProgressDialog(
+            text, "Cancel", 0, 0, self)
+        self.__progress.setWindowModality(QtCore.Qt.WindowModal)
+        self.__progress.setCancelButton(None)
+        self.__progress.rejected.connect(
+            self.waitForThread, QtCore.Qt.QueuedConnection)
+        self.__commandthread.start()
+        self.__progress.show()
+
+    def waitForThread(self):
+        """ waits for running thread
+        """
+        logger.debug("waiting for Thread")
+        if self.__commandthread:
+            self.__commandthread.wait()
+        logger.debug("waiting for Thread ENDED")
+
     @QtCore.pyqtSlot()
     def _freezeplot(self):
         """ freeze plot
@@ -3246,7 +3299,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
 
     @QtCore.pyqtSlot()
     def _clearplot(self):
-        """ clear plot
+        """ clear freezed plot
         """
         for cr in self.__freezed:
             cr.setVisible(False)
@@ -3284,7 +3337,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
         for curve in self.__curves:
             curve.show()
             curve.setVisible(True)
-        # self._updateAllCuts(self.__allcuts)
 
         # if self.__settings.calibrationfilename:
         #     self._loadCalibration(
@@ -3340,12 +3392,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.__settings.centery = float(ydata)
         if self.__ai is not None:
             # print("center: %s %s" % (xdata, ydata))
-            # self.__ai.set_poni1(
-            #     self.__settings.centery * self.__settings.pixelsizex
-            # / 1000000.)
-            # self.__ai.set_poni2(
-            #     self.__settings.centerx * self.__settings.pixelsizey
-            # / 1000000.)
             # aic = self.__ai.get_config()
             aif = self.__ai.getFit2D()
             # print(self.__ai)
@@ -3639,70 +3685,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
                         self.__curves[i].setVisible(False)
 
     @QtCore.pyqtSlot()
-    def __plotDiff(self):
-        """ plot diffractogram
-        """
-        if self.__ai is not None:
-            if self.__nrplots > 1:
-                for i in range(1, len(self.__curves)):
-                    self.__curves[i].setVisible(False)
-                    self.__curves[i].hide()
-                self.__nrplots = 1
-            if self._mainwidget.currentTool() == self.name:
-                dts = self._mainwidget.rawData()
-                # print(dts)
-                # self.__curves[0].setPen(_pg.mkColor('r'))
-                if dts is not None:
-                    try:
-                        trans = self._mainwidget.transformations()[0]
-                        csa = self.__settings.correctsolidangle
-                        unit = self.__units[self.__unitindex]
-                        dts = dts if trans else dts.T
-                        mask = None
-                        if dts.dtype.kind == 'f' and np.isnan(dts.min()):
-                            mask = np.isnan(dts)
-                            dts = np.array(dts)
-                            dts[mask] = 0.
-                            if mask is not None:
-                                mask = mask.astype("int")
-                        if self.__settings.showhighvaluemask and \
-                           self._mainwidget.maskValue() is not None and \
-                           self._mainwidget.maskValueIndices() is not None:
-                            if mask is None:
-                                mask = np.zeros(dts.shape)
-                            mask[self._mainwidget.maskValueIndices().T] = 1
-                        if self.__settings.showmask and \
-                           self._mainwidget.applyMask() and \
-                           self._mainwidget.maskIndices() is not None:
-                            if mask is None:
-                                mask = np.zeros(dts.shape)
-                            mask[self._mainwidget.maskIndices().T] = 1
-                        res = self.__ai.integrate1d(
-                            dts,
-                            self.__settings.diffnpt,
-                            correctSolidAngle=csa,
-                            radial_range=(
-                                self.__radrange[0]
-                                if self.__radrange else None),
-                            azimuth_range=(
-                                self.__azrange[0]
-                                if self.__azrange else None),
-                            unit=unit, mask=mask)
-                        # print(res)
-                        x = res[0]
-                        y = res[1]
-                        self.__curves[0].setData(x=x, y=y)
-                    except Exception as e:
-                        # print(str(e))
-                        logger.warning(str(e))
-                        x = []
-                        y = []
-                        self.__curves[0].setData(x=x, y=y)
-                    self.__curves[0].setVisible(True)
-                else:
-                    self.__curves[0].setVisible(False)
-
-    @QtCore.pyqtSlot()
     def _setPolarRange(self):
         """ launches range widget
 
@@ -3726,6 +3708,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 self.__updateregion()
 
     def __updateaz(self):
+        """ update azimuth range in deg
+        """
         nrplots = self.__ui.diffSpinBox.value()
         self.__azrange = []
         for _ in range(len(self.__azend), nrplots):
@@ -3790,6 +3774,11 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.__updateaz()
         self.__updaterad()
         self.updateRangeTip()
+        self.runProgress(["findregions"], "_updateRegionsAndPlot")
+
+    def findregions(self):
+        """ find regions lists
+        """
         nrplots = self.__ui.diffSpinBox.value()
         regions = []
         for i in range(nrplots):
@@ -3817,12 +3806,55 @@ class DiffractogramToolWidget(ToolBaseWidget):
                         logger.warning(str(e2))
                         print(str(e2))
                         # regions.append([])
+        self.__regions = regions
+
+    def _updateRegionsAndPlot(self, regions=None):
+        """ update regions and plots
+
+        :param regions: list of region lines
+        :type regions:  :obj:`list` < :obj:`list` < (float, float) > >
+        """
+        regions = regions if regions is not None else self.__regions
         self._mainwidget.updateRegions(regions)
         self._plotDiff()
+        self._closeReset()
+
+    def _closeReset(self):
+        """ close reset method for progressbar
+
+        :returns: progress status
+        :rtype: :obj:`bool`
+        """
+        status = True
+        logger.debug("closing Progress")
+        if self.__progress:
+            self.__progress.reset()
+        if self.__commandthread.error:
+            logger.error(
+                "Problems in updating Channels %s" %
+                str(self.__commandthread.error))
+            self.__commandthread.error = None
+            status = False
+        if self.__progress:
+            self.__progress.setParent(None)
+            self.__progress = None
+        self.waitForThread()
+        logger.debug("closing Progress ENDED")
+        return status
 
     def __findregion2(self, radstart, radend, azstart, azend):
-        """ find region defined by angle range
+        """ find region defined by angle range using image masking method
 
+        :param radstart: start of radial region
+        :type radstart: :obj:`float`
+        :param radend: end of radial region
+        :type radend: :obj:`float`
+        :param azstart: start of azimuth region
+        :type azstart: :obj:`float`
+        :param azend: end of azimuth region
+        :type azend: :obj:`float`
+        :returns: list of region lines
+        :rtype:  :obj:`list` < :obj:`list` < (float, float) > >
         """
         if self.__ai:
             dts = self._mainwidget.rawData()
@@ -3881,7 +3913,18 @@ class DiffractogramToolWidget(ToolBaseWidget):
             # self._mainwidget.updateRegions([[(0, 0)]])
 
     def __findregion(self, radstart, radend, azstart, azend):
-        """ find region defined by angle range
+        """ find region defined by angle range using Newton method
+
+        :param radstart: start of radial region
+        :type radstart: :obj:`float`
+        :param radend: end of radial region
+        :type radend: :obj:`float`
+        :param azstart: start of azimuth region
+        :type azstart: :obj:`float`
+        :param azend: end of azimuth region
+        :type azend: :obj:`float`
+        :returns: list of region lines
+        :rtype:  :obj:`list` < :obj:`list` < (float, float) > >
         """
         if azend - azstart >= 360:
             azstart = 0
@@ -3927,7 +3970,16 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #         [reb.x[0], reb.x[1], rbb.x[0], rbb.x[1]]])
 
     def __degtrim(self, vl, lowbound, upbound):
-        """ trim angle value to bounds
+        """ trim angle value to bounds in deg
+
+        :param vl: value to trim
+        :type vl: :obj:`float`
+        :param lowbound: lower bound of value
+        :type lowbound: :obj:`float`
+        :param upbound: upper blund of value
+        :type upbound: :obj:`float`
+        :returns: trimmed value
+        :rtype: :obj:`float`
         """
         while vl >= upbound:
             vl -= 360
@@ -3936,7 +3988,16 @@ class DiffractogramToolWidget(ToolBaseWidget):
         return vl
 
     def __radtrim(self, vl, lowbound, upbound):
-        """ trim angle value to bounds
+        """ trim angle value to bounds in rad
+
+        :param vl: value to trim
+        :type vl: :obj:`float`
+        :param lowbound: lower bound of value
+        :type lowbound: :obj:`float`
+        :param upbound: upper blund of value
+        :type upbound: :obj:`float`
+        :returns: trimmed value
+        :rtype: :obj:`float`
         """
         while vl >= upbound:
             vl -= 2 * math.pi
@@ -3946,7 +4007,24 @@ class DiffractogramToolWidget(ToolBaseWidget):
 
     def __findfixchipath(self, xstart, xend, chi, radstart, radend,
                          step=4, growing=True, fmax=1.e-10):
-        """ find a path
+        """ find a path for fix azimuth angle
+
+        :param xstart: start point
+        :type xstart: :obj:`float`
+        :param xend: end point
+        :type xend: :obj:`float`
+        :param chi: chi angle value
+        :type chi: :obj:`float`
+        :param radstart: radial angle start value
+        :type radstart: :obj:`float`
+        :param radend: radial angle end value
+        :type radend: :obj:`float`
+        :param growing: growing angle flag
+        :type growing: :obj:`bool`
+        :param fmax: maximal allowed value for the test function
+        :type fmax: :obj:`float`
+        :returns: list of points
+        :rtype: :obj:`list` < (float, float) >
         """
         points = [tuple(xstart)]
 
@@ -4012,7 +4090,24 @@ class DiffractogramToolWidget(ToolBaseWidget):
 
     def __findfixradpath(self, xstart, xend, rad, azstart, azend,
                          step=4, growing=True, fmax=1.e-10):
-        """ find a path
+        """ find a path for fixed radial angle
+
+        :param xstart: start point
+        :type xstart: :obj:`float`
+        :param xend: end point
+        :type xend: :obj:`float`
+        :param rad: radial angle value
+        :type rad: :obj:`float`
+        :param azstart: azimuth angle start value
+        :type azstart: :obj:`float`
+        :param azend: azimuth angle end value
+        :type azend: :obj:`float`
+        :param growing: growing angle flag
+        :type growing: :obj:`bool`
+        :param fmax: maximal allowed value for the test function
+        :type fmax: :obj:`float`
+        :returns: list of points
+        :rtype: :obj:`list` < (float, float) >
         """
         aze = azend
         points = [tuple(xstart)]
@@ -4126,6 +4221,15 @@ class DiffractogramToolWidget(ToolBaseWidget):
 
     def __fitnext(self, y, x=None, x0=None):
         """ fits next y value
+
+        :param y: list of y values
+        :type y: :obj:`list` <:obj:`float`>
+        :param x: list of x values
+        :type x: :obj:`list` <:obj:`float`>
+        :param x0: next x value
+        :type x0: :obj:`float`
+        :returns: next y value
+        :rtype: :obj:`float`
         """
         n = len(y)
         if x is None:
@@ -4134,12 +4238,28 @@ class DiffractogramToolWidget(ToolBaseWidget):
         return np.poly1d(np.polyfit(x, y, n - 1))(x0)
 
     def __dist2(self, x, y):
+        """ distance square of x and y
+
+        :param x: 2d point x
+        :type x: :obj:`list` <:obj:`float`>
+        :param y: 2d point y
+        :type y: :obj:`list` <:obj:`float`>
+        :returns: distance square
+        :rtype: :obj:`float`
+        """
         d0 = x[0] - y[0]
         d1 = x[1] - y[1]
         return d0 * d0 + d1 * d1
 
     def __chi(self, x, cut=None):
-        """ chi of left bottom pixel corner
+        """ chi of left bottom pixel corner in rad
+
+        :param x: 2d point x
+        :type x: :obj:`list` <:obj:`float`>
+        :param cut: cut position in rad
+        :type cut: :obj:`float`
+        :returns: chi value
+        :rtype: :obj:`float`
         """
         chi = float(self.__ai.chi(
             np.array([x[1] - 0.5]), np.array([x[0] - 0.5]))[0])
@@ -4148,13 +4268,33 @@ class DiffractogramToolWidget(ToolBaseWidget):
         return chi
 
     def __tth(self, x, path=None):
-        """ tth of left bottom pixel corner
+        """ tth of left bottom pixel corner in rad
+
+        :param x: 2d point x
+        :type x: :obj:`list` <:obj:`float`>
+        :param path: path method
+        :type path: :obj:`str`
+        :returns: chi value
+        :rtype: :obj:`float`
         """
         return float(self.__ai.tth(
             np.array([x[1] - 0.5]), np.array([x[0] - 0.5]), path=path)[0])
 
     def __findpoint(self, rd, az, shape, start=None, itmax=20, fmax=1e-9):
-        """ find a point
+        """ find a point in pixels
+
+        :param rd: radial coordinate
+        :type rd: :obj:`float`
+        :param az: azimuth coordinate
+        :type az: :obj:`float`
+        :param shape: shape of the image
+        :type shape: [:obj:`float`, :obj:`float`]
+        :param start: start coordinate
+        :type start: [:obj:`float`, :obj:`float`]
+        :param itmaxstart: maximal number of tries
+        :type start: :obj:`int`
+        :param fmax: maximal allowed value for the test function
+        :type fmax: :obj:`float`
         """
         def rafun(x, f1, f2):
             # print("D1D2: %s %s" % (x[1], x[0] ))
@@ -4179,6 +4319,21 @@ class DiffractogramToolWidget(ToolBaseWidget):
 
     def __getcorners(self, radstart, radend, azstart, azend):
         """ find region corners
+
+        :param radstart: start of radial region in deg
+        :type radstart: :obj:`float`
+        :param radend: end of radial region in deg
+        :type radend: :obj:`float`
+        :param azstart: start of azimuth region in deg
+        :type azstart: :obj:`float`
+        :param azend: end of azimuth region in deg
+        :type azend: :obj:`float`
+        :returns: [rbb, rbe, reb, ree, rb, re, ab, ae]
+                  where rbb, rbe, reb, ree
+                   are result objects of found region corners
+                  while rb, re, ab, ae
+                   are input angles in radians
+        :rtype:  :obj:`list` <:obj:`float`>
         """
 
         if self.__ai:
