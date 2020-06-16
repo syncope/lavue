@@ -49,6 +49,7 @@ from . import takeMotorsDialog
 from . import intervalsDialog
 from . import motorWatchThread
 from . import edDictDialog
+from . import commandThread
 
 try:
     import PyTango
@@ -3187,6 +3188,16 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #: (:obj:`int`) current plot number
         self.__nrplots = 0
 
+        #: (:obj:`bool`) progressbar is running
+        self.__progressFlag = False
+        #: (:class:`pyqtgraph.QtGui.QProgressDialog`) progress bar
+        self.__progress = None
+        #: (:obj:`list` <:class:`lavuelib.commandThread.CommandThread`>) \
+        #:     command thread
+        self.__commandthread = None
+
+        self.__regions = []
+
         # self.parameters.lines = True
         #: (:obj:`str`) infolineedit text
         self.parameters.infolineedit = ""
@@ -3222,6 +3233,43 @@ class DiffractogramToolWidget(ToolBaseWidget):
         ]
         # self.__ui.showPushButton.hide()
         # self.__ui.nextPushButton.hide()
+
+    def runProgress(self, commands, onclose="_closeReset",
+                    text="Updating diffractogram ranges ..."):
+        """ starts progress thread with the given commands
+
+        :param commands: list of commands
+        :type commands: :obj:`list` <:obj:`str`>
+        :param onclose: close command name
+        :type onclose: :obj:`str`
+        """
+        if self.__progress:
+            return
+        if self.__commandthread:
+            self.__commandthread.setParent(None)
+            self.__commandthread = None
+        self.__commandthread = commandThread.CommandThread(
+            self, commands, self._mainwidget)
+        oncloseaction = getattr(self, onclose)
+        self.__commandthread.finished.connect(
+            oncloseaction, QtCore.Qt.QueuedConnection)
+        self.__progress = None
+        self.__progress = QtGui.QProgressDialog(
+            text, "Cancel", 0, 0, self)
+        self.__progress.setWindowModality(QtCore.Qt.WindowModal)
+        self.__progress.setCancelButton(None)
+        self.__progress.rejected.connect(
+            self.waitForThread, QtCore.Qt.QueuedConnection)
+        self.__commandthread.start()
+        self.__progress.show()
+
+    def waitForThread(self):
+        """ waits for running thread
+        """
+        logger.debug("waiting for Thread")
+        if self.__commandthread:
+            self.__commandthread.wait()
+        logger.debug("waiting for Thread ENDED")
 
     @QtCore.pyqtSlot()
     def _freezeplot(self):
@@ -3789,6 +3837,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.__updateaz()
         self.__updaterad()
         self.updateRangeTip()
+        self.runProgress(["findregions"], "_updateRegionsAndPlot")
+
+    def findregions(self):
         nrplots = self.__ui.diffSpinBox.value()
         regions = []
         for i in range(nrplots):
@@ -3816,8 +3867,37 @@ class DiffractogramToolWidget(ToolBaseWidget):
                         logger.warning(str(e2))
                         print(str(e2))
                         # regions.append([])
+        self.__regions = regions
+
+    def _updateRegionsAndPlot(self, regions=None):
+        """ update regions and plots
+        :param regions: list of region lines
+        :type regions:  :obj:`list` < :obj:`list` < (float, float) > >
+        """
+        regions = regions if regions is not None else self.__regions
         self._mainwidget.updateRegions(regions)
         self._plotDiff()
+        self._closeReset()
+
+    def _closeReset(self):
+        """ close reset method for progressbar
+        """
+        status = True
+        logger.debug("closing Progress")
+        if self.__progress:
+            self.__progress.reset()
+        if self.__commandthread.error:
+            logger.error(
+                "Problems in updating Channels %s" %
+                str(self.__commandthread.error))
+            self.__commandthread.error = None
+            status = False
+        if self.__progress:
+            self.__progress.setParent(None)
+            self.__progress = None
+        self.waitForThread()
+        logger.debug("closing Progress ENDED")
+        return status
 
     def __findregion2(self, radstart, radend, azstart, azend):
         """ find region defined by angle range
