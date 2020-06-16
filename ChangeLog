@@ -1,6 +1,7 @@
 2020-06-16 Jan Kotanski <jan.kotanski@desy.de>
 	* add diffractogram tool
 	* and single roi aliases
+	* fix freeze 1d plot in log scale
 	* tagged as 2.42.0
 
 2020-05-21 Jan Kotanski <jan.kotanski@desy.de>

@@ -1,0 +1,563 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DiffRangeTabDialog</class>
+ <widget class="QDialog" name="DiffRangeTabDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>484</width>
+    <height>334</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_7">
+   <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QTabWidget" name="tabWidget">
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="tab">
+        <attribute name="title">
+         <string>Range</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="0" column="0">
+          <widget class="QGroupBox" name="angleGroupBox">
+           <property name="title">
+            <string>Azimuth:</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="0" column="0">
+               <widget class="QLabel" name="azstartLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>S&amp;tart [deg]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>azstartLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="azstartLineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="azendLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>End [de&amp;g]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>azendLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="azendLineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+           <zorder></zorder>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QGroupBox" name="radialthGroupBox">
+           <property name="title">
+            <string>Radial:</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_2">
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="radstartLineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="radendLineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="radendLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>End [de&amp;g]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>radendLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="radstartLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Sta&amp;rt [deg]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>radstartLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab2">
+        <attribute name="title">
+         <string>Range 2</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_11">
+         <item row="0" column="0">
+          <widget class="QGroupBox" name="angleGroupBox_2">
+           <property name="title">
+            <string>Azimuth:</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_6">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_8">
+              <item row="0" column="0">
+               <widget class="QLabel" name="azstart2Label">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>S&amp;tart [deg]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>azstartLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="azstart2LineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="azend2Label">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>End [de&amp;g]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>azendLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="azend2LineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+           <zorder></zorder>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QGroupBox" name="radialthGroupBox_2">
+           <property name="title">
+            <string>Radial:</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_9">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_10">
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="radstart2LineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="radend2LineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="radend2Label">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>End [de&amp;g]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>radendLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="radstart2Label">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Sta&amp;rt [deg]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>radstartLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab3">
+        <attribute name="title">
+         <string>Range 3</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_21">
+         <item row="0" column="0">
+          <widget class="QGroupBox" name="angleGroupBox_3">
+           <property name="title">
+            <string>Azimuth:</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_12">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_13">
+              <item row="0" column="0">
+               <widget class="QLabel" name="azstart3Label">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>S&amp;tart [deg]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>azstartLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="azstart3LineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="azend3Label">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>End [de&amp;g]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>azendLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="azend3LineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+           <zorder></zorder>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QGroupBox" name="radialthGroupBox_3">
+           <property name="title">
+            <string>Radial:</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_14">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_15">
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="radstart3LineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="radend3LineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="radend3Label">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>End [de&amp;g]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>radendLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="radstart3Label">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Sta&amp;rt [deg]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>radstartLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab4">
+        <attribute name="title">
+         <string>Range 4</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_20">
+         <item row="0" column="0">
+          <widget class="QGroupBox" name="angleGroupBox_4">
+           <property name="title">
+            <string>Azimuth:</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_16">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_17">
+              <item row="0" column="0">
+               <widget class="QLabel" name="azstart4Label">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>S&amp;tart [deg]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>azstartLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="azstart4LineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="azend4Label">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>End [de&amp;g]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>azendLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="azend4LineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of polar angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+           <zorder></zorder>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QGroupBox" name="radialthGroupBox_4">
+           <property name="title">
+            <string>Radial:</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_18">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_19">
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="radstart4LineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="radend4LineEdit">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="radend4Label">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>End [de&amp;g]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>radendLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="radstart4Label">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;start position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Sta&amp;rt [deg]:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>radstartLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>azstartLineEdit</tabstop>
+  <tabstop>azendLineEdit</tabstop>
+  <tabstop>radstartLineEdit</tabstop>
+  <tabstop>radendLineEdit</tabstop>
+  <tabstop>azstart2LineEdit</tabstop>
+  <tabstop>azend2LineEdit</tabstop>
+  <tabstop>radstart2LineEdit</tabstop>
+  <tabstop>radend2LineEdit</tabstop>
+  <tabstop>azstart3LineEdit</tabstop>
+  <tabstop>azend3LineEdit</tabstop>
+  <tabstop>radstart3LineEdit</tabstop>
+  <tabstop>radend3LineEdit</tabstop>
+  <tabstop>azstart4LineEdit</tabstop>
+  <tabstop>azend4LineEdit</tabstop>
+  <tabstop>radstart4LineEdit</tabstop>
+  <tabstop>radend4LineEdit</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>DiffRangeTabDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>DiffRangeTabDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

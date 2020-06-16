@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>474</width>
-    <height>319</height>
+    <height>312</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -98,7 +98,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;end position of radial theta coordinate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>End [deg]:</string>
+             <string>End [de&amp;g]:</string>
             </property>
             <property name="buddy">
              <cstring>radendLineEdit</cstring>

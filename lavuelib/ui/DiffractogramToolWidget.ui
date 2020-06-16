@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>653</width>
-    <height>29</height>
+    <height>30</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -48,11 +48,43 @@
       </widget>
      </item>
      <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Preferred</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QPushButton" name="rangePushButton">
        <property name="text">
         <string>Range ...</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Preferred</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item>
       <widget class="QComboBox" name="unitComboBox">
@@ -92,7 +124,7 @@
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeType">
-        <enum>QSizePolicy::Expanding</enum>
+        <enum>QSizePolicy::Preferred</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -128,7 +160,7 @@
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeType">
-        <enum>QSizePolicy::Expanding</enum>
+        <enum>QSizePolicy::Preferred</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -140,8 +172,17 @@
      </item>
      <item>
       <widget class="QSpinBox" name="diffSpinBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="toolTip">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;number of diffractograms&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="maximum">
+        <number>4</number>
        </property>
        <property name="value">
         <number>1</number>
