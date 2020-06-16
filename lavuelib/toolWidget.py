@@ -1628,7 +1628,8 @@ class LineCutToolWidget(ToolBaseWidget):
             self.__freezed.append(cr)
 
         for i in range(nrplots):
-            self.__freezed[i].setData(*self.__curves[i].getData())
+            dt = self.__curves[i].xData, self.__curves[i].yData
+            self.__freezed[i].setData(*dt)
             self.__freezed[i].show()
             self.__freezed[i].setVisible(True)
         for i in range(nrplots, len(self.__freezed)):
@@ -3215,8 +3216,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
             [self._mainwidget.mouseImageDoubleClicked,
              self._updateCenter],
             [self._mainwidget.geometryChanged, self.updateGeometryTip],
-            # [self._mainwidget.freezeBottomPlotClicked, self._freezeplot],
-            # [self._mainwidget.clearBottomPlotClicked, self._clearplot],
+            [self._mainwidget.freezeBottomPlotClicked, self._freezeplot],
+            [self._mainwidget.clearBottomPlotClicked, self._clearplot],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
         self.__ui.showPushButton.hide()
@@ -3234,7 +3235,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self.__freezed.append(cr)
 
         for i in range(nrplots):
-            self.__freezed[i].setData(*self.__curves[i].getData())
+            dt = self.__curves[i].xData, self.__curves[i].yData
+            self.__freezed[i].setData(*dt)
             self.__freezed[i].show()
             self.__freezed[i].setVisible(True)
         for i in range(nrplots, len(self.__freezed)):
