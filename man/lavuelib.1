@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Mar 31, 2020" "2.41" "lavuelib"
+.TH "LAVUELIB" "1" "Jun 16, 2020" "2.42" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -59,7 +59,7 @@ $ python setup.py install
 .UNINDENT
 .UNINDENT
 .sp
-The \fBsetup.py\fP script may need: \fBsetuptools  sphinx  numpy  pytest\fP python packages as well as \fBlibqt4\-dev\-bin\fP\&.
+The \fBsetup.py\fP script may need: \fBsetuptools  sphinx  numpy  pytest\fP python packages as well as \fBqtbase5\-dev\-tools\fP or \fBlibqt4\-dev\-bin\fP\&.
 .SS Debian packages
 .sp
 Debian \fIbuster\fP and \fIstretch\fP or Ubuntu  \fIfocal\fP, \fIeoan\fP, \fIbionic\fP packages can be found in the HDRI repository.
@@ -472,19 +472,12 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
-.B changeView(showhistogram=None, showlevels=None, showadd=None)
+.B changeView(showlevels=None)
 shows or hides the histogram widget
 .INDENT 7.0
 .TP
 .B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBshowhistogram\fP (\fI\%bool\fP) – if histogram should be shown
-.IP \(bu 2
 \fBshowlevels\fP (\fI\%bool\fP) – if levels should be shown
-.IP \(bu 2
-\fBshowadd\fP (\fI\%bool\fP) – if additional histogram should be shown
-.UNINDENT
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -669,6 +662,11 @@ updates class variables with the form content
 .UNINDENT
 .INDENT 7.0
 .TP
+.B correctsolidangle = None
+(\fI\%bool\fP) correct solid angle flag
+.UNINDENT
+.INDENT 7.0
+.TP
 .B createGUI()
 create GUI
 .UNINDENT
@@ -686,6 +684,11 @@ create GUI
 .TP
 .B detservers = None
 (\fI\%str\fP) json hidra detector server list
+.UNINDENT
+.INDENT 7.0
+.TP
+.B diffnpt = None
+(\fI\%int\fP) number of points for diffractogram
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -895,6 +898,11 @@ status flag
 .UNINDENT
 .INDENT 7.0
 .TP
+.B singlerois = None
+(\fI\%bool\fP) set roi1, roi2, roi3, … when alias names are missing
+.UNINDENT
+.INDENT 7.0
+.TP
 .B sourcedisplay = None
 (\fI\%bool\fP) store display parameters for specific sources
 .UNINDENT
@@ -912,6 +920,11 @@ status flag
 .TP
 .B timeout = None
 (\fI\%int\fP) image source timeout in ms
+.UNINDENT
+.INDENT 7.0
+.TP
+.B toolpollinginterval = None
+(\fI\%float\fP) tool polling interval is s
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -2067,6 +2080,138 @@ update ROIs
 .IP \(bu 2
 \fBcoords\fP (\fBlist\fP
 < [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >) – roi coordinates
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.displayExtensions.RegionItem(points=None, pen=\(aqw\(aq, axisOrder=None, **args)
+Bases: \fBpyqtgraph.graphicsItems.IsocurveItem.IsocurveItem\fP
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBpoints\fP (\fBlist\fP < (float, float) >) – list of points
+.IP \(bu 2
+\fBpen\fP (\fBpyqtgraph.QtGui.QPen\fP) – qt pen
+.IP \(bu 2
+\fBaxisOrder\fP (\fI\%bool\fP) – axis order flag
+.IP \(bu 2
+\fBargs\fP (\fI\%dict\fP <\fI\%str\fP, \fIany\fP>) – axis order flag
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B generatePath()
+generate QPainterPath
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class lavuelib.displayExtensions.RegionsExtension(parent=None)
+Bases: \fI\%lavuelib.displayExtensions.DisplayExtension\fP
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B currentRegion()
+provides current region id
+.INDENT 7.0
+.TP
+.B Returns
+region id
+.TP
+.B Return type
+\fI\%int\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B isRegionEnabled()
+provides flag regions enabled
+.INDENT 7.0
+.TP
+.B Returns
+region enabled flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%str\fP) tool name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B regionPoints()
+provides region coordinates
+.INDENT 7.0
+.TP
+.B Returns
+region coordinates
+.TP
+.B Return type
+\fBlist\fP
+< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B regionPointsChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) region points changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B scalingLabel()
+provides scaling label
+.INDENT 7.0
+.TP
+.B Returns
+scaling label
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B show(parameters)
+set subwidget properties
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparameters\fP (\fBlavuelib.toolWidget.ToolParameters\fP) – tool parameters
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B transpose()
+transposes Regions
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateRegions(points, rid=None)
+update Regions
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBrid\fP (\fI\%int\fP) – rng id
+.IP \(bu 2
+\fBpoints\fP (\fBlist\fP
+< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >) – rng coordinates
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -6525,6 +6670,11 @@ image name, image data, json dictionary with metadata
 .UNINDENT
 .INDENT 0.0
 .TP
+.B lavuelib.imageSource.PYFAI = True
+(\fI\%bool\fP) pyFAI imported
+.UNINDENT
+.INDENT 0.0
+.TP
 .B lavuelib.imageSource.PYTANGO = True
 (\fI\%bool\fP) PyTango imported
 .UNINDENT
@@ -6933,6 +7083,19 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B applyMask()
+provides apply mask flag
+.INDENT 7.0
+.TP
+.B Returns
+True for apply mask
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B applyROIs(rlabel, roispin)
 saves ROIs in sardana and add them to the measurement group
 .INDENT 7.0
@@ -7234,6 +7397,45 @@ image object
 .TP
 .B imagePlotted
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) image plotted signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B maskIndices()
+provides mask image indices
+.INDENT 7.0
+.TP
+.B Returns
+mask image indices
+.TP
+.B Return type
+\fI\%numpy.ndarray\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B maskValue()
+provides high mask value
+.INDENT 7.0
+.TP
+.B Returns
+high mask value
+.TP
+.B Return type
+\fI\%float\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B maskValueIndices()
+provides mask image value indices
+.INDENT 7.0
+.TP
+.B Returns
+mask image indices
+.TP
+.B Return type
+\fI\%numpy.ndarray\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -7560,6 +7762,16 @@ scaling label
 .UNINDENT
 .INDENT 7.0
 .TP
+.B setApplyMask(applymask=True)
+sets apply mask flag
+.INDENT 7.0
+.TP
+.B Params applymask
+True for apply mask
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B setAspectLocked(status)
 sets aspectLocked
 .INDENT 7.0
@@ -7632,6 +7844,36 @@ set display extension refresh time
 .TP
 .B Parameters
 \fBrefreshtime\fP (\fI\%float\fP) – refresh time in seconds
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setMaskIndices(maskindices)
+sets mask image indices
+.INDENT 7.0
+.TP
+.B Params maskindices
+mask image indices
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setMaskValue(maskvalue)
+sets high mask value
+.INDENT 7.0
+.TP
+.B Params applymask
+high mask value
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setMaskValueIndices(maskindices)
+sets mask image indices
+.INDENT 7.0
+.TP
+.B Params maskindices
+mask image  value indices
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -8050,6 +8292,22 @@ update ROIs
 .IP \(bu 2
 \fBcoords\fP (\fBlist\fP
 < [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >) – roi coordinates
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateRegions(points=None, rid=None)
+update Ranges
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBpoints\fP (\fBlist\fP <  \fBlist\fP
+< (\fI\%float\fP, \fI\%float\fP) > >) – roi coordinates
+.IP \(bu 2
+\fBrid\fP (\fI\%int\fP) – region id
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -9068,6 +9326,11 @@ stops loop
 .B watchingFinished
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) watching finished
 .UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.motorWatchThread.POLLINGINTERVAL = 1.0
+(\fI\%float\fP) polling inverval in seconds
 .UNINDENT
 .SS lavuelib.pniwriter
 .sp
@@ -10540,6 +10803,11 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
+.B calibrationfilename = None
+(\fI\%str\fP) calibration file name
+.UNINDENT
+.INDENT 7.0
+.TP
 .B centerx = None
 (\fI\%float\fP) x\-coordinates of the center of the image
 .UNINDENT
@@ -10547,6 +10815,11 @@ constructor
 .TP
 .B centery = None
 (\fI\%float\fP) y\-coordinates of the center of the image
+.UNINDENT
+.INDENT 7.0
+.TP
+.B correctsolidangle = None
+(\fI\%bool\fP) correct solid angle flag
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10578,8 +10851,38 @@ custom gradients
 .UNINDENT
 .INDENT 7.0
 .TP
+.B detponi1 = None
+(\fI\%float\fP) poni1 parameter in m
+.UNINDENT
+.INDENT 7.0
+.TP
+.B detponi2 = None
+(\fI\%float\fP) poni2 parameter in m
+.UNINDENT
+.INDENT 7.0
+.TP
+.B detrot1 = None
+(\fI\%float\fP) rot1 parameter in rad
+.UNINDENT
+.INDENT 7.0
+.TP
+.B detrot2 = None
+(\fI\%float\fP) rot2 parameter in rad
+.UNINDENT
+.INDENT 7.0
+.TP
+.B detrot3 = None
+(\fI\%float\fP) rot3 parameter in rad
+.UNINDENT
+.INDENT 7.0
+.TP
 .B detservers = None
 (\fBlist\fP < \fI\%str\fP>) hidra detector server list
+.UNINDENT
+.INDENT 7.0
+.TP
+.B diffnpt = None
+(\fI\%int\fP) number of points for diffractogram
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10648,6 +10951,22 @@ distance in um
 .TP
 .B energy = None
 (\fI\%float\fP) energy in eV
+.UNINDENT
+.INDENT 7.0
+.TP
+.B energy2m(energy)
+converts energy to m
+.INDENT 7.0
+.TP
+.B Parameters
+\fBenergy\fP (\fI\%float\fP or (\fI\%float\fP, \fI\%str\fP)) – energy as value in eV or tuple with units
+.TP
+.B Returns
+length in m
+.TP
+.B Return type
+\fI\%float\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10940,6 +11259,11 @@ sets source display parameters
 .UNINDENT
 .INDENT 7.0
 .TP
+.B singlerois = None
+(\fI\%bool\fP) single rois flag
+.UNINDENT
+.INDENT 7.0
+.TP
 .B sourceDisplay(source)
 gets source display parameters
 .INDENT 7.0
@@ -10983,6 +11307,11 @@ Stores settings in QSettings object
 .TP
 .B timeout = None
 (\fI\%int\fP) image source timeout for connection
+.UNINDENT
+.INDENT 7.0
+.TP
+.B toolpollinginterval = None
+(\fI\%float\fP) tool polling interval is s
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -14016,6 +14345,114 @@ list of [signal, slot] object to connect
 .UNINDENT
 .INDENT 0.0
 .TP
+.B class lavuelib.toolWidget.DiffractogramToolWidget(parent=None)
+Bases: \fBlavuelib.toolWidget.ToolBaseWidget\fP
+.sp
+diffractogram tool widget
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B activate()
+activates tool widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B afterplot()
+command after plot
+.UNINDENT
+.INDENT 7.0
+.TP
+.B alias = \(aqdiffractogram\(aq
+(\fI\%str\fP) tool name alias
+.UNINDENT
+.INDENT 7.0
+.TP
+.B beforeplot(array, rawarray)
+command  before plot
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBarray\fP (\fI\%numpy.ndarray\fP) – 2d image array
+.IP \(bu 2
+\fBrawarray\fP (\fI\%numpy.ndarray\fP) – 2d raw image array
+.UNINDENT
+.TP
+.B Returns
+2d image array and raw image
+.TP
+.B Return type
+(\fI\%numpy.ndarray\fP, \fI\%numpy.ndarray\fP)
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B deactivate()
+deactivates tool widget
+.UNINDENT
+.INDENT 7.0
+.TP
+.B findregions()
+find regions lists
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = \(aqDiffractogram\(aq
+(\fI\%str\fP) tool name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B requires = (\(aqPYFAI\(aq,)
+(\fI\%tuple\fP <\fI\%str\fP>) capitalized required packages
+.UNINDENT
+.INDENT 7.0
+.TP
+.B runProgress(commands, onclose=\(aq_closeReset\(aq, text=\(aqUpdating diffractogram ranges ...\(aq)
+starts progress thread with the given commands
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBcommands\fP (\fBlist\fP <\fI\%str\fP>) – list of commands
+.IP \(bu 2
+\fBonclose\fP (\fI\%str\fP) – close command name
+.IP \(bu 2
+\fBtext\fP (\fI\%str\fP) – text to display
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B signal2slot = None
+(\fBlist\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+list of [signal, slot] object to connect
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateGeometryTip()
+update geometry tips
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateRangeTip()
+update geometry tips
+.UNINDENT
+.INDENT 7.0
+.TP
+.B waitForThread()
+waits for running thread
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
 .B class lavuelib.toolWidget.QROIProjToolWidget(parent=None)
 Bases: \fBlavuelib.toolWidget.ToolBaseWidget\fP
 .sp
@@ -14143,7 +14580,7 @@ updates ROI line edit text
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.toolWidget.twproperties = [{\(aqalias\(aq: \(aqintensity\(aq, \(aqwidget\(aq: \(aqIntensityToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqIntensity\(aq}, {\(aqalias\(aq: \(aqroi\(aq, \(aqwidget\(aq: \(aqROIToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqROI\(aq}, {\(aqalias\(aq: \(aqlinecut\(aq, \(aqwidget\(aq: \(aqLineCutToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqLineCut\(aq}, {\(aqalias\(aq: \(aqangle/q\(aq, \(aqwidget\(aq: \(aqAngleQToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqAngle/Q\(aq}, {\(aqalias\(aq: \(aqmovemotors\(aq, \(aqwidget\(aq: \(aqMotorsToolWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqMoveMotors\(aq}, {\(aqalias\(aq: \(aqmeshscan\(aq, \(aqwidget\(aq: \(aqMeshToolWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqMeshScan\(aq}, {\(aqalias\(aq: \(aq1d\-plot\(aq, \(aqwidget\(aq: \(aqOneDToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aq1d\-Plot\(aq}, {\(aqalias\(aq: \(aqprojections\(aq, \(aqwidget\(aq: \(aqProjectionToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqProjections\(aq}, {\(aqalias\(aq: \(aqmaxima\(aq, \(aqwidget\(aq: \(aqMaximaToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqMaxima\(aq}, {\(aqalias\(aq: \(aqparameters\(aq, \(aqwidget\(aq: \(aqParametersToolWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqParameters\(aq}, {\(aqalias\(aq: \(aqq+roi+proj\(aq, \(aqwidget\(aq: \(aqQROIProjToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqQ+ROI+Proj\(aq}]
+.B lavuelib.toolWidget.twproperties = [{\(aqalias\(aq: \(aqintensity\(aq, \(aqwidget\(aq: \(aqIntensityToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqIntensity\(aq}, {\(aqalias\(aq: \(aqroi\(aq, \(aqwidget\(aq: \(aqROIToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqROI\(aq}, {\(aqalias\(aq: \(aqlinecut\(aq, \(aqwidget\(aq: \(aqLineCutToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqLineCut\(aq}, {\(aqalias\(aq: \(aqangle/q\(aq, \(aqwidget\(aq: \(aqAngleQToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqAngle/Q\(aq}, {\(aqalias\(aq: \(aqmovemotors\(aq, \(aqwidget\(aq: \(aqMotorsToolWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqMoveMotors\(aq}, {\(aqalias\(aq: \(aqmeshscan\(aq, \(aqwidget\(aq: \(aqMeshToolWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqMeshScan\(aq}, {\(aqalias\(aq: \(aq1d\-plot\(aq, \(aqwidget\(aq: \(aqOneDToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aq1d\-Plot\(aq}, {\(aqalias\(aq: \(aqprojections\(aq, \(aqwidget\(aq: \(aqProjectionToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqProjections\(aq}, {\(aqalias\(aq: \(aqmaxima\(aq, \(aqwidget\(aq: \(aqMaximaToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqMaxima\(aq}, {\(aqalias\(aq: \(aqparameters\(aq, \(aqwidget\(aq: \(aqParametersToolWidget\(aq, \(aqrequires\(aq: (\(aqPYTANGO\(aq,), \(aqname\(aq: \(aqParameters\(aq}, {\(aqalias\(aq: \(aqdiffractogram\(aq, \(aqwidget\(aq: \(aqDiffractogramToolWidget\(aq, \(aqrequires\(aq: (\(aqPYFAI\(aq,), \(aqname\(aq: \(aqDiffractogram\(aq}, {\(aqalias\(aq: \(aqq+roi+proj\(aq, \(aqwidget\(aq: \(aqQROIProjToolWidget\(aq, \(aqrequires\(aq: (), \(aqname\(aq: \(aqQ+ROI+Proj\(aq}]
 ( \fI\%dict\fP < \fI\%str\fP, any > ) tool widget properties
 .UNINDENT
 .SS lavuelib.transformationsWidget module
