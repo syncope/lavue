@@ -3150,7 +3150,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #               ->  0: q_nm^-1, 1: q_A-1, 2: 2th_deg, 3: 2th_rad
         self.__unitindex = 0
         #: (:obj:`list` <:obj:`str`>) list of units
-        self.__units = ["q_nm^-1", "q_A^-1", "2th_deg", "2th_rad", "r_mm"]
+        self.__units = ["q_nm^-1", "q_A^-1", "2th_deg",
+                        "2th_rad", "r_mm", "r_mm"]
 
         #: (:class:`Ui_ROIToolWidget') ui_toolwidget object from qtdesigner
         self.__ui = _diffractogramformclass()
@@ -3425,6 +3426,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
         if fileName:
             try:
                 self.__ai = pyFAI.load(fileName)
+                # self.__ai.rot1 = math.pi/4.
+                # self.__ai.rot2 = math.pi/4.
+                # self.__ai.rot3 = math.pi/2.
                 # print(str(self.__ai))
                 self.__settings.calibrationfilename = fileName
                 self.__writedetsettings()
@@ -3561,6 +3565,20 @@ class DiffractogramToolWidget(ToolBaseWidget):
             else:
                 message = "x, y = [%s, %s], %s = %.2f" % (
                     x, y, ilabel, intensity)
+        elif self.__unitindex in [5]:
+            cx = self.__settings.centerx
+            cy = self.__settings.centery
+            ra = math.sqrt((cx - x)**2 + (cy - y)**2)
+            if ra is not None and chi is not None:
+                chi = chi * 180./math.pi
+                message = "x, y = [%s, %s], r = %f %s, chi = %f %s," \
+                          " %s = %.2f" \
+                          % (x, y, ra, "pixel",
+                             chi, "deg",
+                             ilabel, intensity)
+            else:
+                message = "x, y = [%s, %s], %s = %.2f" % (
+                    x, y, ilabel, intensity)
         self._mainwidget.setDisplayedText(message)
 
     def __tipmessage(self):
@@ -3636,6 +3654,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                     trans = self._mainwidget.transformations()[0]
                     csa = self.__settings.correctsolidangle
                     unit = self.__units[self.__unitindex]
+                    # print(unit)
                     dts = dts if trans else dts.T
                     mask = None
                     if dts.dtype.kind == 'f' and np.isnan(dts.min()):
@@ -3672,6 +3691,32 @@ class DiffractogramToolWidget(ToolBaseWidget):
                             # print(res)
                             x = res[0]
                             y = res[1]
+                            if self.__unitindex in [5]:
+                                aif = self.__ai.getFit2D()
+                                if aif["pixelX"] and aif["pixelY"]:
+                                    if self.__azrange[i] is None:
+                                        azs, aze = 0, math.pi/2
+                                    else:
+                                        azs, aze = self.__azrange[i]
+                                        azs *= math.pi / 180.
+                                        aze *= math.pi / 180.
+                                    facx = 1000./aif["pixelX"]
+                                    facy = 1000./aif["pixelY"]
+                                    cs1 = math.cos(azs + self.__ai.rot3)
+                                    cs2 = math.cos(aze + self.__ai.rot3)
+                                    sn1 = math.sin(azs + self.__ai.rot3)
+                                    sn2 = math.sin(aze + self.__ai.rot3)
+                                    fc1 = facx * cs1 / math.cos(self.__ai.rot1)
+                                    fc2 = facx * cs2 / math.cos(self.__ai.rot1)
+                                    fs1 = facy * sn1 / math.cos(self.__ai.rot2)
+                                    fs2 = facy * sn2 / math.cos(self.__ai.rot2)
+                                    x = [
+                                        (math.sqrt(
+                                            (fc1 * r)**2 + (fs1 * r)**2)
+                                         + math.sqrt(
+                                             (fc2 * r)**2 + (fs2 * r)**2))
+                                        / 2
+                                        for r in x]
                             self.__curves[i].setData(x=x, y=y)
                         except Exception as e:
                             # print(str(e))
@@ -3763,7 +3808,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                         self.__radrange.append([qs, qe])
                     elif self.__unitindex == 3:
                         self.__radrange.append([rs, re])
-                    elif self.__unitindex == 4:
+                    elif self.__unitindex in [4, 5]:
                         rs = math.tan(rs) * self.__settings.detdistance
                         re = math.tan(re) * self.__settings.detdistance
                         self.__radrange.append([rs, re])
