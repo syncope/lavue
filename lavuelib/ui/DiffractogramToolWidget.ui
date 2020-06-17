@@ -116,6 +116,11 @@
          <string>r [mm]</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>r [pixel]</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
