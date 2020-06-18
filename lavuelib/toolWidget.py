@@ -3562,6 +3562,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
                           % (x, y, tth, unit,
                              chi, unit,
                              ilabel, intensity)
+                if self.__unitindex == 3:
+                    ap = self.__approxpoint(tth, chi)
+                    message += " $%s$" % str(ap)
             else:
                 message = "x, y = [%s, %s], %s = %.2f" % (
                     x, y, ilabel, intensity)
@@ -4390,8 +4393,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
         found = False
         it = 0
         if start is None:
-            start = [random.randint(0, shape[0]),
-                     random.randint(0, shape[1])]
+            start = self.__approxpoint(rd, az)
+            # print(start)
         while not found and it < itmax:
             res = scipy.optimize.root(rafun, start, (rd, az))
             f = res.fun
@@ -4403,6 +4406,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                      random.randint(0, shape[1])]
         logger.debug("Tries: %s" % it)
         logger.debug(res)
+        # print(res)
         return res
 
     def __getcorners(self, radstart, radend, azstart, azend):
@@ -4437,11 +4441,34 @@ class DiffractogramToolWidget(ToolBaseWidget):
             ae = self.__degtrim(azend, -180, 180) * math.pi / 180.
 
             rbb = self.__findpoint(rb, ab, shape)
-            rbe = self.__findpoint(rb, ae, shape, rbb.x)
+            rbe = self.__findpoint(rb, ae, shape)
             ree = self.__findpoint(re, ae, shape)
-            reb = self.__findpoint(re, ab, shape, ree.x)
+            reb = self.__findpoint(re, ab, shape)
 
             return [rbb, rbe, reb, ree, rb, re, ab, ae]
+
+    def __approxpoint(self, rad, az):
+        """ find approximate x,y coorinates from angles
+
+        :param rad: radial angle in rad
+        :type rad: :obj:`float`
+        :param az: azimuth angle in rad
+        :type az: :obj:`float`
+        :returns: [x, y] coordinates
+        :rtype:  [:obj:`float`, :obj:`float`]
+        """
+        if self.__ai:
+            tnr = math.tan(rad)
+            csa = math.cos(az)
+            sna = math.sin(az)
+            dst = self.__settings.detdistance
+            xc = self.__settings.centerx
+            yc = self.__settings.centery
+            px = self.__settings.pixelsizex / 1000.
+            py = self.__settings.pixelsizey / 1000.
+            y = (dst * sna * tnr + yc * py)/py
+            x = (dst * csa * tnr + xc * px)/px
+            return [x, y]
 
     @QtCore.pyqtSlot(int)
     def _setUnitIndex(self, uindex):
@@ -4487,7 +4514,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
 
 
 class MaximaToolWidget(ToolBaseWidget):
-    """ angle/q tool widget
+    """ maxima tool widget
     """
 
     #: (:obj:`str`) tool name

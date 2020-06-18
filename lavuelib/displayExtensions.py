@@ -150,6 +150,8 @@ class RegionItem(IsocurveItem):
         :type args: :obj:`dict` <:obj:`str`, `any`>
         """
         IsocurveItem.__init__(self, points, 0, pen, None, **args)
+        # if points and points[0] and points[0][0]:
+        #     self.setPos(*points[0][0])
 
     def generatePath(self):
         """ generate QPainterPath
@@ -159,8 +161,12 @@ class RegionItem(IsocurveItem):
             return
 
         self.path = _pg.QtGui.QPainterPath()
+        # nopos = True
         for line in self.data:
             self.path.moveTo(*line[0])
+            # if nopos:
+            #     self.setPos(*line[0])
+            #     nopos = False
             for p in line[1:]:
                 self.path.lineTo(*p)
 
