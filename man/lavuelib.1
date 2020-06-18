@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Jun 16, 2020" "2.42" "lavuelib"
+.TH "LAVUELIB" "1" "Jun 18, 2020" "2.42" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -2038,8 +2038,8 @@ scaling label
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setROIsColors(colors=None)
-sets statistics without scaling flag
+.B setColors(colors=None)
+sets colors
 .INDENT 7.0
 .TP
 .B Parameters
@@ -2086,7 +2086,7 @@ update ROIs
 .UNINDENT
 .INDENT 0.0
 .TP
-.B class lavuelib.displayExtensions.RegionItem(points=None, pen=\(aqw\(aq, axisOrder=None, **args)
+.B class lavuelib.displayExtensions.RegionItem(points=None, pen=\(aqw\(aq, **args)
 Bases: \fBpyqtgraph.graphicsItems.IsocurveItem.IsocurveItem\fP
 .sp
 constructor
@@ -2099,9 +2099,7 @@ constructor
 .IP \(bu 2
 \fBpen\fP (\fBpyqtgraph.QtGui.QPen\fP) – qt pen
 .IP \(bu 2
-\fBaxisOrder\fP (\fI\%bool\fP) – axis order flag
-.IP \(bu 2
-\fBargs\fP (\fI\%dict\fP <\fI\%str\fP, \fIany\fP>) – axis order flag
+\fBargs\fP (\fI\%dict\fP <\fI\%str\fP, \fIany\fP>) – more params
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2162,8 +2160,8 @@ provides region coordinates
 region coordinates
 .TP
 .B Return type
-\fBlist\fP
-< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >
+\fBlist\fP <  \fBlist\fP <  \fBlist\fP
+< (\fI\%float\fP, \fI\%float\fP) > > >
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2182,6 +2180,22 @@ scaling label
 .TP
 .B Return type
 \fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setColors(colors=None)
+sets colors
+.INDENT 7.0
+.TP
+.B Parameters
+\fBcolors\fP (\fI\%str\fP) – json list of roi colors
+.TP
+.B Returns
+change status
+.TP
+.B Return type
+\fI\%bool\fP
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2210,8 +2224,8 @@ update Regions
 .IP \(bu 2
 \fBrid\fP (\fI\%int\fP) – rng id
 .IP \(bu 2
-\fBpoints\fP (\fBlist\fP
-< [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >) – rng coordinates
+\fBpoints\fP (\fBlist\fP <  \fBlist\fP <  \fBlist\fP
+< (\fI\%float\fP, \fI\%float\fP) > > >) – rng coordinates
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -7195,6 +7209,11 @@ changes the current roi region
 .UNINDENT
 .INDENT 7.0
 .TP
+.B colorsChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) colors changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
 .B currentCut()
 provides current cut id
 .INDENT 7.0
@@ -7808,6 +7827,16 @@ sets auto levels
 .UNINDENT
 .INDENT 7.0
 .TP
+.B setColors(colors)
+sets item colors
+.INDENT 7.0
+.TP
+.B Parameters
+\fBcolors\fP (\fI\%str\fP) – json list of roi colors
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B setDisplayedText(text=None)
 sets displayed info text and recalculates the current roi sum
 .INDENT 7.0
@@ -7924,22 +7953,6 @@ get axes parameters
 .IP \(bu 2
 \fBscale\fP ([\fI\%float\fP, \fI\%float\fP]) – scale axes
 .UNINDENT
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B setROIsColors(colors)
-sets statistics without scaling flag
-.INDENT 7.0
-.TP
-.B Parameters
-\fBcolors\fP (\fI\%str\fP) – json list of roi colors
-.TP
-.B Returns
-change status
-.TP
-.B Return type
-\fI\%bool\fP
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -8304,8 +8317,8 @@ update Ranges
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBpoints\fP (\fBlist\fP <  \fBlist\fP
-< (\fI\%float\fP, \fI\%float\fP) > >) – roi coordinates
+\fBpoints\fP (\fBlist\fP <  \fBlist\fP <  \fBlist\fP
+< (\fI\%float\fP, \fI\%float\fP) > > >) – roi coordinates
 .IP \(bu 2
 \fBrid\fP (\fI\%int\fP) – region id
 .UNINDENT
@@ -14227,7 +14240,7 @@ list of [signal, slot] object to connect
 .B class lavuelib.toolWidget.MaximaToolWidget(parent=None)
 Bases: \fBlavuelib.toolWidget.ToolBaseWidget\fP
 .sp
-angle/q tool widget
+maxima tool widget
 .sp
 constructor
 .INDENT 7.0
@@ -14427,6 +14440,22 @@ starts progress thread with the given commands
 .IP \(bu 2
 \fBtext\fP (\fI\%str\fP) – text to display
 .UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setColors(colors=None, force=False)
+sets colors
+.INDENT 7.0
+.TP
+.B Parameters
+\fBcolors\fP (\fI\%str\fP) – json list of roi colors
+.TP
+.B Returns
+change status
+.TP
+.B Return type
+\fI\%bool\fP
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
