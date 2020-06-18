@@ -1244,6 +1244,63 @@ tuple of exchange object (name, data, metadata)
 .B lavuelib.dataFetchThread.GLOBALREFRESHRATE = 0.1
 (\fI\%float\fP) refresh rate in seconds
 .UNINDENT
+.SS lavuelib.diffRangeDialog module
+.sp
+detector range widget
+.INDENT 0.0
+.TP
+.B class lavuelib.diffRangeDialog.DiffRangeTabDialog(nranges=1, parent=None)
+Bases: \fBPyQt5.QtWidgets.QDialog\fP
+.sp
+diffractogram range widget class
+.sp
+constructort
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B accept()
+updates class variables with the form content
+.UNINDENT
+.INDENT 7.0
+.TP
+.B azend = None
+(\fI\%float\fP) end position of azimuth angle
+.UNINDENT
+.INDENT 7.0
+.TP
+.B azstart = None
+(\fI\%float\fP) start position of azimuth angle
+.UNINDENT
+.INDENT 7.0
+.TP
+.B createGUI()
+create GUI
+.UNINDENT
+.INDENT 7.0
+.TP
+.B radend = None
+(\fI\%float\fP) end position of radial coordinate
+.UNINDENT
+.INDENT 7.0
+.TP
+.B radstart = None
+(\fI\%float\fP) start position of radial coordinate
+.UNINDENT
+.INDENT 7.0
+.TP
+.B radunitindex = None
+(\fI\%int\fP) radial angle index
+.UNINDENT
+.INDENT 7.0
+.TP
+.B radunits = None
+(\fBlist\fP <\fI\%unicode\fP>) list of units
+.UNINDENT
+.UNINDENT
 .SS lavuelib.displayExtensions module
 .sp
 image display widget

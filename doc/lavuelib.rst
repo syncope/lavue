@@ -60,6 +60,14 @@ lavuelib.dataFetchThread module
     :undoc-members:
     :show-inheritance:
 
+lavuelib.diffRangeDialog module
+===============================
+
+.. automodule:: lavuelib.diffRangeDialog
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lavuelib.displayExtensions module
 =================================
 
