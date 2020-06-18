@@ -1,5 +1,6 @@
-2020-06-XX Jan Kotanski <jan.kotanski@desy.de>
+2020-06-18 Jan Kotanski <jan.kotanski@desy.de>
 	* add r [pixel] unit to diffractogram tool
+	* add setting of colors to the diffractogram tool
 	* tagged as 2.42.1
 
 2020-06-16 Jan Kotanski <jan.kotanski@desy.de>
