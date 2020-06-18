@@ -1173,6 +1173,13 @@ class RegionsExtension(DisplayExtension):
         # text = _pg.TextItem("1.", anchor=(1, 1))
         # text.setParentItem(self.__region[0])
         # self.__regiontext.append(text)
+        # clr = '#00ff7f'
+        # if hasattr(self.__regiontext[0], "setColor"):
+        #     self.__regiontext[0].setColor(clr)
+        # else:
+        #     self.__regiontext[0].color = _pg.functions.mkColor(clr)
+        #     self.__regiontext[0].textItem.setDefaultTextColor(
+        #         self.__regiontext[it].color)
         self._mainwidget.viewbox().addItem(self.__region[0])
         self.__region[0].hide()
         self.setColors()
@@ -1328,12 +1335,12 @@ class RegionsExtension(DisplayExtension):
                 clr = tuple(colors[it % len(colors)]) if colors \
                     else self.__defpen
                 rg.setPen(_pg.mkPen(clr, width=2))
-                # if hasattr(self.__roitext[it], "setColor"):
-                #     self.__roitext[it].setColor(clr)
+                # if hasattr(self.__regiontext[it], "setColor"):
+                #     self.__regiontext[it].setColor(clr)
                 # else:
-                #     self.__roitext[it].color = _pg.functions.mkColor(clr)
-                #     self.__roitext[it].textItem.setDefaultTextColor(
-                #         self.__roitext[it].color)
+                #     self.__regiontext[it].color = _pg.functions.mkColor(clr)
+                #     self.__regiontext[it].textItem.setDefaultTextColor(
+                #         self.__regiontext[it].color)
         return True
 
     def regionPoints(self):
