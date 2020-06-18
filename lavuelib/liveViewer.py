@@ -1473,7 +1473,7 @@ class LiveViewer(QtGui.QDialog):
             ds.setTimeOut(self.__settings.timeout)
         dataFetchThread.GLOBALREFRESHRATE = self.__settings.refreshrate
         self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling)
-        self.__imagewg.setROIsColors(self.__settings.roiscolors)
+        self.__imagewg.setColors(self.__settings.roiscolors)
 
         self.__updateSource()
 
@@ -2252,7 +2252,7 @@ class LiveViewer(QtGui.QDialog):
 
         if self.__settings.roiscolors != dialog.roiscolors:
             self.__settings.roiscolors = dialog.roiscolors
-            self.__imagewg.setROIsColors(self.__settings.roiscolors)
+            self.__imagewg.setColors(self.__settings.roiscolors)
 
         if remasking:
             self.__remasking()

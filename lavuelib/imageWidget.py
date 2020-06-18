@@ -103,6 +103,8 @@ class ImageWidget(QtGui.QWidget):
     clearBottomPlotClicked = QtCore.pyqtSignal()
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) scales changed signal
     scalesChanged = QtCore.pyqtSignal()
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) colors changed signal
+    colorsChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None, tooltypes=None, settings=None,
                  rgbtooltypes=None):
@@ -585,8 +587,8 @@ class ImageWidget(QtGui.QWidget):
         """ update Ranges
 
         :param points: roi coordinates
-        :type points: :obj:`list` <  :obj:`list`
-                  < (:obj:`float`, :obj:`float`) > >
+        :type points: :obj:`list` <  :obj:`list` <  :obj:`list`
+                  < (:obj:`float`, :obj:`float`) > > >
         :param rid: region id
         :type rid: :obj:`int`
         """
@@ -1045,15 +1047,16 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__displaywidget.setStatsWOScaling(status)
 
-    def setROIsColors(self, colors):
-        """ sets statistics without scaling flag
+    def setColors(self, colors):
+        """ sets item colors
 
         :param colors: json list of roi colors
         :type colors: :obj:`str`
-        :returns: change status
-        :rtype: :obj:`bool`
         """
-        return self.__displaywidget.extension('rois').setROIsColors(colors)
+        for name in self.__displaywidget.extensions():
+            if hasattr(self.__displaywidget.extension(name), "setColors"):
+                self.__displaywidget.extension(name).setColors(colors)
+        self.colorsChanged.emit(colors)
 
     def setScalingType(self, scalingtype):
         """ sets intensity scaling types

@@ -3198,9 +3198,14 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #:     command thread
         self.__commandthread = None
 
-        #: (:obj:`list` < :obj:`list` < (float, float) > >)
+        #: ( :obj:`list` <  :obj:`list` <  :obj:`list` < (float, float) > > >)
         #    list of region lines
         self.__regions = []
+
+        #: (:obj:`list` < (int, int, int) > ) list with region colors
+        self.__colors = []
+        #: ( (:obj:`int`, :obj:`int', :obj:`int`)) default pen color
+        self.__defpen = (0, 255, 127)
 
         # self.parameters.lines = True
         #: (:obj:`str`) infolineedit text
@@ -3217,7 +3222,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
 
         #: (:class:`lavuelib.settings.Settings`:) configuration settings
         self.__settings = self._mainwidget.settings()
-
+        self.setColors(self.__settings.roiscolors)
         #: (:obj:`list` < [:class:`pyqtgraph.QtCore.pyqtSignal`, :obj:`str`] >)
         #: list of [signal, slot] object to connect
         self.signal2slot = [
@@ -3233,10 +3238,42 @@ class DiffractogramToolWidget(ToolBaseWidget):
             [self._mainwidget.geometryChanged, self.updateGeometryTip],
             [self._mainwidget.freezeBottomPlotClicked, self._freezeplot],
             [self._mainwidget.clearBottomPlotClicked, self._clearplot],
-            [self._mainwidget.mouseImagePositionChanged, self._message]
+            [self._mainwidget.mouseImagePositionChanged, self._message],
+            [self._mainwidget.colorsChanged, self.setColors]
         ]
         # self.__ui.showPushButton.hide()
         # self.__ui.nextPushButton.hide()
+
+    @QtCore.pyqtSlot(str)
+    def setColors(self, colors=None, force=False):
+        """ sets colors
+
+        :param colors: json list of roi colors
+        :type colors: :obj:`str`
+        :returns: change status
+        :rtype: :obj:`bool`
+        """
+        if colors is not None:
+            colors = json.loads(colors)
+            if not isinstance(colors, list):
+                return False
+            for cl in colors:
+                if not isinstance(cl, list):
+                    return False
+                if len(cl) != 3:
+                    return False
+                for clit in cl:
+                    if not isinstance(clit, int):
+                        return False
+        else:
+            colors = self.__colors
+            force = True
+        if self.__colors != colors or force:
+            self.__colors = colors
+            for i, cr in enumerate(self.__curves):
+                clr = tuple(colors[i % len(colors)]) if colors \
+                    else self.__defpen
+                cr.setPen(_pg.mkPen(clr))
 
     def runProgress(self, commands, onclose="_closeReset",
                     text="Updating diffractogram ranges ..."):
@@ -3316,6 +3353,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         # self.__nrplots = self.__ui.diffSpinBox.value()
         #
         self._plotDiff()
+        self.setColors(self.__settings.roiscolors, True)
 
     def afterplot(self):
         """ command after plot
@@ -3338,6 +3376,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         for curve in self.__curves:
             curve.show()
             curve.setVisible(True)
+        self.setColors(self.__settings.roiscolors, True)
 
         # if self.__settings.calibrationfilename:
         #     self._loadCalibration(
@@ -3644,7 +3683,10 @@ class DiffractogramToolWidget(ToolBaseWidget):
                     if nrplots:
                         for i, cr in enumerate(self.__curves):
                             if i < nrplots:
-                                cr.setPen(_pg.hsvColor(i/float(nrplots)))
+                                colors = self.__colors
+                                clr = tuple(colors[i % len(colors)]) \
+                                    if colors else self.__defpen
+                                cr.setPen(_pg.mkPen(clr))
                 # coords = self._mainwidget.cutCoords()
                 # rws = self._mainwidget.rangeWindowScale()
                 dts = self._mainwidget.rawData()
@@ -3838,13 +3880,13 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 radend = self.__radend[i] \
                     if self.__radend[i] is not None else 70
                 try:
-                    regions.extend(
+                    regions.append(
                         self.__findregion(radstart, radend, azstart, azend))
                 except Exception as e:
                     try:
                         logger.warning(str(e))
                         print(str(e))
-                        regions.extend(
+                        regions.append(
                             self.__findregion2(
                                 radstart, radend, azstart, azend))
                     except Exception as e2:
@@ -3857,7 +3899,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
         """ update regions and plots
 
         :param regions: list of region lines
-        :type regions:  :obj:`list` < :obj:`list` < (float, float) > >
+        :type regions: :obj:`list` <  :obj:`list` <  :obj:`list`
+                  < (:obj:`float`, :obj:`float`) > > >
         """
         regions = regions if regions is not None else self.__regions
         self._mainwidget.updateRegions(regions)

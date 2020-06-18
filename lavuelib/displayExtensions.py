@@ -139,19 +139,17 @@ class SimpleLineROI(LineROI):
 
 class RegionItem(IsocurveItem):
 
-    def __init__(self, points=None, pen='w', axisOrder=None, **args):
+    def __init__(self, points=None, pen='w', **args):
         """ constructor
 
         :param points: list of points
         :type points:  :obj:`list` < (float, float) >
         :param pen: qt pen
         :type pen: :class:`pyqtgraph.QtGui.QPen`
-        :param axisOrder: axis order flag
-        :type axisOrder: :obj:`bool`
-        :param args: axis order flag
+        :param args: more params
         :type args: :obj:`dict` <:obj:`str`, `any`>
         """
-        IsocurveItem.__init__(self, points, 0, pen, axisOrder)
+        IsocurveItem.__init__(self, points, 0, pen, None, **args)
 
     def generatePath(self):
         """ generate QPainterPath
@@ -161,10 +159,10 @@ class RegionItem(IsocurveItem):
             return
 
         self.path = _pg.QtGui.QPainterPath()
-        line = self.data
-        self.path.moveTo(*line[0])
-        for p in line[1:]:
-            self.path.lineTo(*p)
+        for line in self.data:
+            self.path.moveTo(*line[0])
+            for p in line[1:]:
+                self.path.lineTo(*p)
 
 
 class DisplayExtension(QtCore.QObject):
@@ -305,7 +303,7 @@ class ROIExtension(DisplayExtension):
         self.__roitext.append(text)
         self._mainwidget.viewbox().addItem(self.__roi[0])
         self.__roi[0].hide()
-        self.setROIsColors()
+        self.setColors()
 
         self.__roiregionmapper.mapped.connect(self.changeROIRegion)
         self.__currentroimapper.mapped.connect(self._emitROICoordsChanged)
@@ -362,7 +360,7 @@ class ROIExtension(DisplayExtension):
         self._mainwidget.viewbox().addItem(self.__roi[-1])
 
         self.__coords.append(coords)
-        self.setROIsColors()
+        self.setColors()
 
     def __removeROI(self):
         """ removes the last roi
@@ -573,8 +571,8 @@ class ROIExtension(DisplayExtension):
             self.__removeROI()
         self.__showROIs(self._enabled)
 
-    def setROIsColors(self, colors=None):
-        """ sets statistics without scaling flag
+    def setColors(self, colors=None):
+        """ sets colors
 
         :param colors: json list of roi colors
         :type colors: :obj:`str`
@@ -1158,10 +1156,12 @@ class RegionsExtension(DisplayExtension):
         self.__current = 0
         #: (:obj:`list` < [int, int, int, int] > )
         #: x1,y1,x2,y2 regions coordinates
-        self.__points = [[(0, 0)]]
+        self.__points = [[[(0, 0)]]]
         #: (:obj:`list` < (int, int, int) > ) list with region colors
         self.__colors = []
 
+        #: ( (:obj:`int`, :obj:`int', :obj:`int`)) default pen color
+        self.__defpen = (0, 255, 127)
         #: (:obj:`list` <:class:`pyqtgraph.graphicsItems.TextItem`>)
         #:            list of region widgets
         self.__regiontext = []
@@ -1173,8 +1173,16 @@ class RegionsExtension(DisplayExtension):
         # text = _pg.TextItem("1.", anchor=(1, 1))
         # text.setParentItem(self.__region[0])
         # self.__regiontext.append(text)
+        # clr = '#00ff7f'
+        # if hasattr(self.__regiontext[0], "setColor"):
+        #     self.__regiontext[0].setColor(clr)
+        # else:
+        #     self.__regiontext[0].color = _pg.functions.mkColor(clr)
+        #     self.__regiontext[0].textItem.setDefaultTextColor(
+        #         self.__regiontext[it].color)
         self._mainwidget.viewbox().addItem(self.__region[0])
         self.__region[0].hide()
+        self.setColors()
 
     def show(self, parameters):
         """ set subwidget properties
@@ -1194,7 +1202,7 @@ class RegionsExtension(DisplayExtension):
         """
         return "intensity"
 
-    def __addRegion(self, points=None):
+    def __addRegion(self, points=None, rid=0):
         """ adds Regions
 
         :param points: region coordinates
@@ -1202,19 +1210,21 @@ class RegionsExtension(DisplayExtension):
                  < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
         """
         if not points or not isinstance(points, list):
-            points = [0, 0]
+            points = [[0, 0]]
 
         if self._mainwidget.transformations()[0]:
-            points = [(pt[1], pt[0]) for pt in points]
+            points = [[(p[1], p[0]) for p in pt] for pt in points]
+        clr = tuple(self.__colors[rid % len(self.__colors)]) \
+            if self.__colors else self.__defpen
         self.__region.append(
-            RegionItem(points, pen=_pg.mkPen('#00ff7f', width=2)))
+            RegionItem(points, pen=_pg.mkPen(clr, width=2)))
         # text = _pg.TextItem("%s." % len(self.__region), anchor=(1, 1))
         # text.setParentItem(self.__region[-1])
         # self.__regiontext.append(text)
         self._mainwidget.viewbox().addItem(self.__region[-1])
 
         self.__points.append(points)
-        # self.setREGIONsColors()
+        # self.setColors()
 
     def __removeRegion(self):
         """ removes the last region
@@ -1262,7 +1272,7 @@ class RegionsExtension(DisplayExtension):
                 if i < len(points):
                     self.__points[i] = points[i]
                     if self._mainwidget.transformations()[0]:
-                        pnts = [(pt[1], pt[0]) for pt in points[i]]
+                        pnts = [[(p[1], p[0]) for p in pt] for pt in points[i]]
                     else:
                         pnts = points[i]
                     crd.setData(pnts)
@@ -1273,8 +1283,8 @@ class RegionsExtension(DisplayExtension):
         :param rid: rng id
         :type rid: :obj:`int`
         :param points: rng coordinates
-        :type points: :obj:`list`
-                 < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        :type points: :obj:`list` <  :obj:`list` <  :obj:`list`
+                  < (:obj:`float`, :obj:`float`) > > >
         """
         if rid is None:
             if points is None:
@@ -1283,9 +1293,10 @@ class RegionsExtension(DisplayExtension):
         self.__addRegionPoints(points)
         while rid > len(self.__region):
             if points and len(points) >= len(self.__region):
-                self.__addRegion(points[len(self.__region)])
+                self.__addRegion(points[len(self.__region)],
+                                 rid=len(self.__region))
             else:
-                self.__addRegion()
+                self.__addRegion(rid=len(self.__region))
         if rid <= 0:
             self.__current = -1
         elif self.__current >= rid:
@@ -1294,12 +1305,50 @@ class RegionsExtension(DisplayExtension):
             self.__removeRegion()
         self.__showRegions(self._enabled)
 
+    def setColors(self, colors=None):
+        """ sets colors
+
+        :param colors: json list of roi colors
+        :type colors: :obj:`str`
+        :returns: change status
+        :rtype: :obj:`bool`
+        """
+        force = False
+        if colors is not None:
+            colors = json.loads(colors)
+            if not isinstance(colors, list):
+                return False
+            for cl in colors:
+                if not isinstance(cl, list):
+                    return False
+                if len(cl) != 3:
+                    return False
+                for clit in cl:
+                    if not isinstance(clit, int):
+                        return False
+        else:
+            colors = self.__colors
+            force = True
+        if self.__colors != colors or force:
+            self.__colors = colors
+            for it, rg in enumerate(self.__region):
+                clr = tuple(colors[it % len(colors)]) if colors \
+                    else self.__defpen
+                rg.setPen(_pg.mkPen(clr, width=2))
+                # if hasattr(self.__regiontext[it], "setColor"):
+                #     self.__regiontext[it].setColor(clr)
+                # else:
+                #     self.__regiontext[it].color = _pg.functions.mkColor(clr)
+                #     self.__regiontext[it].textItem.setDefaultTextColor(
+                #         self.__regiontext[it].color)
+        return True
+
     def regionPoints(self):
         """ provides region coordinates
 
         :return: region coordinates
-        :rtype: :obj:`list`
-               < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
+        :rtype: :obj:`list` <  :obj:`list` <  :obj:`list`
+                  < (:obj:`float`, :obj:`float`) > > >
         """
         return self.__points
 
@@ -1325,7 +1374,8 @@ class RegionsExtension(DisplayExtension):
         for i, crd in enumerate(self.__region):
             if i < len(self.__points):
                 if self._mainwidget.transformations()[0]:
-                    pnts = [(pt[1], pt[0]) for pt in self.__points[i]]
+                    pnts = [[(p[1], p[0]) for p in pt]
+                            for pt in self.__points[i]]
                 else:
                     pnts = self.__points[i]
                 crd.setData(pnts)
