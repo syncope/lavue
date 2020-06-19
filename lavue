@@ -231,8 +231,8 @@ def main():
         help="connect the image source")
     parser.add_argument(
         "-u", "--tool", dest="tool",
-        help="utility tool, i.e. intensity, roi, movemotors, meshscan,\n"
-        "  linecut, projections, 1d-plot, angle/q, q+roi+proj"
+        help="utility tool, i.e. intensity, roi, movemotors, meshscan, parameters,\n"
+        "  linecut, projections, 1d-plot, angle/q, q+roi+proj, maxima, diffractogram"
     )
     parser.add_argument(
         "-a", "--tango-device", dest="tangodevice",

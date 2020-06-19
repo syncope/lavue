@@ -95,6 +95,7 @@ install_requires = [
     # 'hidra',
     # 'pninexus',
     # 'nxstools',
+    # 'pyFAI',
 ]
 
 

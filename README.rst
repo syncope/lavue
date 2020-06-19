@@ -98,9 +98,20 @@ To install it from pip you need to install pyqt5 in advance, e.g.
 
    $ python3 -m venv myvenv
    $ . myvenv/bin/activate
-   
+
    $ pip install pyqt5
-   
+
+or
+
+.. code-block:: console
+
+   $ pip install PyQt5==5.14
+
+and then
+
+.. code-block:: console
+
+
    $ pip install lavue
 
 Moreover it is also good to install the following python packages:
@@ -109,6 +120,7 @@ Moreover it is also good to install the following python packages:
 
    $ pip install fabio
    $ pip install pillow
+   $ pip install pyFAI
    $ pip install lavuefilters
    $ pip install pytango
 
