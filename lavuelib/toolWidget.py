@@ -3784,7 +3784,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         yml = []
         iml = []
         eml = []
-        
+
         it = 0
         while (t > 0).any() and it < nr:
             im = np.argmax(t)
@@ -3793,7 +3793,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
             xml.append(x[im])
             yml.append(tm)
             er = max(x[im] - x[max(im - 1, 0)],
-                     x[min(im + 1, len(x) - 1)] - x[im]) 
+                     x[min(im + 1, len(x) - 1)] - x[im])
+            eml.append(er)
             it += 1
             print("%s. found %s (%s +- %s, %s)" % (it, im, x[im], er, tm))
 
@@ -3810,7 +3811,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
             # print("cut: [%s: %s]" %  (ib, ie))
             t[ib:(ie + 1)] = 0
             # print(t)
-        
+
     def __findpeaks2(self, x, y, nr=20):
         f = scipy.interpolate.InterpolatedUnivariateSpline(x, y, k=4)
         xml = f.derivative().roots()
