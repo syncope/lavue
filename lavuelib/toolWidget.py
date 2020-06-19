@@ -3763,6 +3763,10 @@ class DiffractogramToolWidget(ToolBaseWidget):
                                         / 2
                                         for r in x]
                             self.__curves[i].setData(x=x, y=y)
+                            import time
+                            t1 = time.time()
+                            self.__findpeaks2(x, y, 50)
+                            print("CHECK %s" % (time.time() - t1))
                         except Exception as e:
                             # print(str(e))
                             logger.warning(str(e))
@@ -3773,6 +3777,50 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 else:
                     for i in range(nrplots):
                         self.__curves[i].setVisible(False)
+
+    def __findpeaks(self, x, y, nr=20):
+        t = np.array(y)
+        xml = []
+        yml = []
+        iml = []
+        eml = []
+        
+        it = 0
+        while (t > 0).any() and it < nr:
+            im = np.argmax(t)
+            tm = t[im]
+            iml.append(im)
+            xml.append(x[im])
+            yml.append(tm)
+            er = max(x[im] - x[max(im - 1, 0)],
+                     x[min(im + 1, len(x) - 1)] - x[im]) 
+            it += 1
+            print("%s. found %s (%s +- %s, %s)" % (it, im, x[im], er, tm))
+
+            i1 = im
+            while i1 and t[i1 - 1] < t[i1]:
+                i1 -= 1
+            ib = i1
+
+            i1 = im
+            while i1 + 1 < len(t) and t[i1 + 1] < t[i1]:
+                i1 += 1
+            ie = i1
+            # print(t)
+            # print("cut: [%s: %s]" %  (ib, ie))
+            t[ib:(ie + 1)] = 0
+            # print(t)
+        
+    def __findpeaks2(self, x, y, nr=20):
+        f = scipy.interpolate.InterpolatedUnivariateSpline(x, y, k=4)
+        xml = f.derivative().roots()
+        yml = f(xml)
+        er = max([(x[i+1] - x[i]) for i in range(len(x) - 1)])
+        iml = np.argpartition(yml, -nr)[-nr:]
+        iml = iml[np.argsort(-yml[iml])]
+        print(xml[iml])
+        print(yml[iml])
+        print(er)
 
     @QtCore.pyqtSlot()
     def _setPolarRange(self):
