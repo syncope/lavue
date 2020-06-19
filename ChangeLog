@@ -1,3 +1,8 @@
+2020-06-19 Jan Kotanski <jan.kotanski@desy.de>
+	* update widgets in the config dialog
+	* add diffractogram to command line tools
+	* tagged as 2.42.3
+
 2020-06-18 Jan Kotanski <jan.kotanski@desy.de>
 	* set maximal radial range
 	* tagged as 2.42.2
