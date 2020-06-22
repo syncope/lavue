@@ -232,6 +232,8 @@ class Settings(object):
         self.singlerois = False
         #: (:obj:`bool`) send rois to LavueController flag
         self.sendrois = False
+        #: (:obj:`bool`) send results to LavueController flag
+        self.sendresults = False
         #: (:obj:`dict` < :obj:`str`, :obj:`dict` < :obj:`str`,`any`> >
         #                custom gradients
         self.__customgradients = {}
@@ -420,6 +422,9 @@ class Settings(object):
         qstval = str(settings.value("Configuration/SendROIs", type=str))
         if qstval.lower() == "true":
             self.sendrois = True
+        qstval = str(settings.value("Configuration/SendToolResults", type=str))
+        if qstval.lower() == "true":
+            self.sendresults = True
         qstval = str(settings.value("Configuration/ShowAllROIs", type=str))
         if qstval.lower() == "true":
             self.showallrois = True
@@ -932,6 +937,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/SendROIs",
             self.sendrois)
+        settings.setValue(
+            "Configuration/SendToolResults",
+            self.sendresults)
         settings.setValue(
             "Configuration/SingleROIAliases",
             self.singlerois)
