@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>908</width>
-    <height>773</height>
+    <width>1067</width>
+    <height>693</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -158,6 +158,161 @@
                </layout>
               </widget>
              </item>
+             <item>
+              <widget class="QGroupBox" name="groupBox_3">
+               <property name="title">
+                <string>Statistics and 1d plots</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_8">
+                <item row="0" column="0">
+                 <layout class="QGridLayout" name="gridLayout_5">
+                  <item row="0" column="1">
+                   <widget class="QCheckBox" name="statsscaleCheckBox">
+                    <property name="toolTip">
+                     <string>statistics values 1d-plots with scaling</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="statsscaleLabel">
+                    <property name="toolTip">
+                     <string>statistics values 1d-plots with scaling</string>
+                    </property>
+                    <property name="text">
+                     <string>Intensity scaling:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>statsscaleCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QCheckBox" name="calcvarianceCheckBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;calculate and show intensity variance of image pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="calcvarianceLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;calculate and show intensity variance of image pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Calculate &amp;variance:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>calcvarianceCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="secGroupBox">
+               <property name="title">
+                <string>ZMQ security stream</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_4">
+                <item row="0" column="0">
+                 <layout class="QGridLayout" name="secGridLayout">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="secstreamLabel">
+                    <property name="toolTip">
+                     <string>send the zmq security stream with the main image parameters</string>
+                    </property>
+                    <property name="text">
+                     <string>Ena&amp;bled:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>secstreamCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QCheckBox" name="secstreamCheckBox">
+                    <property name="toolTip">
+                     <string>send the zmq security stream with the main image parameters</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="secautoportLabel">
+                    <property name="toolTip">
+                     <string>select port automatically for the zmq security stream</string>
+                    </property>
+                    <property name="text">
+                     <string>Automatic port:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>secautoportCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QCheckBox" name="secautoportCheckBox">
+                    <property name="toolTip">
+                     <string>select port automatically for the zmq security stream</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="secportlLabel">
+                    <property name="toolTip">
+                     <string>port for the zmq security stream</string>
+                    </property>
+                    <property name="text">
+                     <string>Port:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>secportLineEdit</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QLineEdit" name="secportLineEdit">
+                    <property name="toolTip">
+                     <string>port for the zmq security stream</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_5">
              <item>
               <widget class="QGroupBox" name="imageGroupBox">
                <property name="title">
@@ -561,7 +716,7 @@
               </widget>
              </item>
              <item>
-              <spacer name="verticalSpacer">
+              <spacer name="verticalSpacer_5">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
@@ -577,144 +732,6 @@
            </item>
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_2">
-             <item>
-              <widget class="QGroupBox" name="groupBox_3">
-               <property name="title">
-                <string>Statistics and 1d plots</string>
-               </property>
-               <layout class="QGridLayout" name="gridLayout_8">
-                <item row="0" column="0">
-                 <layout class="QGridLayout" name="gridLayout_5">
-                  <item row="0" column="1">
-                   <widget class="QCheckBox" name="statsscaleCheckBox">
-                    <property name="toolTip">
-                     <string>statistics values 1d-plots with scaling</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="statsscaleLabel">
-                    <property name="toolTip">
-                     <string>statistics values 1d-plots with scaling</string>
-                    </property>
-                    <property name="text">
-                     <string>Intensity scaling:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>statsscaleCheckBox</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QCheckBox" name="calcvarianceCheckBox">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;calculate and show intensity variance of image pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="calcvarianceLabel">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;calculate and show intensity variance of image pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Calculate variance:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>calcvarianceCheckBox</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item>
-              <widget class="QGroupBox" name="secGroupBox">
-               <property name="title">
-                <string>ZMQ security stream</string>
-               </property>
-               <layout class="QGridLayout" name="gridLayout_4">
-                <item row="0" column="0">
-                 <layout class="QGridLayout" name="secGridLayout">
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="secstreamLabel">
-                    <property name="toolTip">
-                     <string>send the zmq security stream with the main image parameters</string>
-                    </property>
-                    <property name="text">
-                     <string>Enabled:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>secstreamCheckBox</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QCheckBox" name="secstreamCheckBox">
-                    <property name="toolTip">
-                     <string>send the zmq security stream with the main image parameters</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="secautoportLabel">
-                    <property name="toolTip">
-                     <string>select port automatically for the zmq security stream</string>
-                    </property>
-                    <property name="text">
-                     <string>Automatic port:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>secautoportCheckBox</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QCheckBox" name="secautoportCheckBox">
-                    <property name="toolTip">
-                     <string>select port automatically for the zmq security stream</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="secportlLabel">
-                    <property name="toolTip">
-                     <string>port for the zmq security stream</string>
-                    </property>
-                    <property name="text">
-                     <string>Port:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>secportLineEdit</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QLineEdit" name="secportLineEdit">
-                    <property name="toolTip">
-                     <string>port for the zmq security stream</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-               </layout>
-              </widget>
-             </item>
              <item>
               <widget class="QGroupBox" name="toolsGroupBox">
                <property name="title">
@@ -769,7 +786,7 @@
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Minimum refresh time for display extensions, i.e. crosshairs or positioner&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
-                     <string>Display extension refresh time in s:</string>
+                     <string>Display e&amp;xtension refresh time in s:</string>
                     </property>
                     <property name="buddy">
                      <cstring>toolrefreshtimeDoubleSpinBox</cstring>
@@ -978,7 +995,7 @@
                      <string>add ROI aliases to the Active Measurement Group</string>
                     </property>
                     <property name="text">
-                     <string>Add ROIs to MG:</string>
+                     <string>Add ROIs to &amp;MG:</string>
                     </property>
                     <property name="buddy">
                      <cstring>addroisCheckBox</cstring>
@@ -2001,12 +2018,17 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>interruptCheckBox</tabstop>
   <tabstop>sourcedisplayCheckBox</tabstop>
   <tabstop>timeoutLineEdit</tabstop>
+  <tabstop>statsscaleCheckBox</tabstop>
+  <tabstop>calcvarianceCheckBox</tabstop>
+  <tabstop>secstreamCheckBox</tabstop>
+  <tabstop>secautoportCheckBox</tabstop>
+  <tabstop>secportLineEdit</tabstop>
   <tabstop>mbufsizeLineEdit</tabstop>
   <tabstop>nanmaskCheckBox</tabstop>
   <tabstop>zeromaskCheckBox</tabstop>
   <tabstop>keepCoordsCheckBox</tabstop>
-  <tabstop>aspectlockedCheckBox</tabstop>
   <tabstop>lazyimageCheckBox</tabstop>
+  <tabstop>aspectlockedCheckBox</tabstop>
   <tabstop>downsampleCheckBox</tabstop>
   <tabstop>floatComboBox</tabstop>
   <tabstop>plusroiPushButton</tabstop>
@@ -2014,11 +2036,6 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>showallroisCheckBox</tabstop>
   <tabstop>sendroisCheckBox</tabstop>
   <tabstop>singleroisCheckBox</tabstop>
-  <tabstop>statsscaleCheckBox</tabstop>
-  <tabstop>calcvarianceCheckBox</tabstop>
-  <tabstop>secstreamCheckBox</tabstop>
-  <tabstop>secautoportCheckBox</tabstop>
-  <tabstop>secportLineEdit</tabstop>
   <tabstop>storegeometryCheckBox</tabstop>
   <tabstop>fetchgeometryCheckBox</tabstop>
   <tabstop>toolrefreshtimeDoubleSpinBox</tabstop>

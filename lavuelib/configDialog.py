@@ -344,6 +344,8 @@ class ConfigDialog(QtGui.QDialog):
         self.showallrois = False
         #: (:obj:`bool`) send rois to LavueController flag
         self.sendrois = False
+        #: (:obj:`bool`) send results to LavueController flag
+        self.sendresults = False
         #: (:obj:`bool`) set roi1, roi2, roi3, ... when alias names are missing
         self.singlerois = False
         #: (:obj:`int`) number of points for diffractogram
@@ -466,6 +468,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.storegeometryCheckBox.setChecked(self.storegeometry)
         self.__ui.fetchgeometryCheckBox.setChecked(self.geometryfromsource)
         self.__ui.sendroisCheckBox.setChecked(self.sendrois)
+        self.__ui.sendresultsCheckBox.setChecked(self.sendresults)
         self.__ui.singleroisCheckBox.setChecked(self.singlerois)
         self.__ui.showallroisCheckBox.setChecked(self.showallrois)
         self.__ui.sourcedisplayCheckBox.setChecked(self.sourcedisplay)
@@ -767,6 +770,7 @@ class ConfigDialog(QtGui.QDialog):
         self.storegeometry = self.__ui.storegeometryCheckBox.isChecked()
         self.geometryfromsource = self.__ui.fetchgeometryCheckBox.isChecked()
         self.sendrois = self.__ui.sendroisCheckBox.isChecked()
+        self.sendresults = self.__ui.sendresultsCheckBox.isChecked()
         self.singlerois = self.__ui.singleroisCheckBox.isChecked()
         self.showallrois = self.__ui.showallroisCheckBox.isChecked()
         self.sourcedisplay = self.__ui.sourcedisplayCheckBox.isChecked()

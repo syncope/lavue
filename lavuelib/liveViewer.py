@@ -1971,6 +1971,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.nxslast = self.__settings.nxslast
         cnfdlg.nxsopen = self.__settings.nxsopen
         cnfdlg.sendrois = self.__settings.sendrois
+        cnfdlg.sendresults = self.__settings.sendresults
         cnfdlg.singlerois = self.__settings.singlerois
         cnfdlg.showallrois = self.__settings.showallrois
         cnfdlg.storegeometry = self.__settings.storegeometry
@@ -2217,6 +2218,8 @@ class LiveViewer(QtGui.QDialog):
             setsrc = True
         if self.__settings.sendrois != dialog.sendrois:
             self.__settings.sendrois = dialog.sendrois
+        if self.__settings.sendresults != dialog.sendresults:
+            self.__settings.sendresults = dialog.sendresults
         if self.__settings.singlerois != dialog.singlerois:
             self.__settings.singlerois = dialog.singlerois
         if self.__settings.showallrois != dialog.showallrois:

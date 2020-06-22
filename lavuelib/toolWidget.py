@@ -3151,7 +3151,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.__unitindex = 0
         #: (:obj:`list` <:obj:`str`>) list of units
         self.__units = ["q_nm^-1", "q_A^-1", "2th_deg",
-                        "2th_rad", "r_mm", "r_mm"]
+                        "2th_rad", "r_mm", "r_pixel"]
 
         #: (:class:`Ui_ROIToolWidget') ui_toolwidget object from qtdesigner
         self.__ui = _diffractogramformclass()
@@ -3674,6 +3674,12 @@ class DiffractogramToolWidget(ToolBaseWidget):
 
         if self.__ai is not None:
             if self._mainwidget.currentTool() == self.name:
+                if self.__settings.sendresults:
+                    pxl = []
+                    pyl = []
+                    pel = []
+                    xl = []
+                    yl = []
                 nrplots = self.__ui.diffSpinBox.value()
                 if self.__nrplots != nrplots:
                     while nrplots > len(self.__curves):
@@ -3699,7 +3705,11 @@ class DiffractogramToolWidget(ToolBaseWidget):
                     trans = self._mainwidget.transformations()[0]
                     csa = self.__settings.correctsolidangle
                     unit = self.__units[self.__unitindex]
-                    # print(unit)
+                    if self.__unitindex in [5]:
+                        unit = "r_mm"
+                    else:
+                        unit = self.__units[self.__unitindex]
+                        # print(unit)
                     dts = dts if trans else dts.T
                     mask = None
                     if dts.dtype.kind == 'f' and np.isnan(dts.min()):
@@ -3763,10 +3773,13 @@ class DiffractogramToolWidget(ToolBaseWidget):
                                         / 2
                                         for r in x]
                             self.__curves[i].setData(x=x, y=y)
-                            import time
-                            t1 = time.time()
-                            self.__findpeaks2(x, y, 50)
-                            print("CHECK %s" % (time.time() - t1))
+                            if self.__settings.sendresults:
+                                xl.append([float(e) for e in x])
+                                yl.append([float(e) for e in y])
+                                px, py, pe = self.__findpeaks2(x, y)
+                                pxl.append([float(e) for e in px])
+                                pyl.append([float(e) for e in py])
+                                pel.append(float(pe))
                         except Exception as e:
                             # print(str(e))
                             logger.warning(str(e))
@@ -3777,8 +3790,48 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 else:
                     for i in range(nrplots):
                         self.__curves[i].setVisible(False)
+                if self.__settings.sendresults:
+                    self.__sendresults(xl, yl, pxl, pyl, pel)
+
+    def __sendresults(self, xl, yl, pxl=None, pyl=None, pel=None):
+        """ send results to LavueController
+
+        :param xl:  list of x's for each diffractogram
+        :type xl: :obj:`list` < :obj:`list` <float>>
+        :param yl:  list of values for each diffractogram
+        :type yl: :obj:`list` < :obj:`list` <float>>
+        :param pxl:  list of peak x's for each diffractogram
+        :type pxl: :obj:`list` < :obj:`list` <float>>
+        :param pyl:  list of peak values for each diffractogram
+        :type pyl: :obj:`list` < :obj:`list` <float>>
+        :param pel:  peak x's errors for each diffractogram
+        :type pel:  :obj:`list` <float>
+        """
+        results = {"tool": self.name}
+        npl = len(xl)
+        results["nrdiffs"] = len(xl)
+        for i in range(npl):
+            results["diff_%s" % (i + 1)] = [xl[i], yl[i]]
+            if pxl is not None and pyl is not None:
+                results["peaks_%s" % (i + 1)] = [pxl[i], pyl[i]]
+                if pel is not None:
+                    results["peaks_%s_error" % (i + 1)] = pel[i]
+        results["unit"] = self.__units[self.__unitindex]
+        self._mainwidget.writeAttribute(
+            "ToolResults", json.dumps(results))
 
     def __findpeaks(self, x, y, nr=20):
+        """ find peaks from diffractogram
+
+        :param x:  x of diffractogram
+        :type x:  :obj:`list` <float>>
+        :param y:  values of diffractogram
+        :type y:  :obj:`list` <float>>
+        :param nr:  list of peak x's for each diffractogram
+        :type nr: :obj:`int`
+        :returns: (peak_xs, peak_values, x_error)
+        :rtype: (:obj:`list` <float>, :obj:`list` <float>, :obj:`float`)
+        """
         t = np.array(y)
         xml = []
         yml = []
@@ -3796,7 +3849,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                      x[min(im + 1, len(x) - 1)] - x[im])
             eml.append(er)
             it += 1
-            print("%s. found %s (%s +- %s, %s)" % (it, im, x[im], er, tm))
+            # print("%s. found %s (%s +- %s, %s)" % (it, im, x[im], er, tm))
 
             i1 = im
             while i1 and t[i1 - 1] < t[i1]:
@@ -3811,8 +3864,22 @@ class DiffractogramToolWidget(ToolBaseWidget):
             # print("cut: [%s: %s]" %  (ib, ie))
             t[ib:(ie + 1)] = 0
             # print(t)
+        return ([float(e) for e in xml],
+                [float(e) for e in yml],
+                max(eml))
 
     def __findpeaks2(self, x, y, nr=20):
+        """ find peaks from diffractogram with scipy
+
+        :param x:  x of diffractogram
+        :type x:  :obj:`list` <float>>
+        :param y:  values of diffractogram
+        :type y:  :obj:`list` <float>>
+        :param nr:  list of peak x's for each diffractogram
+        :type nr: :obj:`int`
+        :returns: (peak_xs, peak_values, x_error)
+        :rtype: (:obj:`list` <float>, :obj:`list` <float>, :obj:`float`)
+        """
         f = scipy.interpolate.InterpolatedUnivariateSpline(x, y, k=4)
         xml = f.derivative().roots()
         yml = f(xml)
@@ -3821,7 +3888,10 @@ class DiffractogramToolWidget(ToolBaseWidget):
         iml = iml[np.argsort(-yml[iml])]
         print(xml[iml])
         print(yml[iml])
-        print(er)
+        iml = iml[:nr]
+        return ([float(e) for e in xml[iml]],
+                [float(e) for e in yml[iml]],
+                er)
 
     @QtCore.pyqtSlot()
     def _setPolarRange(self):

@@ -643,6 +643,16 @@ class LavueControllerClass(PyTango.DeviceClass):
                  'Display level': PyTango.DispLevel.EXPERT,
                  'Memorized': "true"
              }],
+        'ToolResults':
+            [[PyTango.DevString,
+              PyTango.SCALAR,
+              PyTango.READ_WRITE],
+             {
+                 'label': "tool results",
+                 'description': "json dictionary with tool results",
+                 'Display level': PyTango.DispLevel.EXPERT,
+                 'Memorized': "false"
+             }],
         'DetectorROIsValues':
             [[PyTango.DevString,
               PyTango.SCALAR,
