@@ -3889,8 +3889,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
         er = max([(x[i+1] - x[i]) for i in range(len(x) - 1)])
         iml = np.argpartition(yml, -nr)[-nr:]
         iml = iml[np.argsort(-yml[iml])]
-        print(xml[iml])
-        print(yml[iml])
         iml = iml[:nr]
         return ([float(e) for e in xml[iml]],
                 [float(e) for e in yml[iml]],
