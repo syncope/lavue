@@ -7499,6 +7499,19 @@ image object
 .UNINDENT
 .INDENT 7.0
 .TP
+.B imageName()
+provide the current image name
+.INDENT 7.0
+.TP
+.B Returns
+image name
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B imagePlotted
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) image plotted signal
 .UNINDENT
@@ -7634,7 +7647,7 @@ creates 1d right plot
 .UNINDENT
 .INDENT 7.0
 .TP
-.B plot(array, rawarray=None)
+.B plot(array, rawarray=None, imagename=None)
 plots the image
 .INDENT 7.0
 .TP
@@ -7644,6 +7657,8 @@ plots the image
 \fBarray\fP (\fI\%numpy.ndarray\fP) – 2d image array
 .IP \(bu 2
 \fBrawarray\fP (\fI\%numpy.ndarray\fP) – 2d raw image array
+.IP \(bu 2
+\fBimagename\fP (\fI\%str\fP) – image name
 .UNINDENT
 .UNINDENT
 .UNINDENT
