@@ -3808,7 +3808,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :param pel:  peak x's errors for each diffractogram
         :type pel:  :obj:`list` <float>
         """
-        results = {"tool": self.name}
+        results = {"tool": self.alias}
         npl = len(xl)
         results["imagename"] = self._mainwidget.imageName()
         results["timestamp"] = time.time()
