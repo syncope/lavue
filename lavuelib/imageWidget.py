@@ -169,6 +169,8 @@ class ImageWidget(QtGui.QWidget):
         self.__maskvalueindices = None
         #: (:obj:`float`) file name
         self.__maskvalue = None
+        #: (:obj:`str`) image name
+        self.__imagename = None
 
         #: ( ( :obj:`bool`, :obj:`bool`,:obj:`bool`) )
         #        selected (transpose, leftright-flip, updown-flip )
@@ -806,13 +808,15 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__displaywidget.transformations()
 
-    def plot(self, array, rawarray=None):
+    def plot(self, array, rawarray=None, imagename=None):
         """ plots the image
 
         :param array: 2d image array
         :type array: :class:`numpy.ndarray`
         :param rawarray: 2d raw image array
         :type rawarray: :class:`numpy.ndarray`
+        :param imagename: image name
+        :type imagename: :obj:`str`
         """
         if array is None:
             return
@@ -821,6 +825,7 @@ class ImageWidget(QtGui.QWidget):
         barrays = None
         self.__data = array
         self.__rawdata = rawarray
+        self.__imagename = imagename
         if self.__currenttool:
             barrays = self.__currenttool.beforeplot(array, rawarray)
         self.__displaywidget.updateImage(
@@ -1939,6 +1944,14 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :obj:`bool`
         """
         return self.__displaywidget.rangeWindowEnabled()
+
+    def imageName(self):
+        """ provide the current image name
+
+        :returns: image name
+        :rtype: :obj:`str`
+        """
+        return self.__imagename
 
     def rangeWindowScale(self):
         """ provide info range window scale

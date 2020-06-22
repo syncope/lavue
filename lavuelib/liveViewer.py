@@ -2515,7 +2515,9 @@ class LiveViewer(QtGui.QDialog):
             self.__imagewg.plot(
                 self.__scaledimage,
                 self.__displayimage
-                if self.__settings.statswoscaling else self.__scaledimage)
+                if self.__settings.statswoscaling else self.__scaledimage,
+                self.__imagename
+            )
             if self.__settings.showhisto and self.__updatehisto:
                 self.__levelswg.updateHistoImage()
                 self.__updatehisto = False

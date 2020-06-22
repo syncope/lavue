@@ -32,6 +32,7 @@ import os
 import re
 import math
 import sys
+import time
 import numpy as np
 import scipy.optimize
 import scipy.interpolate
@@ -3809,6 +3810,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
         """
         results = {"tool": self.name}
         npl = len(xl)
+        results["imagename"] = self._mainwidget.imageName()
+        results["timestamp"] = time.time()
         results["nrdiffs"] = len(xl)
         for i in range(npl):
             results["diff_%s" % (i + 1)] = [xl[i], yl[i]]
