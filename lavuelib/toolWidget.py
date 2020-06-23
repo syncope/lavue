@@ -1727,6 +1727,9 @@ class LineCutToolWidget(ToolBaseWidget):
         """
 
         if self._mainwidget.currentTool() == self.name:
+            if self.__settings.sendresults:
+                xl = []
+                yl = []
             nrplots = self.__ui.cutSpinBox.value()
             if self.__nrplots != nrplots:
                 while nrplots > len(self.__curves):
@@ -1758,15 +1761,27 @@ class LineCutToolWidget(ToolBaseWidget):
                         else:
                             dx = np.linspace(crds[0], crds[2], len(dt))
                         self.__curves[i].setData(x=dx, y=dt)
+                        if self.__settings.sendresults:
+                            xl.append([float(e) for e in dx])
+                            yl.append([float(e) for e in dt])
                     else:
                         if rws > 1.0:
                             dx = np.linspace(0, len(dt - 1) * rws, len(dt))
                             self.__curves[i].setData(x=dx, y=dt)
+                            if self.__settings.sendresults:
+                                xl.append([float(e) for e in dx])
+                                yl.append([float(e) for e in dt])
                         else:
                             self.__curves[i].setData(y=dt)
+                            if self.__settings.sendresults:
+                                xl.append(list(range(len(dt))))
+                                yl.append([float(e) for e in dt])
+
                     self.__curves[i].setVisible(True)
                 else:
                     self.__curves[i].setVisible(False)
+            if self.__settings.sendresults:
+                self.__sendresults(xl, yl)
 
     def _plotCut(self):
         """ plot the current 1d Cut
@@ -1777,6 +1792,9 @@ class LineCutToolWidget(ToolBaseWidget):
                 self.__curves[i].hide()
             self.__nrplots = 1
         if self._mainwidget.currentTool() == self.name:
+            if self.__settings.sendresults:
+                xl = []
+                yl = []
             dt = self._mainwidget.cutData()
             self.__curves[0].setPen(_pg.mkColor('r'))
             if dt is not None:
@@ -1793,16 +1811,52 @@ class LineCutToolWidget(ToolBaseWidget):
                     else:
                         dx = np.linspace(crds[0], crds[2], len(dt))
                     self.__curves[0].setData(x=dx, y=dt)
+                    if self.__settings.sendresults:
+                        xl.append([float(e) for e in dx])
+                        yl.append([float(e) for e in dt])
                 else:
                     rws = self._mainwidget.rangeWindowScale()
                     if rws > 1.0:
                         dx = np.linspace(0, len(dt - 1) * rws, len(dt))
                         self.__curves[0].setData(x=dx, y=dt)
+                        if self.__settings.sendresults:
+                            xl.append([float(e) for e in dx])
+                            yl.append([float(e) for e in dt])
                     else:
                         self.__curves[0].setData(y=dt)
+                        if self.__settings.sendresults:
+                            xl.append(list(range(len(dt))))
+                            yl.append([float(e) for e in dt])
                 self.__curves[0].setVisible(True)
             else:
                 self.__curves[0].setVisible(False)
+            if self.__settings.sendresults:
+                self.__sendresults(xl, yl)
+
+    def __sendresults(self, xl, yl):
+        """ send results to LavueController
+
+        :param xl:  list of x's for each diffractogram
+        :type xl: :obj:`list` < :obj:`list` <float>>
+        :param yl:  list of values for each diffractogram
+        :type yl: :obj:`list` < :obj:`list` <float>>
+        :param pxl:  list of peak x's for each diffractogram
+        :type pxl: :obj:`list` < :obj:`list` <float>>
+        :param pyl:  list of peak values for each diffractogram
+        :type pyl: :obj:`list` < :obj:`list` <float>>
+        :param pel:  peak x's errors for each diffractogram
+        :type pel:  :obj:`list` <float>
+        """
+        results = {"tool": self.alias}
+        npl = len(xl)
+        results["imagename"] = self._mainwidget.imageName()
+        results["timestamp"] = time.time()
+        results["nrlinecuts"] = len(xl)
+        for i in range(npl):
+            results["linecut_%s" % (i + 1)] = [xl[i], yl[i]]
+        results["unit"] = ["point", "x-pixel", "y-pixel"][self.__xindex]
+        self._mainwidget.writeAttribute(
+            "ToolResults", json.dumps(results))
 
     @QtCore.pyqtSlot(int)
     def _setCutsNumber(self, cid):
