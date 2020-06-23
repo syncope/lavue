@@ -285,7 +285,7 @@ class IntensityToolWidget(ToolBaseWidget):
         self.__ui = _intensityformclass()
         self.__ui.setupUi(self)
 
-        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        #: (:class:`lavuelib.settings.Settings`) configuration settings
         self.__settings = self._mainwidget.settings()
 
         self.parameters.scale = True
@@ -735,7 +735,7 @@ class ParametersToolWidget(ToolBaseWidget):
         """
         ToolBaseWidget.__init__(self, parent)
 
-        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        #: (:class:`lavuelib.settings.Settings`) configuration settings
         self.__settings = self._mainwidget.settings()
 
         # #: (:obj:`list` <str, str, str>)
@@ -1354,7 +1354,7 @@ class ROIToolWidget(ToolBaseWidget):
         self.parameters.infotips = \
             "coordinate info display for the mouse pointer"
 
-        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        #: (:class:`lavuelib.settings.Settings`) configuration settings
         self.__settings = self._mainwidget.settings()
 
         self._updateApplyButton()
@@ -1601,7 +1601,7 @@ class LineCutToolWidget(ToolBaseWidget):
         #: (:obj:`int`) current plot number
         self.__nrplots = 0
 
-        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        #: (:class:`lavuelib.settings.Settings`) configuration settings
         self.__settings = self._mainwidget.settings()
 
         #: (:obj:`list` < [:class:`pyqtgraph.QtCore.pyqtSignal`, :obj:`str`] >)
@@ -1872,6 +1872,9 @@ class ProjectionToolWidget(ToolBaseWidget):
         #: (:obj:`slice`) selected columns
         self.__dscolumns = None
 
+        #: (:class:`lavuelib.settings.Settings`) configuration settings
+        self.__settings = self._mainwidget.settings()
+
         self.parameters.bottomplot = True
         self.parameters.rightplot = True
         self.parameters.vhbounds = True
@@ -2114,13 +2117,13 @@ class ProjectionToolWidget(ToolBaseWidget):
                         range(int(x), len(sx) * int(s1) + int(x), int(s1)))
                     yy = list(
                         range(int(y), len(sy) * int(s2) + int(y), int(s2)))
-                    width = [s1] * len(sx)
-                    height = [s1] * len(sy)
                 else:
+                    s1 = 1.0
+                    s2 = 1.0
                     xx = list(range(len(sx)))
                     yy = list(range(len(sy)))
-                    width = [1.0] * len(sx)
-                    height = [1.0] * len(sy)
+                width = [s1] * len(sx)
+                height = [s2] * len(sy)
                 self.__bottomplot.setOpts(
                     y0=[0]*len(sx), y1=sx, x=xx,
                     width=width)
@@ -2129,6 +2132,60 @@ class ProjectionToolWidget(ToolBaseWidget):
                     x0=[0]*len(sy), x1=sy, y=yy,
                     height=height)
                 self.__rightplot.drawPicture()
+                if self.__settings.sendresults:
+                    xslice = self.__dsrows
+                    yslice = self.__dscolumns
+                    if hasattr(xslice, "start"):
+                        xslice = [xslice.start, xslice.stop, xslice.step]
+                    if hasattr(yslice, "start"):
+                        yslice = [yslice.start, yslice.stop, yslice.step]
+                    self.__sendresults(
+                        xx,
+                        [float(e) for e in sx],
+                        s1, xslice,
+                        yy,
+                        [float(e) for e in sy],
+                        s2, yslice,
+                        "sum" if self.__funindex else "mean"
+                    )
+
+    def __sendresults(self, xx, sx, xscale, xslice,
+                      yy, sy, yscale, yslice, fun):
+        """ send results to LavueController
+
+        :param xx:  x's coordinates
+        :type xx:  :obj:`list` <float>
+        :param sx:  projection to x coordinate
+        :type sx:  :obj:`list` <float>
+        :param xscale:  x scale
+        :type xscale:  :obj:`float`
+        :param xslice:  x slice
+        :type xslice:  :obj:`list` <float>
+        :param yy:  y's coordinates
+        :type yy:  :obj:`list` <float>
+        :param sy:  projection to y coordinate
+        :type sy:  :obj:`list` <float>
+        :param yscale:  y scale
+        :type yscale:  :obj:`float`
+        :param yslice:  y slice
+        :type yslice:  :obj:`list` <float>
+        :param fun:  projection function name
+        :type fun:  :obj:`str`
+        """
+        results = {"tool": self.alias}
+        results["imagename"] = self._mainwidget.imageName()
+        results["timestamp"] = time.time()
+        results["xx"] = xx
+        results["sx"] = sx
+        results["xscale"] = xscale
+        results["xslice"] = xslice
+        results["yy"] = yy
+        results["sy"] = sy
+        results["yscale"] = yscale
+        results["yslice"] = yslice
+        results["function"] = fun
+        self._mainwidget.writeAttribute(
+            "ToolResults", json.dumps(results))
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -2524,7 +2581,7 @@ class AngleQToolWidget(ToolBaseWidget):
         #: (`lavuelib.imageDisplayWidget.AxesParameters`) axes backup
         self.__axes = None
 
-        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        #: (:class:`lavuelib.settings.Settings`) configuration settings
         self.__settings = self._mainwidget.settings()
 
         #: (:obj:`float`) radial coordinate factor
@@ -3221,7 +3278,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #: (`lavuelib.imageDisplayWidget.AxesParameters`) axes backup
         self.__axes = None
 
-        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        #: (:class:`lavuelib.settings.Settings`) configuration settings
         self.__settings = self._mainwidget.settings()
         self.setColors(self.__settings.roiscolors)
         #: (:obj:`list` < [:class:`pyqtgraph.QtCore.pyqtSignal`, :obj:`str`] >)
@@ -4674,7 +4731,7 @@ class MaximaToolWidget(ToolBaseWidget):
         #: (`lavuelib..imageDisplayWidget.AxesParameters`) axes backup
         self.__axes = None
 
-        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        #: (:class:`lavuelib.settings.Settings`) configuration settings
         self.__settings = self._mainwidget.settings()
 
         #: (:obj:`float`) radial coordinate factor
@@ -5050,7 +5107,7 @@ class QROIProjToolWidget(ToolBaseWidget):
         self.parameters.infotips = ""
         self.parameters.centerlines = True
 
-        #: (:class:`lavuelib.settings.Settings`:) configuration settings
+        #: (:class:`lavuelib.settings.Settings`) configuration settings
         self.__settings = self._mainwidget.settings()
 
         self._updateApplyButton()
