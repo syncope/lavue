@@ -3461,6 +3461,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :param did: diffractogram id
         :type did: :obj:`int`
         """
+        QtCore.QCoreApplication.processEvents()
         self.updateRangeTip()
         # self.__nrplots = self.__ui.diffSpinBox.value()
         #
@@ -3577,6 +3578,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
         if fileName:
             try:
                 self.__ai = pyFAI.load(fileName)
+                # self.__ai.rot1 = 0
+                # self.__ai.rot1 = math.pi/4 * 0.5
+                # self.__ai.rot1 = math.pi/4 * 0.75
                 self.__ai.rot1 = math.pi/4.
                 # self.__ai.rot2 = math.pi/4.
                 # self.__ai.rot3 = math.pi/2.
@@ -3844,6 +3848,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
                         mask[self._mainwidget.maskIndices().T] = 1
                     for i in range(nrplots):
                         try:
+                            print("RANGE")
+                            print(self.__radrange)
                             res = self.__ai.integrate1d(
                                 dts,
                                 self.__settings.diffnpt,
@@ -4111,7 +4117,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                         fs1 = sn1 / math.cos(self.__ai.rot2)
                         fs2 = sn2 / math.cos(self.__ai.rot2)
                         print("FAC %s %s %s %s" % (fc1, fc2, fs1, fs2))
-                        print("RS RE %s %s" % (rs, re))
+                        print("RS RE DIST %s %s %s" % (rs, re, self.__settings.detdistance))
                         rs = math.tan(rs) * self.__settings.detdistance
                         re = math.tan(re) * self.__settings.detdistance
                         print("DIST * RS RE %s %s" % (rs, re))
