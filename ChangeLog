@@ -1,4 +1,8 @@
 2020-06-24 Jan Kotanski <jan.kotanski@desy.de>
+	* fix double-increase of diffractogram number
+	* tagged as 2.43.2
+
+2020-06-24 Jan Kotanski <jan.kotanski@desy.de>
 	* add ranges to Diffractogram ToolResults
 	* add ToolResults support for Projections
 	* add ToolResults support for LineCut
