@@ -3577,7 +3577,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         if fileName:
             try:
                 self.__ai = pyFAI.load(fileName)
-                # self.__ai.rot1 = math.pi/4.
+                self.__ai.rot1 = math.pi/4.
                 # self.__ai.rot2 = math.pi/4.
                 # self.__ai.rot3 = math.pi/2.
                 # print(str(self.__ai))
@@ -4090,8 +4090,33 @@ class DiffractogramToolWidget(ToolBaseWidget):
                     elif self.__unitindex == 3:
                         self.__radrange.append([rs, re])
                     elif self.__unitindex in [4, 5]:
+                        if self.__azrange[i] is None:
+                            azs, aze = 0, math.pi/2
+                        else:
+                            azs, aze = self.__azrange[i]
+                            azs *= math.pi / 180.
+                            aze *= math.pi / 180.
+                        #     facx = 1000./aif["pixelX"]
+                        # facy = 1000./aif["pixelY"]
+                        cs1 = math.cos(azs + self.__ai.rot3)
+                        cs2 = math.cos(aze + self.__ai.rot3)
+                        sn1 = math.sin(azs + self.__ai.rot3)
+                        sn2 = math.sin(aze + self.__ai.rot3)
+                        # fc1 = facx * cs1 / math.cos(self.__ai.rot1)
+                        # fc2 = facx * cs2 / math.cos(self.__ai.rot1)
+                        # fs1 = facy * sn1 / math.cos(self.__ai.rot2)
+                        # fs2 = facy * sn2 / math.cos(self.__ai.rot2)
+                        fc1 = cs1 / math.cos(self.__ai.rot1)
+                        fc2 = cs2 / math.cos(self.__ai.rot1)
+                        fs1 = sn1 / math.cos(self.__ai.rot2)
+                        fs2 = sn2 / math.cos(self.__ai.rot2)
+                        print("FAC %s %s %s %s" % (fc1, fc2, fs1, fs2))
+                        print("RS RE %s %s" % (rs, re))
                         rs = math.tan(rs) * self.__settings.detdistance
                         re = math.tan(re) * self.__settings.detdistance
+                        print("DIST * RS RE %s %s" % (rs, re))
+
+
                         self.__radrange.append([rs, re])
 
     def __updateregion(self):
