@@ -3461,6 +3461,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :param did: diffractogram id
         :type did: :obj:`int`
         """
+        QtCore.QCoreApplication.processEvents()
         self.updateRangeTip()
         # self.__nrplots = self.__ui.diffSpinBox.value()
         #
