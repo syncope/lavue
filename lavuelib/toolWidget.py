@@ -3924,7 +3924,12 @@ class DiffractogramToolWidget(ToolBaseWidget):
         results["imagename"] = self._mainwidget.imageName()
         results["timestamp"] = time.time()
         results["nrdiffs"] = len(xl)
+        results["calibration"] = self.__settings.calibrationfilename
         for i in range(npl):
+            results["radial_range_%s" % (i + 1)] = self.__radrange[i] \
+                if len(self.__radrange) > i else None
+            results["azimuth_range_%s" % (i + 1)] = self.__azrange[i] \
+                if len(self.__azrange) > i else None
             results["diff_%s" % (i + 1)] = [xl[i], yl[i]]
             if pxl is not None and pyl is not None:
                 results["peaks_%s" % (i + 1)] = [pxl[i], pyl[i]]
