@@ -1,5 +1,7 @@
 2020-06-25 Jan Kotanski <jan.kotanski@desy.de>
 	* fix integaration range for r_ units with tilt
+	* add ToolResults support for OneDPLot
+	* add ToolResults support for Maxima
 	* tagged as 2.43.3
 
 2020-06-24 Jan Kotanski <jan.kotanski@desy.de>

@@ -1837,12 +1837,6 @@ class LineCutToolWidget(ToolBaseWidget):
         :type xl: :obj:`list` < :obj:`list` <float>>
         :param yl:  list of values for each diffractogram
         :type yl: :obj:`list` < :obj:`list` <float>>
-        :param pxl:  list of peak x's for each diffractogram
-        :type pxl: :obj:`list` < :obj:`list` <float>>
-        :param pyl:  list of peak values for each diffractogram
-        :type pyl: :obj:`list` < :obj:`list` <float>>
-        :param pel:  peak x's errors for each diffractogram
-        :type pel:  :obj:`list` <float>
         """
         results = {"tool": self.alias}
         npl = len(xl)
@@ -2292,6 +2286,9 @@ class OneDToolWidget(ToolBaseWidget):
         #: ((:class:`ndarray`) buffer
         self.__buffer = None
 
+        #: (:class:`lavuelib.settings.Settings`) configuration settings
+        self.__settings = self._mainwidget.settings()
+
         self.__ui.rowsLineEdit.setText("0")
         self.parameters.bottomplot = True
         self.parameters.infolineedit = ""
@@ -2458,6 +2455,9 @@ class OneDToolWidget(ToolBaseWidget):
         """ plots the current image in 1d plots
         """
         if self._mainwidget.currentTool() == self.name:
+            if self.__settings.sendresults:
+                xl = []
+                yl = []
             dts = self._mainwidget.rawData()
             if dts is not None:
                 dtnrpts = dts.shape[1]
@@ -2474,7 +2474,8 @@ class OneDToolWidget(ToolBaseWidget):
                     nrplots = 0
                 if self.__nrplots != nrplots:
                     while nrplots > len(self.__curves):
-                        self.__curves.append(self._mainwidget.onedbottomplot())
+                        self.__curves.append(
+                            self._mainwidget.onedbottomplot())
                     for i in range(nrplots):
                         self.__curves[i].show()
                     for i in range(nrplots, len(self.__curves)):
@@ -2497,35 +2498,76 @@ class OneDToolWidget(ToolBaseWidget):
                             if self.__xinfirstrow and i:
                                 self.__curves[i].setData(
                                     x=dts[:, 0], y=dts[:, i])
+                                if self.__settings.sendresults:
+                                    xl.append([float(e) for e in dts[:, 0]])
+                                    yl.append([float(e) for e in dts[:, i]])
                             elif rwe:
                                 y = dts[:, i]
                                 x = np.linspace(
                                     dx, len(y - 1) * ds1 + dx, len(y))
                                 self.__curves[i].setData(x=x, y=y)
+                                if self.__settings.sendresults:
+                                    xl.append([float(e) for e in x])
+                                    yl.append([float(e) for e in y])
                             else:
                                 self.__curves[i].setData(dts[:, i])
+                                if self.__settings.sendresults:
+                                    dt = dts[:, i]
+                                    xl.append(list(range(len(dt))))
+                                    yl.append([float(e) for e in dt])
                             self.__curves[i].setVisible(True)
                         elif (self.__dsrows[i] >= 0 and
                               self.__dsrows[i] < dtnrpts):
                             if self.__xinfirstrow:
                                 self.__curves[i].setData(
                                     x=dts[:, 0], y=dts[:, self.__dsrows[i]])
+                                if self.__settings.sendresults:
+                                    xl.append([float(e) for e in dts[:, 0]])
+                                    yl.append([float(e) for e in
+                                               dts[:, self.__dsrows[i]]])
                             elif rwe:
                                 y = dts[:, self.__dsrows[i]]
                                 x = np.linspace(
                                     dx, len(y - 1) * ds1 + dx, len(y))
                                 self.__curves[i].setData(x=x, y=y)
+                                if self.__settings.sendresults:
+                                    xl.append([float(e) for e in x])
+                                    yl.append([float(e) for e in y])
                             else:
                                 self.__curves[i].setData(
                                     dts[:, self.__dsrows[i]])
+                                if self.__settings.sendresults:
+                                    dt = dts[:, self.__dsrows[i]]
+                                    xl.append(list(range(len(dt))))
+                                    yl.append([float(e) for e in dt])
                             self.__curves[i].setVisible(True)
                         else:
                             self.__curves[i].setVisible(False)
                     else:
                         self.__curves[i].setVisible(False)
+                if self.__settings.sendresults:
+                    self.__sendresults(xl, yl)
             else:
                 for cr in self.__curves:
                     cr.setVisible(False)
+
+    def __sendresults(self, xl, yl):
+        """ send results to LavueController
+
+        :param xl:  list of x's for each diffractogram
+        :type xl: :obj:`list` < :obj:`list` <float>>
+        :param yl:  list of values for each diffractogram
+        :type yl: :obj:`list` < :obj:`list` <float>>
+        """
+        results = {"tool": self.alias}
+        npl = len(xl)
+        results["imagename"] = self._mainwidget.imageName()
+        results["timestamp"] = time.time()
+        results["nrplots"] = len(xl)
+        for i in range(npl):
+            results["onedplot_%s" % (i + 1)] = [xl[i], yl[i]]
+        self._mainwidget.writeAttribute(
+            "ToolResults", json.dumps(results))
 
     @QtCore.pyqtSlot()
     def _message(self):
