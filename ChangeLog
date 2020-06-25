@@ -1,3 +1,7 @@
+2020-06-25 Jan Kotanski <jan.kotanski@desy.de>
+	* fix integaration range for r_ units with tilt
+	* tagged as 2.43.3
+
 2020-06-24 Jan Kotanski <jan.kotanski@desy.de>
 	* fix double-increase of diffractogram number
 	* tagged as 2.43.2
