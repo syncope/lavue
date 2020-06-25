@@ -4901,6 +4901,7 @@ class MaximaToolWidget(ToolBaseWidget):
         if len(maxidxs) and idx < 0:
             idx = 0
 
+        QtCore.QCoreApplication.processEvents()
         trans = self._mainwidget.transformations()[0]
         if trans:
             comboitems = ["%s: %s at (%s, %s)" % (i + 1, vl[2], vl[1], vl[0])
@@ -4915,7 +4916,22 @@ class MaximaToolWidget(ToolBaseWidget):
             combo.addItems(comboitems)
             combo.setCurrentIndex(idx)
         self.__updating = False
+        if self.__settings.sendresults:
+            self.__sendresults(maxidxs)
         return idx
+
+    def __sendresults(self, maxidxs):
+        """ send results to LavueController
+
+        :param maxidxs: list with [[xn,yn, maxn], ... [x1,y1, max1]]
+        :type maxidxs:
+        """
+        results = {"tool": self.alias}
+        results["imagename"] = self._mainwidget.imageName()
+        results["timestamp"] = time.time()
+        results["maxima"] = maxidxs
+        self._mainwidget.writeAttribute(
+            "ToolResults", json.dumps(results))
 
     @QtCore.pyqtSlot(float, float)
     def _updateCenter(self, xdata, ydata):
