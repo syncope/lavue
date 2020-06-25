@@ -925,8 +925,6 @@ class ParametersToolWidget(ToolBaseWidget):
         """ show values
         """
         vls = json.loads(values)
-        # print(vls)
-        # print([type(vl).__name__ for vl in vls])
         for i, pars in enumerate(self.__widgets):
             if i < len(vls):
                 vl = str(vls[i])
@@ -1637,7 +1635,6 @@ class LineCutToolWidget(ToolBaseWidget):
         for i in range(nrplots, len(self.__freezed)):
             self.__freezed[i].hide()
             self.__freezed[i].setVisible(True)
-            # print(type(cr))
 
     @QtCore.pyqtSlot()
     def _clearplot(self):
@@ -3581,7 +3578,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 # self.__ai.rot1 = 0
                 # self.__ai.rot1 = math.pi/4 * 0.5
                 # self.__ai.rot1 = math.pi/4 * 0.75
-                self.__ai.rot1 = math.pi/4.
+                # self.__ai.rot1 = math.pi/4.
                 # self.__ai.rot2 = math.pi/4.
                 # self.__ai.rot3 = math.pi/2.
                 # print(str(self.__ai))
@@ -3812,11 +3809,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                                 clr = tuple(colors[i % len(colors)]) \
                                     if colors else self.__defpen
                                 cr.setPen(_pg.mkPen(clr))
-                # coords = self._mainwidget.cutCoords()
-                # rws = self._mainwidget.rangeWindowScale()
                 dts = self._mainwidget.rawData()
-                # print(dts)
-                # self.__curves[0].setPen(_pg.mkColor('r'))
                 if dts is not None:
                     trans = self._mainwidget.transformations()[0]
                     csa = self.__settings.correctsolidangle
@@ -3825,7 +3818,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
                         unit = "r_mm"
                     else:
                         unit = self.__units[self.__unitindex]
-                        # print(unit)
                     dts = dts if trans else dts.T
                     mask = None
                     if dts.dtype.kind == 'f' and np.isnan(dts.min()):
@@ -3848,8 +3840,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
                         mask[self._mainwidget.maskIndices().T] = 1
                     for i in range(nrplots):
                         try:
-                            print("RANGE")
-                            print(self.__radrange)
                             res = self.__ai.integrate1d(
                                 dts,
                                 self.__settings.diffnpt,
@@ -4096,33 +4086,64 @@ class DiffractogramToolWidget(ToolBaseWidget):
                     elif self.__unitindex == 3:
                         self.__radrange.append([rs, re])
                     elif self.__unitindex in [4, 5]:
-                        if self.__azrange[i] is None:
-                            azs, aze = 0, math.pi/2
-                        else:
-                            azs, aze = self.__azrange[i]
-                            azs *= math.pi / 180.
-                            aze *= math.pi / 180.
-                        #     facx = 1000./aif["pixelX"]
-                        # facy = 1000./aif["pixelY"]
-                        cs1 = math.cos(azs + self.__ai.rot3)
-                        cs2 = math.cos(aze + self.__ai.rot3)
-                        sn1 = math.sin(azs + self.__ai.rot3)
-                        sn2 = math.sin(aze + self.__ai.rot3)
-                        # fc1 = facx * cs1 / math.cos(self.__ai.rot1)
-                        # fc2 = facx * cs2 / math.cos(self.__ai.rot1)
-                        # fs1 = facy * sn1 / math.cos(self.__ai.rot2)
-                        # fs2 = facy * sn2 / math.cos(self.__ai.rot2)
-                        fc1 = cs1 / math.cos(self.__ai.rot1)
-                        fc2 = cs2 / math.cos(self.__ai.rot1)
-                        fs1 = sn1 / math.cos(self.__ai.rot2)
-                        fs2 = sn2 / math.cos(self.__ai.rot2)
-                        print("FAC %s %s %s %s" % (fc1, fc2, fs1, fs2))
-                        print("RS RE DIST %s %s %s" % (rs, re, self.__settings.detdistance))
-                        rs = math.tan(rs) * self.__settings.detdistance
-                        re = math.tan(re) * self.__settings.detdistance
-                        print("DIST * RS RE %s %s" % (rs, re))
+                        try:
+                            [rbb, rbe, reb, ree, _, _, _, _] = \
+                                self.__getcorners(
+                                    self.__radstart[i],
+                                    self.__radend[i],
+                                    self.__azstart[i],
+                                    self.__azend[i])
+                            logger.debug(
+                                "RESULT %s %s %s" % (
+                                    str(rbb.x), rbb.success, rbb.fun))
+                            logger.debug(
+                                "RESULT %s %s %s" % (
+                                    str(rbe.x), rbe.success, rbe.fun))
+                            logger.debug(
+                                "RESULT %s %s %s" % (
+                                    str(reb.x), reb.success, reb.fun))
+                            logger.debug(
+                                "RESULT %s %s %s" % (
+                                    str(ree.x), ree.success, ree.fun))
+                            rsl = []
+                            rel = []
+                            if rbb.success:
+                                ra = self.__ai.rFunction(
+                                    np.array([rbb.x[1] - 0.5]),
+                                    np.array([rbb.x[0] - 0.5]))
+                                if len(ra):
+                                    rsl.append(ra[0] * 1000.)
+                            if rbe.success:
+                                ra = self.__ai.rFunction(
+                                    np.array([rbe.x[1] - 0.5]),
+                                    np.array([rbe.x[0] - 0.5]))
+                                if len(ra):
+                                    rsl.append(ra[0] * 1000.)
 
-
+                            if reb.success:
+                                ra = self.__ai.rFunction(
+                                    np.array([reb.x[1] - 0.5]),
+                                    np.array([reb.x[0] - 0.5]))
+                                if len(ra):
+                                    rel.append(ra[0] * 1000.)
+                            if ree.success:
+                                ra = self.__ai.rFunction(
+                                    np.array([ree.x[1] - 0.5]),
+                                    np.array([ree.x[0] - 0.5]))
+                                if len(ra):
+                                    rel.append(ra[0] * 1000.)
+                            if rsl:
+                                rs = np.mean(rsl)
+                            else:
+                                rs = math.tan(rs) * self.__settings.detdistance
+                            if rel:
+                                re = np.mean(rel)
+                            else:
+                                re = math.tan(re) * self.__settings.detdistance
+                        except Exception as e:
+                            logger.debug(str(e))
+                            rs = math.tan(rs) * self.__settings.detdistance
+                            re = math.tan(re) * self.__settings.detdistance
                         self.__radrange.append([rs, re])
 
     def __updateregion(self):
@@ -4155,13 +4176,13 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 except Exception as e:
                     try:
                         logger.warning(str(e))
-                        print(str(e))
+                        # print(str(e))
                         regions.append(
                             self.__findregion2(
                                 radstart, radend, azstart, azend))
                     except Exception as e2:
                         logger.warning(str(e2))
-                        print(str(e2))
+                        # print(str(e2))
                         # regions.append([])
         self.__regions = regions
 
@@ -4232,14 +4253,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
             chmask = (cha < ab) | (cha > ae)
             # tta[chmask] =  65000
 
-            # print("RUN")
             lines = []
-            # rblines = functions.isocurve(
-            #     tta, rb, connected=True, extendToEdge=True)
-            # print("RUN1 %s " % len(rblines))
-            # relines = functions.isocurve(
-            #     tta, re, connected=True, extendToEdge=True)
-            # print("RUN2 %s " % len(relines))
 
             ttaa = (tta - rb) * (tta - re)
             ttaa[chmask] = 6
@@ -4303,29 +4317,15 @@ class DiffractogramToolWidget(ToolBaseWidget):
         if azend - azstart < 360:
             pbbeb = self.__findfixchipath(rbb.x, reb.x, ab, rb, re)
             lines.append(pbbeb)
-            # print(pbbeb)
             pbeee = self.__findfixchipath(rbe.x, ree.x, ae, rb, re)
-            # print(pbeee)
             lines.append(pbeee)
         if self.__radstart[0] > 0:
             pbbbe = self.__findfixradpath(rbb.x, rbe.x, rb, azb, aze)
             lines.append(pbbbe)
-            # print(pbbbe)
         if self.__radend[0] < 60:
             pebee = self.__findfixradpath(reb.x, ree.x, re, azb, aze)
             lines.append(pebee)
-            # print(pebee)
         return lines
-        # self._mainwidget.updateRegions(lines)
-        # self._mainwidget.updateRegions(
-        #      [pbbeb, pbeee])
-        # self._mainwidget.updateRegions(
-        #      [pbbeb, pbeee, pbbbe])
-        # self._mainwidget.updateRegions(
-        #      [[rbb.x[0], rbb.x[1], rbe.x[0], rbe.x[1]],
-        #         [rbe.x[0], rbe.x[1], ree.x[0], ree.x[1]],
-        #         [ree.x[0], ree.x[1], reb.x[0], reb.x[1]],
-        #         [reb.x[0], reb.x[1], rbb.x[0], rbb.x[1]]])
 
     def __degtrim(self, vl, lowbound, upbound):
         """ trim angle value to bounds in deg
@@ -4478,15 +4478,11 @@ class DiffractogramToolWidget(ToolBaseWidget):
         tth2 = self.__tth([xstart[0] + 1, xstart[1]])
         tth3 = self.__tth([xstart[0], xstart[1] + 1])
         dth = max(abs(tth1 - tth2), abs(tth1 - tth3))
-        # print(rad)
-        # print(rad/dth)
         if (rad/dth) < 10. * step:
             step = (rad / dth) / 10.
         elif (rad/dth) > 10000. * step:
             step = (rad / dth) / 10000.
 
-        # print("RAD %s %s %s" % (rad, xstart, self.__tth(xstart)))
-        # print("AZ: %s %s %s" % (azstart, azend, aze))
         if self.__dist2(xstart, xend) < step * step \
            and abs(azstart - aze) < math.pi:
             points.append(tuple(xend))
@@ -4504,9 +4500,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
         def rsfun(alpha, x, step, cut, tth):
             y = [x[0] + step * math.cos(alpha),
                  x[1] + step * math.sin(alpha)]
-            # print("RSFUN: %s %s %s %s %s %s %s" % (y, tth, self.__tth(y),
-            # self.__tth(y, path="cos"), self.__tth(y,path="cython"),
-            # self.__tth(y,path="tan"), self.__tth(y) - tth) )
             return [self.__tth(y) - tth]
 
         itm = 10
@@ -4518,26 +4511,20 @@ class DiffractogramToolWidget(ToolBaseWidget):
                                       (x, istep, cut, rad))
             y = [x[0] + istep * math.cos(res.x[0]),
                  x[1] + istep * math.sin(res.x[0])]
-            # print("COND %s %s %s" %
-            # (self.__chi(x, cut) - self.__chi(y, cut) > 0 ,
-            # res.success , abs(res.fun) > fmax))
             if self.__chi(x, cut) - self.__chi(y, cut) > 0 or \
                (not res.success and abs(res.fun) > fmax):
                 res = scipy.optimize.root(rsfun, -cchi - math.pi/2,
                                           (x, istep, cut, rad))
                 y = [x[0] + istep * math.cos(res.x[0]),
                      x[1] + istep * math.sin(res.x[0])]
-                # print("W2a %s " % res)
                 if self.__chi(x, cut) - self.__chi(y, cut) > 0 or \
                    (not res.success and abs(res.fun) > fmax):
                     istep = istep / 2.
-                    # print("W2b %s %s " % (res, it))
                 else:
                     break
             else:
                 break
         if it == itm:
-            # print("W2c %s %s" % (res, it))
             raise Exception("Cannot find the next point")
 
         points.append(tuple(y))
@@ -4569,7 +4556,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 continue
 
             points.append(tuple(y))
-            # print("%s %s" % (y, tchi))
             if self.__dist2(y, xend) < istep * istep:
                 waking = False
             alphas.append(res.x[0])
@@ -4655,25 +4641,21 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :type fmax: :obj:`float`
         """
         def rafun(x, f1, f2):
-            # print("D1D2: %s %s" % (x[1], x[0] ))
             return [self.__tth(x) - f1, self.__chi(x) - f2]
         found = False
         it = 0
         if start is None:
             start = self.__approxpoint(rd, az)
-            # print(start)
         while not found and it < itmax:
             res = scipy.optimize.root(rafun, start, (rd, az))
             f = res.fun
             f2 = f[0] * f[0] + f[1] * f[1]
-            # print("F2 %s" % f2)
             found = res.success and f2 < fmax
             it += 1
             start = [random.randint(0, shape[0]),
                      random.randint(0, shape[1])]
         logger.debug("Tries: %s" % it)
         logger.debug(res)
-        # print(res)
         return res
 
     def __getcorners(self, radstart, radend, azstart, azend):
