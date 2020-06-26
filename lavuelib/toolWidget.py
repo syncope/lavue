@@ -384,10 +384,9 @@ class RGBIntensityToolWidget(IntensityToolWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         IntensityToolWidget.__init__(self, parent)
-        
+
         #: (:class:`lavuelib.settings.Settings`) configuration settings
         self.__settings = self._mainwidget.settings()
-
 
     @QtCore.pyqtSlot()
     def _message(self):
