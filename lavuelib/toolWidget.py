@@ -339,6 +339,32 @@ class IntensityToolWidget(ToolBaseWidget):
                 intensity)
         self._mainwidget.setDisplayedText(message)
 
+    def afterplot(self):
+        """ command after plot
+        """
+        if self.__settings.sendresults:
+            self.__sendresults()
+
+    def __sendresults(self):
+        """ send results to LavueController
+        """
+        x, y, intensity = self._mainwidget.currentIntensity()[:3]
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
+        scaling = self._mainwidget.scalingLabel()
+        sx, sy = self._mainwidget.scaledxy(x, y)
+        xunits, yunits = self._mainwidget.axesunits()
+        results = {"tool": self.alias}
+        results["imagename"] = self._mainwidget.imageName()
+        results["timestamp"] = time.time()
+        results["pixel"] = [float(x), float(y)]
+        results["intensity"] = float(intensity)
+        results["scaled_coordiantes"] = [float(sx), float(sy)]
+        results["coordiantes_units"] = [xunits, yunits]
+        results["intensity_scaling"] = scaling
+        self._mainwidget.writeAttribute(
+            "ToolResults", json.dumps(results))
+
 
 class RGBIntensityToolWidget(IntensityToolWidget):
     """ intensity tool widget
@@ -358,6 +384,10 @@ class RGBIntensityToolWidget(IntensityToolWidget):
         :type parent: :class:`pyqtgraph.QtCore.QObject`
         """
         IntensityToolWidget.__init__(self, parent)
+        
+        #: (:class:`lavuelib.settings.Settings`) configuration settings
+        self.__settings = self._mainwidget.settings()
+
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -391,6 +421,35 @@ class RGBIntensityToolWidget(IntensityToolWidget):
                                   ilabel,
                                   itn[0], itn[1], itn[2])
                 self._mainwidget.setDisplayedText(message)
+
+    def afterplot(self):
+        """ command after plot
+        """
+        if self.__settings.sendresults:
+            self.__sendresults()
+
+    def __sendresults(self):
+        """ send results to LavueController
+        """
+        x, y, intensity = self._mainwidget.currentIntensity()[:3]
+        if isinstance(intensity, float) and np.isnan(intensity):
+            intensity = 0
+        scaling = self._mainwidget.scalingLabel()
+        sx, sy = self._mainwidget.scaledxy(x, y)
+        xunits, yunits = self._mainwidget.axesunits()
+        if isinstance(intensity, np.ndarray):
+            intensity = [0 if (isinstance(it, float) and np.isnan(it))
+                         else float(it) for it in intensity]
+        results = {"tool": self.alias}
+        results["imagename"] = self._mainwidget.imageName()
+        results["timestamp"] = time.time()
+        results["pixel"] = [float(x), float(y)]
+        results["intensity"] = intensity
+        results["scaled_coordiantes"] = [float(sx), float(sy)]
+        results["coordiantes_units"] = [xunits, yunits]
+        results["intensity_scaling"] = scaling
+        self._mainwidget.writeAttribute(
+            "ToolResults", json.dumps(results))
 
 
 class MotorsToolWidget(ToolBaseWidget):
