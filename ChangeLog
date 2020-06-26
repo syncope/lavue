@@ -1,3 +1,7 @@
+2020-06-26 Jan Kotanski <jan.kotanski@desy.de>
+	* add ToolResults support for QROIProj tool
+	* tagged as 2.43.4
+
 2020-06-25 Jan Kotanski <jan.kotanski@desy.de>
 	* fix integaration range for r_ units with tilt
 	* add ToolResults support for OneDPLot
