@@ -4439,10 +4439,14 @@ class DiffractogramToolWidget(ToolBaseWidget):
             pbeee = self.__findfixchipath(rbe.x, ree.x, ae, rb, re)
             lines.append(pbeee)
         if self.__radstart[0] > 0:
-            pbbbe = self.__findfixradpath(rbb.x, rbe.x, rb, azb, aze)
+            pbbbe = self.__findfixradpath(
+                rbb.x, rbe.x, rb, azb, aze,
+                full=(azend - azstart >= 360))
             lines.append(pbbbe)
         if self.__radend[0] < 60:
-            pebee = self.__findfixradpath(reb.x, ree.x, re, azb, aze)
+            pebee = self.__findfixradpath(
+                reb.x, ree.x, re, azb, aze,
+                full=(azend - azstart >= 360))
             lines.append(pebee)
         return lines
 
@@ -4485,7 +4489,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         return vl
 
     def __findfixchipath(self, xstart, xend, chi, radstart, radend,
-                         step=4, growing=True, fmax=1.e-10):
+                         step=4, fmax=1.e-10):
         """ find a path for fix azimuth angle
 
         :param xstart: start point
@@ -4498,8 +4502,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :type radstart: :obj:`float`
         :param radend: radial angle end value
         :type radend: :obj:`float`
-        :param growing: growing angle flag
-        :type growing: :obj:`bool`
         :param fmax: maximal allowed value for the test function
         :type fmax: :obj:`float`
         :returns: list of points
@@ -4568,7 +4570,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         return points
 
     def __findfixradpath(self, xstart, xend, rad, azstart, azend,
-                         step=4, growing=True, fmax=1.e-10):
+                         step=4, fmax=1.e-10, full=False):
         """ find a path for fixed radial angle
 
         :param xstart: start point
@@ -4581,10 +4583,10 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :type azstart: :obj:`float`
         :param azend: azimuth angle end value
         :type azend: :obj:`float`
-        :param growing: growing angle flag
-        :type growing: :obj:`bool`
         :param fmax: maximal allowed value for the test function
         :type fmax: :obj:`float`
+        :param full: full angle flag
+        :type full: :obj:`bool`
         :returns: list of points
         :rtype: :obj:`list` < (float, float) >
         """
@@ -4649,7 +4651,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
             raise Exception("Cannot find the next point")
 
         points.append(tuple(y))
-        if self.__dist2(y, xend) < step * step:
+        if self.__dist2(y, xend) < step * step and not full:
             points.append(tuple(xend))
             return points
         alphas.append(res.x[0])
