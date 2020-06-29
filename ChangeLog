@@ -1,6 +1,7 @@
 2020-06-26 Jan Kotanski <jan.kotanski@desy.de>
 	* add ToolResults support for QROIProj tool
 	* add ToolResults support for Intensity and RGBIntensity tools
+	* fix for finding diffractogram range for full azimuth angle
 	* tagged as 2.43.4
 
 2020-06-25 Jan Kotanski <jan.kotanski@desy.de>

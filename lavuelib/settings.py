@@ -200,6 +200,14 @@ class Settings(object):
         #: (:obj:`str`)  json list with tool widget names
         self.toolwidgets = "[]"
 
+        #: (:class:`pyFAI.azimuthalIntegrator.AzimuthalIntegrator`)
+        #       azimuthal integrator
+        self.ai = None
+        #: (:class:`pyFAI.azimuthalIntegrator.AzimuthalIntegrator`)
+        #       azimuthal integrator
+        #: (:class:`pyqtgraph.QtCore.QMutex`) ai mutex
+        self.aimutex = QtCore.QMutex()
+
         #: (:obj:`float`) x-coordinates of the center of the image
         self.centerx = 0.0
         #: (:obj:`float`) y-coordinates of the center of the image
@@ -258,7 +266,7 @@ class Settings(object):
             'pixel': ['pixels', 'pixel'],
         }
 
-        #: (:class:`pyqtgraph.QtCore.QMutex`) zmq bind address
+        #: (:class:`pyqtgraph.QtCore.QMutex`) settings mutex
         self.__mutex = QtCore.QMutex()
 
     def setCustomGradients(self, gradients):
