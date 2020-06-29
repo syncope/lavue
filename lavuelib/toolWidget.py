@@ -3387,10 +3387,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #          range positions of azimuth in deg
         self.__azrange = [None]
 
-        #: (:class:`pyFAI.azimuthalIntegrator.AzimuthalIntegrator`)
-        #       azimuthal integrator
-        self.__ai = None
-
         #: (:obj:`list`<:class:`pyqtgraph.PlotDataItem`>) 1D plot freezed
         self.__freezed = []
 
@@ -3592,7 +3588,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #     self._loadCalibration(
         #         self.__settings.calibrationfilename)
         # self.__ui.diffSpinBox.setEnabled(False)
-        if self.__ai:
+        with QtCore.QMutexLocker(self.__settings.aimutex):
+            aistat = self.__settings.ai is not None
+        if aistat:
             self._plotDiff()
         self._mainwidget.bottomplotShowMenu(True, True)
 
@@ -3640,17 +3638,14 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 ydata = tydata
         self.__settings.centerx = float(xdata)
         self.__settings.centery = float(ydata)
-        if self.__ai is not None:
-            # print("center: %s %s" % (xdata, ydata))
-            # aic = self.__ai.get_config()
-            aif = self.__ai.getFit2D()
-            # print(self.__ai)
-            self.__ai.setFit2D(aif["directDist"],
-                               self.__settings.centerx,
-                               self.__settings.centery,
-                               aif["tilt"],
-                               aif["tiltPlanRotation"])
-            # print(self.__ai)
+        with QtCore.QMutexLocker(self.__settings.aimutex):
+            if self.__settings.ai is not None:
+                aif = self.__settings.ai.getFit2D()
+                self.__settings.ai.setFit2D(aif["directDist"],
+                                            self.__settings.centerx,
+                                            self.__settings.centery,
+                                            aif["tilt"],
+                                            aif["tiltPlanRotation"])
         self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
         self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
         self._message()
@@ -3674,14 +3669,15 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 fileName = str(fileout)
         if fileName:
             try:
-                self.__ai = pyFAI.load(fileName)
-                # self.__ai.rot1 = 0
-                # self.__ai.rot1 = math.pi/4 * 0.5
-                # self.__ai.rot1 = math.pi/4 * 0.75
-                # self.__ai.rot1 = math.pi/4.
-                # self.__ai.rot2 = math.pi/4.
-                # self.__ai.rot3 = math.pi/2.
-                # print(str(self.__ai))
+                with QtCore.QMutexLocker(self.__settings.aimutex):
+                    self.__settings.ai = pyFAI.load(fileName)
+                # self.__settings.ai.rot1 = 0
+                # self.__settings.ai.rot1 = math.pi/4 * 0.5
+                # self.__settings.ai.rot1 = math.pi/4 * 0.75
+                # self.__settings.ai.rot1 = math.pi/4.
+                # self.__settings.ai.rot2 = math.pi/4.
+                # self.__settings.ai.rot3 = math.pi/2.
+                # print(str(self.__settings.ai))
                 self.__settings.calibrationfilename = fileName
                 self.__writedetsettings()
                 self._mainwidget.updateCenter(
@@ -3689,31 +3685,35 @@ class DiffractogramToolWidget(ToolBaseWidget):
             except Exception as e:
                 # print(str(e))
                 logger.warning(str(e))
-                self.__ai = None
-            self.__updateButtons(self.__ai is not None)
+                with QtCore.QMutexLocker(self.__settings.aimutex):
+                    self.__settings.ai = None
+            with QtCore.QMutexLocker(self.__settings.aimutex):
+                self.__updateButtons(self.__settings.ai is not None)
             self.__updateregion()
             self.updateGeometryTip()
 
     def __writedetsettings(self):
         """ write detector settings from ai object
         """
-        aic = self.__ai.get_config()
+        with QtCore.QMutexLocker(self.__settings.aimutex):
+            aic = self.__settings.ai.get_config()
+            self.__settings.pixelsizex = self.__settings.distance2um(
+                (self.__settings.ai.get_pixel2(), "m"))
+            self.__settings.pixelsizey = self.__settings.distance2um(
+                (self.__settings.ai.get_pixel1(), "m"))
         self.__settings.detponi1 = aic["poni1"]
         self.__settings.detponi2 = aic["poni2"]
         self.__settings.detrot1 = aic["rot1"]
         self.__settings.detrot2 = aic["rot2"]
         self.__settings.detrot3 = aic["rot3"]
-        self.__settings.pixelsizex = self.__settings.distance2um(
-            (self.__ai.get_pixel2(), "m"))
-        self.__settings.pixelsizey = self.__settings.distance2um(
-            (self.__ai.get_pixel1(), "m"))
         self.__settings.detdistance = self.__settings.distance2mm(
             (aic["dist"], "m"))
         self.__settings.energy = self.__settings.length2ev(
             (float(aic["wavelength"]), "m"))
-        aif = self.__ai.getFit2D()
-        self.__settings.centerx = float(aif["centerX"])
-        self.__settings.centery = float(aif["centerY"])
+        with QtCore.QMutexLocker(self.__settings.aimutex):
+            aif = self.__settings.ai.getFit2D()
+            self.__settings.centerx = float(aif["centerX"])
+            self.__settings.centery = float(aif["centerY"])
         self._mainwidget.writeAttribute("BeamCenterX",
                                         float(self.__settings.centerx))
         self._mainwidget.writeAttribute("BeamCenterY",
@@ -3731,7 +3731,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :type status: :obj:`bool`
         """
         if status is None:
-            status = self.__ai is not None
+            status = self.__settings.ai is not None
         self.__ui.showPushButton.setEnabled(status)
         self.__ui.nextPushButton.setEnabled(status)
         self.__ui.diffSpinBox.setEnabled(status)
@@ -3752,18 +3752,20 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 y = tydata
         ilabel = self._mainwidget.scalingLabel()
         chi = None
-        if self.__ai is not None:
-            chi = self.__ai.chi(
-                np.array([y - 0.5]), np.array([x - 0.5]))
-            if len(chi):
-                chi = chi[0]
+        with QtCore.QMutexLocker(self.__settings.aimutex):
+            if self.__settings.ai is not None:
+                chi = self.__settings.ai.chi(
+                    np.array([y - 0.5]), np.array([x - 0.5]))
+                if len(chi):
+                    chi = chi[0]
         if self.__unitindex in [2, 3]:
             tth = None
-            if self.__ai is not None:
-                tth = self.__ai.tth(
-                    np.array([y - 0.5]), np.array([x - 0.5])),
-                if len(tth):
-                    tth = tth[0]
+            with QtCore.QMutexLocker(self.__settings.aimutex):
+                if self.__settings.ai is not None:
+                    tth = self.__settings.ai.tth(
+                        np.array([y - 0.5]), np.array([x - 0.5])),
+                    if len(tth):
+                        tth = tth[0]
             if tth is not None and chi is not None:
                 unit = "rad"
                 if self.__unitindex == 2:
@@ -3783,11 +3785,12 @@ class DiffractogramToolWidget(ToolBaseWidget):
                     x, y, ilabel, intensity)
         elif self.__unitindex in [0, 1]:
             qa = None
-            if self.__ai is not None:
-                qa = self.__ai.qFunction(
-                    np.array([y - 0.5]), np.array([x - 0.5])),
-                if len(qa):
-                    qa = qa[0]
+            with QtCore.QMutexLocker(self.__settings.aimutex):
+                if self.__settings.ai is not None:
+                    qa = self.__settings.ai.qFunction(
+                        np.array([y - 0.5]), np.array([x - 0.5])),
+                    if len(qa):
+                        qa = qa[0]
             if qa is not None and chi is not None:
                 unit = u"1/\u212B"
                 chi = chi * 180./math.pi
@@ -3805,11 +3808,12 @@ class DiffractogramToolWidget(ToolBaseWidget):
                     x, y, ilabel, intensity)
         elif self.__unitindex in [4]:
             ra = None
-            if self.__ai is not None:
-                ra = self.__ai.rFunction(
-                    np.array([y - 0.5]), np.array([x - 0.5])),
-                if len(ra):
-                    ra = ra[0] * 1000.
+            with QtCore.QMutexLocker(self.__settings.aimutex):
+                if self.__settings.ai is not None:
+                    ra = self.__settings.ai.rFunction(
+                        np.array([y - 0.5]), np.array([x - 0.5])),
+                    if len(ra):
+                        ra = ra[0] * 1000.
             if ra is not None and chi is not None:
                 chi = chi * 180./math.pi
                 message = "x, y = [%s, %s], r = %f %s, chi = %f %s," \
@@ -3842,23 +3846,11 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :returns: geometry text
         :rtype: :obj:`unicode`
         """
-        if self.__ai:
-            return str(self.__ai)
-        else:
-            return ""
-
-        # return u"geometry:\n" \
-        #     u"  center = (%s, %s) pixels\n" \
-        #     u"  pixel_size = (%s, %s) \u00B5m\n" \
-        #     u"  detector_distance = %s mm\n" \
-        #     u"  energy = %s eV" % (
-        #         self.__settings.centerx,
-        #         self.__settings.centery,
-        #         self.__settings.pixelsizex,
-        #         self.__settings.pixelsizey,
-        #         self.__settings.detdistance,
-        #         self.__settings.energy
-        #     )
+        tips = ""
+        with QtCore.QMutexLocker(self.__settings.aimutex):
+            if self.__settings.ai:
+                tips = str(self.__settings.ai)
+        return tips
 
     @QtCore.pyqtSlot()
     def updateGeometryTip(self):
@@ -3884,8 +3876,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
     def _plotDiff(self):
         """ plot all diffractograms
         """
-
-        if self.__ai is not None:
+        with QtCore.QMutexLocker(self.__settings.aimutex):
+            aistat = self.__settings.ai is not None
+        if aistat:
             if self._mainwidget.currentTool() == self.name:
                 if self.__settings.sendresults:
                     pxl = []
@@ -3940,22 +3933,25 @@ class DiffractogramToolWidget(ToolBaseWidget):
                         mask[self._mainwidget.maskIndices().T] = 1
                     for i in range(nrplots):
                         try:
-                            res = self.__ai.integrate1d(
-                                dts,
-                                self.__settings.diffnpt,
-                                correctSolidAngle=csa,
-                                radial_range=(
-                                    self.__radrange[i]
-                                    if len(self.__radrange) > i else None),
-                                azimuth_range=(
-                                    self.__azrange[i]
-                                    if len(self.__azrange) > i else None),
-                                unit=unit, mask=mask)
+                            with QtCore.QMutexLocker(self.__settings.aimutex):
+                                res = self.__settings.ai.integrate1d(
+                                    dts,
+                                    self.__settings.diffnpt,
+                                    correctSolidAngle=csa,
+                                    radial_range=(
+                                        self.__radrange[i]
+                                        if len(self.__radrange) > i else None),
+                                    azimuth_range=(
+                                        self.__azrange[i]
+                                        if len(self.__azrange) > i else None),
+                                    unit=unit, mask=mask)
                             # print(res)
                             x = res[0]
                             y = res[1]
                             if self.__unitindex in [5]:
-                                aif = self.__ai.getFit2D()
+                                with QtCore.QMutexLocker(
+                                        self.__settings.aimutex):
+                                    aif = self.__settings.ai.getFit2D()
                                 if aif["pixelX"] and aif["pixelY"]:
                                     if self.__azrange[i] is None:
                                         azs, aze = 0, math.pi/2
@@ -3965,14 +3961,24 @@ class DiffractogramToolWidget(ToolBaseWidget):
                                         aze *= math.pi / 180.
                                     facx = 1000./aif["pixelX"]
                                     facy = 1000./aif["pixelY"]
-                                    cs1 = math.cos(azs + self.__ai.rot3)
-                                    cs2 = math.cos(aze + self.__ai.rot3)
-                                    sn1 = math.sin(azs + self.__ai.rot3)
-                                    sn2 = math.sin(aze + self.__ai.rot3)
-                                    fc1 = facx * cs1 / math.cos(self.__ai.rot1)
-                                    fc2 = facx * cs2 / math.cos(self.__ai.rot1)
-                                    fs1 = facy * sn1 / math.cos(self.__ai.rot2)
-                                    fs2 = facy * sn2 / math.cos(self.__ai.rot2)
+                                    with QtCore.QMutexLocker(
+                                            self.__settings.aimutex):
+                                        cs1 = math.cos(
+                                            azs + self.__settings.ai.rot3)
+                                        cs2 = math.cos(
+                                            aze + self.__settings.ai.rot3)
+                                        sn1 = math.sin(
+                                            azs + self.__settings.ai.rot3)
+                                        sn2 = math.sin(
+                                            aze + self.__settings.ai.rot3)
+                                        fc1 = facx * cs1 / math.cos(
+                                            self.__settings.ai.rot1)
+                                        fc2 = facx * cs2 / math.cos(
+                                            self.__settings.ai.rot1)
+                                        fs1 = facy * sn1 / math.cos(
+                                            self.__settings.ai.rot2)
+                                        fs2 = facy * sn2 / math.cos(
+                                            self.__settings.ai.rot2)
                                     x = [
                                         (math.sqrt(
                                             (fc1 * r)**2 + (fs1 * r)**2)
@@ -4208,30 +4214,38 @@ class DiffractogramToolWidget(ToolBaseWidget):
                             rsl = []
                             rel = []
                             if rbb.success:
-                                ra = self.__ai.rFunction(
-                                    np.array([rbb.x[1] - 0.5]),
-                                    np.array([rbb.x[0] - 0.5]))
-                                if len(ra):
-                                    rsl.append(ra[0] * 1000.)
+                                with QtCore.QMutexLocker(
+                                        self.__settings.aimutex):
+                                    ra = self.__settings.ai.rFunction(
+                                        np.array([rbb.x[1] - 0.5]),
+                                        np.array([rbb.x[0] - 0.5]))
+                                    if len(ra):
+                                        rsl.append(ra[0] * 1000.)
                             if rbe.success:
-                                ra = self.__ai.rFunction(
-                                    np.array([rbe.x[1] - 0.5]),
-                                    np.array([rbe.x[0] - 0.5]))
-                                if len(ra):
-                                    rsl.append(ra[0] * 1000.)
+                                with QtCore.QMutexLocker(
+                                        self.__settings.aimutex):
+                                    ra = self.__settings.ai.rFunction(
+                                        np.array([rbe.x[1] - 0.5]),
+                                        np.array([rbe.x[0] - 0.5]))
+                                    if len(ra):
+                                        rsl.append(ra[0] * 1000.)
 
                             if reb.success:
-                                ra = self.__ai.rFunction(
-                                    np.array([reb.x[1] - 0.5]),
-                                    np.array([reb.x[0] - 0.5]))
-                                if len(ra):
-                                    rel.append(ra[0] * 1000.)
+                                with QtCore.QMutexLocker(
+                                        self.__settings.aimutex):
+                                    ra = self.__settings.ai.rFunction(
+                                        np.array([reb.x[1] - 0.5]),
+                                        np.array([reb.x[0] - 0.5]))
+                                    if len(ra):
+                                        rel.append(ra[0] * 1000.)
                             if ree.success:
-                                ra = self.__ai.rFunction(
-                                    np.array([ree.x[1] - 0.5]),
-                                    np.array([ree.x[0] - 0.5]))
-                                if len(ra):
-                                    rel.append(ra[0] * 1000.)
+                                with QtCore.QMutexLocker(
+                                        self.__settings.aimutex):
+                                    ra = self.__settings.ai.rFunction(
+                                        np.array([ree.x[1] - 0.5]),
+                                        np.array([ree.x[0] - 0.5]))
+                                    if len(ra):
+                                        rel.append(ra[0] * 1000.)
                             if rsl:
                                 rs = np.mean(rsl)
                             else:
@@ -4259,9 +4273,11 @@ class DiffractogramToolWidget(ToolBaseWidget):
         """
         nrplots = self.__ui.diffSpinBox.value()
         regions = []
+        with QtCore.QMutexLocker(self.__settings.aimutex):
+            aistat = self.__settings.ai is not None
         for i in range(nrplots):
             if ((self.__azrange and self.__azrange[i]) or
-               (self.__radrange and self.__radrange[i])) and self.__ai:
+               (self.__radrange and self.__radrange[i])) and aistat:
                 azstart = self.__azstart[i] \
                     if self.__azstart[i] is not None else 0
                 azend = self.__azend[i] \
@@ -4335,14 +4351,17 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :returns: list of region lines
         :rtype:  :obj:`list` < :obj:`list` < (float, float) > >
         """
-        if self.__ai:
+        with QtCore.QMutexLocker(self.__settings.aimutex):
+            aistat = self.__settings.ai is not None
+        if aistat:
             dts = self._mainwidget.rawData()
             if dts is not None and dts.shape and len(dts.shape) == 2:
                 shape = dts.shape
             else:
                 shape = [1000., 1000.]
-            tta = self.__ai.twoThetaArray(shape)
-            cha = self.__ai.chiArray(shape)
+            with QtCore.QMutexLocker(self.__settings.aimutex):
+                tta = self.__settings.ai.twoThetaArray(shape)
+                cha = self.__settings.ai.chiArray(shape)
             rb = self.__degtrim(radstart, 0, 360) * math.pi / 180.
             re = self.__degtrim(radend, 0, 360) * math.pi / 180.
 
@@ -4427,7 +4446,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
             lines.append(pebee)
         return lines
 
-    def __degtrim(self, vl, lowbound, upbound):
+    @classmethod
+    def __degtrim(cls, vl, lowbound, upbound):
         """ trim angle value to bounds in deg
 
         :param vl: value to trim
@@ -4445,7 +4465,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
             vl += 360
         return vl
 
-    def __radtrim(self, vl, lowbound, upbound):
+    @classmethod
+    def __radtrim(cls, vl, lowbound, upbound):
         """ trim angle value to bounds in rad
 
         :param vl: value to trim
@@ -4705,8 +4726,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :returns: chi value
         :rtype: :obj:`float`
         """
-        chi = float(self.__ai.chi(
-            np.array([x[1] - 0.5]), np.array([x[0] - 0.5]))[0])
+        with QtCore.QMutexLocker(self.__settings.aimutex):
+            chi = float(self.__settings.ai.chi(
+                np.array([x[1] - 0.5]), np.array([x[0] - 0.5]))[0])
         if cut is not None and chi > cut and cut > -math.pi:
             chi += 2 * math.pi
         return chi
@@ -4721,8 +4743,10 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :returns: chi value
         :rtype: :obj:`float`
         """
-        return float(self.__ai.tth(
-            np.array([x[1] - 0.5]), np.array([x[0] - 0.5]), path=path)[0])
+        with QtCore.QMutexLocker(self.__settings.aimutex):
+            tth = self.__settings.ai.tth(
+                np.array([x[1] - 0.5]), np.array([x[0] - 0.5]), path=path)[0]
+        return float(tth)
 
     def __findpoint(self, rd, az, shape, start=None, itmax=20, fmax=1e-9):
         """ find a point in pixels
@@ -4777,7 +4801,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :rtype:  :obj:`list` <:obj:`float`>
         """
 
-        if self.__ai:
+        with QtCore.QMutexLocker(self.__settings.aimutex):
+            aistat = self.__settings.ai is not None
+        if aistat:
             dts = self._mainwidget.rawData()
             if dts is not None and dts.shape and len(dts.shape) == 2:
                 shape = dts.shape
@@ -4806,7 +4832,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :returns: [x, y] coordinates
         :rtype:  [:obj:`float`, :obj:`float`]
         """
-        if self.__ai:
+        with QtCore.QMutexLocker(self.__settings.aimutex):
+            aistat = self.__settings.ai is not None
+        if aistat:
             tnr = math.tan(rad)
             csa = math.cos(az)
             sna = math.sin(az)
