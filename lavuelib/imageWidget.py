@@ -293,6 +293,21 @@ class ImageWidget(QtGui.QWidget):
         if self.__tangoclient:
             self.__tangoclient.writeAttribute(name, value)
 
+    def writeDetectorAttributes(self):
+        """ write detector settings from ai object
+        """
+        self.writeAttribute("BeamCenterX",
+                            float(self.__settings.centerx))
+        self.writeAttribute("BeamCenterY",
+                            float(self.__settings.centery))
+        self.writeAttribute("Energy", float(self.__settings.energy))
+        self.writeAttribute("DetectorDistance",
+                            float(self.__settings.detdistance))
+        self.writeAttribute("PixelSizeX",
+                            float(self.__settings.pixelsizex))
+        self.writeAttribute("PixelSizeY",
+                            float(self.__settings.pixelsizey))
+
     @QtCore.pyqtSlot()
     def writeDetectorROIsAttribute(self):
         """ writes DetectorROIsattribute value of device

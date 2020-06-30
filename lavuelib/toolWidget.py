@@ -3695,34 +3695,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
     def __writedetsettings(self):
         """ write detector settings from ai object
         """
-        with QtCore.QMutexLocker(self.__settings.aimutex):
-            aic = self.__settings.ai.get_config()
-            self.__settings.pixelsizex = self.__settings.distance2um(
-                (self.__settings.ai.get_pixel2(), "m"))
-            self.__settings.pixelsizey = self.__settings.distance2um(
-                (self.__settings.ai.get_pixel1(), "m"))
-        self.__settings.detponi1 = aic["poni1"]
-        self.__settings.detponi2 = aic["poni2"]
-        self.__settings.detrot1 = aic["rot1"]
-        self.__settings.detrot2 = aic["rot2"]
-        self.__settings.detrot3 = aic["rot3"]
-        self.__settings.detdistance = self.__settings.distance2mm(
-            (aic["dist"], "m"))
-        self.__settings.energy = self.__settings.length2ev(
-            (float(aic["wavelength"]), "m"))
-        with QtCore.QMutexLocker(self.__settings.aimutex):
-            aif = self.__settings.ai.getFit2D()
-            self.__settings.centerx = float(aif["centerX"])
-            self.__settings.centery = float(aif["centerY"])
-        self._mainwidget.writeAttribute("BeamCenterX",
-                                        float(self.__settings.centerx))
-        self._mainwidget.writeAttribute("BeamCenterY",
-                                        float(self.__settings.centery))
-        self._mainwidget.writeAttribute(
-            "Energy", float(self.__settings.energy))
-        self._mainwidget.writeAttribute(
-            "DetectorDistance",
-            float(self.__settings.detdistance))
+        self.__settings.updateDetectorParameters()
+        self._mainwidget.writeDetectorAttributes()
 
     def __updateButtons(self, status=None):
         """ update buttons
