@@ -1299,17 +1299,27 @@ class LiveViewer(QtGui.QDialog):
         if hasattr(options, "dsfactor") and \
            options.dsfactor is not None:
             if not self.__settings.showrange:
-                self.__settings.showrange = True
-                self.__rangewg.changeView(True)
-                self._resizePlot(True)
+                try:
+                    dsf = int(options.dsfactor)
+                except Exception:
+                    dsf = 1
+                if dsf != 1:
+                    self.__settings.showrange = True
+                    self.__rangewg.changeView(True)
+                    self._resizePlot(True)
             self.__rangewg.setFactor(str(options.dsfactor))
 
         if hasattr(options, "dsreduction") and \
            options.dsreduction is not None:
             if not self.__settings.showrange:
-                self.__settings.showrange = True
-                self.__rangewg.changeView(True)
-                self._resizePlot(True)
+                try:
+                    dsf = int(options.dsfactor)
+                except Exception:
+                    dsf = 1
+                if dsf != 1:
+                    self.__settings.showrange = True
+                    self.__rangewg.changeView(True)
+                    self._resizePlot(True)
             self.__rangewg.setFunction(str(options.dsreduction))
 
         if hasattr(options, "mbuffer") and options.mbuffer is not None:
