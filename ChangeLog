@@ -1,3 +1,7 @@
+2020-07-01 Jan Kotanski <jan.kotanski@desy.de>
+	* synchronize  detector settings with pyFAI.AI
+	* tagged as 2.43.5
+
 2020-06-26 Jan Kotanski <jan.kotanski@desy.de>
 	* add ToolResults support for QROIProj tool
 	* add ToolResults support for Intensity and RGBIntensity tools

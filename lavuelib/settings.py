@@ -35,6 +35,15 @@ from pyqtgraph import QtCore
 if sys.version_info > (3,):
     unicode = str
 
+try:
+    import pyFAI
+    import pyFAI.azimuthalIntegrator
+    #: (:obj:`bool`) pyFAI imported
+    PYFAI = True
+except ImportError:
+    #: (:obj:`bool`) pyFAI imported
+    PYFAI = False
+
 
 class Settings(object):
 
@@ -230,6 +239,10 @@ class Settings(object):
         self.detrot2 = 0.0
         #: (:obj:`float`) rot3 parameter in rad
         self.detrot3 = 0.0
+        #: (:obj:`str`) detector name
+        self.detname = ""
+        #: (:obj:`str`) detector splineFile
+        self.detsplinefile = ""
         #: (:obj:`int`) number of points for diffractogram
         self.diffnpt = 1000
         #: (:obj:`bool`) correct solid angle flag
@@ -731,9 +744,45 @@ class Settings(object):
                 settings.value("Tools/DetectorRot3", type=str))
         except Exception:
             pass
+        qstval = str(
+            settings.value("Tools/DetectorName", type=str))
+        if qstval:
+            self.detname = qstval
+        qstval = str(
+            settings.value("Tools/DetectorSplineFile",
+                           type=str))
+        if qstval:
+            self.detsplinefile = qstval
+
         self.__loadDisplayParams(settings)
         self.__loadCustomGradients(settings)
+        self.updateAISettings()
         return status
+
+    def updateAISettings(self):
+        """ update AI settings
+        """
+        if PYFAI:
+            wvln = self.energy2m(self.energy)
+            pixel1 = self.distance2m((self.pixelsizey, "um"))
+            pixel2 = self.distance2m((self.pixelsizex, "um"))
+            splineFile = self.detsplinefile or None
+            detector = self.detname or None
+            detdistance = self.distance2m((self.detdistance, "mm"))
+
+            with QtCore.QMutexLocker(self.aimutex):
+                self.ai = pyFAI.azimuthalIntegrator.AzimuthalIntegrator(
+                    dist=detdistance,
+                    poni1=self.detponi1,
+                    poni2=self.detponi2,
+                    rot1=self.detrot1,
+                    rot2=self.detrot2,
+                    rot3=self.detrot3,
+                    pixel1=pixel1,
+                    pixel2=pixel2,
+                    splineFile=splineFile,
+                    detector=detector,
+                    wavelength=wvln)
 
     def store(self, settings):
         """ Stores settings in QSettings object
@@ -965,6 +1014,11 @@ class Settings(object):
             self.pixelsizex = 0.0
             self.pixelsizey = 0.0
             self.detdistance = 0.0
+            self.detrot1 = 0.0
+            self.detrot2 = 0.0
+            self.detrot3 = 0.0
+            self.detponi1 = 0.0
+            self.detponi2 = 0.0
 
         settings.setValue(
             "Tools/CenterX",
@@ -1002,6 +1056,12 @@ class Settings(object):
         settings.setValue(
             "Tools/DetectorRot3",
             self.detrot3)
+        settings.setValue(
+            "Tools/DetectorName",
+            self.detname)
+        settings.setValue(
+            "Tools/DetectorSplineFile",
+            self.detsplinefile)
 
         self.__storeDisplayParams(settings)
         self.__storeCustomGradients(settings)
@@ -1091,7 +1151,39 @@ class Settings(object):
                     elif distance[1] in self.__units['mm']:
                         res = distance[0]
                     elif distance[1] in self.__units['cm']:
-                        res = distance * 1e-1
+                        res = distance * 1e+1
+            else:
+                res = distance * 1e+3
+        return res
+
+    def distance2m(self, distance):
+        """ converts distance to m units
+
+        :param distance: distance as value in m or tuple with units
+        :type distance: :obj:`float` or (:obj:`float`, :obj:`str`)
+        :returns: distance in m
+        :rtype: :obj:`float`
+        """
+        res = None
+        if distance is not None:
+            if type(distance) in [list, tuple]:
+                if len(distance) == 1:
+                    res = distance[0] * 1e+3
+                elif len(distance) > 1:
+                    if distance[1] in self.__units['A']:
+                        res = distance[0] * 1e-10
+                    elif distance[1] in self.__units['nm']:
+                        res = distance[0] * 1e-9
+                    elif distance[1] in self.__units['um']:
+                        res = distance[0] * 1e-6
+                    elif distance[1] in self.__units['km']:
+                        res = distance[0] * 1e+3
+                    elif distance[1] in self.__units['m']:
+                        res = distance[0]
+                    elif distance[1] in self.__units['mm']:
+                        res = distance[0] * 1e-3
+                    elif distance[1] in self.__units['cm']:
+                        res = distance * 1e-2
             else:
                 res = distance * 1e+3
         return res
@@ -1226,6 +1318,33 @@ class Settings(object):
                     resx = self.distance2pixels([px, ux], self.pixelsizex)
                     resy = self.distance2pixels([py, uy], self.pixelsizey)
         return resx, resy
+
+    def updateDetectorParameters(self):
+        """ update physical parameters
+
+        """
+        if PYFAI:
+            with QtCore.QMutexLocker(self.aimutex):
+                aic = self.ai.get_config()
+                self.pixelsizex = self.distance2um(
+                    (self.ai.get_pixel2(), "m"))
+                self.pixelsizey = self.distance2um(
+                    (self.ai.get_pixel1(), "m"))
+            self.detponi1 = aic["poni1"]
+            self.detponi2 = aic["poni2"]
+            self.detrot1 = aic["rot1"]
+            self.detrot2 = aic["rot2"]
+            self.detrot3 = aic["rot3"]
+            self.detsplinefile = self.ai.splineFile
+            self.detname = aic["detector"]
+            self.detdistance = self.distance2mm(
+                (aic["dist"], "m"))
+            self.energy = self.length2ev(
+                (float(aic["wavelength"]), "m"))
+            with QtCore.QMutexLocker(self.aimutex):
+                aif = self.ai.getFit2D()
+                self.centerx = float(aif["centerX"])
+                self.centery = float(aif["centerY"])
 
     def updateMetaData(self, **kargs):
         """ update physical parameters

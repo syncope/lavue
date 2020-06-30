@@ -293,6 +293,21 @@ class ImageWidget(QtGui.QWidget):
         if self.__tangoclient:
             self.__tangoclient.writeAttribute(name, value)
 
+    def writeDetectorAttributes(self):
+        """ write detector settings from ai object
+        """
+        self.writeAttribute("BeamCenterX",
+                            float(self.__settings.centerx))
+        self.writeAttribute("BeamCenterY",
+                            float(self.__settings.centery))
+        self.writeAttribute("Energy", float(self.__settings.energy))
+        self.writeAttribute("DetectorDistance",
+                            float(self.__settings.detdistance))
+        self.writeAttribute("PixelSizeX",
+                            float(self.__settings.pixelsizex))
+        self.writeAttribute("PixelSizeY",
+                            float(self.__settings.pixelsizey))
+
     @QtCore.pyqtSlot()
     def writeDetectorROIsAttribute(self):
         """ writes DetectorROIsattribute value of device
@@ -1700,6 +1715,7 @@ class ImageWidget(QtGui.QWidget):
         """
         if self.__settings.energy != energy:
             self.__settings.energy = energy
+            self.__settings.updateAISettings()
             self.mouseImagePositionChanged.emit()
             self.geometryChanged.emit()
 
@@ -1712,6 +1728,7 @@ class ImageWidget(QtGui.QWidget):
         """
         if self.__settings.detdistance != distance:
             self.__settings.detdistance = distance
+            self.__settings.updateAISettings()
             self.mouseImagePositionChanged.emit()
             self.geometryChanged.emit()
 
@@ -1724,6 +1741,7 @@ class ImageWidget(QtGui.QWidget):
         """
         if self.__settings.centerx != x:
             self.__settings.centerx = x
+            self.__settings.updateAISettings()
             self.updateCenter(
                 self.__settings.centerx, self.__settings.centery)
             self.mouseImagePositionChanged.emit()
@@ -1738,6 +1756,7 @@ class ImageWidget(QtGui.QWidget):
         """
         if self.__settings.centery != y:
             self.__settings.centery = y
+            self.__settings.updateAISettings()
             self.updateCenter(
                 self.__settings.centerx, self.__settings.centery)
             self.mouseImagePositionChanged.emit()
@@ -1752,6 +1771,7 @@ class ImageWidget(QtGui.QWidget):
         """
         if self.__settings.pixelsizex != x:
             self.__settings.pixelsizex = x
+            self.__settings.updateAISettings()
             self.mouseImagePositionChanged.emit()
             self.geometryChanged.emit()
 
@@ -1764,6 +1784,7 @@ class ImageWidget(QtGui.QWidget):
         """
         if self.__settings.pixelsizey != y:
             self.__settings.pixelsizey = y
+            self.__settings.updateAISettings()
             self.mouseImagePositionChanged.emit()
             self.geometryChanged.emit()
 
@@ -1911,7 +1932,7 @@ class ImageWidget(QtGui.QWidget):
         :returns: mask image indices
         :rtype: :class:`numpy.ndarray`
         """
-        return self.__maskIndices
+        return self.__maskindices
 
     def setMaskIndices(self, maskindices):
         """ sets mask image indices
@@ -1919,7 +1940,7 @@ class ImageWidget(QtGui.QWidget):
         :params maskindices: mask image indices
         :type maskindices: :class:`numpy.ndarray`
         """
-        self.__maskIndices = maskindices
+        self.__maskindices = maskindices
 
     def maskValueIndices(self):
         """ provides mask image value indices
