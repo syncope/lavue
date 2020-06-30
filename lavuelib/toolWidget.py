@@ -5971,15 +5971,8 @@ class QROIProjToolWidget(ToolBaseWidget):
             self.__settings.pixelsizex = cnfdlg.pixelsizex
             self.__settings.pixelsizey = cnfdlg.pixelsizey
             self.__settings.detdistance = cnfdlg.detdistance
-            self._mainwidget.writeAttribute(
-                "BeamCenterX", float(self.__settings.centerx))
-            self._mainwidget.writeAttribute(
-                "BeamCenterY", float(self.__settings.centery))
-            self._mainwidget.writeAttribute(
-                "Energy", float(self.__settings.energy))
-            self._mainwidget.writeAttribute(
-                "DetectorDistance",
-                float(self.__settings.detdistance))
+            self.__settings.updateAISettings()
+            self._mainwidget.writeDetectorAttributes()
             self.updateGeometryTip()
             self._mainwidget.updateCenter(
                 self.__settings.centerx, self.__settings.centery)
