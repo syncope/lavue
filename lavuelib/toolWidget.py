@@ -3560,6 +3560,12 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #
         self._plotDiff()
         self.setColors(self.__settings.roiscolors, True)
+        # self.__updateregion()
+        QtCore.QCoreApplication.processEvents()
+        while len(self.__regions) > self.__nrplots:
+            self.regions.pop()
+        QtCore.QCoreApplication.processEvents()
+        self._updateRegionsAndPlot()
 
     def afterplot(self):
         """ command after plot
@@ -4298,7 +4304,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         logger.debug("closing Progress")
         if self.__progress:
             self.__progress.reset()
-        if self.__commandthread.error:
+        if self.__commandthread and self.__commandthread.error:
             logger.error(
                 "Problems in updating Channels %s" %
                 str(self.__commandthread.error))
@@ -4325,12 +4331,16 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :returns: list of region lines
         :rtype:  :obj:`list` < :obj:`list` < (float, float) > >
         """
+        if azend - azstart >= 360:
+            azstart = 0
+            azend = 360
         with QtCore.QMutexLocker(self.__settings.aimutex):
             aistat = self.__settings.ai is not None
         if aistat:
             dts = self._mainwidget.rawData()
+
             if dts is not None and dts.shape and len(dts.shape) == 2:
-                shape = dts.shape
+                shape = dts.T.shape
             else:
                 shape = [1000., 1000.]
             with QtCore.QMutexLocker(self.__settings.aimutex):
@@ -4342,30 +4352,33 @@ class DiffractogramToolWidget(ToolBaseWidget):
             ab = self.__degtrim(azstart, -180, 180) * math.pi / 180.
             ae = self.__degtrim(azend, -180, 180) * math.pi / 180.
 
-            thmask = (tta < rb) | (tta > re)
-            chmask = (cha < ab) | (cha > ae)
-            # tta[chmask] =  65000
-
             lines = []
 
-            ttaa = (tta - rb) * (tta - re)
-            ttaa[chmask] = 6
-            rblines = functions.isocurve(
-                ttaa, 0, connected=True)
-            logger.debug("RUN1 %s " % len(rblines))
-            # print("RUN1 %s " % len(rblines))
+            if azend - azstart < 360:
+                chmask = (cha < ab) | (cha > ae)
+                ttaa = (tta - rb) * (tta - re)
+                ttaa[chmask] = 6
+                rblines = functions.isocurve(
+                    ttaa, 0, connected=True)
+                logger.debug("RUN1 %s " % len(rblines))
 
-            chaa = (cha - ab) * (cha - ae)
-            chaa[thmask] = 6
-            ablines = functions.isocurve(
-                chaa, 0, connected=True)
-            logger.debug("RUN2 %s " % len(ablines))
-            # print("RUN2 %s " % len(ablines))
+                thmask = (tta < rb) | (tta > re)
+                chaa = (cha - ab) * (cha - ae)
+                chaa[thmask] = 6
+                ablines = functions.isocurve(
+                    chaa, 0, connected=True)
+                logger.debug("RUN2 %s " % len(ablines))
+            else:
+                ttaa = (tta - rb) * (tta - re)
+                rblines = functions.isocurve(
+                    ttaa, 0, connected=True)
+                logger.debug("RUN4 %s " % len(rblines))
 
             for line in rblines:
                 lines.append([(p[1], p[0]) for p in line])
-            for line in ablines:
-                lines.append([(p[1], p[0]) for p in line])
+            if azend - azstart < 360:
+                for line in ablines:
+                    lines.append([(p[1], p[0]) for p in line])
             # for line in relines:
             #     lines.append([(p[1], p[0]) for p in line])
 
@@ -4510,8 +4523,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                  x[1] + step * math.sin(res.x[0])]
             if self.__tth(x) - self.__tth(y) > 0 or \
                (not res.success and abs(res.fun) > fmax):
-                # print("W1 %s " % res)
-                raise Exception("Cannot find the next point")
+                raise Exception("__findfixchipath: Cannot find the next point")
 
         points.append(tuple(y))
         if self.__dist2(y, xend) < step * step:
@@ -4579,9 +4591,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
             step = (rad / dth) / 10.
         elif (rad/dth) > 10000. * step:
             step = (rad / dth) / 10000.
-
-        if self.__dist2(xstart, xend) < step * step \
-           and abs(azstart - aze) < math.pi:
+        if ((self.__dist2(xstart, xend) < step * step
+             and abs(azstart - aze) < math.pi) or step < 1.e-6):
             points.append(tuple(xend))
             return points
 
@@ -4622,7 +4633,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
             else:
                 break
         if it == itm:
-            raise Exception("Cannot find the next point")
+            raise Exception("__findfixradpath: Cannot find the next point")
 
         points.append(tuple(y))
         if self.__dist2(y, xend) < step * step and not full:

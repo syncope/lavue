@@ -163,12 +163,13 @@ class RegionItem(IsocurveItem):
         self.path = _pg.QtGui.QPainterPath()
         # nopos = True
         for line in self.data:
-            self.path.moveTo(*line[0])
-            # if nopos:
-            #     self.setPos(*line[0])
-            #     nopos = False
-            for p in line[1:]:
-                self.path.lineTo(*p)
+            if line and len(line) > 1:
+                self.path.moveTo(*line[0])
+                # if nopos:
+                #     self.setPos(*line[0])
+                #     nopos = False
+                for p in line[1:]:
+                    self.path.lineTo(*p)
 
 
 class DisplayExtension(QtCore.QObject):
@@ -1216,7 +1217,7 @@ class RegionsExtension(DisplayExtension):
                  < [:obj:`float`, :obj:`float`, :obj:`float`, :obj:`float`] >
         """
         if not points or not isinstance(points, list):
-            points = [[0, 0]]
+            points = [[(0, 0)]]
 
         if self._mainwidget.transformations()[0]:
             points = [[(p[1], p[0]) for p in pt] for pt in points]
