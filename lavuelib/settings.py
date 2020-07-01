@@ -771,18 +771,19 @@ class Settings(object):
             detdistance = self.distance2m((self.detdistance, "mm"))
 
             with QtCore.QMutexLocker(self.aimutex):
-                self.ai = pyFAI.azimuthalIntegrator.AzimuthalIntegrator(
-                    dist=detdistance,
-                    poni1=self.detponi1,
-                    poni2=self.detponi2,
-                    rot1=self.detrot1,
-                    rot2=self.detrot2,
-                    rot3=self.detrot3,
-                    pixel1=pixel1,
-                    pixel2=pixel2,
-                    splineFile=splineFile,
-                    detector=detector,
-                    wavelength=wvln)
+                if wvln and detdistance and pixel1 and pixel2:
+                    self.ai = pyFAI.azimuthalIntegrator.AzimuthalIntegrator(
+                        dist=detdistance,
+                        poni1=self.detponi1,
+                        poni2=self.detponi2,
+                        rot1=self.detrot1,
+                        rot2=self.detrot2,
+                        rot3=self.detrot3,
+                        pixel1=pixel1,
+                        pixel2=pixel2,
+                        splineFile=splineFile,
+                        detector=detector,
+                        wavelength=wvln)
 
     def store(self, settings):
         """ Stores settings in QSettings object
