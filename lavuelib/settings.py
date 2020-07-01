@@ -771,18 +771,19 @@ class Settings(object):
             detdistance = self.distance2m((self.detdistance, "mm"))
 
             with QtCore.QMutexLocker(self.aimutex):
-                self.ai = pyFAI.azimuthalIntegrator.AzimuthalIntegrator(
-                    dist=detdistance,
-                    poni1=self.detponi1,
-                    poni2=self.detponi2,
-                    rot1=self.detrot1,
-                    rot2=self.detrot2,
-                    rot3=self.detrot3,
-                    pixel1=pixel1,
-                    pixel2=pixel2,
-                    splineFile=splineFile,
-                    detector=detector,
-                    wavelength=wvln)
+                if wvln and detdistance and pixel1 and pixel2:
+                    self.ai = pyFAI.azimuthalIntegrator.AzimuthalIntegrator(
+                        dist=detdistance,
+                        poni1=self.detponi1,
+                        poni2=self.detponi2,
+                        rot1=self.detrot1,
+                        rot2=self.detrot2,
+                        rot3=self.detrot3,
+                        pixel1=pixel1,
+                        pixel2=pixel2,
+                        splineFile=splineFile,
+                        detector=detector,
+                        wavelength=wvln)
 
     def store(self, settings):
         """ Stores settings in QSettings object
@@ -1080,22 +1081,30 @@ class Settings(object):
         if length is not None:
             if type(length) in [list, tuple]:
                 if len(length) == 1:
-                    energy = hc * 10000 / length[0]
+                    if length[0]:
+                        energy = hc * 10000 / length[0]
                 elif len(length) > 1:
                     if length[1] in self.__units['A']:
-                        energy = hc * 10000 / length[0]
+                        if length[0]:
+                            energy = hc * 10000 / length[0]
                     elif length[1] in self.__units['nm']:
-                        energy = hc * 1000 / length[0]
+                        if length[0]:
+                            energy = hc * 1000 / length[0]
                     elif length[1] in self.__units['um']:
-                        energy = hc / length[0]
+                        if length[0]:
+                            energy = hc / length[0]
                     elif length[1] in self.__units['m']:
-                        energy = hc * 1e-6 / length[0]
+                        if length[0]:
+                            energy = hc * 1e-6 / length[0]
                     elif length[1] in self.__units['mm']:
-                        energy = hc * 1e-3 / length[0]
+                        if length[0]:
+                            energy = hc * 1e-3 / length[0]
                     elif length[1] in self.__units['cm']:
-                        energy = hc * 1e-4 / length[0]
+                        if length[0]:
+                            energy = hc * 1e-4 / length[0]
             else:
-                energy = hc * 10000 / length
+                if length:
+                    energy = hc * 10000 / length
         return energy
 
     def energy2m(self, energy):
@@ -1112,15 +1121,19 @@ class Settings(object):
         if energy is not None:
             if type(energy) in [list, tuple]:
                 if len(energy) == 1:
-                    length = hc * 1e-6 / energy
+                    if energy[0]:
+                        length = hc * 1e-6 / energy[0]
                 elif len(energy) > 1:
                     if energy[1] in self.__units['eV']:
-                        length = hc * 1e-6 / energy[0]
+                        if energy[0]:
+                            length = hc * 1e-6 / energy[0]
                     elif energy[1] in self.__units['keV']:
-                        length = hc * 1e-3 / energy[0]
+                        if energy[0]:
+                            length = hc * 1e-3 / energy[0]
                     elif energy[1] in self.__units['MeV']:
-                        length = hc / energy[0]
-            else:
+                        if energy[0]:
+                            length = hc / energy[0]
+            elif energy:
                 length = hc * 1e-6 / energy
         return length
 

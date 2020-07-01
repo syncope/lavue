@@ -2850,7 +2850,7 @@ class AngleQToolWidget(ToolBaseWidget):
                     if self.__radthstart is not None else 0
                 theta = radial * self.__radmax + rstart * math.pi / 180
             else:
-                wavelength = 12398.4193/self.__settings.energy
+                wavelength = 12398.4193 / self.__settings.energy
                 rstart = self.__radqstart \
                     if self.__radqstart is not None else 0
                 theta = 2. * np.arcsin(
@@ -3155,7 +3155,7 @@ class AngleQToolWidget(ToolBaseWidget):
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             thetax, thetay, thetatotal = self.__pixel2theta(
                 xdata, ydata, xy)
-            wavelength = 12398.4193/self.__settings.energy
+            wavelength = 12398.4193 / self.__settings.energy
             if xy:
                 qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
                 qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
@@ -4161,8 +4161,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
                     rs = self.__radstart[i] * math.pi / 180.
                     re = self.__radend[i] * math.pi / 180.
                     if self.__unitindex < 2:
-                        wavelength = 12398.4193/self.__settings.energy
-                        fac = 4 * math.pi / wavelength
+                        oneoverlength = self.__settings.energy / 12398.4193
+                        fac = 4 * math.pi * oneoverlength
                         qs = fac * math.sin(rs/2.)
                         qe = fac * math.sin(re/2.)
                         if self.__unitindex == 0:
@@ -5162,7 +5162,7 @@ class MaximaToolWidget(ToolBaseWidget):
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             thetax, thetay, thetatotal = self.__pixel2theta(
                 xdata, ydata, xy)
-            wavelength = 12398.4193/self.__settings.energy
+            wavelength = 12398.4193 / self.__settings.energy
             if xy:
                 qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
                 qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
@@ -5934,7 +5934,7 @@ class QROIProjToolWidget(ToolBaseWidget):
         if self.__settings.energy > 0 and self.__settings.detdistance > 0:
             thetax, thetay, thetatotal = self.__pixel2theta(
                 xdata, ydata)
-            wavelength = 12398.4193/self.__settings.energy
+            wavelength = 12398.4193 / self.__settings.energy
             qx = 4 * math.pi / wavelength * math.sin(thetax/2.)
             qy = 4 * math.pi / wavelength * math.sin(thetay/2.)
             q = 4 * math.pi / wavelength * math.sin(thetatotal/2.)
