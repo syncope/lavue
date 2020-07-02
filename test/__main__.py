@@ -150,7 +150,11 @@ def main():
     # test runner
     runner = unittest.TextTestRunner()
     # test result
-    result = runner.run(suite).wasSuccessful()
+    
+    tresult = runner.run(suite)
+    print(tresult)
+    retuls = tresult.wasSuccessful()
+    
     sys.exit(not result)
 
     #   if ts:
