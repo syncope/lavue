@@ -36,8 +36,7 @@ if sys.version_info > (3,):
     unicode = str
 
 try:
-    import pyFAI
-    import pyFAI.azimuthalIntegrator
+    __import__("pyFAI")
     #: (:obj:`bool`) pyFAI imported
     PYFAI = True
 except ImportError:
@@ -772,7 +771,8 @@ class Settings(object):
 
             with QtCore.QMutexLocker(self.aimutex):
                 if wvln and detdistance and pixel1 and pixel2:
-                    self.ai = pyFAI.azimuthalIntegrator.AzimuthalIntegrator(
+                    from pyFAI.azimuthalIntegrator import AzimuthalIntegrator
+                    self.ai = AzimuthalIntegrator(
                         dist=detdistance,
                         poni1=self.detponi1,
                         poni2=self.detponi2,
