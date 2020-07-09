@@ -23,7 +23,7 @@
 #
 
 # import os
-# import sys
+import sys
 
 
 from lavuelib.qtuic import qt_api
@@ -85,6 +85,7 @@ DB_AVAILABLE = []
 if PYTANGO_AVAILABLE:
     import LavueController_test
     import CommandLineLavueState_test
+    import TangoAttrImageSource_test
 
 
 if PNI_AVAILABLE:
@@ -146,6 +147,9 @@ def main():
         suite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(
                 CommandLineLavueState_test))
+        suite.addTests(
+            unittest.defaultTestLoader.loadTestsFromModule(
+                TangoAttrImageSource_test))
 
     # test runner
     runner = unittest.TextTestRunner()
@@ -161,7 +165,7 @@ def main():
     print("Result: %s" % result)
     with open('testresult.txt', 'w') as fl:
         fl.write(str(int(not result)) + '\n')
-    # sys.exit(not result)
+    sys.exit(not result)
 
 
 if __name__ == "__main__":
