@@ -1220,13 +1220,14 @@ class ZMQSource(BaseSource):
         :rtype: :obj:`any`
         """
 
-        smessage = tostr(message)
         if encoding == "JSON":
+            smessage = tostr(message)
             metadata = json.loads(smessage)
         else:
             try:
                 metadata = cPickle.loads(message)
             except Exception:
+                smessage = tostr(message)
                 metadata = json.loads(smessage)
         return metadata
 
@@ -1304,6 +1305,8 @@ class ZMQSource(BaseSource):
                             self.__bindaddress, tostr(topic), self.__counter)
                     elif lmsg == 5:
                         (topic, _array, _shape, _dtype, name) = message
+                        if not isinstance(name, str):
+                            name = tostr(name)
                     dtype = self.__loads(_dtype, encoding)
                     shape = self.__loads(_shape, encoding)
 
