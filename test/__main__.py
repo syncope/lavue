@@ -28,7 +28,6 @@ import sys
 
 from lavuelib.qtuic import qt_api
 from pyqtgraph import QtGui
-# from pyqtgraph import QtCore
 
 try:
     import PyTango
