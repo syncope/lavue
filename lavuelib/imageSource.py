@@ -345,8 +345,6 @@ class NXSFileSource(BaseSource):
         self.__node = None
         #: (:obj:`bool`) nexus file source keeps the file open
         self.__nxsopen = False
-        #: (:obj:`bool`) nexus file source starts from the last image
-        self.__nxslast = False
 
     @debugmethod
     def getData(self):
@@ -361,43 +359,31 @@ class NXSFileSource(BaseSource):
         try:
             image = None
             metadata = ""
+            frame = 0
             try:
                 if self.__handler is None:
                     self.__handler = imageFileHandler.NexusFieldHandler(
                         str(self.__nxsfile))
                 if self.__node is None:
                     self.__node = self.__handler.getNode(self.__nxsfield)
-                    metadata = self.__handler.getMetaData(self.__node)
+                    try:
+                        metadata = self.__handler.getMetaData(self.__node)
+                    except Exception:
+                        metadata = ""
                     # if metadata:
                     #     print("IMAGE Metadata = %s" % str(metadata))
                 fid = self.__handler.getLastFrame(self.__node, self.__gdim)
-                if self.__nxslast:
-                    if fid - 1 > self.__frame or fid - 1 < self.__frame:
-                        self.__frame = fid - 1
+                if not self.__frame == -1:
+                    if fid < self.__frame:
+                        self.__frame = fid
+                    frame = self.__frame
                 else:
-                    if fid - 1 < self.__frame:
-                        self.__frame = fid - 1
+                    frame = fid
 
                 image = self.__handler.getImage(
                     self.__node, self.__frame, self.__gdim)
-            # except Exception:
             except Exception:
-                try:
-                    self.__handler = imageFileHandler.NexusFieldHandler(
-                        str(self.__nxsfile))
-                    self.__node = self.__handler.getNode(self.__nxsfield)
-                    fid = self.__handler.getLastFrame(
-                        self.__node, self.__gdim)
-                    if self.__nxslast:
-                        if fid - 1 > self.__frame or fid - 1 < self.__frame:
-                            self.__frame = fid - 1
-                    else:
-                        if fid - 1 < self.__frame:
-                            self.__frame = fid - 1
-                    image = self.__handler.getImage(
-                        self.__node, self.__frame, self.__gdim)
-                except Exception:
-                    pass
+                pass
             if not self.__nxsopen:
                 self.__handler = None
                 if hasattr(self.__node, "close"):
@@ -408,8 +394,7 @@ class NXSFileSource(BaseSource):
                     if image.size == 0:
                         return None, None, None
                 filename = "%s/%s:%s" % (
-                    self.__nxsfile, self.__nxsfield, self.__frame)
-                self.__frame += 1
+                    self.__nxsfile, self.__nxsfield, frame)
                 return (np.transpose(image), '%s' % (filename), metadata)
         except Exception as e:
             self.__handler = None
@@ -429,10 +414,13 @@ class NXSFileSource(BaseSource):
         try:
             self.__handler = None
             self.__node = None
-            self.__frame = 0
-            self.__nxsfile, self.__nxsfield, growdim, \
-                nxsopen, nxslast = str(
+            self.__nxsfile, self.__nxsfield, frame, growdim, \
+                nxsopen = str(
                     self._configuration).strip().split(",", 4)
+            try:
+                self.__frame = int(frame)
+            except Exception:
+                self.__frame = -1
             try:
                 self.__gdim = int(growdim)
             except Exception:
@@ -441,10 +429,6 @@ class NXSFileSource(BaseSource):
                 self.__nxsopen = False
             else:
                 self.__nxsopen = True
-            if nxslast.lower() == "false":
-                self.__nxslast = False
-            else:
-                self.__nxslast = True
             return True
         except Exception as e:
             logger.warning(str(e))

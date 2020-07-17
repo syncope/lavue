@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>288</width>
-    <height>116</height>
+    <height>146</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,6 +36,23 @@
        </property>
       </widget>
      </item>
+     <item row="3" column="1">
+      <widget class="QSpinBox" name="nxsDimSpinBox">
+       <property name="toolTip">
+        <string>stacking dimension</string>
+       </property>
+       <property name="maximum">
+        <number>5</number>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="nxsFileLineEdit">
+       <property name="toolTip">
+        <string>nexus file name with its full path</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
       <widget class="QLabel" name="nxsFileLabel">
        <property name="toolTip">
@@ -49,17 +66,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QSpinBox" name="nxsDimSpinBox">
-       <property name="toolTip">
-        <string>stacking dimension</string>
-       </property>
-       <property name="maximum">
-        <number>5</number>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
       <widget class="QLabel" name="nxsDimLabel">
        <property name="toolTip">
         <string>stacking dimension</string>
@@ -72,10 +79,26 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="nxsFileLineEdit">
+     <item row="2" column="0">
+      <widget class="QLabel" name="nxsFrameLabel">
        <property name="toolTip">
-        <string>nexus file name with its full path</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;the frame to display. &amp;quot;-1&amp;quot; means the last frame in the dataset.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Frame:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QSpinBox" name="nxsFrameSpinBox">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;the frame to display. &amp;quot;-1&amp;quot; means the last frame in the dataset.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="minimum">
+        <number>-1</number>
+       </property>
+       <property name="value">
+        <number>-1</number>
        </property>
       </widget>
      </item>
