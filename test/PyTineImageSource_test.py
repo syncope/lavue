@@ -33,13 +33,13 @@ import numpy as np
 import fabio
 
 try:
-    from . import hidra
+    from . import PyTine
 except Exception:
-    import hidra
+    import PyTine
 try:
-    from . import hidrafake
+    from . import pytinefake
 except Exception:
-    import hidrafake
+    import pytinefake
 
 import argparse
 import lavuelib
@@ -88,7 +88,7 @@ def tostr(x):
 
 
 # test fixture
-class HidraImageSourceTest(unittest.TestCase):
+class PyTineImageSourceTest(unittest.TestCase):
 
     def __init__(self, methodName):
         unittest.TestCase.__init__(self, methodName)
@@ -110,11 +110,10 @@ class HidraImageSourceTest(unittest.TestCase):
         self.__cfgfdir = "%s/%s" % (home, ".config/DESY")
         self.__cfgfname = "%s/%s" % (self.__cfgfdir, "LaVue: unittests.conf")
         self.__dialog = None
-        self.__counter = 0
         self.__tangoimgcounter = 0
         self.__tangofilepattern = "%05d.tif"
         self.__tangofilepath = ""
-        print("Hidra faked: %s" % hidrafake.faked)
+        print("PyTine faked: %s" % pytinefake.faked)
 
     def setUp(self):
         print("\nsetting up...")
@@ -130,21 +129,34 @@ class HidraImageSourceTest(unittest.TestCase):
 
     def takeNewImage(self):
         global app
-        self.__counter += 1
-
         self.__tangoimgcounter += 1
         ipath = self.__tangofilepath
         iname = \
             self.__tangofilepattern % self.__tangoimgcounter
         fname = os.path.join(ipath, iname)
-        hidra.filename = fname
-        print("SET: %s" % hidra.filename)
+        PyTine.filename = fname
         image = fabio.open(fname)
         li = image.data
         app.sendPostedEvents()
         return li
 
-    def test_readimage_fromstart(self):
+    def takeFlatImage(self):
+        global app
+        self.__tangoimgcounter += 1
+        width = 245
+        height = 124
+        li = np.ones(shape=(height, width), dtype='u2')
+        pdata = self.__tangoimgcounter
+        li.fill(pdata)
+
+        # PyTine.filename = fname
+        PyTine.pdata = pdata
+        PyTine.width = width
+        PyTine.height = height
+        app.sendPostedEvents()
+        return li
+
+    def test_readimage_noheader(self):
         fun = sys._getframe().f_code.co_name
         print("Run: %s.%s() " % (self.__class__.__name__, fun))
 
@@ -161,18 +173,20 @@ class HidraImageSourceTest(unittest.TestCase):
         with open(self.__cfgfname, "w+") as cf:
             cf.write(cfg)
 
+        PyTine.header = False
+        PyTine.pdata = None
         lastimage = None
 
         options = argparse.Namespace(
             mode='expert',
-            source='hidra',
-            # configuration='%s://entry/instrument/detector/data'
-            # % self._fname,
+            source='tineprop',
+            configuration='/HASYLAB/P00_LM00/Output/Frame',
             start=True,
             # levels="0,1000",
             tool='intensity',
             transformation='none',
             log='error',
+            # log='debug',
             instance='unittests',
             scaling='linear',
             gradient='spectrum',
@@ -204,6 +218,115 @@ class HidraImageSourceTest(unittest.TestCase):
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
             ExtCmdCheck(self, "takeNewImage"),
+        ])
+        qtck3.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            WrapAttrCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg"
+                "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+        ])
+
+        qtck1.executeChecks(delay=3000)
+        qtck2.executeChecks(delay=6000)
+        status = qtck3.executeChecksAndClose(delay=9000)
+
+        self.assertEqual(status, 0)
+
+        qtck1.compareResults(
+            self, [True, None, None, None], mask=[0, 1, 1, 1])
+        qtck2.compareResults(
+            self, [True, None, None, None], mask=[0, 1, 1, 1])
+        qtck3.compareResults(
+            self, [None, None, None, False], mask=[1, 1, 0, 0])
+
+        res1 = qtck1.results()
+        res2 = qtck2.results()
+        res3 = qtck3.results()
+        self.assertEqual(res1[1], None)
+        self.assertEqual(res1[2], None)
+
+        lastimage = res1[3].T
+        if not np.allclose(res2[1], lastimage):
+            print(res2[1])
+            print(lastimage)
+        self.assertTrue(np.allclose(res2[1], lastimage))
+        self.assertTrue(np.allclose(res2[2], lastimage))
+
+        lastimage = res2[3].T
+
+        if not np.allclose(res3[0], lastimage):
+            print(res3[0])
+            print(lastimage)
+        self.assertTrue(np.allclose(res3[0], lastimage))
+        self.assertTrue(np.allclose(res3[1], lastimage))
+
+    def test_readimage_header(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        lastimage = None
+        self.__tangoimgcounter = 0
+        self.__tangofilepath = "%s/%s" % (os.path.abspath(path), "test/images")
+        self.__tangofilepattern = "%05d.tif"
+        cfg = '[Configuration]\n' \
+            'StoreGeometry=true\n' \
+            'GeometryFromSource=true'
+
+        if not os.path.exists(self.__cfgfdir):
+            os.makedirs(self.__cfgfdir)
+        with open(self.__cfgfname, "w+") as cf:
+            cf.write(cfg)
+
+        PyTine.header = True
+        lastimage = None
+
+        options = argparse.Namespace(
+            mode='expert',
+            source='tineprop',
+            configuration='/HASYLAB/P00_LM00/Output/Frame',
+            start=True,
+            # levels="0,1000",
+            tool='intensity',
+            transformation='none',
+            log='error',
+            # log='debug',
+            instance='unittests',
+            scaling='linear',
+            gradient='spectrum',
+        )
+        logging.basicConfig(
+             format="%(levelname)s: %(message)s")
+        logger = logging.getLogger("lavue")
+        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+        dialog = lavuelib.liveViewer.MainWindow(options=options)
+        dialog.show()
+
+        qtck1 = QtChecker(app, dialog, True, sleep=100)
+        qtck2 = QtChecker(app, dialog, True, sleep=100)
+        qtck3 = QtChecker(app, dialog, True, sleep=100)
+        qtck1.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeFlatImage"),
+        ])
+        qtck2.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeFlatImage"),
         ])
         qtck3.setChecks([
             CmdCheck(
