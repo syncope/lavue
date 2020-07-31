@@ -360,11 +360,10 @@ class NXSFileSource(BaseSource):
         if self._configuration != configuration:
             self._configuration = configuration
             self._initiated = False
-            nxsfile, nxsfield, frame, growdim, \
-                nxsopen, nxslast = str(
-                    self._configuration).strip().split(",", 5)
+            params = str(
+                    self._configuration).strip().split(",")
             try:
-                self.__lastframe = int(frame)
+                self.__lastframe = int(params[2])
             except Exception:
                 self.__lastframe = -1
 
@@ -389,14 +388,15 @@ class NXSFileSource(BaseSource):
                     self.__node = self.__handler.getNode(self.__nxsfield)
                     try:
                         metadata = self.__handler.getMetaData(self.__node)
-                    except Exception:
+                    except Exception as e:
+                        logger.warning(str(e))
                         metadata = ""
                     # if metadata:
                     #     print("IMAGE Metadata = %s" % str(metadata))
                 fid = self.__handler.getFrameCount(self.__node, self.__gdim)
                 if self.__lastframe < 0:
                     if fid > - self.__lastframe:
-                        fid -= self.__lastframe
+                        self.__frame = fid - self.__lastframe
                 elif fid > self.__lastframe + 1:
                     fid = self.__lastframe + 1
                 if self.__nxslast:
@@ -408,8 +408,8 @@ class NXSFileSource(BaseSource):
 
                 image = self.__handler.getImage(
                     self.__node, self.__frame, self.__gdim)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(str(e))
             if not self.__nxsopen:
                 self.__handler = None
                 if hasattr(self.__node, "close"):
@@ -443,7 +443,7 @@ class NXSFileSource(BaseSource):
             self.__node = None
             self.__nxsfile, self.__nxsfield, frame, growdim, \
                 nxsopen, nxslast = str(
-                    self._configuration).strip().split(",", 5)
+                    self._configuration).strip().split(",", 6)
             try:
                 self.__lastframe = int(frame)
             except Exception:
