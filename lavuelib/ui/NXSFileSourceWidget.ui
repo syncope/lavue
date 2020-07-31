@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>288</width>
-    <height>146</height>
+    <height>148</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -95,7 +95,10 @@
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;the frame to display. &amp;quot;-1&amp;quot; means the last frame in the dataset.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="minimum">
-        <number>-1</number>
+        <number>-999999</number>
+       </property>
+       <property name="maximum">
+        <number>999999</number>
        </property>
        <property name="value">
         <number>-1</number>

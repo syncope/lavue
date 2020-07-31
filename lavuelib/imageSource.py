@@ -449,7 +449,7 @@ class NXSFileSource(BaseSource):
                 self.__lastframe = int(frame)
             except Exception:
                 self.__lastframe = -1
-            if self.__lastframe == -1:
+            if self.__lastframe < 0:
                 self.__frame = 0
             try:
                 self.__gdim = int(growdim)
