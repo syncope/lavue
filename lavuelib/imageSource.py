@@ -397,6 +397,8 @@ class NXSFileSource(BaseSource):
                 if self.__lastframe < 0:
                     if fid > - self.__lastframe:
                         fid -= - self.__lastframe - 1
+                    else:
+                        fid = min(1, fid)
                 elif fid > self.__lastframe + 1:
                     fid = self.__lastframe + 1
                 if self.__nxslast:
