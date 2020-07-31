@@ -1,4 +1,4 @@
-# Copyright (C) 2017  DESY, Christoph Rosemann, Notkestr. 85, D-22607 Hamburg
+# Copyright (C) 2017  DESY, Notkestr. 85, D-22607 Hamburg
 #
 # lavue is an image viewing program for photon science imaging detectors.
 # Its usual application is as a live viewer using hidra as data source.
@@ -19,11 +19,29 @@
 # Boston, MA  02110-1301, USA.
 #
 # Authors:
-#     Christoph Rosemann <christoph.rosemann@desy.de>
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
-""" release version """
 
-#: (:obj:`str`) the live viewer version
-__version__ = "2.43.10"
+import fabio
+
+#: (:obj:`str`) file name
+filename = ""
+
+
+class PV(object):
+
+    def __init__(self, pvname):
+        self.pvname = pvname
+        self.timeout = None
+        self.as_numpy = True
+        self.data = None
+
+    def get(self, as_numpy, timeout):
+        global filename
+        self.timeout = timeout
+        self.as_numpy = as_numpy
+        if filename:
+            image = fabio.open(filename)
+            data = image.data
+            return data

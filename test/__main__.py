@@ -23,12 +23,11 @@
 #
 
 # import os
-# import sys
+import sys
 
 
 from lavuelib.qtuic import qt_api
 from pyqtgraph import QtGui
-# from pyqtgraph import QtCore
 
 try:
     import PyTango
@@ -69,6 +68,10 @@ except ImportError as e:
 
 import unittest
 import CommandLineArgument_test
+import HidraImageSource_test
+import HttpImageSource_test
+import PyTineImageSource_test
+import EpicsImageSource_test
 
 if not PNI_AVAILABLE and not H5PY_AVAILABLE:
     raise Exception("Please install h5py or pni")
@@ -81,11 +84,11 @@ if not PNI_AVAILABLE and not H5PY_AVAILABLE:
 # list of available databases
 DB_AVAILABLE = []
 
-
 if PYTANGO_AVAILABLE:
     import LavueController_test
     import CommandLineLavueState_test
-
+    import TangoAttrImageSource_test
+    import ZMQStreamImageSource_test
 
 if PNI_AVAILABLE:
     import FileWriter_test
@@ -96,6 +99,8 @@ if H5PY_AVAILABLE:
 if H5CPP_AVAILABLE:
     import H5CppWriter_test
     import FileWriterH5Cpp_test
+    import CommandLineArgumentH5Cpp_test
+    import NXSFileImageSource_test
 if PNI_AVAILABLE and H5PY_AVAILABLE:
     import FileWriterPNIH5PY_test
 # if PNI_AVAILABLE and H5Cpp_AVAILABLE:
@@ -114,10 +119,32 @@ def main():
     print("Using: %s" % qt_api)
     app = QtGui.QApplication([])
     CommandLineArgument_test.app = app
-    CommandLineLavueState_test.app = app
+    HidraImageSource_test.app = app
+    HttpImageSource_test.app = app
+    PyTineImageSource_test.app = app
+    EpicsImageSource_test.app = app
+    if PYTANGO_AVAILABLE:
+        CommandLineLavueState_test.app = app
+        TangoAttrImageSource_test.app = app
+        ZMQStreamImageSource_test.app = app
+    if H5CPP_AVAILABLE:
+        CommandLineArgumentH5Cpp_test.app = app
+        NXSFileImageSource_test.app = app
     suite.addTests(
         unittest.defaultTestLoader.loadTestsFromModule(
             CommandLineArgument_test))
+    suite.addTests(
+        unittest.defaultTestLoader.loadTestsFromModule(
+            HidraImageSource_test))
+    suite.addTests(
+        unittest.defaultTestLoader.loadTestsFromModule(
+            HttpImageSource_test))
+    suite.addTests(
+        unittest.defaultTestLoader.loadTestsFromModule(
+            PyTineImageSource_test))
+    suite.addTests(
+        unittest.defaultTestLoader.loadTestsFromModule(
+            EpicsImageSource_test))
     if PNI_AVAILABLE:
         suite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(FileWriter_test))
@@ -130,6 +157,12 @@ def main():
         suite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(H5PYWriter_test))
     if H5CPP_AVAILABLE:
+        suite.addTests(
+            unittest.defaultTestLoader.loadTestsFromModule(
+                NXSFileImageSource_test))
+        suite.addTests(
+            unittest.defaultTestLoader.loadTestsFromModule(
+                CommandLineArgumentH5Cpp_test))
         suite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(
                 FileWriterH5Cpp_test))
@@ -146,6 +179,12 @@ def main():
         suite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(
                 CommandLineLavueState_test))
+        suite.addTests(
+            unittest.defaultTestLoader.loadTestsFromModule(
+                TangoAttrImageSource_test))
+        suite.addTests(
+            unittest.defaultTestLoader.loadTestsFromModule(
+                ZMQStreamImageSource_test))
 
     # test runner
     runner = unittest.TextTestRunner()
@@ -159,11 +198,9 @@ def main():
     print("ExpectedFailures: %s" % tresult.expectedFailures)
     result = tresult.wasSuccessful()
     print("Result: %s" % result)
-    # sys.exit(not result)
     with open('testresult.txt', 'w') as fl:
         fl.write(str(int(not result)) + '\n')
-    #   if ts:
-    #       ts.tearDown()
+    sys.exit(not result)
 
 
 if __name__ == "__main__":

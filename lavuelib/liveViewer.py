@@ -1251,7 +1251,16 @@ class LiveViewer(QtGui.QDialog):
                 else:
                     self.__fieldpath = None
                 self.__growing = 0
-                self._loadfile(fid=0)
+                imagename = self.__settings.imagename
+                if not imagename.endswith(".nxs") \
+                   and not imagename.endswith(".h5") \
+                   and not imagename.endswith(".nx") \
+                   and not imagename.endswith(".ndf") \
+                   and not imagename.endswith(".hdf"):
+                    fid = self.__findfid(imagename)
+                else:
+                    fid = 0
+                self._loadfile(fid=fid)
             except Exception:
                 self.__settings.imagename = oldname
                 self.__fieldpath = oldpath
@@ -1260,6 +1269,7 @@ class LiveViewer(QtGui.QDialog):
                 {"imagefile": (self.__settings.imagename or "")})
 
         # set image source
+        sourcechanged = False
         if hasattr(options, "source") and options.source is not None:
             srcnames = str(options.source).split(";")
             self.__setNumberOfSources(max(len(srcnames), 1))
@@ -1267,15 +1277,17 @@ class LiveViewer(QtGui.QDialog):
                 if srcname in self.__srcaliasnames.keys():
                     self.__sourcewg.setSourceComboBoxByName(
                         i, self.__srcaliasnames[srcname])
+            sourcechanged = True
 
         QtCore.QCoreApplication.processEvents()
-
         if hasattr(options, "configuration") and \
            options.configuration is not None:
             cnfs = str(options.configuration).split(";")
             for i, cnf in enumerate(cnfs):
                 if i < self.__sourcewg.count():
                     self.__sourcewg.configure(i, str(cnf))
+            if sourcechanged:
+                self._setSourceConfiguration(options.configuration)
 
         QtCore.QCoreApplication.processEvents()
 
@@ -1655,7 +1667,6 @@ class LiveViewer(QtGui.QDialog):
         if lazy flag it displays only splider value
         """
         if self.__lazyimageslider:
-
             fid = self.__ui.frameHorizontalSlider.value()
             self.__ui.frameLineEdit.textChanged.disconnect(
                 self._spinreloadfile)
@@ -1683,6 +1694,28 @@ class LiveViewer(QtGui.QDialog):
                 self._reloadfile(fid, showmessage)
         finally:
             self.__reloadflag = False
+
+    def __findfid(self, imagename):
+        """ find file id
+        """
+        try:
+            ipath, iname = ntpath.split(imagename)
+            basename, ext = os.path.splitext(iname)
+            ival = True
+            w = 0
+            while ival:
+                try:
+                    int(basename[(- w - 1):])
+                    w += 1
+                    if w == len(basename):
+                        ival = False
+                except Exception:
+                    ival = False
+            ffid = basename[-w:]
+            fid = int(ffid)
+        except Exception:
+            fid = 0
+        return fid
 
     @debugmethod
     def _reloadfile(self, fid=None, showmessage=False, nexus=None):
@@ -2911,7 +2944,7 @@ class LiveViewer(QtGui.QDialog):
                 self.__ui.higherframePushButton.show()
                 self.__ui.frameLineEdit.show()
         else:
-            self.__fieldpath = None
+            # self.__fieldpath = None
             self.__ui.lowerframePushButton.hide()
             self.__ui.higherframePushButton.hide()
             self.__ui.framestepSpinBox.hide()

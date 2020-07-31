@@ -484,6 +484,9 @@ class TangoFileSource(BaseSource):
                 filename = "%s/%s" % (dattr, filename)
                 for key, val in self.__dirtrans.items():
                     filename = filename.replace(key, val)
+            if str(filename) in ["", "/"]:
+                logger.warning("TangoFileSource: File name not defined")
+                return None, None, None
             fh = imageFileHandler.ImageFileHandler(str(filename))
             image = fh.getImage()
             mdata = fh.getMetaData()
@@ -1042,8 +1045,11 @@ class HTTPSource(BaseSource):
                     data = response.content
                     if data[:10] == "###CBF: VE":
                         # print("[cbf source module]::metadata", name)
-                        img = imageFileHandler.CBFLoader().load(
-                            np.fromstring(data[:], dtype=np.uint8))
+                        try:
+                            nimg = np.frombuffer(data[:], dtype=np.uint8)
+                        except Exception:
+                            nimg = np.fromstring(data[:], dtype=np.uint8)
+                        img = imageFileHandler.CBFLoader().load(nimg)
                         if img is None:
                             return None, None, None
                         if hasattr(img, "size") and img.size == 0:
@@ -1085,6 +1091,8 @@ class HTTPSource(BaseSource):
                 return str(e), "__ERROR__", ""
             else:
                 if str(response.text) == 'Image not available':
+                    return str(response.text), None, None
+                if "File not found" in str(response.text):
                     return str(response.text), None, None
                 else:
                     return str(response.text), "__ERROR__", None
@@ -1204,13 +1212,14 @@ class ZMQSource(BaseSource):
         :rtype: :obj:`any`
         """
 
-        smessage = tostr(message)
         if encoding == "JSON":
+            smessage = tostr(message)
             metadata = json.loads(smessage)
         else:
             try:
                 metadata = cPickle.loads(message)
             except Exception:
+                smessage = tostr(message)
                 metadata = json.loads(smessage)
         return metadata
 
@@ -1288,6 +1297,8 @@ class ZMQSource(BaseSource):
                             self.__bindaddress, tostr(topic), self.__counter)
                     elif lmsg == 5:
                         (topic, _array, _shape, _dtype, name) = message
+                        if not isinstance(name, str):
+                            name = tostr(name)
                     dtype = self.__loads(_dtype, encoding)
                     shape = self.__loads(_shape, encoding)
 
@@ -1407,7 +1418,7 @@ class HiDRASource(BaseSource):
         #: (:obj:`bool`) use tiff loader
         self.__tiffloader = False
 
-    @debugmethod
+    # @debugmethod
     def setConfiguration(self, configuration):
         """ set configuration
 
@@ -1711,6 +1722,8 @@ class TinePropSource(BaseSource):
             dtype = "u1"
         elif header["bytesPerPixel"] == 2:
             dtype = "u2"
+        elif header["bytesPerPixel"] == 4:
+            dtype = "u4"
         else:
             raise ValueError("Invalid bytesPerPixel: %s"
                              % header["bytesPerPixel"])

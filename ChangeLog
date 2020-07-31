@@ -1,3 +1,32 @@
+2020-07-XX Jan Kotanski <jan.kotanski@desy.de>
+	* add link to the changelog file in LaVue help
+	* tagged as 2.43.10
+
+2020-07-28 Jan Kotanski <jan.kotanski@desy.de>
+	* add tests for Tango File image source
+	* add tests for Hidra image source
+	* add tests for Http image source
+	* add tests for PyTine image source
+	* add tests for Epics image source
+	* improve warning message for a missing file name in TangoFileSource
+	* add "File not found" as a no-image message in the HTTP source
+	* tagged as 2.43.9
+
+2020-07-24 Jan Kotanski <jan.kotanski@desy.de>
+	* improve fetching units from nexus files
+	* add tests for NXSLastImage parameter
+	* add tests for Nexus File image source
+	* add tests for Tango Events image source
+	* tagged as 2.43.8
+
+2020-07-14 Jan Kotanski <jan.kotanski@desy.de>
+	* fix zmq alias name
+	* allow host:port/topic syntax in the zmq configuration
+	* fix fetching security stream port for py3
+	* add tests for tango attribute image source
+	* add tests for ZMQ stream image source
+	* tagged as 2.43.7
+
 2020-07-01 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for 1/energy when energy is 0
 	* tagged as 2.43.6

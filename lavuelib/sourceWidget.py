@@ -1788,7 +1788,7 @@ class ZMQSourceWidget(SourceBaseWidget):
     #: (:obj:`str`) source name
     name = "ZMQ Stream"
     #: (:obj:`str`) source alias
-    alias = "zmqsource"
+    alias = "zmq"
     #: (:obj:`str`) datasource class name
     datasource = "ZMQSource"
 
@@ -2015,7 +2015,7 @@ class ZMQSourceWidget(SourceBaseWidget):
         :param configuration: configuration string
         :type configuration: :obj:`str`
         """
-        cnflst = configuration.split(",")
+        cnflst = configuration.replace("/", ",").split(",")
         srvcnf = cnflst[0] if cnflst else ""
         topiccnf = cnflst[1] if len(cnflst) > 1 else ""
 
