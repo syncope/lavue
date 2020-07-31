@@ -396,7 +396,7 @@ class NXSFileSource(BaseSource):
                 fid = self.__handler.getFrameCount(self.__node, self.__gdim)
                 if self.__lastframe < 0:
                     if fid > - self.__lastframe:
-                        self.__frame = fid - self.__lastframe
+                        fid -= - self.__lastframe - 1
                 elif fid > self.__lastframe + 1:
                     fid = self.__lastframe + 1
                 if self.__nxslast:
