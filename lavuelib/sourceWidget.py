@@ -1605,6 +1605,7 @@ class NXSFileSourceWidget(SourceBaseWidget):
         self.widgetnames = [
             "nxsFileLabel", "nxsFileLineEdit",
             "nxsFieldLabel", "nxsFieldLineEdit",
+            "nxsFrameLabel", "nxsFrameSpinBox",
             "nxsDimLabel", "nxsDimSpinBox"
         ]
         #: (:obj:`bool`) nexus file source keeps the file open
@@ -1618,9 +1619,23 @@ class NXSFileSourceWidget(SourceBaseWidget):
 
         self._ui.nxsFileLineEdit.textEdited.connect(self.updateButton)
         self._ui.nxsFieldLineEdit.textEdited.connect(self.updateButton)
+        self._ui.nxsFrameSpinBox.valueChanged.connect(
+            self._updateFrameSpinBox)
         self._ui.nxsDimSpinBox.valueChanged.connect(self.updateButton)
         self._ui.nxsFileLineEdit.installEventFilter(self)
         self._ui.nxsFieldLineEdit.installEventFilter(self)
+
+    @QtCore.pyqtSlot()
+    def _updateFrameSpinBox(self):
+        """ update nexus frame combobox
+        """
+        disconnected = False
+        if self._connected:
+            disconnected = True
+            self.sourceStateChanged.emit(0)
+        self.updateButton()
+        if disconnected:
+            self.sourceStateChanged.emit(-1)
 
     def eventFilter(self, obj, event):
         """ event filter
@@ -1681,7 +1696,7 @@ class NXSFileSourceWidget(SourceBaseWidget):
         """
         if not self.active:
             return
-        nfl, nfd, nsb, nxsopen, nxslast = self.__configuration()
+        nfl, nfd, nsb, nfm, nxsopen, nxslast = self.__configuration()
         if not nfl or not nfd:
             self.buttonEnabled.emit(False)
         else:
@@ -1696,8 +1711,9 @@ class NXSFileSourceWidget(SourceBaseWidget):
         """
         nfl = str(self._ui.nxsFileLineEdit.text()).strip()
         nfd = str(self._ui.nxsFieldLineEdit.text()).strip()
+        nfm = int(self._ui.nxsFrameSpinBox.value())
         nsb = int(self._ui.nxsDimSpinBox.value())
-        return (nfl, nfd, nsb, self.__nxsopen, self.__nxslast)
+        return (nfl, nfd, nfm, nsb, self.__nxsopen, self.__nxslast)
 
     def configuration(self):
         """ provides configuration for the current image source
@@ -1705,7 +1721,7 @@ class NXSFileSourceWidget(SourceBaseWidget):
         :returns configuration: configuration string
         :rtype configuration: :obj:`str`
         """
-        return "%s,%s,%s,%s,%s" % self.__configuration()
+        return "%s,%s,%s,%s,%s,%s" % self.__configuration()
 
     def connectWidget(self):
         """ connects widget
@@ -1723,7 +1739,7 @@ class NXSFileSourceWidget(SourceBaseWidget):
         self._ui.nxsFieldLineEdit.setReadOnly(False)
         self._ui.nxsDimSpinBox.setEnabled(True)
 
-    def updateMetaData(self, nxsopen=None, nxslast=None,  **kargs):
+    def updateMetaData(self, nxsopen=None, nxslast=None, **kargs):
         """ update source input parameters
 
         :param nxsopen: nexus file source keeps the file open
@@ -1764,9 +1780,15 @@ class NXSFileSourceWidget(SourceBaseWidget):
         except Exception:
             growcnf = 0
 
+        try:
+            nfm = int(cnflst[2])
+        except Exception:
+            nfm = -1
+
         self._ui.nxsFileLineEdit.setText(filecnf)
         self._ui.nxsFieldLineEdit.setText(fieldcnf)
         self._ui.nxsDimSpinBox.setValue(growcnf)
+        self._ui.nxsFrameSpinBox.setValue(nfm)
         self.updateButton()
 
     def label(self):

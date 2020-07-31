@@ -338,6 +338,8 @@ class NXSFileSource(BaseSource):
         self.__gdim = 0
         #: (:obj:`int`) the current frame
         self.__frame = 0
+        #: (:obj:`int`) the last frame to view
+        self.__lastframe = -1
         #: (:class:`lavuelib.imageFileHandler.NexusFieldHandler`)
         #: the nexus file handler
         self.__handler = None
@@ -347,6 +349,23 @@ class NXSFileSource(BaseSource):
         self.__nxsopen = False
         #: (:obj:`bool`) nexus file source starts from the last image
         self.__nxslast = False
+
+    @debugmethod
+    def setConfiguration(self, configuration):
+        """ set configuration
+
+        :param configuration:  configuration string
+        :type configuration: :obj:`str`
+        """
+        if self._configuration != configuration:
+            self._configuration = configuration
+            self._initiated = False
+            params = str(
+                    self._configuration).strip().split(",")
+            try:
+                self.__lastframe = int(params[2])
+            except Exception:
+                self.__lastframe = -1
 
     @debugmethod
     def getData(self):
@@ -367,12 +386,21 @@ class NXSFileSource(BaseSource):
                         str(self.__nxsfile))
                 if self.__node is None:
                     self.__node = self.__handler.getNode(self.__nxsfield)
-                    metadata = self.__handler.getMetaData(self.__node)
+                    try:
+                        metadata = self.__handler.getMetaData(self.__node)
+                    except Exception as e:
+                        logger.warning(str(e))
+                        metadata = ""
                     # if metadata:
                     #     print("IMAGE Metadata = %s" % str(metadata))
-                fid = self.__handler.getLastFrame(self.__node, self.__gdim)
+                fid = self.__handler.getFrameCount(self.__node, self.__gdim)
+                if self.__lastframe < 0:
+                    if fid > - self.__lastframe:
+                        fid -= - self.__lastframe - 1
+                elif fid > self.__lastframe + 1:
+                    fid = self.__lastframe + 1
                 if self.__nxslast:
-                    if fid - 1 > self.__frame or fid - 1 < self.__frame:
+                    if fid - 1 != self.__frame:
                         self.__frame = fid - 1
                 else:
                     if fid - 1 < self.__frame:
@@ -380,24 +408,8 @@ class NXSFileSource(BaseSource):
 
                 image = self.__handler.getImage(
                     self.__node, self.__frame, self.__gdim)
-            # except Exception:
-            except Exception:
-                try:
-                    self.__handler = imageFileHandler.NexusFieldHandler(
-                        str(self.__nxsfile))
-                    self.__node = self.__handler.getNode(self.__nxsfield)
-                    fid = self.__handler.getLastFrame(
-                        self.__node, self.__gdim)
-                    if self.__nxslast:
-                        if fid - 1 > self.__frame or fid - 1 < self.__frame:
-                            self.__frame = fid - 1
-                    else:
-                        if fid - 1 < self.__frame:
-                            self.__frame = fid - 1
-                    image = self.__handler.getImage(
-                        self.__node, self.__frame, self.__gdim)
-                except Exception:
-                    pass
+            except Exception as e:
+                logger.warning(str(e))
             if not self.__nxsopen:
                 self.__handler = None
                 if hasattr(self.__node, "close"):
@@ -429,10 +441,15 @@ class NXSFileSource(BaseSource):
         try:
             self.__handler = None
             self.__node = None
-            self.__frame = 0
-            self.__nxsfile, self.__nxsfield, growdim, \
+            self.__nxsfile, self.__nxsfield, frame, growdim, \
                 nxsopen, nxslast = str(
-                    self._configuration).strip().split(",", 4)
+                    self._configuration).strip().split(",", 6)
+            try:
+                self.__lastframe = int(frame)
+            except Exception:
+                self.__lastframe = -1
+            if self.__lastframe < 0:
+                self.__frame = 0
             try:
                 self.__gdim = int(growdim)
             except Exception:
