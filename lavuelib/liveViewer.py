@@ -1132,6 +1132,7 @@ class LiveViewer(QtGui.QDialog):
             zmqservers=self.__settings.zmqservers,
             httpurls=self.__settings.httpurls,
             autozmqtopics=self.__settings.autozmqtopics,
+            nxslast=self.__settings.nxslast,
             nxsopen=self.__settings.nxsopen,
             serverdict=serverdict,
             hidraport=self.__settings.hidraport,
@@ -2010,6 +2011,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.tangodirattrs = self.__settings.tangodirattrs
         cnfdlg.httpurls = self.__settings.httpurls
         cnfdlg.zmqservers = self.__settings.zmqservers
+        cnfdlg.nxslast = self.__settings.nxslast
         cnfdlg.nxsopen = self.__settings.nxsopen
         cnfdlg.sendrois = self.__settings.sendrois
         cnfdlg.sendresults = self.__settings.sendresults
@@ -2253,6 +2255,9 @@ class LiveViewer(QtGui.QDialog):
             setsrc = True
         if self.__settings.nxsopen != dialog.nxsopen:
             self.__settings.nxsopen = dialog.nxsopen
+            setsrc = True
+        if self.__settings.nxslast != dialog.nxslast:
+            self.__settings.nxslast = dialog.nxslast
             setsrc = True
         if self.__settings.sendrois != dialog.sendrois:
             self.__settings.sendrois = dialog.sendrois

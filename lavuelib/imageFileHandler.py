@@ -238,7 +238,7 @@ class NexusFieldHandler(object):
         return node
 
     @classmethod
-    def getLastFrame(cls, node, growing=0, refresh=True):
+    def getFrameCount(cls, node, growing=0, refresh=True):
         """ provides the last frame number
 
         :param node: nexus field node

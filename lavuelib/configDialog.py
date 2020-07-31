@@ -327,6 +327,8 @@ class ConfigDialog(QtGui.QDialog):
 
         #: (:obj:`bool`) nexus file source keeps the file open
         self.nxsopen = False
+        #: (:obj:`bool`) nexus file source starts from the last image
+        self.nxslast = False
         #: (:obj:`bool`) store detector geometry
         self.storegeometry = False
         #: (:obj:`bool`) fetch geometry from source
@@ -462,6 +464,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.zmqserversLineEdit.setText(self.zmqservers)
         self.__ui.urlsLineEdit.setText(self.httpurls)
         self.__ui.nxsopenCheckBox.setChecked(self.nxsopen)
+        self.__ui.nxslastCheckBox.setChecked(self.nxslast)
         self.__ui.storegeometryCheckBox.setChecked(self.storegeometry)
         self.__ui.fetchgeometryCheckBox.setChecked(self.geometryfromsource)
         self.__ui.sendroisCheckBox.setChecked(self.sendrois)
@@ -763,6 +766,7 @@ class ConfigDialog(QtGui.QDialog):
         self.lazyimageslider = self.__ui.lazyimageCheckBox.isChecked()
         self.statswoscaling = not self.__ui.statsscaleCheckBox.isChecked()
         self.nxsopen = self.__ui.nxsopenCheckBox.isChecked()
+        self.nxslast = self.__ui.nxslastCheckBox.isChecked()
         self.storegeometry = self.__ui.storegeometryCheckBox.isChecked()
         self.geometryfromsource = self.__ui.fetchgeometryCheckBox.isChecked()
         self.sendrois = self.__ui.sendroisCheckBox.isChecked()

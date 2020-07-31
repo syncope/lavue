@@ -338,6 +338,8 @@ class NXSFileSource(BaseSource):
         self.__gdim = 0
         #: (:obj:`int`) the current frame
         self.__frame = 0
+        #: (:obj:`int`) the last frame to view
+        self.__lastframe = -1
         #: (:class:`lavuelib.imageFileHandler.NexusFieldHandler`)
         #: the nexus file handler
         self.__handler = None
@@ -345,6 +347,26 @@ class NXSFileSource(BaseSource):
         self.__node = None
         #: (:obj:`bool`) nexus file source keeps the file open
         self.__nxsopen = False
+        #: (:obj:`bool`) nexus file source starts from the last image
+        self.__nxslast = False
+
+    @debugmethod
+    def setConfiguration(self, configuration):
+        """ set configuration
+
+        :param configuration:  configuration string
+        :type configuration: :obj:`str`
+        """
+        if self._configuration != configuration:
+            self._configuration = configuration
+            self._initiated = False
+            nxsfile, nxsfield, frame, growdim, \
+                nxsopen, nxslast = str(
+                    self._configuration).strip().split(",", 5)
+            try:
+                self.__lastframe = int(frame)
+            except Exception:
+                self.__lastframe = -1
 
     @debugmethod
     def getData(self):
@@ -372,13 +394,18 @@ class NXSFileSource(BaseSource):
                         metadata = ""
                     # if metadata:
                     #     print("IMAGE Metadata = %s" % str(metadata))
-                fid = self.__handler.getLastFrame(self.__node, self.__gdim)
-                if not self.__frame == -1:
-                    if fid < self.__frame:
-                        self.__frame = fid
-                    frame = self.__frame
+                fid = self.__handler.getFrameCount(self.__node, self.__gdim)
+                if self.__lastframe < 0:
+                    if fid > - self.__lastframe:
+                        fid -= self.__lastframe
+                elif fid > self.__lastframe + 1:
+                    fid = self.__lastframe + 1
+                if self.__nxslast:
+                    if fid - 1 != self.__frame:
+                        self.__frame = fid - 1
                 else:
-                    frame = fid
+                    if fid - 1 < self.__frame:
+                        self.__frame = fid - 1
 
                 image = self.__handler.getImage(
                     self.__node, self.__frame, self.__gdim)
@@ -394,7 +421,8 @@ class NXSFileSource(BaseSource):
                     if image.size == 0:
                         return None, None, None
                 filename = "%s/%s:%s" % (
-                    self.__nxsfile, self.__nxsfield, frame)
+                    self.__nxsfile, self.__nxsfield, self.__frame)
+                self.__frame += 1
                 return (np.transpose(image), '%s' % (filename), metadata)
         except Exception as e:
             self.__handler = None
@@ -415,12 +443,14 @@ class NXSFileSource(BaseSource):
             self.__handler = None
             self.__node = None
             self.__nxsfile, self.__nxsfield, frame, growdim, \
-                nxsopen = str(
-                    self._configuration).strip().split(",", 4)
+                nxsopen, nxslast = str(
+                    self._configuration).strip().split(",", 5)
             try:
-                self.__frame = int(frame)
+                self.__lastframe = int(frame)
             except Exception:
-                self.__frame = -1
+                self.__lastframe = -1
+            if self.__lastframe == -1:
+                self.__frame = 0
             try:
                 self.__gdim = int(growdim)
             except Exception:
@@ -429,6 +459,10 @@ class NXSFileSource(BaseSource):
                 self.__nxsopen = False
             else:
                 self.__nxsopen = True
+            if nxslast.lower() == "false":
+                self.__nxslast = False
+            else:
+                self.__nxslast = True
             return True
         except Exception as e:
             logger.warning(str(e))

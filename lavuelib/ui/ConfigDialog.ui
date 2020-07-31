@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1093</width>
+    <width>1067</width>
     <height>693</height>
    </rect>
   </property>
@@ -1462,6 +1462,16 @@
            <layout class="QGridLayout" name="gridLayout_21">
             <item row="0" column="0">
              <layout class="QGridLayout" name="gridLayout_20">
+              <item row="0" column="1">
+               <widget class="QCheckBox" name="nxsopenCheckBox">
+                <property name="toolTip">
+                 <string>nexus source keeps the file open</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
               <item row="0" column="0">
                <widget class="QLabel" name="nxsopenLabel">
                 <property name="toolTip">
@@ -1475,10 +1485,23 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="1">
-               <widget class="QCheckBox" name="nxsopenCheckBox">
+              <item row="1" column="0">
+               <widget class="QLabel" name="nxslastLabel">
                 <property name="toolTip">
-                 <string>nexus source keeps the file open</string>
+                 <string>nexus source starts from the last image</string>
+                </property>
+                <property name="text">
+                 <string>Start from the last &amp;image:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>nxslastCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QCheckBox" name="nxslastCheckBox">
+                <property name="toolTip">
+                 <string>nexus source starts from the last image</string>
                 </property>
                 <property name="text">
                  <string/>
@@ -2047,6 +2070,7 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>autozmqtopicsCheckBox</tabstop>
   <tabstop>zmqtopicsLineEdit</tabstop>
   <tabstop>nxsopenCheckBox</tabstop>
+  <tabstop>nxslastCheckBox</tabstop>
   <tabstop>attrLineEdit</tabstop>
   <tabstop>evattrLineEdit</tabstop>
   <tabstop>fileattrLineEdit</tabstop>

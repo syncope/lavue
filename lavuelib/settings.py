@@ -182,6 +182,8 @@ class Settings(object):
         self.analysisdevice = ""
         #: (:obj:`bool`) nexus file source keeps the file open
         self.nxsopen = False
+        #: (:obj:`bool`) nexus file source starts from the last image
+        self.nxslast = False
         #: (:obj:`list` < :obj:`str`>) hidra detector server list
         self.detservers = "[]"
         #: (:obj:`bool`) use default detector servers
@@ -430,6 +432,9 @@ class Settings(object):
         qstval = str(settings.value("Configuration/NXSFileOpen", type=str))
         if qstval.lower() == "true":
             self.nxsopen = True
+        qstval = str(settings.value("Configuration/NXSLastImage", type=str))
+        if qstval.lower() == "true":
+            self.nxslast = True
         qstval = str(settings.value(
             "Configuration/SingleROIAliases", type=str))
         if qstval.lower() == "true":
@@ -976,6 +981,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/HTTPURLs",
             self.httpurls)
+        settings.setValue(
+            "Configuration/NXSLastImage",
+            self.nxslast)
         settings.setValue(
             "Configuration/NXSFileOpen",
             self.nxsopen)
