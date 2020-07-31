@@ -381,7 +381,6 @@ class NXSFileSource(BaseSource):
         try:
             image = None
             metadata = ""
-            frame = 0
             try:
                 if self.__handler is None:
                     self.__handler = imageFileHandler.NexusFieldHandler(
