@@ -1605,8 +1605,8 @@ class NXSFileSourceWidget(SourceBaseWidget):
         self.widgetnames = [
             "nxsFileLabel", "nxsFileLineEdit",
             "nxsFieldLabel", "nxsFieldLineEdit",
-            "nxsFrameLabel", "nxsFrameSpinBox",
-            "nxsDimLabel", "nxsDimSpinBox"
+            "nxsDimLabel", "nxsDimSpinBox",
+            "nxsFrameLabel", "nxsFrameSpinBox"
         ]
         #: (:obj:`bool`) nexus file source keeps the file open
         self.__nxsopen = False
@@ -1781,7 +1781,7 @@ class NXSFileSourceWidget(SourceBaseWidget):
             growcnf = 0
 
         try:
-            nfm = int(cnflst[2])
+            nfm = int(cnflst[2].replace("m", "-"))
         except Exception:
             nfm = -1
 

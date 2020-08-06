@@ -131,6 +131,7 @@ def main():
         "  zmq -> '-c haso228:5535,topic'\n"
         "  doocsprop -> '-c TTF2.FEL/BLFW2.CAM/BL0M1.CAM/IMAGE_EXT'\n"
         "  nxsfile -> '-c /tmp/myfile.nxs://entry/data/pilatus'  \n"
+        "        or   '-c /tmp/myfile2.nxs://entry/data/pilatus,0,34'  \n"
         "  tineprop -> '-c '/HASYLAB/P00_LM00/Output/Frame'\n"
         "  epicspv -> '-c '00SIM0:cam1:,[640,480]'\n"
         "configuration for multiple-sources is separated"

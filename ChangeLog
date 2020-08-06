@@ -1,3 +1,8 @@
+2020-08-06 Jan Kotanski <jan.kotanski@desy.de>
+	* add posibility of negative frames to nexus file source configuration
+	* change order of widgets in nexus file image source
+	* tagged as 2.44.2
+
 2020-08-04 Jan Kotanski <jan.kotanski@desy.de>
 	* update NeXus File image source help
 	* tagged as 2.44.1
