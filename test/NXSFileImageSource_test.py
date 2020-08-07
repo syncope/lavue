@@ -294,8 +294,8 @@ class NXSFileImageSourceTest(unittest.TestCase):
             res1 = qtck1.results()
             res2 = qtck2.results()
             res3 = qtck3.results()
-            np.allclose(res1[1], lastimage)
-            np.allclose(res1[2], lastimage)
+            self.assertTrue(np.allclose(res1[1], lastimage))
+            self.assertTrue(np.allclose(res1[2], lastimage))
 
             lastimage = res1[3].T
             if not np.allclose(res2[1], lastimage):
@@ -428,8 +428,8 @@ class NXSFileImageSourceTest(unittest.TestCase):
             res1 = qtck1.results()
             res2 = qtck2.results()
             res3 = qtck3.results()
-            np.allclose(res1[1], lastimage)
-            np.allclose(res1[2], lastimage)
+            self.assertTrue(np.allclose(res1[1], lastimage))
+            self.assertTrue(np.allclose(res1[2], lastimage))
 
             lastimage = res1[3].T
             if not np.allclose(res2[1], lastimage):
@@ -440,6 +440,299 @@ class NXSFileImageSourceTest(unittest.TestCase):
 
             lastimage = res2[3].T
 
+            if not np.allclose(res3[0], lastimage):
+                print(res3[0])
+                print(lastimage)
+            self.assertTrue(np.allclose(res3[0], lastimage))
+            self.assertTrue(np.allclose(res3[1], lastimage))
+
+        finally:
+            self.closedetfile()
+            if os.path.isfile(self._fname):
+                os.remove(self._fname)
+
+    def test_readimage_negativeframe(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        self._fname = '%s/%s%s.nxs' % (
+            os.getcwd(), self.__class__.__name__, fun)
+        try:
+            self.createdetfile(self._fname)
+            cfg = '[Configuration]\n' \
+                'StoreGeometry=true\n' \
+                'GeometryFromSource=true\n' \
+                'NXSFileOpen=false\n' \
+                'NXSLastImage=true\n' \
+                '[Tools]\n' \
+                'CenterX=1141.5\n' \
+                'CenterY=1285.0\n' \
+                'CorrectSolidAngle=true\n' \
+                'DetectorDistance=162.75\n' \
+                'DetectorName=Eiger4M\n' \
+                'DetectorPONI1=0.125\n' \
+                'DetectorPONI2=0.25\n' \
+                'DetectorRot1=0.5\n' \
+                'DetectorRot2=0.125\n' \
+                'DetectorRot3=-0.25\n' \
+                'DetectorSplineFile=\n' \
+                'DiffractogramNPT=1000\n' \
+                'Energy=13450.\n' \
+                'PixelSizeX=75\n' \
+                'PixelSizeY=65\n'
+
+            if not os.path.exists(self.__cfgfdir):
+                os.makedirs(self.__cfgfdir)
+            with open(self.__cfgfname, "w+") as cf:
+                cf.write(cfg)
+
+            lastimage = None
+
+            options = argparse.Namespace(
+                mode='expert',
+                source='nxsfile',
+                configuration='%s://entry/instrument/detector/data,0,m2'
+                % self._fname,
+                start=True,
+                levels="0,1000",
+                tool='intensity',
+                transformation='none',
+                log='error',
+                instance='unittests',
+                scaling='linear',
+                gradient='spectrum',
+            )
+            logging.basicConfig(
+                 format="%(levelname)s: %(message)s")
+            logger = logging.getLogger("lavue")
+            lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+            dialog = lavuelib.liveViewer.MainWindow(options=options)
+            dialog.show()
+
+            qtck1 = QtChecker(app, dialog, True, sleep=100)
+            qtck2 = QtChecker(app, dialog, True, sleep=100)
+            qtck3 = QtChecker(app, dialog, True, sleep=100)
+            qtck1.setChecks([
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+                ExtCmdCheck(self, "takeNewImage"),
+            ])
+            qtck2.setChecks([
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+                ExtCmdCheck(self, "takeNewImage"),
+            ])
+            qtck3.setChecks([
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+                WrapAttrCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg"
+                    "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                    QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            ])
+
+            qtck1.executeChecks(delay=3000)
+            qtck2.executeChecks(delay=6000)
+            status = qtck3.executeChecksAndClose(delay=9000)
+
+            self.assertEqual(status, 0)
+
+            qtck1.compareResults(
+                self, [True, None, None, None], mask=[0, 1, 1, 1])
+            qtck2.compareResults(
+                self, [True, None, None, None], mask=[0, 1, 1, 1])
+            qtck3.compareResults(
+                self, [None, None, None, False], mask=[1, 1, 0, 0])
+
+            lastimage = np.ones(shape=self.__shape).T
+            lastimage.fill(8)
+
+            res1 = qtck1.results()
+            res2 = qtck2.results()
+            res3 = qtck3.results()
+            if not np.allclose(res1[1], lastimage):
+                print(res1[1])
+                print(lastimage)
+            self.assertTrue(np.allclose(res1[1], lastimage))
+            self.assertTrue(np.allclose(res1[2], lastimage))
+
+            lastimage = np.ones(shape=self.__shape).T
+            lastimage.fill(9)
+            lastimage2 = res1[3].T
+            if not np.allclose(res2[1], lastimage):
+                print(res2[1])
+                print(lastimage)
+            self.assertTrue(np.allclose(res2[1], lastimage))
+            self.assertTrue(np.allclose(res2[2], lastimage))
+
+            # lastimage3 = res2[3].T
+
+            if not np.allclose(res3[0], lastimage2):
+                print(res3[0])
+                print(lastimage2)
+            self.assertTrue(np.allclose(res3[0], lastimage2))
+            self.assertTrue(np.allclose(res3[1], lastimage2))
+
+        finally:
+            self.closedetfile()
+            if os.path.isfile(self._fname):
+                os.remove(self._fname)
+
+    def test_readimage_frame(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        self._fname = '%s/%s%s.nxs' % (
+            os.getcwd(), self.__class__.__name__, fun)
+        try:
+            self.createdetfile(self._fname)
+            cfg = '[Configuration]\n' \
+                'StoreGeometry=true\n' \
+                'GeometryFromSource=true\n' \
+                'NXSFileOpen=false\n' \
+                'NXSLastImage=true\n' \
+                '[Tools]\n' \
+                'CenterX=1141.5\n' \
+                'CenterY=1285.0\n' \
+                'CorrectSolidAngle=true\n' \
+                'DetectorDistance=162.75\n' \
+                'DetectorName=Eiger4M\n' \
+                'DetectorPONI1=0.125\n' \
+                'DetectorPONI2=0.25\n' \
+                'DetectorRot1=0.5\n' \
+                'DetectorRot2=0.125\n' \
+                'DetectorRot3=-0.25\n' \
+                'DetectorSplineFile=\n' \
+                'DiffractogramNPT=1000\n' \
+                'Energy=13450.\n' \
+                'PixelSizeX=75\n' \
+                'PixelSizeY=65\n'
+
+            if not os.path.exists(self.__cfgfdir):
+                os.makedirs(self.__cfgfdir)
+            with open(self.__cfgfname, "w+") as cf:
+                cf.write(cfg)
+
+            lastimage = None
+
+            options = argparse.Namespace(
+                mode='expert',
+                source='nxsfile',
+                configuration='%s://entry/instrument/detector/data,0,5'
+                % self._fname,
+                start=True,
+                levels="0,1000",
+                tool='intensity',
+                transformation='none',
+                log='error',
+                instance='unittests',
+                scaling='linear',
+                gradient='spectrum',
+            )
+            logging.basicConfig(
+                 format="%(levelname)s: %(message)s")
+            logger = logging.getLogger("lavue")
+            lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+            dialog = lavuelib.liveViewer.MainWindow(options=options)
+            dialog.show()
+
+            qtck1 = QtChecker(app, dialog, True, sleep=100)
+            qtck2 = QtChecker(app, dialog, True, sleep=100)
+            qtck3 = QtChecker(app, dialog, True, sleep=100)
+            # self._ui.nxsFrameSpinBox
+            qtck1.setChecks([
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+                # ExtCmdCheck(self, "takeNewImage"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg"
+                    "._SourceTabWidget__sourcetabs[],0"
+                    "._SourceForm__sourcewidgets[],NeXus File"
+                    ".widgets[],7"
+                    ".setValue", [7]),
+            ])
+            qtck2.setChecks([
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+                # ExtCmdCheck(self, "takeNewImage"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg"
+                    "._SourceTabWidget__sourcetabs[],0"
+                    "._SourceForm__sourcewidgets[],NeXus File"
+                    ".widgets[],7"
+                    ".setValue", [-1]),
+            ])
+            qtck3.setChecks([
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+                WrapAttrCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg"
+                    "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                    QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            ])
+
+            qtck1.executeChecks(delay=3000)
+            qtck2.executeChecks(delay=6000)
+            status = qtck3.executeChecksAndClose(delay=9000)
+
+            self.assertEqual(status, 0)
+
+            qtck1.compareResults(
+                self, [True, None, None, None], mask=[0, 1, 1, 1])
+            qtck2.compareResults(
+                self, [True, None, None, None], mask=[0, 1, 1, 1])
+            qtck3.compareResults(
+                self, [None, None, None, False], mask=[1, 1, 0, 0])
+
+            lastimage = np.ones(shape=self.__shape).T
+            lastimage.fill(5)
+
+            res1 = qtck1.results()
+            res2 = qtck2.results()
+            res3 = qtck3.results()
+            if not np.allclose(res1[1], lastimage):
+                print(res1[1])
+                print(lastimage)
+            self.assertTrue(np.allclose(res1[1], lastimage))
+            self.assertTrue(np.allclose(res1[2], lastimage))
+
+            lastimage = np.ones(shape=self.__shape).T
+            lastimage.fill(7)
+            # lastimage2 = res1[3].T
+            if not np.allclose(res2[1], lastimage):
+                print(res2[1])
+                print(lastimage)
+            self.assertTrue(np.allclose(res2[1], lastimage))
+            self.assertTrue(np.allclose(res2[2], lastimage))
+
+            # lastimage3 = res2[3].T
+
+            lastimage = np.ones(shape=self.__shape).T
+            lastimage.fill(9)
             if not np.allclose(res3[0], lastimage):
                 print(res3[0])
                 print(lastimage)
