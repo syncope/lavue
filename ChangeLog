@@ -1,3 +1,7 @@
+2020-08-12 Jan Kotanski <jan.kotanski@desy.de>
+	* update ROI help
+	* tagged as 2.44.3
+
 2020-08-06 Jan Kotanski <jan.kotanski@desy.de>
 	* add possibility of negative frames to nexus file source configuration
 	* change order of widgets in nexus file image source
