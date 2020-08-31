@@ -68,6 +68,8 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         self.__maxbuffersize = 1000
         #: (:obj:`bool`) is on status
         self.__isOn = False
+        #: (:obj:`bool`) compute sum flag
+        self.__computeSum = False
         #: (:obj:`bool`) is buffer full
         self.__full = False
 
@@ -75,8 +77,10 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         self.__imagestack = None
         #: (:obj:`int`) the current size
         self.__current = 1
-        #: (:class:`numpy.ndarray`) the last imaste
+        #: (:class:`numpy.ndarray`) the last image
         self.__lastimage = None
+        #: (:class:`numpy.ndarray`) the image sum
+        self.__imagesum = None
         #: (:obj:`bool`)
         self.__first = True
 
@@ -125,6 +129,16 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
             self.__ui.sizeSpinBox.setValue(self.__maxbuffersize)
             self._onBufferSizeChanged(self.__maxbuffersize)
 
+    def setComputeSum(self, computesum):
+        """ sets compute sum flag
+
+        :param computesum: compute sum flag
+        :type computesum: :obj:`bool`
+        """
+        self.initialize()
+        self.__computeSum = bool(computesum)
+        self.initialize()
+
     @QtCore.pyqtSlot(int)
     @QtCore.pyqtSlot()
     def _onBufferSizeChanged(self, size=None):
@@ -164,6 +178,7 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
         """
         self.__imagestack = None
         self.__lastimage = None
+        self.__imagesum = None
         self.__current = 1
         self.__first = True
         self.__full = False
@@ -193,12 +208,14 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
                     if self.__imagestack.shape[1:] != shape or \
                        self.__imagestack.dtype != dtype:
                         self.__imagestack = None
+                        self.__imagesum = None
                         self.__first = True
                         self.__current = 1
-
+                ics = int(self.__computeSum)
                 if self.__imagestack is None:
                     newshape = np.concatenate(
-                        ([self.__maxindex + 1], list(shape)))
+                        ([self.__maxindex + 1 + ics],
+                         list(shape)))
                     self.__imagestack = np.zeros(dtype=dtype, shape=newshape)
 
                 if self.__current > self.__maxindex:
@@ -209,19 +226,69 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
                         "color: black;"
                         "background-color: paleGreen;")
                 lshape = len(self.__imagestack.shape)
+                theoldest = None
                 if lshape == 3:
+                    if ics:
+                        theoldest = np.array(
+                            self.__imagestack[self.__current, :, :])
                     self.__imagestack[self.__current, :, :] = image
                     self.__imagestack[0, :, :] = image
+                    if ics:
+                        if self.__imagesum is None:
+                            if self.__full is True:
+                                self.__imagesum = np.nansum(
+                                    self.__imagestack[1:-1, :, :])
+                            else:
+                                self.__imagesum = np.nansum(
+                                    self.__imagestack[
+                                        1:(self.__current + 1), :, :])
+                        else:
+                            self.__imagesum = self.__imagesum + image
+                            if self.__full is True:
+                                self.__imagesum = self.__imagesum - theoldest
+                        self.__imagestack[-1, :, :] = self.__imagesum
                 elif lshape == 2:
+                    if ics:
+                        theoldest = np.array(
+                            self.__imagestack[self.__current, :])
                     self.__imagestack[self.__current, :] = image
                     self.__imagestack[0, :] = image
+                    if ics:
+                        if self.__imagesum is None:
+                            if self.__full is True:
+                                self.__imagesum = np.nansum(
+                                    self.__imagestack[1:-1, :])
+                            else:
+                                self.__imagesum = np.nansum(
+                                    self.__imagestack[
+                                        1:(self.__current + 1), :])
+                        else:
+                            self.__imagesum = self.__imagesum + image
+                            if self.__full is True:
+                                self.__imagesum = self.__imagesum - theoldest
+                        self.__imagestack[-1, :] = self.__imagesum
                 elif lshape == 1:
+                    if ics:
+                        theoldest = np.array(self.__imagestack[self.__current])
                     self.__imagestack[self.__current] = image
                     self.__imagestack[0] = image
+                    if ics:
+                        if self.__imagesum is None:
+                            if self.__full is True:
+                                self.__imagesum = np.nansum(
+                                    self.__imagestack[1:-1])
+                            else:
+                                self.__imagesum = np.nansum(
+                                    self.__imagestack[
+                                        1:(self.__current + 1)])
+                        else:
+                            self.__imagesum = self.__imagesum + image
+                            if self.__full is True:
+                                self.__imagesum = self.__imagesum - theoldest
+                        self.__imagestack[-1] = self.__imagesum
 
-                self.__current += 1
                 self.__lastimage = np.array(image)
-
+                self.__current += 1
                 if self.__first:
                     cblbl = {key: "%s:" % key
                              for key in range(self.__maxindex + 1)}
@@ -229,6 +296,8 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
                     cblbl = {}
                 mdata["channellabels"] = cblbl
                 mdata["skipfirst"] = True
+                if ics:
+                    mdata["suminthelast"] = True
                 cblbl[0] = "0: the last image"
                 # if imagename:
                 #     imagename = imagename.replace("\n", " ")

@@ -95,6 +95,8 @@ class Settings(object):
         self.autodownsample = False
         #: (:obj:`bool`) keep original coordinates
         self.keepcoords = False
+        #: (:obj:`bool`) accelerate buffer sum
+        self.accelbuffersum = False
         #: (:obj:`bool`) lazy image slider
         self.lazyimageslider = True
         #: (:obj:`str`) security stream port
@@ -425,6 +427,10 @@ class Settings(object):
             "Configuration/KeepOriginalCoordinates", type=str))
         if qstval.lower() == "true":
             self.keepcoords = True
+        qstval = str(settings.value(
+            "Configuration/AccelerateBufferSum", type=str))
+        if qstval.lower() == "true":
+            self.accelbuffersum = True
         qstval = str(settings.value(
             "Configuration/LazyImageSlider", type=str))
         if qstval.lower() == "false":
@@ -909,6 +915,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/KeepOriginalCoordinates",
             self.keepcoords)
+        settings.setValue(
+            "Configuration/AccelerateBufferSum",
+            self.accelbuffersum)
         settings.setValue(
             "Configuration/LazyImageSlider",
             self.lazyimageslider)
