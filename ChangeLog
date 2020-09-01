@@ -1,3 +1,7 @@
+2020-09-01 Janf Kotanski <jan.kotanski@desy.de>
+	* accelerate memory buffer sum
+	* tagged as 2.45.0
+
 2020-08-14 Janf Kotanski <jan.kotanski@desy.de>
 	* add Filters widget help
 	* tagged as 2.44.4

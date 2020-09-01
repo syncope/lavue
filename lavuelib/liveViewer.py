@@ -455,6 +455,7 @@ class LiveViewer(QtGui.QDialog):
         self.__mbufferwg = memoryBufferGroupBox.MemoryBufferGroupBox(
             parent=self)
         self.__mbufferwg.setMaxBufferSize(self.__settings.maxmbuffersize)
+        self.__mbufferwg.setComputeSum(self.__settings.accelbuffersum)
         #: (:class:`lavuelib.filtersGroupBox.FiltersGroupBox`)
         #  filters widget
         self.__filterswg = filtersGroupBox.FiltersGroupBox(
@@ -1995,6 +1996,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.aspectlocked = self.__settings.aspectlocked
         cnfdlg.autodownsample = self.__settings.autodownsample
         cnfdlg.keepcoords = self.__settings.keepcoords
+        cnfdlg.accelbuffersum = self.__settings.accelbuffersum
         cnfdlg.lazyimageslider = self.__settings.lazyimageslider
         cnfdlg.statswoscaling = self.__settings.statswoscaling
         cnfdlg.zmqtopics = self.__settings.zmqtopics
@@ -2175,6 +2177,10 @@ class LiveViewer(QtGui.QDialog):
         self.__settings.autodownsample = dialog.autodownsample
         self.__imagewg.setAutoDownSample(self.__settings.autodownsample)
         remasking = False
+        if self.__settings.accelbuffersum != dialog.accelbuffersum:
+            self.__settings.accelbuffersum = dialog.accelbuffersum
+            self.__mbufferwg.setComputeSum(self.__settings.accelbuffersum)
+
         if self.__settings.keepcoords != dialog.keepcoords:
             self.__settings.keepcoords = dialog.keepcoords
             self._assessTransformation(self.__trafoname)
@@ -2991,12 +2997,17 @@ class LiveViewer(QtGui.QDialog):
         """
         if self.__filteredimage is None:
             return
-
+        ics = 0
+        if "suminthelast" in self.__mdata.keys():
+            ics = int(self.__mdata["suminthelast"])
         if len(self.__filteredimage.shape) == 3:
-            self.__channelwg.setNumberOfChannels(self.__filteredimage.shape[0])
+            self.__channelwg.setNumberOfChannels(
+                self.__filteredimage.shape[0] - ics)
             if not self.__channelwg.colorChannel():
-                if "skipfirst" in self.__mdata.keys() and \
-                   self.__mdata["skipfirst"]:
+                if ics:
+                    self.__rawgreyimage = self.__filteredimage[-1, :, :]
+                elif ("skipfirst" in self.__mdata.keys() and
+                      self.__mdata["skipfirst"]):
                     self.__rawgreyimage = np.nansum(
                         self.__filteredimage[1:, :, :], 0)
                 else:
