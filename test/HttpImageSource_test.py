@@ -132,7 +132,7 @@ class httpImageSourceTest(unittest.TestCase):
         import os
         if not os.path.exists(self.__directory):
             os.makedirs(self.__directory)
-        self.__server = TestHTTPServer(("", 8080), SimpleHTTPRequestHandler)
+        self.__server = TestHTTPServer(("", 8082), SimpleHTTPRequestHandler)
 
         self.__thread = threading.Thread(None, self.__server.run)
         self.__thread.start()
@@ -187,7 +187,7 @@ class httpImageSourceTest(unittest.TestCase):
         options = argparse.Namespace(
             mode='expert',
             source='http',
-            configuration='localhost:8080/1.5.0',
+            configuration='localhost:8082/1.5.0',
             # % self._fname,
             start=True,
             # levels="0,1000",
