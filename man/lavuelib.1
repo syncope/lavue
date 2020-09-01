@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Aug 03, 2020" "2.44" "lavuelib"
+.TH "LAVUELIB" "1" "Sep 01, 2020" "2.45" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -642,6 +642,11 @@ constructor
 .TP
 .B Parameters
 \fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) – parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B accelbuffersum = None
+(\fI\%bool\fP) accelerate buffer sum
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -9272,6 +9277,16 @@ sets buffer size
 .UNINDENT
 .INDENT 7.0
 .TP
+.B setComputeSum(computesum)
+sets compute sum flag
+.INDENT 7.0
+.TP
+.B Parameters
+\fBcomputesum\fP (\fI\%bool\fP) – compute sum flag
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B setMaxBufferSize(maxbuffersize)
 sets maximal buffer size
 .INDENT 7.0
@@ -10899,6 +10914,11 @@ Bases: \fI\%object\fP
 lavue configuration settings
 .sp
 constructor
+.INDENT 7.0
+.TP
+.B accelbuffersum = None
+(\fI\%bool\fP) accelerate buffer sum
+.UNINDENT
 .INDENT 7.0
 .TP
 .B addrois = None
