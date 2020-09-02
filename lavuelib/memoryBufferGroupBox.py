@@ -237,11 +237,11 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
                         if self.__imagesum is None:
                             if self.__full is True:
                                 self.__imagesum = np.nansum(
-                                    self.__imagestack[1:-1, :, :])
+                                    self.__imagestack[1:-1, :, :], 0)
                             else:
                                 self.__imagesum = np.nansum(
                                     self.__imagestack[
-                                        1:(self.__current + 1), :, :])
+                                        1:(self.__current + 1), :, :], 0)
                         else:
                             self.__imagesum = self.__imagesum + image
                             if self.__full is True:
@@ -257,11 +257,11 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
                         if self.__imagesum is None:
                             if self.__full is True:
                                 self.__imagesum = np.nansum(
-                                    self.__imagestack[1:-1, :])
+                                    self.__imagestack[1:-1, :], 0)
                             else:
                                 self.__imagesum = np.nansum(
                                     self.__imagestack[
-                                        1:(self.__current + 1), :])
+                                        1:(self.__current + 1), :], 0)
                         else:
                             self.__imagesum = self.__imagesum + image
                             if self.__full is True:
@@ -276,11 +276,11 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
                         if self.__imagesum is None:
                             if self.__full is True:
                                 self.__imagesum = np.nansum(
-                                    self.__imagestack[1:-1])
+                                    self.__imagestack[1:-1], 0)
                             else:
                                 self.__imagesum = np.nansum(
                                     self.__imagestack[
-                                        1:(self.__current + 1)])
+                                        1:(self.__current + 1)], 0)
                         else:
                             self.__imagesum = self.__imagesum + image
                             if self.__full is True:
