@@ -242,7 +242,6 @@ class MemoryBufferGroupBox(QtGui.QGroupBox):
                                 self.__imagesum = np.nansum(
                                     self.__imagestack[
                                         1:(self.__current + 1), :, :], 0)
-                                print(self.__imagesum)
                         else:
                             self.__imagesum = self.__imagesum + image
                             if self.__full is True:

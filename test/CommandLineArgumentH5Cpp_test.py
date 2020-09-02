@@ -128,7 +128,7 @@ class CommandLineArgumentH5CppTest(unittest.TestCase):
 
         for i in range(10):
             amn = np.ones(shape=dshapemn)
-            amn.fill(i)
+            amn.fill(i + 1)
             datamn.grow()
             # print(datamn.shape)
             # print(amn.shape)
@@ -384,7 +384,7 @@ class CommandLineArgumentH5CppTest(unittest.TestCase):
             # res1 = qtck1.results()
             res2 = qtck2.results()
             imagesum = np.ones(shape=(256, 128))
-            imagesum.fill(45)
+            imagesum.fill(55)
             self.assertTrue(np.allclose(res2[0], imagesum))
             self.assertTrue(np.allclose(res2[1], imagesum))
         finally:
@@ -527,7 +527,7 @@ class CommandLineArgumentH5CppTest(unittest.TestCase):
             # res1 = qtck1.results()
             res2 = qtck2.results()
             imagesum = np.ones(shape=(256, 128))
-            imagesum.fill(45)
+            imagesum.fill(55)
             self.assertTrue(np.allclose(res2[0], imagesum))
             self.assertTrue(np.allclose(res2[1], imagesum))
         finally:
@@ -669,7 +669,7 @@ class CommandLineArgumentH5CppTest(unittest.TestCase):
             # res1 = qtck1.results()
             res2 = qtck2.results()
             imagesum = np.ones(shape=(256, 128))
-            imagesum.fill(9)
+            imagesum.fill(10)
             self.assertTrue(np.allclose(res2[0], imagesum))
             self.assertTrue(np.allclose(res2[1], imagesum))
         finally:
