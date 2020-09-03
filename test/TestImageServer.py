@@ -24,6 +24,8 @@ class TestImageServer (PyTango.Device_4Impl):
         # self.attr_LastImage_read = [[10]*2048]*1024
         self.attr_LastImageTaken_read = ""
         self.attr_LastImagePath_read = ""
+        self.attr_Spectrum1_read = [3 * j for j in range(256)]
+        self.attr_Spectrum2_read = [2 * j for j in range(256)]
         self.attr_LastImage_read = [
             [i + 100 * j for i in range(512)] for j in range(256)]
         self.attr_ReadyEventImage_read = [
@@ -50,6 +52,12 @@ class TestImageServer (PyTango.Device_4Impl):
     def read_LastImage(self, attr):
         attr.set_value(self.attr_LastImage_read)
 
+    def read_Spectrum1(self, attr):
+        attr.set_value(self.attr_Spectrum1_read)
+
+    def read_Spectrum2(self, attr):
+        attr.set_value(self.attr_Spectrum2_read)
+
     def read_ChangeEventImage(self, attr):
         attr.set_value(self.attr_ChangeEventImage_read)
 
@@ -60,6 +68,10 @@ class TestImageServer (PyTango.Device_4Impl):
         """ Start the acquisition. """
         self.attr_LastImage_read = \
             [[random.randint(0, 1000) for i in range(512)] for j in range(256)]
+        self.attr_Spectrum1_read = \
+            [random.randint(0, 1000) for j in range(256)]
+        self.attr_Spectrum2_read = \
+            [random.randint(0, 1000) for j in range(256)]
 
     def ReadyEventAcq(self):
         """ Start the acquisition. """
@@ -113,6 +125,22 @@ class TestImageServerClass(PyTango.DeviceClass):
          {
              'label': "LastImage",
              'description': "provide last image data",
+         }],
+        'Spectrum1':
+        [[PyTango.DevLong,
+          PyTango.SPECTRUM,
+          PyTango.READ, 4096],
+         {
+             'label': "Spectrum1",
+             'description': "provide last spectrum data",
+         }],
+        'Spectrum2':
+        [[PyTango.DevLong,
+          PyTango.SPECTRUM,
+          PyTango.READ, 4096],
+         {
+             'label': "Spectrum2",
+             'description': "provide last spectrum data",
          }],
         'ReadyEventImage':
         [[PyTango.DevLong,
