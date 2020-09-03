@@ -1,3 +1,7 @@
+2020-09-03 Janf Kotanski <jan.kotanski@desy.de>
+	* fix multi-source mode for 1D image sources
+	* tagged as 2.45.2
+
 2020-09-02 Janf Kotanski <jan.kotanski@desy.de>
 	* fix for acceleration of memory buffer sum
 	* tagged as 2.45.1
