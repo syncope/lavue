@@ -14,7 +14,16 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <property name="horizontalSpacing">
@@ -28,7 +37,7 @@
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;rows to plot, e.g. 1,3,6:9&lt;/p&gt;&lt;p&gt;ALL to plot all rows &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
-        <string>Rows to plot:</string>
+        <string>Rows &amp;to plot:</string>
        </property>
        <property name="buddy">
         <cstring>rowsLineEdit</cstring>
@@ -71,7 +80,7 @@
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maximal number of rows to accumulates&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
-        <string>Buffer size:</string>
+        <string>&amp;Buffer size:</string>
        </property>
        <property name="buddy">
         <cstring>sizeLineEdit</cstring>
@@ -87,6 +96,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="resetPushButton">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset buffer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string>Reset</string>
        </property>

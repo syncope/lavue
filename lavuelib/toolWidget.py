@@ -2360,6 +2360,7 @@ class OneDToolWidget(ToolBaseWidget):
             [self._mainwidget.scalesChanged, self._updateRows],
             [self.__ui.sizeLineEdit.textChanged, self._setBufferSize],
             [self.__ui.xCheckBox.stateChanged, self._updateXRow],
+            [self.__ui.sizeLineEdit.textChanged, self._setBufferSize],
             [self.__ui.accuPushButton.clicked, self._startStopAccu],
             [self.__ui.resetPushButton.clicked, self._resetAccu],
             [self._mainwidget.mouseImagePositionChanged, self._message]
@@ -3362,6 +3363,11 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.__units = ["q_nm^-1", "q_A^-1", "2th_deg",
                         "2th_rad", "r_mm", "r_pixel"]
 
+        #: (:obj:`int`) plot index
+        #               ->  0: Image, <i>: Buffer <i>
+        self.__plotindex = 0
+        #: (:obj:`bool`) old lock value
+        self.__oldlocked = None
         #: (:class:`Ui_ROIToolWidget') ui_toolwidget object from qtdesigner
         self.__ui = _diffractogramformclass()
         self.__ui.setupUi(self)
@@ -3412,6 +3418,19 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #: ( (:obj:`int`, :obj:`int', :obj:`int`)) default pen color
         self.__defpen = (0, 255, 127)
 
+        #: (:obj:`bool`) accumalate status
+        self.__accumulate = False
+        #: (:obj:`int`) buffer size
+        self.__buffersize = 1024
+        #: ([:class:`ndarray`,:class:`ndarray` :class:`ndarray`,
+        #     :class:`ndarray`]) y-buffers for diffractogram
+        self.__buffers = [None, None, None, None]
+        #: (:obj:`list` < [:obj:`int`, :obj:`int`] > )
+        #      x-buffers of (position, scale) for diffractogram
+        self.__xbuffers = [None, None, None, None]
+        #: (:obj:`list` < `list` < :obj:`int` > > ) time stamps
+        self.__timestamps = [[], [], [], []]
+
         # self.parameters.lines = True
         #: (:obj:`str`) infolineedit text
         self.parameters.infolineedit = ""
@@ -3438,8 +3457,13 @@ class DiffractogramToolWidget(ToolBaseWidget):
             [self.__ui.calibrationPushButton.clicked, self._loadCalibration],
             [self.__ui.unitComboBox.currentIndexChanged,
              self._setUnitIndex],
+            [self.__ui.mainplotComboBox.currentIndexChanged,
+             self._setPlotIndex],
             [self._mainwidget.mouseImageDoubleClicked,
              self._updateCenter],
+            [self.__ui.sizeLineEdit.textChanged, self._setBufferSize],
+            [self.__ui.accuPushButton.clicked, self._startStopAccu],
+            [self.__ui.resetPushButton.clicked, self._resetAccu],
             [self._mainwidget.geometryChanged, self.updateGeometryTip],
             [self._mainwidget.freezeBottomPlotClicked, self._freezeplot],
             [self._mainwidget.clearBottomPlotClicked, self._clearplot],
@@ -3448,6 +3472,38 @@ class DiffractogramToolWidget(ToolBaseWidget):
         ]
         # self.__ui.showPushButton.hide()
         # self.__ui.nextPushButton.hide()
+
+    @QtCore.pyqtSlot(str)
+    @QtCore.pyqtSlot()
+    def _setBufferSize(self):
+        """ start/stop accumulation buffer
+
+        """
+        try:
+            self.__buffersize = int(self.__ui.sizeLineEdit.text())
+        except Exception as e:
+            # print(str(e))
+            logger.warning(str(e))
+            self.__buffersize = 1024
+
+    @QtCore.pyqtSlot()
+    def _resetAccu(self):
+        """ reset accumulation buffer
+        """
+        self.__buffers = [None, None, None, None]
+        self.__xbuffers = [None, None, None, None]
+        self.__timestamps = [[], [], [], []]
+
+    @QtCore.pyqtSlot()
+    def _startStopAccu(self):
+        """ start/stop accumulation buffer
+        """
+        if not self.__accumulate:
+            self.__accumulate = True
+            self.__ui.accuPushButton.setText("Stop")
+        else:
+            self.__accumulate = False
+            self.__ui.accuPushButton.setText("Collect")
 
     @QtCore.pyqtSlot(str)
     def setColors(self, colors=None, force=False):
@@ -3556,6 +3612,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         """
         QtCore.QCoreApplication.processEvents()
         self.updateRangeTip()
+        self.__updateBufferCombobox(did)
         # self.__nrplots = self.__ui.diffSpinBox.value()
         #
         self._plotDiff()
@@ -3567,16 +3624,36 @@ class DiffractogramToolWidget(ToolBaseWidget):
         QtCore.QCoreApplication.processEvents()
         self._updateRegionsAndPlot()
 
+    def __updateBufferCombobox(self, did):
+        """ update buffer combobox
+
+        :param did: diffractogram id
+        :type did: :obj:`int`
+        """
+        combo = self.__ui.mainplotComboBox
+        # idx = combo.currentIndex()
+        cnt = combo.count()
+        while did >= cnt:
+            if cnt:
+                combo.addItem("Buffer %s" % (cnt))
+            else:
+                combo.addItem("Image")
+            cnt = combo.count()
+        while did + 1 < cnt:
+            combo.removeItem(cnt - 1)
+            cnt = combo.count()
+        # if idx >= cnt:
+        #     changed = True
+
     def afterplot(self):
         """ command after plot
         """
-        if self.__showdiff:
-            self._plotDiff()
 
     def activate(self):
         """ activates tool widget
         """
         self.__oldlocked = None
+        self.__ui.sizeLineEdit.setText(str(self.__buffersize))
         self.updateGeometryTip()
         self.updateRangeTip()
         self._mainwidget.updateCenter(
@@ -3625,6 +3702,48 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :return: 2d image array and raw image
         :rtype: (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
         """
+        if self.__showdiff:
+            xl, yl, ts = self._plotDiff()
+            # print(yl)
+            if self.__accumulate:
+                for i, yy in enumerate(yl):
+                    newrow = np.array(yy)
+                    if self.__buffers[i] is not None and \
+                       self.__buffers[i].shape[1] == newrow.shape[0]:
+                        if self.__buffers[i].shape[0] >= self.__buffersize:
+                            self.__buffers[i] = np.vstack(
+                                [self.__buffers[i][
+                                    self.__buffers[i].shape[0]
+                                    - self.__buffersize + 1:,
+                                    :],
+                                 newrow]
+                            )
+                            if self.__timestamps[i]:
+                                self.__timestamps[i].pop(0)
+                        else:
+                            self.__buffers[i] = np.vstack(
+                                [self.__buffers[i], newrow])
+                        self.__timestamps[i].append(ts)
+                    else:
+                        self.__buffers[i] = np.array([yy])
+                        self.__timestamps[i] = [ts]
+                    if self.__xbuffers[i] is None:
+                        xbuf = np.array(xl[i])
+                        pos = 0.0
+                        sc = 1.0
+                        if len(xbuf) > 0:
+                            pos = xbuf[0]
+                        if len(xbuf) > 1:
+                            sc = (xbuf[-1] - xbuf[0])/(len(xbuf) - 1)
+                        self.__xbuffers[i] = [pos, sc]
+                        if (self.__ui.mainplotComboBox.currentIndex() -
+                           1 == i):
+                            self._mainwidget.setPolarScale(
+                                [pos, 0], [sc, 1])
+        if self.__plotindex > 0 and \
+           self.__plotindex <= len(self.__buffers):
+            diffdata = np.transpose(self.__buffers[self.__plotindex - 1])
+            return (diffdata, diffdata)
 
     @QtCore.pyqtSlot(float, float)
     def _updateCenter(self, xdata, ydata):
@@ -3635,28 +3754,29 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
         """
-        txdata = None
-        if self._mainwidget.rangeWindowEnabled():
-            txdata, tydata = self._mainwidget.scaledxy(
-                xdata, ydata, useraxes=False)
-            if txdata is not None:
-                xdata = txdata
-                ydata = tydata
-        self.__settings.centerx = float(xdata)
-        self.__settings.centery = float(ydata)
-        with QtCore.QMutexLocker(self.__settings.aimutex):
-            if self.__settings.ai is not None:
-                aif = self.__settings.ai.getFit2D()
-                self.__settings.ai.setFit2D(aif["directDist"],
-                                            self.__settings.centerx,
-                                            self.__settings.centery,
-                                            aif["tilt"],
-                                            aif["tiltPlanRotation"])
-        self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
-        self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
-        self._message()
-        self._plotDiff()
-        self.updateGeometryTip()
+        if self.__plotindex == 0:
+            txdata = None
+            if self._mainwidget.rangeWindowEnabled():
+                txdata, tydata = self._mainwidget.scaledxy(
+                    xdata, ydata, useraxes=False)
+                if txdata is not None:
+                    xdata = txdata
+                    ydata = tydata
+            self.__settings.centerx = float(xdata)
+            self.__settings.centery = float(ydata)
+            with QtCore.QMutexLocker(self.__settings.aimutex):
+                if self.__settings.ai is not None:
+                    aif = self.__settings.ai.getFit2D()
+                    self.__settings.ai.setFit2D(aif["directDist"],
+                                                self.__settings.centerx,
+                                                self.__settings.centery,
+                                                aif["tilt"],
+                                                aif["tiltPlanRotation"])
+            self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
+            self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
+            self._message()
+            self._plotDiff()
+            self.updateGeometryTip()
 
     @QtCore.pyqtSlot()
     def _loadCalibration(self, fileName=None):
@@ -3721,103 +3841,132 @@ class DiffractogramToolWidget(ToolBaseWidget):
         """ provides geometry message
         """
         message = ""
-        _, _, intensity, x, y = self._mainwidget.currentIntensity()
-        if isinstance(intensity, float) and np.isnan(intensity):
-            intensity = 0
-        if self._mainwidget.rangeWindowEnabled():
-            txdata, tydata = self._mainwidget.scaledxy(
-                x, y, useraxes=False)
-            if txdata is not None:
-                x = txdata
-                y = tydata
-        ilabel = self._mainwidget.scalingLabel()
-        chi = None
-        with QtCore.QMutexLocker(self.__settings.aimutex):
-            if self.__settings.ai is not None:
-                chi = self.__settings.ai.chi(
-                    np.array([y - 0.5]), np.array([x - 0.5]))
-                if len(chi):
-                    chi = chi[0]
-        if self.__unitindex in [2, 3]:
-            tth = None
+        if self.__plotindex == 0:
+            _, _, intensity, x, y = self._mainwidget.currentIntensity()
+            if isinstance(intensity, float) and np.isnan(intensity):
+                intensity = 0
+            if self._mainwidget.rangeWindowEnabled():
+                txdata, tydata = self._mainwidget.scaledxy(
+                    x, y, useraxes=False)
+                if txdata is not None:
+                    x = txdata
+                    y = tydata
+            ilabel = self._mainwidget.scalingLabel()
+            chi = None
             with QtCore.QMutexLocker(self.__settings.aimutex):
                 if self.__settings.ai is not None:
-                    tth = self.__settings.ai.tth(
-                        np.array([y - 0.5]), np.array([x - 0.5])),
-                    if len(tth):
-                        tth = tth[0]
-            if tth is not None and chi is not None:
-                unit = "rad"
-                if self.__unitindex == 2:
-                    unit = "deg"
+                    chi = self.__settings.ai.chi(
+                        np.array([y - 0.5]), np.array([x - 0.5]))
+                    if len(chi):
+                        chi = chi[0]
+            if self.__unitindex in [2, 3]:
+                tth = None
+                with QtCore.QMutexLocker(self.__settings.aimutex):
+                    if self.__settings.ai is not None:
+                        tth = self.__settings.ai.tth(
+                            np.array([y - 0.5]), np.array([x - 0.5])),
+                        if len(tth):
+                            tth = tth[0]
+                if tth is not None and chi is not None:
+                    unit = "rad"
+                    if self.__unitindex == 2:
+                        unit = "deg"
+                        chi = chi * 180./math.pi
+                        tth = tth * 180./math.pi
+                    message = "x, y = [%s, %s], tth = %f %s, chi = %f %s," \
+                              " %s = %.2f" \
+                              % (x, y, tth, unit,
+                                 chi, unit,
+                                 ilabel, intensity)
+                    if self.__unitindex == 3:
+                        ap = self.__approxpoint(tth, chi)
+                        message += " $%s$" % str(ap)
+                else:
+                    message = "x, y = [%s, %s], %s = %.2f" % (
+                        x, y, ilabel, intensity)
+            elif self.__unitindex in [0, 1]:
+                qa = None
+                with QtCore.QMutexLocker(self.__settings.aimutex):
+                    if self.__settings.ai is not None:
+                        qa = self.__settings.ai.qFunction(
+                            np.array([y - 0.5]), np.array([x - 0.5])),
+                        if len(qa):
+                            qa = qa[0]
+                if qa is not None and chi is not None:
+                    unit = u"1/\u212B"
                     chi = chi * 180./math.pi
-                    tth = tth * 180./math.pi
-                message = "x, y = [%s, %s], tth = %f %s, chi = %f %s," \
-                          " %s = %.2f" \
-                          % (x, y, tth, unit,
-                             chi, unit,
-                             ilabel, intensity)
-                if self.__unitindex == 3:
-                    ap = self.__approxpoint(tth, chi)
-                    message += " $%s$" % str(ap)
-            else:
-                message = "x, y = [%s, %s], %s = %.2f" % (
-                    x, y, ilabel, intensity)
-        elif self.__unitindex in [0, 1]:
-            qa = None
-            with QtCore.QMutexLocker(self.__settings.aimutex):
-                if self.__settings.ai is not None:
-                    qa = self.__settings.ai.qFunction(
-                        np.array([y - 0.5]), np.array([x - 0.5])),
-                    if len(qa):
-                        qa = qa[0]
-            if qa is not None and chi is not None:
-                unit = u"1/\u212B"
-                chi = chi * 180./math.pi
-                if self.__unitindex == 0:
-                    unit = "1/nm"
-                if self.__unitindex == 1:
-                    qa = qa / 10.
-                message = "x, y = [%s, %s], q = %f %s, chi = %f %s," \
-                          " %s = %.2f" \
-                          % (x, y, qa, unit,
-                             chi, "deg",
-                             ilabel, intensity)
-            else:
-                message = "x, y = [%s, %s], %s = %.2f" % (
-                    x, y, ilabel, intensity)
-        elif self.__unitindex in [4]:
-            ra = None
-            with QtCore.QMutexLocker(self.__settings.aimutex):
-                if self.__settings.ai is not None:
-                    ra = self.__settings.ai.rFunction(
-                        np.array([y - 0.5]), np.array([x - 0.5])),
-                    if len(ra):
-                        ra = ra[0] * 1000.
-            if ra is not None and chi is not None:
-                chi = chi * 180./math.pi
-                message = "x, y = [%s, %s], r = %f %s, chi = %f %s," \
-                          " %s = %.2f" \
-                          % (x, y, ra, "mm",
-                             chi, "deg",
-                             ilabel, intensity)
-            else:
-                message = "x, y = [%s, %s], %s = %.2f" % (
-                    x, y, ilabel, intensity)
-        elif self.__unitindex in [5]:
-            cx = self.__settings.centerx
-            cy = self.__settings.centery
-            ra = math.sqrt((cx - x)**2 + (cy - y)**2)
-            if ra is not None and chi is not None:
-                chi = chi * 180./math.pi
-                message = "x, y = [%s, %s], r = %f %s, chi = %f %s," \
-                          " %s = %.2f" \
-                          % (x, y, ra, "pixel",
-                             chi, "deg",
-                             ilabel, intensity)
-            else:
-                message = "x, y = [%s, %s], %s = %.2f" % (
-                    x, y, ilabel, intensity)
+                    if self.__unitindex == 0:
+                        unit = "1/nm"
+                    if self.__unitindex == 1:
+                        qa = qa / 10.
+                    message = "x, y = [%s, %s], q = %f %s, chi = %f %s," \
+                              " %s = %.2f" \
+                              % (x, y, qa, unit,
+                                 chi, "deg",
+                                 ilabel, intensity)
+                else:
+                    message = "x, y = [%s, %s], %s = %.2f" % (
+                        x, y, ilabel, intensity)
+            elif self.__unitindex in [4]:
+                ra = None
+                with QtCore.QMutexLocker(self.__settings.aimutex):
+                    if self.__settings.ai is not None:
+                        ra = self.__settings.ai.rFunction(
+                            np.array([y - 0.5]), np.array([x - 0.5])),
+                        if len(ra):
+                            ra = ra[0] * 1000.
+                if ra is not None and chi is not None:
+                    chi = chi * 180./math.pi
+                    message = "x, y = [%s, %s], r = %f %s, chi = %f %s," \
+                              " %s = %.2f" \
+                              % (x, y, ra, "mm",
+                                 chi, "deg",
+                                 ilabel, intensity)
+                else:
+                    message = "x, y = [%s, %s], %s = %.2f" % (
+                        x, y, ilabel, intensity)
+            elif self.__unitindex in [5]:
+                cx = self.__settings.centerx
+                cy = self.__settings.centery
+                ra = math.sqrt((cx - x)**2 + (cy - y)**2)
+                if ra is not None and chi is not None:
+                    chi = chi * 180./math.pi
+                    message = "x, y = [%s, %s], r = %f %s, chi = %f %s," \
+                              " %s = %.2f" \
+                              % (x, y, ra, "pixel",
+                                 chi, "deg",
+                                 ilabel, intensity)
+                else:
+                    message = "x, y = [%s, %s], %s = %.2f" % (
+                        x, y, ilabel, intensity)
+        elif self.__plotindex > 0:
+            ix, iy, intensity, x, y = self._mainwidget.currentIntensity()
+            ilabel = self._mainwidget.scalingLabel()
+            pindex = self.__ui.mainplotComboBox.currentIndex()
+            pos = 0.0
+            sc = 1.0
+            tst = []
+            ts = ""
+            if len(self.__xbuffers) >= pindex and \
+               self.__xbuffers[pindex - 1]:
+                pos, sc = self.__xbuffers[pindex - 1]
+            xc = pos + x * sc
+            if len(self.__timestamps) >= pindex and \
+               self.__timestamps[pindex - 1]:
+                tst = self.__timestamps[pindex - 1]
+            it = int(iy)
+            # itx = int(ix)
+            if it < len(tst) and it >= 0:
+                ts = tst[it]
+                # store first tst[0]
+                # ts = tst[it] - tst[0]
+            units = self.__units[self.__unitindex]
+            xlabel = self.__ui.unitComboBox.currentText()
+            if "[" in xlabel:
+                xlabel, units = xlabel.split("[", 1)
+                units = units.replace("]", "")
+            message = "no: %s, %s = %s %s, %s = %.2f (time = %s s)" % (
+                        it, xlabel, xc, units,  ilabel, intensity, ts)
         self._mainwidget.setDisplayedText(message)
 
     def __tipmessage(self):
@@ -3855,17 +4004,28 @@ class DiffractogramToolWidget(ToolBaseWidget):
     @QtCore.pyqtSlot()
     def _plotDiff(self):
         """ plot all diffractograms
+
+        :returns: (list of x's for each diffractogram,
+                   list of y's for each diffractogram,
+                   integer timestamp)
+
+        :rtype: (:obj:`list` < :obj:`list` <float>>,
+                 :obj:`list` < :obj:`list` <float>>,
+                 int)
         """
         with QtCore.QMutexLocker(self.__settings.aimutex):
             aistat = self.__settings.ai is not None
+        xl = []
+        yl = []
+        timestamp = time.time()
         if aistat:
             if self._mainwidget.currentTool() == self.name:
                 if self.__settings.sendresults:
+                    xl = []
+                    yl = []
                     pxl = []
                     pyl = []
                     pel = []
-                    xl = []
-                    yl = []
                 nrplots = self.__ui.diffSpinBox.value()
                 if self.__nrplots != nrplots:
                     while nrplots > len(self.__curves):
@@ -3967,9 +4127,11 @@ class DiffractogramToolWidget(ToolBaseWidget):
                                         / 2
                                         for r in x]
                             self.__curves[i].setData(x=x, y=y)
-                            if self.__settings.sendresults:
+                            if self.__settings.sendresults or \
+                               self.__accumulate:
                                 xl.append([float(e) for e in x])
                                 yl.append([float(e) for e in y])
+                            if self.__settings.sendresults:
                                 px, py, pe = self.__findpeaks2(x, y)
                                 pxl.append([float(e) for e in px])
                                 pyl.append([float(e) for e in py])
@@ -3985,9 +4147,11 @@ class DiffractogramToolWidget(ToolBaseWidget):
                     for i in range(nrplots):
                         self.__curves[i].setVisible(False)
                 if self.__settings.sendresults:
-                    self.__sendresults(xl, yl, pxl, pyl, pel)
+                    self.__sendresults(xl, yl, pxl, pyl, pel, timestamp)
+        return xl, yl, timestamp
 
-    def __sendresults(self, xl, yl, pxl=None, pyl=None, pel=None):
+    def __sendresults(self, xl, yl, pxl=None, pyl=None, pel=None,
+                      timestamp=None):
         """ send results to LavueController
 
         :param xl:  list of x's for each diffractogram
@@ -4000,11 +4164,13 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :type pyl: :obj:`list` < :obj:`list` <float>>
         :param pel:  peak x's errors for each diffractogram
         :type pel:  :obj:`list` <float>
+        :param timestamp:  timestamp
+        :type timestamp:  :obj:`int`
         """
         results = {"tool": self.alias}
         npl = len(xl)
         results["imagename"] = self._mainwidget.imageName()
-        results["timestamp"] = time.time()
+        results["timestamp"] = timestamp
         results["nrdiffs"] = len(xl)
         results["calibration"] = self.__settings.calibrationfilename
         for i in range(npl):
@@ -4838,12 +5004,41 @@ class DiffractogramToolWidget(ToolBaseWidget):
     def _setUnitIndex(self, uindex):
         """ set unit index
 
-        :param gspace: unit index, i.e. q_nm^-1, q_A^-1, 2th_deg, 2th_rad
-        :type gspace: :obj:`int`
+        :param uindex: unit index, i.e. q_nm^-1, q_A^-1, 2th_deg, 2th_rad
+        :type uindex: :obj:`int`
         """
+        if self.__unitindex != uindex:
+            self._resetAccu()
         self.__unitindex = uindex
         self.__updaterad()
         self._plotDiff()
+
+    @QtCore.pyqtSlot(int)
+    def _setPlotIndex(self, pindex):
+        """ set plot index
+
+        :param pindex: plot index -> 0: Image, <i>: Buffer <i>
+        :type pindex: :obj:`int`
+        """
+        if pindex and pindex > 0:
+            self.parameters.centerlines = False
+            self.parameters.polarscale = True
+            if len(self.__xbuffers) >= pindex and self.__xbuffers[pindex - 1]:
+                pos, sc = self.__xbuffers[pindex - 1]
+                self._mainwidget.setPolarScale([pos, 0], [sc, 1])
+            else:
+                self._mainwidget.setPolarScale([0, 0], [1, 1])
+            if not self.__plotindex:
+                self.__oldlocked = self._mainwidget.setAspectLocked(False)
+        else:
+            if self.__oldlocked is not None:
+                self._mainwidget.setAspectLocked(self.__oldlocked)
+            self.parameters.centerlines = True
+            self.parameters.polarscale = False
+        if pindex is not None:
+            self.__plotindex = pindex
+        self._mainwidget.updateinfowidgets(self.parameters)
+        self._mainwidget.emitReplotImage()
 
     @QtCore.pyqtSlot()
     def updateRangeTip(self):
