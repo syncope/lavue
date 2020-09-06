@@ -3420,6 +3420,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
 
         #: (:obj:`bool`) accumalate status
         self.__accumulate = False
+        #: (:obj:`bool`) show buffer status
+        self.__showbuffer = False
         #: (:obj:`int`) buffer size
         self.__buffersize = 1024
         #: ([:class:`ndarray`,:class:`ndarray` :class:`ndarray`,
@@ -3463,6 +3465,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
              self._updateCenter],
             [self.__ui.sizeLineEdit.textChanged, self._setBufferSize],
             [self.__ui.accuPushButton.clicked, self._startStopAccu],
+            [self.__ui.bufferPushButton.clicked, self._showBuffer],
             [self.__ui.resetPushButton.clicked, self._resetAccu],
             [self._mainwidget.geometryChanged, self.updateGeometryTip],
             [self._mainwidget.freezeBottomPlotClicked, self._freezeplot],
@@ -3472,6 +3475,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         ]
         # self.__ui.showPushButton.hide()
         # self.__ui.nextPushButton.hide()
+        self._showBuffer(False)
 
     @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot()
@@ -3504,6 +3508,22 @@ class DiffractogramToolWidget(ToolBaseWidget):
         else:
             self.__accumulate = False
             self.__ui.accuPushButton.setText("Collect")
+
+    @QtCore.pyqtSlot()
+    def _showBuffer(self, status=None):
+        """ show/hide buffer widgets
+        """
+        if status is not None:
+            self.__showbuffer = not status
+        if not self.__showbuffer:
+            self.__showbuffer = True
+            self.__ui.bufferPushButton.setText(u" \u25B2 Buffering ")
+            self.__ui.bufferFrame.show()
+        else:
+            self.__showbuffer = False
+            self.__ui.bufferPushButton.setText(u" \u25BC Buffering ")
+            self.__ui.bufferFrame.hide()
+            self.adjustSize()
 
     @QtCore.pyqtSlot(str)
     def setColors(self, colors=None, force=False):
