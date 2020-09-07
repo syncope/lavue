@@ -1070,8 +1070,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
     def autoRange(self):
         """ sets auto range
         """
-        self.__viewbox.autoRange()
-        self.__viewbox.enableAutoRange('xy', True)
+        try:
+            self.__viewbox.autoRange()
+            self.__viewbox.enableAutoRange('xy', True)
+        except Exception as e:
+            logger.warning(str(e))
+            # print(str(e))
 
     def rangeWindowEnabled(self):
         """ provide info if range window enabled

@@ -3375,6 +3375,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #: (:obj:`bool`) old lock value
         self.__oldlocked = None
 
+        #: (:obj:`bool`) reset scale flag
+        self.__resetscale = True
+
         #: ((:obj:`bool`) show diffractogram status
         self.__showdiff = False
 
@@ -3455,7 +3458,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
             [self.__ui.diffSpinBox.valueChanged, self._updateDiffNumber],
             [self.__ui.rangePushButton.clicked, self._setPolarRange],
             [self.__ui.showPushButton.clicked, self._showhideDiff],
-            [self.__ui.nextPushButton.clicked, self._plotDiff],
+            [self.__ui.nextPushButton.clicked, self._nextPlotDiff],
             [self.__ui.calibrationPushButton.clicked, self._loadCalibration],
             [self.__ui.unitComboBox.currentIndexChanged,
              self._setUnitIndex],
@@ -3497,6 +3500,11 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.__buffers = [None, None, None, None]
         self.__xbuffers = [None, None, None, None]
         self.__timestamps = [[], [], [], []]
+        # np.empty(shape=(int(self.__settings.diffnpt), 0))
+        diffdata = np.zeros(shape=(1, 1))
+        # diffdata = None
+        self.__resetscale = True
+        self._mainwidget.updateImage(diffdata, diffdata)
 
     @QtCore.pyqtSlot()
     def _startStopAccu(self):
@@ -3517,11 +3525,21 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self.__showbuffer = not status
         if not self.__showbuffer:
             self.__showbuffer = True
-            self.__ui.bufferPushButton.setText(u" \u25B2 Buffering ")
+            if QtGui.QIcon.hasThemeIcon("go-up"):
+                icon = QtGui.QIcon.fromTheme("go-up")
+                self.__ui.bufferPushButton.setIcon(icon)
+            else:
+                # self.__ui.bufferPushButton.setText(u" \u25B2 Buffering")
+                self.__ui.bufferPushButton.setText(u" \u25B4 Buffering ")
             self.__ui.bufferFrame.show()
         else:
             self.__showbuffer = False
-            self.__ui.bufferPushButton.setText(u" \u25BC Buffering ")
+            if QtGui.QIcon.hasThemeIcon("go-down"):
+                icon = QtGui.QIcon.fromTheme("go-down")
+                self.__ui.bufferPushButton.setIcon(icon)
+            else:
+                # self.__ui.bufferPushButton.setText(u" \u25BC Buffering")
+                self.__ui.bufferPushButton.setText(u" \u25BE Buffering ")
             self.__ui.bufferFrame.hide()
             self.adjustSize()
 
@@ -3697,6 +3715,22 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self._plotDiff()
         self._mainwidget.bottomplotShowMenu(True, True)
 
+    @QtCore.pyqtSlot()
+    def _nextPlotDiff(self):
+        """ plot all diffractograms and update
+        """
+        self._plotDiffWithBuffering()
+        if self.__plotindex > 0 and \
+           self.__plotindex <= len(self.__buffers):
+            if self.__buffers[self.__plotindex - 1] is not None:
+                diffdata = np.transpose(self.__buffers[self.__plotindex - 1])
+            else:
+                diffdata = None
+                diffdata = np.zeros(shape=(1, 1))
+                self.__resetscale = True
+                # np.empty(shape=(int(self.__settings.diffnpt), 0))
+            self._mainwidget.updateImage(diffdata, diffdata)
+
     def deactivate(self):
         """ deactivates tool widget
         """
@@ -3712,6 +3746,48 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self._mainwidget.removebottomplot(freezed)
         self.__freezed = []
 
+    def _plotDiffWithBuffering(self):
+        """ plot diffractogram with buffering
+        """
+        xl, yl, ts = self._plotDiff()
+        # print(yl)
+        if self.__accumulate:
+            for i, yy in enumerate(yl):
+                newrow = np.array(yy)
+                if self.__buffers[i] is not None and \
+                   self.__buffers[i].shape[1] == newrow.shape[0]:
+                    if self.__buffers[i].shape[0] >= self.__buffersize:
+                        self.__buffers[i] = np.vstack(
+                            [self.__buffers[i][
+                                self.__buffers[i].shape[0]
+                                - self.__buffersize + 1:,
+                                :],
+                             newrow]
+                        )
+                        if self.__timestamps[i]:
+                            self.__timestamps[i].pop(0)
+                    else:
+                        self.__buffers[i] = np.vstack(
+                            [self.__buffers[i], newrow])
+                    self.__timestamps[i].append(ts)
+                else:
+                    self.__buffers[i] = np.array([yy])
+                    self.__timestamps[i] = [ts]
+                if self.__xbuffers[i] is None or self.__resetscale:
+                    xbuf = np.array(xl[i])
+                    pos = 0.0
+                    sc = 1.0
+                    if len(xbuf) > 0:
+                        pos = xbuf[0]
+                    if len(xbuf) > 1:
+                        sc = (xbuf[-1] - xbuf[0])/(len(xbuf) - 1)
+                    self.__xbuffers[i] = [pos, sc]
+                    if (self.__ui.mainplotComboBox.currentIndex() -
+                       1 == i):
+                        self._mainwidget.setPolarScale(
+                            [pos, 0], [sc, 1])
+            self.__resetscale = False
+
     def beforeplot(self, array, rawarray):
         """ command  before plot
 
@@ -3723,46 +3799,16 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :rtype: (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
         """
         if self.__showdiff:
-            xl, yl, ts = self._plotDiff()
-            # print(yl)
-            if self.__accumulate:
-                for i, yy in enumerate(yl):
-                    newrow = np.array(yy)
-                    if self.__buffers[i] is not None and \
-                       self.__buffers[i].shape[1] == newrow.shape[0]:
-                        if self.__buffers[i].shape[0] >= self.__buffersize:
-                            self.__buffers[i] = np.vstack(
-                                [self.__buffers[i][
-                                    self.__buffers[i].shape[0]
-                                    - self.__buffersize + 1:,
-                                    :],
-                                 newrow]
-                            )
-                            if self.__timestamps[i]:
-                                self.__timestamps[i].pop(0)
-                        else:
-                            self.__buffers[i] = np.vstack(
-                                [self.__buffers[i], newrow])
-                        self.__timestamps[i].append(ts)
-                    else:
-                        self.__buffers[i] = np.array([yy])
-                        self.__timestamps[i] = [ts]
-                    if self.__xbuffers[i] is None:
-                        xbuf = np.array(xl[i])
-                        pos = 0.0
-                        sc = 1.0
-                        if len(xbuf) > 0:
-                            pos = xbuf[0]
-                        if len(xbuf) > 1:
-                            sc = (xbuf[-1] - xbuf[0])/(len(xbuf) - 1)
-                        self.__xbuffers[i] = [pos, sc]
-                        if (self.__ui.mainplotComboBox.currentIndex() -
-                           1 == i):
-                            self._mainwidget.setPolarScale(
-                                [pos, 0], [sc, 1])
+            self._plotDiffWithBuffering()
         if self.__plotindex > 0 and \
            self.__plotindex <= len(self.__buffers):
-            diffdata = np.transpose(self.__buffers[self.__plotindex - 1])
+            if self.__buffers[self.__plotindex - 1] is not None:
+                diffdata = np.transpose(self.__buffers[self.__plotindex - 1])
+            else:
+                diffdata = None
+                diffdata = np.zeros(shape=(1, 1))
+                self.__resetscale = True
+                # np.empty(shape=(int(self.__settings.diffnpt), 0))
             return (diffdata, diffdata)
 
     @QtCore.pyqtSlot(float, float)
@@ -5136,7 +5182,7 @@ class MaximaToolWidget(ToolBaseWidget):
         #: (:class:`lavuelib.settings.Settings`) configuration settings
         self.__settings = self._mainwidget.settings()
 
-        #: (:obj:`float`) radial coordinate factor
+        #: (:obj:`float`) radail coordinate factor
         self.__radmax = 1.
 
         #: (:obj:`float`) polar coordinate factor

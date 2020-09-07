@@ -844,10 +844,22 @@ class ImageWidget(QtGui.QWidget):
         if self.__currenttool:
             barrays = self.__currenttool.beforeplot(array, rawarray)
         self.__displaywidget.updateImage(
-            barrays[0] if barrays is not None else array,
-            barrays[1] if barrays is not None else rawarray)
+            barrays[0] if barrays is not None else self.__data,
+            barrays[1] if barrays is not None else self.__rawdata)
         if self.__currenttool:
             self.__currenttool.afterplot()
+
+    def updateImage(self, array=None, rawarray=None):
+        """ update the image
+
+        :param array: 2d image array
+        :type array: :class:`numpy.ndarray`
+        :param rawarray: 2d raw image array
+        :type rawarray: :class:`numpy.ndarray`
+        """
+        self.__displaywidget.updateImage(
+            array if array is not None else self.__data,
+            rawarray if rawarray is not None else self.__rawdata)
 
     @QtCore.pyqtSlot(int)
     def setAutoLevels(self, autolevels):
