@@ -3706,7 +3706,6 @@ class DiffractogramToolWidget(ToolBaseWidget):
             curve.show()
             curve.setVisible(True)
         self.setColors(self.__settings.roiscolors, True)
-
         # if self.__settings.calibrationfilename:
         #     self._loadCalibration(
         #         self.__settings.calibrationfilename)
@@ -3716,6 +3715,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
         if aistat:
             self._plotDiff()
         self._mainwidget.bottomplotShowMenu(True, True)
+        self.__ui.mainplotComboBox.setCurrentIndex(0)
+        self._setPlotIndex(0)
 
     @QtCore.pyqtSlot()
     def _nextPlotDiff(self):
