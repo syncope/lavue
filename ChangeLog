@@ -1,3 +1,8 @@
+2020-09-08 Jan Kotanski <jan.kotanski@desy.de>
+	* add a buffer for diffractograms
+	* rename polarscale to toolscale
+	* tagged as 2.46.0
+
 2020-09-03 Janf Kotanski <jan.kotanski@desy.de>
 	* fix multi-source mode for 1D image sources
 	* tagged as 2.45.2
