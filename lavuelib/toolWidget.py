@@ -3804,8 +3804,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :return: 2d image array and raw image
         :rtype: (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
         """
-        if self.__showdiff: 
-           self._plotDiffWithBuffering()
+        if self.__showdiff:
+            self._plotDiffWithBuffering()
         if self.__plotindex > 0 and \
            self.__plotindex <= len(self.__buffers):
             if self.__buffers[self.__plotindex - 1] is not None:
