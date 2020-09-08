@@ -157,11 +157,11 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         #:            axes parameters
         self.__axes = AxesParameters()
         #: (:class:`lavuelib.imageDisplayWidget.AxesParameters`)
-        #:            axes parameters
+        #:            down-sampling and range window axes parameters
         self.__wraxes = AxesParameters()
         #: (:class:`lavuelib.imageDisplayWidget.AxesParameters`)
-        #:            down-sampling and range window axes parameters
-        self.__polaraxes = AxesParameters()
+        #:            tool axes parameters
+        self.__toolaxes = AxesParameters()
 
         #: (:class:`lavuelib.imageDisplayWidget.IntensityParameters`)
         #:                  intensity parameters
@@ -341,7 +341,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         return "%s,%s,%s,%s" % (
             vr0[0], vr1[0], vr0[1] - vr0[0], vr1[1] - vr1[0])
 
-    def __setScale(self, position=None, scale=None, update=True, polar=False,
+    def __setScale(self, position=None, scale=None, update=True, tool=False,
                    force=False, wrenabled=None, wrupdate=True):
         """ set axes scales
 
@@ -351,8 +351,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :type scale: [:obj:`float`, :obj:`float`]
         :param update: update scales on image
         :type update: :obj:`bool`
-        :param polar: update polar scale
-        :type polar: :obj:`bool`
+        :param tool: update tool scale
+        :type tool: :obj:`bool`
         :param force: force rescaling
         :type force: :obj:`bool`
         :param wrenabled: down-sampling rescale
@@ -364,8 +364,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__wraxes.enabled = wrenabled
         else:
             wrenabled = self.__wraxes.enabled
-        if polar:
-            axes = self.__polaraxes
+        if tool:
+            axes = self.__toolaxes
         elif self.__axes.enabled:
             axes = self.__axes
         else:
@@ -382,7 +382,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 return
         axes.position = position
         axes.scale = scale
-        if wrupdate and not polar:
+        if wrupdate and not tool:
             self.__wraxes.position = position
             self.__wraxes.scale = scale
             self.__axes.position = position
@@ -413,7 +413,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if self.sceneObj.rawdata is not None and update:
             self.autoRange()
 
-    def setPolarScale(self, position=None, scale=None):
+    def setToolScale(self, position=None, scale=None):
         """ set axes scales
 
         :param position: start position of axes
@@ -423,8 +423,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :param update: update scales on image
         :type updatescale: :obj:`bool`
         """
-        self.__polaraxes.position = position
-        self.__polaraxes.scale = scale
+        self.__toolaxes.position = position
+        self.__toolaxes.scale = scale
 
     def scale(self, useraxes=True, noNone=False):
         """ provides scale and position of the axes
@@ -456,14 +456,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
         return position[0], position[1], scale[0], scale[1]
 
-    def __resetScale(self, polar=False):
+    def __resetScale(self, tool=False):
         """ reset axes scales
 
-        :param polar: update polar scale
-        :type polar: :obj:`bool`
+        :param tool: update tool scale
+        :type tool: :obj:`bool`
         """
-        if polar:
-            axes = self.__polaraxes
+        if tool:
+            axes = self.__toolaxes
         elif self.__axes.enabled:
             axes = self.__axes
         else:
@@ -818,27 +818,27 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 doreset = self.__axes.enabled
             self.__axes.enabled = parameters.scale
             # self.__wraxes.enabled = parameters.scale
-        if parameters.polarscale is not None:
-            doreset = doreset or parameters.polarscale
-            if self.__polaraxes.enabled and not parameters.polarscale:
+        if parameters.toolscale is not None:
+            doreset = doreset or parameters.toolscale
+            if self.__toolaxes.enabled and not parameters.toolscale:
                 doreset = True
                 rescale = True
-            self.__polaraxes.enabled = parameters.polarscale
+            self.__toolaxes.enabled = parameters.toolscale
 
         for ext in self.__extensions.values():
             ext.show(parameters)
 
         if doreset:
-            self.__resetScale(polar=parameters.polarscale)
+            self.__resetScale(tool=parameters.toolscale)
         if self.__wraxes.enabled:
             self.__setScale(
                 self.__wraxes.position, self.__wraxes.scale, force=rescale)
         if parameters.scale is True or rescale:
             self.__setScale(
                 self.__axes.position, self.__axes.scale, force=rescale)
-        if parameters.polarscale is True:
+        if parameters.toolscale is True:
             self.__setScale(
-                self.__polaraxes.position, self.__polaraxes.scale, polar=True)
+                self.__toolaxes.position, self.__toolaxes.scale, tool=True)
 
     @QtCore.pyqtSlot(bool)
     def emitAspectLockedToggled(self, status):
@@ -1063,9 +1063,9 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         elif self.__wraxes.enabled is True:
             self.__setScale(self.__wraxes.position,
                             self.__wraxes.scale)
-        if self.__polaraxes.enabled is True:
+        if self.__toolaxes.enabled is True:
             self.__setScale(
-                self.__polaraxes.position, self.__polaraxes.scale, polar=True)
+                self.__toolaxes.position, self.__toolaxes.scale, tool=True)
 
     def autoRange(self):
         """ sets auto range

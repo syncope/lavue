@@ -1848,7 +1848,7 @@ class ImageWidget(QtGui.QWidget):
         if oldcoords != coords:
             self.updateROIs(len(coords), coords)
 
-    def setPolarScale(self, position=None, scale=None):
+    def setToolScale(self, position=None, scale=None):
         """ get axes parameters
 
         :param position: start position of axes
@@ -1856,7 +1856,7 @@ class ImageWidget(QtGui.QWidget):
         :param scale: scale axes
         :type scale: [:obj:`float`, :obj:`float`]
         """
-        return self.__displaywidget.setPolarScale(position, scale)
+        return self.__displaywidget.setToolScale(position, scale)
 
     def setViewRange(self, rangelist):
         """ set view range values

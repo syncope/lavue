@@ -181,8 +181,8 @@ class ToolParameters(object):
         self.mesh = False
         #: (:obj:`bool`) axes scale enabled
         self.scale = False
-        #: (:obj:`bool`) polar axes scale enabled
-        self.polarscale = False
+        #: (:obj:`bool`) tool axes scale enabled
+        self.toolscale = False
         #: (:obj:`bool`) bottom 1d plot enabled
         self.bottomplot = False
         #: (:obj:`bool`) right 1d plot enabled
@@ -2727,7 +2727,7 @@ class AngleQToolWidget(ToolBaseWidget):
         self.parameters.infolineedit = ""
         self.parameters.infotips = ""
         self.parameters.centerlines = True
-        self.parameters.polarscale = False
+        self.parameters.toolscale = False
         # self.parameters.rightplot = True
 
         #: (`lavuelib.imageDisplayWidget.AxesParameters`) axes backup
@@ -3275,7 +3275,7 @@ class AngleQToolWidget(ToolBaseWidget):
             while not self.__calculateRadMax(pindex):
                 pass
             self.parameters.centerlines = False
-            self.parameters.polarscale = True
+            self.parameters.toolscale = True
             if pindex == 1:
                 rscale = 180. / math.pi * self.__radmax
                 rstart = self.__radthstart \
@@ -3286,14 +3286,14 @@ class AngleQToolWidget(ToolBaseWidget):
                     if self.__radqstart is not None else 0
             pstart = self.__polstart if self.__polstart is not None else 0
             pscale = self.__polmax
-            self._mainwidget.setPolarScale([rstart, pstart], [rscale, pscale])
+            self._mainwidget.setToolScale([rstart, pstart], [rscale, pscale])
             if not self.__plotindex:
                 self.__oldlocked = self._mainwidget.setAspectLocked(False)
         else:
             if self.__oldlocked is not None:
                 self._mainwidget.setAspectLocked(self.__oldlocked)
             self.parameters.centerlines = True
-            self.parameters.polarscale = False
+            self.parameters.toolscale = False
         if pindex is not None:
             self.__plotindex = pindex
             if self.__ui.plotComboBox.currentIndex != pindex:
@@ -3442,7 +3442,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.parameters.infotips = ""
         self.parameters.bottomplot = True
         self.parameters.centerlines = True
-        self.parameters.polarscale = False
+        self.parameters.toolscale = False
         self.parameters.regions = True
         # self.parameters.rightplot = True
 
@@ -3471,6 +3471,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
             [self.__ui.bufferPushButton.clicked, self._showBuffer],
             [self.__ui.resetPushButton.clicked, self._resetAccu],
             [self._mainwidget.geometryChanged, self.updateGeometryTip],
+            [self._mainwidget.geometryChanged, self._updateSetCenter],
             [self._mainwidget.freezeBottomPlotClicked, self._freezeplot],
             [self._mainwidget.clearBottomPlotClicked, self._clearplot],
             [self._mainwidget.mouseImagePositionChanged, self._message],
@@ -3501,10 +3502,11 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.__xbuffers = [None, None, None, None]
         self.__timestamps = [[], [], [], []]
         # np.empty(shape=(int(self.__settings.diffnpt), 0))
-        diffdata = np.zeros(shape=(1, 1))
         # diffdata = None
         self.__resetscale = True
-        self._mainwidget.updateImage(diffdata, diffdata)
+        if self.__plotindex != 0:
+            diffdata = np.zeros(shape=(1, 1))
+            self._mainwidget.updateImage(diffdata, diffdata)
 
     @QtCore.pyqtSlot()
     def _startStopAccu(self):
@@ -3784,8 +3786,10 @@ class DiffractogramToolWidget(ToolBaseWidget):
                     self.__xbuffers[i] = [pos, sc]
                     if (self.__ui.mainplotComboBox.currentIndex() -
                        1 == i):
-                        self._mainwidget.setPolarScale(
-                            [pos, 0], [sc, 1])
+                        # self._mainwidget.setToolScale(
+                        #     [pos, 0], [sc, 1])
+                        self._mainwidget.setToolScale(
+                            [0, 0], [1, 1])
             self.__resetscale = False
 
     def beforeplot(self, array, rawarray):
@@ -3838,11 +3842,30 @@ class DiffractogramToolWidget(ToolBaseWidget):
                                                 self.__settings.centery,
                                                 aif["tilt"],
                                                 aif["tiltPlanRotation"])
-            self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
-            self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
+                self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
+                self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
             self._message()
             self._plotDiff()
             self.updateGeometryTip()
+            self._resetAccu()
+            #self.__resetscale = True
+
+    @QtCore.pyqtSlot()
+    def _updateSetCenter(self):
+        """ updates the image center
+
+        """
+        # return
+        with QtCore.QMutexLocker(self.__settings.aimutex):
+            if self.__settings.ai is not None:
+                aif = self.__settings.ai.getFit2D()
+                self.__settings.ai.setFit2D(aif["directDist"],
+                                            self.__settings.centerx,
+                                            self.__settings.centery,
+                                            aif["tilt"],
+                                            aif["tiltPlanRotation"])
+        self._resetAccu()
+        #self.__resetscale = True
 
     @QtCore.pyqtSlot()
     def _loadCalibration(self, fileName=None):
@@ -3883,6 +3906,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 self.__updateButtons(self.__settings.ai is not None)
             self.__updateregion()
             self.updateGeometryTip()
+        self.__resetscale = True
 
     def __writedetsettings(self):
         """ write detector settings from ai object
@@ -5088,19 +5112,20 @@ class DiffractogramToolWidget(ToolBaseWidget):
         """
         if pindex and pindex > 0:
             self.parameters.centerlines = False
-            self.parameters.polarscale = True
-            if len(self.__xbuffers) >= pindex and self.__xbuffers[pindex - 1]:
-                pos, sc = self.__xbuffers[pindex - 1]
-                self._mainwidget.setPolarScale([pos, 0], [sc, 1])
-            else:
-                self._mainwidget.setPolarScale([0, 0], [1, 1])
+            self.parameters.toolscale = True
+            # if len(self.__xbuffers) >= pindex and self.__xbuffers[pindex - 1]:
+            #     pos, sc = self.__xbuffers[pindex - 1]
+            #     self._mainwidget.setToolScale([pos, 0], [sc, 1])
+            # else:
+            #     self._mainwidget.setToolScale([0, 0], [1, 1])
+            self._mainwidget.setToolScale([0, 0], [1, 1])
             if not self.__plotindex:
                 self.__oldlocked = self._mainwidget.setAspectLocked(False)
         else:
             if self.__oldlocked is not None:
                 self._mainwidget.setAspectLocked(self.__oldlocked)
             self.parameters.centerlines = True
-            self.parameters.polarscale = False
+            self.parameters.toolscale = False
         if pindex is not None:
             self.__plotindex = pindex
         self._mainwidget.updateinfowidgets(self.parameters)
@@ -5172,7 +5197,7 @@ class MaximaToolWidget(ToolBaseWidget):
         self.parameters.infolineedit = ""
         self.parameters.infotips = ""
         self.parameters.centerlines = True
-        self.parameters.polarscale = False
+        self.parameters.toolscale = False
         self.parameters.maxima = True
         # self.parameters.rightplot = True
 
