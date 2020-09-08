@@ -3849,7 +3849,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self._plotDiff()
             self.updateGeometryTip()
             self._resetAccu()
-            #self.__resetscale = True
+            # self.__resetscale = True
 
     @QtCore.pyqtSlot()
     def _updateSetCenter(self):
@@ -3866,7 +3866,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                                             aif["tilt"],
                                             aif["tiltPlanRotation"])
         self._resetAccu()
-        #self.__resetscale = True
+        # self.__resetscale = True
 
     @QtCore.pyqtSlot()
     def _loadCalibration(self, fileName=None):
@@ -5114,7 +5114,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
         if pindex and pindex > 0:
             self.parameters.centerlines = False
             self.parameters.toolscale = True
-            # if len(self.__xbuffers) >= pindex and self.__xbuffers[pindex - 1]:
+            # if len(self.__xbuffers) >= pindex and \
+            #    self.__xbuffers[pindex - 1]:
             #     pos, sc = self.__xbuffers[pindex - 1]
             #     self._mainwidget.setToolScale([pos, 0], [sc, 1])
             # else:
