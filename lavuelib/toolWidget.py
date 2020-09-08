@@ -3489,6 +3489,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         """
         try:
             self.__buffersize = int(self.__ui.sizeLineEdit.text())
+            self._resetAccu()
         except Exception as e:
             # print(str(e))
             logger.warning(str(e))
@@ -3787,10 +3788,10 @@ class DiffractogramToolWidget(ToolBaseWidget):
                     self.__xbuffers[i] = [pos, sc]
                     if (self.__ui.mainplotComboBox.currentIndex() -
                        1 == i):
-                        # self._mainwidget.setToolScale(
-                        #     [pos, 0], [sc, 1])
                         self._mainwidget.setToolScale(
-                            [0, 0], [1, 1])
+                            [pos, 0], [sc, 1])
+                        # self._mainwidget.setToolScale(
+                        #    [0, 0], [1, 1])
             self.__resetscale = False
 
     def beforeplot(self, array, rawarray):
@@ -3803,8 +3804,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
         :return: 2d image array and raw image
         :rtype: (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
         """
-        if self.__showdiff:
-            self._plotDiffWithBuffering()
+        if self.__showdiff: 
+           self._plotDiffWithBuffering()
         if self.__plotindex > 0 and \
            self.__plotindex <= len(self.__buffers):
             if self.__buffers[self.__plotindex - 1] is not None:
@@ -3846,6 +3847,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 self._mainwidget.writeAttribute("BeamCenterX", float(xdata))
                 self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
             self._message()
+            self.__updateregion()
             self._plotDiff()
             self.updateGeometryTip()
             self._resetAccu()
@@ -3866,6 +3868,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
                                             aif["tilt"],
                                             aif["tiltPlanRotation"])
         self._resetAccu()
+        self.__updateregion()
+        self._plotDiff()
         # self.__resetscale = True
 
     @QtCore.pyqtSlot()
@@ -3907,6 +3911,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 self.__updateButtons(self.__settings.ai is not None)
             self.__updateregion()
             self.updateGeometryTip()
+            self._resetAccu()
         self.__resetscale = True
 
     def __writedetsettings(self):
@@ -4371,6 +4376,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 self.__radstart = cnfdlg.radstart
                 self.__radend = cnfdlg.radend
                 self.__updateregion()
+                self._resetAccu()
 
     def __updateaz(self):
         """ update azimuth range in deg
@@ -4548,6 +4554,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         """
         regions = regions if regions is not None else self.__regions
         self._mainwidget.updateRegions(regions)
+        self._resetAccu()
         self._plotDiff()
         self._closeReset()
 
@@ -5100,7 +5107,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         """
         if self.__unitindex != uindex:
             self._resetAccu()
-        self.__unitindex = uindex
+            self.__unitindex = uindex
         self.__updaterad()
         self._plotDiff()
 
@@ -5114,13 +5121,14 @@ class DiffractogramToolWidget(ToolBaseWidget):
         if pindex and pindex > 0:
             self.parameters.centerlines = False
             self.parameters.toolscale = True
-            # if len(self.__xbuffers) >= pindex and \
-            #    self.__xbuffers[pindex - 1]:
-            #     pos, sc = self.__xbuffers[pindex - 1]
-            #     self._mainwidget.setToolScale([pos, 0], [sc, 1])
-            # else:
-            #     self._mainwidget.setToolScale([0, 0], [1, 1])
-            self._mainwidget.setToolScale([0, 0], [1, 1])
+            self.parameters.regions = False
+            if len(self.__xbuffers) >= pindex and \
+               self.__xbuffers[pindex - 1]:
+                pos, sc = self.__xbuffers[pindex - 1]
+                self._mainwidget.setToolScale([pos, 0], [sc, 1])
+            else:
+                self._mainwidget.setToolScale([0, 0], [1, 1])
+            # self._mainwidget.setToolScale([0, 0], [1, 1])
             if not self.__plotindex:
                 self.__oldlocked = self._mainwidget.setAspectLocked(False)
         else:
@@ -5128,6 +5136,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 self._mainwidget.setAspectLocked(self.__oldlocked)
             self.parameters.centerlines = True
             self.parameters.toolscale = False
+            self.parameters.regions = True
         if pindex is not None:
             self.__plotindex = pindex
         self._mainwidget.updateinfowidgets(self.parameters)
