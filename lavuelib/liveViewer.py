@@ -3517,10 +3517,8 @@ class LiveViewer(QtGui.QDialog):
             self.__scaledimage = np.clip(self.__displayimage, 0, np.inf)
             self.__scaledimage = np.sqrt(self.__scaledimage)
         elif scalingtype == "log":
-            print("DIS %s" % self.__displayimage)
             self.__scaledimage = np.clip(self.__displayimage, 10e-3, np.inf)
             self.__scaledimage = np.log10(self.__scaledimage)
-            print("SCAL %s" % self.__scaledimage)
         elif _VMAJOR == '0' and _VMINOR == '9' and int(_VPATCH) > 7:
             # (for 0.9.8 <= version < 0.10.0 i.e. ubuntu 16.04)
             self.__scaledimage = self.__displayimage.astype(
