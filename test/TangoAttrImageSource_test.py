@@ -496,7 +496,7 @@ class TangoAttrImageSourceTest(unittest.TestCase):
         ll1 = np.stack([l1, zs, zs, zs], 1)
         ll2 = np.stack([zs, zs, zs, l2], 1)
         zzs = np.stack([zs, zs, zs, zs], 1)
-        zzs[:] = 0
+        zzs[:] = np.nan
         lastimage = np.stack([ll1, ll2, zzs], 2)
 
         cfg = '[Configuration]\n' \
