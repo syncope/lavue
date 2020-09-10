@@ -2823,7 +2823,7 @@ class LiveViewer(QtGui.QDialog):
                 if self.__settings.nanmask:
                     dtype = self.__settings.floattype
                 rawimage = np.zeros(shape=nshape, dtype=dtype)
-                if self.__settings.nanmask and scc == 1:
+                if self.__settings.nanmask:
                     rawimage.fill(np.nan)
                 for i, pd in enumerate(ldata):
                     lsh = len(pd.data().shape)
@@ -3108,7 +3108,9 @@ class LiveViewer(QtGui.QDialog):
                                 zeros = np.zeros(
                                     shape=nshape,
                                     dtype=self.__rawgreyimage.dtype)
-
+                                if self.__settings.nanmask and \
+                                   self.__rawgreyimage.dtype.kind == 'f':
+                                    zeros[:] = np.nan
                             self.__rawgreyimage = np.concatenate(
                                 (self.__rawgreyimage[:, :, rgbs[0]].
                                  reshape(nshape)
@@ -3515,8 +3517,10 @@ class LiveViewer(QtGui.QDialog):
             self.__scaledimage = np.clip(self.__displayimage, 0, np.inf)
             self.__scaledimage = np.sqrt(self.__scaledimage)
         elif scalingtype == "log":
+            print("DIS %s" % self.__displayimage)
             self.__scaledimage = np.clip(self.__displayimage, 10e-3, np.inf)
             self.__scaledimage = np.log10(self.__scaledimage)
+            print("SCAL %s" % self.__scaledimage)
         elif _VMAJOR == '0' and _VMINOR == '9' and int(_VPATCH) > 7:
             # (for 0.9.8 <= version < 0.10.0 i.e. ubuntu 16.04)
             self.__scaledimage = self.__displayimage.astype(

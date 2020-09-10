@@ -491,8 +491,8 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         try:
             if img is not None and len(img.shape) == 3:
                 self.__image.setLookupTable(None)
-                if img.dtype.kind == 'f' and np.isnan(img.min()):
-                    img = np.nan_to_num(img)
+                # if img.dtype.kind == 'f' and np.isnan(img.min()):
+                #     img = np.nan_to_num(img)
                 self.__image.setImage(
                     img, lut=None,
                     # levels=[[0,255], [0, 255], [0, 255]],
