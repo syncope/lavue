@@ -241,14 +241,21 @@ class PartialData(object):
         self.sx = 1
         #: (:obj:`int`) y size
         self.sy = 1
+        #: (:obj:`int`) color channel size
+        self.scc = 1
         #: (:obj:`str`) transformation
         self.tr = tr
         self.data()
         if hasattr(self.__data, "shape"):
-            if len(self.__data.shape) > 0:
-                self.sx = self.__data.shape[0]
-            if len(self.__data.shape) > 1:
-                self.sy = self.__data.shape[1]
+            if len(self.__data.shape) > 2:
+                self.scc = self.__data.shape[0]
+                self.sx = self.__data.shape[1]
+                self.sy = self.__data.shape[2]
+            else:
+                if len(self.__data.shape) > 0:
+                    self.sx = self.__data.shape[0]
+                if len(self.__data.shape) > 1:
+                    self.sy = self.__data.shape[1]
 
     def dtype(self):
         """ provides data type
@@ -1973,6 +1980,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.crosshairlocker = self.__settings.crosshairlocker
         cnfdlg.addrois = self.__settings.addrois
         cnfdlg.orderrois = self.__settings.orderrois
+        cnfdlg.imagechannels = self.__settings.imagechannels
         cnfdlg.showsub = self.__settings.showsub
         cnfdlg.showtrans = self.__settings.showtrans
         cnfdlg.showscale = self.__settings.showscale
@@ -2061,6 +2069,7 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.sardana = dialog.sardana
         self.__settings.addrois = dialog.addrois
         self.__settings.orderrois = dialog.orderrois
+        self.__settings.imagechannels = dialog.imagechannels
         self.__settings.floattype = dialog.floattype
         self.__settings.crosshairlocker = dialog.crosshairlocker
 
@@ -2735,13 +2744,15 @@ class LiveViewer(QtGui.QDialog):
         # self.__datasources[0] = None
 
     # @debugmethod
-    def __mergeData(self, fulldata, oldname):
+    def __mergeData(self, fulldata, oldname, channels=False):
         """ merge data parts to (name, rawdata, metadata)
 
         :param fulldata: a list of PartialData objects
         :type fulldata: :obj:`list` <:class:`PartialData`>
         :param oldname: old name
         :type oldname: :obj:`str`
+        :param channels: map image sources into different color channels
+        :type channels: :obj:`bool`
         :returns: tuple of exchange object (name, data, metadata)
         :rtype: :obj:`list` <:obj:`str`, :class:`numpy.ndarray`, :obj:`str` >
         """
@@ -2777,6 +2788,7 @@ class LiveViewer(QtGui.QDialog):
                 pd = ldata[0]
                 shape = [pd.sx, pd.sy]
                 dtype = pd.dtype()
+                scc = pd.scc
                 while len(shape) < 2:
                     shape.append(1)
                 pd.x = pd.x or 0
@@ -2786,6 +2798,7 @@ class LiveViewer(QtGui.QDialog):
                 nx = min(0, pd.x)
                 ny = min(0, pd.y)
                 for pd in ldata[1:]:
+                    scc = max(scc, pd.scc)
                     pd.x = pd.x or 0
                     if pd.y is None:
                         pd.y = shape[1]
@@ -2800,26 +2813,47 @@ class LiveViewer(QtGui.QDialog):
                     shape[1] = max(shape[1], psh[1])
                     nx = min(nx, pd.x)
                     ny = min(ny, pd.y)
-                if self.__settings.nanmask:
-                    rawimage = np.zeros(
-                        shape=(shape[0] - nx, shape[1] - ny),
-                        dtype=self.__settings.floattype)
-                    rawimage.fill(np.nan)
+                if channels:
+                    scc = max(len(ldata), scc)
+                if scc > 1:
+                    nshape = (scc, shape[0] - nx, shape[1] - ny)
                 else:
-                    rawimage = np.zeros(
-                        shape=(shape[0] - nx, shape[1] - ny),
-                        dtype=dtype)
-                for pd in ldata:
-                    if len(shape) == 2:
-                        rawimage[
-                            pd.x - nx: pd.sx + pd.x - nx,
-                            pd.y - ny: pd.sy + pd.y - ny] = \
-                            pd.data()
+                    nshape = (shape[0] - nx, shape[1] - ny)
+
+                if self.__settings.nanmask:
+                    dtype = self.__settings.floattype
+                rawimage = np.zeros(shape=nshape, dtype=dtype)
+                if self.__settings.nanmask and scc == 1:
+                    rawimage.fill(np.nan)
+                for i, pd in enumerate(ldata):
+                    lsh = len(pd.data().shape)
+                    if lsh == 2:
+                        if scc == 1:
+                            rawimage[
+                                pd.x - nx: pd.sx + pd.x - nx,
+                                pd.y - ny: pd.sy + pd.y - ny] = \
+                                    pd.data()
+                        else:
+                            rawimage[
+                                i,
+                                pd.x - nx: pd.sx + pd.x - nx,
+                                pd.y - ny: pd.sy + pd.y - ny] = \
+                                    pd.data()
                     else:
-                        rawimage[
-                            pd.x - nx: pd.sx + pd.x - nx,
-                            pd.y - ny: pd.sy + pd.y - ny, ...] = \
-                            pd.data()
+                        if pd.scc == 1:
+                            rawimage[
+                                i: i+1,
+                                pd.x - nx: pd.sx + pd.x - nx,
+                                pd.y - ny: pd.sy + pd.y - ny
+                                ] = \
+                                    pd.data()
+                        else:
+                            rawimage[
+                                0: pd.scc,
+                                pd.x - nx: pd.sx + pd.x - nx,
+                                pd.y - ny: pd.sy + pd.y - ny] = \
+                                    pd.data()
+
         return name, rawimage, metadata
 
     @debugmethod
@@ -2870,7 +2904,8 @@ class LiveViewer(QtGui.QDialog):
             name, rawimage, metadata = fulldata[0].tolist()[:3]
         else:
             name, rawimage, metadata = self.__mergeData(
-                fulldata, str(self.__imagename).strip())
+                fulldata, str(self.__imagename).strip(),
+                self.__settings.imagechannels)
 
         if str(self.__imagename).strip() == str(name).strip() and not metadata:
             for dft in self.__dataFetchers:

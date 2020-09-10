@@ -65,6 +65,8 @@ class Settings(object):
         self.showaddhisto = False
         #: (:obj:`bool`) show mask widget
         self.showmask = False
+        #: (:obj:`bool`) map image sources to color channels
+        self.imagechannels = False
         #: (:obj:`bool`) show high mask value  widget
         self.showhighvaluemask = False
         #: (:obj:`bool`) show statistics widget
@@ -350,6 +352,9 @@ class Settings(object):
         qstval = str(settings.value("Configuration/OrderROIs", type=str))
         if qstval.lower() == "true":
             self.orderrois = True
+        qstval = str(settings.value("Configuration/ImageChannels", type=str))
+        if qstval.lower() == "true":
+            self.imagechannels = True
         qstval = str(settings.value("Configuration/SecAutoPort", type=str))
         if qstval.lower() == "false":
             self.secautoport = False
@@ -813,6 +818,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/OrderROIs",
             self.orderrois)
+        settings.setValue(
+            "Configuration/ImageChannels",
+            self.imagechannels)
         settings.setValue(
             "Configuration/ShowSubtraction",
             self.showsub)

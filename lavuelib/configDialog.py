@@ -208,6 +208,8 @@ class ConfigDialog(QtGui.QDialog):
         self.orderrois = False
         #: (:obj:`bool`) security stream enabled
         self.secstream = False
+        #: (:obj:`bool`) map image sources to color channels
+        self.imagechannels = False
         #: (:obj:`str`) security stream port
         self.secport = "5657"
         #: (:obj:`str`) hidra data port
@@ -426,6 +428,7 @@ class ConfigDialog(QtGui.QDialog):
         self.__ui.doorLineEdit.setText(self.door)
         self.__ui.addroisCheckBox.setChecked(self.addrois)
         self.__ui.orderroisCheckBox.setChecked(self.orderrois)
+        self.__ui.imagechannelsCheckBox.setChecked(self.imagechannels)
         self.__ui.secstreamCheckBox.setChecked(self.secstream)
         self.__ui.zeromaskCheckBox.setChecked(self.zeromask)
         self.__ui.nanmaskCheckBox.setChecked(self.nanmask)
@@ -732,6 +735,7 @@ class ConfigDialog(QtGui.QDialog):
         self.door = str(self.__ui.doorLineEdit.text()).strip()
         self.addrois = self.__ui.addroisCheckBox.isChecked()
         self.orderrois = self.__ui.orderroisCheckBox.isChecked()
+        self.imagechannels = self.__ui.imagechannelsCheckBox.isChecked()
         self.hidraport = str(self.__ui.hidraportLineEdit.text()).strip()
         self.maxmbuffersize = str(self.__ui.mbufsizeLineEdit.text()).strip()
         self.secstream = self.__ui.secstreamCheckBox.isChecked()
