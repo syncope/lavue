@@ -480,21 +480,18 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 self.autoRange()
             self.__setLabels()
 
-    def updateImage(self, img=None, rawimg=None, nanmask=True):
+    def updateImage(self, img=None, rawimg=None):
         """ updates the image to display
 
         :param img: 2d image array
         :type img: :class:`numpy.ndarray`
         :param rawimg: 2d raw image array
         :type rawimg: :class:`numpy.ndarray`
-        :param nanmask: nan mask mode flag
-        :type nanmask: :obj:`bool`
         """
         try:
             if img is not None and len(img.shape) == 3:
                 self.__image.setLookupTable(None)
-                if img.dtype.kind == 'f' and np.isnan(img.min()) \
-                   and not nanmask:
+                if img.dtype.kind == 'f' and np.isnan(img.min()):
                     img = np.nan_to_num(img)
                 self.__image.setImage(
                     img, lut=None,
