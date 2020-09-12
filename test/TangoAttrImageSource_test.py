@@ -481,6 +481,505 @@ class TangoAttrImageSourceTest(unittest.TestCase):
         self.compareStates(ls, dls,
                            ['viewrange', '__timestamp__', 'doordevice'])
 
+    def ttest_readspectra_color(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        self.__lcsu.proxy.Init()
+        self.__tisu.proxy.Init()
+        self.__lavuestate = None
+        l1 = self.__tisu.proxy.Spectrum1
+        l2 = self.__tisu.proxy.Spectrum2
+        lsh = l1.shape
+        zs = np.zeros(dtype="float64", shape=lsh)
+        zs[:] = np.nan
+        ll1 = np.stack([l1, zs, zs, zs], 1)
+        ll2 = np.stack([zs, zs, zs, l2], 1)
+        zzs = np.stack([zs, zs, zs, zs], 1)
+        zzs[:] = np.nan
+        lastimage = np.stack([ll1, ll2, zzs], 2)
+
+        cfg = '[Configuration]\n' \
+            'ShowSubtraction=false\n' \
+            'ShowTransformations=false\n' \
+            'ImageChannels=true\n'
+
+        if not os.path.exists(self.__cfgfdir):
+            os.makedirs(self.__cfgfdir)
+        with open(self.__cfgfname, "w+") as cf:
+            cf.write(cfg)
+
+        options = argparse.Namespace(
+            mode='expert',
+            source='tangoattr;tangoattr',
+            offset=';,3',
+            configuration='test/testimageserver/00/Spectrum1;'
+            'test/testimageserver/00/Spectrum2',
+            instance='tgtest2',
+            tool='roi',
+            # log='debug',
+            log='info',
+            scaling='log',
+            # gradient='thermal',
+            channel='rgb',
+            start=True,
+            tangodevice='test/lavuecontroller/00'
+        )
+        logging.basicConfig(
+             format="%(levelname)s: %(message)s")
+        logger = logging.getLogger("lavue")
+        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+        dialog = lavuelib.liveViewer.MainWindow(options=options)
+        dialog.show()
+
+        qtck1 = QtChecker(app, dialog, True, sleep=100)
+        qtck2 = QtChecker(app, dialog, True, sleep=100)
+        qtck3 = QtChecker(app, dialog, True, sleep=100)
+        qtck1.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            ExtCmdCheck(self, "getLavueState"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewSpectra"),
+        ])
+        qtck2.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewSpectra"),
+        ])
+        qtck3.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            WrapAttrCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg"
+                "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+        ])
+
+        print("execute")
+        qtck1.executeChecks(delay=3000)
+        qtck2.executeChecks(delay=6000)
+        status = qtck3.executeChecksAndClose(delay=9000)
+
+        self.assertEqual(status, 0)
+
+        qtck1.compareResults(
+            self, [True, None, None, None, None], mask=[0, 0, 1, 1, 1])
+        qtck2.compareResults(
+            self, [True, None, None, None], mask=[0, 1, 1, 1])
+        qtck3.compareResults(
+            self, [None, None, None, False], mask=[1, 1, 0, 0])
+
+        res1 = qtck1.results()
+        res2 = qtck2.results()
+        res3 = qtck3.results()
+        if not np.allclose(res1[2], lastimage, equal_nan=True):
+            print(res1[2])
+            print(lastimage)
+            print(res1[2] - lastimage)
+        self.assertTrue(np.allclose(res1[2], lastimage, equal_nan=True))
+
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res1[3], scaledimage, equal_nan=True))
+
+        l1, l2 = res1[4]
+        ll1 = np.stack([l1, zs, zs, zs], 1)
+        ll2 = np.stack([zs, zs, zs, l2], 1)
+        lastimage = np.stack([ll1, ll2, zzs], 2)
+        if not np.allclose(res2[1], lastimage, equal_nan=True):
+            print(res2[1])
+            print(lastimage)
+        self.assertTrue(np.allclose(res2[1], lastimage, equal_nan=True))
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res2[2], scaledimage, equal_nan=True))
+
+        l1, l2 = res2[3]
+        ll1 = np.stack([l1, zs, zs, zs], 1)
+        ll2 = np.stack([zs, zs, zs, l2], 1)
+        lastimage = np.stack([ll1, ll2, zzs], 2)
+
+        self.assertTrue(np.allclose(res3[0], lastimage, equal_nan=True))
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res3[1], scaledimage, equal_nan=True))
+
+        ls = json.loads(self.__lavuestate)
+        dls = dict(self.__defaultls)
+        dls.update(dict(
+            mode='expert',
+            source='tangoattr;tangoattr',
+            configuration='test/testimageserver/00/Spectrum1;'
+            'test/testimageserver/00/Spectrum2',
+            offset=';,3',
+            instance='tgtest2',
+            tool='rgbintensity',
+            # log='debug',
+            log='info',
+            scaling='log',
+            # levels='',
+            channel='0,1,-1',
+            #  gradient='thermal',
+            tangodevice='test/lavuecontroller/00',
+            connected=True,
+            autofactor=''
+        ))
+        self.compareStates(ls, dls,
+                           ['viewrange', '__timestamp__', 'doordevice'])
+
+    def ttest_readimage_color(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        self.__lcsu.proxy.Init()
+        self.__tisu.proxy.Init()
+        self.__lavuestate = None
+        l1 = self.__tisu.proxy.LastImage.T
+        lsh = l1.shape
+        zzs = np.zeros(dtype="float64", shape=[lsh[0], lsh[1] + 6])
+        zzs[:] = np.nan
+        ll1 = np.array(zzs)
+        ll2 = np.array(zzs)
+        ll3 = np.array(zzs)
+        ll1[0:lsh[0], 0:lsh[1]] = l1
+        ll2[0:lsh[0], 3:lsh[1]+3] = l1
+        ll3[0:lsh[0], 6:lsh[1]+6] = l1
+        lastimage = np.stack([ll1, ll2, ll3], 2)
+
+        cfg = '[Configuration]\n' \
+            'ShowSubtraction=false\n' \
+            'ShowTransformations=false\n' \
+            'ImageChannels=true\n'
+
+        if not os.path.exists(self.__cfgfdir):
+            os.makedirs(self.__cfgfdir)
+        with open(self.__cfgfname, "w+") as cf:
+            cf.write(cfg)
+
+        options = argparse.Namespace(
+            mode='expert',
+            source='tangoattr;tangoattr;tangoattr',
+            offset=';,3;,6',
+            configuration='test/testimageserver/00/LastImage;'
+            'test/testimageserver/00/LastImage;'
+            'test/testimageserver/00/LastImage',
+            instance='tgtest2',
+            tool='roi',
+            # log='debug',
+            log='info',
+            scaling='log',
+            # gradient='thermal',
+            channel='rgb',
+            start=True,
+            tangodevice='test/lavuecontroller/00'
+        )
+        logging.basicConfig(
+             format="%(levelname)s: %(message)s")
+        logger = logging.getLogger("lavue")
+        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+        dialog = lavuelib.liveViewer.MainWindow(options=options)
+        dialog.show()
+
+        qtck1 = QtChecker(app, dialog, True, sleep=100)
+        qtck2 = QtChecker(app, dialog, True, sleep=100)
+        qtck3 = QtChecker(app, dialog, True, sleep=100)
+        qtck1.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            ExtCmdCheck(self, "getLavueState"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewImage"),
+        ])
+        qtck2.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewImage"),
+        ])
+        qtck3.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            WrapAttrCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg"
+                "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+        ])
+
+        print("execute")
+        qtck1.executeChecks(delay=3000)
+        qtck2.executeChecks(delay=6000)
+        status = qtck3.executeChecksAndClose(delay=9000)
+
+        self.assertEqual(status, 0)
+
+        qtck1.compareResults(
+            self, [True, None, None, None, None], mask=[0, 0, 1, 1, 1])
+        qtck2.compareResults(
+            self, [True, None, None, None], mask=[0, 1, 1, 1])
+        qtck3.compareResults(
+            self, [None, None, None, False], mask=[1, 1, 0, 0])
+
+        res1 = qtck1.results()
+        res2 = qtck2.results()
+        res3 = qtck3.results()
+        if not np.allclose(res1[2], lastimage, equal_nan=True):
+            print(res1[2])
+            print(lastimage)
+            print(res1[2] - lastimage)
+        self.assertTrue(np.allclose(res1[2], lastimage, equal_nan=True))
+
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res1[3], scaledimage, equal_nan=True))
+
+        l1 = res1[4].T
+        ll1 = np.array(zzs)
+        ll2 = np.array(zzs)
+        ll3 = np.array(zzs)
+        ll1[0:lsh[0], 0:lsh[1]] = l1
+        ll2[0:lsh[0], 3:lsh[1]+3] = l1
+        ll3[0:lsh[0], 6:lsh[1]+6] = l1
+        lastimage = np.stack([ll1, ll2, ll3], 2)
+        if not np.allclose(res2[1], lastimage, equal_nan=True):
+            print(res2[1])
+            print(lastimage)
+        self.assertTrue(np.allclose(res2[1], lastimage, equal_nan=True))
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res2[2], scaledimage, equal_nan=True))
+
+        l1 = res2[3].T
+        ll1 = np.array(zzs)
+        ll2 = np.array(zzs)
+        ll3 = np.array(zzs)
+        ll1[0:lsh[0], 0:lsh[1]] = l1
+        ll2[0:lsh[0], 3:lsh[1]+3] = l1
+        ll3[0:lsh[0], 6:lsh[1]+6] = l1
+        lastimage = np.stack([ll1, ll2, ll3], 2)
+
+        self.assertTrue(np.allclose(res3[0], lastimage, equal_nan=True))
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res3[1], scaledimage, equal_nan=True))
+
+        ls = json.loads(self.__lavuestate)
+        dls = dict(self.__defaultls)
+        dls.update(dict(
+            mode='expert',
+            source='tangoattr;tangoattr;tangoattr',
+            configuration='test/testimageserver/00/LastImage;'
+            'test/testimageserver/00/LastImage;'
+            'test/testimageserver/00/LastImage',
+            offset=';,3;,6',
+            instance='tgtest2',
+            tool='rgbintensity',
+            # log='debug',
+            log='info',
+            scaling='log',
+            # levels='',
+            channel='0,1,2',
+            #  gradient='thermal',
+            tangodevice='test/lavuecontroller/00',
+            connected=True,
+            autofactor=''
+        ))
+        self.compareStates(ls, dls,
+                           ['viewrange', '__timestamp__', 'doordevice'])
+
+    def ttest_readimage_sum(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        self.__lcsu.proxy.Init()
+        self.__tisu.proxy.Init()
+        self.__lavuestate = None
+        l1 = self.__tisu.proxy.LastImage.T
+        lsh = l1.shape
+        zzs = np.zeros(dtype="float64", shape=[lsh[0], lsh[1] + 6])
+        zzs[:] = np.nan
+        ll1 = np.array(zzs)
+        ll2 = np.array(zzs)
+        ll3 = np.array(zzs)
+        ll1[0:lsh[0], 0:lsh[1]] = l1
+        ll2[0:lsh[0], 3:lsh[1]+3] = l1
+        ll3[0:lsh[0], 6:lsh[1]+6] = l1
+        lastimage = np.stack([ll1, ll2, ll3], 2)
+        lastimage = np.nansum(lastimage, 2)
+
+        cfg = '[Configuration]\n' \
+            'ShowSubtraction=false\n' \
+            'ShowTransformations=false\n' \
+            'ImageChannels=true\n'
+
+        if not os.path.exists(self.__cfgfdir):
+            os.makedirs(self.__cfgfdir)
+        with open(self.__cfgfname, "w+") as cf:
+            cf.write(cfg)
+
+        options = argparse.Namespace(
+            mode='expert',
+            source='tangoattr;tangoattr;tangoattr',
+            offset=';,3;,6',
+            configuration='test/testimageserver/00/LastImage;'
+            'test/testimageserver/00/LastImage;'
+            'test/testimageserver/00/LastImage',
+            instance='tgtest2',
+            tool='roi',
+            # log='debug',
+            log='info',
+            scaling='log',
+            # gradient='thermal',
+            channel='sum',
+            start=True,
+            tangodevice='test/lavuecontroller/00'
+        )
+        logging.basicConfig(
+             format="%(levelname)s: %(message)s")
+        logger = logging.getLogger("lavue")
+        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+        dialog = lavuelib.liveViewer.MainWindow(options=options)
+        dialog.show()
+
+        qtck1 = QtChecker(app, dialog, True, sleep=100)
+        qtck2 = QtChecker(app, dialog, True, sleep=100)
+        qtck3 = QtChecker(app, dialog, True, sleep=100)
+        qtck1.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            ExtCmdCheck(self, "getLavueState"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewImage"),
+        ])
+        qtck2.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewImage"),
+        ])
+        qtck3.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            WrapAttrCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg"
+                "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+        ])
+
+        print("execute")
+        qtck1.executeChecks(delay=3000)
+        qtck2.executeChecks(delay=6000)
+        status = qtck3.executeChecksAndClose(delay=9000)
+
+        self.assertEqual(status, 0)
+
+        qtck1.compareResults(
+            self, [True, None, None, None, None], mask=[0, 0, 1, 1, 1])
+        qtck2.compareResults(
+            self, [True, None, None, None], mask=[0, 1, 1, 1])
+        qtck3.compareResults(
+            self, [None, None, None, False], mask=[1, 1, 0, 0])
+
+        res1 = qtck1.results()
+        res2 = qtck2.results()
+        res3 = qtck3.results()
+        if not np.allclose(res1[2], lastimage, equal_nan=True):
+            print(res1[2])
+            print(lastimage)
+            print(res1[2] - lastimage)
+        self.assertTrue(np.allclose(res1[2], lastimage, equal_nan=True))
+
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res1[3], scaledimage, equal_nan=True))
+
+        l1 = res1[4].T
+        ll1 = np.array(zzs)
+        ll2 = np.array(zzs)
+        ll3 = np.array(zzs)
+        ll1[0:lsh[0], 0:lsh[1]] = l1
+        ll2[0:lsh[0], 3:lsh[1]+3] = l1
+        ll3[0:lsh[0], 6:lsh[1]+6] = l1
+        lastimage = np.stack([ll1, ll2, ll3], 2)
+        lastimage = np.nansum(lastimage, 2)
+        if not np.allclose(res2[1], lastimage, equal_nan=True):
+            print(res2[1])
+            print(lastimage)
+        self.assertTrue(np.allclose(res2[1], lastimage, equal_nan=True))
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res2[2], scaledimage, equal_nan=True))
+
+        l1 = res2[3].T
+        ll1 = np.array(zzs)
+        ll2 = np.array(zzs)
+        ll3 = np.array(zzs)
+        ll1[0:lsh[0], 0:lsh[1]] = l1
+        ll2[0:lsh[0], 3:lsh[1]+3] = l1
+        ll3[0:lsh[0], 6:lsh[1]+6] = l1
+        lastimage = np.stack([ll1, ll2, ll3], 2)
+        lastimage = np.nansum(lastimage, 2)
+
+        self.assertTrue(np.allclose(res3[0], lastimage, equal_nan=True))
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res3[1], scaledimage, equal_nan=True))
+
+        ls = json.loads(self.__lavuestate)
+        dls = dict(self.__defaultls)
+        dls.update(dict(
+            mode='expert',
+            source='tangoattr;tangoattr;tangoattr',
+            configuration='test/testimageserver/00/LastImage;'
+            'test/testimageserver/00/LastImage;'
+            'test/testimageserver/00/LastImage',
+            offset=';,3;,6',
+            instance='tgtest2',
+            tool='roi',
+            # log='debug',
+            log='info',
+            scaling='log',
+            # levels='',
+            channel='sum',
+            #  gradient='thermal',
+            tangodevice='test/lavuecontroller/00',
+            connected=True,
+            autofactor=''
+        ))
+        self.compareStates(ls, dls,
+                           ['viewrange', '__timestamp__', 'doordevice'])
+
     def test_readchangeeventimage(self):
         fun = sys._getframe().f_code.co_name
         print("Run: %s.%s() " % (self.__class__.__name__, fun))

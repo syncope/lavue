@@ -2823,7 +2823,7 @@ class LiveViewer(QtGui.QDialog):
                 if self.__settings.nanmask:
                     dtype = self.__settings.floattype
                 rawimage = np.zeros(shape=nshape, dtype=dtype)
-                if self.__settings.nanmask and scc == 1:
+                if self.__settings.nanmask:
                     rawimage.fill(np.nan)
                 for i, pd in enumerate(ldata):
                     lsh = len(pd.data().shape)
@@ -3108,7 +3108,9 @@ class LiveViewer(QtGui.QDialog):
                                 zeros = np.zeros(
                                     shape=nshape,
                                     dtype=self.__rawgreyimage.dtype)
-
+                                if self.__settings.nanmask and \
+                                   self.__rawgreyimage.dtype.kind == 'f':
+                                    zeros[:] = np.nan
                             self.__rawgreyimage = np.concatenate(
                                 (self.__rawgreyimage[:, :, rgbs[0]].
                                  reshape(nshape)
