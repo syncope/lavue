@@ -1305,7 +1305,7 @@ class LiveViewer(QtGui.QDialog):
                 if i < self.__sourcewg.count():
                     self.__sourcewg.configure(i, str(cnf))
             if sourcechanged:
-                self._setSourceConfiguration(options.configuration)
+                self._setSourceConfiguration(cnfs)
 
         QtCore.QCoreApplication.processEvents()
 
