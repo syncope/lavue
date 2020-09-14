@@ -187,6 +187,9 @@ def main():
             unittest.defaultTestLoader.loadTestsFromModule(
                 ZMQStreamImageSource_test))
 
+    # test runner
+    runner = unittest.TextTestRunner()
+
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('args', metavar='name', type=str, nargs='*',
@@ -211,8 +214,6 @@ def main():
 
     suite = unittest.TestSuite(ts)
 
-    # test runner
-    runner = unittest.TextTestRunner()
     # test result
 
     tresult = runner.run(suite)
