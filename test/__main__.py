@@ -115,7 +115,8 @@ def main():
     # test server
     # ts = None
     # test suit
-    suite = unittest.TestSuite()
+    basicsuite = unittest.TestSuite()
+    tangosuite = unittest.TestSuite()
     print("Using: %s" % qt_api)
     app = QtGui.QApplication([])
     CommandLineArgument_test.app = app
@@ -130,61 +131,114 @@ def main():
     if H5CPP_AVAILABLE:
         CommandLineArgumentH5Cpp_test.app = app
         NXSFileImageSource_test.app = app
-    suite.addTests(
+    basicsuite.addTests(
         unittest.defaultTestLoader.loadTestsFromModule(
             CommandLineArgument_test))
-    suite.addTests(
+    basicsuite.addTests(
         unittest.defaultTestLoader.loadTestsFromModule(
             HidraImageSource_test))
-    suite.addTests(
+    basicsuite.addTests(
         unittest.defaultTestLoader.loadTestsFromModule(
             HttpImageSource_test))
-    suite.addTests(
+    basicsuite.addTests(
         unittest.defaultTestLoader.loadTestsFromModule(
             PyTineImageSource_test))
-    suite.addTests(
+    basicsuite.addTests(
         unittest.defaultTestLoader.loadTestsFromModule(
             EpicsImageSource_test))
     if PNI_AVAILABLE:
-        suite.addTests(
+        basicsuite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(FileWriter_test))
-        suite.addTests(
+        basicsuite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(PNIWriter_test))
     if H5PY_AVAILABLE:
-        suite.addTests(
+        basicsuite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(
                 FileWriterH5PY_test))
-        suite.addTests(
+        basicsuite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(H5PYWriter_test))
     if H5CPP_AVAILABLE:
-        suite.addTests(
+        basicsuite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(
                 NXSFileImageSource_test))
-        suite.addTests(
+        basicsuite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(
                 CommandLineArgumentH5Cpp_test))
-        suite.addTests(
+        basicsuite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(
                 FileWriterH5Cpp_test))
-        suite.addTests(
+        basicsuite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(H5CppWriter_test))
     if PNI_AVAILABLE and H5PY_AVAILABLE:
-        suite.addTests(
+        basicsuite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(
                 FileWriterPNIH5PY_test))
     if PYTANGO_AVAILABLE:
-        suite.addTests(
+        basicsuite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(
                 LavueController_test))
-        suite.addTests(
+        basicsuite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(
                 CommandLineLavueState_test))
-        suite.addTests(
+        tangosuite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(
                 TangoAttrImageSource_test))
-        suite.addTests(
+        basicsuite.addTests(
             unittest.defaultTestLoader.loadTestsFromModule(
                 ZMQStreamImageSource_test))
+
+
+
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('args', metavar='name', type=str, nargs='*',
+                        help='suite names: all, basic, '
+                        'basicsettings, basicserver, '
+                        'extrasettings, extraserver '
+                        )
+    options = parser.parse_args()
+
+    namesuite = {
+        "basic": [basicsuite, profilesuite],
+        "basicsettings": [settingssuite1, settingssuite1b],
+        "basicserver": [serversuite1, serversuite1b],
+        "extrasettings": [settingssuite2, settingssuite2b],
+        "extraserver": [serversuite2, serversuite2b],
+    }
+
+    print(options.args)
+    if not options.args or 'all' in options.args:
+        options.args = list(namesuite.keys())
+
+    ts = []
+    for nm in options.args:
+        if nm in namesuite.keys():
+            ts.extend(namesuite[nm])
+
+    suite = unittest.TestSuite(ts)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('args', metavar='name', type=str, nargs='*',
+                        help='suite names: all, basic, '
+                        'basicsettings, basicserver, '
+                        'extrasettings, extraserver '
+                        )
+    options = parser.parse_args()
+
+    namesuite = {
+        "basic": [basicsuite],
+        "tangosource": [tangosuite],
+        "all": [basicsuite, tangosuite],
+    }
+
+    print(options.args)
+    if not options.args or 'all' in options.args:
+        options.args = list(namesuite.keys())
+
+    ts = []
+    for nm in options.args:
+        if nm in namesuite.keys():
+            ts.extend(namesuite[nm])
 
     # test runner
     runner = unittest.TextTestRunner()
