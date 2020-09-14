@@ -187,41 +187,10 @@ def main():
             unittest.defaultTestLoader.loadTestsFromModule(
                 ZMQStreamImageSource_test))
 
-
-
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('args', metavar='name', type=str, nargs='*',
-                        help='suite names: all, basic, '
-                        'basicsettings, basicserver, '
-                        'extrasettings, extraserver '
-                        )
-    options = parser.parse_args()
-
-    namesuite = {
-        "basic": [basicsuite, profilesuite],
-        "basicsettings": [settingssuite1, settingssuite1b],
-        "basicserver": [serversuite1, serversuite1b],
-        "extrasettings": [settingssuite2, settingssuite2b],
-        "extraserver": [serversuite2, serversuite2b],
-    }
-
-    print(options.args)
-    if not options.args or 'all' in options.args:
-        options.args = list(namesuite.keys())
-
-    ts = []
-    for nm in options.args:
-        if nm in namesuite.keys():
-            ts.extend(namesuite[nm])
-
-    suite = unittest.TestSuite(ts)
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('args', metavar='name', type=str, nargs='*',
-                        help='suite names: all, basic, '
-                        'basicsettings, basicserver, '
-                        'extrasettings, extraserver '
+                        help='suite names: all, basic, tangosource '
                         )
     options = parser.parse_args()
 
@@ -239,6 +208,8 @@ def main():
     for nm in options.args:
         if nm in namesuite.keys():
             ts.extend(namesuite[nm])
+
+    suite = unittest.TestSuite(ts)
 
     # test runner
     runner = unittest.TextTestRunner()
