@@ -1,3 +1,7 @@
+2020-09-15 Jan Kotanski <jan.kotanski@desy.de>
+	* split tests as a workaround for theading problem
+	* tagged as 2.46.1
+
 2020-09-14 Jan Kotanski <jan.kotanski@desy.de>
 	* add a buffer for diffractograms
 	* rename polarscale to toolscale
