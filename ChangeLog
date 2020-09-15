@@ -5,8 +5,8 @@
 2020-09-14 Jan Kotanski <jan.kotanski@desy.de>
 	* add a buffer for diffractograms
 	* rename polarscale to toolscale
-	* add mapping images from different sources to color channels
-	* split tests as a workaround for theading problem
+	* add mapping of images from different sources to color channels
+	* split tests as a workaround for threading problem
 	* tagged as 2.46.0
 
 2020-09-03 Janf Kotanski <jan.kotanski@desy.de>
