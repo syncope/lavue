@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Sep 01, 2020" "2.45" "lavuelib"
+.TH "LAVUELIB" "1" "Sep 15, 2020" "2.46" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -763,6 +763,11 @@ status flag
 .TP
 .B hidraport = None
 (\fI\%str\fP) hidra data port
+.UNINDENT
+.INDENT 7.0
+.TP
+.B imagechannels = None
+(\fI\%bool\fP) map image sources to color channels
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5923,23 +5928,6 @@ sets double click lock
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setPolarScale(position=None, scale=None)
-set axes scales
-.INDENT 7.0
-.TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBposition\fP ([\fI\%float\fP, \fI\%float\fP]) – start position of axes
-.IP \(bu 2
-\fBscale\fP ([\fI\%float\fP, \fI\%float\fP]) – scale axes
-.IP \(bu 2
-\fBupdate\fP – update scales on image
-.UNINDENT
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
 .B setScalingType(scalingtype)
 sets intensity scaling types
 .INDENT 7.0
@@ -5985,6 +5973,23 @@ apply status
 .TP
 .B Return type
 \fI\%bool\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setToolScale(position=None, scale=None)
+set axes scales
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBposition\fP ([\fI\%float\fP, \fI\%float\fP]) – start position of axes
+.IP \(bu 2
+\fBscale\fP ([\fI\%float\fP, \fI\%float\fP]) – scale axes
+.IP \(bu 2
+\fBupdate\fP – update scales on image
+.UNINDENT
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -6452,7 +6457,7 @@ image data
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.pyc\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.pyc\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.pyc\(aq>}
+.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.py\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.py\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.py\(aq>}
 (\fI\%dict\fP <\fI\%str\fP, \fBmodule\fP> ) nexus writer modules
 .UNINDENT
 .SS lavuelib.imageSource module
@@ -8057,21 +8062,6 @@ sets minimum intensity level
 .UNINDENT
 .INDENT 7.0
 .TP
-.B setPolarScale(position=None, scale=None)
-get axes parameters
-.INDENT 7.0
-.TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBposition\fP ([\fI\%float\fP, \fI\%float\fP]) – start position of axes
-.IP \(bu 2
-\fBscale\fP ([\fI\%float\fP, \fI\%float\fP]) – scale axes
-.UNINDENT
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
 .B setSardanaUtils(sardana)
 sets sardana utils
 .INDENT 7.0
@@ -8137,6 +8127,21 @@ sets tool from string
 .TP
 .B Parameters
 \fBtool\fP (\fI\%str\fP) – tool name
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setToolScale(position=None, scale=None)
+get axes parameters
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBposition\fP ([\fI\%float\fP, \fI\%float\fP]) – start position of axes
+.IP \(bu 2
+\fBscale\fP ([\fI\%float\fP, \fI\%float\fP]) – scale axes
+.UNINDENT
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -8352,6 +8357,21 @@ updates the vertical bounds
 \fBxdata1\fP (\fI\%float\fP) – first x\-pixel position
 .IP \(bu 2
 \fBxdata2\fP (\fI\%float\fP) – second x\-pixel position
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateImage(array=None, rawarray=None)
+update the image
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBarray\fP (\fI\%numpy.ndarray\fP) – 2d image array
+.IP \(bu 2
+\fBrawarray\fP (\fI\%numpy.ndarray\fP) – 2d raw image array
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -9020,6 +9040,11 @@ numpy data type
 .TP
 .B name = None
 (\fI\%str\fP) data name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B scc = None
+(\fI\%int\fP) color channel size
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -11171,6 +11196,11 @@ length in m
 .TP
 .B hidraport = None
 (\fI\%str\fP) hidra data port
+.UNINDENT
+.INDENT 7.0
+.TP
+.B imagechannels = None
+(\fI\%bool\fP) map image sources to color channels
 .UNINDENT
 .INDENT 7.0
 .TP
