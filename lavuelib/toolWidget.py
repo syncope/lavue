@@ -2406,6 +2406,9 @@ class OneDToolWidget(ToolBaseWidget):
                     self._resetAccu()
             if "labels" in cnf.keys():
                 self.__labels = cnf["labels"]
+                self.deactivate()
+                self.activate()
+
             if "1d_stretch" in cnf.keys():
                 try:
                     val = int(cnf["1d_stretch"])
@@ -2467,6 +2470,7 @@ class OneDToolWidget(ToolBaseWidget):
         """
         self.__ui.sizeLineEdit.setText(str(self.__buffersize))
         self._updateRows()
+        self._mainwidget.onedshowlegend(True)
 
     def deactivate(self):
         """ activates tool widget
@@ -2477,6 +2481,7 @@ class OneDToolWidget(ToolBaseWidget):
             self._mainwidget.removebottomplot(cr)
         self.__curves = []
         self.__nrplots = 0
+        self._mainwidget.onedshowlegend(False)
 
     @QtCore.pyqtSlot()
     def _resetAccu(self):
@@ -2595,8 +2600,15 @@ class OneDToolWidget(ToolBaseWidget):
                     nrplots = 0
                 if self.__nrplots != nrplots:
                     while nrplots > len(self.__curves):
+                        ii = len(self.__curves)
+                        lb = str(ii + 1)
+                        if self.__labels and len(self.__labels) > ii:
+                            if self.__labels[ii] is not None:
+                                lb = self.__labels[ii]
+                            else:
+                                lb = str(ii + 1)
                         self.__curves.append(
-                            self._mainwidget.onedbottomplot())
+                            self._mainwidget.onedbottomplot(name=lb))
                     for i in range(nrplots):
                         self.__curves[i].show()
                     for i in range(nrplots, len(self.__curves)):

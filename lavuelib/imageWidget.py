@@ -200,6 +200,8 @@ class ImageWidget(QtGui.QWidget):
 
         #: (:class:`pyqtgraph.PlotWidget`) bottom 1D plot widget
         self.__bottomplot = memoExportDialog.MemoPlotWidget(self)
+        self.__bottomplot.addLegend()
+        self.__bottomplot.plotItem.legend.hide()
 
         #: (:class:`pyqtgraph.PlotWidget`) right 1D plot widget
         self.__rightplot = memoExportDialog.MemoPlotWidget(self)
@@ -445,7 +447,7 @@ class ImageWidget(QtGui.QWidget):
         self.__ui.upperPlotSplitter.moveSplitter(pos, index)
         self.__connectsplitters()
 
-    def onedbottomplot(self, clear=False):
+    def onedbottomplot(self, clear=False, name=None):
         """ creates 1d bottom plot
 
         :param clear: clear flag
@@ -453,7 +455,24 @@ class ImageWidget(QtGui.QWidget):
         :returns: 1d bottom plot
         :rtype: :class:`pyqtgraph.PlotDataItem`
         """
-        return self.__bottomplot.plot(clear=clear)
+        return self.__bottomplot.plot(clear=clear, name=name)
+
+    def onedshowlegend(self, show=True):
+        """ shows/hides 1d bottom plot legend
+
+        :param status: show flag
+        :type status: :obj:`bool`
+        :returns: 1d bottom plot
+        :rtype: :class:`pyqtgraph.PlotDataItem`
+        """
+        if show:
+            self.__bottomplot.plotItem.legend.show()
+        else:
+            legend = self.__bottomplot.plotItem.legend
+            its = [it[1].text for it in legend.items]
+            for it in its:
+                legend.removeItem(it)
+            legend.hide()
 
     def bottomplotShowMenu(self, freeze=False, clear=False):
         """ shows freeze or/and clean action in the menu
