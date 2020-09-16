@@ -260,6 +260,21 @@ class ToolBaseWidget(QtGui.QWidget):
         :rtype: (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
         """
 
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        return ""
+
 
 class IntensityToolWidget(ToolBaseWidget):
     """ intensity tool widget
@@ -2335,6 +2350,8 @@ class OneDToolWidget(ToolBaseWidget):
         self.__rows = [0]
         #: ((:obj:`list`<:obj:`int`>) selected rows
         self.__dsrows = [0]
+        #: ((:obj:`list`<:obj:`str`>) legend labels
+        self.__labels = []
         #: ((:obj:`bool`) x in first row
         self.__xinfirstrow = False
         #: ((:obj:`bool`) accumalate status
@@ -2360,11 +2377,56 @@ class OneDToolWidget(ToolBaseWidget):
             [self._mainwidget.scalesChanged, self._updateRows],
             [self.__ui.sizeLineEdit.textChanged, self._setBufferSize],
             [self.__ui.xCheckBox.stateChanged, self._updateXRow],
-            [self.__ui.sizeLineEdit.textChanged, self._setBufferSize],
             [self.__ui.accuPushButton.clicked, self._startStopAccu],
             [self.__ui.resetPushButton.clicked, self._resetAccu],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            if "rows_to_plot" in cnf.keys():
+                val = cnf["rows_to_plot"]
+                self.__ui.rowsLineEdit.setText(val)
+            if "buffer_size" in cnf.keys():
+                val = cnf["buffer_size"]
+                self.__ui.sizeLineEdit.setText(val)
+            if "collect" in cnf.keys():
+                if cnf["collect"]:
+                    self._startStopAccu()
+            if "xrow" in cnf.keys():
+                self.__ui.xCheckBox.setChecked(bool(cnf["xrow"]))
+            if "reset" in cnf.keys():
+                if cnf["reset"]:
+                    self._resetAccu()
+            if "labels" in cnf.keys():
+                self.__labels = cnf["labels"]
+            if "1d_stretch" in cnf.keys():
+                try:
+                    val = int(cnf["1d_stretch"])
+                    self._mainwidget.bottomplotStretch(val)
+                except Exception as e:
+                    print(str(e))
+                    pass
+
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        cnf["rows_to_plot"] = self.__ui.rowsLineEdit.text()
+        cnf["buffer_size"] = self.__ui.sizeLineEdit.text()
+        cnf["collect"] = self.__accumulate
+        cnf["xrow"] = self.__ui.xCheckBox.isChecked()
+        cnf["labels"] = self.__labels
+        return json.dumps(cnf)
 
     def afterplot(self):
         """ command after plot

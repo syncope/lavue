@@ -465,6 +465,19 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__bottomplot.showMenu(freeze, clear)
 
+    def bottomplotStretch(self, stretch=1):
+        """ stretches the bottom plot
+
+        :param stretch: stretch factor
+        :type stretch: :obj:`int`
+        """
+        self.__ui.plotSplitter.setStretchFactor(1, stretch)
+        if stretch >= 1000:
+            self.__ui.plotSplitter.setStretchFactor(0, 0)
+            self.__ui.plotSplitter.setSizes([0, 50])
+        else:
+            self.__ui.plotSplitter.setStretchFactor(0, 1)
+
     def onedrightplot(self, clear=False):
         """ creates 1d right plot
 
@@ -1706,6 +1719,24 @@ class ImageWidget(QtGui.QWidget):
         if index != -1:
             self.__ui.rgbtoolComboBox.setCurrentIndex(index)
             self.showCurrentRGBTool()
+
+    def setToolConfiguration(self, config):
+        """ sets tool configuration from JSON dictionary
+
+        :param config: JSON dictionary with tool configuration
+        :type config: :obj:`str`
+        """
+        if self.__currenttool is not None:
+            self.__currenttool.configure(config)
+
+    def toolConfiguration(self):
+        """ provides tool configuration
+
+        :returns: JSON dictionary with tool configuration
+        :rtype: :obj:`str`
+        """
+        if self.__currenttool is not None:
+            return self.__currenttool.configuration()
 
     def tool(self):
         """ provices tool from string
