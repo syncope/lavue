@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Sep 15, 2020" "2.46" "lavuelib"
+.TH "LAVUELIB" "1" "Sep 17, 2020" "2.47" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -6457,7 +6457,7 @@ image data
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.py\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.py\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.py\(aq>}
+.B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.pyc\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.pyc\(aq>, \(aqpni\(aq: <module \(aqlavuelib.pniwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/pniwriter.pyc\(aq>}
 (\fI\%dict\fP <\fI\%str\fP, \fBmodule\fP> ) nexus writer modules
 .UNINDENT
 .SS lavuelib.imageSource module
@@ -7273,6 +7273,16 @@ shows freeze or/and clean action in the menu
 .UNINDENT
 .INDENT 7.0
 .TP
+.B bottomplotStretch(stretch=1)
+stretches the bottom plot
+.INDENT 7.0
+.TP
+.B Parameters
+\fBstretch\fP (\fI\%int\fP) – stretch factor
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B calcROIsum()
 calculates the current roi sum
 .INDENT 7.0
@@ -7635,7 +7645,7 @@ creates 1d right bar plot
 .UNINDENT
 .INDENT 7.0
 .TP
-.B onedbottomplot(clear=False)
+.B onedbottomplot(clear=False, name=None)
 creates 1d bottom plot
 .INDENT 7.0
 .TP
@@ -7660,6 +7670,22 @@ creates 1d right plot
 .TP
 .B Returns
 1d right plot
+.TP
+.B Return type
+\fBpyqtgraph.PlotDataItem\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B onedshowlegend(show=True)
+shows/hides 1d bottom plot legend
+.INDENT 7.0
+.TP
+.B Parameters
+\fBstatus\fP (\fI\%bool\fP) – show flag
+.TP
+.B Returns
+1d bottom plot
 .TP
 .B Return type
 \fBpyqtgraph.PlotDataItem\fP
@@ -8131,6 +8157,16 @@ sets tool from string
 .UNINDENT
 .INDENT 7.0
 .TP
+.B setToolConfiguration(config)
+sets tool configuration from JSON dictionary
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfig\fP (\fI\%str\fP) – JSON dictionary with tool configuration
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B setToolScale(position=None, scale=None)
 get axes parameters
 .INDENT 7.0
@@ -8228,6 +8264,19 @@ provices tool from string
 .TP
 .B Parameters
 \fBtool\fP (\fI\%str\fP) – tool name
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B toolConfiguration()
+provides tool configuration
+.INDENT 7.0
+.TP
+.B Returns
+JSON dictionary with tool configuration
+.TP
+.B Return type
+\fI\%str\fP
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -14377,6 +14426,29 @@ command  before plot
 .TP
 .B Return type
 (\fI\%numpy.ndarray\fP, \fI\%numpy.ndarray\fP)
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configuration()
+provides configuration for the current tool
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current tool
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
