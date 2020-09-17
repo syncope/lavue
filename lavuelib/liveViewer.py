@@ -793,6 +793,7 @@ class LiveViewer(QtGui.QDialog):
                 "scaling": str(self.__scalingwg.currentScaling()),
                 "transformation": str(self.__trafowg.transformation()),
                 "tool": str(self.__imagewg.tool()),
+                "toolconfig": self.__imagewg.toolConfiguration(),
                 "levels": levels,
                 "autofactor": autofactor,
                 "gradient": self.__levelswg.gradient(),

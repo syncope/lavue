@@ -295,6 +295,71 @@ class CommandLineLavueStateTest(unittest.TestCase):
         self.compareStates(ls, dls,
                            ['viewrange', '__timestamp__', 'doordevice'])
 
+    def test_1dplot(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        self.__lcsu.proxy.Init()
+        self.__lavuestate = None
+
+        options = argparse.Namespace(
+            mode='expert',
+            source='tangoattr',
+            configuration='test/lavuecontroller/00/Image',
+            instance='tgtest',
+            tool='1d-plot',
+            toolconfig='{"rows_to_plot": "0,1"}',
+            transformation='flip-up-down',
+            log='debug',
+            scaling='log',
+            levels='m20,20',
+            gradient='thermal',
+            tangodevice='test/lavuecontroller/00'
+        )
+        logging.basicConfig(
+             format="%(levelname)s: %(message)s")
+        logger = logging.getLogger("lavue")
+        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+        dialog = lavuelib.liveViewer.MainWindow(options=options)
+        dialog.show()
+
+        qtck = QtChecker(app, dialog, True)
+        qtck.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            ExtCmdCheck(self, "getLavueState")
+        ])
+
+        status = qtck.executeChecksAndClose()
+
+        self.assertEqual(status, 0)
+        qtck.compareResults(self, [False, None])
+
+        ls = json.loads(self.__lavuestate)
+        dls = dict(self.__defaultls)
+        dls.update(dict(
+            mode='expert',
+            source='tangoattr',
+            configuration='test/lavuecontroller/00/Image',
+            instance='tgtest',
+            tool='1d-plot',
+            transformation='flip-up-down',
+            log='debug',
+            scaling='log',
+            toolconfig='{"xrow": false, "buffer_size": "1024", "labels": [], '
+            '"rows_to_plot": "0,1", "collect": false}',
+            levels='-20.0,20.0',
+            gradient='thermal',
+            tangodevice='test/lavuecontroller/00',
+            autofactor=None
+        ))
+        self.compareStates(
+            ls, dls,
+            ['viewrange', '__timestamp__', 'doordevice', 'toolconfig'])
+        tc1 = json.loads(ls["toolconfig"])
+        tc2 = json.loads(dls["toolconfig"])
+        self.compareStates(tc1, tc2)
+
     def test_multi(self):
         fun = sys._getframe().f_code.co_name
         print("Run: %s.%s() " % (self.__class__.__name__, fun))

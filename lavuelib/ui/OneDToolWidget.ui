@@ -52,12 +52,22 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="labelsPushButton">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Legend labels of 1d curves &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Labels...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="xLabel">
        <property name="toolTip">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;X coordinates taken from the first row&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
-        <string>  X in the first row:</string>
+        <string>  &amp;X in the first row:</string>
        </property>
        <property name="buddy">
         <cstring>xCheckBox</cstring>

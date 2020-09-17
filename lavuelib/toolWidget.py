@@ -50,6 +50,7 @@ from . import takeMotorsDialog
 from . import intervalsDialog
 from . import motorWatchThread
 from . import edDictDialog
+from . import edListDialog
 from . import commandThread
 
 try:
@@ -2379,6 +2380,7 @@ class OneDToolWidget(ToolBaseWidget):
             [self.__ui.xCheckBox.stateChanged, self._updateXRow],
             [self.__ui.accuPushButton.clicked, self._startStopAccu],
             [self.__ui.resetPushButton.clicked, self._resetAccu],
+            [self.__ui.labelsPushButton.clicked, self._setLabels],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
@@ -2484,6 +2486,23 @@ class OneDToolWidget(ToolBaseWidget):
         self._mainwidget.onedshowlegend(False)
 
     @QtCore.pyqtSlot()
+    def _setLabels(self):
+        """ launches label widget
+
+        :returns: apply status
+        :rtype: :obj:`bool`
+        """
+        dform = edListDialog.EdListDialog(self)
+        dform.record = list(self.__labels or [])
+        dform.title = "Tango Detector Attributes"
+        dform.createGUI()
+        dform.exec_()
+        if dform.dirty:
+            self.__labels = dform.record
+            self.deactivate()
+            self.activate()
+
+    @QtCore.pyqtSlot()
     def _resetAccu(self):
         """ reset accumulation buffer
         """
@@ -2581,6 +2600,7 @@ class OneDToolWidget(ToolBaseWidget):
         """ plots the current image in 1d plots
         """
         if self._mainwidget.currentTool() == self.name:
+            reset = False
             if self.__settings.sendresults:
                 xl = []
                 yl = []
@@ -2613,6 +2633,8 @@ class OneDToolWidget(ToolBaseWidget):
                         self.__curves[i].show()
                     for i in range(nrplots, len(self.__curves)):
                         self.__curves[i].hide()
+                    if nrplots < self.__nrplots:
+                        reset = True
                     self.__nrplots = nrplots
                     if nrplots:
                         for i, cr in enumerate(self.__curves):
@@ -2683,6 +2705,9 @@ class OneDToolWidget(ToolBaseWidget):
             else:
                 for cr in self.__curves:
                     cr.setVisible(False)
+            if reset:
+                self.deactivate()
+                self.activate()
 
     def __sendresults(self, xl, yl):
         """ send results to LavueController
