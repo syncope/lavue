@@ -793,6 +793,7 @@ class LiveViewer(QtGui.QDialog):
                 "scaling": str(self.__scalingwg.currentScaling()),
                 "transformation": str(self.__trafowg.transformation()),
                 "tool": str(self.__imagewg.tool()),
+                "toolconfig": self.__imagewg.toolConfiguration(),
                 "levels": levels,
                 "autofactor": autofactor,
                 "gradient": self.__levelswg.gradient(),
@@ -1447,6 +1448,10 @@ class LiveViewer(QtGui.QDialog):
             if tlname in self.__tlaliasnames.keys() and \
                not self.__imagewg.rgb():
                 self.__imagewg.setTool(self.__tlaliasnames[tlname])
+
+        if hasattr(options, "toolconfig") and options.toolconfig is not None:
+            tlconfig = str(options.toolconfig)
+            self.__imagewg.setToolConfiguration(tlconfig)
 
         if hasattr(options, "tangodevice") and \
            TANGOCLIENT and options.tangodevice is not None:
@@ -2441,6 +2446,7 @@ class LiveViewer(QtGui.QDialog):
             values = {}
             values["transformation"] = self.__trafowg.transformation()
             values["tool"] = self.__imagewg.tool()
+            values["toolconfig"] = self.__imagewg.toolConfiguration()
             values["scaling"] = self.__scalingwg.currentScaling()
             if not self.__levelswg.isAutoLevel():
                 values["levels"] = self.__levelswg.levels()

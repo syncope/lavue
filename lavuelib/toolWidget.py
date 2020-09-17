@@ -50,6 +50,7 @@ from . import takeMotorsDialog
 from . import intervalsDialog
 from . import motorWatchThread
 from . import edDictDialog
+from . import edListDialog
 from . import commandThread
 
 try:
@@ -259,6 +260,21 @@ class ToolBaseWidget(QtGui.QWidget):
         :return: 2d image array and raw image
         :rtype: (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
         """
+
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        return ""
 
 
 class IntensityToolWidget(ToolBaseWidget):
@@ -2335,6 +2351,8 @@ class OneDToolWidget(ToolBaseWidget):
         self.__rows = [0]
         #: ((:obj:`list`<:obj:`int`>) selected rows
         self.__dsrows = [0]
+        #: ((:obj:`list`<:obj:`str`>) legend labels
+        self.__labels = []
         #: ((:obj:`bool`) x in first row
         self.__xinfirstrow = False
         #: ((:obj:`bool`) accumalate status
@@ -2360,11 +2378,60 @@ class OneDToolWidget(ToolBaseWidget):
             [self._mainwidget.scalesChanged, self._updateRows],
             [self.__ui.sizeLineEdit.textChanged, self._setBufferSize],
             [self.__ui.xCheckBox.stateChanged, self._updateXRow],
-            [self.__ui.sizeLineEdit.textChanged, self._setBufferSize],
             [self.__ui.accuPushButton.clicked, self._startStopAccu],
             [self.__ui.resetPushButton.clicked, self._resetAccu],
+            [self.__ui.labelsPushButton.clicked, self._setLabels],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            if "rows_to_plot" in cnf.keys():
+                val = cnf["rows_to_plot"]
+                self.__ui.rowsLineEdit.setText(val)
+            if "buffer_size" in cnf.keys():
+                val = cnf["buffer_size"]
+                self.__ui.sizeLineEdit.setText(val)
+            if "collect" in cnf.keys():
+                if cnf["collect"]:
+                    self._startStopAccu()
+            if "xrow" in cnf.keys():
+                self.__ui.xCheckBox.setChecked(bool(cnf["xrow"]))
+            if "reset" in cnf.keys():
+                if cnf["reset"]:
+                    self._resetAccu()
+            if "labels" in cnf.keys():
+                self.__labels = cnf["labels"]
+                self.deactivate()
+                self.activate()
+
+            if "1d_stretch" in cnf.keys():
+                try:
+                    val = int(cnf["1d_stretch"])
+                    self._mainwidget.bottomplotStretch(val)
+                except Exception as e:
+                    print(str(e))
+                    pass
+
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        cnf["rows_to_plot"] = self.__ui.rowsLineEdit.text()
+        cnf["buffer_size"] = self.__ui.sizeLineEdit.text()
+        cnf["collect"] = self.__accumulate
+        cnf["xrow"] = self.__ui.xCheckBox.isChecked()
+        cnf["labels"] = self.__labels
+        return json.dumps(cnf)
 
     def afterplot(self):
         """ command after plot
@@ -2405,6 +2472,7 @@ class OneDToolWidget(ToolBaseWidget):
         """
         self.__ui.sizeLineEdit.setText(str(self.__buffersize))
         self._updateRows()
+        self._mainwidget.onedshowlegend(True)
 
     def deactivate(self):
         """ activates tool widget
@@ -2415,6 +2483,24 @@ class OneDToolWidget(ToolBaseWidget):
             self._mainwidget.removebottomplot(cr)
         self.__curves = []
         self.__nrplots = 0
+        self._mainwidget.onedshowlegend(False)
+
+    @QtCore.pyqtSlot()
+    def _setLabels(self):
+        """ launches label widget
+
+        :returns: apply status
+        :rtype: :obj:`bool`
+        """
+        dform = edListDialog.EdListDialog(self)
+        dform.record = list(self.__labels or [])
+        dform.title = "Tango Detector Attributes"
+        dform.createGUI()
+        dform.exec_()
+        if dform.dirty:
+            self.__labels = dform.record
+            self.deactivate()
+            self.activate()
 
     @QtCore.pyqtSlot()
     def _resetAccu(self):
@@ -2514,6 +2600,7 @@ class OneDToolWidget(ToolBaseWidget):
         """ plots the current image in 1d plots
         """
         if self._mainwidget.currentTool() == self.name:
+            reset = False
             if self.__settings.sendresults:
                 xl = []
                 yl = []
@@ -2533,12 +2620,21 @@ class OneDToolWidget(ToolBaseWidget):
                     nrplots = 0
                 if self.__nrplots != nrplots:
                     while nrplots > len(self.__curves):
+                        ii = len(self.__curves)
+                        lb = str(ii + 1)
+                        if self.__labels and len(self.__labels) > ii:
+                            if self.__labels[ii] is not None:
+                                lb = self.__labels[ii]
+                            else:
+                                lb = str(ii + 1)
                         self.__curves.append(
-                            self._mainwidget.onedbottomplot())
+                            self._mainwidget.onedbottomplot(name=lb))
                     for i in range(nrplots):
                         self.__curves[i].show()
                     for i in range(nrplots, len(self.__curves)):
                         self.__curves[i].hide()
+                    if nrplots < self.__nrplots:
+                        reset = True
                     self.__nrplots = nrplots
                     if nrplots:
                         for i, cr in enumerate(self.__curves):
@@ -2609,6 +2705,9 @@ class OneDToolWidget(ToolBaseWidget):
             else:
                 for cr in self.__curves:
                     cr.setVisible(False)
+            if reset:
+                self.deactivate()
+                self.activate()
 
     def __sendresults(self, xl, yl):
         """ send results to LavueController

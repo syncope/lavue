@@ -200,6 +200,8 @@ class ImageWidget(QtGui.QWidget):
 
         #: (:class:`pyqtgraph.PlotWidget`) bottom 1D plot widget
         self.__bottomplot = memoExportDialog.MemoPlotWidget(self)
+        self.__bottomplot.addLegend()
+        self.__bottomplot.plotItem.legend.hide()
 
         #: (:class:`pyqtgraph.PlotWidget`) right 1D plot widget
         self.__rightplot = memoExportDialog.MemoPlotWidget(self)
@@ -445,7 +447,7 @@ class ImageWidget(QtGui.QWidget):
         self.__ui.upperPlotSplitter.moveSplitter(pos, index)
         self.__connectsplitters()
 
-    def onedbottomplot(self, clear=False):
+    def onedbottomplot(self, clear=False, name=None):
         """ creates 1d bottom plot
 
         :param clear: clear flag
@@ -453,7 +455,24 @@ class ImageWidget(QtGui.QWidget):
         :returns: 1d bottom plot
         :rtype: :class:`pyqtgraph.PlotDataItem`
         """
-        return self.__bottomplot.plot(clear=clear)
+        return self.__bottomplot.plot(clear=clear, name=name)
+
+    def onedshowlegend(self, show=True):
+        """ shows/hides 1d bottom plot legend
+
+        :param status: show flag
+        :type status: :obj:`bool`
+        :returns: 1d bottom plot
+        :rtype: :class:`pyqtgraph.PlotDataItem`
+        """
+        if show:
+            self.__bottomplot.plotItem.legend.show()
+        else:
+            legend = self.__bottomplot.plotItem.legend
+            its = [it[1].text for it in legend.items]
+            for it in its:
+                legend.removeItem(it)
+            legend.hide()
 
     def bottomplotShowMenu(self, freeze=False, clear=False):
         """ shows freeze or/and clean action in the menu
@@ -464,6 +483,19 @@ class ImageWidget(QtGui.QWidget):
         :type freeze: :obj:`bool`
         """
         return self.__bottomplot.showMenu(freeze, clear)
+
+    def bottomplotStretch(self, stretch=1):
+        """ stretches the bottom plot
+
+        :param stretch: stretch factor
+        :type stretch: :obj:`int`
+        """
+        self.__ui.plotSplitter.setStretchFactor(1, stretch)
+        if stretch >= 1000:
+            self.__ui.plotSplitter.setStretchFactor(0, 0)
+            self.__ui.plotSplitter.setSizes([0, 50])
+        else:
+            self.__ui.plotSplitter.setStretchFactor(0, 1)
 
     def onedrightplot(self, clear=False):
         """ creates 1d right plot
@@ -1706,6 +1738,24 @@ class ImageWidget(QtGui.QWidget):
         if index != -1:
             self.__ui.rgbtoolComboBox.setCurrentIndex(index)
             self.showCurrentRGBTool()
+
+    def setToolConfiguration(self, config):
+        """ sets tool configuration from JSON dictionary
+
+        :param config: JSON dictionary with tool configuration
+        :type config: :obj:`str`
+        """
+        if self.__currenttool is not None:
+            self.__currenttool.configure(config)
+
+    def toolConfiguration(self):
+        """ provides tool configuration
+
+        :returns: JSON dictionary with tool configuration
+        :rtype: :obj:`str`
+        """
+        if self.__currenttool is not None:
+            return self.__currenttool.configuration()
 
     def tool(self):
         """ provices tool from string
