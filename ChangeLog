@@ -1,3 +1,8 @@
+2020-09-27 Jan Kotanski <jan.kotanski@desy.de>
+	* add configuration path, organization and domain to command-line parameters
+	* implement configuration for intensity
+	* tagged as 2.48.0
+
 2020-09-17 Jan Kotanski <jan.kotanski@desy.de>
 	* add configuration of specialized tools
 	* implement configuration for 1d-plot
