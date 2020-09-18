@@ -598,6 +598,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         return (self.__axes.xunits, self.__axes.yunits)
 
+    def axestext(self):
+        """ return axes text
+        :returns: x,y text
+        :rtype: (:obj:`str`, :obj:`str`)
+        """
+        return (self.__axes.xtext, self.__axes.ytext)
+
     def scaledxy(self, x, y, useraxes=True):
         """ provides scaled x,y positions
 
@@ -896,6 +903,52 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
 
             return True
         return False
+
+    def updateTicks(self, record):
+        """ update Ticks values
+
+        :param record: dict record with the tick parameters:
+                       "position" : [x, y]
+                       "scale" : [sx, sy]
+                       "xtext" : xlabel
+                       "ytext" : ylabel
+                       "xunits" : xunits
+                       "yunits" : yunits
+        :type record: :obj:`dict`<:obj:`str`, `any`>
+        """
+        update = False
+        if "xtext" in record.keys():
+            self.__axes.xtext = str(record["xtext"] or "")
+            update = True
+        if "ytext" in record.keys():
+            self.__axes.ytext = str(record["ytext"] or "")
+            update = True
+        if "xunits" in record.keys():
+            self.__axes.xunits = str(record["xunits"] or "")
+            update = True
+        if "yunits" in record.keys():
+            self.__axes.yunits = str(record["yunits"] or "")
+            update = True
+
+        if "position" in record.keys() or "scale" in record.keys():
+            update = True
+            if "scale" not in record.keys():
+                scale = self.__axes.scale
+            else:
+                scale = record["scale"]
+
+            if "position" not in record.keys():
+                position = self.__axes.position
+            else:
+                position = record["position"]
+            try:
+                self.__setScale(position, scale, wrupdate=False)
+            except Exception as e:
+                logger.warning(str(e))
+                # print(str(e))
+
+        if update:
+            self.updateImage(self.__data, self.sceneObj.rawdata)
 
     def rawData(self):
         """ provides the raw data

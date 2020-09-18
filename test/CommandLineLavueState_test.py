@@ -443,6 +443,10 @@ class CommandLineLavueStateTest(unittest.TestCase):
             channel='rgb',
             mbuffer=10,
             tool='rgbintensity',
+            toolconfig='{"crosshair_locker": true, '
+            '"xunits":"xpixel", "yunits":"ypixel",'
+            '"xtext":"fast", "ytext":"slow",'
+            '"position":[21,33], "scale":[2,3]}',
             transformation='flip-up-down',
             log='error',
             scaling='linear',
@@ -488,6 +492,10 @@ class CommandLineLavueStateTest(unittest.TestCase):
             connected=True,
             instance='test3',
             tool='rgbintensity',
+            toolconfig='{"crosshair_locker": true, '
+            '"xunits":"xpixel", "yunits":"ypixel",'
+            '"xtext":"fast", "ytext":"slow",'
+            '"position":[21,33], "scale":[2,3]}',
             transformation='flip-up-down',
             log='error',
             scaling='linear',
@@ -497,8 +505,12 @@ class CommandLineLavueStateTest(unittest.TestCase):
             gradient='flame',
             tangodevice='test/lavuecontroller/00'
         ))
-        self.compareStates(ls, dls,
-                           ['viewrange', '__timestamp__', 'doordevice'])
+        self.compareStates(
+            ls, dls,
+            ['viewrange', '__timestamp__', 'doordevice', 'toolconfig'])
+        tc1 = json.loads(ls["toolconfig"])
+        tc2 = json.loads(dls["toolconfig"])
+        self.compareStates(tc1, tc2)
 
     def test_geometry(self):
         fun = sys._getframe().f_code.co_name
