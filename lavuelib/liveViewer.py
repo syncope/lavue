@@ -362,7 +362,12 @@ class LiveViewer(QtGui.QDialog):
         else:
             #: (:obj:`str`) execution mode: expert or user
             self.__umode = "user"
-
+        if options.configpath:
+            QtCore.QSettings.setPath(
+                QtCore.QSettings.NativeFormat,
+                QtCore.QSettings.UserScope,
+                options.configpath
+            )
         #: (:obj:`str`) instance name
         self.__instance = options.instance
         #: (:obj:`bool`) histogram should be updated

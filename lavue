@@ -110,6 +110,15 @@ def main():
         "-j", "--instance", dest="instance",
         help="LaVue instance with separate configuration")
     parser.add_argument(
+        "--organization", dest="organization",
+        help="Organization name", default="DESY")
+    parser.add_argument(
+        "--domain", dest="domain",
+        help="Organization domain name", default="desy.de")
+    parser.add_argument(
+        "--configuration-path", dest="configpath",
+        help="Configuration path")
+    parser.add_argument(
         "-f", "--image-file", dest="imagefile",
         help="image file name to show")
     parser.add_argument(
@@ -273,8 +282,8 @@ def main():
     if options.stylesheet:
         app.setStyle(options.stylesheet)
     app.setWindowIcon(QtGui.QIcon(":/lavue.png"))
-    app.setOrganizationName("DESY")
-    app.setOrganizationDomain("desy.de")
+    app.setOrganizationName(options.organization)
+    app.setOrganizationDomain(options.domain)
     if options.instance:
         app.setApplicationName("LaVue: %s" % options.instance)
     else:
