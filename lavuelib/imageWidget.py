@@ -1606,7 +1606,7 @@ class ImageWidget(QtGui.QWidget):
         :returns: x,y text
         :rtype: (:obj:`str`, :obj:`str`)
         """
-        return self.__displaywidget.axesunits()
+        return self.__displaywidget.axestext()
 
     def roiCoords(self):
         """ provides rois coordinates
