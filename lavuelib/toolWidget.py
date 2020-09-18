@@ -361,6 +361,37 @@ class IntensityToolWidget(ToolBaseWidget):
         if self.__settings.sendresults:
             self.__sendresults()
 
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            if "crosshair_locker" in cnf.keys():
+                crosshairlocker = cnf["crosshair_locker"]
+                self.__ui.crosshairCheckBox.setChecked(crosshairlocker)
+            pars = ["position", "scale",
+                    "xtext", "ytext", "xunits", "yunits"]
+            if any(par in cnf.keys() for par in pars):
+                self._mainwidget.updateTicks(cnf)
+
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        cnf["crosshair_locker"] = self.__ui.crosshairCheckBox.isChecked()
+        xpos, ypos, xsc, ysc = self._mainwidget.scale()
+        cnf["xunits"], cnf["yunits"] = self._mainwidget.axesunits()
+        cnf["xtext"], cnf["ytext"] = self._mainwidget.axestext()
+        cnf["position"] = [xpos, ypos]
+        cnf["scale"] = [xsc, ysc]
+        return json.dumps(cnf)
+
     def __sendresults(self):
         """ send results to LavueController
         """

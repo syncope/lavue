@@ -1019,6 +1019,20 @@ class ImageWidget(QtGui.QWidget):
         """
         self.__displaywidget.setTicks()
 
+    def updateTicks(self, record):
+        """ update Ticks values
+
+        :param record: dict record with the tick parameters:
+                       "position" : [x, y]
+                       "scale" : [sx, sy]
+                       "xtext" : xlabel
+                       "ytext" : ylabel
+                       "xunits" : xunits
+                       "yunits" : yunits
+        :type record: :obj:`dict`<:obj:`str`, `any`>
+        """
+        self.__displaywidget.updateTicks(record)
+
     def image(self):
         """ provides imageItem object
 
@@ -1582,6 +1596,14 @@ class ImageWidget(QtGui.QWidget):
         """ return axes units
 
         :returns: x,y units
+        :rtype: (:obj:`str`, :obj:`str`)
+        """
+        return self.__displaywidget.axesunits()
+
+    def axestext(self):
+        """ return axes text
+
+        :returns: x,y text
         :rtype: (:obj:`str`, :obj:`str`)
         """
         return self.__displaywidget.axesunits()
