@@ -362,7 +362,7 @@ class LiveViewer(QtGui.QDialog):
         else:
             #: (:obj:`str`) execution mode: expert or user
             self.__umode = "user"
-        if options.configpath:
+        if hasattr(options, "configpath") and options.configpath:
             QtCore.QSettings.setPath(
                 QtCore.QSettings.NativeFormat,
                 QtCore.QSettings.UserScope,
