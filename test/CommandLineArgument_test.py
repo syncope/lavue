@@ -28,6 +28,7 @@ import random
 import struct
 import binascii
 import time
+import shutil
 import logging
 
 import argparse
@@ -77,9 +78,10 @@ class CommandLineArgumentTest(unittest.TestCase):
             self.__seed = long(time.time() * 256)
 #        self.__seed = 332115341842367128541506422124286219441
         self.__rnd = random.Random(self.__seed)
-        home = os.path.expanduser("~")
-        self.__cfgfdir = "%s/%s" % (home, ".config/DESY")
-        self.__cfgfname = "%s/%s" % (self.__cfgfdir, "LaVue: unittests.conf")
+        self.__home = os.path.expanduser("~")
+        self.__fname = "LaVue: unittests.conf"
+        self.__cfgfdir = "%s/%s" % (self.__home, ".config/DESY")
+        self.__cfgfname = "%s/%s" % (self.__cfgfdir, self.__fname)
 
     def setUp(self):
         print("\nsetting up...")
@@ -90,6 +92,11 @@ class CommandLineArgumentTest(unittest.TestCase):
 
     def tearDown(self):
         print("tearing down ...")
+        QtCore.QSettings.setPath(
+            QtCore.QSettings.NativeFormat,
+            QtCore.QSettings.UserScope,
+            "%s/%s" % (self.__home, ".config")
+        )
 
     def test_run(self):
         fun = sys._getframe().f_code.co_name
@@ -168,58 +175,72 @@ class CommandLineArgumentTest(unittest.TestCase):
     def test_filters(self):
         fun = sys._getframe().f_code.co_name
         print("Run: %s.%s() " % (self.__class__.__name__, fun))
+        cfgorg = "MYTESTORG"
+        cfgdir = '/tmp'
+        cfgfdir = "%s/%s" % (cfgdir, cfgorg)
+        cfgfname = "%s/%s" % (cfgfdir, self.__fname)
 
         cfg = '[Configuration]\n' \
             'Filters="[[\\"test.testFilters.ImageStack\\", \\"\\"]]\n'
-        if not os.path.exists(self.__cfgfdir):
-            os.makedirs(self.__cfgfdir)
-        with open(self.__cfgfname, "w+") as cf:
-            cf.write(cfg)
-        options = argparse.Namespace(
-            mode='user',
-            instance='test',
-            tool=None,
-            source='test',
-            filters=True,
-            log='info')
-        logging.basicConfig(
-             format="%(levelname)s: %(message)s")
-        logger = logging.getLogger("lavue")
-        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
-        dialog = lavuelib.liveViewer.MainWindow(options=options)
-        dialog.show()
+        dircreated = False
+        try:
+            if not os.path.exists(cfgfdir):
+                os.makedirs(cfgfdir)
+                dircreated = True
+            with open(cfgfname, "w+") as cf:
+                cf.write(cfg)
+            options = argparse.Namespace(
+                mode='user',
+                instance='test',
+                tool=None,
+                source='test',
+                filters=True,
+                organization=cfgorg,
+                configpath=cfgdir,
+                log='info')
+            logging.basicConfig(
+                 format="%(levelname)s: %(message)s")
+            logger = logging.getLogger("lavue")
+            lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+            dialog = lavuelib.liveViewer.MainWindow(options=options)
+            dialog.show()
 
-        qtck = QtChecker(app, dialog, True, sleep=1000)
-        qtck.setChecks([
-            CmdCheck(
-                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
-            CmdCheck(
-                "_MainWindow__lavue._LiveViewer__sourcewg"
-                ".toggleServerConnection"),
-            CmdCheck(
-                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
-            WrapAttrCheck(
-                "_MainWindow__lavue._LiveViewer__sourcewg"
-                "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
-                QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
-            CmdCheck(
-                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
-        ])
+            qtck = QtChecker(app, dialog, True, sleep=1000)
+            qtck.setChecks([
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg"
+                    ".toggleServerConnection"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+                WrapAttrCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg"
+                    "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                    QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            ])
 
-        status = qtck.executeChecksAndClose()
+            status = qtck.executeChecksAndClose()
 
-        self.assertEqual(status, 0)
-        qtck.compareResults(
-            self, [False, None, True, None, False])
+            self.assertEqual(status, 0)
+            qtck.compareResults(
+                self, [False, None, True, None, False])
 
-        self.assertEqual(
-            len(testFilters.imagenamestack),
-            len(testFilters.imagestack))
-        for i, iname in enumerate(testFilters.imagenamestack):
-            image = testFilters.imagestack[i]
-            self.assertEqual(iname, '__random_%s__' % (i + 1))
-            self.assertEqual(image.shape, (512, 256))
-            self.assertEqual(str(image.dtype), "int64")
+            self.assertEqual(
+                len(testFilters.imagenamestack),
+                len(testFilters.imagestack))
+            for i, iname in enumerate(testFilters.imagenamestack):
+                image = testFilters.imagestack[i]
+                self.assertEqual(iname, '__random_%s__' % (i + 1))
+                self.assertEqual(image.shape, (512, 256))
+                self.assertEqual(str(image.dtype), "int64")
+        finally:
+            if os.path.exists(cfgfname):
+                os.remove(cfgfname)
+            if dircreated:
+                shutil.rmtree(cfgfdir)
 
     def test_geometry(self):
         fun = sys._getframe().f_code.co_name
