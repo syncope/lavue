@@ -158,8 +158,6 @@ class httpImageSourceTest(unittest.TestCase):
         iname = \
             self.__tangofilepattern % self.__tangoimgcounter
         fname = os.path.join(ipath, iname)
-        # hidra.filename = fname
-        # print("SET: %s" % hidra.filename)
         copyfile(fname, os.path.join(self.__directory, "monitor"))
         image = fabio.open(fname)
         li = image.data
@@ -208,6 +206,7 @@ class httpImageSourceTest(unittest.TestCase):
         qtck1 = QtChecker(app, dialog, True, sleep=100)
         qtck2 = QtChecker(app, dialog, True, sleep=100)
         qtck3 = QtChecker(app, dialog, True, sleep=100)
+        qtck4 = QtChecker(app, dialog, True, sleep=100)
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -235,13 +234,16 @@ class httpImageSourceTest(unittest.TestCase):
                 "_MainWindow__lavue._LiveViewer__sourcewg"
                 "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
                 QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+        ])
+        qtck4.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
         ])
 
         qtck1.executeChecks(delay=3000)
         qtck2.executeChecks(delay=6000)
-        status = qtck3.executeChecksAndClose(delay=9000)
+        qtck3.executeChecks(delay=9000)
+        status = qtck4.executeChecksAndClose(delay=12000)
 
         self.assertEqual(status, 0)
 
@@ -250,7 +252,9 @@ class httpImageSourceTest(unittest.TestCase):
         qtck2.compareResults(
             self, [True, None, None, None], mask=[0, 1, 1, 1])
         qtck3.compareResults(
-            self, [None, None, None, False], mask=[1, 1, 0, 0])
+            self, [None, None, None], mask=[1, 1, 0])
+
+        qtck4.compareResults(self, [False])
 
         res1 = qtck1.results()
         res2 = qtck2.results()
