@@ -1,4 +1,6 @@
 2020-09-27 Jan Kotanski <jan.kotanski@desy.de>
+	* fix for updating of toolconfig
+	* implement configuration for roi tool
 	* add configuration path, organization and domain to command-line parameters
 	* implement configuration for intensity
 	* tagged as 2.48.0

@@ -158,6 +158,9 @@ class CommandLineLavueStateTest(unittest.TestCase):
     def getLavueState(self):
         self.__lavuestate = self.__lcsu.proxy.LavueState
 
+    def setLavueState(self):
+        self.__lcsu.proxy.LavueState = self.__lavuestate
+
     def getControllerAttr(self, name):
         return getattr(self.__lcsu.proxy, name)
 
@@ -252,6 +255,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
             tool='roi',
             transformation='flip-up-down',
             log='debug',
+            # log='info',
             scaling='log',
             levels='m20,20',
             gradient='thermal',
@@ -264,17 +268,33 @@ class CommandLineLavueStateTest(unittest.TestCase):
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
 
-        qtck = QtChecker(app, dialog, True)
-        qtck.setChecks([
+        cnf = {}
+        cnf["toolconfig"] = '{"aliases": ["pilatus_roi1", "pilatus_roi2"],' \
+            ' "rois_number": 2}'
+        self.__lavuestate = json.dumps(cnf)
+
+        qtck1 = QtChecker(app, dialog, True, sleep=100)
+        qtck2 = QtChecker(app, dialog, True, sleep=100)
+        qtck3 = QtChecker(app, dialog, True, sleep=100)
+        qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            ExtCmdCheck(self, "setLavueState")
+        ])
+        qtck2.setChecks([
             ExtCmdCheck(self, "getLavueState")
         ])
+        qtck3.setChecks([
+        ])
 
-        status = qtck.executeChecksAndClose()
+        print("execute")
+        qtck1.executeChecks(delay=3000)
+        qtck2.executeChecks(delay=6000)
+        status = qtck3.executeChecksAndClose(delay=9000)
 
         self.assertEqual(status, 0)
-        qtck.compareResults(self, [False, None])
+        qtck1.compareResults(self, [False, None])
+        qtck2.compareResults(self, [None])
 
         ls = json.loads(self.__lavuestate)
         dls = dict(self.__defaultls)
@@ -286,14 +306,21 @@ class CommandLineLavueStateTest(unittest.TestCase):
             tool='roi',
             transformation='flip-up-down',
             log='debug',
+            toolconfig='{"aliases": ["pilatus_roi1", "pilatus_roi2"],'
+            ' "rois_number": 2}',
+
             scaling='log',
             levels='-20.0,20.0',
             gradient='thermal',
             tangodevice='test/lavuecontroller/00',
             autofactor=None
         ))
-        self.compareStates(ls, dls,
-                           ['viewrange', '__timestamp__', 'doordevice'])
+        self.compareStates(
+            ls, dls,
+            ['viewrange', '__timestamp__', 'doordevice', 'toolconfig'])
+        tc1 = json.loads(ls["toolconfig"])
+        tc2 = json.loads(dls["toolconfig"])
+        self.compareStates(tc1, tc2)
 
     def test_1dplot(self):
         fun = sys._getframe().f_code.co_name

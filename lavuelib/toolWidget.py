@@ -317,6 +317,8 @@ class IntensityToolWidget(ToolBaseWidget):
         self.signal2slot = [
             [self.__ui.axesPushButton.clicked, self._mainwidget.setTicks],
             [self.__ui.crosshairCheckBox.stateChanged,
+             self._mainwidget.emitTCC],
+            [self.__ui.crosshairCheckBox.stateChanged,
              self._updateCrossHairLocker],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
@@ -1472,9 +1474,11 @@ class ROIToolWidget(ToolBaseWidget):
             [self.__ui.labelROILineEdit.textChanged,
              self._updateApplyButton],
             [self.__ui.roiSpinBox.valueChanged, self._mainwidget.updateROIs],
+            [self.__ui.roiSpinBox.valueChanged, self._mainwidget.emitTCC],
             [self.__ui.roiSpinBox.valueChanged,
              self._mainwidget.writeDetectorROIsAttribute],
             [self.__ui.labelROILineEdit.textEdited, self._writeDetectorROIs],
+            [self.__ui.labelROILineEdit.textEdited, self._mainwidget.emitTCC],
             [self._mainwidget.roiLineEditChanged, self._updateApplyButton],
             [self._mainwidget.roiAliasesChanged, self.updateROILineEdit],
             [self._mainwidget.roiValueChanged, self.updateROIDisplayText],
@@ -1482,6 +1486,43 @@ class ROIToolWidget(ToolBaseWidget):
             [self._mainwidget.sardanaEnabled, self.updateROIButton],
             [self._mainwidget.mouseImagePositionChanged, self._message],
         ]
+
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            if "aliases" in cnf.keys():
+                aliases = cnf["aliases"]
+                if isinstance(aliases, list):
+                    aliases = " ".join(aliases)
+                self.__ui.labelROILineEdit.setText(aliases)
+            if "rois_number" in cnf.keys():
+                try:
+                    self.__ui.roiSpinBox.setValue(int(cnf["rois_number"]))
+                except Exception as e:
+                    logger.warning(str(e))
+                    # print(str(e))
+            if "apply" in cnf.keys():
+                if cnf["apply"]:
+                    self._emitApplyROIPressed()
+            if "fetch" in cnf.keys():
+                if cnf["fetch"]:
+                    self._emitFetchROIPressed()
+
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        cnf["aliases"] = str(self.__ui.labelROILineEdit.text()).split(" ")
+        cnf["rois_number"] = self.__ui.roiSpinBox.value()
+        return json.dumps(cnf)
 
     def activate(self):
         """ activates tool widget
@@ -2406,9 +2447,12 @@ class OneDToolWidget(ToolBaseWidget):
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.rowsLineEdit.textChanged, self._updateRows],
+            [self.__ui.rowsLineEdit.textChanged, self._mainwidget.emitTCC],
             [self._mainwidget.scalesChanged, self._updateRows],
             [self.__ui.sizeLineEdit.textChanged, self._setBufferSize],
+            [self.__ui.sizeLineEdit.textChanged, self._mainwidget.emitTCC],
             [self.__ui.xCheckBox.stateChanged, self._updateXRow],
+            [self.__ui.xCheckBox.stateChanged, self._mainwidget.emitTCC],
             [self.__ui.accuPushButton.clicked, self._startStopAccu],
             [self.__ui.resetPushButton.clicked, self._resetAccu],
             [self.__ui.labelsPushButton.clicked, self._setLabels],
@@ -2424,11 +2468,9 @@ class OneDToolWidget(ToolBaseWidget):
         if configuration:
             cnf = json.loads(configuration)
             if "rows_to_plot" in cnf.keys():
-                val = cnf["rows_to_plot"]
-                self.__ui.rowsLineEdit.setText(val)
+                self.__ui.rowsLineEdit.setText(cnf["rows_to_plot"])
             if "buffer_size" in cnf.keys():
-                val = cnf["buffer_size"]
-                self.__ui.sizeLineEdit.setText(val)
+                self.__ui.sizeLineEdit.setText(cnf["buffer_size"])
             if "collect" in cnf.keys():
                 if cnf["collect"]:
                     self._startStopAccu()
@@ -2447,8 +2489,8 @@ class OneDToolWidget(ToolBaseWidget):
                     val = int(cnf["1d_stretch"])
                     self._mainwidget.bottomplotStretch(val)
                 except Exception as e:
-                    print(str(e))
-                    pass
+                    logger.warning(str(e))
+                    # print(str(e))
 
     def configuration(self):
         """ provides configuration for the current tool
@@ -2532,6 +2574,7 @@ class OneDToolWidget(ToolBaseWidget):
             self.__labels = dform.record
             self.deactivate()
             self.activate()
+            self._mainwidget.emitTCC()
 
     @QtCore.pyqtSlot()
     def _resetAccu(self):
@@ -2549,6 +2592,7 @@ class OneDToolWidget(ToolBaseWidget):
         else:
             self.__accumulate = False
             self.__ui.accuPushButton.setText("Collect")
+        self._mainwidget.emitTCC()
 
     @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot()
