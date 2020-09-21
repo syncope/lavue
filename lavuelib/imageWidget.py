@@ -105,6 +105,8 @@ class ImageWidget(QtGui.QWidget):
     scalesChanged = QtCore.pyqtSignal()
     #: (:class:`pyqtgraph.QtCore.pyqtSignal`) colors changed signal
     colorsChanged = QtCore.pyqtSignal(str)
+    #: (:class:`pyqtgraph.QtCore.pyqtSignal`) tool configuration changed signal
+    toolConfigurationChanged = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, tooltypes=None, settings=None,
                  rgbtooltypes=None):
@@ -1018,6 +1020,7 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :obj:`bool`
         """
         self.__displaywidget.setTicks()
+        self.emitTCC()
 
     def updateTicks(self, record):
         """ update Ticks values
@@ -1040,6 +1043,12 @@ class ImageWidget(QtGui.QWidget):
         :rtype: :class:`pyqtgraph.ImageItem`
         """
         return self.__displaywidget.image()
+
+    @QtCore.pyqtSlot()
+    def emitTCC(self):
+        """emits toolConfigurationChanged
+        """
+        self.toolConfigurationChanged.emit()
 
     @QtCore.pyqtSlot()
     def emitCutCoordsChanged(self):

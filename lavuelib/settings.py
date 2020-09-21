@@ -330,6 +330,12 @@ class Settings(object):
         with QtCore.QMutexLocker(self.__mutex):
             if source in self.__sourcedisplay.keys():
                 values = dict(self.__sourcedisplay[str(source)])
+                if 'maskfile' not in values.keys():
+                    values['maskfile'] = None
+                if 'bkgfile' not in values.keys():
+                    values['bkgfile'] = None
+                if 'levels' not in values.keys():
+                    values['autofactor'] = True
         return values
 
     def load(self, settings):

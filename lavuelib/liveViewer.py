@@ -765,6 +765,8 @@ class LiveViewer(QtGui.QDialog):
             self.__sourcewg.start()
 
         self.__updateTool(options.tool)
+        self.__imagewg.toolConfigurationChanged.connect(
+            self._onToolConfigurationChanged)
 
     @debugmethod
     def setState(self):
@@ -1230,14 +1232,6 @@ class LiveViewer(QtGui.QDialog):
             for key, vl in dctcnf.items():
                 setattr(options, key, vl)
             self.__applyoptions(options)
-            if 'levels' not in dctcnf.keys():
-                self.__levelswg.setAutoLevels(2)
-            if 'bkgfile' not in dctcnf.keys():
-                self.__bkgsubwg.checkBkgSubtraction(0)
-                self.__dobkgsubtraction = None
-            if 'maskfile' not in dctcnf.keys():
-                self.__maskwg.noImage()
-                self.__imagewg.setApplyMask(False)
 
     @debugmethod
     def __applyoptions(self, options):
@@ -1367,11 +1361,14 @@ class LiveViewer(QtGui.QDialog):
             except Exception:
                 pass
 
-        if hasattr(options, "bkgfile") and options.bkgfile is not None:
+        if hasattr(options, "bkgfile") and options.bkgfile:
             if not self.__settings.showsub:
                 self.__settings.showsub = True
                 self.__prepwg.changeView(showsub=True)
             self.__bkgsubwg.setBackground(str(options.bkgfile))
+        elif hasattr(options, "bkgfile"):
+            self.__bkgsubwg.checkBkgSubtraction(0)
+            self.__dobkgsubtraction = None
 
         if hasattr(options, "channel") and options.channel is not None:
             try:
@@ -1390,11 +1387,14 @@ class LiveViewer(QtGui.QDialog):
                     ich = 0
             self.__channelwg.setDefaultColorChannel(ich)
 
-        if hasattr(options, "maskfile") and options.maskfile is not None:
+        if hasattr(options, "maskfile") and options.maskfile:
             if not self.__settings.showmask:
                 self.__settings.showmask = True
                 self.__prepwg.changeView(True)
             self.__maskwg.setMask(str(options.maskfile))
+        elif hasattr(options, "maskfile"):
+            self.__maskwg.noImage()
+            self.__imagewg.setApplyMask(False)
 
         if hasattr(options, "maskhighvalue") and \
            options.maskhighvalue is not None:
@@ -1483,7 +1483,9 @@ class LiveViewer(QtGui.QDialog):
             self.__tangoclient.lavueStateChanged.connect(
                 self._updateLavueState)
             self.setLavueState({"tangodevice": self.__tangoclient.device()})
-        else:
+        elif not TANGOCLIENT or (
+                hasattr(options, "tangodevice") and
+                not options.tangodevice):
             self.__tangoclient = None
             self.setLavueState({"tangodevice": ""})
 
@@ -2461,8 +2463,12 @@ class LiveViewer(QtGui.QDialog):
             values["gradient"] = self.__levelswg.gradient()
             if self.__bkgsubwg.isBkgSubApplied():
                 values["bkgfile"] = str(self.__settings.bkgimagename)
+            else:
+                values["bkgfile"] = ""
             if self.__maskwg.isMaskApplied():
                 values["maskfile"] = str(self.__settings.maskimagename)
+            else:
+                values["maskfile"] = ""
             mvalue = self.__highvaluemaskwg.mask()
             if mvalue is not None:
                 values["maskhighvalue"] = str(mvalue)
@@ -2501,6 +2507,14 @@ class LiveViewer(QtGui.QDialog):
                 i, **self.__datasources[i].getMetaData())
         dssa = ";".join(self.__sourcewg.currentDataSourceAlias())
         self.setLavueState({"source": dssa})
+
+    @QtCore.pyqtSlot()
+    def _onToolConfigurationChanged(self):
+        """ update tool configuration in lavue state
+        """
+        self.setLavueState(
+            {"tool": self.__imagewg.tool(),
+             "toolconfig": self.__imagewg.toolConfiguration()})
 
     @debugmethod
     @QtCore.pyqtSlot(int, int)
