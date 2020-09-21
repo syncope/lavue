@@ -1752,15 +1752,58 @@ class LineCutToolWidget(ToolBaseWidget):
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.cutSpinBox.valueChanged, self._updateCuts],
+            [self.__ui.cutSpinBox.valueChanged, self._mainwidget.emitTCC],
             [self._mainwidget.cutNumberChanged, self._setCutsNumber],
             [self._mainwidget.cutCoordsChanged, self._plotCuts],
             [self.__ui.xcoordsComboBox.currentIndexChanged,
              self._setXCoords],
+            [self.__ui.xcoordsComboBox.currentIndexChanged,
+             self._mainwidget.emitTCC],
             [self._mainwidget.mouseImagePositionChanged, self._message],
             [self.__ui.allcutsCheckBox.stateChanged, self._updateAllCuts],
+            [self.__ui.allcutsCheckBox.stateChanged,
+             self._mainwidget.emitTCC],
             [self._mainwidget.freezeBottomPlotClicked, self._freezeplot],
             [self._mainwidget.clearBottomPlotClicked, self._clearplot],
         ]
+
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            if "cuts_number" in cnf.keys():
+                try:
+                    self.__ui.cutSpinBox.setValue(int(cnf["cuts_number"]))
+                except Exception as e:
+                    logger.warning(str(e))
+                    # print(str(e))
+            if "all_cuts" in cnf.keys():
+                self.__ui.xCheckBox.setChecked(bool(cnf["all_cuts"]))
+            if "x_coordinate" in cnf.keys():
+                idxs = ["points", "x-pixels", "y-pixels"]
+                xcrd = str(cnf["x_coordinate"]).lower()
+                try:
+                    idx = idxs.index(xcrd)
+                except Exception:
+                    idx = 0
+                self.__ui.xcoordsComboBox.setCurrentIndex(idx)
+
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        cnf["x_coordinate"] = str(
+            self.__ui.xcoordsComboBox.currentText()).lower()
+        cnf["all_cuts"] = self.__ui.allcutsCheckBox.isChecked()
+        cnf["cuts_number"] = self.__ui.cutSpinBox.value()
+        return json.dumps(cnf)
 
     @QtCore.pyqtSlot()
     def _freezeplot(self):
