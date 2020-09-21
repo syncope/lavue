@@ -2592,6 +2592,7 @@ class OneDToolWidget(ToolBaseWidget):
         else:
             self.__accumulate = False
             self.__ui.accuPushButton.setText("Collect")
+        self._mainwidget.emitTCC()
 
     @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot()
