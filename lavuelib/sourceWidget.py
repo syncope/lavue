@@ -2043,7 +2043,11 @@ class ZMQSourceWidget(SourceBaseWidget):
         """
         cnflst = configuration.replace("/", ",").split(",")
         srvcnf = cnflst[0] if cnflst else ""
-        topiccnf = cnflst[1] if len(cnflst) > 1 else ""
+        topiccnf = ""
+        if len(cnflst) > 1:
+            topiccnf = cnflst[1]
+            if not topiccnf:
+                topiccnf = "**ALL**"
 
         iid = self._ui.pickleComboBox.findText(srvcnf)
         if iid == -1:
