@@ -1984,7 +1984,8 @@ class ZMQSourceWidget(SourceBaseWidget):
                 text = str(self._ui.pickleTopicComboBox.currentText())
             if isinstance(datasources, list):
                 if not text or text not in datasources:
-                    text = None
+                    if text != "**ALL**":
+                        text = None
                 self.__zmqtopics = datasources
         if updatecombo is True:
             with QtCore.QMutexLocker(self.__mutex):
@@ -2002,6 +2003,8 @@ class ZMQSourceWidget(SourceBaseWidget):
             with QtCore.QMutexLocker(self.__mutex):
                 self._ui.pickleTopicComboBox.currentIndexChanged.connect(
                     self._updateZMQComboBox)
+        if updatecombo is True and text is None:
+            self._updateZMQComboBox()
         self.sourceLabelChanged.emit()
 
     def connectWidget(self):
@@ -2040,7 +2043,11 @@ class ZMQSourceWidget(SourceBaseWidget):
         """
         cnflst = configuration.replace("/", ",").split(",")
         srvcnf = cnflst[0] if cnflst else ""
-        topiccnf = cnflst[1] if len(cnflst) > 1 else ""
+        topiccnf = ""
+        if len(cnflst) > 1:
+            topiccnf = cnflst[1]
+            if not topiccnf:
+                topiccnf = "**ALL**"
 
         iid = self._ui.pickleComboBox.findText(srvcnf)
         if iid == -1:
