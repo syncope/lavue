@@ -161,6 +161,12 @@ class CommandLineLavueStateTest(unittest.TestCase):
     def setLavueState(self):
         self.__lcsu.proxy.LavueState = self.__lavuestate
 
+    def getLavueStatePar(self):
+        return self.__lcsu.proxy.LavueState
+
+    def setLavueStatePar(self, arg):
+        self.__lcsu.proxy.LavueState = arg
+
     def getControllerAttr(self, name):
         return getattr(self.__lcsu.proxy, name)
 
@@ -271,7 +277,13 @@ class CommandLineLavueStateTest(unittest.TestCase):
         cnf = {}
         cnf["toolconfig"] = '{"aliases": ["pilatus_roi1", "pilatus_roi2"],' \
             ' "rois_number": 2}'
-        self.__lavuestate = json.dumps(cnf)
+        lavuestate1 = json.dumps(cnf)
+        cnf2 = {}
+        cnf2["toolconfig"] = '{"all_cuts": true, ' \
+            '"x_coordinate": "x-pixels", ' \
+            ' "cuts_number": 2}'
+        cnf2["tool"] = "linecut"
+        lavuestate2 = json.dumps(cnf2)
 
         qtck1 = QtChecker(app, dialog, True, sleep=100)
         qtck2 = QtChecker(app, dialog, True, sleep=100)
@@ -279,12 +291,14 @@ class CommandLineLavueStateTest(unittest.TestCase):
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
-            ExtCmdCheck(self, "setLavueState")
+            ExtCmdCheck(self, "setLavueStatePar", [lavuestate1])
         ])
         qtck2.setChecks([
-            ExtCmdCheck(self, "getLavueState")
+            ExtCmdCheck(self, "getLavueStatePar"),
+            ExtCmdCheck(self, "setLavueStatePar", [lavuestate2])
         ])
         qtck3.setChecks([
+            ExtCmdCheck(self, "getLavueStatePar")
         ])
 
         print("execute")
@@ -294,9 +308,14 @@ class CommandLineLavueStateTest(unittest.TestCase):
 
         self.assertEqual(status, 0)
         qtck1.compareResults(self, [False, None])
-        qtck2.compareResults(self, [None])
+        qtck2.compareResults(self, [None, None], mask=[1, 1])
+        qtck3.compareResults(self, [None], mask=[1])
 
-        ls = json.loads(self.__lavuestate)
+        # res1 = qtck1.results()
+        res2 = qtck2.results()
+        res3 = qtck3.results()
+
+        ls = json.loads(res2[0])
         dls = dict(self.__defaultls)
         dls.update(dict(
             mode='expert',
@@ -308,7 +327,6 @@ class CommandLineLavueStateTest(unittest.TestCase):
             log='debug',
             toolconfig='{"aliases": ["pilatus_roi1", "pilatus_roi2"],'
             ' "rois_number": 2}',
-
             scaling='log',
             levels='-20.0,20.0',
             gradient='thermal',
@@ -320,6 +338,11 @@ class CommandLineLavueStateTest(unittest.TestCase):
             ['viewrange', '__timestamp__', 'doordevice', 'toolconfig'])
         tc1 = json.loads(ls["toolconfig"])
         tc2 = json.loads(dls["toolconfig"])
+        self.compareStates(tc1, tc2)
+
+        ls2 = json.loads(res3[0])
+        tc1 = json.loads(ls2["toolconfig"])
+        tc2 = json.loads(cnf2["toolconfig"])
         self.compareStates(tc1, tc2)
 
     def test_1dplot(self):
