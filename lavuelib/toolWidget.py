@@ -1782,7 +1782,7 @@ class LineCutToolWidget(ToolBaseWidget):
                     logger.warning(str(e))
                     # print(str(e))
             if "all_cuts" in cnf.keys():
-                self.__ui.xCheckBox.setChecked(bool(cnf["all_cuts"]))
+                self.__ui.allcutsCheckBox.setChecked(bool(cnf["all_cuts"]))
             if "x_coordinate" in cnf.keys():
                 idxs = ["points", "x-pixels", "y-pixels"]
                 xcrd = str(cnf["x_coordinate"]).lower()
