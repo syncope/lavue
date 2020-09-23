@@ -298,11 +298,23 @@ class CommandLineLavueStateTest(unittest.TestCase):
         cnf3["toolconfig"] = json.dumps(toolcnf3)
         cnf3["tool"] = "angle/q"
         lavuestate3 = json.dumps(cnf3)
+        cnf4 = {}
+        toolcnf4 = {
+            "xunits": "mm", "yunits": "cm",
+            "xtext": "Mil", "ytext": "Cen",
+            "position": [4, 3],
+            "scale": [2.3, 4.4],
+            "motors": ["mot1", "mot2"],
+        }
+        cnf4["toolconfig"] = json.dumps(toolcnf4)
+        cnf4["tool"] = "movemotors"
+        lavuestate4 = json.dumps(cnf4)
 
         qtck1 = QtChecker(app, dialog, True, sleep=100)
         qtck2 = QtChecker(app, dialog, True, sleep=100)
         qtck3 = QtChecker(app, dialog, True, sleep=100)
         qtck4 = QtChecker(app, dialog, True, sleep=100)
+        qtck5 = QtChecker(app, dialog, True, sleep=100)
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -317,6 +329,10 @@ class CommandLineLavueStateTest(unittest.TestCase):
             ExtCmdCheck(self, "setLavueStatePar", [lavuestate3])
         ])
         qtck4.setChecks([
+            ExtCmdCheck(self, "getLavueStatePar"),
+            ExtCmdCheck(self, "setLavueStatePar", [lavuestate4])
+        ])
+        qtck5.setChecks([
             ExtCmdCheck(self, "getLavueStatePar")
         ])
 
@@ -324,18 +340,21 @@ class CommandLineLavueStateTest(unittest.TestCase):
         qtck1.executeChecks(delay=1000)
         qtck2.executeChecks(delay=2000)
         qtck3.executeChecks(delay=3000)
-        status = qtck4.executeChecksAndClose(delay=4000)
+        qtck4.executeChecks(delay=4000)
+        status = qtck5.executeChecksAndClose(delay=5000)
 
         self.assertEqual(status, 0)
         qtck1.compareResults(self, [False, None])
         qtck2.compareResults(self, [None, None], mask=[1, 1])
         qtck3.compareResults(self, [None, None], mask=[1, 1])
-        qtck4.compareResults(self, [None], mask=[1])
+        qtck4.compareResults(self, [None, None], mask=[1, 1])
+        qtck5.compareResults(self, [None], mask=[1])
 
         # res1 = qtck1.results()
         res2 = qtck2.results()
         res3 = qtck3.results()
         res4 = qtck4.results()
+        res5 = qtck5.results()
 
         ls = json.loads(res2[0])
         dls = dict(self.__defaultls)
@@ -373,6 +392,12 @@ class CommandLineLavueStateTest(unittest.TestCase):
         tc2 = json.loads(cnf3["toolconfig"])
         self.compareStates(tc1, tc2, ['geometry'])
         self.compareStates(tc1['geometry'], tc2['geometry'])
+
+        ls4 = json.loads(res5[0])
+        tc1 = json.loads(ls4["toolconfig"])
+        tc2 = json.loads(cnf4["toolconfig"])
+        self.compareStates(tc1, tc2, ["motors", "motor_state"])
+        self.assertEqual(tc1["motor_state"], "ON")
 
     def test_1dplot(self):
         fun = sys._getframe().f_code.co_name
