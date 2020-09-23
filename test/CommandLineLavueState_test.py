@@ -298,10 +298,13 @@ class CommandLineLavueStateTest(unittest.TestCase):
         cnf3["toolconfig"] = json.dumps(toolcnf3)
         cnf3["tool"] = "angle/q"
         lavuestate3 = json.dumps(cnf3)
+
         cnf4 = {}
         toolcnf4 = {
             "xunits": "mm", "yunits": "cm",
             "xtext": "Mil", "ytext": "Cen",
+            "x_position": 24.34,
+            "y_position": 4.14,
             "position": [4, 3],
             "scale": [2.3, 4.4],
             "motors": ["mot1", "mot2"],
@@ -310,11 +313,27 @@ class CommandLineLavueStateTest(unittest.TestCase):
         cnf4["tool"] = "movemotors"
         lavuestate4 = json.dumps(cnf4)
 
+        cnf5 = {}
+        toolcnf5 = {
+            "xunits": "cm", "yunits": "um",
+            "xtext": "Ml", "ytext": "Cn",
+            "x_intervals": 223,
+            "y_intervals": 123,
+            "interval_time": 0.1,
+            "position": [3, 4],
+            "scale": [4.3, 2.4],
+            "motors": ["mot2", "mot3"],
+        }
+        cnf5["toolconfig"] = json.dumps(toolcnf5)
+        cnf5["tool"] = "meshscan"
+        lavuestate5 = json.dumps(cnf5)
+
         qtck1 = QtChecker(app, dialog, True, sleep=100)
         qtck2 = QtChecker(app, dialog, True, sleep=100)
         qtck3 = QtChecker(app, dialog, True, sleep=100)
         qtck4 = QtChecker(app, dialog, True, sleep=100)
         qtck5 = QtChecker(app, dialog, True, sleep=100)
+        qtck6 = QtChecker(app, dialog, True, sleep=100)
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -333,6 +352,10 @@ class CommandLineLavueStateTest(unittest.TestCase):
             ExtCmdCheck(self, "setLavueStatePar", [lavuestate4])
         ])
         qtck5.setChecks([
+            ExtCmdCheck(self, "getLavueStatePar"),
+            ExtCmdCheck(self, "setLavueStatePar", [lavuestate5])
+        ])
+        qtck6.setChecks([
             ExtCmdCheck(self, "getLavueStatePar")
         ])
 
@@ -341,20 +364,23 @@ class CommandLineLavueStateTest(unittest.TestCase):
         qtck2.executeChecks(delay=2000)
         qtck3.executeChecks(delay=3000)
         qtck4.executeChecks(delay=4000)
-        status = qtck5.executeChecksAndClose(delay=5000)
+        qtck5.executeChecks(delay=5000)
+        status = qtck6.executeChecksAndClose(delay=6000)
 
         self.assertEqual(status, 0)
         qtck1.compareResults(self, [False, None])
         qtck2.compareResults(self, [None, None], mask=[1, 1])
         qtck3.compareResults(self, [None, None], mask=[1, 1])
         qtck4.compareResults(self, [None, None], mask=[1, 1])
-        qtck5.compareResults(self, [None], mask=[1])
+        qtck5.compareResults(self, [None, None], mask=[1, 1])
+        qtck6.compareResults(self, [None], mask=[1])
 
         # res1 = qtck1.results()
         res2 = qtck2.results()
         res3 = qtck3.results()
         res4 = qtck4.results()
         res5 = qtck5.results()
+        res6 = qtck6.results()
 
         ls = json.loads(res2[0])
         dls = dict(self.__defaultls)
@@ -396,6 +422,12 @@ class CommandLineLavueStateTest(unittest.TestCase):
         ls4 = json.loads(res5[0])
         tc1 = json.loads(ls4["toolconfig"])
         tc2 = json.loads(cnf4["toolconfig"])
+        self.compareStates(tc1, tc2, ["motors", "motor_state"])
+        self.assertEqual(tc1["motor_state"], "ON")
+
+        ls5 = json.loads(res6[0])
+        tc1 = json.loads(ls5["toolconfig"])
+        tc2 = json.loads(cnf5["toolconfig"])
         self.compareStates(tc1, tc2, ["motors", "motor_state"])
         self.assertEqual(tc1["motor_state"], "ON")
 
