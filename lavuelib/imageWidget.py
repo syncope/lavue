@@ -1039,6 +1039,7 @@ class ImageWidget(QtGui.QWidget):
         :type record: :obj:`dict`<:obj:`str`, `any`>
         """
         self.__displaywidget.updateTicks(record)
+        self.emitTCC()
 
     def image(self):
         """ provides imageItem object

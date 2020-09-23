@@ -564,8 +564,92 @@ class MotorsToolWidget(ToolBaseWidget):
             [self._mainwidget.mouseImageDoubleClicked, self._updateFinal],
             [self._mainwidget.mouseImagePositionChanged, self._message],
             [self.__ui.xLineEdit.textEdited, self._getFinal],
+            [self.__ui.xLineEdit.textChanged, self._mainwidget.emitTCC],
             [self.__ui.yLineEdit.textEdited, self._getFinal],
+            [self.__ui.yLineEdit.textChanged, self._mainwidget.emitTCC],
         ]
+
+    # @debugmethod
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            pars = ["position", "scale",
+                    "xtext", "ytext", "xunits", "yunits"]
+            if any(par in cnf.keys() for par in pars):
+                self._mainwidget.updateTicks(cnf)
+            if "motors" in cnf.keys():
+                try:
+                    motorname = cnf["motors"][0]
+                    motordevice = PyTango.DeviceProxy(motorname)
+                    for attr in ["state", "position"]:
+                        if not hasattr(motordevice, attr):
+                            raise Exception("Missing %s" % attr)
+                    self.__xmotorname = motorname
+                    self.__xmotordevice = motordevice
+                except Exception as e:
+                    logger.warning(str(e))
+                try:
+                    motorname = cnf["motors"][1]
+                    motordevice = PyTango.DeviceProxy(motorname)
+                    for attr in ["state", "position"]:
+                        if not hasattr(motordevice, attr):
+                            raise Exception("Missing %s" % attr)
+                    self.__xmotorname = motorname
+                    self.__xmotordevice = motordevice
+                except Exception as e:
+                    logger.warning(str(e))
+            if "x_position" in cnf.keys():
+                try:
+                    self.__ui.xLineEdit.setText(str(cnf["x_position"]))
+                except Exception:
+                    pass
+            if "y_position" in cnf.keys():
+                try:
+                    self.__ui.yLineEdit.setText(str(cnf["y_position"]))
+                except Exception:
+                    pass
+            if "move" in cnf.keys():
+                if cnf["move"]:
+                    if str(self.__ui.movePushButton.text()) == "Move":
+                        self._moveStopMotors()
+            if "stop" in cnf.keys():
+                if cnf["stop"]:
+                    if str(self.__ui.movePushButton.text()) == "Stop":
+                        self._moveStopMotors()
+
+    # @debugmethod
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        xpos, ypos, xsc, ysc = self._mainwidget.scale()
+        cnf["xunits"], cnf["yunits"] = self._mainwidget.axesunits()
+        cnf["xtext"], cnf["ytext"] = self._mainwidget.axestext()
+        cnf["position"] = [xpos, ypos]
+        cnf["scale"] = [xsc, ysc]
+        try:
+            cnf["x_position"] = float(self.__ui.xLineEdit.text())
+        except Exception:
+            cnf["x_position"] = self.__ui.xLineEdit.text()
+        try:
+            cnf["y_position"] = float(self.__ui.yLineEdit.text())
+        except Exception:
+            cnf["y_position"] = self.__ui.yLineEdit.text()
+        cnf["motors"] = [self.__xmotorname, self.__ymotorname]
+        if str(self.__ui.movePushButton.text()) == "Move":
+            cnf["motor_state"] = "ON"
+        else:
+            cnf["motor_state"] = "MOVING"
+
+        return json.dumps(cnf)
 
     def activate(self):
         """ activates tool widget
@@ -606,12 +690,14 @@ class MotorsToolWidget(ToolBaseWidget):
             self.__moveMotors()
         else:
             self.__stopMotors()
+        self._mainwidget.emitTCC()
 
     @QtCore.pyqtSlot()
     def _finished(self):
         """ stop motors
         """
         self.__stopMotors()
+        self._mainwidget.emitTCC()
 
     def __stopMotors(self):
         """ move motors
@@ -775,6 +861,7 @@ class MotorsToolWidget(ToolBaseWidget):
             self.__ui.ycurLineEdit.setToolTip(
                 "current y-motor position (%s)" % self.__ymotorname)
             return True
+            self._mainwidget.emitTCC()
         return False
 
     @QtCore.pyqtSlot()
@@ -1173,6 +1260,91 @@ class MeshToolWidget(ToolBaseWidget):
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
+    # @debugmethod
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            pars = ["position", "scale",
+                    "xtext", "ytext", "xunits", "yunits"]
+            if any(par in cnf.keys() for par in pars):
+                self._mainwidget.updateTicks(cnf)
+            if "motors" in cnf.keys():
+                try:
+                    motorname = cnf["motors"][0]
+                    motordevice = PyTango.DeviceProxy(motorname)
+                    for attr in ["state", "position"]:
+                        if not hasattr(motordevice, attr):
+                            raise Exception("Missing %s" % attr)
+                    self.__xmotorname = motorname
+                    self.__xmotordevice = motordevice
+                except Exception as e:
+                    logger.warning(str(e))
+                try:
+                    motorname = cnf["motors"][1]
+                    motordevice = PyTango.DeviceProxy(motorname)
+                    for attr in ["state", "position"]:
+                        if not hasattr(motordevice, attr):
+                            raise Exception("Missing %s" % attr)
+                    self.__xmotorname = motorname
+                    self.__xmotordevice = motordevice
+                except Exception as e:
+                    logger.warning(str(e))
+            pars = ["x_intervals", "y_intervals", "interval_time"]
+            if any(par in cnf.keys() for par in pars):
+                if "x_intervals" in cnf.keys():
+                    try:
+                        self.__xintervals = int(cnf["x_intervals"])
+                    except Exception:
+                        pass
+                if "y_intervals" in cnf.keys():
+                    try:
+                        self.__yintervals = int(cnf["y_intervals"])
+                    except Exception:
+                        pass
+                if "interval_time" in cnf.keys():
+                    try:
+                        self.__itime = float(cnf["interval_time"])
+                    except Exception:
+                        pass
+                self._updateIntervals()
+            if "scan" in cnf.keys():
+                if cnf["scan"]:
+                    if str(self.__ui.scanPushButton.text()) == "Scan":
+                        self._scanStopMotors()
+            if "stop" in cnf.keys():
+                if cnf["stop"]:
+                    if str(self.__ui.scanPushButton.text()) == "Stop":
+                        self._scanStopMotors()
+
+    # @debugmethod
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        xpos, ypos, xsc, ysc = self._mainwidget.scale()
+        cnf["xunits"], cnf["yunits"] = self._mainwidget.axesunits()
+        cnf["xtext"], cnf["ytext"] = self._mainwidget.axestext()
+        cnf["position"] = [xpos, ypos]
+        cnf["scale"] = [xsc, ysc]
+        cnf["x_intervals"] = self.__xintervals
+        cnf["y_intervals"] = self.__yintervals
+        cnf["interval_time"] = self.__itime
+        cnf["motors"] = [self.__xmotorname, self.__ymotorname]
+        if str(self.__ui.scanPushButton.text()) == "Scan":
+            cnf["motor_state"] = "ON"
+        else:
+            cnf["motor_state"] = "MOVING"
+
+        return json.dumps(cnf)
+
     def activate(self):
         """ activates tool widget
         """
@@ -1211,12 +1383,14 @@ class MeshToolWidget(ToolBaseWidget):
             self.__startScan()
         else:
             self.__stopScan()
+        self._mainwidget.emitTCC()
 
     @QtCore.pyqtSlot()
     def _finished(self):
         """ stops mesh scan without stopping the macro
         """
         self.__stopScan(stopmacro=False)
+        self._mainwidget.emitTCC()
 
     def __stopScan(self, stopmacro=True):
         """ stops mesh scan
@@ -1383,6 +1557,7 @@ class MeshToolWidget(ToolBaseWidget):
             self.__ui.ycurLineEdit.setToolTip(
                 "current y-motor position (%s)" % self.__ymotorname)
             self.__showLabels()
+            self._mainwidget.emitTCC()
             return True
         return False
 
@@ -1402,12 +1577,18 @@ class MeshToolWidget(ToolBaseWidget):
             self.__xintervals = cnfdlg.xintervals
             self.__yintervals = cnfdlg.yintervals
             self.__itime = cnfdlg.itime
-            self.__ui.intervalsPushButton.setToolTip(
-                "x-intervals:%s\ny-intervals:%s\nintegration time:%s" % (
-                    self.__xintervals, self.__yintervals, self.__itime))
-            self.__showLabels()
+            self._updateIntervals()
             return True
         return False
+
+    def _updateIntervals(self):
+        """ update interval informations
+        """
+        self.__ui.intervalsPushButton.setToolTip(
+            "x-intervals:%s\ny-intervals:%s\nintegration time:%s" % (
+                self.__xintervals, self.__yintervals, self.__itime))
+        self.__showLabels()
+        self._mainwidget.emitTCC()
 
     @QtCore.pyqtSlot()
     def _message(self):
