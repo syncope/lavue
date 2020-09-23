@@ -43,6 +43,7 @@ from . import imageSource as isr
 from . import toolWidget
 from . import memoExportDialog
 from . import sardanaUtils
+# from .sardanaUtils import debugmethod
 
 # _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".") \
 #     if _pg.__version__ else ("0", "9", "0")
@@ -573,6 +574,7 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__settings
 
+    # @debugmethod
     def __connecttool(self):
         """ connect current tool widget
         """
@@ -585,6 +587,7 @@ class ImageWidget(QtGui.QWidget):
                 signal.connect(slot)
             self.__currenttool.activate()
 
+    # @debugmethod
     def __disconnecttool(self):
         """ disconnect current tool widget
         """
@@ -599,7 +602,7 @@ class ImageWidget(QtGui.QWidget):
                 except Exception as e:
                     # print(str(e))
                     logger.warning(str(e))
-                self.__currenttool.deactivate()
+            self.__currenttool.deactivate()
 
     def updateMetaData(self, axisscales=None, axislabels=None,
                        rescale=False):
@@ -670,7 +673,7 @@ class ImageWidget(QtGui.QWidget):
         """
         return str(self.__ui.toolComboBox.currentText())
 
-    @QtCore.pyqtSlot(int)
+    # @debugmethod
     @QtCore.pyqtSlot()
     def showCurrentTool(self):
         """ shows the current tool
@@ -695,7 +698,7 @@ class ImageWidget(QtGui.QWidget):
         self.__connecttool()
         self.currentToolChanged.emit(text)
 
-    @QtCore.pyqtSlot(int)
+    # @debugmethod
     @QtCore.pyqtSlot()
     def showCurrentRGBTool(self):
         """ shows the current tool
@@ -720,6 +723,7 @@ class ImageWidget(QtGui.QWidget):
         self.__connecttool()
         self.currentToolChanged.emit(text)
 
+    # @debugmethod
     def showTool(self, text):
         """ shows the current tool
         """

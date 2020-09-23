@@ -52,6 +52,7 @@ from . import motorWatchThread
 from . import edDictDialog
 from . import edListDialog
 from . import commandThread
+# from .sardanaUtils import debugmethod
 
 try:
     import PyTango
@@ -2966,14 +2967,87 @@ class AngleQToolWidget(ToolBaseWidget):
             [self.__ui.rangePushButton.clicked, self._setPolarRange],
             [self.__ui.angleqComboBox.currentIndexChanged,
              self._setGSpaceIndex],
+            [self.__ui.angleqComboBox.currentIndexChanged,
+             self._mainwidget.emitTCC],
             [self.__ui.plotComboBox.currentIndexChanged,
              self._setPlotIndex],
+            [self.__ui.plotComboBox.currentIndexChanged,
+             self._mainwidget.emitTCC],
             [self._mainwidget.mouseImageDoubleClicked,
              self._updateCenter],
             [self._mainwidget.geometryChanged, self.updateGeometryTip],
+            [self._mainwidget.geometryChanged, self._mainwidget.emitTCC],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
 
+    # @debugmethod
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            if "plot_type" in cnf.keys():
+                idxs = ["pixels", "polar-th", "polar-q"]
+                xcrd = str(cnf["plot_type"]).lower()
+                try:
+                    idx = idxs.index(xcrd)
+                except Exception:
+                    idx = 0
+                self.__ui.plotComboBox.setCurrentIndex(idx)
+            if "plot_units" in cnf.keys():
+                idxs = ["angles", "q-space"]
+                xcrd = str(cnf["plot_units"]).lower()
+                try:
+                    idx = idxs.index(xcrd)
+                except Exception:
+                    idx = 0
+                self.__ui.angleqComboBox.setCurrentIndex(idx)
+            if "plot_range" in cnf.keys():
+                try:
+                    self._updatePolarRange(cnf["plot_range"])
+                except Exception as e:
+                    # print(str(e))
+                    logger.warning(str(e))
+
+            if "geometry" in cnf.keys():
+                try:
+                    self._updateGeometry(cnf["geometry"])
+                except Exception as e:
+                    # print(str(e))
+                    logger.warning(str(e))
+
+    # @debugmethod
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        cnf["plot_type"] = str(
+            self.__ui.plotComboBox.currentText()).lower()
+        cnf["plot_units"] = str(
+            self.__ui.angleqComboBox.currentText()).lower()
+
+        cnf["plot_range"] = [
+            [self.__polstart, self.__polend, self.__polsize],
+            [self.__radthstart, self.__radthend, self.__radthsize],
+            [self.__radqstart, self.__radqend, self.__radqsize]
+        ]
+        cnf["geometry"] = {
+            "centerx": self.__settings.centerx,
+            "centery": self.__settings.centery,
+            "energy": self.__settings.energy,
+            "pixelsizex": self.__settings.pixelsizex,
+            "pixelsizey": self.__settings.pixelsizey,
+            "detdistance": self.__settings.detdistance,
+        }
+        return json.dumps(cnf)
+
+    # @debugmethod
     def activate(self):
         """ activates tool widget
         """
@@ -2983,11 +3057,13 @@ class AngleQToolWidget(ToolBaseWidget):
         self._mainwidget.updateCenter(
             self.__settings.centerx, self.__settings.centery)
 
+    # @debugmethod
     def deactivate(self):
         """ deactivates tool widget
         """
         self._setPlotIndex(0)
 
+    # @debugmethod
     def beforeplot(self, array, rawarray):
         """ command  before plot
 
@@ -3173,6 +3249,7 @@ class AngleQToolWidget(ToolBaseWidget):
                 self.__polmax = float(pend - pstart) / psize
         return True
 
+    # @debugmethod
     def __plotPolarImage(self, rdata=None):
         """ intensity interpolation function
 
@@ -3233,6 +3310,7 @@ class AngleQToolWidget(ToolBaseWidget):
             #         dtype=float)
             return tdata
 
+    # @debugmethod
     @QtCore.pyqtSlot(float, float)
     def _updateCenter(self, xdata, ydata):
         """ updates the image center
@@ -3256,7 +3334,9 @@ class AngleQToolWidget(ToolBaseWidget):
             self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
             self._message()
             self.updateGeometryTip()
+            self._mainwidget.emitTCC()
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _message(self):
         """ provides geometry message
@@ -3400,6 +3480,7 @@ class AngleQToolWidget(ToolBaseWidget):
                 self.__settings.energy
             )
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _setPolarRange(self):
         """ launches range widget
@@ -3434,6 +3515,112 @@ class AngleQToolWidget(ToolBaseWidget):
             if self.__plotindex:
                 self._mainwidget.emitReplotImage()
 
+    # @debugmethod
+    def _updatePolarRange(self, plotrange):
+        """ update polar range
+
+        :returns: (start, end, size) for polar, theta and q coordinates
+        :rtype: :obj:`list`< [:obj:`float` ,:obj:`float` ,:obj:`float`] >
+        """
+        try:
+            self.__polstart = float(plotrange[0][0])
+        except Exception:
+            self.__polstart = None
+        try:
+            self.__polend = float(plotrange[0][1])
+        except Exception:
+            self.__polend = None
+        try:
+            self.__polsize = float(plotrange[0][2])
+        except Exception:
+            self.__polsize = None
+        try:
+            self.__radthstart = float(plotrange[1][0])
+        except Exception:
+            self.__radthstart = None
+        try:
+            self.__radthend = float(plotrange[1][1])
+        except Exception:
+            self.__radthend = None
+        try:
+            self.__radthsize = float(plotrange[1][2])
+        except Exception:
+            self.__radthsize = None
+        try:
+            self.__radqstart = float(plotrange[2][0])
+        except Exception:
+            self.__radqstart = None
+        try:
+            self.__radqend = float(plotrange[2][1])
+        except Exception:
+            self.__radqend = None
+        try:
+            self.__radqsize = float(plotrange[2][2])
+        except Exception:
+            self.__radqsize = None
+        self.__rangechanged = True
+        self.updateRangeTip()
+        # self._setPlotIndex(self.__plotindex)
+        if self.__plotindex:
+            self._mainwidget.emitReplotImage()
+        self._mainwidget.emitTCC()
+
+    # @debugmethod
+    @QtCore.pyqtSlot()
+    def _updateGeometry(self, geometry):
+        """ update geometry widget
+
+        :param geometry: geometry dictionary
+        :type geometry: :obj:`dict` < :obj:`str`, :obj:`list`>
+        """
+        try:
+            if "centerx" in geometry.keys():
+                self.__settings.centerx = float(geometry["centerx"])
+                self._mainwidget.writeAttribute(
+                    "BeamCenterX", float(self.__settings.centerx))
+        except Exception:
+            pass
+        try:
+            if "centery" in geometry.keys():
+                self.__settings.centery = float(geometry["centery"])
+                self._mainwidget.writeAttribute(
+                    "BeamCenterY", float(self.__settings.centery))
+        except Exception:
+            pass
+        try:
+            if "energy" in geometry.keys():
+                self.__settings.energy = float(geometry["energy"])
+                self._mainwidget.writeAttribute(
+                    "Energy", float(self.__settings.energy))
+        except Exception:
+            pass
+        try:
+            if "pixelsizex" in geometry.keys():
+                self.__settings.pixelsizex = float(geometry["pixelsizex"])
+        except Exception:
+            pass
+        try:
+            if "pixelsizey" in geometry.keys():
+                self.__settings.pixelsizey = float(geometry["pixelsizey"])
+        except Exception:
+            pass
+        try:
+            if "detdistance" in geometry.keys():
+                self.__settings.detdistance = float(geometry["detdistance"])
+            self._mainwidget.writeAttribute(
+                "DetectorDistance",
+                float(self.__settings.detdistance))
+        except Exception:
+            pass
+        if geometry:
+            self.updateGeometryTip()
+            self._mainwidget.updateCenter(
+                self.__settings.centerx, self.__settings.centery)
+            if self.__plotindex:
+                self._mainwidget.emitReplotImage()
+            self._mainwidget.emitTCC()
+
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _setGeometry(self):
         """ launches geometry widget
@@ -3471,6 +3658,7 @@ class AngleQToolWidget(ToolBaseWidget):
             if self.__plotindex:
                 self._mainwidget.emitReplotImage()
 
+    # @debugmethod
     @QtCore.pyqtSlot(int)
     def _setGSpaceIndex(self, gindex):
         """ set gspace index
@@ -3480,6 +3668,7 @@ class AngleQToolWidget(ToolBaseWidget):
         """
         self.__gspaceindex = gindex
 
+    # @debugmethod
     @QtCore.pyqtSlot(int)
     def _setPlotIndex(self, pindex=None):
         """ set gspace index
