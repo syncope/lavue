@@ -526,8 +526,8 @@ class CommandLineLavueStateTest(unittest.TestCase):
         ls = json.loads(res9[0])
         tc1 = json.loads(ls["toolconfig"])
         tc2 = json.loads(cnf8["toolconfig"])
-        print(tc1)
-        print(tc2)
+        # print(tc1)
+        # print(tc2)
         self.compareStates(tc1, tc2)
 
     def test_1dplot(self):
