@@ -1049,6 +1049,7 @@ class ImageWidget(QtGui.QWidget):
         """
         return self.__displaywidget.image()
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def emitTCC(self):
         """emits toolConfigurationChanged

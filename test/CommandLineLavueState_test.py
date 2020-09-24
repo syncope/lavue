@@ -252,6 +252,9 @@ class CommandLineLavueStateTest(unittest.TestCase):
 
         self.__lcsu.proxy.Init()
         self.__lavuestate = None
+        filepath = "%s/%s" % (os.path.abspath(path), "test/images")
+        filename = "%05d.tif" % 2
+        imagefile = os.path.join(filepath, filename)
 
         options = argparse.Namespace(
             mode='expert',
@@ -262,6 +265,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
             transformation='flip-up-down',
             log='debug',
             # log='info',
+            imagefile=imagefile,
             scaling='log',
             levels='m20,20',
             gradient='thermal',
@@ -285,7 +289,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
         cnf2["tool"] = "linecut"
         lavuestate2 = json.dumps(cnf2)
         cnf3 = {}
-        toolcnf3 = {"plot_units": "q-space", "plot_type": "polar-q"}
+        toolcnf3 = {"units": "q-space", "plot_type": "polar-q"}
         toolcnf3["plot_range"] = [[2, 20, 100], [1, 30, 50], [4, 67, 123]]
         toolcnf3["geometry"] = {
             "centerx": 234.,
@@ -328,12 +332,44 @@ class CommandLineLavueStateTest(unittest.TestCase):
         cnf5["tool"] = "meshscan"
         lavuestate5 = json.dumps(cnf5)
 
+        cnf6 = {}
+        toolcnf6 = {
+            "rows": "1:20:2",
+            "columns": "20:120",
+            "mapping": "sum",
+
+        }
+        cnf6["toolconfig"] = json.dumps(toolcnf6)
+        cnf6["tool"] = "projections"
+        lavuestate6 = json.dumps(cnf6)
+
+        cnf7 = {}
+        toolcnf7 = {
+            "maxima_number": 10,
+            "units": "q-space",
+            "current_maximum": 2,
+
+        }
+        toolcnf7["geometry"] = {
+            "centerx": 34.,
+            "centery": 13.34,
+            "energy": 13267.45,
+            "pixelsizex": 55.0,
+            "pixelsizey": 65.0,
+            "detdistance": 216.3
+        }
+        cnf7["toolconfig"] = json.dumps(toolcnf7)
+        cnf7["tool"] = "maxima"
+        lavuestate7 = json.dumps(cnf7)
+
         qtck1 = QtChecker(app, dialog, True, sleep=100)
         qtck2 = QtChecker(app, dialog, True, sleep=100)
         qtck3 = QtChecker(app, dialog, True, sleep=100)
         qtck4 = QtChecker(app, dialog, True, sleep=100)
         qtck5 = QtChecker(app, dialog, True, sleep=100)
         qtck6 = QtChecker(app, dialog, True, sleep=100)
+        qtck7 = QtChecker(app, dialog, True, sleep=100)
+        qtck8 = QtChecker(app, dialog, True, sleep=100)
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -356,6 +392,14 @@ class CommandLineLavueStateTest(unittest.TestCase):
             ExtCmdCheck(self, "setLavueStatePar", [lavuestate5])
         ])
         qtck6.setChecks([
+            ExtCmdCheck(self, "getLavueStatePar"),
+            ExtCmdCheck(self, "setLavueStatePar", [lavuestate6])
+        ])
+        qtck7.setChecks([
+            ExtCmdCheck(self, "getLavueStatePar"),
+            ExtCmdCheck(self, "setLavueStatePar", [lavuestate7])
+        ])
+        qtck8.setChecks([
             ExtCmdCheck(self, "getLavueStatePar")
         ])
 
@@ -365,15 +409,18 @@ class CommandLineLavueStateTest(unittest.TestCase):
         qtck3.executeChecks(delay=3000)
         qtck4.executeChecks(delay=4000)
         qtck5.executeChecks(delay=5000)
-        status = qtck6.executeChecksAndClose(delay=6000)
+        qtck6.executeChecks(delay=6000)
+        qtck7.executeChecks(delay=7000)
+        status = qtck8.executeChecksAndClose(delay=8000)
 
         self.assertEqual(status, 0)
         qtck1.compareResults(self, [False, None])
-        qtck2.compareResults(self, [None, None], mask=[1, 1])
-        qtck3.compareResults(self, [None, None], mask=[1, 1])
-        qtck4.compareResults(self, [None, None], mask=[1, 1])
-        qtck5.compareResults(self, [None, None], mask=[1, 1])
-        qtck6.compareResults(self, [None], mask=[1])
+        # qtck2.compareResults(self, [None, None], mask=[1, 1])
+        # qtck3.compareResults(self, [None, None], mask=[1, 1])
+        # qtck4.compareResults(self, [None, None], mask=[1, 1])
+        # qtck5.compareResults(self, [None, None], mask=[1, 1])
+        # qtck6.compareResults(self, [None, None], mask=[1, 1])
+        # qtck7.compareResults(self, [None], mask=[1])
 
         # res1 = qtck1.results()
         res2 = qtck2.results()
@@ -381,6 +428,8 @@ class CommandLineLavueStateTest(unittest.TestCase):
         res4 = qtck4.results()
         res5 = qtck5.results()
         res6 = qtck6.results()
+        res7 = qtck7.results()
+        res8 = qtck8.results()
 
         ls = json.loads(res2[0])
         dls = dict(self.__defaultls)
@@ -396,6 +445,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
             toolconfig='{"aliases": ["pilatus_roi1", "pilatus_roi2"],'
             ' "rois_number": 2}',
             scaling='log',
+            imagefile=imagefile,
             levels='-20.0,20.0',
             gradient='thermal',
             tangodevice='test/lavuecontroller/00',
@@ -430,6 +480,17 @@ class CommandLineLavueStateTest(unittest.TestCase):
         tc2 = json.loads(cnf5["toolconfig"])
         self.compareStates(tc1, tc2, ["motors", "motor_state"])
         self.assertEqual(tc1["motor_state"], "ON")
+
+        ls6 = json.loads(res7[0])
+        tc1 = json.loads(ls6["toolconfig"])
+        tc2 = json.loads(cnf6["toolconfig"])
+        self.compareStates(tc1, tc2)
+
+        ls = json.loads(res8[0])
+        tc1 = json.loads(ls["toolconfig"])
+        tc2 = json.loads(cnf7["toolconfig"])
+        self.compareStates(tc1, tc2, ['geometry'])
+        self.compareStates(tc1['geometry'], tc2['geometry'])
 
     def test_1dplot(self):
         fun = sys._getframe().f_code.co_name

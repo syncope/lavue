@@ -2303,12 +2303,53 @@ class ProjectionToolWidget(ToolBaseWidget):
         self.signal2slot = [
             [self.__ui.funComboBox.currentIndexChanged,
              self._setFunction],
+            [self.__ui.funComboBox.currentIndexChanged,
+             self._mainwidget.emitTCC],
             [self.__ui.rowsliceLineEdit.textChanged, self._updateRows],
+            [self.__ui.rowsliceLineEdit.textChanged, self._mainwidget.emitTCC],
             [self.__ui.columnsliceLineEdit.textChanged, self._updateColumns],
+            [self.__ui.columnsliceLineEdit.textChanged,
+             self._mainwidget.emitTCC],
             [self._mainwidget.scalesChanged, self._updateRows],
             [self._mainwidget.scalesChanged, self._updateColumns],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    # @debugmethod
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            if "mapping" in cnf.keys():
+                idxs = ["mean", "sum"]
+                xcrd = str(cnf["mapping"]).lower()
+                try:
+                    idx = idxs.index(xcrd)
+                except Exception:
+                    idx = 0
+                self.__ui.funComboBox.setCurrentIndex(idx)
+            if "rows" in cnf.keys():
+                self.__ui.rowsliceLineEdit.setText(cnf["rows"])
+            if "columns" in cnf.keys():
+                self.__ui.columnsliceLineEdit.setText(cnf["columns"])
+
+    # @debugmethod
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        cnf["mapping"] = str(
+            self.__ui.funComboBox.currentText()).lower()
+        cnf["rows"] = self.__ui.rowsliceLineEdit.text()
+        cnf["columns"] = self.__ui.columnsliceLineEdit.text()
+        return json.dumps(cnf)
 
     def __updateslice(self, text, dx=None, ds=None):
         """ create slices from the text
@@ -3170,6 +3211,12 @@ class AngleQToolWidget(ToolBaseWidget):
         """
         if configuration:
             cnf = json.loads(configuration)
+            if "geometry" in cnf.keys():
+                try:
+                    self._updateGeometry(cnf["geometry"])
+                except Exception as e:
+                    # print(str(e))
+                    logger.warning(str(e))
             if "plot_type" in cnf.keys():
                 idxs = ["pixels", "polar-th", "polar-q"]
                 xcrd = str(cnf["plot_type"]).lower()
@@ -3178,9 +3225,9 @@ class AngleQToolWidget(ToolBaseWidget):
                 except Exception:
                     idx = 0
                 self.__ui.plotComboBox.setCurrentIndex(idx)
-            if "plot_units" in cnf.keys():
+            if "units" in cnf.keys():
                 idxs = ["angles", "q-space"]
-                xcrd = str(cnf["plot_units"]).lower()
+                xcrd = str(cnf["units"]).lower()
                 try:
                     idx = idxs.index(xcrd)
                 except Exception:
@@ -3189,13 +3236,6 @@ class AngleQToolWidget(ToolBaseWidget):
             if "plot_range" in cnf.keys():
                 try:
                     self._updatePolarRange(cnf["plot_range"])
-                except Exception as e:
-                    # print(str(e))
-                    logger.warning(str(e))
-
-            if "geometry" in cnf.keys():
-                try:
-                    self._updateGeometry(cnf["geometry"])
                 except Exception as e:
                     # print(str(e))
                     logger.warning(str(e))
@@ -3210,7 +3250,7 @@ class AngleQToolWidget(ToolBaseWidget):
         cnf = {}
         cnf["plot_type"] = str(
             self.__ui.plotComboBox.currentText()).lower()
-        cnf["plot_units"] = str(
+        cnf["units"] = str(
             self.__ui.angleqComboBox.currentText()).lower()
 
         cnf["plot_range"] = [
@@ -3393,7 +3433,9 @@ class AngleQToolWidget(ToolBaseWidget):
                 if self.__radthsize is not None:
                     maxdim = self.__radthsize
                 if rmax is None:
-                    self._setGeometry()
+                    # self._setGeometry()
+                    logger.warning(
+                        "Please set the detector geometry to continue")
                     return False
                 self.__radmax = rmax/float(maxdim)
 
@@ -3420,7 +3462,9 @@ class AngleQToolWidget(ToolBaseWidget):
                 if self.__radqsize is not None:
                     maxdim = self.__radqsize
                 if rmax is None:
-                    self._setGeometry()
+                    # self._setGeometry()
+                    logger.warning(
+                        "Please set the detector geometry to continue")
                     return False
                 self.__radmax = rmax/float(maxdim)
             if pindex:
@@ -3480,14 +3524,14 @@ class AngleQToolWidget(ToolBaseWidget):
                 pass
             tdata = np.fromfunction(
                 lambda x, y: self.__intintensity(x, y),
-                (self.__lastmaxdim, maxpolar),
+                (int(self.__lastmaxdim), int(maxpolar)),
                 dtype=float)
             # else:
             #     self.__inter = scipy.interpolate.RectBivariateSpline(
             #         xx, yy, rdata)
             #     tdata = np.fromfunction(
             #         lambda x, y: self.__intintensity(x, y),
-            #         (self.__lastmaxdim, maxpolar),
+            #         (int(self.__lastmaxdim), int(maxpolar)),
             #         dtype=float)
             return tdata
 
@@ -3859,8 +3903,9 @@ class AngleQToolWidget(ToolBaseWidget):
         :type gspace: :obj:`int`
         """
         if pindex:
-            while not self.__calculateRadMax(pindex):
-                pass
+            if not self.__calculateRadMax(pindex):
+                self.__ui.plotComboBox.setCurrentIndex(0)
+                return
             self.parameters.centerlines = False
             self.parameters.toolscale = True
             if pindex == 1:
@@ -5826,13 +5871,79 @@ class MaximaToolWidget(ToolBaseWidget):
             [self.__ui.angleqPushButton.clicked, self._setGeometry],
             [self.__ui.angleqComboBox.currentIndexChanged,
              self._setGSpaceIndex],
+            [self.__ui.angleqComboBox.currentIndexChanged,
+             self._mainwidget.emitTCC],
             [self._mainwidget.mouseImageDoubleClicked,
              self._updateCenter],
             [self.__ui.maximaComboBox.currentIndexChanged, self._replot],
+            [self.__ui.maximaComboBox.currentIndexChanged,
+             self._mainwidget.emitTCC],
             [self.__ui.numberSpinBox.valueChanged, self._replot],
+            [self.__ui.numberSpinBox.valueChanged, self._mainwidget.emitTCC],
             [self._mainwidget.geometryChanged, self.updateGeometryTip],
+            [self._mainwidget.geometryChanged, self._mainwidget.emitTCC],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    # @debugmethod
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            if "geometry" in cnf.keys():
+                try:
+                    self._updateGeometry(cnf["geometry"])
+                except Exception as e:
+                    # print(str(e))
+                    logger.warning(str(e))
+            if "maxima_number" in cnf.keys():
+                try:
+                    self.__ui.numberSpinBox.setValue(int(cnf["maxima_number"]))
+                except Exception as e:
+                    logger.warning(str(e))
+                    # print(str(e))
+            if "units" in cnf.keys():
+                idxs = ["angles", "q-space", "xy-space"]
+                xcrd = str(cnf["units"]).lower()
+                try:
+                    idx = idxs.index(xcrd)
+                except Exception:
+                    idx = 0
+                self.__ui.angleqComboBox.setCurrentIndex(idx)
+            if "current_maximum" in cnf.keys():
+                try:
+                    cmx = int(cnf["current_maximum"]) - 1
+                    self.__ui.maximaComboBox.setCurrentIndex(cmx)
+                except Exception as e:
+                    # print(str(e))
+                    logger.warning(str(e))
+                    cmx = 0
+
+    # @debugmethod
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        cnf["units"] = str(
+            self.__ui.angleqComboBox.currentText()).lower()
+        cnf["maxima_number"] = self.__ui.numberSpinBox.value()
+        cnf["current_maximum"] = self.__ui.maximaComboBox.currentIndex() + 1
+        cnf["geometry"] = {
+            "centerx": self.__settings.centerx,
+            "centery": self.__settings.centery,
+            "energy": self.__settings.energy,
+            "pixelsizex": self.__settings.pixelsizex,
+            "pixelsizey": self.__settings.pixelsizey,
+            "detdistance": self.__settings.detdistance,
+        }
+        return json.dumps(cnf)
 
     def activate(self):
         """ activates tool widget
@@ -5886,6 +5997,7 @@ class MaximaToolWidget(ToolBaseWidget):
                 self._mainwidget.setMaximaPos([])
         self.__reploting = False
 
+    # @debugmethod
     def __updatemaxima(self, maxidxs):
         """ updates maxima in the combobox
 
@@ -6073,6 +6185,7 @@ class MaximaToolWidget(ToolBaseWidget):
                 self.__settings.energy
             )
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _setGeometry(self):
         """ launches geometry widget
@@ -6109,6 +6222,61 @@ class MaximaToolWidget(ToolBaseWidget):
                 self.__settings.centerx, self.__settings.centery)
             if self.__plotindex:
                 self._mainwidget.emitReplotImage()
+
+    # @debugmethod
+    @QtCore.pyqtSlot()
+    def _updateGeometry(self, geometry):
+        """ update geometry widget
+
+        :param geometry: geometry dictionary
+        :type geometry: :obj:`dict` < :obj:`str`, :obj:`list`>
+        """
+        try:
+            if "centerx" in geometry.keys():
+                self.__settings.centerx = float(geometry["centerx"])
+                self._mainwidget.writeAttribute(
+                    "BeamCenterX", float(self.__settings.centerx))
+        except Exception:
+            pass
+        try:
+            if "centery" in geometry.keys():
+                self.__settings.centery = float(geometry["centery"])
+                self._mainwidget.writeAttribute(
+                    "BeamCenterY", float(self.__settings.centery))
+        except Exception:
+            pass
+        try:
+            if "energy" in geometry.keys():
+                self.__settings.energy = float(geometry["energy"])
+                self._mainwidget.writeAttribute(
+                    "Energy", float(self.__settings.energy))
+        except Exception:
+            pass
+        try:
+            if "pixelsizex" in geometry.keys():
+                self.__settings.pixelsizex = float(geometry["pixelsizex"])
+        except Exception:
+            pass
+        try:
+            if "pixelsizey" in geometry.keys():
+                self.__settings.pixelsizey = float(geometry["pixelsizey"])
+        except Exception:
+            pass
+        try:
+            if "detdistance" in geometry.keys():
+                self.__settings.detdistance = float(geometry["detdistance"])
+            self._mainwidget.writeAttribute(
+                "DetectorDistance",
+                float(self.__settings.detdistance))
+        except Exception:
+            pass
+        if geometry:
+            self.updateGeometryTip()
+            self._mainwidget.updateCenter(
+                self.__settings.centerx, self.__settings.centery)
+            if self.__plotindex:
+                self._mainwidget.emitReplotImage()
+            self._mainwidget.emitTCC()
 
     @QtCore.pyqtSlot(int)
     def _setGSpaceIndex(self, gindex):
