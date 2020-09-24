@@ -254,8 +254,9 @@ class CommandLineLavueStateTest(unittest.TestCase):
         self.__lavuestate = None
         filepath = "%s/%s" % (os.path.abspath(path), "test/images")
         filename = "%05d.tif" % 2
+        poniname = "eiger4n_al203_13.45kev.poni"
         imagefile = os.path.join(filepath, filename)
-
+        ponifile = os.path.join(filepath, poniname)
         options = argparse.Namespace(
             mode='expert',
             source='tangoattr',
@@ -362,6 +363,22 @@ class CommandLineLavueStateTest(unittest.TestCase):
         cnf7["tool"] = "maxima"
         lavuestate7 = json.dumps(cnf7)
 
+        cnf8 = {}
+        toolcnf8 = {
+            "calibration": ponifile,
+            "diff_number": 2,
+            "diff_ranges": [[10, 0], [20, 30], [0, 5], [20, 15]],
+            "diff_units": "2th [deg]",
+            "buffer_size": 512,
+            "buffering": True,
+            "collect": True,
+            "show_diff": True,
+            "main_plot": "buffer 1"
+        }
+        cnf8["toolconfig"] = json.dumps(toolcnf8)
+        cnf8["tool"] = "diffractogram"
+        lavuestate8 = json.dumps(cnf8)
+
         qtck1 = QtChecker(app, dialog, True, sleep=100)
         qtck2 = QtChecker(app, dialog, True, sleep=100)
         qtck3 = QtChecker(app, dialog, True, sleep=100)
@@ -370,6 +387,8 @@ class CommandLineLavueStateTest(unittest.TestCase):
         qtck6 = QtChecker(app, dialog, True, sleep=100)
         qtck7 = QtChecker(app, dialog, True, sleep=100)
         qtck8 = QtChecker(app, dialog, True, sleep=100)
+        qtck9 = QtChecker(app, dialog, True, sleep=100)
+        qtck10 = QtChecker(app, dialog, True, sleep=100)
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -400,6 +419,14 @@ class CommandLineLavueStateTest(unittest.TestCase):
             ExtCmdCheck(self, "setLavueStatePar", [lavuestate7])
         ])
         qtck8.setChecks([
+            ExtCmdCheck(self, "getLavueStatePar"),
+            ExtCmdCheck(self, "setLavueStatePar", [lavuestate8])
+        ])
+        qtck9.setChecks([
+            ExtCmdCheck(self, "getLavueStatePar"),
+            # ExtCmdCheck(self, "setLavueStatePar", [lavuestate8])
+        ])
+        qtck10.setChecks([
             ExtCmdCheck(self, "getLavueStatePar")
         ])
 
@@ -411,7 +438,9 @@ class CommandLineLavueStateTest(unittest.TestCase):
         qtck5.executeChecks(delay=5000)
         qtck6.executeChecks(delay=6000)
         qtck7.executeChecks(delay=7000)
-        status = qtck8.executeChecksAndClose(delay=8000)
+        qtck8.executeChecks(delay=8000)
+        qtck9.executeChecks(delay=9000)
+        status = qtck10.executeChecksAndClose(delay=10000)
 
         self.assertEqual(status, 0)
         qtck1.compareResults(self, [False, None])
@@ -430,6 +459,8 @@ class CommandLineLavueStateTest(unittest.TestCase):
         res6 = qtck6.results()
         res7 = qtck7.results()
         res8 = qtck8.results()
+        res9 = qtck9.results()
+        # res10 = qtck10.results()
 
         ls = json.loads(res2[0])
         dls = dict(self.__defaultls)
@@ -491,6 +522,13 @@ class CommandLineLavueStateTest(unittest.TestCase):
         tc2 = json.loads(cnf7["toolconfig"])
         self.compareStates(tc1, tc2, ['geometry'])
         self.compareStates(tc1['geometry'], tc2['geometry'])
+
+        ls = json.loads(res9[0])
+        tc1 = json.loads(ls["toolconfig"])
+        tc2 = json.loads(cnf8["toolconfig"])
+        print(tc1)
+        print(tc2)
+        self.compareStates(tc1, tc2)
 
     def test_1dplot(self):
         fun = sys._getframe().f_code.co_name
