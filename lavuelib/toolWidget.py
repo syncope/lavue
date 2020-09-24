@@ -2738,8 +2738,7 @@ class OneDToolWidget(ToolBaseWidget):
             if "buffer_size" in cnf.keys():
                 self.__ui.sizeLineEdit.setText(cnf["buffer_size"])
             if "collect" in cnf.keys():
-                if cnf["collect"]:
-                    self._startStopAccu()
+                self._startStopAccu()
             if "xrow" in cnf.keys():
                 self.__ui.xCheckBox.setChecked(bool(cnf["xrow"]))
             if "reset" in cnf.keys():
@@ -4094,6 +4093,8 @@ class DiffractogramToolWidget(ToolBaseWidget):
             [self.__ui.calibrationPushButton.clicked, self._loadCalibration],
             [self.__ui.unitComboBox.currentIndexChanged,
              self._setUnitIndex],
+            [self.__ui.unitComboBox.currentIndexChanged,
+             self._mainwidget.emitTCC],
             [self.__ui.mainplotComboBox.currentIndexChanged,
              self._setPlotIndex],
             [self._mainwidget.mouseImageDoubleClicked,
@@ -4112,6 +4113,93 @@ class DiffractogramToolWidget(ToolBaseWidget):
         # self.__ui.showPushButton.hide()
         # self.__ui.nextPushButton.hide()
         self._showBuffer(False)
+
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            if "calibration" in cnf.keys():
+                calib = cnf["calibration"]
+                try:
+                    self._loadCalibration(calib)
+                except Exception as e:
+                    logger.warning(str(e))
+            if "diff_number" in cnf.keys():
+                try:
+                    self.__ui.diffSpinBox.setValue(int(cnf["diff_number"]))
+                except Exception as e:
+                    logger.warning(str(e))
+                    # print(str(e))
+            if "diff_ranges" in cnf.keys():
+                try:
+                    self._updatePolarRange(cnf["diff_ranges"])
+                except Exception as e:
+                    # print(str(e))
+                    logger.warning(str(e))
+            if "diff_units" in cnf.keys():
+                idxs = ["q [1/nm]", "q [1/A]", "2th [deb]", "2th [rad]",
+                        "r [mm]", "r [pixel]"]
+                xcrd = str(cnf["diff_units"]).lower()
+                try:
+                    idx = idxs.index(xcrd)
+                except Exception:
+                    idx = 0
+                self.__ui.unitComboBox.setCurrentIndex(idx)
+            if "move" in cnf.keys():
+                if cnf["show"]:
+                    if str(self.__ui.movePushButton.text()) == "show":
+                        self._showHideDiff()
+            if "stop" in cnf.keys():
+                if cnf["stop"]:
+                    if str(self.__ui.movePushButton.text()) == "stop":
+                        self._showHideDiff()
+            if "next" in cnf.keys():
+                if cnf["next"]:
+                    if str(self.__ui.movePushButton.text()) == "next":
+                        self._nextPlotDiff()
+            if "main_plot" in cnf.keys():
+                idxs = [
+                    "image", "buffer 1", "buffer 2", "buffer 3", "buffer 4"]
+                xcrd = str(cnf["main_plot"]).lower()
+                try:
+                    idx = idxs.index(xcrd)
+                except Exception:
+                    idx = 0
+                self.__ui.mainplotComboBox.setCurrentIndex(idx)
+            if "buffering" in cnf.keys():
+                self._showBuffer()
+            if "buffer_size" in cnf.keys():
+                self.__ui.sizeLineEdit.setText(cnf["buffer_size"])
+            if "reset" in cnf.keys():
+                if cnf["reset"]:
+                    self._resetAccu()
+            if "collect" in cnf.keys():
+                self._startStopAccu()
+
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        cnf["calibration"] = self.__settings.calibrationfilename
+        cnf["diff_number"] = self.__ui.diffSpinBox.value()
+        cnf["diff_ranges"] = [self.__azstart, self.__azend,
+                              self.__radstart, self.__radend]
+        units = ["q [1/nm]", "q [1/A]", "2th [deb]", "2th [rad]",
+                 "r [mm]", "r [pixel]"]
+        idx = self.__ui.unitComboBox.currentIndex()
+        cnf["diff_units"] = units[idx]
+        cnf["buffer_size"] = self.__ui.sizeLineEdit.text()
+        cnf["collect"] = self.__accumulate
+        cnf["main_plot"] = str(
+            self.__ui.mainplotComboBox.currentText()).lower()
+        return json.dumps(cnf)
 
     @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot()
@@ -4544,6 +4632,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self.__updateregion()
             self.updateGeometryTip()
             self._resetAccu()
+        self._mainwidget.emitTCC()
         self.__resetscale = True
 
     def __writedetsettings(self):
@@ -5009,6 +5098,30 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 self.__radend = cnfdlg.radend
                 self.__updateregion()
                 self._resetAccu()
+                self._mainwidget.emitTCC()
+
+    def _updatePolarRange(self, ranges):
+        """ update diffractogram ranges
+
+        :param ranges: list of [azimuth_start, azimuth_end,
+                                radial_start, radial_end]
+                       where each parameters is a list
+                       running over number of diffractograms
+        :type ranges: [:obj:`list` <:obj:`float`> ,
+                       :obj:`list` <:obj:`float`> ,
+                       :obj:`list` <:obj:`float`> ,
+                       :obj:`list` <:obj:`float`> ]
+
+        """
+        nrplots = self.__ui.diffSpinBox.value()
+        if nrplots:
+            self.__azstart = ranges[0]
+            self.__azend = ranges[1]
+            self.__radstart = ranges[2]
+            self.__radend = ranges[3]
+            self.__updateregion()
+            self._resetAccu()
+            self._mainwidget.emitTCC()
 
     def __updateaz(self):
         """ update azimuth range in deg
