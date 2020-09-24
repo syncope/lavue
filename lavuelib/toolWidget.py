@@ -2303,12 +2303,53 @@ class ProjectionToolWidget(ToolBaseWidget):
         self.signal2slot = [
             [self.__ui.funComboBox.currentIndexChanged,
              self._setFunction],
+            [self.__ui.funComboBox.currentIndexChanged,
+             self._mainwidget.emitTCC],
             [self.__ui.rowsliceLineEdit.textChanged, self._updateRows],
+            [self.__ui.rowsliceLineEdit.textChanged, self._mainwidget.emitTCC],
             [self.__ui.columnsliceLineEdit.textChanged, self._updateColumns],
+            [self.__ui.columnsliceLineEdit.textChanged,
+             self._mainwidget.emitTCC],
             [self._mainwidget.scalesChanged, self._updateRows],
             [self._mainwidget.scalesChanged, self._updateColumns],
             [self._mainwidget.mouseImagePositionChanged, self._message]
         ]
+
+    # @debugmethod
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            if "mapping" in cnf.keys():
+                idxs = ["mean", "sum"]
+                xcrd = str(cnf["mapping"]).lower()
+                try:
+                    idx = idxs.index(xcrd)
+                except Exception:
+                    idx = 0
+                self.__ui.funComboBox.setCurrentIndex(idx)
+            if "rows" in cnf.keys():
+                self.__ui.rowsliceLineEdit.setText(cnf["rows"])
+            if "columns" in cnf.keys():
+                self.__ui.columnsliceLineEdit.setText(cnf["columns"])
+
+    # @debugmethod
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        cnf["mapping"] = str(
+            self.__ui.funComboBox.currentText()).lower()
+        cnf["rows"] = self.__ui.rowsliceLineEdit.text()
+        cnf["columns"] = self.__ui.columnsliceLineEdit.text()
+        return json.dumps(cnf)
 
     def __updateslice(self, text, dx=None, ds=None):
         """ create slices from the text
