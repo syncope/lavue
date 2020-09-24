@@ -581,7 +581,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
             transformation='flip-up-down',
             log='debug',
             scaling='log',
-            toolconfig='{"xrow": false, "buffer_size": "1024", "labels": [], '
+            toolconfig='{"xrow": false, "buffer_size": 1024, "labels": [], '
             '"rows_to_plot": "0,1", "collect": false}',
             levels='-20.0,20.0',
             gradient='thermal',
