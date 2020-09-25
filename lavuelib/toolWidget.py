@@ -969,6 +969,34 @@ class ParametersToolWidget(ToolBaseWidget):
         self.__applymapper = QtCore.QSignalMapper(self)
         self.__applymapper.mapped.connect(self._applypars)
 
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            if "tango_det_attrs" in cnf.keys():
+                record = cnf["tango_det_attrs"]
+                if self.__settings.tangodetattrs != str(json.dumps(record)):
+                    self.__settings.tangodetattrs = str(json.dumps(record))
+                self.__updateParams()
+                
+
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        try:
+            cnf["tango_det_attrs"] = json.loads(self.__settings.tangodetattrs)
+        except Exception as e:
+            logger.warning(str(e))
+        return json.dumps(cnf)
+
     def _applypars(self, wid):
         """ apply the parameter with the given widget id
 
@@ -1156,6 +1184,7 @@ class ParametersToolWidget(ToolBaseWidget):
         """
         self.deactivate()
         self.activate()
+        self._mainwidget.emitTCC()
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -6604,17 +6633,17 @@ class QROIProjToolWidget(ToolBaseWidget):
                 except Exception as e:
                     # print(str(e))
                     logger.warning(str(e))
-            if "aliases" in cnf.keys():
-                aliases = cnf["aliases"]
-                if isinstance(aliases, list):
-                    aliases = " ".join(aliases)
-                self.__ui.labelROILineEdit.setText(aliases)
             if "rois_number" in cnf.keys():
                 try:
                     self.__ui.roiSpinBox.setValue(int(cnf["rois_number"]))
                 except Exception as e:
                     logger.warning(str(e))
                     # print(str(e))
+            if "aliases" in cnf.keys():
+                aliases = cnf["aliases"]
+                if isinstance(aliases, list):
+                    aliases = " ".join(aliases)
+                self.__ui.labelROILineEdit.setText(aliases)
             if "units" in cnf.keys():
                 idxs = ["angles", "q-space"]
                 xcrd = str(cnf["units"]).lower()
