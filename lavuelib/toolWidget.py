@@ -969,6 +969,33 @@ class ParametersToolWidget(ToolBaseWidget):
         self.__applymapper = QtCore.QSignalMapper(self)
         self.__applymapper.mapped.connect(self._applypars)
 
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            if "tango_det_attrs" in cnf.keys():
+                record = cnf["tango_det_attrs"]
+                if self.__settings.tangodetattrs != str(json.dumps(record)):
+                    self.__settings.tangodetattrs = str(json.dumps(record))
+                self.__updateParams()
+
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        try:
+            cnf["tango_det_attrs"] = json.loads(self.__settings.tangodetattrs)
+        except Exception as e:
+            logger.warning(str(e))
+        return json.dumps(cnf)
+
     def _applypars(self, wid):
         """ apply the parameter with the given widget id
 
@@ -1156,6 +1183,7 @@ class ParametersToolWidget(ToolBaseWidget):
         """
         self.deactivate()
         self.activate()
+        self._mainwidget.emitTCC()
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -3885,6 +3913,7 @@ class AngleQToolWidget(ToolBaseWidget):
                 self.__settings.centerx, self.__settings.centery)
             if self.__plotindex:
                 self._mainwidget.emitReplotImage()
+            self._mainwidget.emitTCC()
 
     # @debugmethod
     @QtCore.pyqtSlot(int)
@@ -6398,6 +6427,7 @@ class MaximaToolWidget(ToolBaseWidget):
                 self.__settings.centerx, self.__settings.centery)
             if self.__plotindex:
                 self._mainwidget.emitReplotImage()
+            self._mainwidget.emitTCC()
 
     # @debugmethod
     @QtCore.pyqtSlot()
@@ -6550,10 +6580,13 @@ class QROIProjToolWidget(ToolBaseWidget):
             [self.__ui.angleqPushButton.clicked, self._setGeometry],
             [self.__ui.angleqComboBox.currentIndexChanged,
              self._setGSpaceIndex],
+            [self.__ui.angleqComboBox.currentIndexChanged,
+             self._mainwidget.emitTCC],
             [self._mainwidget.mouseImageDoubleClicked,
              self._updateCenter],
             [self._mainwidget.mouseImagePositionChanged, self._message],
             [self._mainwidget.geometryChanged, self.updateGeometryTip],
+            [self._mainwidget.geometryChanged, self._mainwidget.emitTCC],
 
             [self.applyROIPressed, self._mainwidget.applyROIs],
             [self.fetchROIPressed, self._mainwidget.fetchROIs],
@@ -6561,10 +6594,12 @@ class QROIProjToolWidget(ToolBaseWidget):
             [self.__ui.labelROILineEdit.textChanged,
              self._updateApplyButton],
             [self.__ui.roiSpinBox.valueChanged, self._mainwidget.updateROIs],
+            [self.__ui.roiSpinBox.valueChanged, self._mainwidget.emitTCC],
             [self.__ui.roiSpinBox.valueChanged,
              self._mainwidget.writeDetectorROIsAttribute],
             [self.__ui.labelROILineEdit.textEdited,
              self._writeDetectorROIs],
+            [self.__ui.labelROILineEdit.textEdited, self._mainwidget.emitTCC],
             [self._mainwidget.roiLineEditChanged, self._updateApplyButton],
             [self._mainwidget.roiAliasesChanged, self.updateROILineEdit],
             [self._mainwidget.roiValueChanged, self.updateROIDisplayText],
@@ -6575,10 +6610,90 @@ class QROIProjToolWidget(ToolBaseWidget):
             [self.__ui.funComboBox.currentIndexChanged,
              self._setFunction],
             [self.__ui.rowsliceLineEdit.textChanged, self._updateRows],
+            [self.__ui.rowsliceLineEdit.textChanged, self._mainwidget.emitTCC],
             [self.__ui.columnsliceLineEdit.textChanged, self._updateColumns],
+            [self.__ui.columnsliceLineEdit.textChanged,
+             self._mainwidget.emitTCC],
             [self._mainwidget.scalesChanged, self._updateRows],
             [self._mainwidget.scalesChanged, self._updateColumns],
         ]
+
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            if "geometry" in cnf.keys():
+                try:
+                    self._updateGeometry(cnf["geometry"])
+                except Exception as e:
+                    # print(str(e))
+                    logger.warning(str(e))
+            if "rois_number" in cnf.keys():
+                try:
+                    self.__ui.roiSpinBox.setValue(int(cnf["rois_number"]))
+                except Exception as e:
+                    logger.warning(str(e))
+                    # print(str(e))
+            if "aliases" in cnf.keys():
+                aliases = cnf["aliases"]
+                if isinstance(aliases, list):
+                    aliases = " ".join(aliases)
+                self.__ui.labelROILineEdit.setText(aliases)
+            if "units" in cnf.keys():
+                idxs = ["angles", "q-space"]
+                xcrd = str(cnf["units"]).lower()
+                try:
+                    idx = idxs.index(xcrd)
+                except Exception:
+                    idx = 0
+                self.__ui.angleqComboBox.setCurrentIndex(idx)
+            if "apply" in cnf.keys():
+                if cnf["apply"]:
+                    self._emitApplyROIPressed()
+            if "fetch" in cnf.keys():
+                if cnf["fetch"]:
+                    self._emitFetchROIPressed()
+            if "mapping" in cnf.keys():
+                idxs = ["mean", "sum"]
+                xcrd = str(cnf["mapping"]).lower()
+                try:
+                    idx = idxs.index(xcrd)
+                except Exception:
+                    idx = 0
+                self.__ui.funComboBox.setCurrentIndex(idx)
+            if "rows" in cnf.keys():
+                self.__ui.rowsliceLineEdit.setText(cnf["rows"])
+            if "columns" in cnf.keys():
+                self.__ui.columnsliceLineEdit.setText(cnf["columns"])
+
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        cnf["aliases"] = str(self.__ui.labelROILineEdit.text()).split(" ")
+        cnf["rois_number"] = self.__ui.roiSpinBox.value()
+        cnf["mapping"] = str(
+            self.__ui.funComboBox.currentText()).lower()
+        cnf["rows"] = self.__ui.rowsliceLineEdit.text()
+        cnf["columns"] = self.__ui.columnsliceLineEdit.text()
+        cnf["units"] = str(
+            self.__ui.angleqComboBox.currentText()).lower()
+        cnf["geometry"] = {
+            "centerx": self.__settings.centerx,
+            "centery": self.__settings.centery,
+            "energy": self.__settings.energy,
+            "pixelsizex": self.__settings.pixelsizex,
+            "pixelsizey": self.__settings.pixelsizey,
+            "detdistance": self.__settings.detdistance,
+        }
+        return json.dumps(cnf)
 
     def activate(self):
         """ activates tool widget
@@ -7083,6 +7198,7 @@ class QROIProjToolWidget(ToolBaseWidget):
         self._mainwidget.writeAttribute("BeamCenterY", float(ydata))
         self._message()
         self.updateGeometryTip()
+        self._mainwidget.emitTCC()
 
     @QtCore.pyqtSlot()
     def _message(self):
@@ -7215,6 +7331,61 @@ class QROIProjToolWidget(ToolBaseWidget):
             self.updateGeometryTip()
             self._mainwidget.updateCenter(
                 self.__settings.centerx, self.__settings.centery)
+
+    # @debugmethod
+    @QtCore.pyqtSlot()
+    def _updateGeometry(self, geometry):
+        """ update geometry widget
+
+        :param geometry: geometry dictionary
+        :type geometry: :obj:`dict` < :obj:`str`, :obj:`list`>
+        """
+        try:
+            if "centerx" in geometry.keys():
+                self.__settings.centerx = float(geometry["centerx"])
+                self._mainwidget.writeAttribute(
+                    "BeamCenterX", float(self.__settings.centerx))
+        except Exception:
+            pass
+        try:
+            if "centery" in geometry.keys():
+                self.__settings.centery = float(geometry["centery"])
+                self._mainwidget.writeAttribute(
+                    "BeamCenterY", float(self.__settings.centery))
+        except Exception:
+            pass
+        try:
+            if "energy" in geometry.keys():
+                self.__settings.energy = float(geometry["energy"])
+                self._mainwidget.writeAttribute(
+                    "Energy", float(self.__settings.energy))
+        except Exception:
+            pass
+        try:
+            if "pixelsizex" in geometry.keys():
+                self.__settings.pixelsizex = float(geometry["pixelsizex"])
+        except Exception:
+            pass
+        try:
+            if "pixelsizey" in geometry.keys():
+                self.__settings.pixelsizey = float(geometry["pixelsizey"])
+        except Exception:
+            pass
+        try:
+            if "detdistance" in geometry.keys():
+                self.__settings.detdistance = float(geometry["detdistance"])
+            self._mainwidget.writeAttribute(
+                "DetectorDistance",
+                float(self.__settings.detdistance))
+        except Exception:
+            pass
+        if geometry:
+            self.updateGeometryTip()
+            self._mainwidget.updateCenter(
+                self.__settings.centerx, self.__settings.centery)
+            if self.__plotindex:
+                self._mainwidget.emitReplotImage()
+            self._mainwidget.emitTCC()
 
     @QtCore.pyqtSlot(int)
     def _setGSpaceIndex(self, gindex):

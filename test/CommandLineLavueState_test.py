@@ -246,7 +246,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
         self.compareStates(ls, dls,
                            ['viewrange', '__timestamp__', 'doordevice'])
 
-    def test_tango(self):
+    def test_tango_tools(self):
         fun = sys._getframe().f_code.co_name
         print("Run: %s.%s() " % (self.__class__.__name__, fun))
 
@@ -254,9 +254,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
         self.__lavuestate = None
         filepath = "%s/%s" % (os.path.abspath(path), "test/images")
         filename = "%05d.tif" % 2
-        poniname = "eiger4n_al203_13.45kev.poni"
         imagefile = os.path.join(filepath, filename)
-        ponifile = os.path.join(filepath, poniname)
         options = argparse.Namespace(
             mode='expert',
             source='tangoattr',
@@ -365,19 +363,35 @@ class CommandLineLavueStateTest(unittest.TestCase):
 
         cnf8 = {}
         toolcnf8 = {
-            "calibration": ponifile,
-            "diff_number": 2,
-            "diff_ranges": [[10, 0], [20, 30], [0, 5], [20, 15]],
-            "diff_units": "2th [deg]",
-            "buffer_size": 512,
-            "buffering": True,
-            "collect": True,
-            "show_diff": True,
-            "main_plot": "buffer 1"
+            "units": "q-space",
+            "aliases": ["pilatus_r1", "pilatus_r2"],
+            "rois_number": 2,
+            "rows": "1:10",
+            "columns": "10:100:2",
+            "mapping": "mean"
+        }
+        toolcnf8["geometry"] = {
+            "centerx": 24.,
+            "centery": 23.34,
+            "energy": 12367.45,
+            "pixelsizex": 70.0,
+            "pixelsizey": 65.0,
+            "detdistance": 126.3
         }
         cnf8["toolconfig"] = json.dumps(toolcnf8)
-        cnf8["tool"] = "diffractogram"
+        cnf8["tool"] = "q+roi+proj"
         lavuestate8 = json.dumps(cnf8)
+
+        cnf9 = {}
+        toolcnf9 = {}
+        toolcnf9["tango_det_attrs"] = {
+            # 'lmbd2': 'p00/lambda/dellek/LiveLastImageData',
+            'ltangotest': 'sys/tg_test/1/long_image_ro',
+            # 'mca01': 'p00/mca/exp.01/Data'
+        }
+        cnf9["toolconfig"] = json.dumps(toolcnf9)
+        cnf9["tool"] = "parameters"
+        lavuestate9 = json.dumps(cnf9)
 
         qtck1 = QtChecker(app, dialog, True, sleep=100)
         qtck2 = QtChecker(app, dialog, True, sleep=100)
@@ -389,6 +403,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
         qtck8 = QtChecker(app, dialog, True, sleep=100)
         qtck9 = QtChecker(app, dialog, True, sleep=100)
         qtck10 = QtChecker(app, dialog, True, sleep=100)
+        qtck11 = QtChecker(app, dialog, True, sleep=100)
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -424,9 +439,12 @@ class CommandLineLavueStateTest(unittest.TestCase):
         ])
         qtck9.setChecks([
             ExtCmdCheck(self, "getLavueStatePar"),
-            # ExtCmdCheck(self, "setLavueStatePar", [lavuestate8])
+            ExtCmdCheck(self, "setLavueStatePar", [lavuestate9])
         ])
         qtck10.setChecks([
+            ExtCmdCheck(self, "getLavueStatePar"),
+        ])
+        qtck11.setChecks([
             ExtCmdCheck(self, "getLavueStatePar")
         ])
 
@@ -440,7 +458,8 @@ class CommandLineLavueStateTest(unittest.TestCase):
         qtck7.executeChecks(delay=7000)
         qtck8.executeChecks(delay=8000)
         qtck9.executeChecks(delay=9000)
-        status = qtck10.executeChecksAndClose(delay=10000)
+        qtck10.executeChecks(delay=12000)
+        status = qtck11.executeChecksAndClose(delay=15000)
 
         self.assertEqual(status, 0)
         qtck1.compareResults(self, [False, None])
@@ -460,7 +479,8 @@ class CommandLineLavueStateTest(unittest.TestCase):
         res7 = qtck7.results()
         res8 = qtck8.results()
         res9 = qtck9.results()
-        # res10 = qtck10.results()
+        res10 = qtck10.results()
+        # res11 = qtck11.results()
 
         ls = json.loads(res2[0])
         dls = dict(self.__defaultls)
@@ -526,8 +546,120 @@ class CommandLineLavueStateTest(unittest.TestCase):
         ls = json.loads(res9[0])
         tc1 = json.loads(ls["toolconfig"])
         tc2 = json.loads(cnf8["toolconfig"])
-        # print(tc1)
-        # print(tc2)
+        self.compareStates(tc1, tc2, ['geometry'])
+        self.compareStates(tc1['geometry'], tc2['geometry'])
+
+        ls = json.loads(res10[0])
+        tc1 = json.loads(ls["toolconfig"])
+        tc2 = json.loads(cnf9["toolconfig"])
+        self.compareStates(tc1, tc2, ['tango_det_attrs'])
+        self.compareStates(tc1['tango_det_attrs'], tc2['tango_det_attrs'])
+
+    def test_tango_diff(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        self.__lcsu.proxy.Init()
+        self.__lavuestate = None
+        filepath = "%s/%s" % (os.path.abspath(path), "test/images")
+        filename = "%05d.tif" % 2
+        poniname = "eiger4n_al203_13.45kev.poni"
+        imagefile = os.path.join(filepath, filename)
+        ponifile = os.path.join(filepath, poniname)
+        options = argparse.Namespace(
+            mode='expert',
+            source='tangoattr',
+            configuration='test/lavuecontroller/00/Image',
+            instance='tgtest',
+            tool='roi',
+            transformation='flip-up-down',
+            log='debug',
+            # log='info',
+            imagefile=imagefile,
+            scaling='log',
+            levels='m20,20',
+            gradient='thermal',
+            tangodevice='test/lavuecontroller/00'
+        )
+        logging.basicConfig(
+             format="%(levelname)s: %(message)s")
+        logger = logging.getLogger("lavue")
+        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+        dialog = lavuelib.liveViewer.MainWindow(options=options)
+        dialog.show()
+
+        cnf = {}
+        toolcnf = {
+            "calibration": ponifile,
+            "diff_number": 2,
+            "diff_ranges": [[10, 0], [20, 30], [0, 5], [20, 15]],
+            "diff_units": "2th [deg]",
+            "buffer_size": 512,
+            "buffering": True,
+            "collect": True,
+            "show_diff": True,
+            "main_plot": "buffer 1"
+        }
+        cnf["toolconfig"] = json.dumps(toolcnf)
+        cnf["tool"] = "diffractogram"
+        lavuestate1 = json.dumps(cnf)
+
+        qtck1 = QtChecker(app, dialog, True, sleep=100)
+        qtck2 = QtChecker(app, dialog, True, sleep=100)
+        qtck3 = QtChecker(app, dialog, True, sleep=100)
+        qtck1.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            ExtCmdCheck(self, "setLavueStatePar", [lavuestate1])
+        ])
+        qtck2.setChecks([
+            ExtCmdCheck(self, "getLavueStatePar"),
+        ])
+        qtck3.setChecks([
+            ExtCmdCheck(self, "getLavueStatePar"),
+        ])
+
+        print("execute")
+        qtck1.executeChecks(delay=1000)
+        qtck2.executeChecks(delay=3000)
+        status = qtck3.executeChecksAndClose(delay=6000)
+
+        self.assertEqual(status, 0)
+        qtck1.compareResults(self, [False, None])
+        # qtck2.compareResults(self, [None, None], mask=[1, 1])
+        # qtck3.compareResults(self, [None, None], mask=[1, 1])
+        # qtck4.compareResults(self, [None, None], mask=[1, 1])
+        # qtck5.compareResults(self, [None, None], mask=[1, 1])
+        # qtck6.compareResults(self, [None, None], mask=[1, 1])
+        # qtck7.compareResults(self, [None], mask=[1])
+
+        # res1 = qtck1.results()
+        res2 = qtck2.results()
+
+        ls = json.loads(res2[0])
+        dls = dict(self.__defaultls)
+        dls.update(dict(
+            mode='expert',
+            source='tangoattr',
+            configuration='test/lavuecontroller/00/Image',
+            instance='tgtest',
+            tool='roi',
+            transformation='flip-up-down',
+            # log='info',
+            log='debug',
+            toolconfig='{"aliases": ["pilatus_roi1", "pilatus_roi2"],'
+            ' "rois_number": 2}',
+            scaling='log',
+            imagefile=imagefile,
+            levels='-20.0,20.0',
+            gradient='thermal',
+            tangodevice='test/lavuecontroller/00',
+            autofactor=None
+        ))
+
+        ls = json.loads(res2[0])
+        tc1 = json.loads(ls["toolconfig"])
+        tc2 = json.loads(cnf["toolconfig"])
         self.compareStates(tc1, tc2)
 
     def test_1dplot(self):

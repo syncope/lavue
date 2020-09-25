@@ -1783,7 +1783,10 @@ class ImageWidget(QtGui.QWidget):
         :type config: :obj:`str`
         """
         if self.__currenttool is not None:
-            self.__currenttool.configure(config)
+            try:
+                self.__currenttool.configure(config)
+            except Exception as e:
+                logger.warning(str(e))
 
     def toolConfiguration(self):
         """ provides tool configuration
