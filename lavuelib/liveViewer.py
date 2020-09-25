@@ -1204,21 +1204,23 @@ class LiveViewer(QtGui.QDialog):
                ("__update__" in dctcnf.keys() and dctcnf["__update__"]):
                 self.setLavueState()
 
-    # @debugmethod
+    @debugmethod
     def __updateTool(self, tool):
         """ update current tool
 
         :param tool: alias tool name
         :type tool: :obj:`str`
         """
-        if tool:
+        if tool and tool != self.__imagewg.tool():
             if not self.__imagewg.rgb() and \
                tool in self.__tlaliasnames.keys():
-                QtCore.QTimer.singleShot(
-                    10, self.__imagewg.showCurrentTool)
+                # QtCore.QTimer.singleShot(
+                #   10, self.__imagewg.showCurrentTool)
+                self.__imagewg.showCurrentTool()
             elif self.__imagewg.rgb():
-                QtCore.QTimer.singleShot(
-                    10, self.__imagewg.showCurrentRGBTool)
+                # QtCore.QTimer.singleShot(
+                #     10, self.__imagewg.showCurrentRGBTool)
+                self.__imagewg.showCurrentRGBTool()
 
     # @debugmethod
     def __applyoptionsfromdict(self, dctcnf):

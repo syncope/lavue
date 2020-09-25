@@ -2736,10 +2736,9 @@ class OneDToolWidget(ToolBaseWidget):
             if "rows_to_plot" in cnf.keys():
                 self.__ui.rowsLineEdit.setText(cnf["rows_to_plot"])
             if "buffer_size" in cnf.keys():
-                self.__ui.sizeLineEdit.setText(cnf["buffer_size"])
+                self.__ui.sizeLineEdit.setText(str(cnf["buffer_size"]))
             if "collect" in cnf.keys():
-                if cnf["collect"]:
-                    self._startStopAccu()
+                self._startStopAccu()
             if "xrow" in cnf.keys():
                 self.__ui.xCheckBox.setChecked(bool(cnf["xrow"]))
             if "reset" in cnf.keys():
@@ -2766,7 +2765,10 @@ class OneDToolWidget(ToolBaseWidget):
         """
         cnf = {}
         cnf["rows_to_plot"] = self.__ui.rowsLineEdit.text()
-        cnf["buffer_size"] = self.__ui.sizeLineEdit.text()
+        try:
+            cnf["buffer_size"] = int(self.__ui.sizeLineEdit.text())
+        except Exception:
+            cnf["buffer_size"] = self.__ui.sizeLineEdit.text()
         cnf["collect"] = self.__accumulate
         cnf["xrow"] = self.__ui.xCheckBox.isChecked()
         cnf["labels"] = self.__labels
@@ -2847,6 +2849,7 @@ class OneDToolWidget(ToolBaseWidget):
         """ reset accumulation buffer
         """
         self.__buffer = None
+        self._mainwidget.emitTCC()
 
     @QtCore.pyqtSlot()
     def _startStopAccu(self):
@@ -4088,21 +4091,28 @@ class DiffractogramToolWidget(ToolBaseWidget):
         #: list of [signal, slot] object to connect
         self.signal2slot = [
             [self.__ui.diffSpinBox.valueChanged, self._updateDiffNumber],
+            [self.__ui.diffSpinBox.valueChanged, self._mainwidget.emitTCC],
             [self.__ui.rangePushButton.clicked, self._setPolarRange],
             [self.__ui.showPushButton.clicked, self._showhideDiff],
             [self.__ui.nextPushButton.clicked, self._nextPlotDiff],
             [self.__ui.calibrationPushButton.clicked, self._loadCalibration],
             [self.__ui.unitComboBox.currentIndexChanged,
              self._setUnitIndex],
+            [self.__ui.unitComboBox.currentIndexChanged,
+             self._mainwidget.emitTCC],
             [self.__ui.mainplotComboBox.currentIndexChanged,
              self._setPlotIndex],
+            [self.__ui.mainplotComboBox.currentIndexChanged,
+             self._mainwidget.emitTCC],
             [self._mainwidget.mouseImageDoubleClicked,
              self._updateCenter],
             [self.__ui.sizeLineEdit.textChanged, self._setBufferSize],
+            [self.__ui.sizeLineEdit.textChanged, self._mainwidget.emitTCC],
             [self.__ui.accuPushButton.clicked, self._startStopAccu],
             [self.__ui.bufferPushButton.clicked, self._showBuffer],
             [self.__ui.resetPushButton.clicked, self._resetAccu],
             [self._mainwidget.geometryChanged, self.updateGeometryTip],
+            [self._mainwidget.geometryChanged, self._mainwidget.emitTCC],
             [self._mainwidget.geometryChanged, self._updateSetCenter],
             [self._mainwidget.freezeBottomPlotClicked, self._freezeplot],
             [self._mainwidget.clearBottomPlotClicked, self._clearplot],
@@ -4113,7 +4123,108 @@ class DiffractogramToolWidget(ToolBaseWidget):
         # self.__ui.nextPushButton.hide()
         self._showBuffer(False)
 
-    @QtCore.pyqtSlot(str)
+    # @debugmethod
+    def configure(self, configuration):
+        """ set configuration for the current tool
+
+        :param configuration: configuration string
+        :type configuration: :obj:`str`
+        """
+        if configuration:
+            cnf = json.loads(configuration)
+            if "calibration" in cnf.keys():
+                calib = cnf["calibration"]
+                try:
+                    self._loadCalibration(calib)
+                except Exception as e:
+                    logger.warning(str(e))
+            if "diff_number" in cnf.keys():
+                try:
+                    self.__ui.diffSpinBox.setValue(int(cnf["diff_number"]))
+                except Exception as e:
+                    logger.warning(str(e))
+                    # print(str(e))
+            if "diff_ranges" in cnf.keys():
+                try:
+                    self._updatePolarRange(cnf["diff_ranges"])
+                except Exception as e:
+                    # print(str(e))
+                    logger.warning(str(e))
+            if "diff_units" in cnf.keys():
+                idxs = ["q [1/nm]", "q [1/A]", "2th [deg]", "2th [rad]",
+                        "r [mm]", "r [pixel]"]
+                xcrd = str(cnf["diff_units"]).lower()
+                try:
+                    idx = idxs.index(xcrd)
+                except Exception:
+                    idx = 0
+                self.__ui.unitComboBox.setCurrentIndex(idx)
+            if "show_diff" in cnf.keys():
+                if cnf["show_diff"]:
+                    if str(self.__ui.showPushButton.text()) == "Show":
+                        self._showhideDiff()
+                else:
+                    if str(self.__ui.showPushButton.text()) == "Stop":
+                        self._showhideDiff()
+            if "stop_diff" in cnf.keys():
+                if cnf["stop_diff"]:
+                    if str(self.__ui.showPushButton.text()) == "Stop":
+                        self._showhideDiff()
+            if "next" in cnf.keys():
+                if cnf["next"]:
+                    if str(self.__ui.nextPushButton.text()) == "Next":
+                        self._nextPlotDiff()
+            if "main_plot" in cnf.keys():
+                idxs = [
+                    "image", "buffer 1", "buffer 2", "buffer 3", "buffer 4"]
+                xcrd = str(cnf["main_plot"]).lower()
+                try:
+                    idx = idxs.index(xcrd)
+                except Exception as e:
+                    print(str(e))
+                    idx = 0
+                self.__ui.mainplotComboBox.setCurrentIndex(idx)
+            if "buffering" in cnf.keys():
+                self._showBuffer()
+            if "buffer_size" in cnf.keys():
+                self.__ui.sizeLineEdit.setText(str(cnf["buffer_size"]))
+            if "reset" in cnf.keys():
+                if cnf["reset"]:
+                    self._resetAccu()
+            if "collect" in cnf.keys():
+                if cnf["collect"] and not self.__accumulate:
+                    self._startStopAccu()
+                elif not cnf["collect"] and self.__accumulate:
+                    self._startStopAccu()
+
+    # @debugmethod
+    def configuration(self):
+        """ provides configuration for the current tool
+
+        :returns configuration: configuration string
+        :rtype configuration: :obj:`str`
+        """
+        cnf = {}
+        cnf["calibration"] = self.__settings.calibrationfilename
+        cnf["diff_number"] = self.__ui.diffSpinBox.value()
+        cnf["diff_ranges"] = [self.__azstart, self.__azend,
+                              self.__radstart, self.__radend]
+        units = ["q [1/nm]", "q [1/A]", "2th [deg]", "2th [rad]",
+                 "r [mm]", "r [pixel]"]
+        idx = self.__ui.unitComboBox.currentIndex()
+        cnf["diff_units"] = units[idx]
+        try:
+            cnf["buffer_size"] = int(self.__ui.sizeLineEdit.text())
+        except Exception:
+            cnf["buffer_size"] = self.__ui.sizeLineEdit.text()
+        cnf["buffering"] = self.__showbuffer
+        cnf["collect"] = self.__accumulate
+        cnf["show_diff"] = self.__showdiff
+        cnf["main_plot"] = str(
+            self.__ui.mainplotComboBox.currentText()).lower()
+        return json.dumps(cnf)
+
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _setBufferSize(self):
         """ start/stop accumulation buffer
@@ -4127,6 +4238,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
             logger.warning(str(e))
             self.__buffersize = 1024
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _resetAccu(self):
         """ reset accumulation buffer
@@ -4140,7 +4252,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
         if self.__plotindex != 0:
             diffdata = np.zeros(shape=(1, 1))
             self._mainwidget.updateImage(diffdata, diffdata)
+        self._mainwidget.emitTCC()
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _startStopAccu(self):
         """ start/stop accumulation buffer
@@ -4151,7 +4265,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
         else:
             self.__accumulate = False
             self.__ui.accuPushButton.setText("Collect")
+        self._mainwidget.emitTCC()
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _showBuffer(self, status=None):
         """ show/hide buffer widgets
@@ -4177,7 +4293,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 self.__ui.bufferPushButton.setText(u" \u25BE Buffering ")
             self.__ui.bufferFrame.hide()
             self.adjustSize()
+        self._mainwidget.emitTCC()
 
+    # @debugmethod
     @QtCore.pyqtSlot(str)
     def setColors(self, colors=None, force=False):
         """ sets colors
@@ -4209,6 +4327,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                     else self.__defpen
                 cr.setPen(_pg.mkPen(clr))
 
+    # @debugmethod
     def runProgress(self, commands, onclose="_closeReset",
                     text="Updating diffractogram ranges ..."):
         """ starts progress thread with the given commands
@@ -4240,6 +4359,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.__commandthread.start()
         self.__progress.show()
 
+    # @debugmethod
     def waitForThread(self):
         """ waits for running thread
         """
@@ -4248,6 +4368,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self.__commandthread.wait()
         logger.debug("waiting for Thread ENDED")
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _freezeplot(self):
         """ freeze plot
@@ -4269,6 +4390,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self.__freezed[i].setVisible(True)
             # print(type(cr))
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _clearplot(self):
         """ clear freezed plot
@@ -4276,6 +4398,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         for cr in self.__freezed:
             cr.setVisible(False)
 
+    # @debugmethod
     @QtCore.pyqtSlot(int)
     def _updateDiffNumber(self, did):
         """ update diffractorgram number
@@ -4297,6 +4420,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         QtCore.QCoreApplication.processEvents()
         self._updateRegionsAndPlot()
 
+    # @debugmethod
     def __updateBufferCombobox(self, did):
         """ update buffer combobox
 
@@ -4318,10 +4442,12 @@ class DiffractogramToolWidget(ToolBaseWidget):
         # if idx >= cnt:
         #     changed = True
 
+    # @debugmethod
     def afterplot(self):
         """ command after plot
         """
 
+    # @debugmethod
     def activate(self):
         """ activates tool widget
         """
@@ -4351,6 +4477,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.__ui.mainplotComboBox.setCurrentIndex(0)
         self._setPlotIndex(0)
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _nextPlotDiff(self):
         """ plot all diffractograms and update
@@ -4366,7 +4493,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 self.__resetscale = True
                 # np.empty(shape=(int(self.__settings.diffnpt), 0))
             self._mainwidget.updateImage(diffdata, diffdata)
+        self._mainwidget.emitTCC()
 
+    # @debugmethod
     def deactivate(self):
         """ deactivates tool widget
         """
@@ -4382,6 +4511,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self._mainwidget.removebottomplot(freezed)
         self.__freezed = []
 
+    # @debugmethod
     def _plotDiffWithBuffering(self):
         """ plot diffractogram with buffering
         """
@@ -4426,6 +4556,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                         #    [0, 0], [1, 1])
             self.__resetscale = False
 
+    # @debugmethod
     def beforeplot(self, array, rawarray):
         """ command  before plot
 
@@ -4449,6 +4580,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 # np.empty(shape=(int(self.__settings.diffnpt), 0))
             return (diffdata, diffdata)
 
+    # @debugmethod
     @QtCore.pyqtSlot(float, float)
     def _updateCenter(self, xdata, ydata):
         """ updates the image center
@@ -4483,8 +4615,10 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self._plotDiff()
             self.updateGeometryTip()
             self._resetAccu()
+            self._mainwidget.emitTCC()
             # self.__resetscale = True
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _updateSetCenter(self):
         """ updates the image center
@@ -4504,6 +4638,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self._plotDiff()
         # self.__resetscale = True
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _loadCalibration(self, fileName=None):
         """ load calibration file
@@ -4544,14 +4679,17 @@ class DiffractogramToolWidget(ToolBaseWidget):
             self.__updateregion()
             self.updateGeometryTip()
             self._resetAccu()
+        self._mainwidget.emitTCC()
         self.__resetscale = True
 
+    # @debugmethod
     def __writedetsettings(self):
         """ write detector settings from ai object
         """
         self.__settings.updateDetectorParameters()
         self._mainwidget.writeDetectorAttributes()
 
+    # @debugmethod
     def __updateButtons(self, status=None):
         """ update buttons
 
@@ -4564,6 +4702,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.__ui.nextPushButton.setEnabled(status)
         self.__ui.diffSpinBox.setEnabled(status)
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _message(self):
         """ provides geometry message
@@ -4697,6 +4836,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                         it, xlabel, xc, units,  ilabel, intensity, ts)
         self._mainwidget.setDisplayedText(message)
 
+    # @debugmethod
     def __tipmessage(self):
         """ provides geometry messate
 
@@ -4709,6 +4849,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 tips = str(self.__settings.ai)
         return tips
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def updateGeometryTip(self):
         """ update geometry tips
@@ -4717,6 +4858,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.__ui.calibrationPushButton.setToolTip(
             "Input physical parameters\n%s" % message)
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _showhideDiff(self):
         """ show or hide diffractogram
@@ -4728,7 +4870,9 @@ class DiffractogramToolWidget(ToolBaseWidget):
         else:
             self.__showdiff = False
             self.__ui.showPushButton.setText("Show")
+        self._mainwidget.emitTCC()
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _plotDiff(self):
         """ plot all diffractograms
@@ -4986,6 +5130,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 [float(e) for e in yml[iml]],
                 er)
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def _setPolarRange(self):
         """ launches range widget
@@ -5009,6 +5154,31 @@ class DiffractogramToolWidget(ToolBaseWidget):
                 self.__radend = cnfdlg.radend
                 self.__updateregion()
                 self._resetAccu()
+                self._mainwidget.emitTCC()
+
+    # @debugmethod
+    def _updatePolarRange(self, ranges):
+        """ update diffractogram ranges
+
+        :param ranges: list of [azimuth_start, azimuth_end,
+                                radial_start, radial_end]
+                       where each parameters is a list
+                       running over number of diffractograms
+        :type ranges: [:obj:`list` <:obj:`float`> ,
+                       :obj:`list` <:obj:`float`> ,
+                       :obj:`list` <:obj:`float`> ,
+                       :obj:`list` <:obj:`float`> ]
+
+        """
+        nrplots = self.__ui.diffSpinBox.value()
+        if nrplots:
+            self.__azstart = ranges[0]
+            self.__azend = ranges[1]
+            self.__radstart = ranges[2]
+            self.__radend = ranges[3]
+            self.__updateregion()
+            self._resetAccu()
+            self._mainwidget.emitTCC()
 
     def __updateaz(self):
         """ update azimuth range in deg
@@ -5143,6 +5313,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.updateRangeTip()
         self.runProgress(["findregions"], "_updateRegionsAndPlot")
 
+    # @debugmethod
     def findregions(self):
         """ find regions lists
         """
@@ -5177,6 +5348,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
                         # regions.append([])
         self.__regions = regions
 
+    # @debugmethod
     def _updateRegionsAndPlot(self, regions=None):
         """ update regions and plots
 
@@ -5190,6 +5362,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self._plotDiff()
         self._closeReset()
 
+    # @debugmethod
     def _closeReset(self):
         """ close reset method for progressbar
 
@@ -5730,6 +5903,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
             x = (dst * csa * tnr + xc * px)/px
             return [x, y]
 
+    # @debugmethod
     @QtCore.pyqtSlot(int)
     def _setUnitIndex(self, uindex):
         """ set unit index
@@ -5743,6 +5917,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self.__updaterad()
         self._plotDiff()
 
+    # @debugmethod
     @QtCore.pyqtSlot(int)
     def _setPlotIndex(self, pindex):
         """ set plot index
@@ -5774,6 +5949,7 @@ class DiffractogramToolWidget(ToolBaseWidget):
         self._mainwidget.updateinfowidgets(self.parameters)
         self._mainwidget.emitReplotImage()
 
+    # @debugmethod
     @QtCore.pyqtSlot()
     def updateRangeTip(self):
         """ update geometry tips
