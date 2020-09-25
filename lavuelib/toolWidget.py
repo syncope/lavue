@@ -982,7 +982,6 @@ class ParametersToolWidget(ToolBaseWidget):
                 if self.__settings.tangodetattrs != str(json.dumps(record)):
                     self.__settings.tangodetattrs = str(json.dumps(record))
                 self.__updateParams()
-                
 
     def configuration(self):
         """ provides configuration for the current tool
