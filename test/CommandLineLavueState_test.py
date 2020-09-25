@@ -378,6 +378,26 @@ class CommandLineLavueStateTest(unittest.TestCase):
         cnf8["toolconfig"] = json.dumps(toolcnf8)
         cnf8["tool"] = "diffractogram"
         lavuestate8 = json.dumps(cnf8)
+        cnf9 = {}
+        toolcnf9 = {
+            "units": "q-space",
+            "aliases": ["pilatus_r1", "pilatus_r2"],
+            "rois_number": 2,
+            "rows": "1:10",
+            "columns": "10:100:2",
+            "mapping": "mean"
+        }
+        toolcnf9["geometry"] = {
+            "centerx": 24.,
+            "centery": 23.34,
+            "energy": 12367.45,
+            "pixelsizex": 70.0,
+            "pixelsizey": 65.0,
+            "detdistance": 126.3
+        }
+        cnf9["toolconfig"] = json.dumps(toolcnf9)
+        cnf9["tool"] = "q+roi+proj"
+        lavuestate9 = json.dumps(cnf9)
 
         qtck1 = QtChecker(app, dialog, True, sleep=100)
         qtck2 = QtChecker(app, dialog, True, sleep=100)
@@ -424,7 +444,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
         ])
         qtck9.setChecks([
             ExtCmdCheck(self, "getLavueStatePar"),
-            # ExtCmdCheck(self, "setLavueStatePar", [lavuestate8])
+            ExtCmdCheck(self, "setLavueStatePar", [lavuestate9])
         ])
         qtck10.setChecks([
             ExtCmdCheck(self, "getLavueStatePar")
@@ -439,8 +459,8 @@ class CommandLineLavueStateTest(unittest.TestCase):
         qtck6.executeChecks(delay=6000)
         qtck7.executeChecks(delay=7000)
         qtck8.executeChecks(delay=8000)
-        qtck9.executeChecks(delay=9000)
-        status = qtck10.executeChecksAndClose(delay=10000)
+        qtck9.executeChecks(delay=13000)
+        status = qtck10.executeChecksAndClose(delay=14000)
 
         self.assertEqual(status, 0)
         qtck1.compareResults(self, [False, None])
@@ -460,7 +480,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
         res7 = qtck7.results()
         res8 = qtck8.results()
         res9 = qtck9.results()
-        # res10 = qtck10.results()
+        res10 = qtck10.results()
 
         ls = json.loads(res2[0])
         dls = dict(self.__defaultls)
@@ -526,9 +546,13 @@ class CommandLineLavueStateTest(unittest.TestCase):
         ls = json.loads(res9[0])
         tc1 = json.loads(ls["toolconfig"])
         tc2 = json.loads(cnf8["toolconfig"])
-        # print(tc1)
-        # print(tc2)
         self.compareStates(tc1, tc2)
+
+        ls = json.loads(res10[0])
+        tc1 = json.loads(ls["toolconfig"])
+        tc2 = json.loads(cnf9["toolconfig"])
+        self.compareStates(tc1, tc2, ['geometry'])
+        self.compareStates(tc1['geometry'], tc2['geometry'])
 
     def test_1dplot(self):
         fun = sys._getframe().f_code.co_name
