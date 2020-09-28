@@ -1318,8 +1318,8 @@ class MeshToolWidget(ToolBaseWidget):
                     for attr in ["state", "position"]:
                         if not hasattr(motordevice, attr):
                             raise Exception("Missing %s" % attr)
-                    self.__xmotorname = motorname
-                    self.__xmotordevice = motordevice
+                    self.__ymotorname = motorname
+                    self.__ymotordevice = motordevice
                 except Exception as e:
                     logger.warning(str(e))
             pars = ["x_intervals", "y_intervals", "interval_time"]
