@@ -283,7 +283,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
         lavuestate1 = json.dumps(cnf)
         cnf2 = {}
         cnf2["toolconfig"] = '{"all_cuts": true, ' \
-            '"x_coordinate": "x-pixels", ' \
+            '"x_coordinates": "x-pixels", ' \
             ' "cuts_number": 2}'
         cnf2["tool"] = "linecut"
         lavuestate2 = json.dumps(cnf2)

@@ -1743,15 +1743,18 @@ class ImageWidget(QtGui.QWidget):
         self.__displaywidget.extension('center').updateCenter(xdata, ydata)
 
     @QtCore.pyqtSlot(float, float)
-    def updatePositionMark(self, xdata, ydata):
+    def updatePositionMark(self, xdata, ydata, scaled=False):
         """ updates the position mark
 
         :param xdata: x pixel position
         :type xdata: :obj:`float`
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
+        :param scaled: scaled flag
+        :type scaled: :obj:`bool`
         """
-        self.__displaywidget.extension('mark').updatePositionMark(xdata, ydata)
+        self.__displaywidget.extension('mark').updatePositionMark(
+            xdata, ydata, scaled)
 
     def setDoubleClickLock(self, status=True):
         """ sets double click lock

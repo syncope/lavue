@@ -1850,17 +1850,19 @@ class MarkExtension(DisplayExtension):
             self.updatePositionMark(x, y)
 
     @QtCore.pyqtSlot(float, float)
-    def updatePositionMark(self, xdata, ydata):
+    def updatePositionMark(self, xdata, ydata, scaled=False):
         """ updates the position mark
 
         :param xdata: x pixel position
         :type xdata: :obj:`float`
         :param ydata: y-pixel position
         :type ydata: :obj:`float`
+        :param scaled: scaled flag
+        :type scaled: :obj:`bool`
         """
         self.__markcoordinates = [xdata, ydata]
         pos0, pos1, scale0, scale1 = self._mainwidget.scale()
-        if pos0 is not None:
+        if pos0 is not None and not scaled:
             if not self._mainwidget.transformations()[0]:
                 self.__markVLine.setPos((xdata) * scale0 + pos0)
                 self.__markHLine.setPos((ydata) * scale1 + pos1)
