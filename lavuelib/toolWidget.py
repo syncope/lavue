@@ -7383,8 +7383,6 @@ class QROIProjToolWidget(ToolBaseWidget):
             self.updateGeometryTip()
             self._mainwidget.updateCenter(
                 self.__settings.centerx, self.__settings.centery)
-            if self.__plotindex:
-                self._mainwidget.emitReplotImage()
             self._mainwidget.emitTCC()
 
     @QtCore.pyqtSlot(int)
