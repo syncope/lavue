@@ -599,8 +599,8 @@ class MotorsToolWidget(ToolBaseWidget):
                     for attr in ["state", "position"]:
                         if not hasattr(motordevice, attr):
                             raise Exception("Missing %s" % attr)
-                    self.__xmotorname = motorname
-                    self.__xmotordevice = motordevice
+                    self.__ymotorname = motorname
+                    self.__ymotordevice = motordevice
                 except Exception as e:
                     logger.warning(str(e))
             if "x_position" in cnf.keys():
@@ -656,7 +656,7 @@ class MotorsToolWidget(ToolBaseWidget):
         """
         if self.__xfinal is not None and self.__yfinal is not None:
             self._mainwidget.updatePositionMark(
-                self.__xfinal, self.__yfinal)
+                self.__xfinal, self.__yfinal, True)
 
     @QtCore.pyqtSlot(float, float)
     def _updateFinal(self, xdata, ydata):
@@ -757,7 +757,7 @@ class MotorsToolWidget(ToolBaseWidget):
             self.__ui.yLineEdit.setFocus()
             return False
         self._mainwidget.updatePositionMark(
-            self.__xfinal, self.__yfinal)
+            self.__xfinal, self.__yfinal, True)
 
     def __moveMotors(self):
         """ move motors
@@ -1318,8 +1318,8 @@ class MeshToolWidget(ToolBaseWidget):
                     for attr in ["state", "position"]:
                         if not hasattr(motordevice, attr):
                             raise Exception("Missing %s" % attr)
-                    self.__xmotorname = motorname
-                    self.__xmotordevice = motordevice
+                    self.__ymotorname = motorname
+                    self.__ymotordevice = motordevice
                 except Exception as e:
                     logger.warning(str(e))
             pars = ["x_intervals", "y_intervals", "interval_time"]
@@ -1993,9 +1993,9 @@ class LineCutToolWidget(ToolBaseWidget):
                     # print(str(e))
             if "all_cuts" in cnf.keys():
                 self.__ui.allcutsCheckBox.setChecked(bool(cnf["all_cuts"]))
-            if "x_coordinate" in cnf.keys():
+            if "x_coordinates" in cnf.keys():
                 idxs = ["points", "x-pixels", "y-pixels"]
-                xcrd = str(cnf["x_coordinate"]).lower()
+                xcrd = str(cnf["x_coordinates"]).lower()
                 try:
                     idx = idxs.index(xcrd)
                 except Exception:
@@ -2009,7 +2009,7 @@ class LineCutToolWidget(ToolBaseWidget):
         :rtype configuration: :obj:`str`
         """
         cnf = {}
-        cnf["x_coordinate"] = str(
+        cnf["x_coordinates"] = str(
             self.__ui.xcoordsComboBox.currentText()).lower()
         cnf["all_cuts"] = self.__ui.allcutsCheckBox.isChecked()
         cnf["cuts_number"] = self.__ui.cutSpinBox.value()
