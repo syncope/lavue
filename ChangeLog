@@ -1,4 +1,4 @@
-2020-09-27 Jan Kotanski <jan.kotanski@desy.de>
+2020-09-29 Jan Kotanski <jan.kotanski@desy.de>
 	* fix for updating of toolconfig
 	* implement configuration for specialized tools
 	* add configuration path, organization and domain to command-line parameters

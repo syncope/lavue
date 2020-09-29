@@ -4236,8 +4236,14 @@ class DiffractogramToolWidget(ToolBaseWidget):
         cnf = {}
         cnf["calibration"] = self.__settings.calibrationfilename
         cnf["diff_number"] = self.__ui.diffSpinBox.value()
-        cnf["diff_ranges"] = [self.__azstart, self.__azend,
-                              self.__radstart, self.__radend]
+        ranges = []
+        for nip in range(cnf["diff_number"]):
+            azs = self.__azstart[nip] if len(self.__azstart) > nip else None
+            aze = self.__azend[nip] if len(self.__azend) > nip else None
+            rds = self.__radstart[nip] if len(self.__radstart) > nip else None
+            rde = self.__radend[nip] if len(self.__radend) > nip else None
+            ranges.append([azs, aze, rds, rde])
+        cnf["diff_ranges"] = ranges
         units = ["q [1/nm]", "q [1/A]", "2th [deg]", "2th [rad]",
                  "r [mm]", "r [pixel]"]
         idx = self.__ui.unitComboBox.currentIndex()
@@ -5191,20 +5197,26 @@ class DiffractogramToolWidget(ToolBaseWidget):
 
         :param ranges: list of [azimuth_start, azimuth_end,
                                 radial_start, radial_end]
-                       where each parameters is a list
-                       running over number of diffractograms
-        :type ranges: [:obj:`list` <:obj:`float`> ,
-                       :obj:`list` <:obj:`float`> ,
-                       :obj:`list` <:obj:`float`> ,
-                       :obj:`list` <:obj:`float`> ]
-
+                       elements for each diffractograms
+        :type ranges: :obj:`list` < [
+                           :obj:`float`, :obj:`float`,
+                           :obj:`float`, :obj:`float` ]>
         """
         nrplots = self.__ui.diffSpinBox.value()
         if nrplots:
-            self.__azstart = ranges[0]
-            self.__azend = ranges[1]
-            self.__radstart = ranges[2]
-            self.__radend = ranges[3]
+            azstart = []
+            azend = []
+            radstart = []
+            radend = []
+            for rn in ranges:
+                azstart.append(rn[0])
+                azend.append(rn[1])
+                radstart.append(rn[2])
+                radend.append(rn[3])
+            self.__azstart = azstart
+            self.__azend = azend
+            self.__radstart = radstart
+            self.__radend = radend
             self.__updateregion()
             self._resetAccu()
             self._mainwidget.emitTCC()
