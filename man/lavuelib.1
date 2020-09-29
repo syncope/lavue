@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Sep 17, 2020" "2.47" "lavuelib"
+.TH "LAVUELIB" "1" "Sep 29, 2020" "2.48" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -1854,7 +1854,7 @@ transposes Mark Position lines
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updatePositionMark(xdata, ydata)
+.B updatePositionMark(xdata, ydata, scaled=False)
 updates the position mark
 .INDENT 7.0
 .TP
@@ -1864,6 +1864,8 @@ updates the position mark
 \fBxdata\fP (\fI\%float\fP) – x pixel position
 .IP \(bu 2
 \fBydata\fP (\fI\%float\fP) – y\-pixel position
+.IP \(bu 2
+\fBscaled\fP (\fI\%bool\fP) – scaled flag
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5596,6 +5598,13 @@ sets auto range
 .UNINDENT
 .INDENT 7.0
 .TP
+.B axestext()
+return axes text
+:returns: x,y text
+:rtype: (\fI\%str\fP, \fI\%str\fP)
+.UNINDENT
+.INDENT 7.0
+.TP
 .B axesunits()
 return axes units
 :returns: x,y units
@@ -6075,6 +6084,22 @@ update Metadata informations
 .IP \(bu 2
 \fBrescale\fP (\fI\%True\fP) – rescale or select range window
 .UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateTicks(record)
+update Ticks values
+.INDENT 7.0
+.TP
+.B Parameters
+\fBrecord\fP (\fBdict\(ga<:obj:\(gastr\fP, \fIany\fP>) – dict record with the tick parameters:
+“position” : [x, y]
+“scale” : [sx, sy]
+“xtext” : xlabel
+“ytext” : ylabel
+“xunits” : xunits
+“yunits” : yunits
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7245,6 +7270,19 @@ sets auto range
 .UNINDENT
 .INDENT 7.0
 .TP
+.B axestext()
+return axes text
+.INDENT 7.0
+.TP
+.B Returns
+x,y text
+.TP
+.B Return type
+(\fI\%str\fP, \fI\%str\fP)
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B axesunits()
 return axes units
 .INDENT 7.0
@@ -7456,6 +7494,11 @@ emits cutCoordsChanged
 .TP
 .B emitReplotImage(autorange=True)
 emits replotImage
+.UNINDENT
+.INDENT 7.0
+.TP
+.B emitTCC()
+emits toolConfigurationChanged
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -8281,6 +8324,11 @@ JSON dictionary with tool configuration
 .UNINDENT
 .INDENT 7.0
 .TP
+.B toolConfigurationChanged
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) tool configuration changed signal
+.UNINDENT
+.INDENT 7.0
+.TP
 .B transformations()
 povides coordinates transformations
 .INDENT 7.0
@@ -8463,7 +8511,7 @@ updates the pixel y\-size
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updatePositionMark(xdata, ydata)
+.B updatePositionMark(xdata, ydata, scaled=False)
 updates the position mark
 .INDENT 7.0
 .TP
@@ -8473,6 +8521,8 @@ updates the position mark
 \fBxdata\fP (\fI\%float\fP) – x pixel position
 .IP \(bu 2
 \fBydata\fP (\fI\%float\fP) – y\-pixel position
+.IP \(bu 2
+\fBscaled\fP (\fI\%bool\fP) – scaled flag
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -8506,6 +8556,22 @@ update Ranges
 .IP \(bu 2
 \fBrid\fP (\fI\%int\fP) – region id
 .UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updateTicks(record)
+update Ticks values
+.INDENT 7.0
+.TP
+.B Parameters
+\fBrecord\fP (\fBdict\(ga<:obj:\(gastr\fP, \fIany\fP>) – dict record with the tick parameters:
+“position” : [x, y]
+“scale” : [sx, sy]
+“xtext” : xlabel
+“ytext” : ylabel
+“xunits” : xunits
+“yunits” : yunits
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -14014,6 +14080,29 @@ command after plot
 .UNINDENT
 .INDENT 7.0
 .TP
+.B configuration()
+provides configuration for the current tool
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current tool
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B name = \(aqIntensity\(aq
 (\fI\%str\fP) tool name
 .UNINDENT
@@ -14056,6 +14145,29 @@ activates tool widget
 .TP
 .B applyROIPressed
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) apply ROI pressed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configuration()
+provides configuration for the current tool
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current tool
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -14176,6 +14288,29 @@ command after plot
 .UNINDENT
 .INDENT 7.0
 .TP
+.B configuration()
+provides configuration for the current tool
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current tool
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B deactivate()
 activates tool widget
 .UNINDENT
@@ -14242,6 +14377,29 @@ command  before plot
 .UNINDENT
 .INDENT 7.0
 .TP
+.B configuration()
+provides configuration for the current tool
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current tool
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B deactivate()
 deactivates tool widget
 .UNINDENT
@@ -14297,6 +14455,29 @@ activates tool widget
 .UNINDENT
 .INDENT 7.0
 .TP
+.B configuration()
+provides configuration for the current tool
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current tool
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B name = \(aqMoveMotors\(aq
 (\fI\%str\fP) tool name
 .UNINDENT
@@ -14334,6 +14515,29 @@ activates tool widget
 .TP
 .B alias = \(aqmeshscan\(aq
 (\fI\%str\fP) tool name alias
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configuration()
+provides configuration for the current tool
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current tool
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -14503,6 +14707,29 @@ command after plot
 .UNINDENT
 .INDENT 7.0
 .TP
+.B configuration()
+provides configuration for the current tool
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current tool
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B deactivate()
 activates tool widget
 .UNINDENT
@@ -14569,6 +14796,29 @@ command  before plot
 .UNINDENT
 .INDENT 7.0
 .TP
+.B configuration()
+provides configuration for the current tool
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current tool
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B deactivate()
 deactivates tool widget
 .UNINDENT
@@ -14616,6 +14866,29 @@ activates tool widget
 .TP
 .B alias = \(aqparameters\(aq
 (\fI\%str\fP) tool name alias
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configuration()
+provides configuration for the current tool
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current tool
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -14691,6 +14964,29 @@ command  before plot
 .TP
 .B Return type
 (\fI\%numpy.ndarray\fP, \fI\%numpy.ndarray\fP)
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configuration()
+provides configuration for the current tool
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current tool
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -14800,6 +15096,29 @@ command after plot
 .TP
 .B applyROIPressed
 (\fBpyqtgraph.QtCore.pyqtSignal\fP) apply ROI pressed signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configuration()
+provides configuration for the current tool
+.INDENT 7.0
+.TP
+.B Returns configuration
+configuration string
+.TP
+.B Rtype configuration
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B configure(configuration)
+set configuration for the current tool
+.INDENT 7.0
+.TP
+.B Parameters
+\fBconfiguration\fP (\fI\%str\fP) – configuration string
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
