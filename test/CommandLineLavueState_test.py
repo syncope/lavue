@@ -592,7 +592,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
         toolcnf = {
             "calibration": ponifile,
             "diff_number": 2,
-            "diff_ranges": [[10, 0], [20, 30], [0, 5], [20, 15]],
+            "diff_ranges": [[10, 20, 0, 20], [0, 30, 5, 15]],
             "diff_units": "2th [deg]",
             "buffer_size": 512,
             "buffering": True,
@@ -660,6 +660,8 @@ class CommandLineLavueStateTest(unittest.TestCase):
         ls = json.loads(res2[0])
         tc1 = json.loads(ls["toolconfig"])
         tc2 = json.loads(cnf["toolconfig"])
+        # print(tc1)
+        # print(tc2)
         self.compareStates(tc1, tc2)
 
     def test_1dplot(self):
