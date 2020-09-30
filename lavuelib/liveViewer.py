@@ -649,6 +649,7 @@ class LiveViewer(QtGui.QDialog):
         self.__ui.cnfPushButton.clicked.connect(self._configuration)
         self.__ui.quitPushButton.clicked.connect(self.close)
         self.__ui.loadPushButton.clicked.connect(self._clickloadfile)
+        self.__ui.reloadPushButton.clicked.connect(self._pushreloadfile)
         self.__ui.helpPushButton.clicked.connect(self._showhelp)
         if self.__umode in ["user"]:
             self.__ui.cnfPushButton.hide()
@@ -656,6 +657,10 @@ class LiveViewer(QtGui.QDialog):
             icon = QtGui.QIcon.fromTheme("applications-system")
             self.__ui.cnfPushButton.setIcon(icon)
             self.__ui.cnfPushButton.setText("")
+        if QtGui.QIcon.hasThemeIcon("document-open-recent"):
+            icon = QtGui.QIcon.fromTheme("document-open-recent")
+            self.__ui.reloadPushButton.setIcon(icon)
+            self.__ui.reloadPushButton.setText("")
         if QtGui.QIcon.hasThemeIcon("document-open"):
             icon = QtGui.QIcon.fromTheme("document-open")
             self.__ui.loadPushButton.setIcon(icon)
@@ -1663,6 +1668,27 @@ class LiveViewer(QtGui.QDialog):
                 except Exception:
                     pass
                 time.sleep(0.1)
+        finally:
+            self.__reloadflag = False
+
+    @debugmethod
+    @QtCore.pyqtSlot()
+    def _pushreloadfile(self):
+        """ reloads the image file
+
+        :param fid: frame id
+        :type fid: :obj:`int` or :obj:`str`
+        :param showmessage: no image message
+        :type showmessage: :obj:`bool`
+         """
+        try:
+            self.__reloadflag = True
+            fid = self.__ui.frameLineEdit.text()
+            try:
+                fid = int(fid)
+                self._reloadfile(fid, True)
+            except Exception:
+                pass
         finally:
             self.__reloadflag = False
 
