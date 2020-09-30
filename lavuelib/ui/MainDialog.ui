@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>883</width>
+    <width>895</width>
     <height>52</height>
    </rect>
   </property>
@@ -33,7 +33,16 @@
       <layout class="QVBoxLayout" name="imageVerticalLayout">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -42,7 +51,7 @@
             <string>image or/and file name</string>
            </property>
            <property name="text">
-            <string>Image/File name: </string>
+            <string>&amp;Image/File name: </string>
            </property>
            <property name="buddy">
             <cstring>fileNameLineEdit</cstring>
@@ -187,7 +196,7 @@
          <item>
           <widget class="QLabel" name="framestepLabel">
            <property name="text">
-            <string>Step:</string>
+            <string>S&amp;tep:</string>
            </property>
            <property name="buddy">
             <cstring>framestepSpinBox</cstring>
@@ -245,6 +254,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="reloadPushButton">
+           <property name="text">
+            <string>Reload</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="helpPushButton">
            <property name="text">
             <string>Help</string>
@@ -288,6 +304,8 @@
   <tabstop>higherframePushButton</tabstop>
   <tabstop>framestepSpinBox</tabstop>
   <tabstop>loadPushButton</tabstop>
+  <tabstop>reloadPushButton</tabstop>
+  <tabstop>helpPushButton</tabstop>
   <tabstop>cnfPushButton</tabstop>
   <tabstop>quitPushButton</tabstop>
  </tabstops>
