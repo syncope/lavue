@@ -120,7 +120,8 @@ def main():
         help="Configuration path")
     parser.add_argument(
         "-f", "--image-file", dest="imagefile",
-        help="image file name to show")
+        help="image file name to show, e.g." 
+        " /tmp/myfile2.nxs://entry/data/pilatus,,-1")
     parser.add_argument(
         "-s", "--source", dest="source",
         help="image source(s), i.e. hidra, http, tangoattr,\n"

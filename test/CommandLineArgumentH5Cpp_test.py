@@ -40,7 +40,7 @@ from pyqtgraph import QtCore
 from pyqtgraph.Qt import QtTest
 
 from qtchecker.qtChecker import (
-    QtChecker, CmdCheck, WrapAttrCheck, AttrCheck)
+    QtChecker, CmdCheck, WrapAttrCheck, AttrCheck, ExtCmdCheck)
 
 
 #  Qt-application
@@ -76,6 +76,11 @@ class CommandLineArgumentH5CppTest(unittest.TestCase):
         home = os.path.expanduser("~")
         self.__cfgfdir = "%s/%s" % (home, ".config/DESY")
         self.__cfgfname = "%s/%s" % (self.__cfgfdir, "LaVue: unittests.conf")
+        self.__dialog = None
+        self.__counter = 0
+        self.__file = None
+        self.__datamn = None
+        self.__shape = None
 
     def setUp(self):
         print("\nsetting up...")
@@ -87,7 +92,22 @@ class CommandLineArgumentH5CppTest(unittest.TestCase):
     def tearDown(self):
         print("tearing down ...")
 
-    def __createdetfile(self, fname):
+    def closedetfile(self):
+        if self.__datamn is not None:
+            self.__datamn.close()
+        if self.__file is not None:
+            self.__file.close()
+
+    def takeNewImage(self):
+        global app
+        amn = np.random.randint(0, 1000, self.__shape)
+        self.__datamn.grow()
+        self.__datamn[-1, :, :] = amn
+        self.__file.flush()
+        self.__counter += 1
+        return amn
+
+    def createdetfile(self, fname):
         nx = 128
         ny = 256
         dshapemn = [nx, ny]
@@ -134,7 +154,10 @@ class CommandLineArgumentH5CppTest(unittest.TestCase):
             # print(amn.shape)
             datamn[i, :, :] = amn
             file2.flush()
-        file2.close()
+        self.__file = file2
+        self.__datamn = datamn
+        self.__shape = dshapemn
+        # file2.close()
 
     def test_geometry_file(self):
         fun = sys._getframe().f_code.co_name
@@ -143,7 +166,7 @@ class CommandLineArgumentH5CppTest(unittest.TestCase):
         self._fname = '%s/%s%s.nxs' % (
             os.getcwd(), self.__class__.__name__, fun)
         try:
-            self.__createdetfile(self._fname)
+            self.createdetfile(self._fname)
             cfg = '[Configuration]\n' \
                 'StoreGeometry=true\n' \
                 'GeometryFromSource=true\n' \
@@ -171,9 +194,9 @@ class CommandLineArgumentH5CppTest(unittest.TestCase):
             options = argparse.Namespace(
                 mode='expert',
                 source='test',
-                start=True,
                 tool='intensity',
                 transformation='flip-up-down',
+                # log='debug',
                 log='error',
                 instance='unittests',
                 imagefile='%s://entry/instrument/detector/data' % self._fname,
@@ -188,14 +211,8 @@ class CommandLineArgumentH5CppTest(unittest.TestCase):
             dialog = lavuelib.liveViewer.MainWindow(options=options)
             dialog.show()
 
-            qtck = QtChecker(app, dialog, True, sleep=1000)
-            qtck.setChecks([
-                CmdCheck(
-                    "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
-                WrapAttrCheck(
-                    "_MainWindow__lavue._LiveViewer__sourcewg"
-                    "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
-                    QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+            qtck1 = QtChecker(app, dialog, True, sleep=100)
+            qtck1.setChecks([
                 CmdCheck(
                     "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
                 AttrCheck(
@@ -222,15 +239,22 @@ class CommandLineArgumentH5CppTest(unittest.TestCase):
                     "_MainWindow__lavue._LiveViewer__settings.detponi1"),
                 AttrCheck(
                     "_MainWindow__lavue._LiveViewer__settings.detponi2"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+                ExtCmdCheck(self, "takeNewImage"),
             ])
 
-            status = qtck.executeChecksAndClose()
+            status = qtck1.executeChecksAndClose(delay=1000)
 
             self.assertEqual(status, 0)
-            qtck.compareResults(
+
+            qtck1.compareResults(
                 self,
                 [
-                    True, None, False,
+                    False,
+                    # None, False,
                     1140.,
                     1286,
                     126.2,
@@ -242,10 +266,186 @@ class CommandLineArgumentH5CppTest(unittest.TestCase):
                     65,
                     85,
                     0.125,
-                    0.25
-                ]
+                    0.25,
+                    None,
+                    None,
+                    None
+                ],
+                mask=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1]
             )
+
+            lastimage = np.ones(shape=self.__shape).T
+            lastimage.fill(1)
+
+            res1 = qtck1.results()
+            self.assertTrue(np.allclose(res1[13], lastimage))
+            self.assertTrue(np.allclose(res1[14], lastimage))
+
         finally:
+            self.closedetfile()
+            os.remove(self._fname)
+
+    def test_geometry_last(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        self._fname = '%s/%s%s.nxs' % (
+            os.getcwd(), self.__class__.__name__, fun)
+        try:
+            self.createdetfile(self._fname)
+            cfg = '[Configuration]\n' \
+                'StoreGeometry=true\n' \
+                'GeometryFromSource=true\n' \
+                '[Tools]\n' \
+                'CenterX=1141.5\n' \
+                'CenterY=1285.0\n' \
+                'CorrectSolidAngle=true\n' \
+                'DetectorDistance=162.75\n' \
+                'DetectorName=Eiger4M\n' \
+                'DetectorPONI1=0.125\n' \
+                'DetectorPONI2=0.25\n' \
+                'DetectorRot1=0.5\n' \
+                'DetectorRot2=0.125\n' \
+                'DetectorRot3=-0.25\n' \
+                'DetectorSplineFile=\n' \
+                'DiffractogramNPT=1000\n' \
+                'Energy=13450.\n' \
+                'PixelSizeX=75\n' \
+                'PixelSizeY=65\n'
+
+            if not os.path.exists(self.__cfgfdir):
+                os.makedirs(self.__cfgfdir)
+            with open(self.__cfgfname, "w+") as cf:
+                cf.write(cfg)
+            options = argparse.Namespace(
+                mode='expert',
+                source='test',
+                tool='intensity',
+                transformation='flip-up-down',
+                # log='debug',
+                log='error',
+                instance='unittests',
+                imagefile='%s://entry/instrument/detector/data,,-1'
+                % self._fname,
+                scaling='linear',
+                autofactor='1.3',
+                gradient='flame',
+            )
+            logging.basicConfig(
+                 format="%(levelname)s: %(message)s")
+            logger = logging.getLogger("lavue")
+            lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+            dialog = lavuelib.liveViewer.MainWindow(options=options)
+            dialog.show()
+
+            qtck1 = QtChecker(app, dialog, True, sleep=100)
+            qtck2 = QtChecker(app, dialog, True, sleep=100)
+            qtck3 = QtChecker(app, dialog, True, sleep=100)
+            qtck1.setChecks([
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+                AttrCheck(
+                    "_MainWindow__lavue._LiveViewer__settings.centerx"),
+                AttrCheck(
+                    "_MainWindow__lavue._LiveViewer__settings.centery"),
+                AttrCheck(
+                    "_MainWindow__lavue._LiveViewer__settings.detdistance"),
+                AttrCheck(
+                    "_MainWindow__lavue._LiveViewer__settings.detname"),
+                AttrCheck(
+                    "_MainWindow__lavue._LiveViewer__settings.detrot1"),
+                AttrCheck(
+                    "_MainWindow__lavue._LiveViewer__settings.detrot2"),
+                AttrCheck(
+                    "_MainWindow__lavue._LiveViewer__settings.detrot3"),
+                AttrCheck(
+                    "_MainWindow__lavue._LiveViewer__settings.energy"),
+                AttrCheck(
+                    "_MainWindow__lavue._LiveViewer__settings.pixelsizex"),
+                AttrCheck(
+                    "_MainWindow__lavue._LiveViewer__settings.pixelsizey"),
+                AttrCheck(
+                    "_MainWindow__lavue._LiveViewer__settings.detponi1"),
+                AttrCheck(
+                    "_MainWindow__lavue._LiveViewer__settings.detponi2"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+                ExtCmdCheck(self, "takeNewImage"),
+            ])
+            qtck2.setChecks([
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+                WrapAttrCheck(
+                    "_MainWindow__lavue._LiveViewer__ui.reloadPushButton",
+                    QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton])
+            ])
+            qtck3.setChecks([
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+                CmdCheck(
+                    "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ])
+
+            qtck1.executeChecks(delay=3000)
+            qtck2.executeChecks(delay=6000)
+            status = qtck3.executeChecksAndClose(delay=9000)
+
+            self.assertEqual(status, 0)
+
+            qtck1.compareResults(
+                self,
+                [
+                    False,
+                    # None, False,
+                    1140.,
+                    1286,
+                    126.2,
+                    "Eiger4M",
+                    0.5,
+                    0.125,
+                    -0.25,
+                    13776.021444444445,
+                    65,
+                    85,
+                    0.125,
+                    0.25,
+                    None,
+                    None,
+                    None
+                ],
+                mask=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1]
+            )
+
+            lastimage = np.ones(shape=self.__shape).T
+            lastimage.fill(10)
+            # lastimage.fill(1)
+
+            res1 = qtck1.results()
+            res2 = qtck2.results()
+            res3 = qtck3.results()
+            self.assertTrue(np.allclose(res1[13], lastimage))
+            self.assertTrue(np.allclose(res1[14], lastimage))
+
+            if not np.allclose(res2[0], lastimage):
+                print(res2[0])
+                print(lastimage)
+            self.assertTrue(np.allclose(res2[0], lastimage))
+            self.assertTrue(np.allclose(res2[1], lastimage))
+
+            lastimage2 = np.fliplr(res1[15].T)
+
+            if not np.allclose(res3[0], lastimage2):
+                print(res3[0])
+                print(lastimage2)
+            self.assertTrue(np.allclose(res3[0], lastimage2))
+            self.assertTrue(np.allclose(res3[1], lastimage2))
+
+        finally:
+            self.closedetfile()
             os.remove(self._fname)
 
     def test_nexusfile_imagesource_mbuffer(self):
@@ -255,7 +455,8 @@ class CommandLineArgumentH5CppTest(unittest.TestCase):
         self._fname = '%s/%s%s.nxs' % (
             os.getcwd(), self.__class__.__name__, fun)
         try:
-            self.__createdetfile(self._fname)
+            self.createdetfile(self._fname)
+            self.closedetfile()
             cfg = '[Configuration]\n' \
                 'StoreGeometry=true\n' \
                 'GeometryFromSource=true\n' \
@@ -397,7 +598,8 @@ class CommandLineArgumentH5CppTest(unittest.TestCase):
         self._fname = '%s/%s%s.nxs' % (
             os.getcwd(), self.__class__.__name__, fun)
         try:
-            self.__createdetfile(self._fname)
+            self.createdetfile(self._fname)
+            self.closedetfile()
             cfg = '[Configuration]\n' \
                 'StoreGeometry=true\n' \
                 'AccelerateBufferSum=true\n' \
@@ -540,7 +742,8 @@ class CommandLineArgumentH5CppTest(unittest.TestCase):
         self._fname = '%s/%s%s.nxs' % (
             os.getcwd(), self.__class__.__name__, fun)
         try:
-            self.__createdetfile(self._fname)
+            self.createdetfile(self._fname)
+            self.closedetfile()
             cfg = '[Configuration]\n' \
                 'StoreGeometry=true\n' \
                 'GeometryFromSource=true\n' \
