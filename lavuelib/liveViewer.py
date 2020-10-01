@@ -1269,13 +1269,25 @@ class LiveViewer(QtGui.QDialog):
             oldpath = self.__fieldpath
             oldgrowing = self.__growing
             try:
-                self.__settings.imagename = str(options.imagefile)
+                sfid = 0
+                self.__growing = 0
+                newname = str(options.imagefile)
+                if "," in newname:
+                    splname = newname.split(",")
+                    newname = splname[0]
+                    if splname[1]:
+                        try:
+                            self.__growing = int(splname[1])
+                        except Exception:
+                            pass
+                    if len(splname) > 2:
+                        sfid = splname[2].replace("m", "-")
+                self.__settings.imagename = newname
                 if ":/" in self.__settings.imagename:
                     self.__settings.imagename, self.__fieldpath =  \
                         self.__settings.imagename.split(":/", 1)
                 else:
                     self.__fieldpath = None
-                self.__growing = 0
                 imagename = self.__settings.imagename
                 if not imagename.endswith(".nxs") \
                    and not imagename.endswith(".h5") \
@@ -1284,7 +1296,10 @@ class LiveViewer(QtGui.QDialog):
                    and not imagename.endswith(".hdf"):
                     fid = self.__findfid(imagename)
                 else:
-                    fid = 0
+                    try:
+                        fid = int(sfid)
+                    except Exception:
+                        fid = 0
                 self._loadfile(fid=fid)
             except Exception:
                 self.__settings.imagename = oldname
