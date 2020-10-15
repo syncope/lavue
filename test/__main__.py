@@ -202,7 +202,7 @@ def main():
         "basic": [basicsuite],
         "tangosource": [tangosuite],
         "controller": [controllersuite],
-        "all": [basicsuite, tangosuite],
+        "all": [basicsuite, tangosuite, controllersuite],
     }
 
     # print(options.args)
