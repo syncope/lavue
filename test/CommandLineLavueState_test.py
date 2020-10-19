@@ -65,6 +65,21 @@ try:
 except Exception:
     from TestImageServerSetUp import TestImageServerSetUp
 
+try:
+    import PyTango
+    #: (:obj:`bool`) PyTango imported
+    PYTANGO = True
+    if hasattr(PyTango, "EnsureOmniThread"):
+        EnsureOmniThread = PyTango.EnsureOmniThread
+    else:
+        from lavuelib import cpplib
+        EnsureOmniThread = cpplib.EnsureOmniThread
+except ImportError:
+    #: (:obj:`bool`) PyTango imported
+    PYTANGO = False
+    EnsureOmniThread = None
+
+
 # Path
 path = os.path.join(os.path.dirname(__file__), os.pardir)
 sys.path.insert(0, os.path.abspath(path))
@@ -168,7 +183,19 @@ class CommandLineLavueStateTest(unittest.TestCase):
         self.__lcsu.proxy.LavueState = self.__lavuestate
 
     def getLavueStatePar(self):
-        return self.__lcsu.proxy.LavueState
+        try:
+            ls = self.__lcsu.proxy.LavueState
+            print("getLavueState")
+            os.system("ps -ef | grep DataBaseds | grep -v 'grep'")
+        except Exception as e:
+            print(str(e))
+            print("getLavueState EXCEPT")
+            os.system("ps -ef | grep DataBaseds | grep -v 'grep'")
+            db = PyTango.Database()
+            print(db.get_db_host())
+            dp = PyTango.DeviceProxy('test/lavuecontroller/00')
+            ls = dp.LavueState
+        return ls
 
     def setLavueStatePar(self, arg):
         self.__lcsu.proxy.LavueState = arg
@@ -197,7 +224,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
 
-        qtck = QtChecker(app, dialog, True)
+        qtck = QtChecker(app, dialog, True, withitem=EnsureOmniThread)
         qtck.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -234,7 +261,7 @@ class CommandLineLavueStateTest(unittest.TestCase):
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
 
-        qtck = QtChecker(app, dialog, True)
+        qtck = QtChecker(app, dialog, True, withitem=EnsureOmniThread)
         qtck.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -403,17 +430,28 @@ class CommandLineLavueStateTest(unittest.TestCase):
             cnf9["tool"] = "parameters"
             lavuestate9 = json.dumps(cnf9)
 
-            qtck1 = QtChecker(app, dialog, True, sleep=100)
-            qtck2 = QtChecker(app, dialog, True, sleep=100)
-            qtck3 = QtChecker(app, dialog, True, sleep=100)
-            qtck4 = QtChecker(app, dialog, True, sleep=100)
-            qtck5 = QtChecker(app, dialog, True, sleep=100)
-            qtck6 = QtChecker(app, dialog, True, sleep=100)
-            qtck7 = QtChecker(app, dialog, True, sleep=100)
-            qtck8 = QtChecker(app, dialog, True, sleep=100)
-            qtck9 = QtChecker(app, dialog, True, sleep=100)
-            qtck10 = QtChecker(app, dialog, True, sleep=100)
-            qtck11 = QtChecker(app, dialog, True, sleep=100)
+            qtck1 = QtChecker(app, dialog, True, sleep=100,
+                              withitem=EnsureOmniThread)
+            qtck2 = QtChecker(app, dialog, True, sleep=100,
+                              withitem=EnsureOmniThread)
+            qtck3 = QtChecker(app, dialog, True, sleep=100,
+                              withitem=EnsureOmniThread)
+            qtck4 = QtChecker(app, dialog, True, sleep=100,
+                              withitem=EnsureOmniThread)
+            qtck5 = QtChecker(app, dialog, True, sleep=100,
+                              withitem=EnsureOmniThread)
+            qtck6 = QtChecker(app, dialog, True, sleep=100,
+                              withitem=EnsureOmniThread)
+            qtck7 = QtChecker(app, dialog, True, sleep=100,
+                              withitem=EnsureOmniThread)
+            qtck8 = QtChecker(app, dialog, True, sleep=100,
+                              withitem=EnsureOmniThread)
+            qtck9 = QtChecker(app, dialog, True, sleep=100,
+                              withitem=EnsureOmniThread)
+            qtck10 = QtChecker(app, dialog, True, sleep=100,
+                               withitem=EnsureOmniThread)
+            qtck11 = QtChecker(app, dialog, True, sleep=100,
+                               withitem=EnsureOmniThread)
             qtck1.setChecks([
                 CmdCheck(
                     "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -616,9 +654,12 @@ class CommandLineLavueStateTest(unittest.TestCase):
         cnf["tool"] = "diffractogram"
         lavuestate1 = json.dumps(cnf)
 
-        qtck1 = QtChecker(app, dialog, True, sleep=100)
-        qtck2 = QtChecker(app, dialog, True, sleep=100)
-        qtck3 = QtChecker(app, dialog, True, sleep=100)
+        qtck1 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck2 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck3 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -738,11 +779,16 @@ class CommandLineLavueStateTest(unittest.TestCase):
         cnf4 = {"bkgfile": dfimagefile, "brightfieldfile": bfimagefile}
         lavuestate4 = json.dumps(cnf4)
 
-        qtck1 = QtChecker(app, dialog, True, sleep=100)
-        qtck2 = QtChecker(app, dialog, True, sleep=100)
-        qtck3 = QtChecker(app, dialog, True, sleep=100)
-        qtck4 = QtChecker(app, dialog, True, sleep=100)
-        qtck5 = QtChecker(app, dialog, True, sleep=100)
+        qtck1 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck2 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck3 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck4 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck5 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -939,9 +985,12 @@ class CommandLineLavueStateTest(unittest.TestCase):
         lavuestate2 = json.dumps(cnf2)
         lavuestate3 = json.dumps(cnf2)
 
-        qtck1 = QtChecker(app, dialog, True, sleep=100)
-        qtck2 = QtChecker(app, dialog, True, sleep=100)
-        qtck3 = QtChecker(app, dialog, True, sleep=100)
+        qtck1 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck2 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck3 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -1090,9 +1139,12 @@ class CommandLineLavueStateTest(unittest.TestCase):
         lavuestate2 = json.dumps(cnf2)
         lavuestate3 = json.dumps(cnf2)
 
-        qtck1 = QtChecker(app, dialog, True, sleep=100)
-        qtck2 = QtChecker(app, dialog, True, sleep=100)
-        qtck3 = QtChecker(app, dialog, True, sleep=100)
+        qtck1 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck2 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck3 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -1239,9 +1291,12 @@ class CommandLineLavueStateTest(unittest.TestCase):
         lavuestate2 = json.dumps(cnf2)
         lavuestate3 = json.dumps(cnf2)
 
-        qtck1 = QtChecker(app, dialog, True, sleep=100)
-        qtck2 = QtChecker(app, dialog, True, sleep=100)
-        qtck3 = QtChecker(app, dialog, True, sleep=100)
+        qtck1 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck2 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck3 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -1389,9 +1444,12 @@ class CommandLineLavueStateTest(unittest.TestCase):
         lavuestate2 = json.dumps(cnf2)
         lavuestate3 = json.dumps(cnf2)
 
-        qtck1 = QtChecker(app, dialog, True, sleep=100)
-        qtck2 = QtChecker(app, dialog, True, sleep=100)
-        qtck3 = QtChecker(app, dialog, True, sleep=100)
+        qtck1 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck2 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck3 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -1542,14 +1600,22 @@ class CommandLineLavueStateTest(unittest.TestCase):
         cnf7 = {"transformation": 'rot180+transpose'}
         lavuestate7 = json.dumps(cnf7)
 
-        qtck1 = QtChecker(app, dialog, True, sleep=100)
-        qtck2 = QtChecker(app, dialog, True, sleep=100)
-        qtck3 = QtChecker(app, dialog, True, sleep=100)
-        qtck4 = QtChecker(app, dialog, True, sleep=100)
-        qtck5 = QtChecker(app, dialog, True, sleep=100)
-        qtck6 = QtChecker(app, dialog, True, sleep=100)
-        qtck7 = QtChecker(app, dialog, True, sleep=100)
-        qtck8 = QtChecker(app, dialog, True, sleep=100)
+        qtck1 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck2 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck3 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck4 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck5 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck6 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck7 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck8 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -1784,14 +1850,22 @@ class CommandLineLavueStateTest(unittest.TestCase):
         cnf7 = {"transformation": 'rot180+transpose'}
         lavuestate7 = json.dumps(cnf7)
 
-        qtck1 = QtChecker(app, dialog, True, sleep=100)
-        qtck2 = QtChecker(app, dialog, True, sleep=100)
-        qtck3 = QtChecker(app, dialog, True, sleep=100)
-        qtck4 = QtChecker(app, dialog, True, sleep=100)
-        qtck5 = QtChecker(app, dialog, True, sleep=100)
-        qtck6 = QtChecker(app, dialog, True, sleep=100)
-        qtck7 = QtChecker(app, dialog, True, sleep=100)
-        qtck8 = QtChecker(app, dialog, True, sleep=100)
+        qtck1 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck2 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck3 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck4 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck5 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck6 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck7 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck8 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -1995,7 +2069,8 @@ class CommandLineLavueStateTest(unittest.TestCase):
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
 
-        qtck = QtChecker(app, dialog, True)
+        qtck = QtChecker(app, dialog, True,
+                         withitem=EnsureOmniThread)
         qtck.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -2064,7 +2139,8 @@ class CommandLineLavueStateTest(unittest.TestCase):
         dialog = lavuelib.liveViewer.MainWindow(options=options)
         dialog.show()
 
-        qtck = QtChecker(app, dialog, True)
+        qtck = QtChecker(app, dialog, True,
+                         withitem=EnsureOmniThread)
         qtck.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),

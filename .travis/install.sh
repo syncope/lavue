@@ -10,6 +10,9 @@ fi
 
 # workaround for a bug in debian9, i.e. starting mysql hangs
 docker exec -it --user root ndts service mysql stop
+if [ "$1" = "ubuntu20.04" ]; then
+    docker exec -it --user root ndts /bin/sh -c 'sudo usermod -d /var/lib/mysql/ mysql'
+fi
 docker exec -it --user root ndts /bin/sh -c '$(service mysql start &) && sleep 30'
 
 docker exec -it --user root ndts /bin/sh -c 'export DEBIAN_FRONTEND=noninteractive; apt-get -qq update; apt-get -qq install -y   tango-db tango-common; sleep 10'
@@ -18,7 +21,7 @@ then
     exit -1
 fi
 echo "install tango servers"
-docker exec -it --user root ndts /bin/sh -c 'export DEBIAN_FRONTEND=noninteractive;  apt-get -qq update; apt-get -qq install -y  tango-starter tango-test liblog4j1.2-java pyqt5-dev-tools'
+docker exec -it --user root ndts /bin/sh -c 'export DEBIAN_FRONTEND=noninteractive;  apt-get -qq update; apt-get -qq install -y  tango-starter tango-test liblog4j1.2-java pyqt5-dev-tools git'
 if [ "$?" -ne "0" ]
 then
     exit -1
@@ -46,11 +49,13 @@ fi
 if [ "$2" = "2" ]; then
     echo "install python-lavue"
     docker exec -it --user root ndts chown -R tango:tango .
-    docker exec -it --user root ndts python setup.py -q install
+    docker exec -it --user root ndts python setup.py build
+    docker exec -it --user root ndts python setup.py install
 else
     echo "install python3-lavue"
     docker exec -it --user root ndts chown -R tango:tango .
-    docker exec -it --user root ndts python3 setup.py -q install
+    docker exec -it --user root ndts python3 setup.py build
+    docker exec -it --user root ndts python3 setup.py install
 fi
 if [ "$?" -ne "0" ]
 then
