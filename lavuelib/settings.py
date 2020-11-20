@@ -192,6 +192,12 @@ class Settings(object):
         self.nxslast = False
         #: (:obj:`list` < :obj:`str`>) hidra detector server list
         self.detservers = "[]"
+        #: (:obj:`list` < :obj:`str`>) asapo server list
+        self.asaposervers = "[]"
+        #: (:obj:`str`) asapo token
+        self.asapotoken = ""
+        #: (:obj:`str`) asapo beamtime id
+        self.asapobeamtime = ""
         #: (:obj:`bool`) use default detector servers
         self.defdetservers = True
         #: (:obj:`bool`) store detector geometry
@@ -601,6 +607,26 @@ class Settings(object):
 
         qstval = \
             settings.value(
+                "Configuration/ASAPOServers", type=str)
+        if qstval:
+            try:
+                json.loads(qstval)
+                self.asaposervers = qstval
+            except Exception:
+                self.asaposervers = json.dumps([str(tp) for tp in qstval])
+        qstval = \
+            settings.value(
+                "Configuration/ASAPOToken", type=str)
+        if qstval:
+            self.asapotoken = str(qstval)
+        qstval = \
+            settings.value(
+                "Configuration/ASAPOBeamtime", type=str)
+        if qstval:
+            self.asapobeamtime = str(qstval)
+
+        qstval = \
+            settings.value(
                 "Configuration/HidraDetectorServers", type=str)
         if qstval:
             try:
@@ -969,6 +995,15 @@ class Settings(object):
         settings.setValue(
             "Configuration/ZMQStreamTopics",
             self.zmqtopics)
+        settings.setValue(
+            "Configuration/ASAPOServers",
+            self.asaposervers)
+        settings.setValue(
+            "Configuration/ASAPOToken",
+            self.asapotoken)
+        settings.setValue(
+            "Configuration/ASAPOBeamtime",
+            self.asapobeamtime)
         settings.setValue(
             "Configuration/HidraDetectorServers",
             self.detservers)

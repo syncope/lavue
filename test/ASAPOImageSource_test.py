@@ -31,8 +31,15 @@ import time
 import logging
 import numpy as np
 import fabio
-import threading
-from shutil import copyfile, rmtree
+
+try:
+    from . import asapo_consumer
+except Exception:
+    import asapo_consumer
+try:
+    from . import asapofake
+except Exception:
+    import asapofake
 
 import argparse
 import lavuelib
@@ -62,33 +69,26 @@ sys.path.insert(0, os.path.abspath(path))
 
 #: python3 running
 PY3 = (sys.version_info > (3,))
-if PY3:
-    from http.server import SimpleHTTPRequestHandler
-    from socketserver import TCPServer
-else:
-    from SimpleHTTPServer import SimpleHTTPRequestHandler
-    from SocketServer import TCPServer
 
 
-class TestHTTPServer(TCPServer):
+def tostr(x):
+    """ decode bytes to str
 
-    stopped = False
-    allow_reuse_address = True
-
-    def __init__(self, *args, **kw):
-        TCPServer.__init__(self, *args, **kw)
-
-    def run(self):
-        try:
-            self.serve_forever()
-        except KeyboardInterrupt:
-            pass
-        finally:
-            self.server_close()
+    :param x: string
+    :type x: :obj:`bytes`
+    :returns:  decode string in byte array
+    :rtype: :obj:`str`
+    """
+    if isinstance(x, str):
+        return x
+    if sys.version_info > (3,):
+        return str(x, "utf8")
+    else:
+        return str(x)
 
 
 # test fixture
-class httpImageSourceTest(unittest.TestCase):
+class ASAPOImageSourceTest(unittest.TestCase):
 
     def __init__(self, methodName):
         unittest.TestCase.__init__(self, methodName)
@@ -114,40 +114,19 @@ class httpImageSourceTest(unittest.TestCase):
         self.__tangoimgcounter = 0
         self.__tangofilepattern = "%05d.tif"
         self.__tangofilepath = ""
-        self.__server = None
-        self.__thread = None
-        self.__directory = "monitor/api/1.5.0/images"
+        print("ASAPO faked: %s" % asapofake.faked)
 
     def setUp(self):
         print("\nsetting up...")
         print("SEED = %s" % self.__seed)
         home = os.path.expanduser("~")
         fname = "%s/%s" % (home, ".config/DESY/LaVue: unittests.conf")
-        self.starthttpserver()
         if os.path.exists(fname):
             print("removing '%s'" % fname)
             os.remove(fname)
 
-    def starthttpserver(self):
-        import os
-        if not os.path.exists(self.__directory):
-            os.makedirs(self.__directory)
-        self.__server = TestHTTPServer(("", 8082), SimpleHTTPRequestHandler)
-
-        self.__thread = threading.Thread(None, self.__server.run)
-        self.__thread.start()
-
-    def stophttpserver(self):
-        if self.__server is not None:
-            self.__server.shutdown()
-        if self.__thread is not None:
-            self.__thread.join()
-        if self.__directory:
-            rmtree(self.__directory.split("/")[0])
-
     def tearDown(self):
         print("tearing down ...")
-        self.stophttpserver()
 
     def takeNewImage(self):
         global app
@@ -158,22 +137,23 @@ class httpImageSourceTest(unittest.TestCase):
         iname = \
             self.__tangofilepattern % self.__tangoimgcounter
         fname = os.path.join(ipath, iname)
-        copyfile(fname, os.path.join(self.__directory, "monitor"))
+        asapo_consumer.filename = fname
+        print("SET: %s" % asapo_consumer.filename)
         image = fabio.open(fname)
         li = image.data
         app.sendPostedEvents()
         return li
 
-    def test_readhttpimage(self):
+    def test_readimage_fromstart(self):
         fun = sys._getframe().f_code.co_name
         print("Run: %s.%s() " % (self.__class__.__name__, fun))
 
+        lastimage = None
         self.__tangoimgcounter = 0
         self.__tangofilepath = "%s/%s" % (os.path.abspath(path), "test/images")
         self.__tangofilepattern = "%05d.tif"
-        lastimage = None
-        # lastimage = self.takeNewImage().T
         cfg = '[Configuration]\n' \
+            'ASAPOServers="[\"haso.desy.de:8500\"]"\n' \
             'StoreGeometry=true\n' \
             'GeometryFromSource=true'
 
@@ -182,17 +162,19 @@ class httpImageSourceTest(unittest.TestCase):
         with open(self.__cfgfname, "w+") as cf:
             cf.write(cfg)
 
+        lastimage = None
+
         options = argparse.Namespace(
             mode='expert',
-            source='http',
-            configuration='localhost:8082/1.5.0',
+            source='asapo',
+            configuration='hasyla.desy.de:8500',
             # % self._fname,
             start=True,
             # levels="0,1000",
             tool='intensity',
             transformation='none',
-            log='debug',
             # log='error',
+            log='debug',
             instance='unittests',
             scaling='linear',
             gradient='spectrum',
@@ -207,8 +189,6 @@ class httpImageSourceTest(unittest.TestCase):
         qtck1 = QtChecker(app, dialog, True, sleep=100)
         qtck2 = QtChecker(app, dialog, True, sleep=100)
         qtck3 = QtChecker(app, dialog, True, sleep=100)
-        qtck4 = QtChecker(app, dialog, True, sleep=100)
-        qtck5 = QtChecker(app, dialog, True, sleep=100)
         qtck1.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
@@ -236,17 +216,13 @@ class httpImageSourceTest(unittest.TestCase):
                 "_MainWindow__lavue._LiveViewer__sourcewg"
                 "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
                 QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
-        ])
-        qtck4.setChecks([
             CmdCheck(
                 "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
         ])
 
-        qtck1.executeChecks(delay=3000)
-        qtck2.executeChecks(delay=10000)
-        qtck3.executeChecks(delay=17000)
-        qtck4.executeChecks(delay=24000)
-        status = qtck5.executeChecksAndClose(delay=28000)
+        qtck1.executeChecks(delay=1000)
+        qtck2.executeChecks(delay=2000)
+        status = qtck3.executeChecksAndClose(delay=3000)
 
         self.assertEqual(status, 0)
 
@@ -255,19 +231,17 @@ class httpImageSourceTest(unittest.TestCase):
         qtck2.compareResults(
             self, [True, None, None, None], mask=[0, 1, 1, 1])
         qtck3.compareResults(
-            self, [None, None, None], mask=[1, 1, 0])
-
-        qtck4.compareResults(self, [False])
+            self, [None, None, None, False], mask=[1, 1, 0, 0])
 
         res1 = qtck1.results()
         res2 = qtck2.results()
         res3 = qtck3.results()
-        self.assertEqual(res1[1], lastimage)
-        self.assertEqual(res1[2], lastimage)
+        self.assertEqual(res1[1], None)
+        self.assertEqual(res1[2], None)
 
         lastimage = res1[3].T
-        if not np.allclose(res2[2], lastimage):
-            print(res2[2])
+        if not np.allclose(res2[1], lastimage):
+            print(res2[1])
             print(lastimage)
         self.assertTrue(np.allclose(res2[1], lastimage))
         self.assertTrue(np.allclose(res2[2], lastimage))
