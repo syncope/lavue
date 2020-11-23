@@ -198,6 +198,10 @@ class Settings(object):
         self.asapotoken = ""
         #: (:obj:`str`) asapo beamtime id
         self.asapobeamtime = ""
+        #: (:obj:`list` < :obj:`str` > ) asapo substreams
+        self.asaposubstreams = []
+        #: (:obj:`bool`) automatic asapo substream names
+        self.autoasaposubstreams = False
         #: (:obj:`bool`) use default detector servers
         self.defdetservers = True
         #: (:obj:`bool`) store detector geometry
@@ -607,6 +611,12 @@ class Settings(object):
 
         qstval = \
             settings.value(
+                "Configuration/ASAPOSubstreams", type=str)
+        if qstval:
+            self.asaposubstreams = [str(tp) for tp in qstval]
+
+        qstval = \
+            settings.value(
                 "Configuration/ASAPOServers", type=str)
         if qstval:
             try:
@@ -645,6 +655,12 @@ class Settings(object):
             "Configuration/AutoZMQStreamTopics", type=str))
         if qstval.lower() == "true":
             self.autozmqtopics = True
+
+        qstval = str(settings.value(
+            "Configuration/ASAPOAutoSubstreams", type=str))
+        if qstval.lower() == "true":
+            self.autoasaposubstreams = True
+
         qstval = str(
             settings.value("Configuration/DirectoryTranslation", type=str))
         if qstval:
@@ -996,6 +1012,9 @@ class Settings(object):
             "Configuration/ZMQStreamTopics",
             self.zmqtopics)
         settings.setValue(
+            "Configuration/ASAPOSubstreams",
+            self.asaposubstreams)
+        settings.setValue(
             "Configuration/ASAPOServers",
             self.asaposervers)
         settings.setValue(
@@ -1004,6 +1023,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/ASAPOBeamtime",
             self.asapobeamtime)
+        settings.setValue(
+            "Configuration/ASAPOAutoSubstreams",
+            self.autoasaposubstreams)
         settings.setValue(
             "Configuration/HidraDetectorServers",
             self.detservers)
