@@ -1489,8 +1489,9 @@ class ASAPOSource(BaseSource):
         """
         if self._configuration != configuration:
             try:
-                (self.__server, self.__stream, self.__substream, self.__token,
-                 self.__beamtime) = str(configuration).split(",", 5)
+                (self.__server, self.__stream,
+                 self.__substream, self.__beamtime,
+                 self.__token) = str(configuration).split(",", 5)
                 self.__lastname = ""
                 self.__lastid = ""
                 self.__subcounter = 0
@@ -1517,8 +1518,12 @@ class ASAPOSource(BaseSource):
             self.connect()
             connected = True
         if self.__broker is not None:
-            substreams = self.__broker.get_substream_list()
-            self.__substreams = substreams
+            try:
+                substreams = self.__broker.get_substream_list()
+            except Exception as e:
+                logger.warning(str(e))
+            if substreams:
+                self.__substreams = substreams
         if connected:
             self.disconnect()
 
@@ -1638,7 +1643,7 @@ class ASAPOSource(BaseSource):
 
         if metadata is not None and data is not None:
             # print("data", str(data)[:10])
-
+            print(data.dtype)
             if data[:10] == "###CBF: VE":
                 # print("[cbf source module]::metadata", metadata["filename"])
                 logger.info(
