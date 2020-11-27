@@ -154,11 +154,10 @@ class ASAPOImageSourceTest(unittest.TestCase):
         self.__tangofilepattern = "%05d.tif"
         asapo_consumer.filename = ""
         cfg = '[Configuration]\n' \
-            'ASAPOServers="[\"haso.desy.de:8500\"]"\n' \
+            'ASAPOServer="haso.desy.de:8500"\n' \
             'ASAPOToken=2asaldskjsalkdjflsakjflksj \n' \
             'ASAPOBeamtime=123124 \n' \
-            'ASAPOSubstreams=sub1, sub2\n' \
-            'ASAPOAutoSubstreams=false\n' \
+            'ASAPOStreams=detector, \n' \
             'StoreGeometry=true\n' \
             'GeometryFromSource=true'
 
@@ -172,7 +171,7 @@ class ASAPOImageSourceTest(unittest.TestCase):
         options = argparse.Namespace(
             mode='expert',
             source='asapo',
-            configuration='hasyla.desy.de:8500',
+            configuration=None,
             # % self._fname,
             start=True,
             # levels="0,1000",
@@ -264,8 +263,8 @@ class ASAPOImageSourceTest(unittest.TestCase):
             iid = int(fnames[1][:-1])
         except Exception:
             iid = -1
-        self.assertTrue(iid > 1000)
-        self.assertTrue(iid < 2000)
+        self.assertTrue(iid > 11000)
+        self.assertTrue(iid < 12000)
         self.assertEqual(fnames[0].strip(), "00001.tif")
 
         lastimage = res2[4].T
@@ -282,8 +281,8 @@ class ASAPOImageSourceTest(unittest.TestCase):
             iid = int(fnames[1][:-1])
         except Exception:
             iid = -1
-        self.assertTrue(iid > 1000)
-        self.assertTrue(iid < 2000)
+        self.assertTrue(iid > 11000)
+        self.assertTrue(iid < 12000)
         self.assertEqual(fnames[0].strip(), "00002.tif")
 
     def test_readimage_substream(self):
@@ -296,11 +295,10 @@ class ASAPOImageSourceTest(unittest.TestCase):
         self.__tangofilepath = "%s/%s" % (os.path.abspath(path), "test/images")
         self.__tangofilepattern = "%05d.tif"
         cfg = '[Configuration]\n' \
-            'ASAPOServers="[\"haso.desy.de:8500\"]"\n' \
+            'ASAPOServer="haso.desy.de:8500"\n' \
             'ASAPOToken=2asaldskjsalkdjflsakjflksj \n' \
             'ASAPOBeamtime=123124 \n' \
-            'ASAPOSubstreams=sub1, sub2\n' \
-            'ASAPOAutoSubstreams=false\n' \
+            'ASAPOStreams=detector, \n' \
             'StoreGeometry=true\n' \
             'GeometryFromSource=true'
 
@@ -314,7 +312,7 @@ class ASAPOImageSourceTest(unittest.TestCase):
         options = argparse.Namespace(
             mode='expert',
             source='asapo',
-            configuration='hasyla.desy.de:8500,sub1',
+            configuration='pilatus,stream1',
             # % self._fname,
             start=True,
             # levels="0,1000",
@@ -406,8 +404,8 @@ class ASAPOImageSourceTest(unittest.TestCase):
             iid = int(fnames[1][:-1])
         except Exception:
             iid = -1
-        self.assertTrue(iid > 2000)
-        self.assertTrue(iid < 3000)
+        self.assertTrue(iid > 24000)
+        self.assertTrue(iid < 25000)
         self.assertEqual(fnames[0].strip(), "00001.tif")
 
         lastimage = res2[4].T
@@ -424,8 +422,8 @@ class ASAPOImageSourceTest(unittest.TestCase):
             iid = int(fnames[1][:-1])
         except Exception:
             iid = -1
-        self.assertTrue(iid > 2000)
-        self.assertTrue(iid < 3000)
+        self.assertTrue(iid > 24000)
+        self.assertTrue(iid < 25000)
         self.assertEqual(fnames[0].strip(), "00002.tif")
 
     def test_readimage_autosubstream(self):
@@ -438,11 +436,10 @@ class ASAPOImageSourceTest(unittest.TestCase):
         self.__tangofilepath = "%s/%s" % (os.path.abspath(path), "test/images")
         self.__tangofilepattern = "%05d.tif"
         cfg = '[Configuration]\n' \
-            'ASAPOServers="[\"haso.desy.de:8500\"]"\n' \
+            'ASAPOServer="haso.desy.de:8500"\n' \
             'ASAPOToken=2asaldskjsalkdjflsakjflksj \n' \
             'ASAPOBeamtime=123124 \n' \
-            'ASAPOSubstreams=sub1, sub2\n' \
-            'ASAPOAutoSubstreams=true\n' \
+            'ASAPOStreams=detector, \n' \
             'StoreGeometry=true\n' \
             'GeometryFromSource=true'
 
@@ -456,14 +453,14 @@ class ASAPOImageSourceTest(unittest.TestCase):
         options = argparse.Namespace(
             mode='expert',
             source='asapo',
-            configuration='hasyla.desy.de:8500,stream2',
+            configuration='detector,**ALL**',
             # % self._fname,
             start=True,
             # levels="0,1000",
             tool='intensity',
             transformation='none',
-            # log='error',
-            log='debug',
+            log='error',
+            # log='debug',
             instance='unittests',
             scaling='linear',
             gradient='spectrum',
@@ -548,8 +545,8 @@ class ASAPOImageSourceTest(unittest.TestCase):
             iid = int(fnames[1][:-1])
         except Exception:
             iid = -1
-        self.assertTrue(iid > 5000)
-        self.assertTrue(iid < 6000)
+        self.assertTrue(iid > 15000)
+        self.assertTrue(iid < 16000)
         self.assertEqual(fnames[0].strip(), "00001.tif")
 
         lastimage = res2[4].T
@@ -566,8 +563,8 @@ class ASAPOImageSourceTest(unittest.TestCase):
             iid = int(fnames[1][:-1])
         except Exception:
             iid = -1
-        self.assertTrue(iid > 5000)
-        self.assertTrue(iid < 6000)
+        self.assertTrue(iid > 15000)
+        self.assertTrue(iid < 16000)
         self.assertEqual(fnames[0].strip(), "00002.tif")
 
 

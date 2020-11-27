@@ -371,11 +371,12 @@ class NXSFileSource(BaseSource):
         if self._configuration != configuration:
             self._configuration = configuration
             self._initiated = False
-            params = str(
-                    self._configuration).strip().split(",")
             try:
+                params = str(
+                    configuration).strip().split(",")
                 self.__lastframe = int(params[2])
-            except Exception:
+            except Exception as e:
+                logger.warning(str(e))
                 self.__lastframe = -1
 
     @debugmethod
@@ -1452,8 +1453,12 @@ class ASAPOSource(BaseSource):
         self.__beamtime = ""
         #: (:obj:`str`) asapo server
         self.__server = ""
+        #: (:obj:`str`) stream
+        self.__stream = ""
         #: (:obj:`str`) substream
         self.__substream = ""
+        #: (:obj:`str`) substream
+        self.__substreams = []
         #: (:obj:`str`) last name
         self.__lastname = ""
         #: (:obj:`str`) last name
@@ -1468,6 +1473,12 @@ class ASAPOSource(BaseSource):
         self.__mutex = QtCore.QMutex()
         #: (:obj:`bool`) use tiff loader
         self.__tiffloader = False
+        #: (:obj:`int`) counter
+        self.__subcounter = 0
+        #: (:obj:`int`) counter max
+        self.__subcntmax = 10
+        #: (:obj:`str`) counter max
+        self.__lastjsubmeta = None
 
     @debugmethod
     def setConfiguration(self, configuration):
@@ -1478,10 +1489,13 @@ class ASAPOSource(BaseSource):
         """
         if self._configuration != configuration:
             try:
-                self.__server, self.__token, self.__beamtime, \
-                    self.__substream = str(configuration).split()
+                (self.__server, self.__stream, self.__substream, self.__token,
+                 self.__beamtime) = str(configuration).split(",", 5)
                 self.__lastname = ""
                 self.__lastid = ""
+                self.__subcounter = 0
+                self.__lastjsubmeta = None
+                self._configuration = configuration
             except Exception as e:
                 logger.warning(str(e))
                 # print(str(e))
@@ -1504,11 +1518,12 @@ class ASAPOSource(BaseSource):
             connected = True
         if self.__broker is not None:
             substreams = self.__broker.get_substream_list()
+            self.__substreams = substreams
         if connected:
             self.disconnect()
 
         if substreams:
-            meta["substreams"] = substreams
+            meta["asaposubstreams"] = substreams
         return meta
 
     @debugmethod
@@ -1521,12 +1536,14 @@ class ASAPOSource(BaseSource):
             with QtCore.QMutexLocker(self.__mutex):
                 if self.__server and self.__beamtime and self.__token:
                     self.__broker = asapo_consumer.create_server_broker(
-                        self.__server, "", False, self.__beamtime, "",
-                        self.__token, 60000)
+                        self.__server, "", False, self.__beamtime,
+                        self.__stream, self.__token, 60000)
                     self.__group_id = self.__broker.generate_group_id()
                     self._initiated = True
                     self.__lastname = ""
                     self.__lastid = ""
+                    self.__lastjsubmeta = None
+                    self.__subcounter = 0
 
             # print("BORKER %s" % self.__broker)
             logger.info(
@@ -1570,22 +1587,41 @@ class ASAPOSource(BaseSource):
         if not self._initiated:
             return None, None, None
         imagename = ""
+        submeta = {}
+        jsubmeta = None
         try:
             with QtCore.QMutexLocker(self.__mutex):
                 check = True
+                if self.__subcounter == 0:
+                    submeta = self.getMetaData()
+                    if submeta:
+                        jsubmeta = json.dumps(submeta)
+                        if jsubmeta == self.__lastjsubmeta:
+                            jsubmeta = None
+                        else:
+                            self.__lastjsubmeta = jsubmeta
+                self.__subcounter += 1
+                if self.__subcntmax == self.__subcounter:
+                    self.__subcounter = 0
+
+                substream = self.__substream or "default"
+                if self.__substream == "**ALL**" and self.__substreams:
+                    substream = self.__substreams[-1]
+
                 if self.__lastid and self.__lastname:
                     _, metadata = self.__broker.get_last(
-                        self.__group_id,
-                        substream=(self.__substream or "default"),
-                        meta_only=True)
+                        self.__group_id, substream=substream, meta_only=True)
                     curname, curid = metadata["name"], metadata["_id"]
                     if curname == self.__lastname and curid == self.__lastid:
                         check = False
                 if not check:
+                    if jsubmeta:
+                        return "", "", jsubmeta
                     return None, None, None
+
                 data, metadata = self.__broker.get_last(
                     self.__group_id,
-                    substream=(self.__substream or "default"),
+                    substream=substream,
                     meta_only=False)
                 # data, metadata = self.__broker.get_next(
                 #     self.__group_id, meta_only=False)
@@ -1611,9 +1647,11 @@ class ASAPOSource(BaseSource):
                 npdata = np.fromstring(data[:], dtype=np.uint8)
                 img = imageFileHandler.CBFLoader().load(npdata)
 
-                mdata = imageFileHandler.CBFLoader().metadata(npdata)
+                mdata = imageFileHandler.CBFLoader().metadata(npdata, submeta)
 
                 if hasattr(img, "size") and img.size == 0:
+                    if jsubmeta:
+                        return "", "", jsubmeta
                     return None, None, None
                 return np.transpose(img), imagename, mdata
             else:
@@ -1630,20 +1668,25 @@ class ASAPOSource(BaseSource):
                             np.fromstring(data[:], dtype=np.uint8))
                         self.__tiffloader = True
                     if hasattr(img, "size") and img.size == 0:
+                        if jsubmeta:
+                            return "", "", jsubmeta
                         return None, None, None
                     if img is not None:
-                        return np.transpose(img), imagename, ""
+                        return np.transpose(img), imagename, jsubmeta
                 else:
                     img = imageFileHandler.TIFLoader().load(
                         np.fromstring(data[:], dtype=np.uint8))
                     if hasattr(img, "size") and img.size == 0:
+                        if jsubmeta:
+                            return "", "", jsubmeta
                         return None, None, None
                     if img is not None:
-                        return np.transpose(img), imagename, ""
-            # else:
+                        return np.transpose(img), imagename, jsubmeta
             #     print(
             #       "[unknown source module]::metadata", metadata["name"])
         else:
+            if jsubmeta:
+                return "", "", jsubmeta
             return None, None, None
 
 
@@ -1688,7 +1731,7 @@ class HiDRASource(BaseSource):
         if self._configuration != configuration:
             try:
                 self.__shost, self.__targetname, self.__portnumber \
-                    = str(configuration).split()
+                    = str(configuration).split(",")
             except Exception:
                 self._initiated = False
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -2079,6 +2122,10 @@ class TinePropSource(BaseSource):
         :type configuration: :obj:`str`
         """
         if self._configuration != configuration:
-            self._configuration = configuration
-            self.__address, self.__prop = str(
-                self._configuration).rsplit("/", 1)
+            try:
+                self.__address, self.__prop = str(
+                    configuration).rsplit("/", 1)
+                self._configuration = configuration
+            except Exception as e:
+                print(str(e))
+                logger.warning(str(e))

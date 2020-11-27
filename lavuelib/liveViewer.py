@@ -378,7 +378,7 @@ class LiveViewer(QtGui.QDialog):
         self.__targetname = socket.getfqdn()
 
         #: (:obj:`list` < :obj:`str` > ) allowed source metadata
-        self.__allowedmdata = ["datasources"]
+        self.__allowedmdata = ["datasources", "asaposubstreams"]
         #: (:obj:`list` < :obj:`str` > ) allowed widget metadata
         self.__allowedwgdata = ["axisscales", "axislabels"]
 
@@ -644,7 +644,6 @@ class LiveViewer(QtGui.QDialog):
         self.__scalingwg.simpleScalingChanged.connect(self._plot)
         self.__scalingwg.scalingChanged.connect(
             self._setScalingState)
-
         # signal from limit setting widget
         self.__levelswg.minLevelChanged.connect(self._setMinLevelState)
         self.__levelswg.maxLevelChanged.connect(self._setMaxLevelState)
@@ -657,6 +656,7 @@ class LiveViewer(QtGui.QDialog):
         self.__ui.loadPushButton.clicked.connect(self._clickloadfile)
         self.__ui.reloadPushButton.clicked.connect(self._pushreloadfile)
         self.__ui.helpPushButton.clicked.connect(self._showhelp)
+
         if self.__umode in ["user"]:
             self.__ui.cnfPushButton.hide()
         if QtGui.QIcon.hasThemeIcon("applications-system"):
@@ -1187,10 +1187,9 @@ class LiveViewer(QtGui.QDialog):
             tineprops=self.__settings.tineprops,
             epicspvnames=self.__settings.epicspvnames,
             epicspvshapes=self.__settings.epicspvshapes,
-            asaposervers=json.loads(self.__settings.asaposervers or "[]"),
+            asaposerver=self.__settings.asaposerver,
             asapotoken=self.__settings.asapotoken,
-            asaposubstreams=self.__settings.asaposubstreams,
-            autoasaposubstreams=self.__settings.autoasaposubstreams,
+            asapostreams=self.__settings.asapostreams,
             asapobeamtime=self.__settings.asapobeamtime
         )
         self._updateSource(-1, -1)
@@ -1661,6 +1660,15 @@ class LiveViewer(QtGui.QDialog):
         :type event:  :class:`pyqtgraph.QtCore.QEvent`:
         """
         if not self.__closing:
+            self.__sourcewg.sourceStateChanged.disconnect(
+                self._updateSource)
+            self.__sourcewg.sourceChanged.disconnect(
+                self._onSourceChanged)
+            self.__sourcewg.sourceConnected.disconnect(
+                self._connectSource)
+            self.__sourcewg.sourceDisconnected.disconnect(
+                self._disconnectSource)
+
             if self.__imagewg:
                 self.__imagewg.disconnecttool()
             if self.__tangoclient:
@@ -1677,7 +1685,7 @@ class LiveViewer(QtGui.QDialog):
 
             if self.__sourcewg.isConnected():
                 self.__sourcewg.toggleServerConnection()
-            self._disconnectSource()
+            self.__disconnectSource()
             for df in self.__dataFetchers:
                 df.stop()
                 df.wait()
@@ -2148,11 +2156,10 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.availimagesources = self.__allsourcealiases
         cnfdlg.availtoolwidgets = self.__alltoolaliases
         cnfdlg.defdetservers = self.__settings.defdetservers
-        cnfdlg.asaposervers = self.__settings.asaposervers
+        cnfdlg.asaposerver = self.__settings.asaposerver
         cnfdlg.asapotoken = self.__settings.asapotoken
         cnfdlg.asapobeamtime = self.__settings.asapobeamtime
-        cnfdlg.asaposubstreams = self.__settings.asaposubstreams
-        cnfdlg.autoasaposubstreams = self.__settings.autoasaposubstreams
+        cnfdlg.asapostreams = self.__settings.asapostreams
         cnfdlg.detservers = json.dumps(self.__mergeDetServers(
             HIDRASERVERLIST if cnfdlg.defdetservers else {"pool": []},
             json.loads(self.__settings.detservers)))
@@ -2369,8 +2376,8 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.zmqtopics != dialog.zmqtopics:
             self.__settings.zmqtopics = dialog.zmqtopics
             setsrc = True
-        if self.__settings.asaposubstreams != dialog.asaposubstreams:
-            self.__settings.asaposubstreams = dialog.asaposubstreams
+        if self.__settings.asapostreams != dialog.asapostreams:
+            self.__settings.asapostreams = dialog.asapostreams
             setsrc = True
         if self.__settings.defdetservers != dialog.defdetservers:
             self.__settings.defdetservers = dialog.defdetservers
@@ -2381,17 +2388,14 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.detservers != detservers:
             self.__settings.detservers = detservers
             setsrc = True
-        if self.__settings.asaposervers != dialog.asaposervers:
-            self.__settings.asaposervers = dialog.asaposervers
+        if self.__settings.asaposerver != dialog.asaposerver:
+            self.__settings.asaposerver = dialog.asaposerver
             setsrc = True
         if self.__settings.asapotoken != dialog.asapotoken:
             self.__settings.asapotoken = dialog.asapotoken
             setsrc = True
         if self.__settings.asapobeamtime != dialog.asapobeamtime:
             self.__settings.asapobeamtime = dialog.asapobeamtime
-            setsrc = True
-        if self.__settings.autoasaposubstreams != dialog.autoasaposubstreams:
-            self.__settings.autoasaposubstreams = dialog.autoasaposubstreams
             setsrc = True
         if self.__settings.autozmqtopics != dialog.autozmqtopics:
             self.__settings.autozmqtopics = dialog.autozmqtopics
@@ -2618,6 +2622,8 @@ class LiveViewer(QtGui.QDialog):
                 if ds != str(type(self.__datasources[i]).__name__):
                     self.__datasources[i] = getattr(
                         isr, ds)(self.__settings.timeout)
+        self._setSourceConfiguration()
+        for i, ds in enumerate(dss):
             self.__sourcewg.updateSourceMetaData(
                 i, **self.__datasources[i].getMetaData())
         dssa = ";".join(self.__sourcewg.currentDataSourceAlias())
@@ -2868,6 +2874,15 @@ class LiveViewer(QtGui.QDialog):
     def _disconnectSource(self):
         """ calls the disconnect function of the source interface
         """
+        self.__disconnectSource()
+        self._updateSource(0, -1)
+        self.__setSourceLabel()
+        self.setLavueState({"connected": self.__sourcewg.isConnected()})
+        # self.__datasources[0] = None
+
+    def __disconnectSource(self):
+        """ calls the disconnect function of the source interface
+        """
         self._stopPlotting()
         for ds in self.__datasources:
             ds.disconnect()
@@ -2875,15 +2890,13 @@ class LiveViewer(QtGui.QDialog):
         if self.__settings.secstream:
             calctime = time.time()
             messagedata = {
-                'command': 'stop', 'calctime': calctime, 'pid': self.__apppid}
+                'command': 'stop',
+                'calctime': calctime,
+                'pid': self.__apppid}
             # print(str(messagedata))
             topic = 10001
             self.__settings.secsocket.send_string("%d %s" % (
                 topic, str(json.dumps(messagedata)).encode("ascii")))
-        self._updateSource(0, -1)
-        self.__setSourceLabel()
-        self.setLavueState({"connected": self.__sourcewg.isConnected()})
-        # self.__datasources[0] = None
 
     # @debugmethod
     def __mergeData(self, fulldata, oldname, channels=False):
