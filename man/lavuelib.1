@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Nov 29, 2020" "2.52" "lavuelib"
+.TH "LAVUELIB" "1" "Dec 01, 2020" "2.52" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -285,7 +285,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiguration\fP (\fI\%str\fP) \-\- JSON list with horizontal gap pixels to add
+\fBconfiguration\fP (\fI\%str\fP) – JSON list with horizontal gap pixels to add
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -299,7 +299,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiguration\fP (\fI\%str\fP) \-\- JSON list with vertical gap pixels to add
+\fBconfiguration\fP (\fI\%str\fP) – JSON list with vertical gap pixels to add
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -311,13 +311,13 @@ rotate image by 45 deg
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBimage\fP (\fI\%numpy.ndarray\fP) \-\- numpy array with an image
+\fBimage\fP (\fI\%numpy.ndarray\fP) – numpy array with an image
 .IP \(bu 2
-\fBimagename\fP (\fI\%str\fP) \-\- image name
+\fBimagename\fP (\fI\%str\fP) – image name
 .IP \(bu 2
-\fBmetadata\fP (\fI\%str\fP) \-\- JSON dictionary with metadata
+\fBmetadata\fP (\fI\%str\fP) – JSON dictionary with metadata
 .IP \(bu 2
-\fBimagewg\fP (\fBlavuelib.imageWidget.ImageWidget\fP) \-\- image wigdet
+\fBimagewg\fP (\fBlavuelib.imageWidget.ImageWidget\fP) – image wigdet
 .UNINDENT
 .TP
 .B Returns
@@ -1277,7 +1277,7 @@ provides read flag
 .UNINDENT
 .INDENT 7.0
 .TP
-.B isRunning()
+.B isFetching()
 is datasource source connected
 .INDENT 7.0
 .TP
@@ -6583,7 +6583,7 @@ image data
 set of image sources
 .INDENT 0.0
 .TP
-.B lavuelib.imageSource.ASAPO = False
+.B lavuelib.imageSource.ASAPO = True
 (\fI\%bool\fP) asapo imported
 .UNINDENT
 .INDENT 0.0
@@ -6825,7 +6825,7 @@ image name, image data, json dictionary with metadata
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageSource.HIDRA = False
+.B lavuelib.imageSource.HIDRA = True
 (\fI\%bool\fP) hidra imported
 .UNINDENT
 .INDENT 0.0
@@ -6977,7 +6977,7 @@ set configuration
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageSource.PYTINE = False
+.B lavuelib.imageSource.PYTINE = True
 (\fI\%bool\fP) PyTine imported
 .UNINDENT
 .INDENT 0.0
@@ -9699,7 +9699,7 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
-.B isRunning()
+.B isWatching()
 is datasource source connected
 .INDENT 7.0
 .TP
@@ -9746,7 +9746,7 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
-.B isRunning()
+.B isWatching()
 is datasource source connected
 .INDENT 7.0
 .TP
