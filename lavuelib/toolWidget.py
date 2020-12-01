@@ -52,7 +52,7 @@ from . import motorWatchThread
 from . import edDictDialog
 from . import edListDialog
 from . import commandThread
-# from .sardanaUtils import debugmethod
+from .sardanaUtils import debugmethod
 
 try:
     try:
@@ -972,6 +972,7 @@ class ParametersToolWidget(ToolBaseWidget):
         self.__applymapper = QtCore.QSignalMapper(self)
         self.__applymapper.mapped.connect(self._applypars)
 
+    @debugmethod
     def configure(self, configuration):
         """ set configuration for the current tool
 
@@ -986,6 +987,7 @@ class ParametersToolWidget(ToolBaseWidget):
                     self.__settings.tangodetattrs = str(json.dumps(record))
                 self.__updateParams()
 
+    @debugmethod
     def configuration(self):
         """ provides configuration for the current tool
 
@@ -1041,15 +1043,14 @@ class ParametersToolWidget(ToolBaseWidget):
         except Exception as e:
             logger.warning(str(e))
 
+    @debugmethod
     def activate(self):
         """ activates tool widget
         """
         record = json.loads(str(self.__settings.tangodetattrs or "{}").strip())
         if not isinstance(record, dict):
             record = {}
-        self.__aproxies = []
-        self.__detparams = []
-        self.__avalues = []
+        self.deactivate()
         for lb in sorted(record.keys()):
             try:
                 dv = record[lb]
@@ -1080,6 +1081,9 @@ class ParametersToolWidget(ToolBaseWidget):
             self.__aproxies, self.__settings.toolpollinginterval)
         self.__attrWatcher.attrValuesSignal.connect(self._showValues)
         self.__attrWatcher.start()
+        while not self.__attrWatcher.isWatching():
+            QtCore.QCoreApplication.processEvents()
+            time.sleep(0.1)
 
     def __updateWidgets(self):
         """ add widgets
@@ -1132,14 +1136,18 @@ class ParametersToolWidget(ToolBaseWidget):
             self.__widgets[i][WD.read.value].setToolTip(vl)
             self.__widgets[i][WD.read.value].setText(vl)
 
+    @debugmethod
     def deactivate(self):
         """ activates tool widget
         """
         if self.__attrWatcher:
             self.__attrWatcher.attrValuesSignal.disconnect(self._showValues)
             # self.__attrWatcher.watchingFinished.disconnect(self._finished)
+            logger.debug("STOPING %s" % str(self.__attrWatcher))
             self.__attrWatcher.stop()
+            logger.debug("WAITING  for %s" % str(self.__attrWatcher))
             self.__attrWatcher.wait()
+            logger.debug("REMOVING  for %s" % str(self.__attrWatcher))
             self.__attrWatcher = None
         self.__aproxies = []
         self.__detparams = []
