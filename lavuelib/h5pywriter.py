@@ -28,9 +28,18 @@ import h5py
 import numpy as np
 import os
 import sys
+import io
 
 from . import filewriter
 # from .Types import nptype
+
+try:
+    sver = h5py.__version__.split(".", 2)
+    h5maj = int(sver[0])
+    h5min = int(sver[1])
+    h5ver = h5maj * 1000 + h5min
+except Exception:
+    h5ver = 1000
 
 
 if sys.version_info > (3,):
@@ -50,6 +59,33 @@ def nptype(dtype):
     if str(dtype) in ['string', b'string']:
         return 'str'
     return dtype
+
+
+def load_file(membuffer, filename=None, readonly=False, **pars):
+    """ load a file from memory byte buffer
+
+    :param membuffer: memory buffer
+    :type membuffer: :obj:`bytes` or :obj:`io.BytesIO`
+    :param filename: file name
+    :type filename: :obj:`str`
+    :param readonly: readonly flag
+    :type readonly: :obj:`bool`
+    :param pars: parameters
+    :type pars: :obj:`dict` < :obj:`str`, :obj:`str`>
+    :returns: file object
+    :rtype: :class:`H5PYFile`
+    """
+    if h5ver < 2009:
+        raise Exception("Loading a file from a memory buffer not supported")
+    if not hasattr(membuffer, 'read') or not hasattr(membuffer, 'seek'):
+        if hasattr(membuffer, "tobytes"):
+            membuffer = membuffer.tobytes()
+        membuffer = io.BytesIO(membuffer)
+    if readonly:
+        fobj = h5py.File(membuffer, "r", **pars)
+    else:
+        fobj = h5py.File(membuffer, "r+", **pars)
+    return H5PYFile(fobj, filename)
 
 
 def open_file(filename, readonly=False, **pars):
