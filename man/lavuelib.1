@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Dec 01, 2020" "2.52" "lavuelib"
+.TH "LAVUELIB" "1" "Dec 07, 2020" "2.53" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -724,7 +724,7 @@ updates class variables with the form content
 .INDENT 7.0
 .TP
 .B asapostreams = None
-(\fBlist\fP < \fI\%str\fP > ) asapo substreams
+(\fI\%list\fP < \fI\%str\fP > ) asapo substreams
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -1055,7 +1055,7 @@ status flag
 .INDENT 7.0
 .TP
 .B zmqtopics = None
-(\fBlist\fP < \fI\%str\fP>) list of topics for ZMQ stream source
+(\fI\%list\fP < \fI\%str\fP>) list of topics for ZMQ stream source
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -1080,9 +1080,9 @@ populates table
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBselected\fP (\fBlist\fP < \fI\%str\fP>) \-\- all selected aliases
+\fBselected\fP (\fI\%list\fP < \fI\%str\fP>) \-\- all selected aliases
 .IP \(bu 2
-\fBavailable\fP (\fBlist\fP < \fI\%str\fP>) \-\- all available aliases
+\fBavailable\fP (\fI\%list\fP < \fI\%str\fP>) \-\- all available aliases
 .IP \(bu 2
 \fBitemnames\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%str\fP>) \-\- dictionary of alias names
 .UNINDENT
@@ -1105,13 +1105,13 @@ update checks in checkboxdata
 .INDENT 7.0
 .TP
 .B Parameters
-\fBavailable\fP (\fBlist\fP < \fI\%str\fP>) \-\- all available aliases
+\fBavailable\fP (\fI\%list\fP < \fI\%str\fP>) \-\- all available aliases
 .TP
 .B Returns
 all selected aliases
 .TP
 .B Return type
-\fBlist\fP < \fI\%str\fP>
+\fI\%list\fP < \fI\%str\fP>
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -1346,7 +1346,7 @@ read data from exchange object
 tuple of exchange object (name, data, metadata)
 .TP
 .B Return type
-\fBlist\fP <\fI\%str\fP, \fI\%numpy.ndarray\fP, \fI\%str\fP >
+\fI\%list\fP <\fI\%str\fP, \fI\%numpy.ndarray\fP, \fI\%str\fP >
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -1409,7 +1409,7 @@ create GUI
 .INDENT 7.0
 .TP
 .B radunits = None
-(\fBlist\fP <\fI\%unicode\fP>) list of units
+(\fI\%list\fP <\fI\%unicode\fP>) list of units
 .UNINDENT
 .UNINDENT
 .SS lavuelib.displayExtensions module
@@ -1533,7 +1533,7 @@ provides cuts coordinates
 cuts coordinates
 .TP
 .B Return type
-\fBlist\fP
+\fI\%list\fP
 < [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >
 .UNINDENT
 .UNINDENT
@@ -1602,7 +1602,7 @@ update Cuts
 .IP \(bu 2
 \fBcid\fP (\fI\%int\fP) \-\- cut id
 .IP \(bu 2
-\fBcoords\fP (\fBlist\fP < [float, float, float, float] >) \-\- cut coordinates
+\fBcoords\fP (\fI\%list\fP < [float, float, float, float] >) \-\- cut coordinates
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -1968,7 +1968,7 @@ sets maxima postions
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBpositionlist\fP (\fBlist\fP < (float, float) >) \-\- [(x1, y1), ... , (xn, yn)]
+\fBpositionlist\fP (\fI\%list\fP < (float, float) >) \-\- [(x1, y1), ... , (xn, yn)]
 .IP \(bu 2
 \fBoffset\fP ([ \fI\%float\fP, \fI\%float\fP]) \-\- offset of position
 .UNINDENT
@@ -2047,7 +2047,7 @@ provides rois coordinates
 rois coordinates
 .TP
 .B Return type
-\fBlist\fP
+\fI\%list\fP
 < [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >
 .UNINDENT
 .UNINDENT
@@ -2095,7 +2095,7 @@ update ROIs
 .IP \(bu 2
 \fBrid\fP (\fI\%int\fP) \-\- roi id
 .IP \(bu 2
-\fBcoords\fP (\fBlist\fP
+\fBcoords\fP (\fI\%list\fP
 < [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >) \-\- roi coordinates
 .UNINDENT
 .UNINDENT
@@ -2184,7 +2184,7 @@ provides rois coordinates
 rois coordinates
 .TP
 .B Return type
-\fBlist\fP
+\fI\%list\fP
 < [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >
 .UNINDENT
 .UNINDENT
@@ -2248,7 +2248,7 @@ update ROIs
 .IP \(bu 2
 \fBrid\fP (\fI\%int\fP) \-\- roi id
 .IP \(bu 2
-\fBcoords\fP (\fBlist\fP
+\fBcoords\fP (\fI\%list\fP
 < [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >) \-\- roi coordinates
 .UNINDENT
 .UNINDENT
@@ -2265,7 +2265,7 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBpoints\fP (\fBlist\fP < (float, float) >) \-\- list of points
+\fBpoints\fP (\fI\%list\fP < (float, float) >) \-\- list of points
 .IP \(bu 2
 \fBpen\fP (\fBpyqtgraph.QtGui.QPen\fP) \-\- qt pen
 .IP \(bu 2
@@ -2330,7 +2330,7 @@ provides region coordinates
 region coordinates
 .TP
 .B Return type
-\fBlist\fP <  \fBlist\fP <  \fBlist\fP
+\fI\%list\fP <  \fI\%list\fP <  \fI\%list\fP
 < (\fI\%float\fP, \fI\%float\fP) > > >
 .UNINDENT
 .UNINDENT
@@ -2394,7 +2394,7 @@ update Regions
 .IP \(bu 2
 \fBrid\fP (\fI\%int\fP) \-\- rng id
 .IP \(bu 2
-\fBpoints\fP (\fBlist\fP <  \fBlist\fP <  \fBlist\fP
+\fBpoints\fP (\fI\%list\fP <  \fI\%list\fP <  \fI\%list\fP
 < (\fI\%float\fP, \fI\%float\fP) > > >) \-\- rng coordinates
 .UNINDENT
 .UNINDENT
@@ -2528,12 +2528,12 @@ creates widget GUI
 .INDENT 7.0
 .TP
 .B headers = None
-(\fBlist\fP <\fI\%str\fP>) table headers
+(\fI\%list\fP <\fI\%str\fP>) table headers
 .UNINDENT
 .INDENT 7.0
 .TP
 .B newvalues = None
-(\fBlist\fP <\fI\%str\fP>) table headers
+(\fI\%list\fP <\fI\%str\fP>) table headers
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -2613,7 +2613,7 @@ attribute shape
 attribute shape
 .TP
 .B Return type
-\fBlist\fP < \fI\%int\fP >
+\fI\%list\fP < \fI\%int\fP >
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2668,6 +2668,19 @@ attribute object
 .TP
 .B Return type
 \fBFTAtribute\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B names()
+key values
+.INDENT 7.0
+.TP
+.B Returns
+attribute names
+.TP
+.B Return type
+\fI\%list\fP <\fI\%str\fP>
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2869,7 +2882,7 @@ field shape
 field shape
 .TP
 .B Return type
-\fBlist\fP < \fI\%int\fP >
+\fI\%list\fP < \fI\%int\fP >
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -2929,6 +2942,10 @@ current time
 .B Return type
 \fI\%str\fP
 .UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B default_field()
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -3041,9 +3058,9 @@ open a file tree element
 .IP \(bu 2
 \fBtype_code\fP (\fI\%str\fP) \-\- nexus field type
 .IP \(bu 2
-\fBshape\fP (\fBlist\fP < \fI\%int\fP >) \-\- shape
+\fBshape\fP (\fI\%list\fP < \fI\%int\fP >) \-\- shape
 .IP \(bu 2
-\fBchunk\fP (\fBlist\fP < \fI\%int\fP >) \-\- chunk
+\fBchunk\fP (\fI\%list\fP < \fI\%int\fP >) \-\- chunk
 .IP \(bu 2
 \fBdfilter\fP (\fI\%FTDeflate\fP) \-\- filter deflater
 .UNINDENT
@@ -3102,7 +3119,7 @@ read the child names
 pni object
 .TP
 .B Return type
-\fBlist\fP <\fIstr\fP>
+\fI\%list\fP <\fIstr\fP>
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3403,6 +3420,31 @@ link object
 .UNINDENT
 .INDENT 0.0
 .TP
+.B lavuelib.filewriter.load_file(membuffer, filename=None, readonly=False, **pars)
+load a file from memory byte buffer
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBmembuffer\fP (\fI\%bytes\fP or \fI\%io.BytesIO\fP) \-\- memory buffer
+.IP \(bu 2
+\fBfilename\fP (\fI\%str\fP) \-\- file name
+.IP \(bu 2
+\fBreadonly\fP (\fI\%bool\fP) \-\- readonly flag
+.IP \(bu 2
+\fBpars\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%str\fP>) \-\- parameters
+.UNINDENT
+.TP
+.B Returns
+file object
+.TP
+.B Return type
+\fBH5PYFile\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
 .B lavuelib.filewriter.open_file(filename, readonly=False, **pars)
 open the new file
 .INDENT 7.0
@@ -3437,7 +3479,7 @@ sets writer
 .INDENT 0.0
 .TP
 .B lavuelib.filewriter.writerlock = <unlocked _thread.lock object>
-(\fBthreading.Lock\fP) writer module
+(\fI\%threading.Lock\fP) writer module
 .UNINDENT
 .SS lavuelib.filters module
 .sp
@@ -3469,7 +3511,7 @@ stop filter
 .INDENT 0.0
 .TP
 .B class lavuelib.filters.FilterList(configlist=None)
-Bases: \fBlist\fP
+Bases: \fI\%list\fP
 .sp
 Filter list
 .sp
@@ -3477,7 +3519,7 @@ constructor
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiglist\fP (:    \fBlist\fP < [\fI\%str\fP , \fI\%str\fP] >) \-\- list with filter configuration
+\fBconfiglist\fP (:    \fI\%list\fP < [\fI\%str\fP , \fI\%str\fP] >) \-\- list with filter configuration
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -3486,7 +3528,7 @@ appends filters
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiglist\fP (:    \fBlist\fP < [\fI\%str\fP , \fI\%str\fP] >) \-\- list with filter configuration
+\fBconfiglist\fP (:    \fI\%list\fP < [\fI\%str\fP , \fI\%str\fP] >) \-\- list with filter configuration
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3496,7 +3538,7 @@ reset filters
 .INDENT 7.0
 .TP
 .B Parameters
-\fBconfiglist\fP (:    \fBlist\fP < [\fI\%str\fP , \fI\%str\fP] >) \-\- list with filter configuration
+\fBconfiglist\fP (:    \fI\%list\fP < [\fI\%str\fP , \fI\%str\fP] >) \-\- list with filter configuration
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -3709,7 +3751,7 @@ attribute shape
 attribute shape
 .TP
 .B Return type
-\fBlist\fP < \fI\%int\fP >
+\fI\%list\fP < \fI\%int\fP >
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -3759,7 +3801,7 @@ create a new attribute
 .IP \(bu 2
 \fBdtype\fP (\fI\%str\fP) \-\- attribute type
 .IP \(bu 2
-\fBshape\fP (\fBlist\fP < \fI\%int\fP >) \-\- attribute shape
+\fBshape\fP (\fI\%list\fP < \fI\%int\fP >) \-\- attribute shape
 .IP \(bu 2
 \fBoverwrite\fP (\fI\%bool\fP) \-\- overwrite flag
 .UNINDENT
@@ -3788,6 +3830,19 @@ valid flag
 .TP
 .B name = None
 (\fI\%str\fP) object name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B names()
+key values
+.INDENT 7.0
+.TP
+.B Returns
+attribute names
+.TP
+.B Return type
+\fI\%list\fP <\fI\%str\fP>
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -3964,7 +4019,7 @@ field shape
 field shape
 .TP
 .B Return type
-\fBlist\fP < \fI\%int\fP >
+\fI\%list\fP < \fI\%int\fP >
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4155,9 +4210,9 @@ open a file tree element
 .IP \(bu 2
 \fBtype_code\fP (\fI\%str\fP) \-\- nexus field type
 .IP \(bu 2
-\fBshape\fP (\fBlist\fP < \fI\%int\fP >) \-\- shape
+\fBshape\fP (\fI\%list\fP < \fI\%int\fP >) \-\- shape
 .IP \(bu 2
-\fBchunk\fP (\fBlist\fP < \fI\%int\fP >) \-\- chunk
+\fBchunk\fP (\fI\%list\fP < \fI\%int\fP >) \-\- chunk
 .IP \(bu 2
 \fBdfilter\fP (\fI\%H5CppDataFilter\fP) \-\- filter deflater
 .UNINDENT
@@ -4234,7 +4289,7 @@ read the child names
 pni object
 .TP
 .B Return type
-\fBlist\fP <\fIstr\fP>
+\fI\%list\fP <\fIstr\fP>
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4473,6 +4528,31 @@ link object
 .UNINDENT
 .INDENT 0.0
 .TP
+.B lavuelib.h5cppwriter.load_file(membuffer, filename=None, readonly=False, **pars)
+load a file from memory byte buffer
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBmembuffer\fP (\fI\%bytes\fP or \fI\%io.BytesIO\fP) \-\- memory buffer
+.IP \(bu 2
+\fBfilename\fP (\fI\%str\fP) \-\- file name
+.IP \(bu 2
+\fBreadonly\fP (\fI\%bool\fP) \-\- readonly flag
+.IP \(bu 2
+\fBpars\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%str\fP>) \-\- parameters
+.UNINDENT
+.TP
+.B Returns
+file object
+.TP
+.B Return type
+\fBH5PYFile\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
 .B lavuelib.h5cppwriter.nptype(dtype)
 converts to numpy types
 .INDENT 7.0
@@ -4590,7 +4670,7 @@ attribute shape
 attribute shape
 .TP
 .B Return type
-\fBlist\fP < \fI\%int\fP >
+\fI\%list\fP < \fI\%int\fP >
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -4665,7 +4745,7 @@ create a new attribute
 .IP \(bu 2
 \fBdtype\fP (\fI\%str\fP) \-\- attribute type
 .IP \(bu 2
-\fBshape\fP (\fBlist\fP < \fI\%int\fP >) \-\- attribute shape
+\fBshape\fP (\fI\%list\fP < \fI\%int\fP >) \-\- attribute shape
 .IP \(bu 2
 \fBoverwrite\fP (\fI\%bool\fP) \-\- overwrite flag
 .UNINDENT
@@ -4694,6 +4774,19 @@ valid flag
 .TP
 .B name = None
 (\fI\%str\fP) object name
+.UNINDENT
+.INDENT 7.0
+.TP
+.B names()
+key values
+.INDENT 7.0
+.TP
+.B Returns
+attribute names
+.TP
+.B Return type
+\fI\%list\fP <\fI\%str\fP>
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -4860,7 +4953,7 @@ field shape
 field shape
 .TP
 .B Return type
-\fBlist\fP < \fI\%int\fP >
+\fI\%list\fP < \fI\%int\fP >
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5064,9 +5157,9 @@ open a file tree element
 .IP \(bu 2
 \fBtype_code\fP (\fI\%str\fP) \-\- nexus field type
 .IP \(bu 2
-\fBshape\fP (\fBlist\fP < \fI\%int\fP >) \-\- shape
+\fBshape\fP (\fI\%list\fP < \fI\%int\fP >) \-\- shape
 .IP \(bu 2
-\fBchunk\fP (\fBlist\fP < \fI\%int\fP >) \-\- chunk
+\fBchunk\fP (\fI\%list\fP < \fI\%int\fP >) \-\- chunk
 .IP \(bu 2
 \fBdfilter\fP (\fI\%H5PYDataFilter\fP) \-\- filter deflater
 .UNINDENT
@@ -5138,7 +5231,7 @@ read the child names
 pni object
 .TP
 .B Return type
-\fBlist\fP <\fIstr\fP>
+\fI\%list\fP <\fIstr\fP>
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -5379,6 +5472,31 @@ link object
 .UNINDENT
 .INDENT 0.0
 .TP
+.B lavuelib.h5pywriter.load_file(membuffer, filename=None, readonly=False, **pars)
+load a file from memory byte buffer
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBmembuffer\fP (\fI\%bytes\fP or \fI\%io.BytesIO\fP) \-\- memory buffer
+.IP \(bu 2
+\fBfilename\fP (\fI\%str\fP) \-\- file name
+.IP \(bu 2
+\fBreadonly\fP (\fI\%bool\fP) \-\- readonly flag
+.IP \(bu 2
+\fBpars\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%str\fP>) \-\- parameters
+.UNINDENT
+.TP
+.B Returns
+file object
+.TP
+.B Return type
+\fI\%H5PYFile\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
 .B lavuelib.h5pywriter.nptype(dtype)
 converts to numpy types
 .INDENT 7.0
@@ -5422,7 +5540,7 @@ A list of possible hidra servers. Take your pick.
 .INDENT 0.0
 .TP
 .B lavuelib.hidraServerList.HIDRASERVERLIST = {\(aqp03\(aq: [\(aqhaspp03pilatus.desy.de\(aq], \(aqp08\(aq: [\(aqhaspp08pil100.desy.de\(aq, \(aqhaspp08perk01.desy.de\(aq], \(aqp09\(aq: [\(aqhaspp09pilatus.desy.de\(aq], \(aqp10\(aq: [\(aqhaspp10pilatus.desy.de\(aq], \(aqp11\(aq: [\(aqhaspp11pilatus.desy.de\(aq], \(aqpool\(aq: [\(aqhaspilatus300k.desy.de\(aq, \(aqhaspilatus1m.desy.de\(aq, \(aqhaspilatus100k.desy.de\(aq]}
-(\fI\%dict\fP < \fI\%str\fP, \fBlist\fP <\fI\%str\fP> >)
+(\fI\%dict\fP < \fI\%str\fP, \fI\%list\fP <\fI\%str\fP> >)
 server dictionary
 .UNINDENT
 .SS lavuelib.highValueMaskWidget module
@@ -5518,7 +5636,7 @@ constructor
 \fBstep\fP (\fI\%str\fP or \fI\%int\fP) \-\- data step for calculation of histogram levels,
 default: \(aqauto\(aq
 .IP \(bu 2
-\fBargs\fP (\fBlist\fP < \fI\%any\fP>) \-\- HistogramHLUTItem parameters list
+\fBargs\fP (\fI\%list\fP < \fI\%any\fP>) \-\- HistogramHLUTItem parameters list
 .IP \(bu 2
 \fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) \-\- HistogramHLUTItem parameter dictionary
 .UNINDENT
@@ -5657,7 +5775,7 @@ constructor
 .B addExtensions(extlist)
 provides viewbox
 :param extlist: extension list
-:type extlist: \fBlist\fP < \fBDisplayExtension\fP >
+:type extlist: \fI\%list\fP < \fBDisplayExtension\fP >
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -5759,7 +5877,7 @@ provides extension names
 .INDENT 7.0
 .TP
 .B Return type
-\fBlist\fP
+\fI\%list\fP
 .TP
 .B Returns
 extension names
@@ -6248,7 +6366,7 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBargs\fP (\fBlist\fP < \fI\%any\fP>) \-\- ImageItem parameters list
+\fBargs\fP (\fI\%list\fP < \fI\%any\fP>) \-\- ImageItem parameters list
 .IP \(bu 2
 \fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) \-\- ImageItem parameter dictionary
 .UNINDENT
@@ -6264,7 +6382,7 @@ safe paint method
 .IP \(bu 2
 \fBp\fP (\fBPyQt5.QtGui.QPainter\fP) \-\- painter
 .IP \(bu 2
-\fBargs\fP (\fBlist\fP < \fI\%any\fP>) \-\- ImageItem parameters list
+\fBargs\fP (\fI\%list\fP < \fI\%any\fP>) \-\- ImageItem parameters list
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -6476,6 +6594,23 @@ dictionary of the field names and the field objects
 .UNINDENT
 .INDENT 7.0
 .TP
+.B frombuffer(membuffer, fname=None, writer=None)
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBmembuffer\fP (\fI\%bytes\fP or \fI\%io.BytesIO\fP) \-\- memory buffer
+.IP \(bu 2
+\fBfname\fP (\fI\%str\fP) \-\- file name
+.IP \(bu 2
+\fBwriter\fP (\fI\%str\fP) \-\- h5 writer module: "pni" or "h5py"
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B classmethod getFrameCount(node, growing=0, refresh=True)
 provides the last frame number
 .INDENT 7.0
@@ -6537,7 +6672,7 @@ JSON dictionary with image metadata
 .UNINDENT
 .INDENT 7.0
 .TP
-.B getNode(field)
+.B getNode(field=None)
 get node
 :param field: field path
 :type field: \fI\%str\fP
@@ -7265,7 +7400,7 @@ provides the data shape
 the data shape if data was loaded
 .TP
 .B Return type
-\fBlist\fP <\fI\%int\fP >
+\fI\%list\fP <\fI\%int\fP >
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -7339,7 +7474,7 @@ decode str to bytes
 decode string in byte array
 .TP
 .B Return type
-\fBbytes\fP
+\fI\%bytes\fP
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -7349,7 +7484,7 @@ decode bytes to str
 .INDENT 7.0
 .TP
 .B Parameters
-\fBx\fP (\fBbytes\fP) \-\- string
+\fBx\fP (\fI\%bytes\fP) \-\- string
 .TP
 .B Returns
 decode string in byte array
@@ -7376,11 +7511,11 @@ constructor
 .IP \(bu 2
 \fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) \-\- parent object
 .IP \(bu 2
-\fBtooltypes\fP (\fBlist\fP <\fI\%str\fP>) \-\- tool class names
+\fBtooltypes\fP (\fI\%list\fP <\fI\%str\fP>) \-\- tool class names
 .IP \(bu 2
 \fBsettings\fP (\fI\%lavuelib.settings.Settings\fP) \-\- lavue configuration settings
 .IP \(bu 2
-\fBrgbtooltypes\fP (\fBlist\fP <\fI\%str\fP>) \-\- tool class names
+\fBrgbtooltypes\fP (\fI\%list\fP <\fI\%str\fP>) \-\- tool class names
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7500,7 +7635,7 @@ calculates all roi sums
 sum roi value, roi id
 .TP
 .B Return type
-\fBlist\fP < float >
+\fI\%list\fP < float >
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7603,7 +7738,7 @@ provides cuts coordinates
 cuts coordinates
 .TP
 .B Return type
-\fBlist\fP
+\fI\%list\fP
 < [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >
 .UNINDENT
 .UNINDENT
@@ -7690,7 +7825,7 @@ runs macro
 .INDENT 7.0
 .TP
 .B Parameters
-\fBcommand\fP (\fBlist\fP <\fI\%str\fP>) \-\- command list
+\fBcommand\fP (\fI\%list\fP <\fI\%str\fP>) \-\- command list
 .TP
 .B Returns
 macro runned
@@ -7710,14 +7845,14 @@ provides experimental Channels
 .IP \(bu 2
 \fBlistattr\fP (\fI\%str\fP) \-\- pool attribute with list
 .IP \(bu 2
-\fBtypefilter\fP (\fBlist\fP <\fI\%str\fP>) \-\- pool attribute with list
+\fBtypefilter\fP (\fI\%list\fP <\fI\%str\fP>) \-\- pool attribute with list
 .UNINDENT
 .TP
 .B Returns
 names from given pool listattr
 .TP
 .B Return type
-\fBlist\fP <\fI\%str\fP>
+\fI\%list\fP <\fI\%str\fP>
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -7800,7 +7935,7 @@ provides rois coordinates
 rois coordinates
 .TP
 .B Return type
-\fBlist\fP
+\fI\%list\fP
 < [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >
 .UNINDENT
 .UNINDENT
@@ -8006,7 +8141,7 @@ provides rois coordinates
 rois coordinates
 .TP
 .B Return type
-\fBlist\fP
+\fI\%list\fP
 < [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >
 .UNINDENT
 .UNINDENT
@@ -8042,7 +8177,7 @@ runs macro
 .INDENT 7.0
 .TP
 .B Parameters
-\fBcommand\fP (\fBlist\fP <\fI\%str\fP>) \-\- command list
+\fBcommand\fP (\fI\%list\fP <\fI\%str\fP>) \-\- command list
 .TP
 .B Returns
 macro runned
@@ -8286,7 +8421,7 @@ sets maxima postions
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBpositionlist\fP (\fBlist\fP < (float, float) >) \-\- [(x1, y1), ... , (xn, yn)]
+\fBpositionlist\fP (\fI\%list\fP < (float, float) >) \-\- [(x1, y1), ... , (xn, yn)]
 .IP \(bu 2
 \fBoffset\fP ([ \fI\%float\fP, \fI\%float\fP]) \-\- offset of position
 .UNINDENT
@@ -8560,7 +8695,7 @@ update Cuts
 .IP \(bu 2
 \fBcid\fP (\fI\%int\fP) \-\- cut id
 .IP \(bu 2
-\fBcoords\fP (\fBlist\fP
+\fBcoords\fP (\fI\%list\fP
 < [float, float, float, float, float] >) \-\- cut coordinates and width
 .UNINDENT
 .UNINDENT
@@ -8710,7 +8845,7 @@ update ROIs
 .IP \(bu 2
 \fBrid\fP (\fI\%int\fP) \-\- roi id
 .IP \(bu 2
-\fBcoords\fP (\fBlist\fP
+\fBcoords\fP (\fI\%list\fP
 < [\fI\%float\fP, \fI\%float\fP, \fI\%float\fP, \fI\%float\fP] >) \-\- roi coordinates
 .UNINDENT
 .UNINDENT
@@ -8724,7 +8859,7 @@ update Ranges
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBpoints\fP (\fBlist\fP <  \fBlist\fP <  \fBlist\fP
+\fBpoints\fP (\fI\%list\fP <  \fI\%list\fP <  \fI\%list\fP
 < (\fI\%float\fP, \fI\%float\fP) > > >) \-\- roi coordinates
 .IP \(bu 2
 \fBrid\fP (\fI\%int\fP) \-\- region id
@@ -8756,7 +8891,7 @@ set tool by changing combobox
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBtoolnames\fP (\fBlist\fP < \fI\%str\fP >) \-\- tool names
+\fBtoolnames\fP (\fI\%list\fP < \fI\%str\fP >) \-\- tool names
 .IP \(bu 2
 \fBindex\fP (\fI\%int\fP) \-\- combobox index
 .UNINDENT
@@ -9636,7 +9771,7 @@ provides error message text fro sys.exc_info()
 .IP \(bu 2
 \fBdefault\fP (\fI\%str\fP) \-\- default message test
 .IP \(bu 2
-\fBerror\fP (\fBException\fP) \-\- exception to describe
+\fBerror\fP (\fI\%Exception\fP) \-\- exception to describe
 .UNINDENT
 .TP
 .B Returns
@@ -9689,7 +9824,7 @@ constructor
 .IP \(bu 2
 \fBrefreshtime\fP (\fI\%tango.DeviceProxy\fP) \-\- refresh time
 .IP \(bu 2
-\fBaproxies\fP (\fBlist\fP <\fI\%tango.DeviceProxy\fP>) \-\- attribute proxies
+\fBaproxies\fP (\fI\%list\fP <\fI\%tango.DeviceProxy\fP>) \-\- attribute proxies
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -9986,7 +10121,7 @@ provides the range window
 x1, y1, x2, y2 of range window bounds
 .TP
 .B Return type
-\fBlist\fP <\fI\%int\fP>
+\fI\%list\fP <\fI\%int\fP>
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -10076,14 +10211,14 @@ provides experimental Channels
 .IP \(bu 2
 \fBlistattr\fP (\fI\%str\fP) \-\- pool attribute with list
 .IP \(bu 2
-\fBtypefilter\fP (\fBlist\fP <\fI\%str\fP>) \-\- pool attribute with list
+\fBtypefilter\fP (\fI\%list\fP <\fI\%str\fP>) \-\- pool attribute with list
 .UNINDENT
 .TP
 .B Returns
 names from given pool listattr
 .TP
 .B Return type
-\fBlist\fP <\fI\%str\fP>
+\fI\%list\fP <\fI\%str\fP>
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -10135,13 +10270,13 @@ provides proxies of given device names
 .INDENT 7.0
 .TP
 .B Parameters
-\fBnames\fP (\fBlist\fP <\fI\%str\fP>) \-\- given device names
+\fBnames\fP (\fI\%list\fP <\fI\%str\fP>) \-\- given device names
 .TP
 .B Returns
 list of device DeviceProxies
 .TP
 .B Return type
-\fBlist\fP <\fI\%tango.DeviceProxy\fP>
+\fI\%list\fP <\fI\%tango.DeviceProxy\fP>
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -10181,7 +10316,7 @@ DeviceProxy of device
 .B classmethod pickleloads(bytestr)
 loads pickle byte string
 :param bytestr: byte string to convert
-:type bytesstr: \fBbytes\fP
+:type bytesstr: \fI\%bytes\fP
 :returns: loaded bytestring
 :rtype: \fI\%any\fP
 .UNINDENT
@@ -10196,7 +10331,7 @@ stores Scan Environment Data
 .IP \(bu 2
 \fBdoor\fP (\fI\%str\fP) \-\- door device
 .IP \(bu 2
-\fBcommand\fP (\fBlist\fP <\fI\%str\fP>) \-\- list with the macro name and its parameters
+\fBcommand\fP (\fI\%list\fP <\fI\%str\fP>) \-\- list with the macro name and its parameters
 .IP \(bu 2
 \fBwait\fP (\fI\%bool\fP) \-\- wait till macro is finished
 .UNINDENT
@@ -10380,7 +10515,7 @@ constructor
 .INDENT 7.0
 .TP
 .B asapostreams = None
-(\fBlist\fP < \fI\%str\fP > ) asapo substreams
+(\fI\%list\fP < \fI\%str\fP > ) asapo substreams
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10498,7 +10633,7 @@ custom gradients
 .INDENT 7.0
 .TP
 .B detservers = None
-(\fBlist\fP < \fI\%str\fP>) hidra detector server list
+(\fI\%list\fP < \fI\%str\fP>) hidra detector server list
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -10689,7 +10824,7 @@ load settings
 error messages list
 .TP
 .B Return type
-\fBlist\fP < (\fI\%str\fP, \fI\%str\fP) >
+\fI\%list\fP < (\fI\%str\fP, \fI\%str\fP) >
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -11020,7 +11155,7 @@ xy\-position in  pixels
 .INDENT 7.0
 .TP
 .B zmqtopics = None
-(\fBlist\fP < \fI\%str\fP > ) zmq source topics
+(\fI\%list\fP < \fI\%str\fP > ) zmq source topics
 .UNINDENT
 .UNINDENT
 .SS lavuelib.sourceGroupBox module
@@ -11045,7 +11180,7 @@ constructor
 .IP \(bu 2
 \fBsourceid\fP (\fI\%int\fP) \-\- source id
 .IP \(bu 2
-\fBusersourcenames\fP (\fBlist\fP < \fI\%str\fP >) \-\- user source names
+\fBusersourcenames\fP (\fI\%list\fP < \fI\%str\fP >) \-\- user source names
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -11407,7 +11542,7 @@ set source by changing combobox
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBsourcenames\fP (\fBlist\fP < \fI\%str\fP >) \-\- source names
+\fBsourcenames\fP (\fI\%list\fP < \fI\%str\fP >) \-\- source names
 .IP \(bu 2
 \fBindex\fP (\fI\%int\fP) \-\- combobox index
 .UNINDENT
@@ -11416,7 +11551,7 @@ set source by changing combobox
 .INDENT 7.0
 .TP
 .B widgetnames = None
-(\fBlist\fP <\fI\%str\fP>) subwidget object names
+(\fI\%list\fP <\fI\%str\fP>) subwidget object names
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -11434,7 +11569,7 @@ constructor
 .IP \(bu 2
 \fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) \-\- parent object
 .IP \(bu 2
-\fBsourcetypes\fP (\fBlist\fP <\fI\%str\fP>) \-\- source type class names
+\fBsourcetypes\fP (\fI\%list\fP <\fI\%str\fP>) \-\- source type class names
 .IP \(bu 2
 \fBexpertmode\fP (\fI\%bool\fP) \-\- expert mode flag
 .IP \(bu 2
@@ -11765,7 +11900,7 @@ set source by changing combobox
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBsourcenames\fP (\fBlist\fP < \fI\%str\fP >) \-\- source names
+\fBsourcenames\fP (\fI\%list\fP < \fI\%str\fP >) \-\- source names
 .IP \(bu 2
 \fBsourcenames\fP \-\- source names to set
 .UNINDENT
@@ -11958,12 +12093,12 @@ update source input parameters
 .INDENT 7.0
 .TP
 .B widgetnames = None
-(\fBlist\fP <\fI\%str\fP>) subwidget object names
+(\fI\%list\fP <\fI\%str\fP>) subwidget object names
 .UNINDENT
 .INDENT 7.0
 .TP
 .B widgets = None
-(\fBlist\fP <\fBPyQt5.QtGui.QWidget\fP>) subwidget objects
+(\fI\%list\fP <\fBPyQt5.QtGui.QWidget\fP>) subwidget objects
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -12059,7 +12194,7 @@ update source input parameters
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBserverdict\fP (\fI\%dict\fP < \fI\%str\fP, \fBlist\fP <\fI\%str\fP> >) \-\- server dictionary
+\fBserverdict\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%list\fP <\fI\%str\fP> >) \-\- server dictionary
 .IP \(bu 2
 \fBkargs\fP (\fI\%dict\fP < \fI\%str\fP, \fI\%any\fP>) \-\- source widget input parameter dictionary
 .UNINDENT
@@ -12068,7 +12203,7 @@ update source input parameters
 .INDENT 7.0
 .TP
 .B widgetnames = None
-(\fBlist\fP <\fI\%str\fP>) subwidget object names
+(\fI\%list\fP <\fI\%str\fP>) subwidget object names
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -12200,7 +12335,7 @@ update source input parameters
 .INDENT 7.0
 .TP
 .B widgetnames = None
-(\fBlist\fP <\fI\%str\fP>) subwidget object names
+(\fI\%list\fP <\fI\%str\fP>) subwidget object names
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -12332,7 +12467,7 @@ update source input parameters
 .INDENT 7.0
 .TP
 .B widgetnames = None
-(\fBlist\fP <\fI\%str\fP>) subwidget object names
+(\fI\%list\fP <\fI\%str\fP>) subwidget object names
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -12464,7 +12599,7 @@ update source input parameters
 .INDENT 7.0
 .TP
 .B widgetnames = None
-(\fBlist\fP <\fI\%str\fP>) subwidget object names
+(\fI\%list\fP <\fI\%str\fP>) subwidget object names
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -12602,7 +12737,7 @@ and file name translation
 .INDENT 7.0
 .TP
 .B widgetnames = None
-(\fBlist\fP <\fI\%str\fP>) subwidget object names
+(\fI\%list\fP <\fI\%str\fP>) subwidget object names
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -12734,7 +12869,7 @@ update source input parameters
 .INDENT 7.0
 .TP
 .B widgetnames = None
-(\fBlist\fP <\fI\%str\fP>) subwidget object names
+(\fI\%list\fP <\fI\%str\fP>) subwidget object names
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -12851,11 +12986,11 @@ update source input parameters
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBzmqtopics\fP (\fBlist\fP <\fI\%str\fP> >) \-\- zmq source topics
+\fBzmqtopics\fP (\fI\%list\fP <\fI\%str\fP> >) \-\- zmq source topics
 .IP \(bu 2
 \fBautozmqtopics\fP (\fI\%bool\fP) \-\- automatic zmq topics enabled
 .IP \(bu 2
-\fBdatasources\fP (\fBlist\fP <\fI\%str\fP> >) \-\- automatic zmq source topics
+\fBdatasources\fP (\fI\%list\fP <\fI\%str\fP> >) \-\- automatic zmq source topics
 .IP \(bu 2
 \fBdisconnect\fP (\fI\%bool\fP) \-\- disconnect on update
 .IP \(bu 2
@@ -12869,7 +13004,7 @@ update source input parameters
 .INDENT 7.0
 .TP
 .B widgetnames = None
-(\fBlist\fP <\fI\%str\fP>) subwidget object names
+(\fI\%list\fP <\fI\%str\fP>) subwidget object names
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -12992,7 +13127,7 @@ update source input parameters
 .INDENT 7.0
 .TP
 .B widgetnames = None
-(\fBlist\fP <\fI\%str\fP>) subwidget object names
+(\fI\%list\fP <\fI\%str\fP>) subwidget object names
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -13124,7 +13259,7 @@ update source input parameters
 .INDENT 7.0
 .TP
 .B widgetnames = None
-(\fBlist\fP <\fI\%str\fP>) subwidget object names
+(\fI\%list\fP <\fI\%str\fP>) subwidget object names
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -13259,7 +13394,7 @@ update source input parameters
 .INDENT 7.0
 .TP
 .B widgetnames = None
-(\fBlist\fP <\fI\%str\fP>) subwidget object names
+(\fI\%list\fP <\fI\%str\fP>) subwidget object names
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -13358,9 +13493,9 @@ update source input parameters
 :param asapobeamtime: beamtime id
 :type asapobeamtime: \fI\%str\fP
 :param asapostreams: asapo stream names
-:type asapostreams: \fBlist\fP <\fI\%str\fP> >
+:type asapostreams: \fI\%list\fP <\fI\%str\fP> >
 :param asaposubstreams: asapo substream names
-:type asaposubstreams: \fBlist\fP <\fI\%str\fP> >
+:type asaposubstreams: \fI\%list\fP <\fI\%str\fP> >
 :param disconnect: disconnect on update
 :type disconnect: \fI\%bool\fP
 :param kargs:  source widget input parameter dictionary
@@ -13369,7 +13504,7 @@ update source input parameters
 .INDENT 7.0
 .TP
 .B widgetnames = None
-(\fBlist\fP <\fI\%str\fP>) subwidget object names
+(\fI\%list\fP <\fI\%str\fP>) subwidget object names
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -13552,7 +13687,7 @@ set configuration for the current tool
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fI\%list\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .UNINDENT
@@ -13645,7 +13780,7 @@ sets a number of rois
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fI\%list\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .INDENT 7.0
@@ -13765,7 +13900,7 @@ activates tool widget
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fI\%list\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .UNINDENT
@@ -13854,7 +13989,7 @@ deactivates tool widget
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fI\%list\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .INDENT 7.0
@@ -13927,7 +14062,7 @@ set configuration for the current tool
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fI\%list\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .UNINDENT
@@ -14000,7 +14135,7 @@ deactivates tool widget
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fI\%list\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .INDENT 7.0
@@ -14111,7 +14246,7 @@ activates tool widget
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fI\%list\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .UNINDENT
@@ -14184,7 +14319,7 @@ activates tool widget
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fI\%list\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .UNINDENT
@@ -14273,7 +14408,7 @@ deactivates tool widget
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fI\%list\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .INDENT 7.0
@@ -14351,7 +14486,7 @@ activates tool widget
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fI\%list\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .UNINDENT
@@ -14456,7 +14591,7 @@ starts progress thread with the given commands
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBcommands\fP (\fBlist\fP <\fI\%str\fP>) \-\- list of commands
+\fBcommands\fP (\fI\%list\fP <\fI\%str\fP>) \-\- list of commands
 .IP \(bu 2
 \fBonclose\fP (\fI\%str\fP) \-\- close command name
 .IP \(bu 2
@@ -14483,7 +14618,7 @@ change status
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fI\%list\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .INDENT 7.0
@@ -14596,7 +14731,7 @@ sets a number of rois
 .INDENT 7.0
 .TP
 .B signal2slot = None
-(\fBlist\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
+(\fI\%list\fP < [\fBpyqtgraph.QtCore.pyqtSignal\fP, \fI\%str\fP] >)
 list of [signal, slot] object to connect
 .UNINDENT
 .INDENT 7.0
