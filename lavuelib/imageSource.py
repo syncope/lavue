@@ -1659,10 +1659,10 @@ class ASAPOSource(BaseSource):
                         nexus_path = metadata["meta"]["nexus_path"]
                     frame = None
                     if "meta" in metadata.keys() and \
-                       "nexus_dataset_frame" in metadata["meta"].keys():
+                       "nexus_image_frame" in metadata["meta"].keys():
                         try:
                             frame = int(
-                                metadata["meta"]["nexus_dataset_frame"])
+                                metadata["meta"]["nexus_image_frame"])
                         except Exception as e:
                             logger.warning(str(e))
                     node = handler.getNode(nexus_path)

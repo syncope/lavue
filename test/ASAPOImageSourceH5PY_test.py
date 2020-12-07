@@ -492,7 +492,7 @@ class ASAPOImageSourceH5PYTest(unittest.TestCase):
             lastimage = None
             asapo_consumer.filename = ""
             asapo_consumer.usermeta = {
-                "nexus_dataset_frame": 3,
+                "nexus_image_frame": 3,
                 "nexus_path": "/entry/instrument/detector/data"}
             asapo_consumer.substreams = ["stream1", "stream2"]
             cfg = '[Configuration]\n' \
