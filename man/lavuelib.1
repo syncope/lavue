@@ -268,6 +268,11 @@ $ lavue \-h
 .SH FURTHER READING
 .sp
 More information can be found at: \fI\%LaVue\fP
+.nf
+\fBlavuelib\fP module API: \fI\%https://lavue\-org.github.io/lavue\fP
+\fBLavueController\fP Tango Server API: \fI\%https://lavue\-org.github.io/lavue/doc_html\fP
+.fi
+.sp
 .SH LAVUELIB PACKAGE
 .SS Subpackages
 .SS lavuelib.plugins package
@@ -681,6 +686,55 @@ update green channel
 .B updateRChannel()
 update red channel
 .UNINDENT
+.UNINDENT
+.SS lavuelib.commandThread module
+.sp
+command thread
+.INDENT 0.0
+.TP
+.B class lavuelib.commandThread.CommandThread(instance, commands, parent)
+Bases: \fI\%lavuelib.omniQThread.OmniQThread\fP
+.sp
+thread which executes a list of commands
+.sp
+thread contructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBinstance\fP (\fBinstanceobj\fP or \fI\%type\fP) \-\- command instance
+.IP \(bu 2
+\fBcommands\fP (\fI\%list\fP <\fI\%str\fP>) \-\- a list of commands
+.IP \(bu 2
+\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) \-\- thread parent object
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B commands = None
+(\fI\%list\fP <\fI\%str\fP>) a list of commands
+.UNINDENT
+.INDENT 7.0
+.TP
+.B error = None
+(\fI\%Exception\fP) error thrown by the executed command
+.UNINDENT
+.INDENT 7.0
+.TP
+.B finished
+(\fBpyqtgraph.QtCore.pyqtSignal\fP) finished signal
+.UNINDENT
+.INDENT 7.0
+.TP
+.B instance = None
+(\fBinstanceobj\fP or \fI\%type\fP) command instance
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.commandThread.logger = <Logger lavuelib.commandThread (WARNING)>
+(\fI\%logging.Logger\fP) logger object
 .UNINDENT
 .SS lavuelib.configDialog module
 .sp
@@ -1247,7 +1301,7 @@ data fetch thread
 .INDENT 0.0
 .TP
 .B class lavuelib.dataFetchThread.DataFetchThread(datasource, alist)
-Bases: \fBlavuelib.omniQThread.OmniQThread\fP
+Bases: \fI\%lavuelib.omniQThread.OmniQThread\fP
 .sp
 constructor
 .INDENT 7.0
@@ -2551,6 +2605,58 @@ creates widget GUI
 .B lavuelib.edDictDialog.logger = <Logger lavue (WARNING)>
 (\fI\%logging.Logger\fP) logger object
 .UNINDENT
+.SS lavuelib.edListDialog module
+.sp
+editable list dialog
+.INDENT 0.0
+.TP
+.B class lavuelib.edListDialog.EdListDialog(parent=None)
+Bases: \fBPyQt5.QtWidgets.QDialog\fP
+.sp
+editable list dialog
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBQtCore.QObject\fP) \-\- parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B accept()
+updates class variables with the form content
+.UNINDENT
+.INDENT 7.0
+.TP
+.B createGUI()
+creates widget GUI
+.UNINDENT
+.INDENT 7.0
+.TP
+.B dirty = None
+(\fI\%bool\fP) dirty flag
+.UNINDENT
+.INDENT 7.0
+.TP
+.B headers = None
+(\fI\%list\fP <\fI\%str\fP>) table headers
+.UNINDENT
+.INDENT 7.0
+.TP
+.B record = None
+(\fI\%dict\fP <\fI\%str\fP, \fIany\fP>) data (name, value) dictionary
+.UNINDENT
+.INDENT 7.0
+.TP
+.B title = None
+(\fI\%str\fP) dialog title
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.edListDialog.logger = <Logger lavue (WARNING)>
+(\fI\%logging.Logger\fP) logger object
+.UNINDENT
 .SS lavuelib.filewriter module
 .sp
 Provides abstraction for file writer
@@ -3658,6 +3764,38 @@ create GUI
 .TP
 .B pixelsizey = None
 (\fI\%float\fP) pixel y\-size in um
+.UNINDENT
+.UNINDENT
+.SS lavuelib.gradientDialog module
+.sp
+gradient dialog
+.INDENT 0.0
+.TP
+.B class lavuelib.gradientDialog.GradientDialog(parent=None)
+Bases: \fBPyQt5.QtWidgets.QDialog\fP
+.sp
+interval widget class
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) \-\- parent object
+.UNINDENT
+.INDENT 7.0
+.TP
+.B accept()
+updates class variables with the form content
+.UNINDENT
+.INDENT 7.0
+.TP
+.B createGUI()
+create GUI
+.UNINDENT
+.INDENT 7.0
+.TP
+.B name = None
+(\fI\%int\fP) gradient name
 .UNINDENT
 .UNINDENT
 .SS lavuelib.h5cppwriter
@@ -5559,6 +5697,41 @@ file object
 \fI\%H5PYFile\fP
 .UNINDENT
 .UNINDENT
+.SS lavuelib.helpForm
+.sp
+help widget
+.INDENT 0.0
+.TP
+.B class lavuelib.helpForm.HelpForm(page, parent=None)
+Bases: \fBPyQt5.QtWidgets.QDialog\fP
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBpage\fP (\fI\%str\fP) \-\- the starting html page
+.IP \(bu 2
+\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) \-\- parent widget
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B createActions()
+creates actions and sets the command pool and stack
+.UNINDENT
+.INDENT 7.0
+.TP
+.B createGUI()
+creates dialogs for help dialog
+.UNINDENT
+.INDENT 7.0
+.TP
+.B updatePageTitle()
+resets the __pageLabel withg the document title
+.UNINDENT
+.UNINDENT
 .SS lavuelib.hidraServerList module
 .sp
 A list of possible hidra servers. Take your pick.
@@ -5705,41 +5878,6 @@ sets image step data for algorithm of histogram
 .TP
 .B sizeHint()
 sets size hint
-.UNINDENT
-.UNINDENT
-.SS lavuelib.helpForm module
-.sp
-help widget
-.INDENT 0.0
-.TP
-.B class lavuelib.helpForm.HelpForm(page, parent=None)
-Bases: \fBPyQt5.QtWidgets.QDialog\fP
-.sp
-constructor
-.INDENT 7.0
-.TP
-.B Parameters
-.INDENT 7.0
-.IP \(bu 2
-\fBpage\fP (\fI\%str\fP) \-\- the starting html page
-.IP \(bu 2
-\fBparent\fP (\fBpyqtgraph.QtCore.QObject\fP) \-\- parent widget
-.UNINDENT
-.UNINDENT
-.INDENT 7.0
-.TP
-.B createActions()
-creates actions and sets the command pool and stack
-.UNINDENT
-.INDENT 7.0
-.TP
-.B createGUI()
-creates dialogs for help dialog
-.UNINDENT
-.INDENT 7.0
-.TP
-.B updatePageTitle()
-resets the __pageLabel withg the document title
 .UNINDENT
 .UNINDENT
 .SS lavuelib.imageDisplayWidget module
@@ -6737,6 +6875,75 @@ image data
 .TP
 .B lavuelib.imageFileHandler.WRITERS = {\(aqh5cpp\(aq: <module \(aqlavuelib.h5cppwriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5cppwriter.py\(aq>, \(aqh5py\(aq: <module \(aqlavuelib.h5pywriter\(aq from \(aq/home/jkotan/ndts/lavue/lavuelib/h5pywriter.py\(aq>}
 (\fI\%dict\fP <\fI\%str\fP, \fBmodule\fP> ) nexus writer modules
+.UNINDENT
+.SS lavuelib.imageNexusExporter module
+.sp
+image Nexus exporter
+.INDENT 0.0
+.TP
+.B class lavuelib.imageNexusExporter.ImageNexusExporter(item)
+Bases: \fBpyqtgraph.exporters.Exporter.Exporter\fP
+.sp
+NeXus Raw Image Exporter
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBitem\fP \-\- image item
+.IP \(bu 2
+\fBitem\fP \-\- .INDENT 2.0
+.TP
+.B class
+\fIpyqtgraph.PlotItem\fP or \fIpyqtgraph.GraphicsScene\fP
+.UNINDENT
+
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Name = \(aqNeXus Raw Image\(aq
+.UNINDENT
+.INDENT 7.0
+.TP
+.B allowCopy = False
+.UNINDENT
+.INDENT 7.0
+.TP
+.B export(fileName=None)
+export data image to NeXus file
+.INDENT 7.0
+.TP
+.B Parameters
+\fBfileName\fP \-\- output file name
+.TP
+.B Rtype fileName
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B parameters()
+.INDENT 7.0
+.TP
+.B Returns
+exporter parameters
+.TP
+.B Return type
+\fBpyqtgraph.parametertree.Parameter\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B params = None
+(\fBpyqtgraph.parametertree.Parameter\fP) exporter parameters
+.UNINDENT
+.INDENT 7.0
+.TP
+.B windows = []
+.UNINDENT
 .UNINDENT
 .SS lavuelib.imageSource module
 .sp
@@ -9839,7 +10046,7 @@ motor watch thread
 .INDENT 0.0
 .TP
 .B class lavuelib.motorWatchThread.AttributeWatchThread(aproxies, refreshtime=None)
-Bases: \fBlavuelib.omniQThread.OmniQThread\fP
+Bases: \fI\%lavuelib.omniQThread.OmniQThread\fP
 .sp
 constructor
 .INDENT 7.0
@@ -9889,7 +10096,7 @@ stops loop
 .INDENT 0.0
 .TP
 .B class lavuelib.motorWatchThread.MotorWatchThread(motor1, motor2, server=None)
-Bases: \fBlavuelib.omniQThread.OmniQThread\fP
+Bases: \fI\%lavuelib.omniQThread.OmniQThread\fP
 .sp
 constructor
 .INDENT 7.0
@@ -9938,7 +10145,26 @@ stops loop
 .B lavuelib.motorWatchThread.POLLINGINTERVAL = 1.0
 (\fI\%float\fP) polling inverval in seconds
 .UNINDENT
-.SS lavuelib.pniwriter
+.SS lavuelib.omniQThread module
+.sp
+omni qt thread
+.INDENT 0.0
+.TP
+.B class lavuelib.omniQThread.OmniQThread(parent=None)
+Bases: \fBPyQt5.QtCore.QThread\fP
+.sp
+constructor
+.INDENT 7.0
+.TP
+.B run()
+runner of the fetching thread
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.omniQThread.TANGO = True
+(\fI\%bool\fP) tango imported
+.UNINDENT
 .SS lavuelib.preparationGroupBox module
 .sp
 preparationbox widget
@@ -11183,7 +11409,7 @@ xy\-position in  pixels
 (\fI\%list\fP < \fI\%str\fP > ) zmq source topics
 .UNINDENT
 .UNINDENT
-.SS lavuelib.sourceGroupBox module
+.SS lavuelib.sourceTabWidget module
 .sp
 image source selection
 .INDENT 0.0
