@@ -877,6 +877,14 @@ class LiveViewer(QtGui.QDialog):
         """ sets buffer size state
         """
         self.setLavueState({"mbuffer": size or None})
+        if size == 0:
+            if "channellabels" in self.__mdata:
+                self.__mdata.pop("channellabels")
+            if "suminthelast" in self.__mdata:
+                self.__mdata.pop("suminthelast")
+            if "skipfirst" in self.__mdata:
+                self.__mdata.pop("skipfirst")
+            self.__channelwg.updateChannelLabels()
 
     def __setLevelState(self):
         """ sets intensity level state
@@ -2648,7 +2656,6 @@ class LiveViewer(QtGui.QDialog):
         :param sid: source tab id starting from 0 and -1 for all
         :type sid: :obj:`int`
         """
-        # print("SourceUdate %s %s" % (status, sid))
         if status:
             dss = self.__sourcewg.currentDataSources()
             if sid == -1:
@@ -2697,13 +2704,12 @@ class LiveViewer(QtGui.QDialog):
             self.__applyRange()
             # apply user filters
             self.__applyFilters()
-            if self.__settings.showmbuffer:
+            if self.__settings.showmbuffer and self.__mbufferwg.isOn():
                 result = self.__mbufferwg.process(
                     self.__filteredimage, self.__imagename)
                 if isinstance(result, tuple) and len(result) == 2:
                     self.__filteredimage, mdata = result
                     self.__mdata.update(mdata)
-
             if "channellabels" in self.__mdata:
                 self.__channelwg.updateChannelLabels(
                     self.__mdata["channellabels"])
@@ -3215,14 +3221,14 @@ class LiveViewer(QtGui.QDialog):
                     self.setrgb(False)
             else:
                 try:
-                    if len(self.__filteredimage) >= \
+                    if len(self.__filteredimage) - ics >= \
                        self.__channelwg.colorChannel():
                         self.__rawgreyimage = self.__filteredimage[
                             self.__channelwg.colorChannel() - 1]
                         if self.rgb():
                             self.setrgb(False)
                             self.__levelswg.showGradient(True)
-                    elif (len(self.__filteredimage) + 1 ==
+                    elif (len(self.__filteredimage) + 1 - ics ==
                           self.__channelwg.colorChannel()):
                         if self.rgb():
                             self.setrgb(False)
@@ -3234,7 +3240,7 @@ class LiveViewer(QtGui.QDialog):
                         else:
                             self.__rawgreyimage = np.nanmean(
                                 self.__filteredimage, 0)
-                    elif self.__filteredimage.shape[0] > 1:
+                    elif self.__filteredimage.shape[0] - ics > 1:
                         if not self.rgb():
                             self.setrgb(True)
                             self.__levelswg.showGradient(False)
@@ -3278,7 +3284,7 @@ class LiveViewer(QtGui.QDialog):
                                  if rgbs[2] != -1 else zeros),
                                 axis=2)
 
-                    elif self.__filteredimage.shape[0] == 1:
+                    elif self.__filteredimage.shape[0] - ics == 1:
                         if self.rgb():
                             self.setrgb(False)
                             self.__channelwg.showGradient(True)

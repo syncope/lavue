@@ -203,7 +203,6 @@ class ChannelGroupBox(QtGui.QWidget):
         :type force: :obj:`bool`
         """
         if self.__colorchannel != channel or force:
-
             if channel >= 0 and channel <= self.__numberofchannels + 2:
                 if channel == self.__numberofchannels + 2:
                     self.__colorchannel = channel
@@ -274,8 +273,8 @@ class ChannelGroupBox(QtGui.QWidget):
         if self.__connected:
             self.channelChanged.emit()
 
-    def updateChannelLabels(self, chlabels):
-        """ update red channel
+    def updateChannelLabels(self, chlabels=None):
+        """ update channel labels
 
         :param chlabels: dictionary with channel labels
         :type chlabels: :obj:`dict` <:obj:`int` :obj:`str`>
@@ -288,10 +287,24 @@ class ChannelGroupBox(QtGui.QWidget):
                 else:
                     try:
                         self.__channellabels[int(ky)] = vl
-                        self.setChannelItemText(ky, vl)
+                        self.setChannelItemText(int(ky), vl)
                     except Exception as e:
                         logger.warning(str(e))
                         # print(str(e))
+        else:
+            self.__channellabels = {}
+            self.__numberofchannels = 0
+
+    def channelLabels(self):
+        """ provides channel labels
+
+        :returns: list of channel labels
+        :rtype: :obj:`list` <:obj:`str`>
+        """
+        return [
+            (self.__channellabels[i]
+             if i in self.__channellabels else "")
+            for i in range(len(self.__channellabels.keys()))]
 
     def setChannelItemText(self, iid, text):
         """ sets channel item text
