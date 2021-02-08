@@ -16,7 +16,7 @@ e.g. ``Pilatus``, ``Lambda``, ``Eiger``, ``PerkinElmer``, ``PCO``, ``LimaCCD``, 
 Installation
 ------------
 
-LaVue requires the following python packages: ``qt4  pyqtgraph  numpy  zmq  scipy``
+LaVue requires the following python packages: ``qt5/qt4  pyqtgraph  numpy  zmq  scipy``
 
 It is also recommended to install: ``pytango  hidra  pil  fabio  requests  h5py  pni  nxstools``
 
