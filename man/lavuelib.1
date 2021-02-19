@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Jan 28, 2021" "2.54" "lavuelib"
+.TH "LAVUELIB" "1" "Feb 19, 2021" "2.55" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -40,7 +40,7 @@ e.g. \fBPilatus\fP, \fBLambda\fP, \fBEiger\fP, \fBPerkinElmer\fP, \fBPCO\fP, \fB
 [image]
 .SH INSTALLATION
 .sp
-LaVue requires the following python packages: \fBqt4  pyqtgraph  numpy  zmq  scipy\fP
+LaVue requires the following python packages: \fBqt5/qt4  pyqtgraph  numpy  zmq  scipy\fP
 .sp
 It is also recommended to install: \fBpytango  hidra  pil  fabio  requests  h5py  pni  nxstools\fP
 .SS From sources
@@ -581,6 +581,19 @@ color channel label
 .UNINDENT
 .INDENT 7.0
 .TP
+.B channelLabels()
+provides channel labels
+.INDENT 7.0
+.TP
+.B Returns
+list of channel labels
+.TP
+.B Return type
+\fI\%list\fP <\fI\%str\fP>
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
 .B colorChannel()
 provides color channel
 .INDENT 7.0
@@ -668,8 +681,8 @@ update blue channel
 .UNINDENT
 .INDENT 7.0
 .TP
-.B updateChannelLabels(chlabels)
-update red channel
+.B updateChannelLabels(chlabels=None)
+update channel labels
 .INDENT 7.0
 .TP
 .B Parameters
@@ -7604,7 +7617,7 @@ image name, image data, json dictionary with metadata
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageSource.HIDRA = False
+.B lavuelib.imageSource.HIDRA = True
 (\fI\%bool\fP) hidra imported
 .UNINDENT
 .INDENT 0.0
@@ -7756,7 +7769,7 @@ set configuration
 .UNINDENT
 .INDENT 0.0
 .TP
-.B lavuelib.imageSource.PYTINE = False
+.B lavuelib.imageSource.PYTINE = True
 (\fI\%bool\fP) PyTine imported
 .UNINDENT
 .INDENT 0.0
@@ -10324,6 +10337,19 @@ shows or hides the histogram widget
 .TP
 .B initialize()
 initialize the filter
+.UNINDENT
+.INDENT 7.0
+.TP
+.B isOn()
+is on flag
+.INDENT 7.0
+.TP
+.B Returns
+is on flag
+.TP
+.B Return type
+\fI\%bool\fP
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
