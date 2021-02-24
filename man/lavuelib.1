@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "LAVUELIB" "1" "Feb 19, 2021" "2.55" "lavuelib"
+.TH "LAVUELIB" "1" "Feb 24, 2021" "2.56" "lavuelib"
 .SH NAME
 lavuelib \- lavuelib Documentation
 .
@@ -3329,6 +3329,11 @@ group size
 .UNINDENT
 .INDENT 0.0
 .TP
+.B class lavuelib.filewriter.FTHyperslab(offset=None, block=None, count=None, stride=None)
+Bases: \fI\%object\fP
+.UNINDENT
+.INDENT 0.0
+.TP
 .B class lavuelib.filewriter.FTLink(h5object, tparent=None)
 Bases: \fI\%lavuelib.filewriter.FTObject\fP
 .sp
@@ -3470,7 +3475,7 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
-.B add(key, source)
+.B add(key, source, sourcekey=None)
 add external field to layout
 .INDENT 7.0
 .TP
@@ -3480,6 +3485,8 @@ add external field to layout
 \fBkey\fP (\fI\%tuple\fP) – slide or selection
 .IP \(bu 2
 \fBsource\fP (\fI\%FTExternalField\fP) – external field
+.IP \(bu 2
+\fBsourcekey\fP (\fI\%tuple\fP) – slide or selection
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -3681,6 +3688,22 @@ sets writer
 .TP
 .B Parameters
 \fBwr\fP (\fBH5PYWriter\fP or \fBH5CppWriter\fP) – writer module
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.filewriter.unlimited(parent=None)
+return dataspace UNLIMITED variable for the current writer module
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fI\%FTObject\fP) – parent object
+.TP
+.B Returns
+dataspace UNLIMITED variable
+.TP
+.B Return type
+\fBh5cpp.dataspace.UNLIMITED\fP or \fBh5py.UNLIMITED\fP
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -4558,14 +4581,14 @@ file tree group
 .UNINDENT
 .INDENT 7.0
 .TP
-.B create_virtual_field(name, layout, fillvalue=None)
+.B create_virtual_field(name, layout, fillvalue=0)
 creates a virtual filed tres element
 .INDENT 7.0
 .TP
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBname\fP (\fI\%str\fP) – group name
+\fBname\fP (\fI\%str\fP) – field name
 .IP \(bu 2
 \fBlayout\fP (\fBH5CppFieldLayout\fP) – virual field layout
 .IP \(bu 2
@@ -4782,7 +4805,7 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
-.B add(key, source)
+.B add(key, source, sourcekey=None)
 add external field to layout
 .INDENT 7.0
 .TP
@@ -4792,6 +4815,8 @@ add external field to layout
 \fBkey\fP (\fI\%tuple\fP) – slide
 .IP \(bu 2
 \fBsource\fP (\fBH5PYExternalField\fP) – external field
+.IP \(bu 2
+\fBsourcekey\fP (\fI\%tuple\fP) – slide or selection
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -5017,6 +5042,22 @@ file object
 .TP
 .B Return type
 \fI\%H5CppFile\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.h5cppwriter.unlimited(parent=None)
+return dataspace UNLIMITED variable for the current writer module
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBFTObject\fP) – parent object
+.TP
+.B Returns
+dataspace UNLIMITED variable
+.TP
+.B Return type
+\fBh5cpp.dataspace.UNLIMITED\fP
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -5872,7 +5913,7 @@ constructor
 .UNINDENT
 .INDENT 7.0
 .TP
-.B add(key, source)
+.B add(key, source, sourcekey=None)
 add external field to layout
 .INDENT 7.0
 .TP
@@ -5882,6 +5923,8 @@ add external field to layout
 \fBkey\fP (\fI\%tuple\fP) – slide
 .IP \(bu 2
 \fBsource\fP (\fI\%H5PYExternalField\fP) – external field
+.IP \(bu 2
+\fBsourcekey\fP (\fI\%tuple\fP) – slide or selection
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -6097,6 +6140,22 @@ file object
 .TP
 .B Return type
 \fI\%H5PYFile\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lavuelib.h5pywriter.unlimited(parent=None)
+return dataspace UNLIMITED variable for the current writer module
+.INDENT 7.0
+.TP
+.B Parameters
+\fBparent\fP (\fBFTObject\fP) – parent object
+.TP
+.B Returns
+dataspace UNLIMITED variable
+.TP
+.B Return type
+\fBh5py.UNLIMITED\fP
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -10986,7 +11045,7 @@ JSON String with important variables
 .UNINDENT
 .INDENT 7.0
 .TP
-.B classmethod openProxy(device, counter=1000)
+.B classmethod openProxy(device, counter=100)
 opens device proxy of the given device
 .INDENT 7.0
 .TP
