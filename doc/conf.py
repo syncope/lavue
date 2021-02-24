@@ -425,7 +425,7 @@ autoclass_content = 'both'
 
 intersphinx_mapping = {
 #    'http://docs.python.org/dev': None,
-    'http://docs.python.org/3/': None,
+    'https://docs.python.org/3/': None,
     'http://docs.scipy.org/doc/scipy/reference': None,
     'http://docs.scipy.org/doc/numpy': None,
     'http://pytango.readthedocs.io/en/stable/': None,
