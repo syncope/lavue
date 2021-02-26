@@ -146,6 +146,23 @@ else:
 
 logger = logging.getLogger("lavue")
 
+#: (:obj:`bool`) PyTango bug #213 flag related to EncodedAttributes in python3
+PYTG_BUG_213 = False
+if sys.version_info > (3,):
+    try:
+        PYTGMAJOR, PYTGMINOR, PYTGPATCH = list(
+            map(int, tango.__version__.split(".")[:3]))
+        if PYTGMAJOR <= 9:
+            if PYTGMAJOR == 9:
+                if PYTGMINOR < 2:
+                    PYTG_BUG_213 = True
+                elif PYTGMINOR == 2 and PYTGPATCH <= 4:
+                    PYTG_BUG_213 = True
+            else:
+                PYTG_BUG_213 = True
+    except Exception:
+        pass
+
 
 def tobytes(x):
     """ decode str to bytes
@@ -677,7 +694,7 @@ class VDEOdecoder(object):
         """
         if not self.__header or not self.__data:
             return
-        if not self.__value:
+        if self.__value is None:
             image = self.__data[1][struct.calcsize(self.__headerFormat):]
             dformat = self.__formatID[self.__header['imageMode']]
             fSize = struct.calcsize(dformat)
@@ -685,6 +702,137 @@ class VDEOdecoder(object):
                 struct.unpack(dformat * (len(image) // fSize), image),
                 dtype=self.dtype).reshape(self.__header['height'],
                                           self.__header['width']).T
+            fendian = self.__header['endianness']
+            lendian = ord(struct.pack('=H', 1).decode()[-1])
+            if fendian != lendian:
+                try:
+                    self.__value.byteswap(inplace=False)
+                except TypeError:
+                    self.__value = self.__value.byteswap()
+
+        return self.__value
+
+
+class DATAARRAYdecoder(object):
+
+    """ DATA ARRAY LIMA decoder
+    """
+
+    @debugmethod
+    def __init__(self):
+        """ constructor
+
+        :brief: It clears the local variables
+        """
+        #: (:obj:`str`) decoder name
+        self.name = "DATA_ARRAY"
+        #: (:obj:`str`) decoder format
+        self.format = None
+        #: (:obj:`str`) data type
+        self.dtype = None
+
+        #: (:class:`numpy.ndarray`) image data
+        self.__value = None
+        #: ([:obj:`str`, :obj:`str`]) header and image data
+        self.__data = None
+        #: (:obj:`str`) struct header format
+        self.__headerFormat = '<IHHIIHHHHHHHHIIIIIIII'
+        #: (:obj:`dict` <:obj:`str`, :obj:`any` > ) header data
+        self.__header = {}
+        #: (:obj:`dict` <:obj:`int`, :obj:`str` > ) format modes
+        self.__formatID = {
+            0: 'B', 1: 'H', 2: 'I', 3: 'Q',
+            4: 'b', 5: 'h', 6: 'i', 7: 'q',
+            8: 'f', 9: 'd'
+        }
+        #: (:obj:`dict` <:obj:`int`, :obj:`str` > ) dtype modes
+        self.__dtypeID = {
+            0: 'uint8', 1: 'uint16', 2: 'uint32', 3: 'uint64',
+            4: 'int8', 5: 'int16', 6: 'int32', 7: 'int64',
+            8: 'float32', 9: 'float64',
+        }
+
+    # @debugmethod
+    def load(self, data):
+        """  loads encoded data
+
+        :param data: encoded data
+        :type data: [:obj:`str`, :obj:`str`]
+        """
+        logger.debug(
+            "lavuelib.imageSource.DATAARRAYdecoder.load:  %s" % str(data[0]))
+        self.__data = data
+        self.format = data[0]
+        self._loadHeader(data[1][:struct.calcsize(self.__headerFormat)])
+        self.__value = None
+
+    @debugmethod
+    def _loadHeader(self, headerData):
+        """ loads the image header
+
+        :param headerData: buffer with header data
+        :type headerData: :obj:`str`
+        """
+        hdr = struct.unpack(self.__headerFormat, headerData)
+        self.__header = {}
+        self.__header['magic'] = hdr[0]
+        self.__header['headerVersion'] = hdr[1]
+        self.__header['headerSize'] = hdr[2]
+        self.__header['category'] = hdr[3]
+        self.__header['imageMode'] = hdr[4]
+        self.__header['endianness'] = hdr[5]
+        self.__header['dim'] = hdr[6]
+        self.__header['shape'] = [
+            hdr[7], hdr[8], hdr[9], hdr[10], hdr[11], hdr[12]]
+        self.__header['steps'] = [
+            hdr[13], hdr[14], hdr[15], hdr[16], hdr[17], hdr[18]]
+
+        self.__header['padding'] = hdr[19:]
+
+        self.dtype = self.__dtypeID[self.__header['imageMode']]
+
+    @debugmethod
+    def frameNumber(self):
+        """ no data """
+
+    @debugmethod
+    def shape(self):
+        """ provides the data shape
+
+        :returns: the data shape if data was loaded
+        :rtype: :obj:`list` <:obj:`int` >
+        """
+        if self.__header:
+            return [self.__header['shape'][i]
+                    for i in range(self.__header['dim'])]
+
+    @debugmethod
+    def steps(self):
+        """ provides the data steps
+
+        :returns: the data steps if data was loaded
+        :rtype: :obj:`list` <:obj:`int` >
+        """
+        if self.__header:
+            return [self.__header['steps'][i]
+                    for i in range(self.__header['dim'])]
+
+    @debugmethod
+    def decode(self):
+        """ provides the decoded data
+
+        :returns: the decoded data if data was loaded
+        :rtype: :class:`numpy.ndarray`
+        """
+        if not self.__header or not self.__data:
+            return
+        if self.__value is None:
+            image = self.__data[1][struct.calcsize(self.__headerFormat):]
+            dformat = self.__formatID[self.__header['imageMode']]
+            fSize = struct.calcsize(dformat)
+            self.__value = np.array(
+                struct.unpack(dformat * (len(image) // fSize), image),
+                dtype=self.dtype).reshape(list(reversed(self.shape())))
             fendian = self.__header['endianness']
             lendian = ord(struct.pack('=H', 1).decode()[-1])
             if fendian != lendian:
@@ -714,8 +862,11 @@ class TangoAttrSource(BaseSource):
         self.__aproxy = None
         #: (:dict: <:obj:`str`, :obj:`any`>)
         #:      dictionary of external decorders
-        self.__decoders = {"LIMA_VIDEO_IMAGE": VDEOdecoder(),
-                           "VIDEO_IMAGE": VDEOdecoder()}
+        self.__decoders = {
+            "LIMA_VIDEO_IMAGE": VDEOdecoder(),
+            "VIDEO_IMAGE": VDEOdecoder(),
+            "DATA_ARRAY": DATAARRAYdecoder(),
+        }
         #: (:dict: <:obj:`str`, :obj:`str`>)
         #:      dictionary of tango decorders
         self.__tangodecoders = {
@@ -752,6 +903,11 @@ class TangoAttrSource(BaseSource):
                 else:
                     attr = self.__aproxy.read()
             if str(attr.type) == "DevEncoded":
+                if PYTG_BUG_213:
+                    raise Exception(
+                        "Reading Encoded Attributes for python3 and "
+                        "PyTango < 9.2.5 is not supported")
+
                 avalue = attr.value
                 if avalue[0] in ["RGB24", "JPEG_RGB"]:
                     image = QtGui.QImage.fromData(avalue[1])
@@ -792,6 +948,13 @@ class TangoAttrSource(BaseSource):
                     return (np.transpose(attr.value),
                             '%s  (%s)' % (
                                 self._configuration, str(attr.time)), "")
+        except tango.DevFailed as e:
+            if "Frame(s) not available yet" in str((e.args[0]).desc):
+                logger.warning("TangoAttrSource: Frame(s) not available yet")
+                return None, None, None
+            logger.warning(str(e))
+            # print(str(e))
+            return str(e), "__ERROR__", ""
         except Exception as e:
             logger.warning(str(e))
             # print(str(e))
@@ -936,8 +1099,11 @@ class TangoEventsSource(BaseSource):
         self.attr = None
         #: (:dict: <:obj:`str`, :obj:`any`>)
         #:      dictionary of external decorders
-        self.__decoders = {"LIMA_VIDEO_IMAGE": VDEOdecoder(),
-                           "VIDEO_IMAGE": VDEOdecoder()}
+        self.__decoders = {
+            "LIMA_VIDEO_IMAGE": VDEOdecoder(),
+            "VIDEO_IMAGE": VDEOdecoder(),
+            "DATA_ARRAY": DATAARRAYdecoder()
+        }
         #: (:dict: <:obj:`str`, :obj:`str`>)
         #:      dictionary of tango decorders
         self.__tangodecoders = {
