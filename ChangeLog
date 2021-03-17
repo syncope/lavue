@@ -1,3 +1,7 @@
+2021-03-17 Jan Kotanski <jan.kotanski@desy.de>
+	* add support for h5file:/ scheme in Tango File image source
+	* tagged as 2.59.0
+
 2021-03-05 Jan Kotanski <jan.kotanski@desy.de>
 	* fix typo in LiveViewer.__backgroundscale
 	* tagged as 2.58.1
