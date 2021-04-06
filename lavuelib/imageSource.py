@@ -1044,8 +1044,12 @@ class TangoAttrSource(BaseSource):
                     width = image.width()
                     height = image.height()
                     st = image.bits().asstring(width * height * 4)
-                    data = np.fromstring(st, dtype=np.uint8).reshape(
-                        (height, width, 4))
+                    try:
+                        data = np.frombuffer(st, dtype=np.uint8).reshape(
+                            (height, width, 4))
+                    except Exception:
+                        data = np.fromstring(st, dtype=np.uint8).reshape(
+                            (height, width, 4))
                     return (np.transpose(data),
                             '%s  (%s)' % (
                                 self._configuration, str(attr.time)), "")
@@ -1264,8 +1268,12 @@ class TangoEventsSource(BaseSource):
                         width = image.width()
                         height = image.height()
                         st = image.bits().asstring(width * height * 4)
-                        data = np.fromstring(st, dtype=np.uint8).reshape(
-                            (height, width, 4))
+                        try:
+                            data = np.frombuffer(st, dtype=np.uint8).reshape(
+                                (height, width, 4))
+                        except Exception:
+                            data = np.fromstring(st, dtype=np.uint8).reshape(
+                                (height, width, 4))
                         return (np.transpose(data),
                                 '%s  (%s)' % (
                                     self._configuration, str(self.attr.time)),
@@ -1413,10 +1421,14 @@ class HTTPSource(BaseSource):
                         if PILLOW and not self.__tiffloader:
                             try:
                                 img = np.array(
-                                    PIL.Image.open(BytesIO(str(data))))
+                                    PIL.Image.open(BytesIO(bytes(data))))
                             except Exception:
-                                img = imageFileHandler.TIFLoader().load(
-                                    np.fromstring(data[:], dtype=np.uint8))
+                                try:
+                                    img = imageFileHandler.TIFLoader().load(
+                                        np.frombuffer(data[:], dtype=np.uint8))
+                                except Exception:
+                                    img = imageFileHandler.TIFLoader().load(
+                                        np.fromstring(data[:], dtype=np.uint8))
                                 self.__tiffloader = True
                             if img is None:
                                 return None, None, None
@@ -1425,8 +1437,12 @@ class HTTPSource(BaseSource):
                             return (np.transpose(img),
                                     "%s (%s)" % (name, time.ctime()), "")
                         else:
-                            img = imageFileHandler.TIFLoader().load(
-                                np.fromstring(data[:], dtype=np.uint8))
+                            try:
+                                img = imageFileHandler.TIFLoader().load(
+                                    np.frombuffer(data[:], dtype=np.uint8))
+                            except Exception:
+                                img = imageFileHandler.TIFLoader().load(
+                                    np.fromstring(data[:], dtype=np.uint8))
                             if img is None:
                                 return None, None, None
                             if hasattr(img, "size") and img.size == 0:
@@ -2042,7 +2058,7 @@ class ASAPOSource(BaseSource):
                     "[tif source module]::metadata %s" % metadata["name"])
                 if PILLOW and not self.__tiffloader:
                     try:
-                        img = np.array(PIL.Image.open(BytesIO(str(data))))
+                        img = np.array(PIL.Image.open(BytesIO(bytes(data))))
                     except Exception:
                         img = imageFileHandler.TIFLoader().load(
                             np.frombuffer(data[:], dtype=np.uint8))
@@ -2293,7 +2309,7 @@ class HiDRASource(BaseSource):
                 # print("[tif source module]::metadata", metadata["filename"])
                 if PILLOW and not self.__tiffloader:
                     try:
-                        img = np.array(PIL.Image.open(BytesIO(str(data))))
+                        img = np.array(PIL.Image.open(BytesIO(bytes(data))))
                     except Exception:
                         try:
                             img = imageFileHandler.TIFLoader().load(
