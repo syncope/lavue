@@ -268,6 +268,21 @@ class PartialData(object):
         else:
             return None
 
+    def intmaxvalue(self):
+        """ provides data type maximal value
+
+        :returns: integer data type maximal value
+        :rtype: :obj:`int`
+        """
+        maxval = None
+        if self.dtype() is not None and \
+           issubclass(self.dtype().type, np.integer):
+            try:
+                maxval = np.iinfo(self.dtype()).max
+            except Exception:
+                maxval = None
+        return maxval
+
     def data(self):
         """ provides transformed data
 
@@ -537,6 +552,8 @@ class LiveViewer(QtGui.QDialog):
         self.__imagename = None
         #: (:obj:`str`) last image name
         self.__lastimagename = None
+        #: (:obj:`int`) integer max value
+        self.__intmaxvalue = None
         #: (:obj:`str`) metadata JSON dictionary
         self.__metadata = ""
         #: (:obj:`str`) metadata dictionary
@@ -2106,13 +2123,20 @@ class LiveViewer(QtGui.QDialog):
                     if self.__settings.geometryfromsource:
                         self.__settings.updateMetaData(**self.__mdata)
                         self.__imagewg.updateCenter(
-                            self.__settings.centerx, self.__settings.centery)
+                            self.__settings.centerx,
+                            self.__settings.centery)
                         self.__imagewg.mouseImagePositionChanged.emit()
                         self.__imagewg.geometryChanged.emit()
                 else:
                     self.__mdata = {}
                 self.__imagename = imagename
                 self.__rawimage = np.transpose(newimage)
+                self.__intmaxvalue = None
+                pd = PartialData(imagename, self.__rawimage, metadata,
+                                 0, 0, None)
+                imv = pd.intmaxvalue()
+                if imv is not None:
+                    self.__intmaxvalue = imv
                 self._plot()
                 if fid is None:
                     self.__imagewg.autoRange()
@@ -2167,6 +2191,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.secstream = self.__settings.secstream
         cnfdlg.zeromask = self.__settings.zeromask
         cnfdlg.nanmask = self.__settings.nanmask
+        cnfdlg.negmask = self.__settings.negmask
         cnfdlg.refreshrate = dataFetchThread.GLOBALREFRESHRATE
         cnfdlg.toolrefreshtime = self.__settings.toolrefreshtime
         cnfdlg.toolpollinginterval = self.__settings.toolpollinginterval
@@ -2505,6 +2530,11 @@ class LiveViewer(QtGui.QDialog):
 
         if self.__settings.nanmask != dialog.nanmask:
             self.__settings.nanmask = dialog.nanmask
+            remasking = True
+            replot = True
+
+        if self.__settings.negmask != dialog.negmask:
+            self.__settings.negmask = dialog.negmask
             remasking = True
             replot = True
 
@@ -3124,8 +3154,17 @@ class LiveViewer(QtGui.QDialog):
                 )
                 fulldata.append(
                     PartialData(name, rawimage, metadata, x, y, tr))
+
+        self.__intmaxvalue = None
+        if self.__settings.negmask:
+            imvtb = [fd.intmaxvalue() for fd in fulldata]
+            imvtb = [vl for vl in imvtb if vl is not None]
+            if imvtb:
+                self.__intmaxvalue = np.max(imvtb)
+
         if not self.__sourcewg.isConnected():
             return
+
         if len(fulldata) == 1:
             name, rawimage, metadata = fulldata[0].tolist()[:3]
         else:
@@ -3472,6 +3511,10 @@ class LiveViewer(QtGui.QDialog):
 
         if self.__settings.showhighvaluemask and \
            self.__imagewg.maskValue() is not None:
+            maskvalue = self.__imagewg.maskValue()
+            if self.__settings.negmask and \
+               maskvalue < 0 and self.__intmaxvalue is not None:
+                maskvalue += self.__intmaxvalue
             try:
                 if self.__settings.nanmask:
                     self.__displayimage = np.array(
@@ -3481,13 +3524,13 @@ class LiveViewer(QtGui.QDialog):
                         np.warnings.filterwarnings(
                             'ignore', r'invalid value encountered in greater')
                         self.__imagewg.setMaskValueIndices(
-                            self.__displayimage > self.__imagewg.maskValue())
+                            self.__displayimage > maskvalue)
                         self.__displayimage[
                             self.__imagewg.maskValueIndices()] = np.nan
                 else:
                     self.__displayimage = np.array(self.__displayimage)
                     self.__imagewg.setMaskValueIndices(
-                        self.__displayimage > self.__imagewg.maskValue())
+                        self.__displayimage > maskvalue)
                     self.__displayimage[
                             self.__imagewg.maskValueIndices()] = 0
             except IndexError:
