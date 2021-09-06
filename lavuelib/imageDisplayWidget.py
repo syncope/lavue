@@ -38,7 +38,11 @@ from . import memoExportDialog
 
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
     if _pg.__version__ else ("0", "9", "0")
-
+try:
+    _NPATCH = int(_VPATCH)
+except Exception:
+    _NPATCH = 0
+_PQGVER = int(_VMAJOR) * 1000 + int(_VMINOR) * 100 + _NPATCH
 
 logger = logging.getLogger("lavue")
 
@@ -209,7 +213,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__setaspectlocked = QtGui.QAction(
             "Set Aspect Locked", self.__viewbox.menu)
         self.__setaspectlocked.setCheckable(True)
-        if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
+        if _PQGVER < 1009:
             self.__viewbox.menu.axes.insert(0, self.__setaspectlocked)
         self.__viewbox.menu.addAction(self.__setaspectlocked)
 
@@ -217,7 +221,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__viewonetoone = QtGui.QAction(
             "View 1:1 pixels", self.__viewbox.menu)
         self.__viewonetoone.triggered.connect(self._oneToOneRange)
-        if _VMAJOR == '0' and int(_VMINOR) < 10 and int(_VPATCH) < 9:
+        if _PQGVER < 1009:
             self.__viewbox.menu.axes.insert(0, self.__viewonetoone)
         self.__viewbox.menu.addAction(self.__viewonetoone)
 
@@ -395,12 +399,12 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__image.resetTransform()
         if axes.scale is not None and anyupdate:
             if not self.__transformations.transpose:
-                self.__image.scale(*axes.scale)
+                self._imagescale(*axes.scale)
             else:
-                self.__image.scale(
+                self._imagescale(
                     axes.scale[1], axes.scale[0])
         else:
-            self.__image.scale(1, 1)
+            self._imagescale(1, 1)
         if axes.position is not None and anyupdate:
             if self.__transformations.orgtranspose and wrenabled:
                 self.__image.setPos(
@@ -414,6 +418,21 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
             self.__image.setPos(0, 0)
         if self.sceneObj.rawdata is not None and update:
             self.autoRange()
+
+    def _imagescale(self, x, y):
+        """ set image scale x,y
+
+        :param x: x pixel coordinate
+        :type x: float
+        :param y: y pixel coordinate
+        :type y: float
+        """
+        try:
+            tr = self.__image.transform()
+            tr.scale(x, y)
+            self.__image.setTransform(tr)
+        except Exception:
+            self.__image.scale(x, y)
 
     def setToolScale(self, position=None, scale=None):
         """ set axes scales
@@ -474,7 +493,7 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         if axes.scale is not None or axes.position is not None:
             self.__image.resetTransform()
         if axes.scale is not None:
-            self.__image.scale(1, 1)
+            self._imagescale(1, 1)
         if axes.position is not None:
             self.__image.setPos(0, 0)
         if axes.scale is not None or axes.position is not None:
@@ -1092,8 +1111,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 self.__viewbox, tuple(self.__viewbox.state['viewRange'][0]))
             self.__viewbox.sigYRangeChanged.emit(
                 self.__viewbox, tuple(self.__viewbox.state['viewRange'][1]))
-            self.__viewbox.sigRangeChanged.emit(
-                self.__viewbox, self.__viewbox.state['viewRange'])
+            if _PQGVER < 1202:
+                self.__viewbox.sigRangeChanged.emit(
+                    self.__viewbox, self.__viewbox.state['viewRange'])
+            else:
+                self.__viewbox.sigRangeChanged.emit(
+                    self.__viewbox, self.__viewbox.state['viewRange'],
+                    [True, True])
 
         if self.__transformations.updownflip != updownflip:
             self.__transformations.updownflip = updownflip
@@ -1103,8 +1127,13 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 self.__viewbox, tuple(self.__viewbox.state['viewRange'][0]))
             self.__viewbox.sigYRangeChanged.emit(
                 self.__viewbox, tuple(self.__viewbox.state['viewRange'][1]))
-            self.__viewbox.sigRangeChanged.emit(
-                self.__viewbox, self.__viewbox.state['viewRange'])
+            if _PQGVER < 1202:
+                self.__viewbox.sigRangeChanged.emit(
+                    self.__viewbox, self.__viewbox.state['viewRange'])
+            else:
+                self.__viewbox.sigRangeChanged.emit(
+                    self.__viewbox, self.__viewbox.state['viewRange'],
+                    [True, True])
 
     def transformations(self):
         """ povides coordinates transformations
