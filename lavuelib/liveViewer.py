@@ -32,6 +32,7 @@ from __future__ import unicode_literals
 
 import time
 import socket
+import warnings
 import json
 from .qtuic import uic
 import numpy as np
@@ -529,6 +530,7 @@ class LiveViewer(QtGui.QDialog):
 
         self.__levelswg.setImageItem(self.__imagewg.image())
         self.__levelswg.showGradient(True)
+        self.__levelswg.showChannels(False)
         self.__channelwg.showGradient(True)
         self.__levelswg.updateHistoImage(autoLevel=True)
 
@@ -697,6 +699,8 @@ class LiveViewer(QtGui.QDialog):
         # signal from limit setting widget
         self.__levelswg.minLevelChanged.connect(self._setMinLevelState)
         self.__levelswg.maxLevelChanged.connect(self._setMaxLevelState)
+        self.__levelswg.channelLevelsChanged.connect(
+            self._setChannelLevelState)
         self.__levelswg.autoLevelsChanged.connect(self._setAutoLevelsState)
         self.__levelswg.levelsChanged.connect(self._setLevelState)
         self.__levelswg.gradientChanged.connect(
@@ -969,6 +973,7 @@ class LiveViewer(QtGui.QDialog):
         :type level: :obj:`float`
         """
         self.__imagewg.setMinLevel(level)
+        self.__imagewg.setLevelMode(self.__levelswg.levelMode())
         self.__setLevelState()
 
     @QtCore.pyqtSlot(float)
@@ -979,7 +984,21 @@ class LiveViewer(QtGui.QDialog):
         :type level: :obj:`float`
         """
         self.__imagewg.setMaxLevel(level)
+        self.__imagewg.setLevelMode(self.__levelswg.levelMode())
         self.__setLevelState()
+
+    @QtCore.pyqtSlot()
+    def _setChannelLevelState(self):
+        """ sets maximum intensity level
+
+        :param level: json with channel levels
+        :type level: :obj:`str`
+        """
+        levels = self.__levelswg.channelLevels()
+        if levels is not None:
+            self.__imagewg.setLevelMode(self.__levelswg.levelMode())
+            self.__imagewg.setChannelLevels(levels)
+            self.__setLevelState()
 
     @QtCore.pyqtSlot(int)
     def _setAutoLevelsState(self, autolevels):
@@ -2888,7 +2907,7 @@ class LiveViewer(QtGui.QDialog):
             self.__scaledimage is not None
         display = self.__settings.showstats
         calcvariance = self.__settings.calcvariance
-        maxval, meanval, varval, minval, maxrawval, maxsval = \
+        maxval, meanval, varval, minval, maxrawval, maxsval, channels = \
             self.__calcStats(
                 (stream or display,
                  stream or display,
@@ -2925,7 +2944,7 @@ class LiveViewer(QtGui.QDialog):
 
         # if needed, update the level display
         if auto:
-            self.__levelswg.updateAutoLevels(minval, maxsval)
+            self.__levelswg.updateAutoLevels(minval, maxsval, channels)
 
     @debugmethod
     def _startPlotting(self):
@@ -3884,10 +3903,25 @@ class LiveViewer(QtGui.QDialog):
             varval = np.nanvar(self.__scaledimage) if flag[2] else 0.0
             maxsval = maxval
         else:
-            return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+            return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, None
         maxrawval = np.nanmax(self.__rawgreyimage) if flag[4] else 0.0
         minval = np.nanmin(self.__scaledimage) if flag[3] else 0.0
-        return (maxval, meanval, varval, minval, maxrawval,  maxsval)
+        channels = None
+        if hasattr(self.__scaledimage, "shape") \
+           and len(self.__scaledimage.shape) == 3:
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    'ignore', r'All-NaN (slice|axis) encountered')
+                nch = self.__scaledimage.shape[2]
+                channels = [
+                    [np.nanmin(self.__scaledimage[:, :, i])
+                     if flag[3] else 0.0,
+                     np.nanmax(self.__scaledimage[:, :, i])
+                     if flag[5] else 0.0]
+                    for i in range(nch)]
+        else:
+            channels = None
+        return (maxval, meanval, varval, minval, maxrawval,  maxsval, channels)
 
     @debugmethod
     @QtCore.pyqtSlot(str)

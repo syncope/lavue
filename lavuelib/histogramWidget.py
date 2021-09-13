@@ -31,10 +31,22 @@ from pyqtgraph import QtCore, QtGui
 import numpy as np
 import logging
 
+from .external.pyqtgraph_0_12 import (
+    histogram__init__, histogram_paint, histogram_setHistogramRange,
+    # histogram_setLevels, histogram_fillHistogram
+)
+
+
 #: ( (:obj:`str`,:obj:`str`,:obj:`str`) )
 #:         pg major version, pg minor verion, pg patch version
 _VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
     if _pg.__version__ else ("0", "9", "0")
+try:
+    _NPATCH = int(_VPATCH)
+except Exception:
+    _NPATCH = 0
+_PQGVER = int(_VMAJOR) * 1000 + int(_VMINOR) * 100 + _NPATCH
+
 
 _pg.graphicsItems.GradientEditorItem.Gradients['reversegrey'] = {
     'ticks': [(0.0, (255, 255, 255, 255)),
@@ -254,6 +266,69 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         :param expertmode: expert mode flag
         :type expertmode: :obj:`bool`
         """
+        if _PQGVER >= 1100:
+            self.__init_1100(bins, step, image, fillHistogram, expertmode)
+        else:
+            self.__init_old(bins, step, image, fillHistogram, expertmode)
+        self.vb.enableAutoRange(self.vb.YAxis, 0.99)
+
+    def __init_1100(self, bins=None, step=None, image=None, fillHistogram=True,
+                    expertmode=False):
+        """ constructor for old pyqtgraph
+
+        :param bins: bins edges algorithm for histogram, default: 'auto'
+        :type bins: :obj:`str`
+        :param step: data step for calculation of histogram levels,
+                     default: 'auto'
+        :type step: :obj:`str` or :obj:`int`
+        :param image: 2d image
+        :type image: :class:`pyqtgraph.ImageItem`
+        :param fillHistogram: histogram will be filled in
+        :type fillHistogram: :obj:`bool`
+        :param expertmode: expert mode flag
+        :type expertmode: :obj:`bool`
+        """
+        if _PQGVER >= 1202:
+            _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.__init__(
+                self, image, fillHistogram, levelMode='mono',
+                gradientPosition='bottom', orientation='horizontal')
+        else:
+            histogram__init__(
+                self, image, fillHistogram, levelMode='mono',
+                gradientPosition='bottom', orientation='horizontal')
+
+        #: (:obj:`bool`) expert mode
+        self.__expertmode = expertmode
+
+        #: (:obj: `bool`) rgb flag
+        self.__rgb = False
+
+        # self.vb.setMaximumHeight(15200)
+
+        #: (:obj:`list`) buffer for removed gradients
+        self.__oldgradient = []
+        self.resetGradient(False)
+
+        self.autolevelfactor = None
+        self.__step = step or 'auto'
+        self.__bins = bins or 'auto'
+
+    def __init_old(self, bins=None, step=None, image=None, fillHistogram=True,
+                   expertmode=False):
+        """ constructor for old pyqtgraph
+
+        :param bins: bins edges algorithm for histogram, default: 'auto'
+        :type bins: :obj:`str`
+        :param step: data step for calculation of histogram levels,
+                     default: 'auto'
+        :type step: :obj:`str` or :obj:`int`
+        :param image: 2d image
+        :type image: :class:`pyqtgraph.ImageItem`
+        :param fillHistogram: histogram will be filled in
+        :type fillHistogram: :obj:`bool`
+        :param expertmode: expert mode flag
+        :type expertmode: :obj:`bool`
+        """
         _pg.graphicsItems.GraphicsWidget.GraphicsWidget.__init__(self)
 
         #: (:obj:`bool`) expert mode
@@ -278,7 +353,7 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         self.layout.setSpacing(0)
 
         #: (:class:`pyqtgraph.graphicsItems.ViewBox.ViewBox`) view box
-        self.vb = _pg.graphicsItems.ViewBox.ViewBox()
+        self.vb = _pg.graphicsItems.ViewBox.ViewBox(parent=self)
         # self.vb.setMaximumHeight(152)
         self.vb.setMinimumHeight(45)
         self.vb.setMouseEnabled(x=True, y=False)
@@ -302,12 +377,13 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
 
         #: (:class:`pyqtgraph.graphicsItems.AxisItem.AxisItem`) axis item
         self.axis = _pg.graphicsItems.AxisItem.AxisItem(
-            'top', linkView=self.vb, maxTickLength=-10, showValues=False)
+            'top', linkView=self.vb, maxTickLength=-10, showValues=False,
+            parent=self)
 
         self.layout.addItem(self.axis, 0, 0)
         self.layout.addItem(self.vb, 1, 0)
         self.layout.addItem(self.gradient, 2, 0)
-        self.range = None
+        # self.range = None
 
         self.autolevelfactor = None
         self.__step = step or 'auto'
@@ -356,15 +432,16 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         else:
             _pg.HistogramLUTItem.gradientChanged(self)
 
-    def resetGradient(self):
+    def resetGradient(self, signal=True):
         """ resets gradient widget
         """
         self.gradient.sigGradientChanged.disconnect(self.gradientChanged)
-        self.gradient.sigNameChanged.disconnect(self._emitSigNameChanged)
-        self.gradient.saveAction.triggered.disconnect(
-            self._emitSaveGradientRequested)
-        self.gradient.removeAction.triggered.disconnect(
-            self._emitRemoveGradientRequested)
+        if signal:
+            self.gradient.sigNameChanged.disconnect(self._emitSigNameChanged)
+            self.gradient.saveAction.triggered.disconnect(
+                self._emitSaveGradientRequested)
+            self.gradient.removeAction.triggered.disconnect(
+                self._emitRemoveGradientRequested)
         self.gradient.hide()
         if hasattr(self.gradient, "prepareGeometryChange"):
             self.gradient.prepareGeometryChange()
@@ -447,6 +524,25 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         :param args: paint argument
         :type args: :obj:`list` < :obj:`any`>
         """
+        if _PQGVER >= 1202:
+            self.__paint_1202(p, *args)
+        elif _PQGVER >= 1100:
+            histogram_paint(self, p, *args)
+        else:
+            self.__paint_old(p, *args)
+
+    def __paint_1202(self, p, *args):
+        _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.paint(
+            self, p, *args)
+
+    def __paint_old(self, p, *args):
+        """ paints the histogram item
+
+        :param p: QPainter painter
+        :type p: :class:`PyQt5.QtGui.QPainter`
+        :param args: paint argument
+        :type args: :obj:`list` < :obj:`any`>
+        """
 
         pen = self.region.lines[0].pen
         rgn = self.getLevels()
@@ -473,8 +569,38 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         :param padding: histogram padding
         :type padding: :obj:`float`
         """
+        if _PQGVER >= 1202:
+            self.__setHistogramRange_1202(self, mn, mx, padding)
+        if _PQGVER >= 1100:
+            histogram_setHistogramRange(self, mn, mx, padding)
+        else:
+            self.__setHistogramRange_old(self, mn, mx, padding)
+
+    def __setHistogramRange_old(self, mn, mx, padding=0.1):
+        """sets the Y range on the histogram plot. This disables auto-scaling.
+
+        :param mn: minimum range level
+        :type mn: :obj:`float`
+        :param mx: maximum range level
+        :type mx: :obj:`float`
+        :param padding: histogram padding
+        :type padding: :obj:`float`
+        """
         self.vb.enableAutoRange(self.vb.XAxis, False)
         self.vb.setYRange(mn, mx, padding)
+
+    def __setHistogramRange_1202(self, mn, mx, padding=0.1):
+        """sets the Y range on the histogram plot. This disables auto-scaling.
+
+        :param mn: minimum range level
+        :type mn: :obj:`float`
+        :param mx: maximum range level
+        :type mx: :obj:`float`
+        :param padding: histogram padding
+        :type padding: :obj:`float`
+        """
+        _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.setHistogramRange(
+            self, mn, mx, padding)
 
     def __imageItem(self):
         """ provides imageItem independent of the pyqtgraph version
@@ -491,13 +617,12 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
             return self.imageItem()
 
     def getFactorRegion(self):
-        """ provides auto levels calculated from autofactor
+        """ provides mono auto levels calculated from autofactor
 
         :returns: minlevel, maxlevel
         :rtype: (float, float)
 
         """
-
         hx = None
         hy = None
         if self.autolevelfactor is not None:
@@ -514,12 +639,55 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
                 if hx.any() and hy.any():
                     hmax = max(hy)
                     hmin = self.autolevelfactor*hmax/100.
-                    mn, mx = self.__imageItem().levels[:2]
+                    # mn, mx = self.__imageItem().levels[:2]
                     indexes = np.where(hy >= hmin)
                     ind1 = indexes[0][0]
                     ind2 = indexes[-1][-1]
                     return hx[ind1], hx[ind2]
         return None, None
+
+    def getChannelFactorRegion(self, ch=None):
+        """ provides mono auto levels calculated from autofactor
+
+        :param ch: histogram channels
+        :type ch:  :obj:
+        :returns: minlevel, maxlevel for channels
+        :rtype: :obj:`list` < (float, float) >
+
+        """
+        channels = []
+        if ch is None:
+            channels = self.imageItem().getHistogram(perChannel=True)
+        if ch[0] is None:
+            return
+        autofactor = False
+        if self.autolevelfactor is not None:
+            for i in range(1, 5):
+                chs = None
+                if len(ch) >= i:
+                    h = ch[i-1]
+                    hx = h[0]
+                    hy = h[1]
+                    if hy is not None and hx is not None and \
+                       hx.any() and hy.any():
+                        if abs(hx[0]) < 1.e-3 or abs(hx[0]+2.) < 1.e-3:
+                            hhx = hx[1:]
+                            hhy = hy[1:]
+                        else:
+                            hhx = hx
+                            hhy = hy
+                        if hhx.any() and hhy.any():
+                            hmax = max(hhy)
+                            hmin = self.autolevelfactor * hmax / 100.
+                            # mn, mx = self.__imageItem().levels[:2]
+                            indexes = np.where(hhy >= hmin)
+                            ind1 = indexes[0][0]
+                            ind2 = indexes[-1][-1]
+                            chs = (hhx[ind1], hhx[ind2])
+                            autofactor = True
+                channels.append(chs)
+        if autofactor:
+            return channels
 
     def imageChanged(self, autoLevel=False, autoRange=False):
         """ overload imageChange method
@@ -529,49 +697,91 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         :param autoRange: auto range flag
         :type autoRange: :obj:`bool`
         """
-
-        mn, mx = self.__imageItem().levels[:2]
-        hx = None
-        hy = None
-        if self.autolevelfactor is not None:
+        if self.levelMode == 'mono':
+            for plt in self.plots[1:]:
+                plt.setVisible(False)
+            self.plots[0].setVisible(True)
+            hx1, hx2 = self.getFactorRegion()
+            if hx1 is not None:
+                self.region.setRegion([hx1, hx2])
+                _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.\
+                    imageChanged(
+                        self, autoLevel=False, autoRange=autoRange)
+                return
             try:
-                hx, hy = self.__imageItem().getHistogram(
+                # _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.\
+                #     imageChanged(
+                #         self, autoLevel=autoLevel, autoRange=autoRange)
+                h = self.imageItem().getHistogram(
                     step=self.__step, bins=self.__bins)
+                if h[0] is None:
+                    return
+                self.plot.setData(*h)
+                if autoLevel:
+                    mn = h[0][0]
+                    mx = h[0][-1]
+                    self.region.setRegion([mn, mx])
             except Exception as e:
                 logger.warning(str(e))
                 # print(str(e))
-            if hy is not None and hx is not None and hx.any() and hy.any():
-                if abs(hx[0]) < 1.e-3 or abs(hx[0]+2.) < 1.e-3:
-                    hhx = hx[1:]
-                    hhy = hy[1:]
-                else:
-                    hhx = hx
-                    hhy = hy
-                if hhx.any() and hhy.any():
-                    hmax = max(hhy)
-                    hmin = self.autolevelfactor * hmax / 100.
-                    mn, mx = self.__imageItem().levels[:2]
-                    indexes = np.where(hhy >= hmin)
-                    ind1 = indexes[0][0]
-                    ind2 = indexes[-1][-1]
-                    self.region.setRegion([hhx[ind1], hhx[ind2]])
-                    _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.\
-                        imageChanged(
-                            self, autoLevel=False, autoRange=autoRange)
-                    return
-        try:
-            # _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.\
-            #     imageChanged(
-            #         self, autoLevel=autoLevel, autoRange=autoRange)
-            h = self.imageItem().getHistogram(
-                step=self.__step, bins=self.__bins)
-            if h[0] is None:
+        else:
+            # plot one histogram for each channel
+            self.plots[0].setVisible(False)
+            ch = self.imageItem().getHistogram(perChannel=True)
+            if ch[0] is None:
                 return
-            self.plot.setData(*h)
-            if autoLevel:
-                mn = h[0][0]
-                mx = h[0][-1]
-                self.region.setRegion([mn, mx])
-        except Exception as e:
-            logger.warning(str(e))
-            # print(str(e))
+            for i in range(1, 5):
+                if len(ch) >= i:
+                    h = ch[i-1]
+                    self.plots[i].setVisible(True)
+                    self.plots[i].setData(*h)
+                else:
+                    # hide channels not present in image data
+                    self.plots[i].setVisible(False)
+            autofactor = False
+            channels = self.getChannelFactorRegion(ch)
+            if channels is not None:
+                for i, hxx in enumerate(channels):
+                    if hxx is not None:
+                        self.regions[i + 1].setRegion([hxx[0], hxx[1]])
+                autofactor = True
+            if not autofactor and autoLevel:
+                for i in range(1, 5):
+                    if len(ch) >= i:
+                        h = ch[i-1]
+                        mn = h[0][0]
+                        mx = h[0][-1]
+                        self.regions[i].setRegion([mn, mx])
+            if autofactor:
+                _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.\
+                    imageChanged(
+                        self, autoLevel=False, autoRange=autoRange)
+
+            # make sure we are displaying the correct number of channels
+            self._showRegions()
+
+    def switchLevelMode(self, mode):
+        """ switch rgba mode
+
+        :param mode: rgba mode i.e. 'mono' or 'rgba'
+        :type mode: :obj:`str`
+        """
+        if mode == self.levelMode or mode not in {'mono', 'rgba'}:
+            return
+
+        self.levelMode = mode
+        self._showRegions()
+
+        if mode == 'mono':
+            levels = self.region.getRegion()
+            self.setLevels(*levels)
+        else:
+            if hasattr(self, "regions"):
+                levels = [self.regions[i].getRegion() for i in range(1, 5)]
+            else:
+                oldLevels = self.region.getRegion()
+                levels = [oldLevels] * 4
+            self.setLevels(rgba=levels)
+        self.imageItem().setLevels(self.getLevels())
+        self.imageChanged()
+        self.update()

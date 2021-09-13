@@ -202,10 +202,14 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         self.__autodownsample = True
         #: ([:obj:`float`, :obj:`float`]) minimum and maximum intensity levels
         self.__displaylevels = [None, None]
+        #: (:obj: `list` < [:obj:`float`, :obj:`float`] >) channel levels
+        self.__channellevels = None
         #: (:obj:`bool`) lock for double click
         self.__doubleclicklock = False
         #: (:obj:`bool`) rgb on flag
         self.__rgb = False
+        #: (:obj:`str`) levelmode
+        self.__levelmode = 'mono'
         #: (:obj:`dict` < :obj:`str`, :obj:`DisplayExtension` >)
         #          extension dictionary with name keys
         self.__extensions = {}
@@ -514,10 +518,23 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
                 self.__image.setLookupTable(None)
                 if img.dtype.kind == 'f' and np.isnan(img.min()):
                     img = np.nan_to_num(img)
-                self.__image.setImage(
-                    img, lut=None,
-                    # levels=[[0,255], [0, 255], [0, 255]],
-                    autoLevels=False)
+                if self.__channellevels and self.levelMode() != 'mono':
+
+                    self.__image.setImage(
+                        img, lut=None,
+                        levels=self.__channellevels,
+                        autoLevels=False)
+                elif self.__displaylevels[0] is not None \
+                        and self.__displaylevels[1] is not None:
+                    self.__image.setImage(
+                        img, lut=None,
+                        levels=self.__displaylevels,
+                        autoLevels=False)
+                else:
+                    self.__image.setImage(
+                        img, lut=None,
+                        # levels=[[0,255], [0, 255], [0, 255]],
+                        autoLevels=False)
             elif (self.__autodisplaylevels
                   and self.__displaylevels[0] is not None
                   and self.__displaylevels[1] is not None):
@@ -834,6 +851,15 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         """
         if level is not None:
             self.__displaylevels[1] = level
+
+    def setDisplayChannelLevels(self, levels=None):
+        """ sets maximum intensity levels
+
+        :param levels: channel intensity levels
+        :type levels: :obj:`list` < (:obj`float`:, :obj`float`:)>
+        """
+        if levels is not None:
+            self.__channellevels = levels
 
     def setDoubleClickLock(self, status=True):
         """ sets double click lock
@@ -1213,3 +1239,19 @@ class ImageDisplayWidget(_pg.GraphicsLayoutWidget):
         :rtype: :obj:`bool`
         """
         return self.__rgb
+
+    def setLevelMode(self, levelmode=True):
+        """ sets levelmode
+
+        :param levelmode: level mode, i.e. `mono` or `rgba`
+        :type levelmode: :obj:`str`
+        """
+        self.__levelmode = levelmode
+
+    def levelMode(self):
+        """ gets level mode
+
+        :returns: level mode, i.e. `mono` or `rgba`
+        :rtype: :obj:`str`
+        """
+        return self.__levelmode

@@ -1,4 +1,4 @@
-# Copyright (C) 2017  DESY, Christoph Rosemann, Notkestr. 85, D-22607 Hamburg
+# Copyright (C) 2017  DESY, Notkestr. 85, D-22607 Hamburg
 #
 # lavue is an image viewing program for photon science imaging detectors.
 # Its usual application is as a live viewer using hidra as data source.
@@ -19,11 +19,7 @@
 # Boston, MA  02110-1301, USA.
 #
 # Authors:
-#     Christoph Rosemann <christoph.rosemann@desy.de>
 #     Jan Kotanski <jan.kotanski@desy.de>
 #
 
-""" release version """
-
-#: (:obj:`str`) the live viewer version
-__version__ = "2.66.0"
+""" External packages """
