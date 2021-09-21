@@ -35,6 +35,7 @@ import numpy as np
 import argparse
 import lavuelib
 import lavuelib.liveViewer
+import pyqtgraph as _pg
 from pyqtgraph import QtGui
 from pyqtgraph import QtCore
 from pyqtgraph.Qt import QtTest
@@ -104,6 +105,15 @@ if sys.version_info > (3,):
                 PYTG_BUG_213 = True
     except Exception:
         pass
+
+
+_VMAJOR, _VMINOR, _VPATCH = _pg.__version__.split(".")[:3] \
+    if _pg.__version__ else ("0", "9", "0")
+try:
+    _NPATCH = int(_VPATCH)
+except Exception:
+    _NPATCH = 0
+_PQGVER = int(_VMAJOR) * 1000 + int(_VMINOR) * 100 + _NPATCH
 
 
 # test fixture
@@ -872,6 +882,7 @@ class TangoAttrImageSourceTest(unittest.TestCase):
             tool='maxima',
             # log='debug',
             log='info',
+            levels='0,5;1,8;0,6;1,7;green',
             scaling='log',
             # gradient='thermal',
             channel='rgb',
@@ -982,6 +993,12 @@ class TangoAttrImageSourceTest(unittest.TestCase):
 
         ls = json.loads(self.__lavuestate)
         dls = dict(self.__defaultls)
+
+        if _PQGVER >= 1100:
+            lvs = '0.0,5.0;1.0,8.0;0.0,6.0;1.0,7.0;green'
+        else:
+            lvs = '0.0,5.0;1.0,8.0;0.0,6.0;1.0,7.0'
+
         dls.update(dict(
             mode='expert',
             source='tangoattr;tangoattr;tangoattr',
@@ -993,13 +1010,13 @@ class TangoAttrImageSourceTest(unittest.TestCase):
             tool='intensity',
             # log='debug',
             log='info',
+            levels=lvs,
             scaling='log',
-            # levels='',
             channel='0,1,2',
             #  gradient='thermal',
             tangodevice='test/lavuecontroller/00',
             connected=True,
-            autofactor=''
+            autofactor=None
         ))
         self.compareStates(ls, dls,
                            ['viewrange', '__timestamp__', 'doordevice'])
