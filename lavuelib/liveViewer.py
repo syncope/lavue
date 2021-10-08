@@ -550,7 +550,8 @@ class LiveViewer(QtGui.QDialog):
              if twn in self.__tlaliasnames.keys()]
         )
 
-        self.__levelswg.setImageItem(self.__imagewg.image())
+        for iid in range(3):
+            self.__levelswg.setImageItem(self.__imagewg.image(iid), iid)
         self.__levelswg.showGradient(True)
         self.__levelswg.showChannels(False)
         self.__channelwg.showGradient(True)
@@ -941,6 +942,8 @@ class LiveViewer(QtGui.QDialog):
     def _setChannelState(self):
         """ sets gradient state
         """
+        # eself.__levelswg.setScalingLabel(scaling)
+        self.__levelswg.setRGBChannels(self.__channelwg.rgbchannels())
         self.setLavueState({"channel": self.__channelwg.channelLabel()})
         self._plot()
 
@@ -1743,6 +1746,8 @@ class LiveViewer(QtGui.QDialog):
         self.__mbufferwg.changeView(self.__settings.showmbuffer)
 
         self.__scalingwg.changeView(self.__settings.showscale)
+        self.__imagewg.setGradientColors(self.__settings.gradientcolors)
+        self.__levelswg.setGradientColors(self.__settings.gradientcolors)
         self.__levelswg.changeView()
         self.__channelwg.changeView()
         if self.__lazyimageslider != self.__settings.lazyimageslider:
@@ -2247,6 +2252,7 @@ class LiveViewer(QtGui.QDialog):
         cnfdlg.secport = self.__settings.secport
         cnfdlg.hidraport = self.__settings.hidraport
         cnfdlg.maxmbuffersize = self.__settings.maxmbuffersize
+        cnfdlg.gradientcolors = self.__settings.gradientcolors
         cnfdlg.floattype = self.__settings.floattype
         cnfdlg.secstream = self.__settings.secstream
         cnfdlg.zeromask = self.__settings.zeromask
@@ -2461,6 +2467,11 @@ class LiveViewer(QtGui.QDialog):
             self.__settings.accelbuffersum = dialog.accelbuffersum
             self.__mbufferwg.setComputeSum(self.__settings.accelbuffersum)
 
+        if self.__settings.gradientcolors != dialog.gradientcolors:
+            self.__settings.gradientcolors = dialog.gradientcolors
+            self.__imagewg.setGradientColors(dialog.gradientcolors)
+            self.__levelswg.setGradientColors(dialog.gradientcolors)
+            replot = True
         if self.__settings.keepcoords != dialog.keepcoords:
             self.__settings.keepcoords = dialog.keepcoords
             self._assessTransformation(self.__trafoname)
@@ -3910,10 +3921,13 @@ class LiveViewer(QtGui.QDialog):
         """
         if self.__settings.statswoscaling and self.__displayimage is not None \
            and self.__displayimage.size > 0:
-            maxval = np.nanmax(self.__displayimage) if flag[0] else 0.0
-            meanval = np.nanmean(self.__displayimage) if flag[1] else 0.0
-            varval = np.nanvar(self.__displayimage) if flag[2] else 0.0
-            maxsval = np.nanmax(self.__scaledimage) if flag[5] else 0.0
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    'ignore', r'All-NaN slice encountered')
+                maxval = np.nanmax(self.__displayimage) if flag[0] else 0.0
+                meanval = np.nanmean(self.__displayimage) if flag[1] else 0.0
+                varval = np.nanvar(self.__displayimage) if flag[2] else 0.0
+                maxsval = np.nanmax(self.__scaledimage) if flag[5] else 0.0
         elif (not self.__settings.statswoscaling
               and self.__scaledimage is not None
               and self.__displayimage.size > 0):
@@ -3924,8 +3938,11 @@ class LiveViewer(QtGui.QDialog):
             maxsval = maxval
         else:
             return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, None
-        maxrawval = np.nanmax(self.__rawgreyimage) if flag[4] else 0.0
-        minval = np.nanmin(self.__scaledimage) if flag[3] else 0.0
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'All-NaN slice encountered')
+            maxrawval = np.nanmax(self.__rawgreyimage) if flag[4] else 0.0
+            minval = np.nanmin(self.__scaledimage) if flag[3] else 0.0
         channels = None
         if hasattr(self.__scaledimage, "shape") \
            and len(self.__scaledimage.shape) == 3:
