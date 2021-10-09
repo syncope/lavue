@@ -170,15 +170,16 @@ class GradientEditorItemWS(
         _pg.graphicsItems.GradientEditorItem.GradientEditorItem.__init__(
             self, *args, **kargs)
         self.__skipupdate = False
-
+        #: (:obj:`str`) color gradient name
         self.name = "highcontrast"
+        #: (:class:`pyqtgrath.QtGui.QAction`) save gradient action
         self.saveAction = QtGui.QAction('Save ...', self)
+        #: (:obj:`pyqtgrath.QtGui.QAction`) remove gradient action
         self.removeAction = QtGui.QAction('Remove', self)
 
     def addMenuActions(self):
         """ add save/remove actions
         """
-
         self.menu.addAction(self.saveAction)
         self.menu.addAction(self.removeAction)
 
