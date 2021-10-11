@@ -369,6 +369,9 @@ class LevelsGroupBox(QtGui.QWidget):
 
     def __connectHistogram(self, iid=0):
         """ create histogram object and connect its signals
+
+        :param iid: image id
+        :type iid: :obj:`int`
         """
         if not self.__histconnect[iid]:
             self.__histograms[iid].item.sigLevelsChanged.connect(
@@ -385,6 +388,9 @@ class LevelsGroupBox(QtGui.QWidget):
 
     def __disconnectHistogram(self, iid=0):
         """ remove histogram object and disconnect its signals
+
+        :param iid: image id
+        :type iid: :obj:`int`
         """
         if self.__histconnect[iid]:
             self.__histograms[iid].item.sigLevelsChanged.disconnect(
@@ -1182,6 +1188,9 @@ class LevelsGroupBox(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def _saveGradient(self, iid=0):
         """ saves the current gradient
+
+        :param iid: image id
+        :type iid: :obj:`int`
         """
         graddlg = gradientDialog.GradientDialog()
         graddlg.protectednames = list(
@@ -1221,6 +1230,9 @@ class LevelsGroupBox(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def _removeGradient(self, iid=0):
         """ removes the current gradient
+
+        :param iid: image id
+        :type iid: :obj:`int`
         """
         name = self.__histograms[iid].gradient.name
 
@@ -1278,6 +1290,8 @@ class LevelsGroupBox(QtGui.QWidget):
 
         :param name  gradient name
         :type name: :obj:`str`
+        :param iid: image id
+        :type iid: :obj:`int`
         """
         if iid is not None:
             self.__changeGradientSlots[iid](name)
@@ -1344,6 +1358,8 @@ class LevelsGroupBox(QtGui.QWidget):
 
         :param name: gradient name
         :type name: :obj:`str`
+        :param iid: image id
+        :type iid: :obj:`int`
         """
         text = self.__ui.gradientComboBox.currentText()
         if text != name:
@@ -1479,7 +1495,11 @@ class LevelsGroupBox(QtGui.QWidget):
         self.__updateRadio(dchl)
 
     def __updateRadio(self, dchl=None):
-        """ update RGB radio button position """
+        """ update RGB radio button position
+
+        :param dchl: channel id
+        :type dchl: :obj:`int`
+        """
 
         if dchl is None:
             dchl = self.__dchl
