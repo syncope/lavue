@@ -1788,7 +1788,7 @@ class ROIToolWidget(ToolBaseWidget):
             [self._mainwidget.roiAliasesChanged, self.updateROILineEdit],
             [self._mainwidget.roiValueChanged, self.updateROIDisplayText],
             [self._mainwidget.roiNumberChanged, self.setROIsNumber],
-            [self._mainwidget.sardanaEnabled, self.updateROIButton],
+            # [self._mainwidget.sardanaEnabled, self.updateROIButton],
             [self._mainwidget.mouseImagePositionChanged, self._message],
         ]
 
@@ -1841,8 +1841,8 @@ class ROIToolWidget(ToolBaseWidget):
         self.__aliases = self._mainwidget.getElementNames("ExpChannelList")
         self.updateROILineEdit(self._mainwidget.roilabels)
         self.__updateCompleter()
-        self.updateROIButton(
-            self.__settings.sardana or self.__settings.analysisdevice)
+        # self.updateROIButton(
+        #     self.__settings.sardana or bool(self.__settings.analysisdevice))
 
     def __updateCompleter(self):
         """ updates the labelROI help
@@ -6769,7 +6769,7 @@ class QROIProjToolWidget(ToolBaseWidget):
             [self._mainwidget.roiAliasesChanged, self.updateROILineEdit],
             [self._mainwidget.roiValueChanged, self.updateROIDisplayText],
             [self._mainwidget.roiNumberChanged, self.setROIsNumber],
-            [self._mainwidget.sardanaEnabled, self.updateROIButton],
+            # [self._mainwidget.sardanaEnabled, self.updateROIButton],
             [self._mainwidget.mouseImagePositionChanged, self._roimessage],
 
             [self.__ui.funComboBox.currentIndexChanged,
@@ -6875,8 +6875,8 @@ class QROIProjToolWidget(ToolBaseWidget):
         self.__aliases = self._mainwidget.getElementNames("ExpChannelList")
         self.updateROILineEdit(self._mainwidget.roilabels)
         self.__updateCompleter()
-        self.updateROIButton(
-            self.__settings.sardana or self.__settings.analysisdevice)
+        # self.updateROIButton(
+        #     self.__settings.sardana or bool(self.__settings.analysisdevice))
 
         if self.__bottomplot is None:
             self.__bottomplot = self._mainwidget.onedbarbottomplot()
