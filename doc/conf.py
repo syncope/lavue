@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- Coding: utf-8 -*-
 #
 # lavuelib documentation build configuration file, created by
 # sphinx-quickstart on Thu Jan 25 15:05:39 2018.
@@ -16,7 +16,7 @@ import sys
 import os
 
 # import sphinx_rtd_theme
-import sphinx_bootstrap_theme
+# import sphinx_bootstrap_theme
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -51,7 +51,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'lavuelib'
+project = u'LaVue'
 copyright = u'2017 DESY, Jan Kotanski <jkotan@mail.desy.de>, ' \
             + u'Christoph Rosemann <christoph.rosemann@desy.de> ' \
             + u'\n\nGNU GENERAL PUBLIC LICENSE, version 2'
@@ -109,12 +109,21 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 html_theme = 'bootstrap'
+html_theme = 'python_docs_theme'
+html_theme = 'bizstyle'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #html_theme_options = {}
 html_theme_options = {
+    # # python docs options
+    # 'root_name': "LaVue",
+    # 'root_url': "https://www.github.com/lavue-org/lavue",
+    # 'root_icon': "doc/_images/lavue.png",
+    # 'root_include_title': True,
+
+    # # bootstrap docs options
     # Navigation bar title. (Default: ``project`` value)
     # 'navbar_title': "Demo",
 
@@ -144,7 +153,7 @@ html_theme_options = {
 
     # Global TOC depth for "site" navbar tab. (Default: 1)
     # Switching to -1 shows all levels.
-    'globaltoc_depth': 2,
+    # 'globaltoc_depth': 2,
     # 'globaltoc_depth': -1,
 
     # Include hidden TOCs in Site navbar?
@@ -160,7 +169,7 @@ html_theme_options = {
     # For black navbar, do "navbar navbar-inverse"
     # 'navbar_class': "navbar navbar-inverse",
     # 'navbar_class': "navbar navbar-light",
-    
+
     # Fix navigation bar to top of page?
     # Values: "true" (default) or "false"
     # 'navbar_fixed_top': "true",
@@ -168,7 +177,7 @@ html_theme_options = {
     # Location of link to source.
     # Options are "nav" (default), "footer" or anything else to exclude.
     # 'source_link_position': "nav",
-    'source_link_position': "none",
+    # 'source_link_position': "none",
 
     # Bootswatch (http://bootswatch.com/) theme.
     #
@@ -194,12 +203,12 @@ html_theme_options = {
 
     # Choose Bootstrap version.
     # Values: "3" (default) or "2" (in quotes)
-    'bootstrap_version': "3",
+    # 'bootstrap_version': "3",
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
-html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+# html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -236,7 +245,21 @@ html_static_path = ['_static']
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# html_sidebars = {'**': ['localtoc.html', 'sourcelink.html', 'searchbox.html']}
+html_sidebars = {
+    '**': [
+        'localtoc.html',
+        'relations.html',
+        'searchbox.html',
+        # located at _templates/
+    ]
+}
+if os.getenv("LAVUE_HIDE_VERSIONS") != 'TRUE':
+    html_sidebars['**'].append('versions.html')
+
+html_context = {
+    "docs_versions" : ["v2.71.1"]
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
