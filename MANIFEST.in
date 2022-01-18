@@ -15,7 +15,13 @@ include lavuelib/ui/*.ui
 include lavuelib/qrc/resources.qrc
 include lavuelib/qrc/resources.rcc
 include lavuelib/help/*.html
-include lavuelib/help/styles/site.css
-include lavuelib/help/attachments/*/*.png
-include lavuelib/help/attachments/*/*.jpg
+include lavuelib/help/*.js
+include lavuelib/help/*/*.html
+include lavuelib/help/*/*.js
+include lavuelib/help/*/*.png
+include lavuelib/help/*/*.css
+include lavuelib/help/*/*/*.html
+include lavuelib/help/*/*/*.txt
+include lavuelib/help/*/*/*/*.html
+include lavuelib/help/*/*/*/*.txt
 include lavuelib/help/images/icons/*.gif
