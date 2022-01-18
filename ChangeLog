@@ -1,5 +1,7 @@
 2022-01-18 Jan Kotanski <jan.kotanski@desy.de>
 	* extend sphinx documentation by user guide
+	* change the help widget to QWebView
+	* use sphinx documentation in the help widget
 	* allow to pass toolconfig as dict
 	* tagged as 2.72.0
 
