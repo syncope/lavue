@@ -8,6 +8,10 @@ include man/lavuemonitor.1
 include man/LavueController.1
 include man/lavuezmqstreamfromtango.1
 include man/lavuezmqstreamtest.1
+include doc/*
+include doc/*/*
+include doc/*/*/*
+include doc_html/*
 include lavuelib/images/lavue.png
 include lavuelib/images/star1.png
 include lavuelib/images/star2.png
@@ -15,7 +19,13 @@ include lavuelib/ui/*.ui
 include lavuelib/qrc/resources.qrc
 include lavuelib/qrc/resources.rcc
 include lavuelib/help/*.html
-include lavuelib/help/styles/site.css
-include lavuelib/help/attachments/*/*.png
-include lavuelib/help/attachments/*/*.jpg
+include lavuelib/help/*.js
+include lavuelib/help/*/*.html
+include lavuelib/help/*/*.js
+include lavuelib/help/*/*.png
+include lavuelib/help/*/*.css
+include lavuelib/help/*/*/*.html
+include lavuelib/help/*/*/*.txt
+include lavuelib/help/*/*/*/*.html
+include lavuelib/help/*/*/*/*.txt
 include lavuelib/help/images/icons/*.gif
