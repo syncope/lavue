@@ -22,7 +22,8 @@ import os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+if os.path.isfile('conf.py'):
+    sys.path.insert(0, os.path.abspath('..'))
 
 # -- General configuration ------------------------------------------------
 
@@ -258,7 +259,7 @@ if os.getenv("LAVUE_HIDE_VERSIONS") != 'TRUE':
     html_sidebars['**'].append('versions.html')
 
 html_context = {
-    "docs_versions" : ["v2.71.1"]
+    "docs_versions" : ["v2.72.0", "v2.71.1"]
 }
 
 # Additional templates that should be rendered to pages, maps page names to
