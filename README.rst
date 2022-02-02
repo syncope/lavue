@@ -1,7 +1,8 @@
 LaVue - Live Image Viewer
 =========================
 
-![github workflow](https://github.com/lavue-org/lavue/actions/workflows/tests.yml/badge.svg) [![docs](https://img.shields.io/badge/Documentation-webpages-ADD8E6.svg)](https://lavue-org.github.io/lavue/index.html)
+..
+   ![github workflow](https://github.com/lavue-org/lavue/actions/workflows/tests.yml/badge.svg) [![docs](https://img.shields.io/badge/Documentation-webpages-ADD8E6.svg)](https://lavue-org.github.io/lavue/index.html)
 
 Authors: Christoph Rosemann <christoph.rosemann at desy.de>, Jan Kotański <jan.kotanski at desy.de>, André Rothkirch <andre.rothkirch at desy.de>
 
