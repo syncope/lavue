@@ -1,3 +1,7 @@
+2022-01-31 Jan Kotanski <jan.kotanski@desy.de>
+	* provide http and https scheme for Tango File image source
+	* tagged as 2.73.0
+
 2022-01-18 Jan Kotanski <jan.kotanski@desy.de>
 	* extend sphinx documentation by user guide
 	* change the help widget to QWebView
