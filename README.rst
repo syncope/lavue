@@ -7,6 +7,8 @@ LaVue - Live Image Viewer
 |Python Versions|
 
 .. |github workflow| image:: https://github.com/lavue-org/lavue/actions/workflows/tests.yml/badge.svg
+   :target: https://github.com/lavue-org/lavue/actions
+   :alt:
 
 .. |docs| image:: https://img.shields.io/badge/Documentation-webpages-ADD8E6.svg
    :target: https://lavue-org.github.io/lavue/index.html
