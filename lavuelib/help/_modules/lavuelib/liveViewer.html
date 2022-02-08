@@ -1503,6 +1503,9 @@
                         <span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__srcaliasnames</span><span class="p">[</span><span class="n">srcname</span><span class="p">])</span>
             <span class="n">sourcechanged</span> <span class="o">=</span> <span class="kc">True</span>
 
+        <span class="k">if</span> <span class="n">sourcechanged</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__updateSource</span><span class="p">()</span>
+
         <span class="n">QtCore</span><span class="o">.</span><span class="n">QCoreApplication</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s2">&quot;configuration&quot;</span><span class="p">)</span> <span class="ow">and</span> \
            <span class="n">options</span><span class="o">.</span><span class="n">configuration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1512,7 +1515,6 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">__sourcewg</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">cnf</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">sourcechanged</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_setSourceConfiguration</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__updateSource</span><span class="p">()</span>
 
         <span class="n">QtCore</span><span class="o">.</span><span class="n">QCoreApplication</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
 
