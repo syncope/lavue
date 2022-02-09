@@ -259,7 +259,7 @@ if os.getenv("LAVUE_HIDE_VERSIONS") != 'TRUE':
     html_sidebars['**'].append('versions.html')
 
 html_context = {
-    "docs_versions" : ["v2.73.0", "v2.72.0", "v2.71.1"]
+    "docs_versions" : ["v2.74.0", "v2.73.0", "v2.72.0", "v2.71.1"]
 }
 
 # Additional templates that should be rendered to pages, maps page names to
@@ -448,10 +448,17 @@ autoclass_content = 'both'
 
 
 intersphinx_mapping = {
-#    'http://docs.python.org/dev': None,
     'https://docs.python.org/3/': None,
-    'http://docs.scipy.org/doc/scipy/reference': None,
-    'http://docs.scipy.org/doc/numpy': None,
-    'http://pytango.readthedocs.io/en/stable/': None,
-#    'file:///usr/share/doc/python-pni-doc/html/': None,
+    'https://scipy.github.io/devdocs': None,
+    'https://numpy.org/doc/stable/': None,
+    'http://pytango.readthedocs.io/en/stable': None,
+    'https://pni-libraries.github.io/python-pninexus/stable': None,
+    'https://docs.h5py.org/en/stable': None,
+    'https://pyqtgraph.readthedocs.io/en/latest': None,
+    'https://pyzmq.readthedocs.io/en/stable': None,
+    'https://docs.python-requests.org/en/master': None,
+    'https://doc.qt.io/qtforpython/': None,
+    # 'https://www.silx.org/doc/fabio/latest/': None,
+    'https://pillow.readthedocs.io/en/stable/': None,
+    'https://pyfai.readthedocs.io/en/master/': None,
 }

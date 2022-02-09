@@ -114,6 +114,9 @@ class HidraImageSourceTest(unittest.TestCase):
         self.__tangoimgcounter = 0
         self.__tangofilepattern = "%05d.tif"
         self.__tangofilepath = ""
+        self.__tangoimgcounter2 = 0
+        self.__tangofilepattern2 = "%05d.tif"
+        self.__tangofilepath2 = ""
         print("Hidra faked: %s" % hidrafake.faked)
 
     def setUp(self):
@@ -139,8 +142,30 @@ class HidraImageSourceTest(unittest.TestCase):
         fname = os.path.join(ipath, iname)
         hidra.filename = fname
         print("SET: %s" % hidra.filename)
-        image = fabio.open(fname)
-        li = image.data
+        try:
+            image = fabio.open(fname)
+            li = image.data
+        except Exception:
+            li = None
+        app.sendPostedEvents()
+        return li
+
+    def takeNewImage2(self):
+        global app
+        self.__counter += 1
+
+        # self.__tangoimgcounter2 += 1
+        ipath = self.__tangofilepath2
+        iname = \
+            self.__tangofilepattern2 % self.__tangoimgcounter2
+        fname = os.path.join(ipath, iname)
+        hidra.filename2 = fname
+        print("SET2: %s" % hidra.filename2)
+        try:
+            image = fabio.open(fname)
+            li = image.data
+        except Exception:
+            li = None
         app.sendPostedEvents()
         return li
 
@@ -150,6 +175,7 @@ class HidraImageSourceTest(unittest.TestCase):
 
         lastimage = None
         hidra.filename = ""
+        hidra.filename2 = ""
         self.__tangoimgcounter = 0
         self.__tangofilepath = "%s/%s" % (os.path.abspath(path), "test/images")
         self.__tangofilepattern = "%05d.tif"
@@ -259,6 +285,7 @@ class HidraImageSourceTest(unittest.TestCase):
 
         lastimage = None
         hidra.filename = ""
+        hidra.filename2 = ""
         self.__tangoimgcounter = -1
         self.__tangofilepath = "%s/%s" % (os.path.abspath(path), "test/images")
         self.__tangofilepattern = "tst_05717_%05d.cbf"
@@ -339,6 +366,255 @@ class HidraImageSourceTest(unittest.TestCase):
             print(lastimage)
         self.assertTrue(np.allclose(res2[0], lastimage))
         self.assertTrue(np.allclose(res2[1], lastimage))
+
+    def test_readimage_multi_fromstart(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        lastimage = None
+        lastimage2 = None
+        hidra.filename = ""
+        hidra.filename2 = ""
+        self.__tangoimgcounter = 0
+        self.__tangofilepath = "%s/%s" % (
+            os.path.abspath(path), "test/images")
+        self.__tangofilepattern = "%05d.tif"
+        self.__tangoimgcounter2 = 0
+        self.__tangofilepath2 = "%s/%s" % (
+            os.path.abspath(path), "test/images")
+        self.__tangofilepattern2 = "tst_05717_%05d.cbf"
+        cfg = '[Configuration]\n' \
+            'StoreGeometry=true\n' \
+            'GeometryFromSource=true'
+
+        if not os.path.exists(self.__cfgfdir):
+            os.makedirs(self.__cfgfdir)
+        with open(self.__cfgfname, "w+") as cf:
+            cf.write(cfg)
+
+        lastimage = None
+        lastimage2 = None
+
+        options = argparse.Namespace(
+            mode='expert',
+            source='hidra;hidra',
+            configuration='has1pilatus100k.desy.de;has2pilatus100k.desy.de',
+            start=True,
+            # levels="0,1000",
+            tool='intensity',
+            transformation='none',
+            log='debug',
+            instance='unittests',
+            scaling='linear',
+            gradient='spectrum',
+        )
+        logging.basicConfig(
+             format="%(levelname)s: %(message)s")
+        logger = logging.getLogger("lavue")
+        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+        dialog = lavuelib.liveViewer.MainWindow(options=options)
+        dialog.show()
+
+        qtck1 = QtChecker(app, dialog, True, sleep=100)
+        qtck2 = QtChecker(app, dialog, True, sleep=100)
+        qtck3 = QtChecker(app, dialog, True, sleep=100)
+        qtck1.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewImage"),
+            ExtCmdCheck(self, "takeNewImage2"),
+        ])
+        qtck2.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewImage"),
+            ExtCmdCheck(self, "takeNewImage2"),
+        ])
+        qtck3.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            WrapAttrCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg"
+                "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+        ])
+
+        qtck1.executeChecks(delay=3000)
+        qtck2.executeChecks(delay=6000)
+        status = qtck3.executeChecksAndClose(delay=9000)
+
+        self.assertEqual(status, 0)
+
+        qtck1.compareResults(
+            self, [True, None, None, None, None], mask=[0, 1, 1, 1, 1])
+        qtck2.compareResults(
+            self, [True, None, None, None, None], mask=[0, 1, 1, 1, 1])
+        qtck3.compareResults(
+            self, [None, None, None, False], mask=[1, 1, 0, 0])
+
+        res1 = qtck1.results()
+        res2 = qtck2.results()
+        res3 = qtck3.results()
+        self.assertEqual(res1[1], None)
+        self.assertEqual(res1[2], None)
+
+        lastimage1 = res1[3].T
+        lastimage2 = res1[4].T
+        lastimage = np.hstack((lastimage1, lastimage2))
+        if not np.allclose(res2[1], lastimage):
+            print(res2[1])
+            print(lastimage)
+        self.assertTrue(np.allclose(res2[1], lastimage))
+        self.assertTrue(np.allclose(res2[2], lastimage))
+
+        lastimage1 = res2[3].T
+        lastimage2 = res1[4].T
+
+        lastimage = np.hstack((lastimage1, lastimage2))
+        if not np.allclose(res3[0], lastimage):
+            print(res3[0])
+            print(lastimage)
+        self.assertTrue(np.allclose(res3[0], lastimage))
+        self.assertTrue(np.allclose(res3[1], lastimage))
+
+    def test_readimage_multi_hidraports(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        lastimage = None
+        lastimage2 = None
+        hidra.filename = ""
+        hidra.filename2 = ""
+        self.__tangoimgcounter = 0
+        self.__tangofilepath = "%s/%s" % (
+            os.path.abspath(path), "test/images")
+        self.__tangofilepattern = "%05d.tif"
+        self.__tangoimgcounter2 = 0
+        self.__tangofilepath2 = "%s/%s" % (
+            os.path.abspath(path), "test/images")
+        self.__tangofilepattern2 = "tst_05717_%05d.cbf"
+        cfg = '[Configuration]\n' \
+            'StoreGeometry=true\n' \
+            'HidraDataPort="[\"50201\", \"50001\"]"\n' \
+            'GeometryFromSource=true'
+
+        if not os.path.exists(self.__cfgfdir):
+            os.makedirs(self.__cfgfdir)
+        with open(self.__cfgfname, "w+") as cf:
+            cf.write(cfg)
+
+        lastimage = None
+        lastimage2 = None
+
+        options = argparse.Namespace(
+            mode='expert',
+            source='hidra;hidra',
+            configuration='has1pilatus100k.desy.de;has2pilatus100k.desy.de',
+            start=True,
+            # levels="0,1000",
+            tool='intensity',
+            transformation='none',
+            # log='debug',
+            log='error',
+            instance='unittests',
+            scaling='linear',
+            gradient='spectrum',
+        )
+        logging.basicConfig(
+             format="%(levelname)s: %(message)s")
+        logger = logging.getLogger("lavue")
+        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+        dialog = lavuelib.liveViewer.MainWindow(options=options)
+        dialog.show()
+
+        qtck1 = QtChecker(app, dialog, True, sleep=100)
+        qtck2 = QtChecker(app, dialog, True, sleep=100)
+        qtck3 = QtChecker(app, dialog, True, sleep=100)
+        qtck1.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewImage"),
+            ExtCmdCheck(self, "takeNewImage2"),
+        ])
+        qtck2.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewImage"),
+            ExtCmdCheck(self, "takeNewImage2"),
+        ])
+        qtck3.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            WrapAttrCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg"
+                "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+        ])
+
+        qtck1.executeChecks(delay=6000)
+        qtck2.executeChecks(delay=12000)
+        status = qtck3.executeChecksAndClose(delay=18000)
+
+        self.assertEqual(status, 0)
+
+        qtck1.compareResults(
+            self, [True, None, None, None, None], mask=[0, 1, 1, 1, 1])
+        qtck2.compareResults(
+            self, [True, None, None, None, None], mask=[0, 1, 1, 1, 1])
+        qtck3.compareResults(
+            self, [None, None, None, False], mask=[1, 1, 0, 0])
+
+        res1 = qtck1.results()
+        res2 = qtck2.results()
+        res3 = qtck3.results()
+        self.assertEqual(res1[1], None)
+        self.assertEqual(res1[2], None)
+
+        lastimage1 = res1[3].T
+        lastimage2 = res1[4].T
+        lastimage = np.hstack((lastimage2, lastimage1))
+        if not np.allclose(res2[1], lastimage):
+            print(res2[1])
+            print(lastimage)
+        self.assertTrue(np.allclose(res2[1], lastimage))
+        self.assertTrue(np.allclose(res2[2], lastimage))
+
+        lastimage1 = res2[3].T
+
+        # image2 is not updated  - it does not exist
+        lastimage2 = res1[4].T
+        lastimage = np.hstack((lastimage2, lastimage1))
+
+        if not np.allclose(res3[0], lastimage):
+            print(res3[0][0])
+            print(lastimage[0])
+
+        self.assertTrue(np.allclose(res3[0], lastimage))
+        self.assertTrue(np.allclose(res3[1], lastimage))
 
 
 if __name__ == '__main__':
