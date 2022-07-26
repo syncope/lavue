@@ -259,7 +259,7 @@ if os.getenv("LAVUE_HIDE_VERSIONS") != 'TRUE':
     html_sidebars['**'].append('versions.html')
 
 html_context = {
-    "docs_versions" : ["v2.75.3", "v2.75.1", "v2.74.0", "v2.73.0", "v2.72.0", "v2.71.1"]
+    "docs_versions" : ["v2.76.0","v2.75.3", "v2.75.1", "v2.74.0", "v2.73.0", "v2.72.0", "v2.71.1"]
 }
 
 # Additional templates that should be rendered to pages, maps page names to
@@ -456,7 +456,8 @@ intersphinx_mapping = {
     'https://docs.h5py.org/en/stable': None,
     'https://pyqtgraph.readthedocs.io/en/latest': None,
     'https://pyzmq.readthedocs.io/en/stable': None,
-    'https://docs.python-requests.org/en/master': None,
+    # 'https://docs.python-requests.org/en/master': None,
+    'https://requests.readthedocs.io/en/master': None, 
     'https://doc.qt.io/qtforpython/': None,
     # 'https://www.silx.org/doc/fabio/latest/': None,
     'https://pillow.readthedocs.io/en/stable/': None,
