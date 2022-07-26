@@ -457,7 +457,7 @@ intersphinx_mapping = {
     'https://pyqtgraph.readthedocs.io/en/latest': None,
     'https://pyzmq.readthedocs.io/en/stable': None,
     # 'https://docs.python-requests.org/en/master': None,
-    'https://requests.readthedocs.io/en/master': None, 
+    'https://requests.readthedocs.io/en/master': None,
     'https://doc.qt.io/qtforpython/': None,
     # 'https://www.silx.org/doc/fabio/latest/': None,
     'https://pillow.readthedocs.io/en/stable/': None,
