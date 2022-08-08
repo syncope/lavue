@@ -4003,7 +4003,8 @@ class LiveViewer(QtGui.QDialog):
     @QtCore.pyqtSlot(str)
     @QtCore.pyqtSlot(int)
     def _checkHighMasking(self, _=''):
-        """ reads the mask image, select non-zero elements and store the indices
+        """ reads the mask image, select non-zero elements
+            and store the indices
         """
         value = self.__highvaluemaskwg.mask()
         try:
@@ -4033,7 +4034,8 @@ class LiveViewer(QtGui.QDialog):
     @debugmethod
     @QtCore.pyqtSlot(str)
     def _prepareMasking(self, imagename):
-        """ reads the mask image, select non-zero elements and store the indices
+        """ reads the mask image, select non-zero elements
+            and store the indices
         """
         imagename = str(imagename)
         if imagename:
