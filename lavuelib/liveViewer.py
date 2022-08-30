@@ -4269,7 +4269,7 @@ class LiveViewer(QtGui.QDialog):
         if self.__rawgreyimage is not None:
             self.__brightfieldimage = self.__rawgreyimage
             self._updateBFScale(False)
-            self.__normw.setDisplayedBFName(str(self.__imagename))
+            self.__normwg.setDisplayedBFName(str(self.__imagename))
         else:
             self.__normwg.setDisplayedBFName("")
 
