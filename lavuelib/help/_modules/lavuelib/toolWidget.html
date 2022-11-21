@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>lavuelib.toolWidget &#8212; LaVue 2.77.0 documentation</title>
+    <title>lavuelib.toolWidget &#8212; LaVue 2.78.0 documentation</title>
     <link rel="stylesheet" href="../../_static/bizstyle.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">LaVue 2.77.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LaVue 2.78.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>
@@ -103,6 +103,11 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">pyqtgraph</span> <span class="k">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">functions</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pyqtgraph</span> <span class="k">import</span> <span class="n">QtWidgets</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pyqtgraph</span> <span class="k">import</span> <span class="n">QtGui</span> <span class="k">as</span> <span class="n">QtWidgets</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">geometryDialog</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">rangeDialog</span>
@@ -275,7 +280,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">regions</span> <span class="o">=</span> <span class="kc">False</span>
 
 
-<span class="k">class</span> <span class="nc">ToolBaseWidget</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">ToolBaseWidget</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; tool widget</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -292,7 +297,7 @@
 <span class="sd">        :param parent: parent object</span>
 <span class="sd">        :type parent: :class:`pyqtgraph.QtCore.QObject`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
         <span class="c1">#: (:class:`pyqtgraph.QtCore.QObject`) mainwidget</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mainwidget</span> <span class="o">=</span> <span class="n">parent</span>
         <span class="c1">#: (:class:`Ui_ToolBaseWidget&#39;)</span>
@@ -1236,10 +1241,10 @@
         <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__detparams</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__widgets</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">[</span>
-                    <span class="n">QtGui</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mainwidget</span><span class="p">),</span>
-                    <span class="n">QtGui</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mainwidget</span><span class="p">),</span>
-                    <span class="n">QtGui</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mainwidget</span><span class="p">),</span>
-                    <span class="n">QtGui</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Apply&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mainwidget</span><span class="p">),</span>
+                    <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mainwidget</span><span class="p">),</span>
+                    <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mainwidget</span><span class="p">),</span>
+                    <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mainwidget</span><span class="p">),</span>
+                    <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Apply&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mainwidget</span><span class="p">),</span>
                 <span class="p">]</span>
             <span class="p">)</span>
             <span class="n">last</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__widgets</span><span class="p">)</span>
@@ -1928,7 +1933,7 @@
                 <span class="n">hints</span> <span class="o">=</span> <span class="p">[</span><span class="n">stext</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">hints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__aliases</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="n">completer</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QCompleter</span><span class="p">(</span><span class="n">hints</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">completer</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCompleter</span><span class="p">(</span><span class="n">hints</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__ui</span><span class="o">.</span><span class="n">labelROILineEdit</span><span class="o">.</span><span class="n">setCompleter</span><span class="p">(</span><span class="n">completer</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ROIToolWidget.deactivate"><a class="viewcode-back" href="../../develop/lavuelib/lavuelib.html#lavuelib.toolWidget.ROIToolWidget.deactivate">[docs]</a>    <span class="k">def</span> <span class="nf">deactivate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -4265,7 +4270,7 @@
 
         <span class="c1">#: (:obj:`bool`) progressbar is running</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__progressFlag</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="c1">#: (:class:`pyqtgraph.QtGui.QProgressDialog`) progress bar</span>
+        <span class="c1">#: (:class:`pyqtgraph.QtWidgets.QProgressDialog`) progress bar</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__progress</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1">#: (:obj:`list` &lt;:class:`lavuelib.commandThread.CommandThread`&gt;) \</span>
         <span class="c1">#:     command thread</span>
@@ -4581,7 +4586,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__commandthread</span><span class="o">.</span><span class="n">finished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
             <span class="n">oncloseaction</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">QueuedConnection</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__progress</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__progress</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QProgressDialog</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__progress</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QProgressDialog</span><span class="p">(</span>
             <span class="n">text</span><span class="p">,</span> <span class="s2">&quot;Cancel&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__progress</span><span class="o">.</span><span class="n">setWindowModality</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">WindowModal</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__progress</span><span class="o">.</span><span class="n">setCancelButton</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
@@ -4879,7 +4884,7 @@
         <span class="sd">&quot;&quot;&quot; load calibration file</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">fileName</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fileDialog</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFileDialog</span><span class="p">()</span>
+            <span class="n">fileDialog</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFileDialog</span><span class="p">()</span>
             <span class="n">fileout</span> <span class="o">=</span> <span class="n">fileDialog</span><span class="o">.</span><span class="n">getOpenFileName</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_mainwidget</span><span class="p">,</span> <span class="s1">&#39;Open calibration file&#39;</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__settings</span><span class="o">.</span><span class="n">calibrationfilename</span> <span class="ow">or</span> <span class="s1">&#39;/ramdisk/&#39;</span><span class="p">,</span>
@@ -7273,7 +7278,7 @@
                 <span class="n">hints</span> <span class="o">=</span> <span class="p">[</span><span class="n">stext</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">hints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__aliases</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="n">completer</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QCompleter</span><span class="p">(</span><span class="n">hints</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">completer</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QCompleter</span><span class="p">(</span><span class="n">hints</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__ui</span><span class="o">.</span><span class="n">labelROILineEdit</span><span class="o">.</span><span class="n">setCompleter</span><span class="p">(</span><span class="n">completer</span><span class="p">)</span>
 
     <span class="nd">@QtCore</span><span class="o">.</span><span class="n">pyqtSlot</span><span class="p">()</span>
@@ -7689,7 +7694,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">LaVue 2.77.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LaVue 2.78.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>
