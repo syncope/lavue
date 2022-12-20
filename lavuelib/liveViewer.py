@@ -602,6 +602,8 @@ class LiveViewer(QtWidgets.QDialog):
         self.__displayimage = None
         #: (:class:`numpy.ndarray`) scaled displayed image
         self.__scaledimage = None
+        #: (:class:`numpy.ndarray`) color mask image
+        self.__colormaskimage = None
 
         #: (:class:`numpy.ndarray`) background image
         self.__backgroundimage = None
@@ -1747,6 +1749,8 @@ class LiveViewer(QtWidgets.QDialog):
         dataFetchThread.GLOBALREFRESHRATE = self.__settings.refreshrate
         self.__imagewg.setStatsWOScaling(self.__settings.statswoscaling)
         self.__imagewg.setColors(self.__settings.roiscolors)
+        self.__imagewg.setMaskColor(
+            self.__settings.maskcolor, self.__settings.maskwithcolor)
 
         self.__updateSource()
 
@@ -2327,6 +2331,8 @@ class LiveViewer(QtWidgets.QDialog):
         cnfdlg.storegeometry = self.__settings.storegeometry
         cnfdlg.geometryfromsource = self.__settings.geometryfromsource
         cnfdlg.roiscolors = self.__settings.roiscolors
+        cnfdlg.maskcolor = self.__settings.maskcolor
+        cnfdlg.maskwithcolor = self.__settings.maskwithcolor
         cnfdlg.sourcedisplay = self.__settings.sourcedisplay
         cnfdlg.imagesources = self.__settings.imagesources
         cnfdlg.imagesourcenames = self.__srcaliasnames
@@ -2663,6 +2669,17 @@ class LiveViewer(QtWidgets.QDialog):
             self.__settings.roiscolors = dialog.roiscolors
             self.__imagewg.setColors(self.__settings.roiscolors)
 
+        if self.__settings.maskwithcolor != dialog.maskwithcolor:
+            self.__settings.maskwithcolor = dialog.maskwithcolor
+            self.__imagewg.setMaskColor(
+                self.__settings.maskcolor, self.__settings.maskwithcolor)
+            replot = True
+
+        if self.__settings.maskcolor != dialog.maskcolor:
+            self.__settings.maskcolor = dialog.maskcolor
+            self.__imagewg.setMaskColor(
+                self.__settings.maskcolor, self.__settings.maskwithcolor)
+
         if remasking:
             self.__remasking()
 
@@ -2932,11 +2949,14 @@ class LiveViewer(QtWidgets.QDialog):
             # prepare or preprocess the raw image if present:
             self.__prepareImage()
 
+            self.__updateColorMask()
+
             # perform transformation
             # (crdtranspose, crdleftrightflip, crdupdownflip,
             # orgtranspose, orgleftrightflip, orgupdownflip)
             allcrds = self.__transform()
             self.__imagewg.setTransformations(*allcrds)
+
             # use the internal raw image to create a display image with chosen
             # scaling
             self.__scale(self.__scalingwg.currentScaling())
@@ -2951,7 +2971,8 @@ class LiveViewer(QtWidgets.QDialog):
                 self.__scaledimage,
                 self.__displayimage
                 if self.__settings.statswoscaling else self.__scaledimage,
-                self.__imagename
+                self.__imagename,
+                self.__colormaskimage
             )
             if self.__settings.showhisto and self.__updatehisto:
                 self.__levelswg.updateHistoImage()
@@ -3673,7 +3694,7 @@ class LiveViewer(QtWidgets.QDialog):
                     self.__imagewg.setMaskValueIndices(
                         self.__displayimage > maskvalue)
                     self.__displayimage[
-                            self.__imagewg.maskValueIndices()] = 0
+                        self.__imagewg.maskValueIndices()] = 0
             except IndexError:
                 # self.__highvaluemaskwg.noValue()
                 import traceback
@@ -3684,6 +3705,21 @@ class LiveViewer(QtWidgets.QDialog):
                     self, "lavue: Cannot apply high value mask"
                     " to the current image",
                     text, str(value))
+
+    # @debugmethod
+    def __updateColorMask(self):
+        """ updates color mask image
+        """
+        if self.__settings.showhighvaluemask and \
+           self.__imagewg.maskValue() is not None and \
+           self.__settings.maskwithcolor and self.__displayimage is not None:
+            self.__colormaskimage = np.full(
+                self.__displayimage.shape,
+                np.nan, dtype=self.__settings.floattype)
+            self.__colormaskimage[
+                self.__imagewg.maskValueIndices()] = 1.0
+        else:
+            self.__colormaskimage = None
 
     # @debugmethod
     def __transform(self):
@@ -3708,17 +3744,24 @@ class LiveViewer(QtWidgets.QDialog):
                 crdupdownflip = True
             elif self.__displayimage is not None:
                 self.__displayimage = np.fliplr(self.__displayimage)
+                if self.__colormaskimage is not None:
+                    self.__colormaskimage = np.fliplr(self.__colormaskimage)
         elif self.__trafoname == "flip (left-right)":
             orgleftrightflip = True
             if self.__settings.keepcoords:
                 crdleftrightflip = True
             elif self.__displayimage is not None:
                 self.__displayimage = np.flipud(self.__displayimage)
+                if self.__colormaskimage is not None:
+                    self.__colormaskimage = np.flipud(self.__colormaskimage)
         elif self.__trafoname == "transpose":
             orgtranspose = True
             if self.__displayimage is not None:
                 self.__displayimage = np.swapaxes(
                     self.__displayimage, 0, 1)
+                if self.__colormaskimage is not None:
+                    self.__colormaskimage = np.swapaxes(
+                        self.__colormaskimage, 0, 1)
                 # self.__displayimage = np.transpose(self.__displayimage)
             if self.__settings.keepcoords:
                 crdtranspose = True
@@ -3731,12 +3774,18 @@ class LiveViewer(QtWidgets.QDialog):
                 if self.__displayimage is not None:
                     self.__displayimage = np.swapaxes(
                         self.__displayimage, 0, 1)
+                    if self.__colormaskimage is not None:
+                        self.__colormaskimage = np.swapaxes(
+                            self.__colormaskimage, 0, 1)
                     # self.__displayimage = np.transpose(self.__displayimage)
             elif self.__displayimage is not None:
                 # self.__displayimage = np.transpose(
                 #     np.flipud(self.__displayimage))
                 self.__displayimage = np.swapaxes(
                     np.flipud(self.__displayimage), 0, 1)
+                if self.__colormaskimage is not None:
+                    self.__colormaskimage = np.swapaxes(
+                        np.flipud(self.__colormaskimage), 0, 1)
         elif self.__trafoname == "rot180":
             orgupdownflip = True
             orgleftrightflip = True
@@ -3746,6 +3795,9 @@ class LiveViewer(QtWidgets.QDialog):
             elif self.__displayimage is not None:
                 self.__displayimage = np.flipud(
                     np.fliplr(self.__displayimage))
+                if self.__colormaskimage is not None:
+                    self.__colormaskimage = np.flipud(
+                        np.fliplr(self.__colormaskimage))
         elif self.__trafoname == "rot270 (clockwise)":
             orgtranspose = True
             orgleftrightflip = True
@@ -3755,10 +3807,16 @@ class LiveViewer(QtWidgets.QDialog):
                 if self.__displayimage is not None:
                     self.__displayimage = np.swapaxes(
                         self.__displayimage, 0, 1)
+                    if self.__colormaskimage is not None:
+                        self.__colormaskimage = np.swapaxes(
+                            self.__colormaskimage, 0, 1)
                     # self.__displayimage = np.transpose(self.__displayimage)
             elif self.__displayimage is not None:
                 self.__displayimage = np.swapaxes(
                     np.fliplr(self.__displayimage), 0, 1)
+                if self.__colormaskimage is not None:
+                    self.__colormaskimage = np.swapaxes(
+                        np.fliplr(self.__colormaskimage), 0, 1)
                 # self.__displayimage = np.transpose(
                 #     np.fliplr(self.__displayimage))
         elif self.__trafoname == "rot180 + transpose":
@@ -3773,9 +3831,15 @@ class LiveViewer(QtWidgets.QDialog):
                     # self.__displayimage = np.transpose(self.__displayimage)
                     self.__displayimage = np.swapaxes(
                         self.__displayimage, 0, 1)
+                    if self.__colormaskimage is not None:
+                        self.__colormaskimage = np.swapaxes(
+                            self.__colormaskimage, 0, 1)
             elif self.__displayimage is not None:
                 self.__displayimage = np.swapaxes(
                     np.fliplr(np.flipud(self.__displayimage)), 0, 1)
+                if self.__colormaskimage is not None:
+                    self.__colormaskimage = np.swapaxes(
+                        np.fliplr(np.flipud(self.__colormaskimage)), 0, 1)
                 # self.__displayimage = np.transpose(
                 #     np.fliplr(np.flipud(self.__displayimage)))
         return (crdtranspose, crdleftrightflip, crdupdownflip,
@@ -3977,6 +4041,8 @@ class LiveViewer(QtWidgets.QDialog):
             with warnings.catch_warnings():
                 warnings.filterwarnings(
                     'ignore', r'All-NaN slice encountered')
+                warnings.filterwarnings(
+                    'ignore', r'Mean of empty slice')
                 maxval = np.nanmax(self.__displayimage) if flag[0] else 0.0
                 meanval = np.nanmean(self.__displayimage) if flag[1] else 0.0
                 varval = np.nanvar(self.__displayimage) if flag[2] else 0.0
