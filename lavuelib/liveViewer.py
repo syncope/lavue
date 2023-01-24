@@ -3525,8 +3525,8 @@ class LiveViewer(QtWidgets.QDialog):
                         if self.rgb():
                             self.setrgb(False)
                             self.__levelswg.showGradient(True)
-                        with np.warnings.catch_warnings():
-                            np.warnings.filterwarnings(
+                        with warnings.catch_warnings():
+                            warnings.filterwarnings(
                                 'ignore',
                                 r'Mean of empty slice')
                             if "skipfirst" in self.__mdata.keys() and \
@@ -3709,8 +3709,8 @@ class LiveViewer(QtWidgets.QDialog):
                     self.__displayimage = np.array(
                         self.__displayimage,
                         dtype=self.__settings.floattype)
-                    with np.warnings.catch_warnings():
-                        np.warnings.filterwarnings(
+                    with warnings.catch_warnings():
+                        warnings.filterwarnings(
                             'ignore', r'invalid value encountered in greater')
                         self.__imagewg.setMaskValueIndices(
                             self.__displayimage > maskvalue)
@@ -3737,8 +3737,8 @@ class LiveViewer(QtWidgets.QDialog):
            self.__displayimage is not None:
             overflowvalue = self.__imagewg.overflowValue()
             try:
-                with np.warnings.catch_warnings():
-                    np.warnings.filterwarnings(
+                with warnings.catch_warnings():
+                    warnings.filterwarnings(
                         'ignore', r'invalid value encountered in greater')
                     self.__imagewg.setOverflowValueIndices(
                         self.__displayimage > overflowvalue)

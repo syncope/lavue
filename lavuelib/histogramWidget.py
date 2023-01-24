@@ -30,6 +30,7 @@ import pyqtgraph as _pg
 from pyqtgraph import QtCore
 import numpy as np
 import logging
+import warnings
 
 try:
     from pyqtgraph import QtWidgets
@@ -638,8 +639,8 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         hy = None
         if self.autolevelfactor is not None:
             try:
-                with np.warnings.catch_warnings():
-                    np.warnings.filterwarnings(
+                with warnings.catch_warnings():
+                    warnings.filterwarnings(
                         'ignore',
                         r'All-NaN slice encountered')
                     hx, hy = self.__imageItem().getHistogram(
@@ -672,8 +673,8 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         """
         channels = []
         if ch is None:
-            with np.warnings.catch_warnings():
-                np.warnings.filterwarnings(
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
                     'ignore',
                     r'All-NaN slice encountered')
                 channels = self.__imageItem().getHistogram(perChannel=True)
@@ -731,8 +732,8 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
                 # _pg.graphicsItems.HistogramLUTItem.HistogramLUTItem.\
                 #     imageChanged(
                 #         self, autoLevel=autoLevel, autoRange=autoRange)
-                with np.warnings.catch_warnings():
-                    np.warnings.filterwarnings(
+                with warnings.catch_warnings():
+                    warnings.filterwarnings(
                         'ignore',
                         r'All-NaN slice encountered')
                     h = self.__imageItem().getHistogram(
@@ -750,8 +751,8 @@ class HistogramHLUTItem(_pg.HistogramLUTItem):
         else:
             # plot one histogram for each channel
             self.plots[0].setVisible(False)
-            with np.warnings.catch_warnings():
-                np.warnings.filterwarnings(
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
                     'ignore',
                     r'All-NaN slice encountered')
                 ch = self.__imageItem().getHistogram(perChannel=True)

@@ -1,3 +1,7 @@
+2023-01-25 Jan Kotanski <jan.kotanski@desy.de>
+	* use warnings instead of numpy.warnings
+	* tagged as 2.81.1
+
 2023-01-10 Jan Kotanski <jan.kotanski@desy.de>
 	* add default and signal attributes to Raw NeXus exporter (#689)
 	* fix for crashing exportg dialog in pyqtgraph (>= 0.12.0) (#687)
