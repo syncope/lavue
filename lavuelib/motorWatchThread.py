@@ -38,8 +38,8 @@ from .omniQThread import OmniQThread
 # from .sardanaUtils import debugmethod
 
 
-#: (:obj:`float`) refresh rate in seconds
-GLOBALREFRESHRATE = .1
+#: (:obj:`float`) refresh time in seconds
+GLOBALREFRESHTIME = .1
 #: (:obj:`float`) polling inverval in seconds
 POLLINGINTERVAL = 1.
 
@@ -81,7 +81,7 @@ class MotorWatchThread(OmniQThread):
         self.__loop = True
         while self.__loop:
             if time:
-                time.sleep(GLOBALREFRESHRATE)
+                time.sleep(GLOBALREFRESHTIME)
             try:
                 state1 = str(self.__motor1.state())
                 pos1 = float(self.__motor1.position)
