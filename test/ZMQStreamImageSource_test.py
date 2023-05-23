@@ -262,7 +262,6 @@ class ZMQStreamImageSourceTest(unittest.TestCase):
                 [random.randint(0, 1000) for _ in range(512)]
                 for _ in range(256)
             ])
-        print("TakeWT", value)
         shape = value.shape
         dtype = value.dtype.name
         imagename = "testimage_%s" % self.__counter
@@ -291,7 +290,6 @@ class ZMQStreamImageSourceTest(unittest.TestCase):
                 [random.randint(0, 1000) for _ in range(512)]
                 for _ in range(256)
             ])
-        print("Take", value)
         shape = value.shape
         dtype = value.dtype.name
         imagename = "testimage_%s" % self.__counter
@@ -320,7 +318,6 @@ class ZMQStreamImageSourceTest(unittest.TestCase):
                 [random.randint(0, 1000) for _ in range(512)]
                 for _ in range(256)
             ])
-        print("TakeP", value)
         shape = value.shape
         dtype = value.dtype.name
         imagename = "testimage_%s" % self.__counter
