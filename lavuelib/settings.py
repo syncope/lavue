@@ -125,6 +125,8 @@ class Settings(object):
         self.seccontext = zmq.Context()
         #: (:class:`zmq.Socket`) zmq security stream socket
         self.secsocket = self.seccontext.socket(zmq.PUB)
+        #: (:obj:`bool`) zmq colon configuration separator
+        self.zmqcolon = False
         #: (:obj:`bool`) security stream enabled
         self.secstream = False
         #: (:obj:`bool`) zero mask enabled
@@ -596,6 +598,13 @@ class Settings(object):
                 text = "lavue: Cannot connect to: %s" % self.secsockopt
                 status = [(text, value)]
 
+        qstval = str(settings.value(
+            "Configuration/ZMQColonSeparator", type=str))
+        if qstval.lower() == "true":
+            self.zmqcolon = True
+        else:
+            self.zmqcolon = False
+
         try:
             rt = settings.value("Configuration/RefreshTime", type=str)
             if not rt:
@@ -1051,6 +1060,9 @@ class Settings(object):
         settings.setValue(
             "Configuration/SecStream",
             self.secstream)
+        settings.setValue(
+            "Configuration/ZMQColonSeparator",
+            self.zmqcolon)
         settings.setValue(
             "Configuration/MaskingWithZeros",
             self.zeromask)
