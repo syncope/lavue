@@ -1,3 +1,8 @@
+2023-05-19 Jan Garrevoet <jan.garrevoet@desy.de>
+	* Breaking change in the ZMQ config layout. topic and HWM are not
+	separated with a slahs but with a colon to allow for topics to contain
+	slashes.
+
 2023-03-31 Jan Kotanski <jan.kotanski@desy.de>
 	* enlarge GLOBALREFRESHTIME when it is too small
 	* change GLOBALREFRESHRATE  to GLOBALREFRESHTIME

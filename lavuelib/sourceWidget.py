@@ -2273,7 +2273,7 @@ class ZMQSourceWidget(SourceBaseWidget):
                         shost[1] = str(text)
                     else:
                         shost.append(str(text))
-                    hosturl = "/".join(shost)
+                    hosturl = ":".join(shost)
             except Exception:
                 hosturl = ""
         return hosturl

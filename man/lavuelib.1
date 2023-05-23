@@ -681,7 +681,7 @@ Images from a simple ZMQ server, e.g. lavuezmqstreamfromtango SERVER. It is used
 The \fBZMQ Stream\fP image source frame contains the following fields:
 .INDENT 0.0
 .IP \(bu 2
-\fBZMQ Server:\fP selects the zmq server host and zmq  data port. Moreover the user can also select the required zmq topic and ZMQ HWM (how many images is in buffer), i.e. \fIhost:port[/topic[/HWM]]\fP
+\fBZMQ Server:\fP selects the zmq server host and zmq  data port. Moreover the user can also select the required zmq topic and ZMQ HWM (how many images is in buffer), i.e. \fIhost:port[:topic[:HWM]]\fP
 .IP \(bu 2
 \fBDataSource:\fP name of zmq topic. Possible datasources can be predefined in the configuration or sent in ZMQ metadata.
 .IP \(bu 2
