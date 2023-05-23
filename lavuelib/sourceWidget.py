@@ -2260,7 +2260,11 @@ class ZMQSourceWidget(SourceBaseWidget):
             hosturl = ""
         else:
             try:
-                _, sport = hosturl.split("/")[0].split(":")
+                if not self.__zmqcolon:
+                    _, sport = hosturl.split("/")[0].split(":")
+                else:
+                    _, sport = hosturl.split(":")[:1]
+
                 port = int(sport)
                 if port > 65535 or port < 0:
                     raise Exception("Wrong port")
@@ -2268,12 +2272,20 @@ class ZMQSourceWidget(SourceBaseWidget):
                     text = self._ui.pickleTopicComboBox.currentText()
                     if text == "**ALL**":
                         text = ""
-                    shost = hosturl.split("/")
-                    if len(shost) > 2:
-                        shost[1] = str(text)
+                    if not self.__zmqcolon:
+                        shost = hosturl.split("/")
+                        if len(shost) > 2:
+                            shost[1] = str(text)
+                        else:
+                            shost.append(str(text))
+                        hosturl = "/".join(shost)
                     else:
-                        shost.append(str(text))
-                    hosturl = ":".join(shost)
+                        shost = hosturl.split(":")
+                        if len(shost) > 3:
+                            shost[2] = str(text)
+                        else:
+                            shost.append(str(text))
+                        hosturl = ":".join(shost)
             except Exception:
                 hosturl = ""
         return hosturl
@@ -2294,6 +2306,7 @@ class ZMQSourceWidget(SourceBaseWidget):
             self,
             zmqtopics=None, autozmqtopics=None,
             datasources=None, disconnect=True, zmqservers=None,
+            zmqcolon=None,
             **kargs):
         """ update source input parameters
 
@@ -2308,6 +2321,8 @@ class ZMQSourceWidget(SourceBaseWidget):
         :param zmqservers: json dictionary with
                            (label, zmq servers) items
         :type zmqservers: :obj:`str`
+        :param zmqcolon: zmq colon configuation separator
+        :type zmqcolon: :obj:`bool`
         :param kargs:  source widget input parameter dictionary
         :type kargs: :obj:`dict` < :obj:`str`, :obj:`any`>
         """
@@ -2331,6 +2346,8 @@ class ZMQSourceWidget(SourceBaseWidget):
             updatecombo = True
         if autozmqtopics is not None:
             self.__autozmqtopics = autozmqtopics
+        if zmqcolon is not None:
+            self.__zmqcolon = zmqcolon
         if self.__autozmqtopics:
             updatecombo = True
             with QtCore.QMutexLocker(self.__mutex):

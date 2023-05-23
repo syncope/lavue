@@ -1,3 +1,7 @@
+2023-05-23 Jan Kotanski <jan.kotanski@desy.de>
+	* add option for ZMQ configuration separator (#713)
+	* tagged as 2.83.0
+
 2023-05-19 Jan Garrevoet <jan.garrevoet@desy.de>
 	* Breaking change in the ZMQ config layout. topic and HWM are not
 	separated with a slahs but with a colon to allow for topics to contain

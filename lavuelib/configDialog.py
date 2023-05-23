@@ -213,6 +213,8 @@ class ConfigDialog(QtWidgets.QDialog):
         self.orderrois = False
         #: (:obj:`bool`) security stream enabled
         self.secstream = False
+        #: (:obj:`bool`) zmq colon configuration separator
+        self.zmqcolon = False
         #: (:obj:`bool`) map image sources to color channels
         self.imagechannels = False
         #: (:obj:`str`) security stream port
@@ -470,6 +472,7 @@ class ConfigDialog(QtWidgets.QDialog):
         self.__ui.orderroisCheckBox.setChecked(self.orderrois)
         self.__ui.imagechannelsCheckBox.setChecked(self.imagechannels)
         self.__ui.secstreamCheckBox.setChecked(self.secstream)
+        self.__ui.zmqcolonCheckBox.setChecked(self.zmqcolon)
         self.__ui.zeromaskCheckBox.setChecked(self.zeromask)
         self.__ui.nanmaskCheckBox.setChecked(self.nanmask)
         self.__ui.negmaskCheckBox.setChecked(self.negmask)
@@ -816,6 +819,7 @@ class ConfigDialog(QtWidgets.QDialog):
         self.hidraport = str(self.__ui.hidraportLineEdit.text()).strip()
         self.maxmbuffersize = str(self.__ui.mbufsizeLineEdit.text()).strip()
         self.secstream = self.__ui.secstreamCheckBox.isChecked()
+        self.zmqcolon = self.__ui.zmqcolonCheckBox.isChecked()
         self.zeromask = self.__ui.zeromaskCheckBox.isChecked()
         self.nanmask = self.__ui.nanmaskCheckBox.isChecked()
         self.negmask = self.__ui.negmaskCheckBox.isChecked()

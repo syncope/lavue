@@ -19,7 +19,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="pickleLabel">
        <property name="toolTip">
-        <string>zmq server, port and topic, hwm (optional): server:port[:topic][:hwm]
+         <string>zmq server, port and topic, hwm (optional): server:port[/topic[/hwm]] or server:port[:topic[:hwm]] (with the ZMQ configuration colon separator)
 e.g. haso228:9999/10001 or :5553</string>
        </property>
        <property name="text">

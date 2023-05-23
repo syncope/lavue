@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1196</width>
+    <width>1203</width>
     <height>776</height>
    </rect>
   </property>
@@ -38,32 +38,6 @@
                <layout class="QGridLayout" name="gridLayout_28">
                 <item row="0" column="0">
                  <layout class="QGridLayout" name="gridLayout_27">
-                  <item row="6" column="0">
-                   <widget class="QLabel" name="timeoutLabel">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;source timeout in ms, e.g. for Hidra or HTTP response image soures&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Source timeout in ms:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>timeoutLineEdit</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QSpinBox" name="nrsourcesSpinBox">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a number of image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="minimum">
-                     <number>1</number>
-                    </property>
-                    <property name="value">
-                     <number>1</number>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="0" column="1">
                    <widget class="QDoubleSpinBox" name="rateDoubleSpinBox">
                     <property name="toolTip">
@@ -71,29 +45,6 @@
                     </property>
                     <property name="singleStep">
                      <double>0.010000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="1">
-                   <widget class="QCheckBox" name="imagechannelsCheckBox">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Place data from different image sources to a separate color channels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="0">
-                   <widget class="QLabel" name="sourcedisplayLabel">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display parameters separately set for image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Display specific for a source:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>sourcedisplayCheckBox</cstring>
                     </property>
                    </widget>
                   </item>
@@ -110,13 +61,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="6" column="1">
-                   <widget class="QLineEdit" name="timeoutLineEdit">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;source timeout in ms, e.g. for Hidra or HTTP response image soures&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="3" column="0">
                    <widget class="QLabel" name="imagechannelsLabel">
                     <property name="toolTip">
@@ -130,36 +74,29 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="rateLabel">
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="enlargeLabel">
                     <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;refresh time of the image in seconds&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Auto Enlarge refresh time if it is too small&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
-                     <string>&amp;Refresh time in s:</string>
+                     <string>Auto enlarge refresh time:</string>
                     </property>
                     <property name="buddy">
-                     <cstring>rateDoubleSpinBox</cstring>
+                     <cstring>enlargeCheckBox</cstring>
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="1">
-                   <widget class="QCheckBox" name="sourcedisplayCheckBox">
+                  <item row="2" column="1">
+                   <widget class="QSpinBox" name="nrsourcesSpinBox">
                     <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display parameters separately set for image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a number of image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
-                    <property name="text">
-                     <string/>
+                    <property name="minimum">
+                     <number>1</number>
                     </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="1">
-                   <widget class="QCheckBox" name="interruptCheckBox">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrupt on an image source error&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
+                    <property name="value">
+                     <number>1</number>
                     </property>
                    </widget>
                   </item>
@@ -186,16 +123,102 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="enlargeLabel">
+                  <item row="3" column="1">
+                   <widget class="QCheckBox" name="imagechannelsCheckBox">
                     <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Auto Enlarge refresh time if it is too small&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Place data from different image sources to a separate color channels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
-                     <string>Auto enlarge refresh time:</string>
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QCheckBox" name="interruptCheckBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrupt on an image source error&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="rateLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;refresh time of the image in seconds&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>&amp;Refresh time in s:</string>
                     </property>
                     <property name="buddy">
-                     <cstring>enlargeCheckBox</cstring>
+                     <cstring>rateDoubleSpinBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="0">
+                   <widget class="QLabel" name="timeoutLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;source timeout in ms, e.g. for Hidra or HTTP response image soures&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Source timeout in ms:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>timeoutLineEdit</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1">
+                   <widget class="QCheckBox" name="sourcedisplayCheckBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display parameters separately set for image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1">
+                   <widget class="QLineEdit" name="timeoutLineEdit">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;source timeout in ms, e.g. for Hidra or HTTP response image soures&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="sourcedisplayLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display parameters separately set for image sources&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Display specific for a source:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>sourcedisplayCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="0">
+                   <widget class="QLabel" name="zmqcolonLabel">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use `host:port[:topic[:HWM]]` ZMQ configuration syntax instead of `host:port[/topic[/HWM]]`. It allows to use &amp;quot;/&amp;quot; in the ZMQ topic&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>ZMQ colon config. separator:</string>
+                    </property>
+                    <property name="buddy">
+                     <cstring>zmqcolonCheckBox</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="1">
+                   <widget class="QCheckBox" name="zmqcolonCheckBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use `host:port[:topic[:HWM]]` ZMQ configuration syntax instead of `host:port[/topic[/HWM]]`. It allows to use &amp;quot;/&amp;quot; in the ZMQ topic&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
                     </property>
                    </widget>
                   </item>
@@ -2353,6 +2376,7 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>interruptCheckBox</tabstop>
   <tabstop>sourcedisplayCheckBox</tabstop>
   <tabstop>timeoutLineEdit</tabstop>
+  <tabstop>zmqcolonCheckBox</tabstop>
   <tabstop>statsscaleCheckBox</tabstop>
   <tabstop>calcvarianceCheckBox</tabstop>
   <tabstop>secstreamCheckBox</tabstop>

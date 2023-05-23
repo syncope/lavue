@@ -1319,6 +1319,7 @@ class LiveViewer(QtWidgets.QDialog):
             serverdict = {"pool": []}
         self.__sourcewg.updateMetaData(
             zmqtopics=self.__settings.zmqtopics,
+            zmqcolon=self.__settings.zmqcolon,
             dirtrans=self.__settings.dirtrans,
             tangoattrs=self.__settings.tangoattrs,
             tangoevattrs=self.__settings.tangoevattrs,
@@ -2321,6 +2322,7 @@ class LiveViewer(QtWidgets.QDialog):
         cnfdlg.gradientcolors = self.__settings.gradientcolors
         cnfdlg.floattype = self.__settings.floattype
         cnfdlg.secstream = self.__settings.secstream
+        cnfdlg.zmqcolon = self.__settings.zmqcolon
         cnfdlg.zeromask = self.__settings.zeromask
         cnfdlg.nanmask = self.__settings.nanmask
         cnfdlg.negmask = self.__settings.negmask
@@ -2543,6 +2545,7 @@ class LiveViewer(QtWidgets.QDialog):
                     self.__sourcewg.connectSuccess(dialog.secport)
         self.__settings.secautoport = dialog.secautoport
         self.__settings.secport = dialog.secport
+        self.__settings.zmqcolon = dialog.zmqcolon
         self.__settings.timeout = dialog.timeout
         for i, ds in enumerate(self.__datasources):
             ds.setTimeOut(self.__settings.timeout)
