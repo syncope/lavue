@@ -262,6 +262,7 @@ class ZMQStreamImageSourceTest(unittest.TestCase):
                 [random.randint(0, 1000) for _ in range(512)]
                 for _ in range(256)
             ])
+        print("TakeWT", value)
         shape = value.shape
         dtype = value.dtype.name
         imagename = "testimage_%s" % self.__counter
@@ -290,6 +291,7 @@ class ZMQStreamImageSourceTest(unittest.TestCase):
                 [random.randint(0, 1000) for _ in range(512)]
                 for _ in range(256)
             ])
+        print("Take", value)
         shape = value.shape
         dtype = value.dtype.name
         imagename = "testimage_%s" % self.__counter
@@ -318,6 +320,7 @@ class ZMQStreamImageSourceTest(unittest.TestCase):
                 [random.randint(0, 1000) for _ in range(512)]
                 for _ in range(256)
             ])
+        print("TakeP", value)
         shape = value.shape
         dtype = value.dtype.name
         imagename = "testimage_%s" % self.__counter
@@ -711,6 +714,527 @@ class ZMQStreamImageSourceTest(unittest.TestCase):
         cnf["source"] = "zmq"
         cnf["configuration"] = ":%s/" % (port)
         # cnf["configuration"] = ":%s/**ALL**" % (port)
+        lavuestate1 = json.dumps(cnf)
+
+        qtck1 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck2 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck3 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck4 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck5 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck6 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck7 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck8 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck9 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck1.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewJSONImage"),
+        ])
+        qtck2.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "setZMQDataSources", ["1235", "123", "23"]),
+        ])
+        qtck3.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewJSONImageWithTopic", ["1235"]),
+        ])
+        qtck4.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "setZMQDataSources", ["12345", "123", "23"]),
+        ])
+        qtck5.setChecks([
+            ExtCmdCheck(self, "takeNewJSONImageWithTopic", ["12345"]),
+        ])
+        qtck6.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "setLavueStatePar", [lavuestate1])
+        ])
+        qtck7.setChecks([
+            ExtCmdCheck(self, "takeNewJSONImageWithTopic", ["1234"]),
+        ])
+        qtck8.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "setZMQDataSources", ["1345", "13", "23"]),
+        ])
+        qtck9.setChecks([
+            ExtCmdCheck(self, "getLavueState"),
+            WrapAttrCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg"
+                "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+        ])
+
+        qtck1.executeChecks(delay=1000)
+        qtck2.executeChecks(delay=2000)
+        qtck3.executeChecks(delay=3000)
+        qtck4.executeChecks(delay=4000)
+        qtck5.executeChecks(delay=5000)
+        qtck6.executeChecks(delay=6000)
+        qtck7.executeChecks(delay=7000)
+        qtck8.executeChecks(delay=8000)
+        status = qtck9.executeChecksAndClose(delay=9000)
+
+        self.assertEqual(status, 0)
+
+        qtck1.compareResults(
+            self, [True, None, None, None], mask=[0, 1, 1, 1])
+        qtck2.compareResults(
+            self, [True, None, None, None], mask=[0, 1, 1, 1])
+        qtck3.compareResults(
+            self, [True, None, None, None], mask=[0, 1, 1, 1])
+        qtck9.compareResults(
+            self, [None,  None, False], mask=[1, 0, 0])
+
+        res1 = qtck1.results()
+        res2 = qtck2.results()
+        res3 = qtck3.results()
+        res4 = qtck4.results()
+        res5 = qtck5.results()
+        res6 = qtck6.results()
+        res7 = qtck7.results()
+        res8 = qtck8.results()
+        # res9 = qtck9.results()
+        self.assertEqual(res1[1], lastimage)
+
+        # scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        # scaledimage = np.log10(scaledimage)
+        self.assertEqual(res1[2], lastimage)
+        self.assertEqual(res2[1], lastimage)
+        self.assertEqual(res3[1], lastimage)
+
+        mesg = res3[3]
+        shape = json.loads(tostr(mesg[2]))
+        # dtype = json.loads(tostr(mesg[3]))
+        lastimage = mesg[1].T.reshape(shape)
+        print(mesg)
+        if not np.allclose(res4[0], lastimage):
+            print(res4[0])
+            print(lastimage)
+        self.assertTrue(np.allclose(res4[0], lastimage))
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res4[1], scaledimage))
+
+        mesg = res5[0]
+        shape = json.loads(tostr(mesg[2]))
+        # dtype = json.loads(tostr(mesg[3]))
+        lastimage = mesg[1].T.reshape(shape)
+        print(mesg)
+        if not np.allclose(res6[0], lastimage):
+            print(res6[0])
+            print(lastimage)
+        self.assertTrue(np.allclose(res6[0], lastimage))
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res6[1], scaledimage))
+
+        mesg = res7[0]
+        shape = json.loads(tostr(mesg[2]))
+        # dtype = json.loads(tostr(mesg[3]))
+        lastimage = mesg[1].T.reshape(shape)
+        print(mesg)
+        if not np.allclose(res8[0], lastimage):
+            print(res8[0])
+            print(lastimage)
+        self.assertTrue(np.allclose(res8[0], lastimage))
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res8[1], scaledimage))
+
+        ls = json.loads(self.__lavuestate)
+        dls = dict(self.__defaultls)
+        dls.update(dict(
+            mode='expert',
+            source='zmq',
+            configuration=zmqcnf2,
+            instance='tgtest',
+            tool='roi',
+            # log='debug',
+            log='info',
+            scaling='log',
+            levels='-20.0,20.0',
+            gradient='thermal',
+            tangodevice='test/lavuecontroller/00',
+            connected=True,
+            autofactor=None
+        ))
+        self.compareStates(ls, dls,
+                           ['viewrange', '__timestamp__', 'doordevice'])
+
+    def test_readjsonimage_colon(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        # port = 55536
+        self.__lcsu.proxy.Init()
+        port = self.getzmqsocket()
+        self.__lavuestate = None
+        lastimage = None
+
+        cfg = '[Configuration]\n' \
+            'ZMQColonSeparator=true\n'
+
+        if not os.path.exists(self.__cfgfdir):
+            os.makedirs(self.__cfgfdir)
+        with open(self.__cfgfname, "w+") as cf:
+            cf.write(cfg)
+
+        zmqcnf = ':%s:%s' % (port, self.__tfilter)
+        options = argparse.Namespace(
+            mode='expert',
+            source='zmq',
+            configuration=zmqcnf,
+            instance='tgtest',
+            tool='roi',
+            # log='debug',
+            log='info',
+            scaling='log',
+            levels='m20,20',
+            gradient='thermal',
+            start=True,
+            tangodevice='test/lavuecontroller/00'
+        )
+        logging.basicConfig(
+             format="%(levelname)s: %(message)s")
+        logger = logging.getLogger("lavue")
+        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+        dialog = lavuelib.liveViewer.MainWindow(options=options)
+        dialog.show()
+
+        qtck1 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck2 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck3 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck1.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            ExtCmdCheck(self, "getLavueState"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewJSONImage"),
+        ])
+        qtck2.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewJSONImage"),
+        ])
+        qtck3.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            WrapAttrCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg"
+                "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+        ])
+
+        qtck1.executeChecks(delay=1000)
+        qtck2.executeChecks(delay=2000)
+        status = qtck3.executeChecksAndClose(delay=3000)
+
+        self.assertEqual(status, 0)
+
+        qtck1.compareResults(
+            self, [True, None, None, None, None], mask=[0, 0, 1, 1, 1])
+        qtck2.compareResults(
+            self, [True, None, None, None], mask=[0, 1, 1, 1])
+        qtck3.compareResults(
+            self, [None, None, None, False], mask=[1, 1, 0, 0])
+
+        res1 = qtck1.results()
+        res2 = qtck2.results()
+        res3 = qtck3.results()
+        self.assertEqual(res1[2], lastimage)
+
+        # scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        # scaledimage = np.log10(scaledimage)
+        self.assertEqual(res1[3], lastimage)
+
+        mesg = res1[4]
+        shape = json.loads(tostr(mesg[2]))
+        # dtype = json.loads(tostr(mesg[3]))
+        lastimage = mesg[1].T.reshape(shape)
+        print(mesg)
+        if not np.allclose(res2[1], lastimage):
+            print(res2[1])
+            print(lastimage)
+        self.assertTrue(np.allclose(res2[1], lastimage))
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res2[2], scaledimage))
+
+        mesg = res2[3]
+        shape = json.loads(tostr(mesg[2]))
+        # dtype = json.loads(tostr(mesg[3]))
+        lastimage = mesg[1].T.reshape(shape)
+
+        print(mesg)
+        if not np.allclose(res3[0], lastimage):
+            print(res3[0])
+            print(lastimage)
+        self.assertTrue(np.allclose(res3[0], lastimage))
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res3[1], scaledimage))
+
+        ls = json.loads(self.__lavuestate)
+        dls = dict(self.__defaultls)
+        dls.update(dict(
+            mode='expert',
+            source='zmq',
+            configuration=zmqcnf,
+            instance='tgtest',
+            tool='roi',
+            # log='debug',
+            log='info',
+            scaling='log',
+            levels='-20.0,20.0',
+            gradient='thermal',
+            tangodevice='test/lavuecontroller/00',
+            connected=True,
+            autofactor=None
+        ))
+        self.compareStates(ls, dls,
+                           ['viewrange', '__timestamp__', 'doordevice'])
+
+    def test_readpickleimage_colon(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        # port = 55535
+        self.__lcsu.proxy.Init()
+        port = self.getzmqsocket()
+        self.__lavuestate = None
+        lastimage = None
+
+        cfg = '[Configuration]\n' \
+            'ZMQColonSeparator=true\n'
+
+        if not os.path.exists(self.__cfgfdir):
+            os.makedirs(self.__cfgfdir)
+        with open(self.__cfgfname, "w+") as cf:
+            cf.write(cfg)
+
+        zmqcnf = ':%s:%s' % (port, self.__tfilter)
+        options = argparse.Namespace(
+            mode='expert',
+            source='zmq',
+            configuration=zmqcnf,
+            instance='tgtest',
+            tool='roi',
+            log='debug',
+            # log='info',
+            scaling='log',
+            levels='m20,20',
+            gradient='thermal',
+            start=True,
+            tangodevice='test/lavuecontroller/00'
+        )
+        logging.basicConfig(
+             format="%(levelname)s: %(message)s")
+        logger = logging.getLogger("lavue")
+        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+        dialog = lavuelib.liveViewer.MainWindow(options=options)
+        dialog.show()
+
+        qtck1 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck2 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck3 = QtChecker(app, dialog, True, sleep=100,
+                          withitem=EnsureOmniThread)
+        qtck1.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            ExtCmdCheck(self, "getLavueState"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewPickleImage"),
+        ])
+        qtck2.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            ExtCmdCheck(self, "takeNewPickleImage"),
+        ])
+        qtck3.setChecks([
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.rawData"),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__imagewg.currentData"),
+            WrapAttrCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg"
+                "._SourceTabWidget__sourcetabs[],0._ui.pushButton",
+                QtTest.QTest.mouseClick, [QtCore.Qt.LeftButton]),
+            CmdCheck(
+                "_MainWindow__lavue._LiveViewer__sourcewg.isConnected"),
+        ])
+
+        qtck1.executeChecks(delay=1000)
+        qtck2.executeChecks(delay=2000)
+        status = qtck3.executeChecksAndClose(delay=3000)
+
+        self.assertEqual(status, 0)
+
+        qtck1.compareResults(
+            self, [True, None, None, None, None], mask=[0, 0, 1, 1, 1])
+        qtck2.compareResults(
+            self, [True, None, None, None], mask=[0, 1, 1, 1])
+        qtck3.compareResults(
+            self, [None, None, None, False], mask=[1, 1, 0, 0])
+
+        res1 = qtck1.results()
+        res2 = qtck2.results()
+        res3 = qtck3.results()
+        self.assertEqual(res1[2], lastimage)
+
+        self.assertEqual(res1[3], lastimage)
+
+        mesg = res1[4]
+        shape = cPickle.loads(mesg[2])
+        # dtype = cPickle.loads(mesg[3])
+        lastimage = mesg[1].T.reshape(shape)
+        print(mesg)
+        if not np.allclose(res2[1], lastimage):
+            print(res2[1])
+            print(lastimage)
+        self.assertTrue(np.allclose(res2[1], lastimage))
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res2[2], scaledimage))
+
+        mesg = res2[3]
+        shape = cPickle.loads(mesg[2])
+        # dtype = cPickle.loads(mesg[3])
+        lastimage = mesg[1].T.reshape(shape)
+
+        print(mesg)
+        if not np.allclose(res3[0], lastimage):
+            print(res3[0])
+            print(lastimage)
+        self.assertTrue(np.allclose(res3[0], lastimage))
+        scaledimage = np.clip(lastimage, 10e-3, np.inf)
+        scaledimage = np.log10(scaledimage)
+        self.assertTrue(np.allclose(res3[1], scaledimage))
+
+        ls = json.loads(self.__lavuestate)
+        dls = dict(self.__defaultls)
+        dls.update(dict(
+            mode='expert',
+            source='zmq',
+            configuration=zmqcnf,
+            instance='tgtest',
+            tool='roi',
+            log='debug',
+            # log='info',
+            scaling='log',
+            levels='-20.0,20.0',
+            gradient='thermal',
+            tangodevice='test/lavuecontroller/00',
+            connected=True,
+            autofactor=None
+        ))
+        self.compareStates(ls, dls,
+                           ['viewrange', '__timestamp__', 'doordevice'])
+
+    def test_autozmqtopics_colon(self):
+        fun = sys._getframe().f_code.co_name
+        print("Run: %s.%s() " % (self.__class__.__name__, fun))
+
+        # port = 55536
+        self.__lcsu.proxy.Init()
+        port = self.getzmqsocket()
+        self.__lavuestate = None
+        lastimage = None
+
+        cfg = '[Configuration]\n' \
+            'AutoZMQStreamTopics=true\n' \
+            'ZMQColonSeparator=true\n' \
+            'ZMQStreamTopics=243, 234, 34\n' \
+            'ZMQServers={}\n'
+
+        if not os.path.exists(self.__cfgfdir):
+            os.makedirs(self.__cfgfdir)
+        with open(self.__cfgfname, "w+") as cf:
+            cf.write(cfg)
+
+        zmqcnf = ':%s:%s' % (port, self.__tfilter)
+        zmqcnf2 = ':%s:' % (port)
+        options = argparse.Namespace(
+            mode='expert',
+            source='zmq',
+            configuration=zmqcnf,
+            instance='tgtest',
+            tool='roi',
+            # log='debug',
+            log='info',
+            scaling='log',
+            levels='m20,20',
+            gradient='thermal',
+            start=True,
+            tangodevice='test/lavuecontroller/00'
+        )
+        logging.basicConfig(
+             format="%(levelname)s: %(message)s")
+        logger = logging.getLogger("lavue")
+        lavuelib.liveViewer.setLoggerLevel(logger, options.log)
+        dialog = lavuelib.liveViewer.MainWindow(options=options)
+        dialog.show()
+
+        cnf = {}
+        cnf["source"] = "zmq"
+        cnf["configuration"] = ":%s:" % (port)
+        # cnf["configuration"] = ":%s:**ALL**" % (port)
         lavuestate1 = json.dumps(cnf)
 
         qtck1 = QtChecker(app, dialog, True, sleep=100,

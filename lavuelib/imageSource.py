@@ -98,7 +98,8 @@ except ImportError:
 try:
     import zmq
     #: (:obj:`str`,:obj:`str`) zmq major version, zmq minor version
-    ZMQMAJOR, ZMQMINOR = list(map(int, zmq.zmq_version().split(".")))[:2]
+    ZMQMAJOR, ZMQMINOR = tuple(
+        list(map(int, zmq.zmq_version().split(".")))[:2])
 except Exception:
     #: (:obj:`str`,:obj:`str`) zmq major version, zmq minor version
     ZMQMAJOR, ZMQMINOR = 0, 0
@@ -1648,8 +1649,16 @@ class ZMQSource(BaseSource):
             self._initiated = False
             with QtCore.QMutexLocker(self.__mutex):
                 if self.__socket:
-                    shost = str(self._configuration).split("/")
-                    topic = shost[1] if len(shost) > 1 else ""
+                    conf = self._configuration.split(":")
+                    if len(conf) < 3:
+                        shost = str(self._configuration).split("/")
+                        topic = shost[1] if len(shost) > 1 else ""
+                    else:
+                        shost = "%s:%s" % tuple(conf[:2])
+                        if len(conf) > 2:
+                            topic = tobytes(conf[2])
+                        else:
+                            topic = b""
                     self.__socket.unbind(self.__bindaddress)
                     self.__socket.setsockopt(
                         zmq.UNSUBSCRIBE, self.__topic)
@@ -1800,17 +1809,16 @@ class ZMQSource(BaseSource):
                 self.__topic = tobytes(shost[1] if len(shost) > 1 else "")
                 hwm = int(shost[2]) if (len(shost) > 2 and shost[2]) else 2
             else:
-                conf = self._configuration.split(":")
                 host = conf[0]
                 port = conf[1]
                 if len(conf) > 2:
                     self.__topic = tobytes(conf[2])
                 else:
-                    self.__topic == b""
+                    self.__topic = b""
 
-                if len(conf) > 3:
+                try:
                     hwm = int(conf[3])
-                else:
+                except Exception:
                     hwm = 2
 
             if not self._initiated:

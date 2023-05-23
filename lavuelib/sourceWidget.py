@@ -2263,7 +2263,7 @@ class ZMQSourceWidget(SourceBaseWidget):
                 if not self.__zmqcolon:
                     _, sport = hosturl.split("/")[0].split(":")
                 else:
-                    _, sport = hosturl.split(":")[:1]
+                    _, sport = tuple(hosturl.split(":")[:2])
 
                 port = int(sport)
                 if port > 65535 or port < 0:
@@ -2274,14 +2274,14 @@ class ZMQSourceWidget(SourceBaseWidget):
                         text = ""
                     if not self.__zmqcolon:
                         shost = hosturl.split("/")
-                        if len(shost) > 2:
+                        if len(shost) > 1:
                             shost[1] = str(text)
                         else:
                             shost.append(str(text))
                         hosturl = "/".join(shost)
                     else:
                         shost = hosturl.split(":")
-                        if len(shost) > 3:
+                        if len(shost) > 2:
                             shost[2] = str(text)
                         else:
                             shost.append(str(text))
@@ -2411,13 +2411,24 @@ class ZMQSourceWidget(SourceBaseWidget):
         :param configuration: configuration string
         :type configuration: :obj:`str`
         """
-        cnflst = configuration.replace("/", ",").split(",")
-        srvcnf = cnflst[0] if cnflst else ""
-        topiccnf = ""
-        if len(cnflst) > 1:
-            topiccnf = cnflst[1]
-            if not topiccnf:
-                topiccnf = "**ALL**"
+        if not self.__zmqcolon:
+            cnflst = configuration.replace("/", ",").split(",")
+            srvcnf = cnflst[0] if cnflst else ""
+            topiccnf = ""
+            if len(cnflst) > 1:
+                topiccnf = cnflst[1]
+                if not topiccnf:
+                    topiccnf = "**ALL**"
+        else:
+            cnflst = configuration.replace(":", ",").split(",")
+            topiccnf = ""
+            srvcnf = ""
+            if cnflst and len(cnflst) > 1:
+                srvcnf = "%s:%s" % tuple(cnflst[:2])
+                if len(cnflst) > 2:
+                    topiccnf = cnflst[2]
+                    if not topiccnf:
+                        topiccnf = "**ALL**"
 
         iid = self._ui.pickleComboBox.findText(srvcnf)
         if iid == -1:
