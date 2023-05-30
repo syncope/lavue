@@ -199,29 +199,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="7" column="0">
-                   <widget class="QLabel" name="zmqcolonLabel">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use `host:port[:topic[:HWM]]` ZMQ configuration syntax instead of `host:port[/topic[/HWM]]`. It allows to use &amp;quot;/&amp;quot; in the ZMQ topic&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>ZMQ colon config. separator:</string>
-                    </property>
-                    <property name="buddy">
-                     <cstring>zmqcolonCheckBox</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="7" column="1">
-                   <widget class="QCheckBox" name="zmqcolonCheckBox">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use `host:port[:topic[:HWM]]` ZMQ configuration syntax instead of `host:port[/topic[/HWM]]`. It allows to use &amp;quot;/&amp;quot; in the ZMQ topic&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
                  </layout>
                 </item>
                </layout>
@@ -1827,19 +1804,6 @@
            <layout class="QGridLayout" name="gridLayout_15">
             <item row="0" column="0">
              <layout class="QGridLayout" name="gridLayout_14">
-              <item row="1" column="0">
-               <widget class="QLabel" name="autozmqtopicsLabel">
-                <property name="toolTip">
-                 <string>load possible ZMQ source datasources from the stream</string>
-                </property>
-                <property name="text">
-                 <string>Auto&amp;matic datasources:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>autozmqtopicsCheckBox</cstring>
-                </property>
-               </widget>
-              </item>
               <item row="1" column="1">
                <widget class="QCheckBox" name="autozmqtopicsCheckBox">
                 <property name="toolTip">
@@ -1847,19 +1811,6 @@
                 </property>
                 <property name="text">
                  <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="zmqtopicsLabel">
-                <property name="toolTip">
-                 <string>ZMQ source datasources separated by spaces</string>
-                </property>
-                <property name="text">
-                 <string>Datasources:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>zmqtopicsLineEdit</cstring>
                 </property>
                </widget>
               </item>
@@ -1876,6 +1827,19 @@
                 </property>
                </widget>
               </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="autozmqtopicsLabel">
+                <property name="toolTip">
+                 <string>load possible ZMQ source datasources from the stream</string>
+                </property>
+                <property name="text">
+                 <string>Auto&amp;matic datasources:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>autozmqtopicsCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
               <item row="2" column="1">
                <widget class="QLineEdit" name="zmqtopicsLineEdit">
                 <property name="toolTip">
@@ -1887,6 +1851,42 @@
                <widget class="QLineEdit" name="zmqserversLineEdit">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;JSON dictionary with servers and ports, i.e.&lt;/p&gt;&lt;p&gt;{&amp;quot;RawImage&amp;quot;: &amp;quot;haso228:9999&amp;quot;, &amp;quot;TransformedImage&amp;quot;:&amp;quot;:5553&amp;quot; }&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="zmqcolonLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use `host:port[:topic[:HWM]]` ZMQ configuration syntax instead of `host:port[/topic[/HWM]]`. It allows to use &amp;quot;/&amp;quot; in the ZMQ topic&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Colon config. separator:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>zmqcolonCheckBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="zmqtopicsLabel">
+                <property name="toolTip">
+                 <string>ZMQ source datasources separated by spaces</string>
+                </property>
+                <property name="text">
+                 <string>Datasources:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>zmqtopicsLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QCheckBox" name="zmqcolonCheckBox">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use `host:port[:topic[:HWM]]` ZMQ configuration syntax instead of `host:port[/topic[/HWM]]`. It allows to use &amp;quot;/&amp;quot; in the ZMQ topic&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string/>
                 </property>
                </widget>
               </item>
@@ -2376,7 +2376,6 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>interruptCheckBox</tabstop>
   <tabstop>sourcedisplayCheckBox</tabstop>
   <tabstop>timeoutLineEdit</tabstop>
-  <tabstop>zmqcolonCheckBox</tabstop>
   <tabstop>statsscaleCheckBox</tabstop>
   <tabstop>calcvarianceCheckBox</tabstop>
   <tabstop>secstreamCheckBox</tabstop>
@@ -2433,9 +2432,9 @@ in the file name and the file directory for Tango File Source</string>
   <tabstop>defdetserversCheckBox</tabstop>
   <tabstop>urlsLineEdit</tabstop>
   <tabstop>zmqserversLineEdit</tabstop>
-  <tabstop>autozmqtopicsCheckBox</tabstop>
+  <tabstop>autozmqtopicsCheckBox</tabstop> 
   <tabstop>zmqtopicsLineEdit</tabstop>
-  <tabstop>asaposerverLineEdit</tabstop>
+  <tabstop>zmqcolonCheckBox</tabstop>
   <tabstop>asapotokenLineEdit</tabstop>
   <tabstop>asapobeamtimeLineEdit</tabstop>
   <tabstop>asapodatasourcesLineEdit</tabstop>
