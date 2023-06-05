@@ -1,3 +1,7 @@
+2023-06-05 Jan Kotanski <jan.kotanski@desy.de>
+	* change minimul difference between nim and max itensity display levels to 0 (#719)
+	* tagged as 2.83.2
+
 2023-05-30 Jan Kotanski <jan.kotanski@desy.de>
 	* move ZMQ colon conf. separator checkbox to the source specific tab (#716)
 	* tagged as 2.83.1
