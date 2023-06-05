@@ -1,4 +1,8 @@
 2023-06-05 Jan Kotanski <jan.kotanski@desy.de>
+	* increate a number of digits after comma in max/min itensity display levels to 5 (#721)
+	* tagged as 2.83.3
+
+2023-06-05 Jan Kotanski <jan.kotanski@desy.de>
 	* change minimul difference between nim and max itensity display levels to 0 (#719)
 	* tagged as 2.83.2
 

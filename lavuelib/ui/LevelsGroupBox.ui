@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>316</width>
+    <width>343</width>
     <height>268</height>
    </rect>
   </property>
@@ -52,6 +52,9 @@ for color distribution of the image</string>
          <widget class="QDoubleSpinBox" name="maxDoubleSpinBox">
           <property name="toolTip">
            <string>maximum intensity values after scaling</string>
+          </property>
+          <property name="decimals">
+           <number>5</number>
           </property>
          </widget>
         </item>
@@ -180,6 +183,9 @@ for color distribution of the image</string>
          <widget class="QDoubleSpinBox" name="minDoubleSpinBox">
           <property name="toolTip">
            <string>mininum intensity values after scaling</string>
+          </property>
+          <property name="decimals">
+           <number>5</number>
           </property>
          </widget>
         </item>
