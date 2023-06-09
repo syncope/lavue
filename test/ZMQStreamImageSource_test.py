@@ -830,8 +830,11 @@ class ZMQStreamImageSourceTest(unittest.TestCase):
         # scaledimage = np.clip(lastimage, 10e-3, np.inf)
         # scaledimage = np.log10(scaledimage)
         self.assertEqual(res1[2], lastimage)
-        self.assertEqual(res2[1], lastimage)
-        self.assertEqual(res3[1], lastimage)
+        mesg = res1[3]
+        shape = json.loads(tostr(mesg[2]))
+        lastimage = mesg[1].T.reshape(shape)
+        self.assertTrue(np.allclose(res2[1], lastimage))
+        self.assertTrue(np.allclose(res3[1], lastimage))
 
         mesg = res3[3]
         shape = json.loads(tostr(mesg[2]))
@@ -1351,8 +1354,11 @@ class ZMQStreamImageSourceTest(unittest.TestCase):
         # scaledimage = np.clip(lastimage, 10e-3, np.inf)
         # scaledimage = np.log10(scaledimage)
         self.assertEqual(res1[2], lastimage)
-        self.assertEqual(res2[1], lastimage)
-        self.assertEqual(res3[1], lastimage)
+        mesg = res1[3]
+        shape = json.loads(tostr(mesg[2]))
+        lastimage = mesg[1].T.reshape(shape)
+        self.assertTrue(np.allclose(res2[1], lastimage))
+        self.assertTrue(np.allclose(res3[1], lastimage))
 
         mesg = res3[3]
         shape = json.loads(tostr(mesg[2]))

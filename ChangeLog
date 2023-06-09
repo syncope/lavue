@@ -1,4 +1,8 @@
 2023-06-05 Jan Kotanski <jan.kotanski@desy.de>
+	* fix setting zmq datasource in auto the datasource mode (#727)
+	* tagged as 2.83.4
+
+2023-06-05 Jan Kotanski <jan.kotanski@desy.de>
 	* increate a number of digits after comma in max/min itensity display levels to 5 (#721)
 	* tagged as 2.83.3
 
