@@ -59,7 +59,10 @@ def _intHandler(signum, frame):
     :type frame:  :obj:`frame`
     """
     dialog.close()
-    QtGui.QApplication.quit()
+    try:
+        app = pyqtgraph.QtWidgets.QApplication.quit()
+    except Exception:
+        app = QtGui.QApplication.quit()
     # print("quit")
 
 

@@ -2178,7 +2178,6 @@ class ZMQSourceWidget(SourceBaseWidget):
 
         #: (:obj:`list` <:obj:`str`> >) zmq source datasources
         self.__zmqtopics = []
-        print("INIT", str(self.__zmqtopics))
         #: (:obj:`bool`) automatic zmq topics enabled
         self.__autozmqtopics = False
         #: (:obj:`bool`)  zmq colon enabled
@@ -2291,10 +2290,6 @@ class ZMQSourceWidget(SourceBaseWidget):
                         hosturl = ":".join(shost)
             except Exception:
                 hosturl = ""
-        print("CONFIG", hosturl)
-        print("AUTO TOPIC", self.__autozmqtopics)
-        print("ZMQTOPICS", str(self.__zmqtopics))
-        print("ZMQCOLON", str(self.__zmqcolon))
         return hosturl
 
     @QtCore.pyqtSlot()
@@ -2338,7 +2333,6 @@ class ZMQSourceWidget(SourceBaseWidget):
             with QtCore.QMutexLocker(self.__mutex):
                 self._ui.pickleTopicComboBox.currentIndexChanged.disconnect(
                     self._updateZMQComboBox)
-        print("META",zmqtopics, autozmqtopics, datasources, disconnect, zmqservers, zmqcolon)
         text = None
         updatecombo = False
         if zmqservers is not None:
@@ -2352,7 +2346,6 @@ class ZMQSourceWidget(SourceBaseWidget):
                 text = None
             self.__zmqtopics = zmqtopics
             updatecombo = True
-            print("UPDATE", str(self.__zmqtopics))
         if autozmqtopics is not None:
             self.__autozmqtopics = autozmqtopics
         if zmqcolon is not None:
@@ -2366,7 +2359,6 @@ class ZMQSourceWidget(SourceBaseWidget):
                     if text != "**ALL**":
                         text = None
                 self.__zmqtopics = datasources
-                print("UPDATE 2", str(self.__zmqtopics))
         if updatecombo is True:
             with QtCore.QMutexLocker(self.__mutex):
                 for i in reversed(
@@ -2453,7 +2445,6 @@ class ZMQSourceWidget(SourceBaseWidget):
                 iid = self._ui.pickleTopicComboBox.findText(topiccnf)
             if topiccnf not in self.__zmqtopics:
                 self.__zmqtopics.append(topiccnf)
-                print("APPEND", str(self.__zmqtopics))
             self._ui.pickleTopicComboBox.setCurrentIndex(iid)
 
     def label(self):
