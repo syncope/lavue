@@ -1699,7 +1699,7 @@ class ZMQSource(BaseSource):
         """ provides image name, image data and metadata
 
         :returns:  image name, image data, json dictionary with metadata
-        :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`str`)
+        :rtype: (:obj:`str` , :class:`numpy.ndarray` , :obj:`st`)
         """
         encoding = None
         if self.__socket is None:

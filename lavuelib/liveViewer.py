@@ -1317,8 +1317,9 @@ class LiveViewer(QtWidgets.QDialog):
             serverdict = HIDRASERVERLIST
         else:
             serverdict = {"pool": []}
+        print("LV SOURCE")
         self.__sourcewg.updateMetaData(
-            zmqtopics=self.__settings.zmqtopics,
+            zmqtopics=(self.__settings.zmqtopics or None),
             zmqcolon=self.__settings.zmqcolon,
             dirtrans=self.__settings.dirtrans,
             tangoattrs=self.__settings.tangoattrs,
@@ -3408,6 +3409,7 @@ class LiveViewer(QtWidgets.QDialog):
                     if wgdata:
                         self.__imagewg.updateMetaData(**wgdata)
                     if resdata:
+                        print("LV DATA")
                         self.__sourcewg.updateMetaData(**resdata)
                     if self.__settings.geometryfromsource:
                         self.__settings.updateMetaData(**self.__mdata)
