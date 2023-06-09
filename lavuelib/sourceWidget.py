@@ -2441,6 +2441,8 @@ class ZMQSourceWidget(SourceBaseWidget):
             if iid == -1:
                 self._ui.pickleTopicComboBox.addItem(topiccnf)
                 iid = self._ui.pickleTopicComboBox.findText(topiccnf)
+            if topiccnf not in self.__zmqtopics:
+                self.__zmqtopics.append(topiccnf)
             self._ui.pickleTopicComboBox.setCurrentIndex(iid)
 
     def label(self):
