@@ -1317,8 +1317,12 @@ class LiveViewer(QtWidgets.QDialog):
             serverdict = HIDRASERVERLIST
         else:
             serverdict = {"pool": []}
+        if self.__settings.autozmqtopics:
+            zmqtopics = self.__settings.zmqtopics or None
+        else:
+            zmqtopics = self.__settings.zmqtopics
         self.__sourcewg.updateMetaData(
-            zmqtopics=self.__settings.zmqtopics,
+            zmqtopics=zmqtopics,
             zmqcolon=self.__settings.zmqcolon,
             dirtrans=self.__settings.dirtrans,
             tangoattrs=self.__settings.tangoattrs,

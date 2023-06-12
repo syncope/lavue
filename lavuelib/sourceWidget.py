@@ -2180,6 +2180,8 @@ class ZMQSourceWidget(SourceBaseWidget):
         self.__zmqtopics = []
         #: (:obj:`bool`) automatic zmq topics enabled
         self.__autozmqtopics = False
+        #: (:obj:`bool`)  zmq colon enabled
+        self.__zmqcolon = False
 
         #: (:obj:`dict` <:obj:`str`, :obj:`str`>) dictionary with
         #:                     (label, server:port) items
